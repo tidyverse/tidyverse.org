@@ -1,29 +1,47 @@
 {{ partial "header.html" . }}
 
-<main class="content" role="main">
+<div class="band padForHeader pushFooter">
+  <div class="bandContent">
+    <div class="full splitColumns withMobileMargins">
+      <div class="column75">
+        <div class="sectionTitle">Recent Articles</div>
 
-  {{ if and .IsHome .Content }}
-  <article class="article">
-    <div class="article-content">
-      {{ .Content }}
+        <div>{{ range .Data.Pages }}
+          <div class="listItem">
+            <a class="itemImage project" href="#" style="background-image: url(images/article1.jpg);"></a>
+            <div class="itemDetails">
+              <div class="itemHeader">
+                <div class="itemTitle"><a href="{{ .RelPermalink }}">{{ .Title }}</a></div>
+                <div class="itemTag"><a href="#">Programming</a></div>
+              </div>
+              <div class="itemMeta">
+                <div class="author">Hadley Wickham</div>
+                <div class="itemDescription">{{ .Summary }}<a class="readMore" href="#">Read more ...</a></div>
+                <div class="itemDate">
+                  <div class="created">{{ .Date.Format "2006/01/02" }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>{{ end }}
+      </div>
+
+      <div class="column25">
+        <div class="section">
+          <div class="sectionTitle">Categories</div>
+          <div class="articleCategory package"><a href="#">Package</a></div>
+          <div class="articleCategory programming"><a href="#">Programming</a></div>
+          <div class="articleCategory caseStudy"><a href="#">Case Study</a></div>
+        </div>
+        <div class="section">
+          <div class="sectionTitle">Upcoming Events</div>
+
+          {{ partial "events" . }}
+
+        </div>
+      </div>
     </div>
-  </article>
-  {{ else }}
-  <div class="archive">
-    {{ range (where .Site.RegularPages "Type" "post").GroupByDate "2006" }}
-    <h2 class="archive-title">{{ .Key }}</h2>
-    {{ range .Pages }}
-    <article class="archive-item">
-      <a href="{{ .RelPermalink }}" class="archive-item-link">{{ .Title }}</a>
-      <span class="archive-item-date">
-        {{ .Date.Format "2006/01/02" }}
-      </span>
-    </article>
-    {{ end }}
-    {{ end }}
-  </div>
-  {{ end }}
-
-</main>
+  </div>  <!-- bandContent -->
+</div> <!-- band -->
 
 {{ partial "footer.html" . }}
