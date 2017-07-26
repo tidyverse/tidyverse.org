@@ -1,8 +1,9 @@
 <div id="menu">
   <div id="menuToggler"></div>
   <div id="menuItems" class="">
+    {{ $page := . }}
     {{ range .Site.Menus.main }}
-    <a class="menuItem" href="{{ .URL }}">{{ .Name }}</a>
+    <a class="menuItem {{ if hasPrefix $page.URL .URL }}current{{ end }}" href="{{ .URL }}">{{ .Name }}</a>
     {{ end }}
   </div>
 </div>
