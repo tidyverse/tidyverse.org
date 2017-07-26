@@ -8,15 +8,22 @@
 
         <div>{{ range .Data.Pages }}
           <div class="listItem">
-            <a class="itemImage project" href="#" style="background-image: url(images/article1.jpg);"></a>
+            <a class="itemImage project" href="#" style="background-image: url(images/{{ .Param "slug"}}.png);"></a>
             <div class="itemDetails">
               <div class="itemHeader">
                 <div class="itemTitle"><a href="{{ .RelPermalink }}">{{ .Title }}</a></div>
-                <div class="itemTag"><a href="#">Programming</a></div>
+                <div class="itemTag">
+                  {{- range .Params.categories -}}
+                  <a href="{{ relURL (print "/categories/" . | urlize) }}">{{ . }}</a>
+                  {{- end -}}
+                </div>
               </div>
               <div class="itemMeta">
-                <div class="author">Hadley Wickham</div>
-                <div class="itemDescription">{{ .Summary }}<a class="readMore" href="#">Read more ...</a></div>
+                <div class="author">{{ .Params.author }}</div>
+                <div class="itemDescription">
+                  {{ default .Summary .Description }}
+                  <a class="readMore" href="#">Read more ...</a>
+                </div>
                 <div class="itemDate">
                   <div class="created">{{ .Date.Format "2006/01/02" }}</div>
                 </div>
@@ -29,15 +36,16 @@
       <div class="column25">
         <div class="section">
           <div class="sectionTitle">Categories</div>
-          <div class="articleCategory package"><a href="#">Package</a></div>
-          <div class="articleCategory programming"><a href="#">Programming</a></div>
-          <div class="articleCategory caseStudy"><a href="#">Case Study</a></div>
+          {{ range $key, $value := .Site.Taxonomies.categories }}
+          <div class="articleCategory {{ replace (lower $key) " " "" }}">
+            <a href="{{ (print "/categories/" $key | urlize) | relURL }}">{{ $key }}</a>
+          </div>
+          {{ end }}
         </div>
+
         <div class="section">
-          <div class="sectionTitle">Upcoming Events</div>
-
+          <div class="sectionTitle">Upcoming events</div>
           {{ partial "events" . }}
-
         </div>
       </div>
     </div>
