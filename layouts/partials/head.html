@@ -1,28 +1,26 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="apple-mobile-web-app-capable" content="yes" />
-
 {{ .Hugo.Generator }}
 
-{{ if eq .URL "/" }}
+{{ if eq .URL "/" -}}
 <title>{{ .Site.Title }}</title>
 <meta property="og:title" content="{{ .Site.Title }}">
 <meta property="og:type" content="website">
-{{ else }}
+{{- else -}}
 <title>{{ .Title }}{{ with .Params.subtitle }} - {{ . }} {{ end }} - {{ .Site.Title }}</title>
 <meta property="og:title" content="{{ .Title }} - {{ .Site.Title }}">
-{{ end }}
+{{- end }}
 
 <script type="text/javascript" src="{{ "js/jquery-1.11.0.min.js" | relURL }}"></script>
 <script type="text/javascript" src="{{ "js/site.js" | relURL }}"></script>
-{{- if eq .URL "/" -}}
+{{ if eq .URL "/" -}}
 <script type="text/javascript" src="{{ "js/home.js" | relURL }}"></script>
-{{- end -}}
-
-{{ partial "head_highlightjs" . }}
+{{- end }}
+{{- partial "head_highlightjs" . -}}
 
 <link rel="stylesheet" href="{{ "css/tidyverse-site.css" | relURL }}" />
 <link rel="icon" href="{{ "images/favicon.ico" | relURL }}" />
-{{ if .RSSLink }}
-<link href="{{ .RSSLink | relURL }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
-{{ end }}
+{{ if hasPrefix .URL "/articles" -}}
+<link rel="alternate" type="application/atom+xml" title="Blog" href="/articles/index.xml" />
+{{- end }}
