@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600);/* Default image path, reset in `_overrides-<appname>.scss` - see Connect */
+@import url(https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,700);/* Default image path, reset in `_overrides-<appname>.scss` - see Connect */
 /* colors */
 /* timing */
 /* sizes */
@@ -49,7 +49,7 @@ table {
 
 body, button, input, textarea {
   font-family: 'Source Sans Pro', "Helvetica Neue", Helvetica Neue, Helvetica, Arial, sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: normal; }
 
 /* elements of our standard app structure
@@ -451,14 +451,6 @@ a {
   #rStudioFooter .bandContent #logos {
     flex-shrink: 0; }
 
-.sourceCode {
-  padding: 10px 20px;
-  background-color: #f8f8f8;
-  margin: 10px 0;
-  font-family: "Source Code Pro", Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size: 15px;
-  color: #000; }
-
 .splitColumns {
   display: flex;
   justify-content: space-between;
@@ -592,13 +584,17 @@ a {
     .listItem .itemDetails .itemMeta .itemDescription {
       margin-bottom: 5px;
       white-space: pre-line; }
-    .listItem .itemDetails .itemMeta .itemDate {
+    .listItem .itemDetails .itemMeta .itemDate, .listItem .itemDetails .itemMeta .itemInfo {
       font-size: 12px;
       color: #808080; }
-      .listItem .itemDetails .itemMeta .itemDate .created, .listItem .itemDetails .itemMeta .itemDate .updated {
+      .listItem .itemDetails .itemMeta .itemDate .created, .listItem .itemDetails .itemMeta .itemDate .updated, .listItem .itemDetails .itemMeta .itemInfo .created, .listItem .itemDetails .itemMeta .itemInfo .updated {
         display: inline-block; }
-      .listItem .itemDetails .itemMeta .itemDate .created {
+      .listItem .itemDetails .itemMeta .itemDate .created, .listItem .itemDetails .itemMeta .itemInfo .created {
         padding-right: 20px; }
+    .listItem .itemDetails .itemMeta .itemInfo .forkedFrom {
+      display: inline-block; }
+    .listItem .itemDetails .itemMeta .itemInfo .updated {
+      padding-right: 20px; }
 
 .smallerImages .listItem .itemImage {
   width: 75px;
@@ -717,16 +713,18 @@ table.contentListing {
 
 .listItem {
   margin-bottom: 40px; }
-  .listItem .itemDetails {
-    font-size: 15px;
-    line-height: 24px; }
-    .listItem .itemDetails .itemHeader .itemTitle {
-      font-size: 24px; }
-    .listItem .itemDetails .itemHeader .itemTag {
-      font-size: 13px;
-      margin-right: 10px; }
-    .listItem .itemDetails .itemMeta .author {
-      font-size: 16px; }
+  .listItem .itemDetails .itemHeader .itemTitle {
+    font-size: 24px;
+    font-weight: 300; }
+  .listItem .itemDetails .itemHeader .itemTag {
+    font-size: 13px;
+    margin-right: 10px; }
+  .listItem .itemDetails .itemDescription {
+    font-size: 14px;
+    line-height: 22px; }
+  .listItem .itemDetails .itemMeta .author {
+    font-size: 16px;
+    line-height: 25px; }
 
 .articleCategory {
   font-size: 20px;
@@ -741,6 +739,89 @@ table.contentListing {
     background-image: url(images/tidyCategoryProgramming.svg); }
   .articleCategory.caseStudy {
     background-image: url(images/tidyCategoryCaseStudy.svg); }
+
+.article-title {
+  margin-top: 0px; }
+
+/* content */
+h1, h2, h3, h4, h5, h6 {
+  color: inherit;
+  font-weight: 300; }
+
+h1 {
+  font-size: 2.4em;
+  margin: .75em 0 .5em 0; }
+
+h2 {
+  font-size: 2.0em;
+  margin: .75em 0 .5em 0; }
+
+h3 {
+  font-size: 1.6em;
+  margin: .75em 0 .5em 0; }
+
+h4 {
+  font-size: 1.2em;
+  margin: .75em 0 .5em 0; }
+
+p {
+  line-height: 1.6em;
+  margin-bottom: 1em; }
+
+ul, ol {
+  line-height: 2em;
+  padding-left: 2em;
+  margin-bottom: 1em; }
+
+ul {
+  list-style: disc outside none; }
+
+ol {
+  list-style: decimal outside none; }
+
+pre, code {
+  font-family: "Source Code Pro", Menlo, Monaco, Consolas, "Courier New", monospace;
+  background-color: #f8f8f8; }
+
+pre {
+  padding: 10px;
+  line-height: 2em;
+  margin-bottom: 1em;
+  word-wrap: normal;
+  word-break: normal;
+  border-radius: 3px;
+  border: 1px solid #e4e4e4; }
+  pre code {
+    display: inline;
+    padding: 0;
+    margin: 0;
+    background-color: inherit;
+    border-radius: 0;
+    border: none; }
+
+code {
+  color: #606060;
+  display: inline-block;
+  margin: 1px 5px;
+  padding: 1px 4px;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+  border: 1px solid #e4e4e4; }
+
+blockquote {
+  font-size: 1.1em;
+  font-weight: 300;
+  font-style: italic;
+  margin: 20px 0 20px 40px;
+  padding-left: 15px;
+  border-left: 3px solid #e4e4e4; }
+
+@media screen and (max-width: 1023px) {
+  blockquote {
+    margin-left: 20px; } }
+
+img {
+  max-width: 100%; }
 
 #homeContent {
   background-color: #fff; }
@@ -759,6 +840,8 @@ table.contentListing {
     font-size: 24px;
     line-height: 40px;
     max-width: 48%; }
+    #homeContent .band .blurb pre {
+      font-size: 14px; }
     #homeContent .band .blurb .tagline {
       font-size: 36px;
       margin-bottom: 16px; }
