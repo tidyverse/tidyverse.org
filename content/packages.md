@@ -2,15 +2,21 @@
 title: Tidyverse packages
 ---
 
-## Installation
+## Installation and use
 
-The easiest way to install packages in the tidyverse is to run `install.packages()` tidyverse. This will install all packages listed below. 
+* Install all the packages in the tidyverse by running `install.packages("tidyverse")`.
 
-To use them in an R session, you'll still need to load them. Use `library(tidyverse)` to load the core tidyverse (as described below).
+* Run `library(tidyverse)` to load the core tidyverse and make available 
+  in your current R session.
+  
+Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
+
+<a href="http://tidyverse.tidyverse.org"><img src="/images/hex-tidyverse.png" width="120" height="139" float = "right"/></a>
+
 
 ## Core tidyverse
 
-The core tidyverse loads the packages that you're likely to use in the majority of data analyses. As of tidyverse 1.1.0, the following packages are included in the code tidyverse:
+The core tidyverse includes the packages that you're likely to use in the every data analyses. As of tidyverse 1.1.0, the following packages are included in the code tidyverse:
 
 <ul>
 <li>
@@ -45,12 +51,53 @@ The core tidyverse loads the packages that you're likely to use in the majority 
 
 </ul>
 
-## All packages
+The tidyverse also includes many other packages with more specialised usage. They are not loaded automatically with `library(tidyverse)`, so you'll need to load each one with its own call to `library()`.
 
-### Import
+## Import
 
-### Wrangle
+As well as [readr](http://readr.tidyverse.org), for reading flat files, the tidyverse includes:
 
-### Program
+* [readxl](http://readxl.tidyverse.org) for `.xls` and `.xlsx` sheets.
+* [haven](http://haven.tidyverse.org) for SPSS, Stata, and SAS data.
 
-### Model
+There are a handful for other packages that are not in the tidyverse, but are tidyverse-adjacent. They are very useful for importing data from other sources:
+
+* [jsonlite](https://github.com/jeroen/jsonlite#jsonlite) for JSON.
+
+* [xml2](https://github.com/r-lib/xml2) for XML.
+
+* [httr](https://github.com/r-lib/httr) for web APIs.
+
+* [rvest](https://github.com/hadley/rvest) for web scraping.
+
+* [DBI](https://github.com/rstats-db/DBI) for relational databases.
+  To connect to a specific database, you'll need to pair DBI with a specific
+  backend like RSQLite, RPostgres, or odbc. Learn more at 
+  <http://db.rstudio.com>.
+
+## Wrangle
+
+As well as [tidyr](http://tidyr.tidyverse.org), and [dplyr](http://dplyr.tidyverse), there are five packages designed to work with specific types of data:
+
+* [stringr](http://stringr.tidyverse.org) for strings.
+* [lubridate](http://lubridate.tidyverse.org) for dates and date-times.
+* [forcats](http://forcats.tidyverse.org) for categorical variables (factors).
+* [hms](https://github.com/tidyverse/hms) for time-of-day values.
+* [blob](https://github.com/tidyverse/blob) for storing blob (binary) data.
+
+## Program
+
+As well as [purrr](http://purrr.tidyverse.org) which faciliates functional programming, there are two tidyverse packages that help with general programming challenges:
+
+* [magrittr](http://magrittr.tidyverse.org) provides the pipe, `%>%` used 
+  throughout the tidyverse. It also provide a number of more specialised
+  piping operators (like `%$%` and `%<>%`) that can be useful in other places.
+
+* [glue](https://github.com/tidyverse/glue) provides an alternative to 
+  `paste()` that makes it easier to combine data and strings.
+
+## Model
+
+Modelling within the tidyverse is largely a work in progress. You can see some of the pieces in the [recipes](http://github.com/topepo/recipes) and [rsample](http://github.com/topepo/rsample) packages but we do not yet have a cohesive system that solves a wide range of challenges. This work will largely replace the [modelr](https://github.com/tidyverse/modelr) package used in R4DS.
+
+You may also find [broom](https://github.com/tidyverse/broom) to be useful: it turns models into tidy data which you can then wrangle and visualise using the tools you already know for.
