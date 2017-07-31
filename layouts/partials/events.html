@@ -1,12 +1,12 @@
-<div class="event rotateCounterClockwise meetup">
-  <div class="eventTitle"><a href="https://www.rstudio.com/workshops/extending-the-tidyverse/">Building tidy tools</a></div>
-  <div class="eventLocation">The Westin SFO</div>
-  <div class="eventDate">Sep 19-20</div>
-  <div class="eventDetails">An intense two day workshop that gives you the skills to build your own tidy tools. Take this class if you have some experience programming in R and you want to learn how to effectively tackle larger scale problems.</div>
+{{ range  $i, $element := sort $.Site.Data.events.events "iso8601" }}
+{{ if and (le $i 2) (now.Before (time .iso8601)) }}
+
+<div class="event {{ if eq (mod $i 2) 1 }} rotateCounterClockwise meetup{{else}}rotateClockwise conf{{end}}">
+  <div class="eventTitle"><a href="{{ .url }}">{{ .title }}</a></div>
+  <div class="eventLocation">{{ .where }}</div>
+  <div class="eventDate">{{ .when }}</div>
+  <div class="eventDetails">{{ .what | markdownify }}</div>
 </div>
-<div class="event rotateClockwise conf">
-  <div class="eventTitle"><a href="https://www.rstudio.com/conference/">rstudio::conf 2018</a></div>
-  <div class="eventLocation">San Diego, CA</div>
-  <div class="eventDate">Training days: Jan 31-Feb 2<br>Conference days: Feb 2-3</div>
-  <div class="eventDetails"><a href="https://www.rstudio.com/conference/">rstudio::conf 2018</a> covers all things RStudio, including workshops to teach you the tidyverse, and talks to show you the latest and greatest features.</div>
-</div>
+
+{{ end }}
+{{ end }}
