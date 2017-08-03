@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,700);/* Default image path, reset in `_overrides-<appname>.scss` - see Connect */
+@import url(https://fonts.googleapis.com/css?family=Lato:300,400,700|Source+Code+Pro);/* Default image path, reset in `_overrides-<appname>.scss` - see Connect */
 /* colors */
 /* timing */
 /* sizes */
@@ -47,10 +47,41 @@ table {
   border-collapse: collapse;
   border-spacing: 0; }
 
+.flex {
+  display: flex;
+  justify-content: space-between;
+  display: -ms-flexbox;
+  -ms-flex-pack: justify;
+  display: -webkit-box;
+  display: -webkit-flex;
+  -webkit-justify-content: space-between;
+  align-items: flex-start; }
+
+.center {
+  text-align: center; }
+
+.right {
+  text-align: right; }
+
+.onlyShowOnMobile {
+  display: none; }
+
+.redText {
+  color: #ff0000; }
+
+@media screen and (max-width: 1023px) {
+  span.onlyShowOnMobile {
+    display: inline; }
+  div.onlyShowOnMobile {
+    display: block; }
+  .hideOnMobile {
+    display: none !important; } }
+
 body, button, input, textarea {
-  font-family: 'Source Sans Pro', "Helvetica Neue", Helvetica Neue, Helvetica, Arial, sans-serif;
+  font-family: 'Lato', sans-serif;
   font-size: 15px;
-  font-weight: normal; }
+  font-weight: normal;
+  -webkit-font-smoothing: antialiased; }
 
 /* elements of our standard app structure
  *
@@ -140,6 +171,16 @@ a {
   -moz-transition-duration: 0.25s;
   -o-transition-duration: 0.25s;
   transition-duration: 0.25s; }
+  #rStudioHeader .headerChunk {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    display: -ms-flexbox;
+    -ms-flex-pack: start;
+    -ms-flex-align: center;
+    display: -webkit-box;
+    display: -webkit-flex;
+    -webkit-justify-content: flex-start; }
   #rStudioHeader #menuToggler, #rStudioHeader #overlayNavToggler {
     display: inline-block;
     flex-shrink: 0;
@@ -153,10 +194,12 @@ a {
       display: none;
       margin-right: 5px; }
   #rStudioHeader #menuToggler {
-    background-image: url(images/menuToggler.svg); }
+    background-image: url(images/menuToggler.svg);
+    cursor: pointer; }
   #rStudioHeader #overlayNavToggler {
     display: none;
-    background-image: url(images/overlayNavToggler.svg); }
+    background-image: url(images/overlayNavToggler.svg);
+    margin-left: 5px; }
   #rStudioHeader .menuItems {
     display: inline-block; }
   #rStudioHeader .user {
@@ -219,14 +262,34 @@ a {
     color: inherit; } }
 
 @media screen and (max-width: 767px) {
-  #rStudioHeader #menuToggler {
-    margin-right: 5px; }
   #rStudioHeader #overlayNavToggler {
     display: inline-block; } }
 
 @media screen and (max-width: 399px) {
   .productLogo {
     height: 40px; } }
+
+#rStudioHeader {
+  background-color: #1a162d;
+  color: #fff; }
+  #rStudioHeader .innards {
+    /*    background-image: url(../images/tidy-header-back.svg); */
+    background-position: 200px bottom;
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+    -webkit-transition-property: padding, background-position;
+    -moz-transition-property: padding, background-position;
+    -o-transition-property: padding, background-position;
+    transition-property: padding, background-position; }
+
+.shrinkHeader #rStudioHeader .productName {
+  line-height: 30px; }
+
+.shrinkHeader #rStudioHeader .innards {
+  background-position: 100px bottom; }
+
+.shrinkHeader #rStudioHeader .innards {
+  padding: 15px 0; }
 
 #rStudioHeader .innards {
   align-items: flex-end; }
@@ -283,26 +346,10 @@ a {
   #rStudioHeader .innards {
     align-items: flex-start; } }
 
-#rStudioHeader {
-  background-color: #1a162d;
-  color: #fff; }
-  #rStudioHeader .innards {
-    /*    background-image: url(../images/tidy-header-back.svg); */
-    background-position: 200px bottom;
-    background-size: auto 100%;
-    background-repeat: no-repeat;
-    -webkit-transition-property: padding, background-position;
-    -moz-transition-property: padding, background-position;
-    -o-transition-property: padding, background-position;
-    transition-property: padding, background-position; }
+#rStudioHeader .productName {
+  font-family: "Source Code Pro", monospace; }
   #rStudioHeader .productName:hover {
     color: #fdeba4; }
-
-.shrinkHeader #rStudioHeader .innards {
-  background-position: 100px bottom; }
-
-.shrinkHeader #rStudioHeader .innards {
-  padding: 15px 0; }
 
 #rStudioHeader #menu {
   text-align: right;
@@ -448,8 +495,19 @@ a {
   height: auto; }
   #rStudioFooter.band {
     background-color: #767381; }
+  #rStudioFooter .bandContent #copyright {
+    font-size: 13px; }
   #rStudioFooter .bandContent #logos {
     flex-shrink: 0; }
+  #rStudioFooter .rstudioLogo {
+    display: inline-block;
+    height: 25px;
+    width: 75px;
+    background-image: url(images/logoRStudioWhite.svg);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+    margin-left: 1px; }
 
 .splitColumns {
   display: flex;
@@ -504,22 +562,27 @@ a {
     margin-top: 40px; }
 
 .sectionTitle {
-  font-size: 27px;
-  font-weight: 200;
-  line-height: 30px;
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 26px;
   color: #808080;
-  margin-bottom: 17px; }
+  margin-bottom: 17px;
+  word-wrap: break-word; }
   .sectionTitle.sectionBottomBorder {
     padding-bottom: 17px; }
   .sectionTitle.tight {
     margin-bottom: 7px; }
   .sectionTitle.superTight {
-    line-height: 27px;
+    line-height: 24px;
     margin-bottom: 0px; }
   .sectionTitle .user {
     padding-right: 4px;
     position: relative;
     top: -3px; }
+  .sectionTitle.small {
+    font-size: 18px;
+    line-height: 20px;
+    margin-bottom: 5px; }
 
 .sectionTitleFinePrint {
   margin-top: -17px;
@@ -538,10 +601,14 @@ a {
   margin: 4px 0 10px 0; }
 
 .sectionBlurb {
-  line-height: 20px; }
+  line-height: 20px;
+  word-wrap: break-word; }
 
 .sectionBottomBorder {
   border-bottom: 1px dotted #c8c8c8; }
+
+.sectionTitle {
+  color: #303030; }
 
 .listItem {
   display: flex;
@@ -715,21 +782,23 @@ table.contentListing {
   margin-bottom: 40px; }
   .listItem .itemDetails .itemHeader .itemTitle {
     font-size: 24px;
-    font-weight: 300; }
+    line-height: 28px; }
   .listItem .itemDetails .itemHeader .itemTag {
     font-size: 13px;
-    margin-right: 10px; }
+    margin-right: 10px;
+    padding-top: 8px;
+    line-height: 20px; }
   .listItem .itemDetails .itemDescription {
     font-size: 14px;
     line-height: 22px; }
   .listItem .itemDetails .itemMeta .author {
     font-size: 16px;
-    line-height: 25px; }
+    line-height: 25px;
+    margin-bottom: 7px;
+    color: #505050; }
 
 .articleCategory {
-  font-size: 20px;
-  font-weight: 300;
-  line-height: 40px;
+  line-height: 35px;
   padding-left: 33px;
   background-repeat: no-repeat;
   background-position: left center; }
@@ -737,8 +806,12 @@ table.contentListing {
     background-image: url(images/tidyCategoryPackage.svg); }
   .articleCategory.programming {
     background-image: url(images/tidyCategoryProgramming.svg); }
-  .articleCategory.caseStudy {
+  .articleCategory.casestudies {
     background-image: url(images/tidyCategoryCaseStudy.svg); }
+  .articleCategory.learn {
+    background-image: url(images/tidyCategoryLearn.svg); }
+  .articleCategory.other {
+    background-image: url(images/tidyCategoryOther.svg); }
 
 .article-title {
   margin-top: 0px; }
@@ -780,8 +853,9 @@ ol {
   list-style: decimal outside none; }
 
 pre, code {
-  font-family: "Source Code Pro", Menlo, Monaco, Consolas, "Courier New", monospace;
-  background-color: #f8f8f8; }
+  font-family: "Source Code Pro", monospace;
+  background-color: #f8f8f8;
+  font-size: 14px; }
 
 pre {
   padding: 10px;
@@ -812,8 +886,8 @@ blockquote {
   font-size: 1.1em;
   font-weight: 300;
   font-style: italic;
-  margin: 20px 0 20px 40px;
-  padding-left: 15px;
+  margin: 20px 0 20px .9em;
+  padding-left: 1em;
   border-left: 3px solid #e4e4e4; }
 
 @media screen and (max-width: 1023px) {
@@ -822,6 +896,39 @@ blockquote {
 
 img {
   max-width: 100%; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: normal; }
+
+#TableOfContents ul:nth-child(1) {
+  list-style: none;
+  padding-left: 0; }
+
+em, strong {
+  font-weight: bold; }
+
+.stopFloatBefore:before {
+  content: ".";
+  visibility: hidden;
+  display: block;
+  height: 0;
+  clear: both; }
+
+.bookCover {
+  width: 320px;
+  height: auto;
+  -moz-box-shadow: 0 1px 5px 0px rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow: 0 1px 5px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 5px 0px rgba(0, 0, 0, 0.1);
+  -webkit-transform: rotate(359deg);
+  transform: rotate(359deg);
+  float: left;
+  margin: 20px 50px 40px 0; }
+
+@media screen and (max-width: 800px) {
+  .bookCover {
+    float: none;
+    margin-bottom: 0; } }
 
 #homeContent {
   background-color: #fff; }
@@ -840,8 +947,6 @@ img {
     font-size: 24px;
     line-height: 40px;
     max-width: 48%; }
-    #homeContent .band .blurb pre {
-      font-size: 14px; }
     #homeContent .band .blurb .tagline {
       font-size: 36px;
       margin-bottom: 16px; }
@@ -880,14 +985,7 @@ img {
       background-size: 650px 450px; }
   #homeContent .bookCover {
     margin-top: 50px;
-    margin-left: 50px;
-    width: 320px;
-    height: auto;
-    -moz-box-shadow: 0 1px 5px 0px rgba(0, 0, 0, 0.1);
-    -webkit-box-shadow: 0 1px 5px 0px rgba(0, 0, 0, 0.1);
-    box-shadow: 0 1px 5px 0px rgba(0, 0, 0, 0.1);
-    -webkit-transform: rotate(359deg);
-    transform: rotate(359deg); }
+    margin-left: 50px; }
   #homeContent .bee1 {
     position: absolute;
     bottom: 10px;
@@ -932,10 +1030,10 @@ img {
   background-repeat: no-repeat;
   background-position: right top;
   background-size: 75px 75px; }
-  .event.rotateCounterClockwise {
+  .event.odd {
     -webkit-transform: rotate(358deg);
     transform: rotate(358deg); }
-  .event.rotateClockwise {
+  .event.even {
     -webkit-transform: rotate(2deg);
     transform: rotate(2deg); }
   .event.meetup {
@@ -955,10 +1053,11 @@ img {
 .section .event {
   margin-top: 0px;
   margin-bottom: 30px;
+  border-top: 10px solid #fdeba4;
   background-color: #f8f8f8;
   background-image: none;
   background-size: 40px 40px;
-  padding: 20px;
+  padding: 10px 20px 20px 20px;
   font-size: 20px;
   font-weight: 300;
   line-height: 25px; }
