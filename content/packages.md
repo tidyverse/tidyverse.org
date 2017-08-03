@@ -26,6 +26,12 @@ The core tidyverse includes the packages that you're likely to use in the every 
 </li>
 
 <li>
+  <a href="http://dplyr.tidyverse.org"><img src="/images/hex-dplyr.png" width="120" height="139" />
+  </a>
+  dplyr provides is a grammar of data manipulation, providing a consistent set of verbs that help you solve the most common data manipulation challenges.
+</li>
+
+<li>
   <a href="http://tidyr.tidyverse.org"><img src="/images/hex-tidyr.png" width="120" height="139" />
   </a>
   tidyr provides a set of functions that help you get to tidy data. Tidy data is data with a consistent form: in brief, every variable goes in a column, and every column is a variable.
