@@ -11,51 +11,61 @@ title: Tidyverse packages
   
 Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
 
-<a href="http://tidyverse.tidyverse.org"><img src="/images/hex-tidyverse.png" width="120" height="139" float = "right"/></a>
+<div class="package-section">
 
+<div class="package-section-info">
+  <h2 id="core-tidyverse">Core tidyverse</h2>
+  <p>The core tidyverse includes the packages that you're likely to use in the every data analyses. As of tidyverse 1.1.0, the following packages are included in the code tidyverse:</p>
+</div>
 
-## Core tidyverse
+<div class="packages">
+  <div class="package">
+    <img class="package-image" src="/images/hex-ggplot2.png"></img>
+    <div class="package-info">
+      <h3><a href="http://ggplot2.tidyverse.org/">ggplot2</a></h3>
+      <p>ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details. <a href="http://ggplot2.tidyverse.org/">Learn more ...</a></p>
 
-The core tidyverse includes the packages that you're likely to use in the every data analyses. As of tidyverse 1.1.0, the following packages are included in the code tidyverse:
-
-<ul>
-<li>
-  <a href="http://ggplot2.tidyverse.org"><img src="/images/hex-ggplot2.png" width="120" height="139" />
-  </a>
-  ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details.
-</li>
-
-<li>
-  <a href="http://dplyr.tidyverse.org"><img src="/images/hex-dplyr.png" width="120" height="139" />
-  </a>
-  dplyr provides is a grammar of data manipulation, providing a consistent set of verbs that help you solve the most common data manipulation challenges.
-</li>
-
-<li>
-  <a href="http://tidyr.tidyverse.org"><img src="/images/hex-tidyr.png" width="120" height="139" />
-  </a>
-  tidyr provides a set of functions that help you get to tidy data. Tidy data is data with a consistent form: in brief, every variable goes in a column, and every column is a variable.
-</li>
-
-<li>
-  <a href="http://readr.tidyverse.org"><img src="/images/hex-readr.png" width="120" height="139" />
-  </a>
-  readr provides a fast and friendly way to read rectangular data (like csv, tsv, and fwf). It is designed to flexibly parse many types of data found in the wild, while still cleanly failing when data unexpectedly changes. 
-</li>
-
-<li>
-  <a href="http://purrr.tidyverse.org"><img src="/images/hex-purrr.png" width="120" height="139" />
-  </a>
-  purrr enhances R’s functional programming (FP) toolkit by providing a complete and consistent set of tools for working with functions and vectors. Once you master the basic concepts, purrr allows you to replace many for loops with code that is easier to write and more expressive.
-</li>
-
-<li>
-  <a href="http://tibble.tidyverse.org"><img src="/images/hex-tibble.png" width="120" height="139" />
-  </a>
-  tibble is a modern re-imaginging of the data frame, keeping what time has proven to be effective, and throwing out what is not. Tibbles are data.frames that are lazy and surly: they do less (i.e. they don’t change variable names or types, and don’t do partial matching) and complain more (e.g. when a variable does not exist). This forces you to confront problems earlier, typically leading to cleaner, more expressive code. 
-</li>
-
-</ul>
+    </div>
+  </div>
+  <div class="package">
+    <img class="package-image" src="/images/hex-dplyr.png"></img>
+    <div class="package-info">
+      <h3><a href="http://dplyr.tidyverse.org/">dplyr</a></h3>
+      <p>dplyr provides a grammar of data manipulation, providing a consistent set of verbs that solve the most common data manipulation challenges. <a href="http://dplyr.tidyverse.org/">Learn more ...</a></p>
+    </div>
+  </div>
+  <div class="package">
+    <img class="package-image" src="/images/hex-tidyr.png"></img>
+    <div class="package-info">
+      <h3><a href="http://tidyr.tidyverse.org/">tidyr</a></h3>
+      <p>tidyr provides a set of functions that help you get to tidy data. Tidy data is data with a consistent form: in brief, every variable goes in a column, and every column is a variable. <a href="http://tidyr.tidyverse.org/">Learn more ...</a></p>
+    </div>
+  </div>
+  <div class="package">
+    <img class="package-image" src="/images/hex-readr.png"></img>
+    <div class="package-info">
+      <h3><a href="http://readr.tidyverse.org/">readr</a></h3>
+      <p>readr provides a fast and friendly way to read rectangular data (like csv, tsv, and fwf). It is designed to flexibly parse many types of data found in the wild, while still cleanly failing when data unexpectedly changes. <a href="http://readr.tidyverse.org/">Learn more ...</a></p>
+    </div>
+  </div>
+  <div class="package">
+    <img class="package-image" src="/images/hex-purrr.png"></img>
+    <div class="package-info">
+      <h3><a href="http://purrr.tidyverse.org/">purrr</a></h3>
+      <p>purrr enhances R’s functional programming (FP) toolkit by providing a complete and consistent set of tools for working with functions and vectors. Once you master the basic concepts, purrr allows you to replace many for loops with code that is easier to write and more expressive.
+      <a href="http://purrr.tidyverse.org/">Learn more ...</a></p>
+    </div>
+  </div>
+  <div class="package">
+    <img class="package-image" src="/images/hex-tibble.png"></img>
+    <div class="package-info">
+      <h3><a href="http://tibble.tidyverse.org/">tibble</a></h3>
+      <p>tibble is a modern re-imaginging of the data frame, keeping what time has proven to be effective, and throwing out what is not. Tibbles are data.frames that are lazy and surly: they do less and complain more foricing you to confront problems earlier, typically leading to cleaner, more expressive code. 
+      <a href="http://tibble.tidyverse.org/">Learn more ...</a></p>
+    </div>
+  </div>
+</div>
+</div>
 
 The tidyverse also includes many other packages with more specialised usage. They are not loaded automatically with `library(tidyverse)`, so you'll need to load each one with its own call to `library()`.
 
