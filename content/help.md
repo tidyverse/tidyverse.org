@@ -45,7 +45,7 @@ Now that you've made a reprex that you can easily inflict on others, you need to
   more likely to get a useful answer. Make sure to [tag your question](https://stackoverflow.com/help/tagging) with R
   and tidyverse so that the right people are more likely to see it.
   
-* [Twitter][twitter-rstats]. It's hard to share your reprex only on twitter, because 140 characters are rarely enough and screenshots don't help others play with your code. But twitter is a great place to share a link to your reprex that's hosted elsewhere. The #rstats twitter community is extremely friendly and active, and is a great crowd to be a part of. Make sure you use tag your tweet with #rstats and #tidyverse.
+* [Twitter][twitter-rstats]. It's hard to share your reprex only on twitter, because 140 characters are rarely enough and screenshots don't help others play with your code. But twitter is a great place to share a link to your reprex that's hosted elsewhere. The #rstats twitter community is extremely friendly and active, and is a great crowd to be a part of. Make sure you tag your tweet with #rstats and #tidyverse.
 
 * If you think you've found a bug, follow the instructions on 
   [contributing to the tidyverse](/contributing#issues).
