@@ -4,7 +4,7 @@ title: Learn the tidyverse
 
 <a href="http://amzn.to/2aHLAQ1"><img class="bookCover" style="width:200px" src="../images/cover.png" width="80"></a>
 
-## R for data science
+<h2 class='noTrickPadding' id='r4ds'>R for data science</h2>
 
 The best place to start learning the tidyverse is [R for Data Science](http://r4ds.had.co.nz) (R4DS for short), an O'Reilly book written by Hadley Wickham and Garrett Grolemund. It's designed to take you from knowing nothing about R or the tidyverse to having all the basic tools of data science at your fingertips. You can read it online for free, or [buy a physical copy](http://amzn.to/2aHLAQ1). 
 
