@@ -14,9 +14,9 @@ If you're interested in answering questions, two good places to start are the ti
 
 ## File issues {#issues}
 
-If you've found a bug, first create a minimal [reprex](/help#reprex). Spend some time trying to make it as minimal as possible: the more time you spend doing this, the easiest it will be for the tidyverse team to fix it. Then file it on the GitHub repo of the appropriate package.
+If you've found a bug, first create a minimal [reprex](/help#reprex). Spend some time trying to make it as minimal as possible: the more time you spend doing this, the easier it will be for the tidyverse team to fix it. Then file it on the GitHub repo of the appropriate package.
 
-To be as efficient as possible, development of tidyverse packages tends to be very bursty. Nothing happens for a long time, until a sufficient quantity of issues accumulates. Then there's a burst of intense activity as we focus our efforts. That makes development more efficient because it avoids expensive context switching between problems. This process makes a good reprex particularly important because it might be multiple months before your initial report and when we start working on it. If you can't reproduce the bug, we can't fix it!
+To be as efficient as possible, development of tidyverse packages tends to be very bursty. Nothing happens for a long time, until a sufficient quantity of issues accumulates. Then there's a burst of intense activity as we focus our efforts. That makes development more efficient because it avoids expensive context switching between problems. This process makes a good reprex particularly important because it might be multiple months between your initial report and when we start working on it. If you can't reproduce the bug, we can't fix it!
 
 ## Contribute documentation 
 
