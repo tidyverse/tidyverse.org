@@ -14,7 +14,7 @@ We highly recommed pairing R4DS with the [RStudio cheatsheets](https://www.rstud
 
 (_Do you have a book you'd like to see listed here? Please submit a [pull request](https://github.com/tidyverse/tidyverse.org/edit/master/content/learn.md)!_)
 
-* [A modern dive into data](https://ismayc.github.io/moderndiver-book/) by
+* [ModernDive: An Introduction to Statistical and Data Sciences via R](http://moderndive.com/) by
   Chester Ismay and Albert Y. Kim.
 
 * [Solutions and notes for R4DS](https://jrnold.github.io/e4qf/) by 
