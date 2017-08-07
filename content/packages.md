@@ -15,7 +15,7 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
 
 <div class="package-section-info">
   <h2 id="core-tidyverse">Core tidyverse</h2>
-  <p>The core tidyverse includes the packages that you're likely to use in the every data analyses. As of tidyverse 1.1.0, the following packages are included in the code tidyverse:</p>
+  <p>The core tidyverse includes the packages that you're likely to use in the every day data analyses. As of tidyverse 1.1.0, the following packages are included in the code tidyverse:</p>
 </div>
 
 <div class="packages">
@@ -76,7 +76,7 @@ As well as [readr](http://readr.tidyverse.org), for reading flat files, the tidy
 * [readxl](http://readxl.tidyverse.org) for `.xls` and `.xlsx` sheets.
 * [haven](http://haven.tidyverse.org) for SPSS, Stata, and SAS data.
 
-There are a handful for other packages that are not in the tidyverse, but are tidyverse-adjacent. They are very useful for importing data from other sources:
+There are a handful of other packages that are not in the tidyverse, but are tidyverse-adjacent. They are very useful for importing data from other sources:
 
 * [jsonlite](https://github.com/jeroen/jsonlite#jsonlite) for JSON.
 
