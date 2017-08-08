@@ -30,9 +30,12 @@ That sounds like a lot of work!  And it can be, but it has a great payoff:
 
 ## Where to ask
 
+<img src="../help-is-on-the-way.jpg" width="200" height="200" align="right" style="padding:1em;" />
+<!-- Thanks to Mark Hansen for the image! https://twitter.com/cocteau/status/893811714420088832 -->
+
 Now that you've made a reprex that you can easily inflict on others, you need to share it in an appropriate forum.
 
-* Mailing lists.  There are two mailing lists that cover specific parts of the 
+* Mailing lists. There are two mailing lists that cover specific parts of the 
   tidyverse. The [ggplot2 mailing list][ggplot2-ml] is devoted to anything
   and everything related to visualisation with ggplot2. The
   [manipulatr][manipulatr-ml] covers anything related to data manipulation,
