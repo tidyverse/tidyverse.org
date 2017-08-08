@@ -15,7 +15,7 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
 
 <div class="package-section-info">
   <h2 id="core-tidyverse">Core tidyverse</h2>
-  <p>The core tidyverse includes the packages that you're likely to use in every day data analyses. As of tidyverse 1.1.0, the following packages are included in the code tidyverse:</p>
+  <p>The core tidyverse includes the packages that you're likely to use in every day data analyses. As of tidyverse 1.1.0, the following packages are included in the core tidyverse:</p>
 </div>
 
 <div class="packages">
