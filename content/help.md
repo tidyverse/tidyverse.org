@@ -33,24 +33,24 @@ That sounds like a lot of work!  And it can be, but it has a great payoff:
 <img src="../help-is-on-the-way.jpg" width="200" height="200" align="right" style="padding:1em;" />
 <!-- Thanks to Mark Hansen for the image! https://twitter.com/cocteau/status/893811714420088832 -->
 
-Now that you've made a reprex that you can easily inflict on others, you need to share it in an appropriate forum.
+Now that you've made a reprex that you can easily inflict on others, you need to share it in an appropriate forum. Here are some options:
 
-* Mailing lists. There are two mailing lists that cover specific parts of the 
+* __Mailing lists__.  There are two mailing lists that cover specific parts of the 
   tidyverse. The [ggplot2 mailing list][ggplot2-ml] is devoted to anything
   and everything related to visualisation with ggplot2. The
   [manipulatr][manipulatr-ml] covers anything related to data manipulation,
   including dplyr, tidyr, and all the data import packages.
   
-* [Stack Overflow](https://stackoverflow.com). You're probably already familiar
+* [__Stack Overflow__](https://stackoverflow.com). You're probably already familiar
   with Stack Overflow from googling: it's a frequent source of answers to
   coding related questions. Asking a question on Stack Overflow can be 
   intimidating, but if you've taken the time to create a reprex, you're much
   more likely to get a useful answer. Make sure to [tag your question](https://stackoverflow.com/help/tagging) with R
   and tidyverse so that the right people are more likely to see it.
   
-* [Twitter][twitter-rstats]. It's hard to share your reprex only on twitter, because 140 characters are rarely enough and screenshots don't help others play with your code. But twitter is a great place to share a link to your reprex that's hosted elsewhere. The #rstats twitter community is extremely friendly and active, and is a great crowd to be a part of. Make sure you tag your tweet with #rstats and #tidyverse.
+* [__Twitter__][twitter-rstats]. It's hard to share your reprex only on twitter, because 140 characters are rarely enough and screenshots don't help others play with your code. But twitter is a great place to share a link to your reprex that's hosted elsewhere. The #rstats twitter community is extremely friendly and active, and is a great crowd to be a part of. Make sure you tag your tweet with #rstats and #tidyverse.
 
-* If you think you've found a bug, follow the instructions on 
+* If you think you've found a __bug__, please follow the instructions on 
   [contributing to the tidyverse](/contribute#issues).
 
 [ggplot2-ml]: https://groups.google.com/forum/#!forum/ggplot2
