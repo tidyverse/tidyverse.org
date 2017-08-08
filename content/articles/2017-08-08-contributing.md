@@ -1,9 +1,15 @@
 ---
 title: Contributing Code to the Tidyverse
+author: Jim Hester
 slug: contributing
 date: 2018-08-08
+photo:
+  url: https://unsplash.com/photos/qFxS5FkUSAQ
+  author: Yuriy Rzhemovskiy
 categories: [Other]
 ---
+
+> This post originally appeared at <http://www.jimhester.com/2017/08/08/contributing/>
 
 Contributing code to open source projects can be intimidating. These projects
 are often widely used and have well known maintainers. Contributing code and
@@ -12,7 +18,7 @@ having it accepted seems an almost insurmountable task.
 However if you follow a few simple strategies you can have your code accepted
 into even the most popular projects in the [tidyverse](https://tidyverse.org).
 
-### Don't Contribute Code at all ###
+### Don't contribute code ###
 
 The easiest way to contribute to an open source package is not to contribute
 code at all. Find a typo in the documentation, add a reproducible
@@ -30,8 +36,10 @@ contributing to the project. These are guidelines the maintainers would like
 contributors to adhere to and exist to make the process flow more smoothly. As a
 contributor you should try to make accepting your code as easy as you
 can, this greatly increases the chance your contribution will be accepted.
+These files are not currently widespread in the tidyverse, but it's something
+we will be working on in the future!
 
-### Explore Previously Merged Contributions ###
+### Explore previously merged contributions ###
 
 Next you should read a few previously merged pull requests for additional
 context. If a project does not have a `CONTRIBUTING.md` (or similar)
@@ -41,14 +49,20 @@ contributions.
 Things you should look for include how are the commit messages formatted? Are
 any additional files changed apart from the code changes (such as NEWS
 updates)? Do the contributions all include additional test cases? Do internal
-only changes need documentation?
+only changes need documentation? 
+
+Some Common tidyverse conventions are
+
+ - Add a bullet to `NEWS.md` for each change referencing the issue number and your GitHub username.
+ - Add `Closes #123` at the end of your commit message to automatically close the issue with the PR is merged.
+ - Document functions with [roxygen](https://github.com/klutometis/roxygen) and be sure to run `devtools::document()` before submitting.
 
 Read the reviewer comments in the pull request
 to get an idea of what in particular reviewers are looking for. Do they require
-certain code style, variable names or code organization? Are there common
-requests such as adding a note to the NEWS commonly forgotten? If you can
-handle these things _before_ the reviewer even sees your code is greatly
-reduces the friction in merging your changes.
+certain [code style](http://style.tidyverse.org), variable names or code
+organization? Are there common requests such as adding a note to the NEWS
+commonly forgotten? If you can handle these things _before_ the reviewer even
+sees your code is greatly reduces the friction in merging your changes.
 
 ### Make your changes as _small_ as possible ###
 
@@ -146,12 +160,12 @@ devtools::install_github("tidyverse/glue#123")
 ### View contributing as a relationship, not a one night stand ###
 
 The best way to be successful contributing to open source projects is to do so
-repeatably. This means cultivating trust between yourself and the maintainer by
-multiple contributions. After many small contributions have been successfully
-added they will be much more willing to review and accept more substantial
-changes. As with any relationship being polite and considerate is a great way
-to improve trust. If you instead view the contribution as a single interaction
-to add your pet feature you are much less likely to be successful.
+repeatedly. This means cultivating trust between yourself and the maintainer by
+multiple successful contributions. After many small contributions have been
+ added the maintainer will be much more willing to review and accept more
+substantial changes. As with any relationship being polite and considerate is a
+great way to improve trust. If you instead view the contribution as a solitary
+interaction to add your pet feature you are much less likely to be successful.
 
 ### Contribute! ###
 
