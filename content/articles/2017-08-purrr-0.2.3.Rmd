@@ -39,15 +39,10 @@ This means it is now easier to map functions over vector-like S3
 objects. The reason is twofold:
 
 * `map()` and friends apply functions on the elements of the
-  underlying data structure but that is not always appropriate. If you
-  have a class defined like this:
-
-  ```{r, eval = FALSE}
-  list(data = mtcars, metadata = list()) %>% structure(class = "myclass")
-  ```
-
-  you probably want to map over the *elements* of `data` rather than on
-  `data` and `metadata`.
+  underlying data structure but that is not always appropriate. An
+  object sometimes contains metadata. A user of such a class probably
+  wants to map over the *elements* of the data of interest rather than
+  over the metadata fields.
 
 * `map()` is type-stable and always returns a list. If you're mapping
   over an object, chances are you want a similar object back.
@@ -82,15 +77,19 @@ x %>% pluck(1, accessor, "foo")
 The new function `attr_getter()` generates attribute accessors that
 can be used in `pluck()`:
 
-```r
+```{r}
 dfs <- list(iris, mtcars)
 dfs %>% pluck(2, attr_getter("row.names"))
 ```
 
 or in mapped indexing:
 
-```r
-dfs %>% map(attr_getter("row.names"))
+```{r}
+x <- list(
+  list(vec = letters, df = mtcars),
+  list(vec = LETTERS, df = iris)
+)
+x %>% map(list("df", attr_getter("row.names")))
 ```
 
 
