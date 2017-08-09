@@ -39,7 +39,7 @@ The tidyverse site is automatically published with [netlify](http://netlify.com/
   events. The site automatically filters out events that have happened,
   sorts by date, and then shows at most two events.
 
-### Blog posts
+## Blog posts
 
 Every blog post needs to start with a yaml metadata block that looks like this:
 
@@ -58,6 +58,10 @@ categories: [Other]
 
 The slug should match the file name. Generally, the `date` should be similar to the file name, but won't be identical - name the file according to when you created the blog post, but make sure you update the date when you publish the post.
 
+Categories should be one (or more of): "case studies", "learn", "package", "programming", or "other".
+
+### Photos
+
 Every blog post needs to be accompanied by two versions of a photo:
 
 * `slug-sq.jpg` should be 300 x 300 pixels, and is shown on the articles listing.
@@ -66,3 +70,4 @@ Every blog post needs to be accompanied by two versions of a photo:
   It is shown on the individual article page.
   
 If you don't already have a image in mind, I recommend looking on <https://unsplash.com>. If you do use a photo from a website, make sure to credit the author as shown with the `photo` metadata shown above.
+
