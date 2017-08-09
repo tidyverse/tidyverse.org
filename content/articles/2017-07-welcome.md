@@ -3,7 +3,7 @@ title: Welcome!
 description: >
   Welcome to the new and improved tidyverse website. We are working hard to make 
   tidyverse.org __the__ place to go to learn the tidyverse and to keep up to 
-  date with it as it evolves. 
+  date with it as it evolves.
 slug: welcome
 date: 2017-07-30
 author: Hadley Wickham
