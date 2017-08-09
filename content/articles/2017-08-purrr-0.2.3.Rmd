@@ -9,6 +9,11 @@ photo:
 categories: [Packages]
 ---
 
+```{r setup, include = FALSE}
+library("purrr")
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
 We are pleased to announce that purrr 0.2.3 is now on CRAN! Despite
 the small increment in the version number (our mistake, it should have
 been 0.3.0), this is a rather major release that includes many new
@@ -16,7 +21,7 @@ features and bug fixes.
 
 Install the latest version of purrr with:
 
-```{r}
+```{r, eval = FALSE}
 install.packages("purrr")
 ```
 
@@ -37,8 +42,8 @@ objects. The reason is twofold:
   underlying data structure but that is not always appropriate. If you
   have a class defined like this:
 
-  ```r
-  list(data, metadata) %>% structure(class = "myclass")
+  ```{r, eval = FALSE}
+  list(data = mtcars, metadata = list()) %>% structure(class = "myclass")
   ```
 
   you probably want to map over the *elements* of `data` rather than on
@@ -64,13 +69,13 @@ often more readable to extract an element buried in a deep data
 structure. Compare this syntax-heavy extraction which reads
 non-linearly:
 
-```r
+```{r, eval = FALSE}
 accessor(x[[1]])$foo
 ```
 
 to the equivalent pluck:
 
-```r
+```{r, eval = FALSE}
 x %>% pluck(1, accessor, "foo")
 ```
 
