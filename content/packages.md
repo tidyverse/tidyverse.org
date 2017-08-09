@@ -114,6 +114,6 @@ As well as [purrr](http://purrr.tidyverse.org) which faciliates functional progr
 
 ## Model
 
-Modelling within the tidyverse is largely a work in progress. You can see some of the pieces in the [recipes](http://github.com/topepo/recipes) and [rsample](http://github.com/topepo/rsample) packages but we do not yet have a cohesive system that solves a wide range of challenges. This work will largely replace the [modelr](https://github.com/tidyverse/modelr) package used in R4DS.
+Modelling within the tidyverse is largely a work in progress. You can see some of the pieces in the [recipes](http://github.com/topepo/recipes) and [rsample](http://github.com/topepo/rsample) packages but we do not yet have a cohesive system that solves a wide range of challenges. This work will largely replace the [modelr](https://github.com/tidyverse/modelr) package used in [R4DS](http://r4ds.had.co.nz/).
 
 You may also find [broom](https://github.com/tidyverse/broom) to be useful: it turns models into tidy data which you can then wrangle and visualise using the tools you already know.
