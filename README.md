@@ -46,6 +46,8 @@ Every blog post needs to start with a yaml metadata block that looks like this:
 ```yaml
 title: Welcome!
 slug: welcome
+description: >
+    A 2-3 sentence description of the post that appears on the articles page.
 date: 2017-07-30
 author: Hadley Wickham
 photo:

@@ -1,5 +1,9 @@
 ---
 title: Welcome!
+description: >
+  Welcome to the new and improved tidyverse website. We are working hard to make 
+  tidyverse.org __the__ place to go to learn the tidyverse and to keep up to 
+  date with it as it evolves. 
 slug: welcome
 date: 2017-07-30
 author: Hadley Wickham
@@ -10,7 +14,6 @@ categories: [Other]
 ---
 
 Welcome to the new and improved tidyverse website. We are working hard to make tidyverse.org __the__ place to go to learn the tidyverse and to keep up to date with it as it evolves. We want <https://tidyverse.org> to be your one stop shop for everything tidy!
-<!--more-->
 
 As well as radically improved graphic design, the site includes four new components:
 
