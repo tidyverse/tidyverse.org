@@ -1,5 +1,5 @@
 ---
-title: Contributing Code to the tidyverse
+title: Contributing code to the tidyverse
 author: Jim Hester
 slug: contributing
 date: 2018-08-08
