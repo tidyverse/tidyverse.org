@@ -1,5 +1,5 @@
 ---
-title: Contributing Code to the Tidyverse
+title: Contributing Code to the tidyverse
 author: Jim Hester
 slug: contributing
 date: 2018-08-08
@@ -106,7 +106,7 @@ covered is a great way to contribute to a project.
 
 One of the first barriers to acceptance is coding style. Do not submit a
 contribution using camelCase to a project that uses snake_case, or use tabs
-when the project uses spaces. For Tidyverse projects read the [Style
+when the project uses spaces. For tidyverse projects read the [Style
 Guide](https://style.tidyverse.org) and use the
 [lintr](https://cran.r-project.org/package=lintr) package to find code which
 does not adhere to the style guide.
@@ -122,7 +122,7 @@ in a separate pull request!
 
 ### Contribute to active projects ###
 
-Development of Tidyverse projects typically progresses in waves. We work
+Development of tidyverse projects typically progresses in waves. We work
 intensely on a certain project for a period of time, then let it lie fallow for
 awhile and work on other things. Because of this contributions to projects
 which are not being actively developed may not be addressed for a long length
@@ -131,7 +131,7 @@ mean you have to be patient and when it is reviewed be prompt with a response.
 
 You can avoid these lengthy wait times by contributing to projects being
 actively developed. Look at the GitHub contributions of members of the
-Tidyverse and times of recent commits of projects to see which are active and
+tidyverse and times of recent commits of projects to see which are active and
 which are fallow.
 
 ### Be attentive, not pushy ###
@@ -172,5 +172,5 @@ interaction to add your pet feature you are much less likely to be successful.
 Contributing to open source software will make you a better programmer, gain
 valuable feedback through code review, look great on your resume and increase
 your visibility in the community. It may even get you a job; I am on the
-Tidyverse team today mainly because I was a frequent open source contributor to
-Tidyverse packages over a number of years.
+tidyverse team today mainly because I was a frequent open source contributor to
+tidyverse packages over a number of years.
