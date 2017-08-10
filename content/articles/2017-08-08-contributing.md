@@ -6,7 +6,7 @@ date: 2018-08-08
 photo:
   url: https://unsplash.com/photos/qFxS5FkUSAQ
   author: Yuriy Rzhemovskiy
-categories: [Other]
+categories: [programming]
 ---
 
 > This post originally appeared at <http://www.jimhester.com/2017/08/08/contributing/>
