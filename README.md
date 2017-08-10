@@ -1,6 +1,6 @@
 # tidyverse.org
 
-This repo is the source of <https://tidyverse.org>, and this readme tells you how it all works. If you spot any small problems with the website, please feel empowered to fix them directly with a PR. If you see any larger problems, an issue is probably better: that way we can discuss the problem before you commit any time to it.  Read more about contributing to the tidyverse at [https://www.tidyverse.org/contribute/]
+This repo is the source of <https://tidyverse.org>, and this readme tells you how it all works. If you spot any small problems with the website, please feel empowered to fix them directly with a PR. If you see any larger problems, an issue is probably better: that way we can discuss the problem before you commit any time to it.  Read more about contributing to the tidyverse at <https://www.tidyverse.org/contribute/>.
 
 ## Previewing changes
 
