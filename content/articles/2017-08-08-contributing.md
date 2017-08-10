@@ -12,7 +12,7 @@ description: >
   are often widely used and have well known maintainers. Contributing code and
   having it accepted seems an almost insurmountable task. However if you follow a
   few simple strategies you can have your code accepted into even the most
-  popular projects in the [tidyverse](https://tidyverse.org).
+  popular projects in the tidyverse.
 ---
 
 > This post originally appeared at <http://www.jimhester.com/2017/08/08/contributing/>
