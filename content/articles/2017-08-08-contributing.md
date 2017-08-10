@@ -157,15 +157,16 @@ devtools::install("/path/to/pkg")
 devtools::install_github("tidyverse/glue#123")
 ```
 
-### View contributing as a relationship, not a one night stand ###
+### View contributing as a relationship, not a transaction ###
 
 The best way to be successful contributing to open source projects is to do so
 repeatedly. This means cultivating trust between yourself and the maintainer by
-multiple successful contributions. After many small contributions have been
- added the maintainer will be much more willing to review and accept more
-substantial changes. As with any relationship being polite and considerate is a
-great way to improve trust. If you instead view the contribution as a solitary
-interaction to add your pet feature you are much less likely to be successful.
+multiple successful contributions. After a series of smaller contributions the
+maintainer will be much more willing to review and accept more substantial
+changes. As with any relationship being polite and considerate throughout will
+go a long way to improve trust. If you instead view the contribution as a
+solitary transaction to add your pet feature you are much less likely to be
+successful.
 
 ### Contribute! ###
 
