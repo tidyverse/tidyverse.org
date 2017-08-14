@@ -8,7 +8,7 @@ title: Get help!
   
 Luckily the tidyverse is a friendlier place. Ease of adoption and ease of use are fundamental design principles for the packages in the tidyverse. If you are banging your head in frustration, here's how you can help us help you.
 
-## Reprex {#reprex}
+## Make a reprex {#reprex}
 
 If you need help getting unstuck, the first step is to create a __reprex__, or reproducible example. The goal of a reprex is to package your problematic code in such a way that other people can run it and feel your pain. Then, hopefully, they can provide a solution and put you out of your misery.
 
@@ -27,34 +27,9 @@ That sounds like a lot of work!  And it can be, but it has a great payoff:
   a way that is easy for others to play with. This substantially improves
   your chances of getting help!
 
-## Where to ask
-
-<img src="../help-is-on-the-way.jpg" width="200" height="200" align="right" style="padding:1em;" />
-<!-- Thanks to Mark Hansen for the image! https://twitter.com/cocteau/status/893811714420088832 -->
-
-Now that you've made a reprex that you can easily inflict on others, you need to share it in an appropriate forum. Here are some options:
-
-* __Mailing lists__.  There are two mailing lists that cover specific parts of the 
-  tidyverse. The [ggplot2 mailing list][ggplot2-ml] is devoted to anything
-  and everything related to visualisation with ggplot2. The
-  [manipulatr][manipulatr-ml] covers anything related to data manipulation,
-  including dplyr, tidyr, and all the data import packages.
-  
-* [__Stack Overflow__](https://stackoverflow.com). You're probably already familiar
-  with Stack Overflow from googling: it's a frequent source of answers to
-  coding related questions. Asking a question on Stack Overflow can be 
-  intimidating, but if you've taken the time to create a reprex, you're much
-  more likely to get a useful answer. Make sure to [tag your question](https://stackoverflow.com/help/tagging) with R
-  and tidyverse so that the right people are more likely to see it.
-  
-* [__Twitter__][twitter-rstats]. It's hard to share your reprex only on twitter, because 140 characters are rarely enough and screenshots don't help others play with your code. But twitter is a great place to share a link to your reprex that's hosted elsewhere. The #rstats twitter community is extremely friendly and active, and is a great crowd to be a part of. Make sure you tag your tweet with #rstats and #tidyverse.
-
-* If you think you've found a __bug__, please follow the instructions on 
-  [contributing to the tidyverse](/contribute#issues).
-
 ## The reprex package {#reprex-pkg}
 
-The [reprex package](http://reprex.tidyverse.org) is installed when you install the tidyverse *(will be true soon)* or you can install it by itself. Go ahead and load it.
+When creating a reprex by hand, it's easy to accidentally miss something that means your code can't be run on someone else's computer. Avoid this problem by using the [reprex package](http://reprex.tidyverse.org). It's installed as part of the tidyverse *(will be true soon)* or you can install it by itself. Go ahead and load it.
 
 ```R
 ## pick one:
@@ -87,14 +62,32 @@ It is now ready and waiting on your clipboard, so you can paste it into, say, a 
 
 In either case, you can eventually [explore other features](http://reprex.tidyverse.org), such as formatting output for Stack Overflow or as a commented R script. reprex even uploads figures so you can easily ask questions about ggplot2.
 
-We recommend the use of the reprex package for two reasons:
+If your code is not self-contained, running `reprex()` results in an error. It may feel like tough love, but this way you can get your story straight in private. The reprex format also strongly encourages you to find the minimal dataset necessary to show your problem. Creating an effective reprex is a learned skill and the immediate feedback from reprex makes this very concrete.
 
-  1. It helps you.
-  1. It helps us.
+## Where to ask
+
+<img src="../help-is-on-the-way.jpg" width="200" height="200" align="right" style="padding:1em;" />
+<!-- Thanks to Mark Hansen for the image! https://twitter.com/cocteau/status/893811714420088832 -->
+
+Now that you've made a reprex that you can easily inflict on others, you need to share it in an appropriate forum. Here are some options:
+
+* __Mailing lists__.  There are two mailing lists that cover specific parts of the 
+  tidyverse. The [ggplot2 mailing list][ggplot2-ml] is devoted to anything
+  and everything related to visualisation with ggplot2. The
+  [manipulatr][manipulatr-ml] covers anything related to data manipulation,
+  including dplyr, tidyr, and all the data import packages.
   
-How does it help you?  If your code is not self-contained, you get an error. Yes, this sometimes feels like tough love, but this way you can get your story straight in private. reprex also encourages you to find the minimal dataset necessary to show your problem, preferably using built-in or fake data. Creating an effective reprex is a learned skill and the package provides very immediate feedback.
+* [__Stack Overflow__](https://stackoverflow.com). You're probably already familiar
+  with Stack Overflow from googling: it's a frequent source of answers to
+  coding related questions. Asking a question on Stack Overflow can be 
+  intimidating, but if you've taken the time to create a reprex, you're much
+  more likely to get a useful answer. Make sure to [tag your question](https://stackoverflow.com/help/tagging) with R
+  and tidyverse so that the right people are more likely to see it.
+  
+* [__Twitter__][twitter-rstats]. It's hard to share your reprex only on twitter, because 140 characters are rarely enough and screenshots don't help others play with your code. But twitter is a great place to share a link to your reprex that's hosted elsewhere. The [#rstats twitter][twitter-rstats] community is extremely friendly and active, and is a great crowd to be a part of. Make sure you tag your tweet with #rstats and #tidyverse.
 
-How does it help us? We get minimal code that we can actually execute, formatted nicely, and with output included. This makes it much easier to provide a solution.
+* If you think you've found a __bug__, please follow the instructions on 
+  [contributing to the tidyverse](/contribute#issues).
 
 [ggplot2-ml]: https://groups.google.com/forum/#!forum/ggplot2
 [manipulatr-ml]: https://groups.google.com/forum/#!forum/manipulatr
