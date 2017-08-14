@@ -57,8 +57,8 @@ mean(y)
 
 It is now ready and waiting on your clipboard, so you can paste it into, say, a GitHub issue. In RStudio, you can access reprex from the [addins menu](https://rstudio.github.io/rstudioaddins/), which makes it even easier to point out your code and select the output format.
 
-<img src="/images/reprex-addins-menu.png"></img>
-<img src="/images/reprex-addin.png"></img>
+<img src="../reprex-addins-menu.png"></img>
+<img src="../reprex-addin.png"></img>
 
 In either case, you can eventually [explore other features](http://reprex.tidyverse.org), such as formatting output for Stack Overflow or as a commented R script. reprex even uploads figures so you can easily ask questions about ggplot2.
 
