@@ -52,10 +52,6 @@ Now that you've made a reprex that you can easily inflict on others, you need to
 * If you think you've found a __bug__, please follow the instructions on 
   [contributing to the tidyverse](/contribute#issues).
 
-[ggplot2-ml]: https://groups.google.com/forum/#!forum/ggplot2
-[manipulatr-ml]: https://groups.google.com/forum/#!forum/manipulatr
-[twitter-rstats]: https://twitter.com/search?q=%23rstats&src=typd
-
 ## The reprex package {#reprex-pkg}
 
 The [reprex package](http://reprex.tidyverse.org) is installed when you install the tidyverse *(will be true soon)* or you can install it by itself. Go ahead and load it.
@@ -99,3 +95,7 @@ We recommend the use of the reprex package for two reasons:
 How does it help you?  If your code is not self-contained, you get an error. Yes, this sometimes feels like tough love, but this way you can get your story straight in private. reprex also encourages you to find the minimal dataset necessary to show your problem, preferably using built-in or fake data. Creating an effective reprex is a learned skill and the package provides very immediate feedback.
 
 How does it help us? We get minimal code that we can actually execute, formatted nicely, and with output included. This makes it much easier to provide a solution.
+
+[ggplot2-ml]: https://groups.google.com/forum/#!forum/ggplot2
+[manipulatr-ml]: https://groups.google.com/forum/#!forum/manipulatr
+[twitter-rstats]: https://twitter.com/search?q=%23rstats&src=typd
