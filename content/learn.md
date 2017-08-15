@@ -43,9 +43,9 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
 
 ### 2017
 
-* [Data challenge lab](https://dcl-2017-04.github.io/curriculum/).
-  Stanford University; Hadley Wickham and Bill Behrmann. This was a 5 credit
-  course using a flipped classroom. The curriculum was designed to cover
+* [Data Challenge Lab](https://dcl-2017-04.github.io/curriculum/).
+  Stanford University; Hadley Wickham and Bill Behrman. This is a 5-unit
+  course using a flipped classroom. The curriculum is designed to cover
   each main thread of R4DS multiple times, diving a little deeper at
   each pass.
 
