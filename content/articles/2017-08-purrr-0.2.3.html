@@ -1,0 +1,167 @@
+---
+title: purrr 0.2.3
+slug: purrr-0.2.3
+description: >
+  A new version of purrr is on CRAN! It features a new family of
+  generic mappers, a tool for tidy plucking of deep data structures,
+  and many other features and fixes.
+author: Lionel Henry
+date: 2018-08-09
+photo:
+  url: https://unsplash.com/photos/TAN1KpDS7Rg
+  author: Erika Lanpher
+categories: [packages]
+---
+
+
+
+<p>We are pleased to announce that purrr 0.2.3 is now on CRAN! Despite the small increment in the version number (our mistake, it should have been 0.3.0), this is a rather major release that includes many new features and bug fixes.</p>
+<p>Install the latest version of purrr with:</p>
+<pre class="r"><code>install.packages(&quot;purrr&quot;)</code></pre>
+<p>You can read about the complete set of changes at <a href="https://github.com/tidyverse/purrr/releases/tag/v0.2.3" class="uri">https://github.com/tidyverse/purrr/releases/tag/v0.2.3</a>. In this blog post, I will present the highlights of this version which are a family of generic mappers, a new <code>pluck()</code> function for accessing deep elements in a readable way, and a few nifty features and improvements.</p>
+<div id="generic-mapping" class="section level3">
+<h3>Generic mapping</h3>
+<p>The new <code>modify</code> family of functions introduces genericity to mapping. This means it is now easier to map functions over vector-like S3 objects. The reason is twofold:</p>
+<ul>
+<li><p><code>map()</code> and friends apply functions on the elements of the underlying data structure but that is not always appropriate. An object sometimes contains metadata. A user of such a class probably wants to map over the <em>elements</em> of the data of interest rather than over the metadata fields.</p></li>
+<li><p><code>map()</code> is type-stable and always returns a list. If you’re mapping over an object, chances are you want a similar object back.</p></li>
+</ul>
+<p><code>modify()</code> and its variants solve both these problems via S3 dispatch. For instance, let’s try a conditional map over a data frame. Since <code>map_if()</code> is type-stable, it returns a list and we lose the data frame information:</p>
+<pre class="r"><code>iris %&gt;% map_if(is.factor, as.character) %&gt;% str()
+#&gt; List of 5
+#&gt;  $ Sepal.Length: num [1:150] 5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
+#&gt;  $ Sepal.Width : num [1:150] 3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 ...
+#&gt;  $ Petal.Length: num [1:150] 1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
+#&gt;  $ Petal.Width : num [1:150] 0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
+#&gt;  $ Species     : chr [1:150] &quot;setosa&quot; &quot;setosa&quot; &quot;setosa&quot; &quot;setosa&quot; ...</code></pre>
+<p>On the other hand, <code>modify_if()</code> is generic and returns a data frame:</p>
+<pre class="r"><code>iris %&gt;% modify_if(is.factor, as.character) %&gt;% str()
+#&gt; &#39;data.frame&#39;:    150 obs. of  5 variables:
+#&gt;  $ Sepal.Length: num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
+#&gt;  $ Sepal.Width : num  3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 ...
+#&gt;  $ Petal.Length: num  1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
+#&gt;  $ Petal.Width : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
+#&gt;  $ Species     : chr  &quot;setosa&quot; &quot;setosa&quot; &quot;setosa&quot; &quot;setosa&quot; ...</code></pre>
+<p>The flip side of genericity is that the vectors returned by the mapped function should obey the constraints of the container type. For instance, data frames require vectors of equal size and it wouldn’t be appropriate to use <code>modify()</code> on a function that returns vectors of variable sizes. In this case you should use <code>map()</code>:</p>
+<pre class="r"><code>map(mtcars, unique) %&gt;% str()
+#&gt; List of 11
+#&gt;  $ mpg : num [1:25] 21 22.8 21.4 18.7 18.1 14.3 24.4 19.2 17.8 16.4 ...
+#&gt;  $ cyl : num [1:3] 6 4 8
+#&gt;  $ disp: num [1:27] 160 108 258 360 225 ...
+#&gt;  $ hp  : num [1:22] 110 93 175 105 245 62 95 123 180 205 ...
+#&gt;  $ drat: num [1:22] 3.9 3.85 3.08 3.15 2.76 3.21 3.69 3.92 3.07 2.93 ...
+#&gt;  $ wt  : num [1:29] 2.62 2.88 2.32 3.21 3.44 ...
+#&gt;  $ qsec: num [1:30] 16.5 17 18.6 19.4 20.2 ...
+#&gt;  $ vs  : num [1:2] 0 1
+#&gt;  $ am  : num [1:2] 1 0
+#&gt;  $ gear: num [1:3] 4 3 5
+#&gt;  $ carb: num [1:6] 4 1 2 3 6 8</code></pre>
+<p>As a developer there are two ways to make your class compatible with <code>modify()</code> . The easiest is to implement a method for the subset-assign operator <code>[&lt;-</code> which should be sufficient in most cases. Alternatively you can implement methods for the <code>modify</code> functions themselves as they are all generics.</p>
+</div>
+<div id="pluck-for-deep-subsetting" class="section level3">
+<h3>pluck() for deep subsetting</h3>
+<p>The plucking mechanism used for indexing into data structures with <code>map()</code> has been extracted into the function <code>pluck()</code>. Plucking is often more readable when extracting an element buried in a deep data structure. Compare this base R code which reads non-linearly:</p>
+<pre class="r"><code>accessor(x[[1]])$foo</code></pre>
+<p>To the equivalent pluck:</p>
+<pre class="r"><code>x %&gt;% pluck(1, accessor, &quot;foo&quot;)</code></pre>
+<p>The new function <code>attr_getter()</code> generates attribute accessors that can be used in <code>pluck()</code>:</p>
+<pre class="r"><code>dfs &lt;- list(iris, mtcars)
+dfs %&gt;% pluck(2, attr_getter(&quot;row.names&quot;))
+#&gt;  [1] &quot;Mazda RX4&quot;           &quot;Mazda RX4 Wag&quot;       &quot;Datsun 710&quot;         
+#&gt;  [4] &quot;Hornet 4 Drive&quot;      &quot;Hornet Sportabout&quot;   &quot;Valiant&quot;            
+#&gt;  [7] &quot;Duster 360&quot;          &quot;Merc 240D&quot;           &quot;Merc 230&quot;           
+#&gt; [10] &quot;Merc 280&quot;            &quot;Merc 280C&quot;           &quot;Merc 450SE&quot;         
+#&gt; [13] &quot;Merc 450SL&quot;          &quot;Merc 450SLC&quot;         &quot;Cadillac Fleetwood&quot; 
+#&gt; [16] &quot;Lincoln Continental&quot; &quot;Chrysler Imperial&quot;   &quot;Fiat 128&quot;           
+#&gt; [19] &quot;Honda Civic&quot;         &quot;Toyota Corolla&quot;      &quot;Toyota Corona&quot;      
+#&gt; [22] &quot;Dodge Challenger&quot;    &quot;AMC Javelin&quot;         &quot;Camaro Z28&quot;         
+#&gt; [25] &quot;Pontiac Firebird&quot;    &quot;Fiat X1-9&quot;           &quot;Porsche 914-2&quot;      
+#&gt; [28] &quot;Lotus Europa&quot;        &quot;Ford Pantera L&quot;      &quot;Ferrari Dino&quot;       
+#&gt; [31] &quot;Maserati Bora&quot;       &quot;Volvo 142E&quot;</code></pre>
+<p>Or in mapped indexing:</p>
+<pre class="r"><code>x &lt;- list(
+  list(vec = letters, df = mtcars),
+  list(vec = LETTERS, df = iris)
+)
+x %&gt;% map(list(&quot;df&quot;, attr_getter(&quot;row.names&quot;)))
+#&gt; [[1]]
+#&gt;  [1] &quot;Mazda RX4&quot;           &quot;Mazda RX4 Wag&quot;       &quot;Datsun 710&quot;         
+#&gt;  [4] &quot;Hornet 4 Drive&quot;      &quot;Hornet Sportabout&quot;   &quot;Valiant&quot;            
+#&gt;  [7] &quot;Duster 360&quot;          &quot;Merc 240D&quot;           &quot;Merc 230&quot;           
+#&gt; [10] &quot;Merc 280&quot;            &quot;Merc 280C&quot;           &quot;Merc 450SE&quot;         
+#&gt; [13] &quot;Merc 450SL&quot;          &quot;Merc 450SLC&quot;         &quot;Cadillac Fleetwood&quot; 
+#&gt; [16] &quot;Lincoln Continental&quot; &quot;Chrysler Imperial&quot;   &quot;Fiat 128&quot;           
+#&gt; [19] &quot;Honda Civic&quot;         &quot;Toyota Corolla&quot;      &quot;Toyota Corona&quot;      
+#&gt; [22] &quot;Dodge Challenger&quot;    &quot;AMC Javelin&quot;         &quot;Camaro Z28&quot;         
+#&gt; [25] &quot;Pontiac Firebird&quot;    &quot;Fiat X1-9&quot;           &quot;Porsche 914-2&quot;      
+#&gt; [28] &quot;Lotus Europa&quot;        &quot;Ford Pantera L&quot;      &quot;Ferrari Dino&quot;       
+#&gt; [31] &quot;Maserati Bora&quot;       &quot;Volvo 142E&quot;         
+#&gt; 
+#&gt; [[2]]
+#&gt;   [1]   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17
+#&gt;  [18]  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34
+#&gt;  [35]  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51
+#&gt;  [52]  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68
+#&gt;  [69]  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85
+#&gt;  [86]  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 101 102
+#&gt; [103] 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119
+#&gt; [120] 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136
+#&gt; [137] 137 138 139 140 141 142 143 144 145 146 147 148 149 150</code></pre>
+</div>
+<div id="set_names-is-much-more-flexible" class="section level3">
+<h3>set_names() is much more flexible</h3>
+<p><code>set_names()</code> (now reexported from the rlang package) has become much more flexible. It now takes <code>...</code> arguments and concatenates them into one vector of names. This saves a bit of typing as you don’t have to concatenate explicitly with <code>c()</code>. The code also looks a bit leaner:</p>
+<pre class="r"><code>x &lt;- letters[1:3] %&gt;% set_names(&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;)
+x
+#&gt; foo bar baz 
+#&gt; &quot;a&quot; &quot;b&quot; &quot;c&quot;</code></pre>
+<p>In addition <code>set_names()</code> now accepts functions as its first argument. The function is applied to existing names. Let’s transform the names of our new vector to uppercase with <code>base::toupper()</code>:</p>
+<pre class="r"><code>x %&gt;% set_names(toupper)
+#&gt; FOO BAR BAZ 
+#&gt; &quot;a&quot; &quot;b&quot; &quot;c&quot;</code></pre>
+<p>When you supply a function, the <code>...</code> arguments are forwarded to the function which is often handy. Here we might want to pass further arguments to <code>base::paste()</code>:</p>
+<pre class="r"><code>x %&gt;% set_names(paste, &quot;suffix&quot;, sep = &quot;_&quot;)
+#&gt; foo_suffix bar_suffix baz_suffix 
+#&gt;        &quot;a&quot;        &quot;b&quot;        &quot;c&quot;</code></pre>
+</div>
+<div id="reducing-with-a-three-argument-function" class="section level3">
+<h3>Reducing with a three-argument function</h3>
+<p><code>reduce2()</code> makes it possible to reduce with a three-argument reducing function. <code>reduce2()</code> takes two vectors <code>.x</code> and <code>.y</code>, the first of which is reduced in the usual manner. The accumulated value is passed to the reducing function as first argument while the next value is passed as second argument. <code>.y</code> on the other hand is mapped, not reduced. At each reducing round, the next value of <code>.y</code> is passed to the reducing function as third argument.</p>
+<p>In the following example we have a binary paster that takes <code>sep</code> as third argument. With the ordinary <code>reduce()</code> we are stuck with a single separator during the whole reduction:</p>
+<pre class="r"><code>paste2 &lt;- function(x, y, sep) paste(x, y, sep = sep)
+x &lt;- letters[1:4]
+reduce(x, paste2, sep = &quot;.&quot;)
+#&gt; [1] &quot;a.b.c.d&quot;</code></pre>
+<p>If we want to vary the separator for each value of the input vector, <code>reduce2()</code> allows us to pass a second vector containing specific separators. This auxiliary vector should have one fewer elements than the reduced vector:</p>
+<pre class="r"><code>seps &lt;- c(&quot;-&quot;, &quot;.&quot;, &quot;_&quot;)
+reduce2(x, seps, paste2)
+#&gt; [1] &quot;a-b.c_d&quot;</code></pre>
+</div>
+<div id="variadic-lambda-formulas" class="section level3">
+<h3>Variadic lambda-formulas</h3>
+<p>You can now refer to arguments by position in lambda-formulas. The <code>..1</code> symbol refers to the first argument, <code>..2</code> to the second and so on. This makes it easier to use functions like <code>pmap()</code> with the formula shortcut:</p>
+<pre class="r"><code>pmap_chr(mtcars, ~paste(..2, ..4, sep = &quot; - &quot;))
+#&gt;  [1] &quot;6 - 110&quot; &quot;6 - 110&quot; &quot;4 - 93&quot;  &quot;6 - 110&quot; &quot;8 - 175&quot; &quot;6 - 105&quot; &quot;8 - 245&quot;
+#&gt;  [8] &quot;4 - 62&quot;  &quot;4 - 95&quot;  &quot;6 - 123&quot; &quot;6 - 123&quot; &quot;8 - 180&quot; &quot;8 - 180&quot; &quot;8 - 180&quot;
+#&gt; [15] &quot;8 - 205&quot; &quot;8 - 215&quot; &quot;8 - 230&quot; &quot;4 - 66&quot;  &quot;4 - 52&quot;  &quot;4 - 65&quot;  &quot;4 - 97&quot; 
+#&gt; [22] &quot;8 - 150&quot; &quot;8 - 150&quot; &quot;8 - 245&quot; &quot;8 - 175&quot; &quot;4 - 66&quot;  &quot;4 - 91&quot;  &quot;4 - 113&quot;
+#&gt; [29] &quot;8 - 264&quot; &quot;6 - 175&quot; &quot;8 - 335&quot; &quot;4 - 109&quot;</code></pre>
+</div>
+<div id="api-changes" class="section level3">
+<h3>API changes</h3>
+<p>purrr no longer depends on lazyeval or Rcpp (or dplyr, as of the previous version). This makes the dependency graph of the tidyverse simpler, and makes purrr more suitable as a dependency of lower-level packages.</p>
+<p>A number of functions have been renamed or deprecated:</p>
+<ul>
+<li><p><code>is_numeric()</code> and <code>is_scalar_numeric()</code> are deprecated because they don’t test for what you might expect at first sight.</p></li>
+<li><p><code>as_function()</code> is now <code>as_mapper()</code> because it is a tranformation that makes sense primarily for mapping functions, not in general. The rlang package has an <code>as_function()</code> coercer that is smaller in scope.</p></li>
+<li><p>The data frame suffix <code>_df</code> has been (soft) deprecated in favour of <code>_dfr</code> to more clearly indicate that it’s a row-bind. All variants now also have a <code>_dfc</code> for column binding. They currently don’t handle functions returning vectors because of a bug, but they will in the next minor version of purrr.</p></li>
+<li><p><code>cross_n()</code> has been renamed to <code>cross()</code>. The <code>_n</code> suffix was removed for consistency with <code>pmap()</code> (originally called <code>map_n()</code> at the start of the project) and <code>transpose()</code> (originally called <code>zip_n()</code>). Similarly, <code>cross_d()</code> has been renamed to <code>cross_df()</code> for consistency with <code>map_df()</code>.</p></li>
+<li><p><code>contains()</code> has been renamed to <code>has_element()</code> to avoid conflicts with dplyr.</p></li>
+<li><p><code>at_depth()</code> has been renamed to <code>modify_depth()</code>.</p></li>
+</ul>
+<p>Finally, these functions have been removed from the package:</p>
+<ul>
+<li><p>The previously deprecated functions <code>flatmap()</code>, <code>map3()</code>, <code>map_n()</code>, <code>walk3()</code>, <code>walk_n()</code>, <code>zip2()</code>, <code>zip3()</code>, <code>zip_n()</code> have been removed.</p></li>
+<li><p><code>order_by()</code>, <code>sort_by()</code> and <code>split_by()</code> have been removed. <code>order_by()</code> conflicted with <code>dplyr::order_by()</code> and the complete family doesn’t feel that useful. Use tibbles instead.</p></li>
+</ul>
+</div>
