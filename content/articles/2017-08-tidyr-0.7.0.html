@@ -14,13 +14,13 @@ categories: [packages]
 
 
 
-<p>We are happy to announce that tidyr 0.7.0 is now available on CRAN. This update makes tidyr compatible with the tidy evaluation features introduced in dplyr 0.7.0. It also uses the new tidyselect package as selection backend. The switch introduces some changes in the way selecting arguments are interpreted in order to make your tidyr code more robust.</p>
+<p>We are happy to announce that tidyr 0.7.0 is now available on CRAN. This version is mostly about ensuring consistent semantics across the tidyverse. Part of this is the switch to the new tidyselect package as selection backend. This update also brings tidy evaluation to make it easier to program with tidyr. See the (programming with dplyr)[<a href="http://dplyr.tidyverse.org/articles/programming.html" class="uri">http://dplyr.tidyverse.org/articles/programming.html</a>] vignette for an introduction to tidy eval.</p>
 <p>Install the latest version of tidyr with:</p>
 <pre class="r"><code>install.packages(&quot;tidyr&quot;)</code></pre>
 <p>You can read about the complete set of changes at <a href="https://github.com/tidyverse/tidyr/releases/tag/v0.7.0" class="uri">https://github.com/tidyverse/tidyr/releases/tag/v0.7.0</a>.</p>
 <div id="new-selection-rules" class="section level3">
 <h3>New selection rules</h3>
-<p>Following the switch to tidyselect, selecting functions are now stricter in their arguments An example of selecting function is <code>gather()</code> and its <code>...</code> argument. This change makes the code more robust by disallowing ambiguous scoping. Consider the following code:</p>
+<p>Following the switch to tidyselect, selecting functions are now stricter in their arguments to avoid ambiguous cases. For example, take <code>gather()</code> and its <code>...</code> argument. Consider the following code:</p>
 <pre class="r"><code>x &lt;- 3
 df &lt;- tibble(w = 1, x = 2, y = 3)
 gather(df, &quot;variable&quot;, &quot;value&quot;, 1:x)
@@ -29,22 +29,19 @@ gather(df, &quot;variable&quot;, &quot;value&quot;, 1:x)
 #&gt;   &lt;dbl&gt;    &lt;chr&gt; &lt;dbl&gt;
 #&gt; 1     3        w     1
 #&gt; 2     3        x     2</code></pre>
-<p>Does it select the first three columns (using the <code>x</code> defined in the global environment), or does it select the first two columns (using the column named <code>x</code>)?</p>
-<p>To solve this ambiguity, we now make a strict distinction between data and context expressions. A <strong>data expression</strong> is either a bare name or an expression like <code>x:y</code> or <code>c(x, y)</code>. In a data expression, you can only refer to columns from the data frame. Everything else is a <strong>context expression</strong> in which you can only refer to objects that you have defined by assigning with <code>&lt;-</code>.</p>
+<p>Should it select the first three columns (using the <code>x</code> defined in the global environment), or should it select the first two columns (using the column named <code>x</code>)?</p>
+<p>To solve this ambiguity, we now make a strict distinction between data and context expressions. A <strong>data expression</strong> is either a bare name or an expression of the form <code>x:y</code> or <code>c(x, y)</code>. In a data expression, you can only refer to columns from the data frame. Everything else is a <strong>context expression</strong> in which you can only refer to objects that you have defined by assigning with <code>&lt;-</code>.</p>
 <p>In practice this means that you can no longer refer to contextual objects like this:</p>
 <pre class="r"><code>mtcars %&gt;% gather(var, value, 1:ncol(mtcars))
 
 x &lt;- 3
 mtcars %&gt;% gather(var, value, 1:x)
 mtcars %&gt;% gather(var, value, -(1:x))</code></pre>
-<p>You now have to be explicit about where to find objects. To do so, you can use the quasiquotation operator <code>!!</code> which will evaluate its argument early and inline the result:</p>
+<p>You now have to be explicit about where to find objects. One way of being explicit is to use the quasiquotation operator <code>!!</code> which will evaluate its argument early and inline the result:</p>
 <pre class="r"><code>mtcars %&gt;% gather(var, value, !! 1:ncol(mtcars))
 mtcars %&gt;% gather(var, value, !! 1:x)
 mtcars %&gt;% gather(var, value, !! -(1:x))</code></pre>
-<p>Read more about quasiquotation in the tidy eval section. An alternative is to turn your data expression into a context expression by using <code>seq()</code> or <code>seq_len()</code> instead of the <code>:</code> operator.</p>
-<pre class="r"><code>mtcars %&gt;% gather(var, value, seq(1, ncol(mtcars)))
-mtcars %&gt;% gather(var, value, seq(1, x))
-mtcars %&gt;% gather(var, value, -seq(1, x))</code></pre>
+<p>Read more about quasiquotation in the tidy eval section.</p>
 </div>
 <div id="tidy-evaluation" class="section level3">
 <h3>Tidy evaluation</h3>
@@ -128,4 +125,16 @@ quo &lt;- local({
 #&gt;  9          1.4         0.2  setosa Sepal.Length   4.4
 #&gt; 10          1.5         0.1  setosa Sepal.Length   4.9
 #&gt; # ... with 290 more rows</code></pre>
+</div>
+<div id="special-tidy-evaluation-rules" class="section level3">
+<h3>Special tidy evaluation rules</h3>
+<p>The tidy evaluation implementation of tidyr is a bit special. While the philosophy of tidy evaluation is that R code should refer to real objects (from the data frame or from the context), we had to make some exceptions to this rule for tidyr. The reason is that several functions accept bare symbols to specify the names of <em>new</em> columns to create (<code>gather()</code> being a prime example). This is not tidy because the symbol do not represent any actual object.</p>
+<p>Our workaround is to capture these arguments using <code>rlang::quo_name()</code> (so they still support quasiquotation and you can unquote symbols or strings). This workaround is only provided for backward compatibility as this UI is not consistent with other tidyr functions that require strings (e.g. the <code>into</code> argument of <code>separate()</code>). More generally this type of NSE it is now discouraged in the tidyverse. We now prefer strings to refer to variables that don’t yet exist.</p>
+</div>
+<div id="breaking-changes" class="section level3">
+<h3>Breaking changes</h3>
+<ul>
+<li><p>The underscored SE variants are softly deprecated.</p></li>
+<li><p>Selecting functions now make a distinction between data expressions and context expressions. The latter can refer only to contextual objects while the former can refer only to data variables. See above for more information.</p></li>
+</ul>
 </div>
