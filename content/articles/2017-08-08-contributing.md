@@ -2,7 +2,7 @@
 title: Contributing code to the tidyverse
 author: Jim Hester
 slug: contributing
-date: 2018-08-14
+date: 2017-08-14
 photo:
   url: https://unsplash.com/photos/qFxS5FkUSAQ
   author: Yuriy Rzhemovskiy
