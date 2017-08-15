@@ -36,7 +36,7 @@ family of generic mappers, a new `pluck()` function for accessing deep
 elements in a readable way, and a few nifty features and improvements.
 
 
-### Generic Mapping
+### Generic mapping
 
 The new `modify` family of functions introduces genericity to mapping.
 This means it is now easier to map functions over vector-like S3
@@ -51,7 +51,20 @@ objects. The reason is twofold:
 * `map()` is type-stable and always returns a list. If you're mapping
   over an object, chances are you want a similar object back.
 
-`modify()` and its variants solve both these problems via S3 dispatch.
+`modify()` and its variants solve both these problems via S3
+dispatch. For instance, let's try a conditional map over a data
+frame. Since `map_if()` is type-stable, it returns a list and we lose
+the data frame information:
+
+```{r}
+iris %>% map_if(is.factor, as.character) %>% str()
+```
+
+On the other hand, `modify_if()` is generic and returns a data frame:
+
+```{r}
+iris %>% modify_if(is.factor, as.character) %>% str()
+```
 
 As a developer there are two ways to make your class compatible with
 `modify()` . The easiest is to implement a method for the
@@ -60,7 +73,7 @@ cases. Alternatively you can implement methods for the `modify`
 functions themselves as they are all generics.
 
 
-### pluck()
+### pluck() for deep subsetting
 
 The plucking mechanism used for indexing into data structures with
 `map()` has been extracted into the function `pluck()`. Plucking is
@@ -97,40 +110,80 @@ x %>% map(list("df", attr_getter("row.names")))
 ```
 
 
-### Useful tweaks and features
+### set_names() is much more flexible
 
-* `set_names()` (now reexported from rlang) can now take a function to
-  tranform the names programmatically, and you can supply names in
-  `...` to reduce typing even more more.
+`set_names()` (now reexported from the rlang package) has become much
+more flexible. It now takes `...` arguments and concatenates them into
+one vector of names. This saves a bit of typing as you don't have to
+concatenate explicitly with `c()`. The code also looks a bit leaner:
 
-* You can now refer to arguments by position in lambda-formulas. The
-  `..1` symbol refers to the first argument, `..2` to the second and
-  so on. This makes it easier to use functions like `pmap()` with the
-  formula shortcut.
+```{r}
+x <- letters[1:3] %>% set_names("foo", "bar", "baz")
+x
+```
 
-* All typed map functions now treat `NULL` the same way as an empty
-  vector: they return an empty vector if any input is empty.
+In addition `set_names()` now accepts functions as its first
+argument. The function is applied to existing names. Let's transform
+the names of our new vector to uppercase with `base::toupper()`:
 
-* `auto_browse(f)` returns a new function that automatically calls
-  `browser()` if `f` throws an error.
+```{r}
+x %>% set_names(toupper)
+```
 
-* `vec_depth()` computes the depth (i.e. the number of levels of
-  indexing) or a vector.
+When you supply a function, the `...` arguments are forwarded to the
+function which is often handy. Here we might want to pass further
+arguments to `base::paste()`:
 
-* `reduce2()` and `reduce2_right()` make it possible to reduce with a
-  3 argument function where the first argument is the accumulated
-  value, the second argument is `.x`, and the third argument is `.y`.
-
-* `list_modify()` extends `stats::modifyList()` to replace by position
-  if the list is not named. `list_merge()` operates similarly to
-  `list_modify()` but combines instead of replacing.
-
-* `modify_depth()` (previously `at_depth()`) gains new `.ragged`
-  argument, and negative depths are now computed relative to the
-  deepest component of the list.
+```{r}
+x %>% set_names(paste, "suffix", sep = "_")
+```
 
 
-### API Changes
+### Reducing with a three-argument function
+
+`reduce2()` makes it possible to reduce with a three-argument reducing
+function. `reduce2()` takes two vectors `.x` and `.y`, the first of
+which is reduced in the usual manner. The accumulated value is passed
+to the reducing function as first argument while the next value is
+passed as second argument. `.y` on the other hand is mapped, not
+reduced. At each reducing round, the next value of `.y` is passed to
+the reducing function as third argument.
+
+In the following example we have a binary paster that takes `sep` as
+third argument. With the ordinary `reduce()` we are stuck with a
+single separator during the whole reduction:
+
+```{r}
+paste2 <- function(x, y, sep) paste(x, y, sep = sep)
+x <- letters[1:4]
+reduce(x, paste2, sep = ".")
+```
+
+If we want to vary the separator for each value of the input vector,
+`reduce2()` allows us to pass a second vector containing specific
+separators. This auxiliary vector should have one fewer elements than
+the reduced vector:
+
+```{r}
+seps <- c("-", ".", "_")
+reduce2(x, seps, paste2)
+```
+
+
+### Variadic lambda-formulas
+
+You can now refer to arguments by position in lambda-formulas. The
+`..1` symbol refers to the first argument, `..2` to the second and so
+on. This makes it easier to use functions like `pmap()` with the
+formula shortcut:
+
+```{r}
+pmap_chr(mtcars, ~paste(..2, ..4, sep = " - "))
+```
+
+
+
+### API changes
 
 purrr no longer depends on lazyeval or Rcpp (or dplyr, as of the
 previous version). This makes the dependency graph of the tidyverse
@@ -149,9 +202,9 @@ A number of functions have been renamed or deprecated:
 
 * The data frame suffix `_df` has been (soft) deprecated in favour of
   `_dfr` to more clearly indicate that it's a row-bind. All variants
-  now also have a `_dfc` for column binding. (These will not be
-  terribly useful until `dplyr::bind_rows()`/`dplyr::bind_cols()` have
-  better semantics for vectors.)
+  now also have a `_dfc` for column binding. They currently don't
+  handle functions returning vectors because of a bug, but they will
+  in the next minor version of purrr.
 
 * `cross_n()` has been renamed to `cross()`. The `_n` suffix was
   removed for consistency with `pmap()` (originally called `map_n()`
