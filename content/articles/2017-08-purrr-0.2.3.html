@@ -42,13 +42,27 @@ categories: [packages]
 #&gt;  $ Petal.Length: num  1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
 #&gt;  $ Petal.Width : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
 #&gt;  $ Species     : chr  &quot;setosa&quot; &quot;setosa&quot; &quot;setosa&quot; &quot;setosa&quot; ...</code></pre>
+<p>The flip side of genericity is that the vectors returned by the mapped function should obey the constraints of the container type. For instance, data frames require vectors of equal size and it wouldn’t be appropriate to use <code>modify()</code> on a function that returns vectors of variable sizes. In this case you should use <code>map()</code>:</p>
+<pre class="r"><code>map(mtcars, unique) %&gt;% str()
+#&gt; List of 11
+#&gt;  $ mpg : num [1:25] 21 22.8 21.4 18.7 18.1 14.3 24.4 19.2 17.8 16.4 ...
+#&gt;  $ cyl : num [1:3] 6 4 8
+#&gt;  $ disp: num [1:27] 160 108 258 360 225 ...
+#&gt;  $ hp  : num [1:22] 110 93 175 105 245 62 95 123 180 205 ...
+#&gt;  $ drat: num [1:22] 3.9 3.85 3.08 3.15 2.76 3.21 3.69 3.92 3.07 2.93 ...
+#&gt;  $ wt  : num [1:29] 2.62 2.88 2.32 3.21 3.44 ...
+#&gt;  $ qsec: num [1:30] 16.5 17 18.6 19.4 20.2 ...
+#&gt;  $ vs  : num [1:2] 0 1
+#&gt;  $ am  : num [1:2] 1 0
+#&gt;  $ gear: num [1:3] 4 3 5
+#&gt;  $ carb: num [1:6] 4 1 2 3 6 8</code></pre>
 <p>As a developer there are two ways to make your class compatible with <code>modify()</code> . The easiest is to implement a method for the subset-assign operator <code>[&lt;-</code> which should be sufficient in most cases. Alternatively you can implement methods for the <code>modify</code> functions themselves as they are all generics.</p>
 </div>
 <div id="pluck-for-deep-subsetting" class="section level3">
 <h3>pluck() for deep subsetting</h3>
-<p>The plucking mechanism used for indexing into data structures with <code>map()</code> has been extracted into the function <code>pluck()</code>. Plucking is often more readable to extract an element buried in a deep data structure. Compare this syntax-heavy extraction which reads non-linearly:</p>
+<p>The plucking mechanism used for indexing into data structures with <code>map()</code> has been extracted into the function <code>pluck()</code>. Plucking is often more readable when extracting an element buried in a deep data structure. Compare this base R code which reads non-linearly:</p>
 <pre class="r"><code>accessor(x[[1]])$foo</code></pre>
-<p>to the equivalent pluck:</p>
+<p>To the equivalent pluck:</p>
 <pre class="r"><code>x %&gt;% pluck(1, accessor, &quot;foo&quot;)</code></pre>
 <p>The new function <code>attr_getter()</code> generates attribute accessors that can be used in <code>pluck()</code>:</p>
 <pre class="r"><code>dfs &lt;- list(iris, mtcars)
@@ -64,7 +78,7 @@ dfs %&gt;% pluck(2, attr_getter(&quot;row.names&quot;))
 #&gt; [25] &quot;Pontiac Firebird&quot;    &quot;Fiat X1-9&quot;           &quot;Porsche 914-2&quot;      
 #&gt; [28] &quot;Lotus Europa&quot;        &quot;Ford Pantera L&quot;      &quot;Ferrari Dino&quot;       
 #&gt; [31] &quot;Maserati Bora&quot;       &quot;Volvo 142E&quot;</code></pre>
-<p>or in mapped indexing:</p>
+<p>Or in mapped indexing:</p>
 <pre class="r"><code>x &lt;- list(
   list(vec = letters, df = mtcars),
   list(vec = LETTERS, df = iris)

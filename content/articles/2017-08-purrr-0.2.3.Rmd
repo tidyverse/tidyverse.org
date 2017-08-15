@@ -66,6 +66,16 @@ On the other hand, `modify_if()` is generic and returns a data frame:
 iris %>% modify_if(is.factor, as.character) %>% str()
 ```
 
+The flip side of genericity is that the vectors returned by the mapped
+function should obey the constraints of the container type. For
+instance, data frames require vectors of equal size and it wouldn't be
+appropriate to use `modify()` on a function that returns vectors of
+variable sizes. In this case you should use `map()`:
+
+```{r}
+map(mtcars, unique) %>% str()
+```
+
 As a developer there are two ways to make your class compatible with
 `modify()` . The easiest is to implement a method for the
 subset-assign operator `[<-` which should be sufficient in most
@@ -77,15 +87,14 @@ functions themselves as they are all generics.
 
 The plucking mechanism used for indexing into data structures with
 `map()` has been extracted into the function `pluck()`. Plucking is
-often more readable to extract an element buried in a deep data
-structure. Compare this syntax-heavy extraction which reads
-non-linearly:
+often more readable when extracting an element buried in a deep data
+structure. Compare this base R code which reads non-linearly:
 
 ```{r, eval = FALSE}
 accessor(x[[1]])$foo
 ```
 
-to the equivalent pluck:
+To the equivalent pluck:
 
 ```{r, eval = FALSE}
 x %>% pluck(1, accessor, "foo")
@@ -99,7 +108,7 @@ dfs <- list(iris, mtcars)
 dfs %>% pluck(2, attr_getter("row.names"))
 ```
 
-or in mapped indexing:
+Or in mapped indexing:
 
 ```{r}
 x <- list(
