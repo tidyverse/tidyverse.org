@@ -1,0 +1,188 @@
+---
+title: tidyr 0.7.0
+slug: tidyr-0.7.0
+description: >
+  The next installment of tidyr is finally on CRAN! This version
+  brings tidy eval to a crucial component of the tidyverse workflow.
+author: Lionel Henry
+date: 2018-08-15
+photo:
+  url: https://unsplash.com/photos/8tem2WpFPhM
+  author: Radek Grzybowski
+categories: [packages]
+---
+
+```{r setup, include = FALSE}
+library("tidyr")
+library("dplyr")
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+We are happy to announce that tidyr 0.7.0 is now available on
+CRAN. This update makes tidyr compatible with the tidy evaluation
+features introduced in dplyr 0.7.0. It also uses the new tidyselect
+package as selection backend. The switch introduces some changes in
+the way selecting arguments are interpreted in order to make your
+tidyr code more robust.
+
+Install the latest version of tidyr with:
+
+```{r, eval = FALSE}
+install.packages("tidyr")
+```
+
+You can read about the complete set of changes
+at <https://github.com/tidyverse/tidyr/releases/tag/v0.7.0>.
+
+
+### New selection rules
+
+Following the switch to tidyselect, selecting functions are now
+stricter in their arguments An example of selecting function is
+`gather()` and its `...` argument. This change makes the code more
+robust by disallowing ambiguous scoping. Consider the following code:
+
+```{r}
+x <- 3
+df <- tibble(w = 1, x = 2, y = 3)
+gather(df, "variable", "value", 1:x)
+```
+
+Does it select the first three columns (using the `x` defined in the
+global environment), or does it select the first two columns (using
+the column named `x`)?
+
+To solve this ambiguity, we now make a strict distinction between data
+and context expressions. A **data expression** is either a bare name
+or an expression like `x:y` or `c(x, y)`. In a data expression, you
+can only refer to columns from the data frame. Everything else is a
+**context expression** in which you can only refer to objects that you
+have defined by assigning with `<-`.
+
+In practice this means that you can no longer refer to contextual
+objects like this:
+
+```{r, eval = FALSE}
+mtcars %>% gather(var, value, 1:ncol(mtcars))
+
+x <- 3
+mtcars %>% gather(var, value, 1:x)
+mtcars %>% gather(var, value, -(1:x))
+```
+
+You now have to be explicit about where to find objects. To do so,
+you can use the quasiquotation operator `!!` which will evaluate its
+argument early and inline the result:
+
+```{r, eval = FALSE}
+mtcars %>% gather(var, value, !! 1:ncol(mtcars))
+mtcars %>% gather(var, value, !! 1:x)
+mtcars %>% gather(var, value, !! -(1:x))
+```
+
+Read more about quasiquotation in the tidy eval section. An
+alternative is to turn your data expression into a context expression
+by using `seq()` or `seq_len()` instead of the `:` operator.
+
+```{r, eval = FALSE}
+mtcars %>% gather(var, value, seq(1, ncol(mtcars)))
+mtcars %>% gather(var, value, seq(1, x))
+mtcars %>% gather(var, value, -seq(1, x))
+```
+
+
+### Tidy evaluation
+
+Tidy evaluation is a principled set of tools that allow programming
+with quoting functions (also called NSE functions) in a principled
+way. It was first introduced in dplyr 0.7.0 and you can learn more
+about it in the (programming with
+dplyr)[http://dplyr.tidyverse.org/articles/programming.html] vignette.
+At its core, tidy evaluation is the combination of two features:
+quasiquotation and quosures.
+
+The tidy eval tools live in rlang and many of them are reexported in
+dplyr. This includes `quo()`, `enquo()` and `quos()`. In addition,
+`rlang::expr()`, `rlang::sym()` and `rlang::syms()` may be useful as
+well and will be exported in the next version of dplyr.
+
+```{r}
+# Let's import some tidy eval tools that we'll use in examples below
+library("dplyr")
+sym <- rlang::sym
+```
+
+**Quasiquotation** is essential to program with quoting functions. It
+refers to the ability of unquoting part of a quoted expression, and
+makes it possible to program with the quoting grammars of dplyr and
+tidyr. With quasiquotation, you can change what a function "sees".
+You'll typically want to unquote a symbol representing a data frame
+column with the `!!` operator.
+
+Here, `expand()` sees `vs` and `cyl`:
+
+```{r}
+expand(mtcars, vs, cyl)
+```
+
+Thanks to quasiquotation, we can change what `expand()` sees by
+unquoting the `am` symbol:
+
+```{r}
+x <- sym("am")
+expand(mtcars, vs, !! x)
+```
+
+The second tidy eval feature are **quosures**. A quosure is a special
+kind of expression that evaluates in both the data context (so you can
+refer to data frame columns) and the original context of the
+expression (e.g. a function context, so you can refer to local
+variables created there).
+
+```{r}
+# For nicer printing
+iris <- tibble::as_tibble(iris)
+
+# Let's create a quosure within a local context
+quo <- local({
+  prefix <- "Sepal"
+  quo(starts_with(prefix))
+})
+```
+
+`prefix` only exist in the local context but the quosure can safely
+refer to it
+
+```{r}
+quo
+```
+
+In tidyr 0.7.0, all functions now support quosures:
+
+```{r}
+gather(iris, key, value, !! quo)
+```
+
+Typically you'll use quosures to create wrappers around tidyr
+functions. To this end you'll need `enquo()` which does two things: it
+transforms your function to a dplyr-like quoting function; and it
+returns the quoted expression as a quosure. Creating a wrapper
+function is often a simple matter of enquosing and unquoting:
+
+```{r}
+my_gather <- function(df, expr) {
+  quo <- enquo(expr)
+  tidyr::gather(df, key, value, !! quo)
+}
+```
+
+Thanks to the enquosing, you can safely call your wrapper in local
+contexts (e.g. within a function) and refer to variables defined
+there:
+
+```{r}
+local({
+  prefix <- "Sepal"
+  my_gather(iris, starts_with(prefix))
+})
+```

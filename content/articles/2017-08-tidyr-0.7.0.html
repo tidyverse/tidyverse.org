@@ -1,0 +1,131 @@
+---
+title: tidyr 0.7.0
+slug: tidyr-0.7.0
+description: >
+  The next installment of tidyr is finally on CRAN! This version
+  brings tidy eval to a crucial component of the tidyverse workflow.
+author: Lionel Henry
+date: 2018-08-15
+photo:
+  url: https://unsplash.com/photos/8tem2WpFPhM
+  author: Radek Grzybowski
+categories: [packages]
+---
+
+
+
+<p>We are happy to announce that tidyr 0.7.0 is now available on CRAN. This update makes tidyr compatible with the tidy evaluation features introduced in dplyr 0.7.0. It also uses the new tidyselect package as selection backend. The switch introduces some changes in the way selecting arguments are interpreted in order to make your tidyr code more robust.</p>
+<p>Install the latest version of tidyr with:</p>
+<pre class="r"><code>install.packages(&quot;tidyr&quot;)</code></pre>
+<p>You can read about the complete set of changes at <a href="https://github.com/tidyverse/tidyr/releases/tag/v0.7.0" class="uri">https://github.com/tidyverse/tidyr/releases/tag/v0.7.0</a>.</p>
+<div id="new-selection-rules" class="section level3">
+<h3>New selection rules</h3>
+<p>Following the switch to tidyselect, selecting functions are now stricter in their arguments An example of selecting function is <code>gather()</code> and its <code>...</code> argument. This change makes the code more robust by disallowing ambiguous scoping. Consider the following code:</p>
+<pre class="r"><code>x &lt;- 3
+df &lt;- tibble(w = 1, x = 2, y = 3)
+gather(df, &quot;variable&quot;, &quot;value&quot;, 1:x)
+#&gt; # A tibble: 2 x 3
+#&gt;       y variable value
+#&gt;   &lt;dbl&gt;    &lt;chr&gt; &lt;dbl&gt;
+#&gt; 1     3        w     1
+#&gt; 2     3        x     2</code></pre>
+<p>Does it select the first three columns (using the <code>x</code> defined in the global environment), or does it select the first two columns (using the column named <code>x</code>)?</p>
+<p>To solve this ambiguity, we now make a strict distinction between data and context expressions. A <strong>data expression</strong> is either a bare name or an expression like <code>x:y</code> or <code>c(x, y)</code>. In a data expression, you can only refer to columns from the data frame. Everything else is a <strong>context expression</strong> in which you can only refer to objects that you have defined by assigning with <code>&lt;-</code>.</p>
+<p>In practice this means that you can no longer refer to contextual objects like this:</p>
+<pre class="r"><code>mtcars %&gt;% gather(var, value, 1:ncol(mtcars))
+
+x &lt;- 3
+mtcars %&gt;% gather(var, value, 1:x)
+mtcars %&gt;% gather(var, value, -(1:x))</code></pre>
+<p>You now have to be explicit about where to find objects. To do so, you can use the quasiquotation operator <code>!!</code> which will evaluate its argument early and inline the result:</p>
+<pre class="r"><code>mtcars %&gt;% gather(var, value, !! 1:ncol(mtcars))
+mtcars %&gt;% gather(var, value, !! 1:x)
+mtcars %&gt;% gather(var, value, !! -(1:x))</code></pre>
+<p>Read more about quasiquotation in the tidy eval section. An alternative is to turn your data expression into a context expression by using <code>seq()</code> or <code>seq_len()</code> instead of the <code>:</code> operator.</p>
+<pre class="r"><code>mtcars %&gt;% gather(var, value, seq(1, ncol(mtcars)))
+mtcars %&gt;% gather(var, value, seq(1, x))
+mtcars %&gt;% gather(var, value, -seq(1, x))</code></pre>
+</div>
+<div id="tidy-evaluation" class="section level3">
+<h3>Tidy evaluation</h3>
+<p>Tidy evaluation is a principled set of tools that allow programming with quoting functions (also called NSE functions) in a principled way. It was first introduced in dplyr 0.7.0 and you can learn more about it in the (programming with dplyr)[<a href="http://dplyr.tidyverse.org/articles/programming.html" class="uri">http://dplyr.tidyverse.org/articles/programming.html</a>] vignette. At its core, tidy evaluation is the combination of two features: quasiquotation and quosures.</p>
+<p>The tidy eval tools live in rlang and many of them are reexported in dplyr. This includes <code>quo()</code>, <code>enquo()</code> and <code>quos()</code>. In addition, <code>rlang::expr()</code>, <code>rlang::sym()</code> and <code>rlang::syms()</code> may be useful as well and will be exported in the next version of dplyr.</p>
+<pre class="r"><code># Let&#39;s import some tidy eval tools that we&#39;ll use in examples below
+library(&quot;dplyr&quot;)
+sym &lt;- rlang::sym</code></pre>
+<p><strong>Quasiquotation</strong> is essential to program with quoting functions. It refers to the ability of unquoting part of a quoted expression, and makes it possible to program with the quoting grammars of dplyr and tidyr. With quasiquotation, you can change what a function “sees”. You’ll typically want to unquote a symbol representing a data frame column with the <code>!!</code> operator.</p>
+<p>Here, <code>expand()</code> sees <code>vs</code> and <code>cyl</code>:</p>
+<pre class="r"><code>expand(mtcars, vs, cyl)
+#&gt; # A tibble: 6 x 2
+#&gt;      vs   cyl
+#&gt;   &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1     0     4
+#&gt; 2     0     6
+#&gt; 3     0     8
+#&gt; 4     1     4
+#&gt; 5     1     6
+#&gt; 6     1     8</code></pre>
+<p>Thanks to quasiquotation, we can change what <code>expand()</code> sees by unquoting the <code>am</code> symbol:</p>
+<pre class="r"><code>x &lt;- sym(&quot;am&quot;)
+expand(mtcars, vs, !! x)
+#&gt; # A tibble: 4 x 2
+#&gt;      vs    am
+#&gt;   &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1     0     0
+#&gt; 2     0     1
+#&gt; 3     1     0
+#&gt; 4     1     1</code></pre>
+<p>The second tidy eval feature are <strong>quosures</strong>. A quosure is a special kind of expression that evaluates in both the data context (so you can refer to data frame columns) and the original context of the expression (e.g. a function context, so you can refer to local variables created there).</p>
+<pre class="r"><code># For nicer printing
+iris &lt;- tibble::as_tibble(iris)
+
+# Let&#39;s create a quosure within a local context
+quo &lt;- local({
+  prefix &lt;- &quot;Sepal&quot;
+  quo(starts_with(prefix))
+})</code></pre>
+<p><code>prefix</code> only exist in the local context but the quosure can safely refer to it</p>
+<pre class="r"><code>quo
+#&gt; &lt;quosure: local&gt;
+#&gt; ~starts_with(prefix)</code></pre>
+<p>In tidyr 0.7.0, all functions now support quosures:</p>
+<pre class="r"><code>gather(iris, key, value, !! quo)
+#&gt; # A tibble: 300 x 5
+#&gt;    Petal.Length Petal.Width Species          key value
+#&gt;           &lt;dbl&gt;       &lt;dbl&gt;  &lt;fctr&gt;        &lt;chr&gt; &lt;dbl&gt;
+#&gt;  1          1.4         0.2  setosa Sepal.Length   5.1
+#&gt;  2          1.4         0.2  setosa Sepal.Length   4.9
+#&gt;  3          1.3         0.2  setosa Sepal.Length   4.7
+#&gt;  4          1.5         0.2  setosa Sepal.Length   4.6
+#&gt;  5          1.4         0.2  setosa Sepal.Length   5.0
+#&gt;  6          1.7         0.4  setosa Sepal.Length   5.4
+#&gt;  7          1.4         0.3  setosa Sepal.Length   4.6
+#&gt;  8          1.5         0.2  setosa Sepal.Length   5.0
+#&gt;  9          1.4         0.2  setosa Sepal.Length   4.4
+#&gt; 10          1.5         0.1  setosa Sepal.Length   4.9
+#&gt; # ... with 290 more rows</code></pre>
+<p>Typically you’ll use quosures to create wrappers around tidyr functions. To this end you’ll need <code>enquo()</code> which does two things: it transforms your function to a dplyr-like quoting function; and it returns the quoted expression as a quosure. Creating a wrapper function is often a simple matter of enquosing and unquoting:</p>
+<pre class="r"><code>my_gather &lt;- function(df, expr) {
+  quo &lt;- enquo(expr)
+  tidyr::gather(df, key, value, !! quo)
+}</code></pre>
+<p>Thanks to the enquosing, you can safely call your wrapper in local contexts (e.g. within a function) and refer to variables defined there:</p>
+<pre class="r"><code>local({
+  prefix &lt;- &quot;Sepal&quot;
+  my_gather(iris, starts_with(prefix))
+})
+#&gt; # A tibble: 300 x 5
+#&gt;    Petal.Length Petal.Width Species          key value
+#&gt;           &lt;dbl&gt;       &lt;dbl&gt;  &lt;fctr&gt;        &lt;chr&gt; &lt;dbl&gt;
+#&gt;  1          1.4         0.2  setosa Sepal.Length   5.1
+#&gt;  2          1.4         0.2  setosa Sepal.Length   4.9
+#&gt;  3          1.3         0.2  setosa Sepal.Length   4.7
+#&gt;  4          1.5         0.2  setosa Sepal.Length   4.6
+#&gt;  5          1.4         0.2  setosa Sepal.Length   5.0
+#&gt;  6          1.7         0.4  setosa Sepal.Length   5.4
+#&gt;  7          1.4         0.3  setosa Sepal.Length   4.6
+#&gt;  8          1.5         0.2  setosa Sepal.Length   5.0
+#&gt;  9          1.4         0.2  setosa Sepal.Length   4.4
+#&gt; 10          1.5         0.1  setosa Sepal.Length   4.9
+#&gt; # ... with 290 more rows</code></pre>
+</div>
