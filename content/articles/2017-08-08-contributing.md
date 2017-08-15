@@ -113,7 +113,7 @@ covered is a great way to contribute to a project.
 One of the first barriers to acceptance is coding style. Do not submit a
 contribution using camelCase to a project that uses snake_case, or use tabs
 when the project uses spaces. For tidyverse projects read the [Style
-Guide](https://style.tidyverse.org) and use the
+Guide](http://style.tidyverse.org) and use the
 [lintr](https://cran.r-project.org/package=lintr) package to find code which
 does not adhere to the style guide.
 
