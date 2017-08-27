@@ -1,10 +1,12 @@
 ---
 title: "Lucy's Internship Experience"
 slug: lucy-internship
+description: >
+  Over the past several months I have been working with Jenny Bryan on the googledrive package. I wanted to share a bit about the process and some things I learned along the way. While brainstorming this post, I went back through my GitHub commits to remind myself of the journey - it turns out they do a rather good job of showing the scope of this!
 date: 2017-08-25
 author: "Lucy D'Agostino McGowan"
 photo:
-  url: lucy-internship-wd.jpg
+  url: https://twitter.com/_inundata
   author: Karthik Ram
 categories: [Other]
 ---
