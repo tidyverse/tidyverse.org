@@ -16,13 +16,14 @@ _Over the past several months I have been working with Jenny Bryan on the google
 
 The googledrive 📦 looked measurably different on this [first day](https://github.com/tidyverse/googledrive/tree/ef8a410f8e74080670ff3145a330cdaa100472a8). I think this gives some really good insight into the iterative process of package design as well as how much I absorbed from Jenny along the way. In these early days, I was beavering away, building some small wrappers for Drive endpoints, spending most of my time getting to know the [Drive documentation](https://developers.google.com/drive/v3/web/about-sdk) and celebrating small victories.
 
-<center>
-<img src = "/images/lucy-internship/02_upload.png" width = "300pt"> </img><br>
-_Small victory 1: The ability to upload files to Drive_.
+<div style="text-align: center;">
+<div style="display: inline-block; text-align: left">
+<img src = "/images/lucy-internship/02_upload.png" width = "300pt"> </img><br>_Small victory 1: The ability to upload files to Drive_.
 
-<img src = "/images/lucy-internship/03_delete.png" width = "300pt"> </img><br>
-_Small victory 2: The ability to delete files on Drive_.
-</center>
+<img src = "/images/lucy-internship/03_delete.png" width = "300pt"> </img><br> _Small victory 2: The ability to delete files on Drive_.
+</div>
+</div>
+</br>
 
 My day to day back in April seems so foreign to the workflow Jenny and I have now established, but those first few weeks were incredibly useful for getting me steeped in all things Google Drive. Our process eventually converged to:
 
@@ -41,14 +42,17 @@ The PR review process was quite new to me, but SO integral to the success of thi
 
 The tidyverse has an [R Style Guide](http://style.tidyverse.org). My first pass at incorporating the style was switching my roxygen documentation to [markdown](https://github.com/klutometis/roxygen/blob/master/vignettes/markdown.Rmd) (this can be enabled by adding `Roxygen: list(markdown = TRUE)` to the `DESCRIPTION` file). This is an example of something I didn't even know existed prior to this project. Other pieces I absorbed include: 
 
-<center>
-<img src = "/images/lucy-internship/04_travis.png" width = "300pt"> </img><br>  _&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; Absorption example 1: Recommendations for continuous integration._
+<div style="text-align: center;">
+<div style="display: inline-block; text-align: left">
+<img src = "/images/lucy-internship/04_travis.png" width = "300pt"> </img><br>  _Absorption example 1: Recommendations for continuous integration._
 
-<img src = "/images/lucy-internship/05_test.png" width = "300pt"> </img><br> _&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Absorption example 2: Learning sensible ways to test._
+<img src = "/images/lucy-internship/05_test.png" width = "300pt"> </img><br> _Absorption example 2: Learning sensible ways to test._
 
 <img src = "/images/lucy-internship/06_clean-up.png" width = "300pt"> </img><br>
 _Absorption example 3: Cleaning up my code._
-</center>
+</div>
+</div>
+</br>
 
 I made GREAT use of [lintr](https://github.com/jimhester/lintr) 🛀 until the coding conventions became second nature to me. Even still, I cannot overstate the immense utility of coding alongside Jenny. I found myself slowly adapting her excellent coding principles and style simply from seeing her suggestions and reviewing her commits. She gently nudged me towards much prettier & more useful code!
 
