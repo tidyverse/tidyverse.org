@@ -149,7 +149,7 @@ $(document).ready(function () {
 #&gt; 10 export-mime-type-defaults.csv
 #&gt; # ... with 2 more variables: id &lt;chr&gt;, drive_resource &lt;list&gt;</code></pre>
 <p>googledrive holds Drive file info in a <a href="http://googledrive.tidyverse.org/reference/dribble.html">dribble</a>, a “Drive tibble”. This allows us to provide human-readable file names, packaged with API-friendly file ids and other useful metadata (in the <code>drive_resource</code> list-column). Each row represents a Drive file.</p>
-<p><code>drive_reveal()</code> adds extra information to the dribble by excavating interesting metadata out <code>drive_resource</code> or by making additional API calls.</p>
+<p><code>drive_reveal()</code> adds extra information to the dribble by excavating interesting metadata out of <code>drive_resource</code> or by making additional API calls.</p>
 <pre class="r"><code>(x &lt;- x %&gt;%
    drive_reveal(&quot;permissions&quot;) %&gt;% 
    drive_reveal(&quot;mime_type&quot;))
@@ -168,7 +168,7 @@ $(document).ready(function () {
 #&gt; 10 export-mime-type-defaults.csv application/vnd.google-apps.spreadsheet
 #&gt; # ... with 4 more variables: shared &lt;lgl&gt;, id &lt;chr&gt;,
 #&gt; #   drive_resource &lt;list&gt;, permissions_resource &lt;list&gt;</code></pre>
-<p>Since files are stored in a specialized tibble, you can use your usual tidyverse workflows to manipulate this data.</p>
+<p>Since files are stored in a specialized tibble, you can use your usual tidyverse workflows to manipulate this data frame.</p>
 <pre class="r"><code>x %&gt;% 
   filter(mime_type == &quot;image/jpeg&quot;) %&gt;% 
   select(-mime_type, -shared, -permissions_resource)
@@ -181,11 +181,11 @@ $(document).ready(function () {
 </div>
 <div id="test-drive-and-cleanup" class="section level2">
 <h2>Test drive and cleanup</h2>
-<p>We’ll quickly show off a few basic file operations and then clean up:</p>
+<p>We’ll quickly show off a few basic file operations and then clean up. This also demonstrates the file conversion features available when importing into and exporting out of native Google file types.</p>
 <ul>
 <li>Make a folder.</li>
-<li>Make a new Drive file (Google Sheet) by uploading a local file (csv).</li>
-<li>List the contents of the folder and reveal path.</li>
+<li>Make a new Drive file (Google Sheet) by uploading a local file (csv). A few example files ship with googledrive and <code>drive_example()</code> is just a convenience function to get the local path on any system.</li>
+<li>List the contents of the folder and reveal file path to confirm the new file is in the target folder.</li>
 <li>Rename the file.</li>
 <li>Download the Sheet as an Excel workbook.</li>
 <li>Delete the folder and the enclosed Sheet.</li>
@@ -199,7 +199,7 @@ chicken_sheet &lt;- drive_example(&quot;chicken.csv&quot;) %&gt;%
 #&gt; Local file:
 #&gt;   * /Users/jenny/resources/R/library/googledrive/extdata/chicken.csv
 #&gt; uploaded into Drive file:
-#&gt;   * blog-chicken-sheet: 1whlLPix1VDdNFO3Dg3eRrngSq-_QLwqR2DlYfNcXvMw
+#&gt;   * blog-chicken-sheet: 1USgFT1I5jdzs8C8iyz6LOYAv1VyMHzbTDmn-6RCa-fg
 #&gt; with MIME type:
 #&gt;   * application/vnd.google-apps.spreadsheet
 
@@ -225,7 +225,7 @@ chicken_sheet %&gt;%
 
 drive_rm(folder)
 #&gt; Files deleted:
-#&gt;   * blog-folder: 0B0Gh-SuuA2nTVlpqRGF0bHlPOWM
+#&gt;   * blog-folder: 0B0Gh-SuuA2nTcVR3cy1IME9tMW8
 file.remove(&quot;blog-famous-chickens.xlsx&quot;)
 #&gt; [1] TRUE</code></pre>
 <p>Learn more about googledrive at:</p>
