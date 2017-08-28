@@ -1,0 +1,108 @@
+---
+title: googledrive initial release
+author: Jenny Bryan
+date: '2017-08-27'
+slug: googledrive-initial-release
+description: >
+  The first release on googledrive is now on CRAN. Operate on Google Drive files from R.
+categories:
+  - packages
+photo:
+  url: https://unsplash.com/photos/wgLPy2YBXuc
+  author: Paul Csogi
+tags: []
+---
+
+```{r setup, include = FALSE}
+library("googledrive")
+library("tidyverse")
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+token_path <- "~/rrr/googledrive/tidyverse-noncaching-token.rds"
+googledrive::drive_auth(token_path)
+```
+
+```{r eval = FALSE, include = FALSE}
+library(magick)
+img <- image_read("content/articles/paul-csogi-18594.jpg")
+img_sq <- img %>% 
+  image_crop("2988x2988+1200+0") %>% 
+  image_scale("300x300")
+img_sq %>% 
+  image_write("content/articles/googledrive-initial-release-sq.jpg")
+img_wd <- img %>% 
+  image_crop("5000x1000+200+1400") %>% 
+  image_scale("1000x200")
+img_wd %>% 
+  image_write("content/articles/googledrive-initial-release-wd.jpg")
+```
+
+We are tickled pink to announce the initial CRAN release of the googledrive package. This is a collaboration between Jenny Bryan and tidyverse intern, [Lucy D'Agostino McGowan](http://lucymcgowan.com/) (blog post on that coming soon!).
+
+googledrive lets you deal with files on Google Drive from R. You can find, list, create, trash, delete, rename, move, copy, browse, download, share and publish them. Install it with:
+
+```{r, eval = FALSE}
+install.packages("googledrive")
+```
+
+googledrive wraps the [Drive REST API v3](https://developers.google.com/drive/v3/web/about-sdk). The most common file operations are exposed in high-level functions designed for ease of use. A low-level interface, used internally, is also available for those who wish to program around the Drive API.
+
+## First use
+
+You can see and filter your files, similar to the experience at <https://drive.google.com/>, with `drive_find()`. Expect to be taken to the browser here, in order to authorize googledrive to act on your behalf. We limit `drive_find()` to 10 files and just a few file types for brevity.
+
+```{r}
+library(googledrive)
+(x <- drive_find(n_max = 10, type = c("spreadsheet", "jpg", "pdf")))
+```
+
+googledrive holds Drive file info in a [dribble](http://googledrive.tidyverse.org/reference/dribble.html), a "Drive tibble". This allows us to provide human-readable file names, packaged with API-friendly file ids and other useful metadata (in the `drive_resource` list-column). Each row represents a Drive file.
+
+`drive_reveal()` adds extra information to the dribble by excavating interesting metadata out `drive_resource` or by making additional API calls.
+
+```{r}
+(x <- x %>%
+   drive_reveal("permissions") %>% 
+   drive_reveal("mime_type"))
+```
+
+Since files are stored in a specialized tibble, you can use your usual tidyverse workflows to manipulate this data.
+
+```{r}
+x %>% 
+  filter(mime_type == "image/jpeg") %>% 
+  select(-mime_type, -shared, -permissions_resource)
+```
+
+## Test drive and cleanup
+
+We'll quickly show off a few basic file operations and then clean up:
+
+  * Make a folder.
+  * Make a new Drive file (Google Sheet) by uploading a local file (csv).
+  * List the contents of the folder and reveal path.
+  * Rename the file.
+  * Download the Sheet as an Excel workbook.
+  * Delete the folder and the enclosed Sheet.
+
+```{r}
+folder <- drive_mkdir("blog-folder")
+
+chicken_sheet <- drive_example("chicken.csv") %>% 
+  drive_upload(path = "blog-folder/blog-chicken-sheet", type = "spreadsheet")
+
+drive_ls(folder) %>%
+  drive_reveal("path")
+
+chicken_sheet <- chicken_sheet %>% 
+  drive_rename("blog-famous-chickens")
+
+chicken_sheet %>%
+  drive_download()
+
+drive_rm(folder)
+file.remove("blog-famous-chickens.xlsx")
+```
+
+Learn more about googledrive at:
+
+  * <http://googledrive.tidyverse.org>
