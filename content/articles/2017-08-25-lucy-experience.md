@@ -8,7 +8,7 @@ author: "Lucy D'Agostino McGowan"
 photo:
   url: https://twitter.com/_inundata
   author: Karthik Ram
-categories: [Other]
+categories: [learn]
 ---
 
 
