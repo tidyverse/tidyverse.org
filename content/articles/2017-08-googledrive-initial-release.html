@@ -11,7 +11,7 @@
 
 <meta name="author" content="Jenny Bryan" />
 
-<meta name="date" content="2017-08-27" />
+<meta name="date" content="2017-08-29" />
 
 <title>googledrive initial release</title>
 
@@ -119,15 +119,16 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">googledrive initial release</h1>
 <h4 class="author"><em>Jenny Bryan</em></h4>
-<h4 class="date"><em>2017-08-27</em></h4>
+<h4 class="date"><em>2017-08-29</em></h4>
 
 </div>
 
 
-<p>We are tickled pink to announce the initial CRAN release of the googledrive package. This is a collaboration between Jenny Bryan and tidyverse intern, <a href="http://lucymcgowan.com/">Lucy D’Agostino McGowan</a> (blog post on that coming soon!).</p>
-<p>googledrive lets you deal with files on Google Drive from R. You can find, list, create, trash, delete, rename, move, copy, browse, download, share and publish them. Install it with:</p>
+<p>We are tickled pink to announce the initial CRAN release of the <a href="http://googledrive.tidyverse.org">googledrive package</a>. This is a collaboration between Jenny Bryan and tidyverse intern, <a href="http://lucymcgowan.com/">Lucy D’Agostino McGowan</a> (blog post on that coming soon!).</p>
+<p>googledrive wraps the <a href="https://developers.google.com/drive/v3/web/about-sdk">Drive REST API v3</a>. The most common file operations are implemented in high-level functions designed for ease of use. You can find, list, create, trash, delete, rename, move, copy, browse, download, share and publish Drive files, including those on Team Drives.</p>
+<p>Install googledrive with:</p>
 <pre class="r"><code>install.packages(&quot;googledrive&quot;)</code></pre>
-<p>googledrive wraps the <a href="https://developers.google.com/drive/v3/web/about-sdk">Drive REST API v3</a>. The most common file operations are exposed in high-level functions designed for ease of use. A low-level interface, used internally, is also available for those who wish to program around the Drive API.</p>
+<p>The auth flow should “just work” for most people, especially for early and interactive use. For more advanced usage, functions are available that give the user much more control, i.e. to support non-interactive and remote usage. A low-level interface, used internally, is also exposed for those who wish to program around the Drive API.</p>
 <div id="first-use" class="section level2">
 <h2>First use</h2>
 <p>You can see and filter your files, similar to the experience at <a href="https://drive.google.com/" class="uri">https://drive.google.com/</a>, with <code>drive_find()</code>. Expect to be taken to the browser here, in order to authorize googledrive to act on your behalf. We limit <code>drive_find()</code> to 10 files and just a few file types for brevity.</p>
@@ -148,7 +149,7 @@ $(document).ready(function () {
 #&gt;  9  foo_sheet-TEST-drive-publish
 #&gt; 10 export-mime-type-defaults.csv
 #&gt; # ... with 2 more variables: id &lt;chr&gt;, drive_resource &lt;list&gt;</code></pre>
-<p>googledrive holds Drive file info in a <a href="http://googledrive.tidyverse.org/reference/dribble.html">dribble</a>, a “Drive tibble”. This allows us to provide human-readable file names, packaged with API-friendly file ids and other useful metadata (in the <code>drive_resource</code> list-column). Each row represents a Drive file.</p>
+<p>googledrive holds Drive file info in a <a href="http://googledrive.tidyverse.org/reference/dribble.html">dribble</a>, a “Drive tibble”. This allows us to provide human-readable file names, packaged with API-friendly file ids and other useful metadata in the <code>drive_resource</code> list-column. Each row represents a Drive file.</p>
 <p><code>drive_reveal()</code> adds extra information to the dribble by excavating interesting metadata out of <code>drive_resource</code> or by making additional API calls.</p>
 <pre class="r"><code>(x &lt;- x %&gt;%
    drive_reveal(&quot;permissions&quot;) %&gt;% 
@@ -171,7 +172,7 @@ $(document).ready(function () {
 <p>Since files are stored in a specialized tibble, you can use your usual tidyverse workflows to manipulate this data frame.</p>
 <pre class="r"><code>x %&gt;% 
   filter(mime_type == &quot;image/jpeg&quot;) %&gt;% 
-  select(-mime_type, -shared, -permissions_resource)
+  select(name, id, drive_resource)
 #&gt; # A tibble: 3 x 3
 #&gt;          name                           id drive_resource
 #&gt; *       &lt;chr&gt;                        &lt;chr&gt;         &lt;list&gt;
@@ -181,15 +182,8 @@ $(document).ready(function () {
 </div>
 <div id="test-drive-and-cleanup" class="section level2">
 <h2>Test drive and cleanup</h2>
-<p>We’ll quickly show off a few basic file operations and then clean up. This also demonstrates the file conversion features available when importing into and exporting out of native Google file types.</p>
-<ul>
-<li>Make a folder.</li>
-<li>Make a new Drive file (Google Sheet) by uploading a local file (csv). A few example files ship with googledrive and <code>drive_example()</code> is just a convenience function to get the local path on any system.</li>
-<li>List the contents of the folder and reveal file path to confirm the new file is in the target folder.</li>
-<li>Rename the file.</li>
-<li>Download the Sheet as an Excel workbook.</li>
-<li>Delete the folder and the enclosed Sheet.</li>
-</ul>
+<p>We’ll quickly show off a few basic file operations and then clean up. This example also demonstrates the file conversion features available when importing into and exporting out of native Google file types.</p>
+<p>First, we make a new folder. Then we make a new Drive file (a Google Sheet) by uploading a local file (csv). A few example files ship with googledrive and <code>drive_example()</code> is just a convenience function to get the local path on any system.</p>
 <pre class="r"><code>folder &lt;- drive_mkdir(&quot;blog-folder&quot;)
 #&gt; Folder created:
 #&gt;   * blog-folder
@@ -199,35 +193,34 @@ chicken_sheet &lt;- drive_example(&quot;chicken.csv&quot;) %&gt;%
 #&gt; Local file:
 #&gt;   * /Users/jenny/resources/R/library/googledrive/extdata/chicken.csv
 #&gt; uploaded into Drive file:
-#&gt;   * blog-chicken-sheet: 1USgFT1I5jdzs8C8iyz6LOYAv1VyMHzbTDmn-6RCa-fg
+#&gt;   * blog-chicken-sheet: 1qGE2yLpe4qN-wZCMCl1t5ml-0acGW-xEPZ2l6PMHd7o
 #&gt; with MIME type:
-#&gt;   * application/vnd.google-apps.spreadsheet
-
-drive_ls(folder) %&gt;%
+#&gt;   * application/vnd.google-apps.spreadsheet</code></pre>
+<p>Let’s list the contents of the folder and reveal file path to confirm the new file exists and has been placed in the target folder.</p>
+<pre class="r"><code>drive_ls(folder) %&gt;%
   drive_reveal(&quot;path&quot;)
 #&gt; # A tibble: 1 x 4
 #&gt;                 name                             path
 #&gt; *              &lt;chr&gt;                            &lt;chr&gt;
 #&gt; 1 blog-chicken-sheet ~/blog-folder/blog-chicken-sheet
-#&gt; # ... with 2 more variables: id &lt;chr&gt;, drive_resource &lt;list&gt;
-
-chicken_sheet &lt;- chicken_sheet %&gt;% 
-  drive_rename(&quot;blog-famous-chickens&quot;)
+#&gt; # ... with 2 more variables: id &lt;chr&gt;, drive_resource &lt;list&gt;</code></pre>
+<p>Here we rename the file and download it to a local file. Since we are downloading from a Google Sheet, we must convert to a more conventional file type, such as csv or, the default, an Excel workbook.</p>
+<pre class="r"><code>chicken_sheet %&gt;% 
+  drive_rename(&quot;blog-famous-chickens&quot;) %&gt;% 
+  drive_download()
 #&gt; File renamed:
 #&gt;   * blog-chicken-sheet -&gt; blog-famous-chickens
-
-chicken_sheet %&gt;%
-  drive_download()
 #&gt; File downloaded:
 #&gt;   * blog-famous-chickens
 #&gt; Saved locally as:
-#&gt;   * blog-famous-chickens.xlsx
-
+#&gt;   * blog-famous-chickens.xlsx</code></pre>
+<p>Finally, we clean up by deleting the local spreadsheet, as well as the folder we created on Drive.</p>
+<pre class="r"><code>file.remove(&quot;blog-famous-chickens.xlsx&quot;)
+#&gt; [1] TRUE
 drive_rm(folder)
 #&gt; Files deleted:
-#&gt;   * blog-folder: 0B0Gh-SuuA2nTcVR3cy1IME9tMW8
-file.remove(&quot;blog-famous-chickens.xlsx&quot;)
-#&gt; [1] TRUE</code></pre>
+#&gt;   * blog-folder: 0B0Gh-SuuA2nTMTl0cjIwZThQRzg</code></pre>
+<p>We look forward to hearing how this package is useful to you. Feel free to chime in on <a href="https://github.com/tidyverse/googledrive/issues">GitHub issues</a> to discuss how googledrive can best support your workflows.</p>
 <p>Learn more about googledrive at:</p>
 <ul>
 <li><a href="http://googledrive.tidyverse.org" class="uri">http://googledrive.tidyverse.org</a></li>
