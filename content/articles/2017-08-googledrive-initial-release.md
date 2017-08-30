@@ -6,7 +6,7 @@ slug: googledrive-initial-release
 description: >
   The first release of googledrive is now on CRAN. Operate on Google Drive files from R.
 categories:
-  - packages
+  - package
 photo:
   url: https://unsplash.com/photos/wgLPy2YBXuc
   author: Paul Csogi
