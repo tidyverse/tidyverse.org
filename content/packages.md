@@ -6,9 +6,9 @@ title: Tidyverse packages
 
 * Install all the packages in the tidyverse by running `install.packages("tidyverse")`.
 
-* Run `library(tidyverse)` to load the core tidyverse and make available 
+* Run `library(tidyverse)` to load the core tidyverse and make available
   in your current R session.
-  
+
 Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
 
 <div class="package-section">
@@ -60,7 +60,7 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
     <img class="package-image" src="/images/hex-tibble.png"></img>
     <div class="package-info">
       <h3><a href="http://tibble.tidyverse.org/">tibble</a></h3>
-      <p>tibble is a modern re-imaginging of the data frame, keeping what time has proven to be effective, and throwing out what it has not. Tibbles are data.frames that are lazy and surly: they do less and complain more forcing you to confront problems earlier, typically leading to cleaner, more expressive code. 
+      <p>tibble is a modern re-imaginging of the data frame, keeping what time has proven to be effective, and throwing out what it has not. Tibbles are data.frames that are lazy and surly: they do less and complain more forcing you to confront problems earlier, typically leading to cleaner, more expressive code.
       <a href="http://tibble.tidyverse.org/">Learn more ...</a></p>
     </div>
   </div>
@@ -88,12 +88,12 @@ There are a handful of other packages that are not in the tidyverse, but are tid
 
 * [DBI](https://github.com/rstats-db/DBI) for relational databases.
   To connect to a specific database, you'll need to pair DBI with a specific
-  backend like RSQLite, RPostgres, or odbc. Learn more at 
+  backend like RSQLite, RPostgres, or odbc. Learn more at
   <http://db.rstudio.com>.
 
 ## Wrangle
 
-As well as [tidyr](http://tidyr.tidyverse.org), and [dplyr](http://dplyr.tidyverse), there are five packages designed to work with specific types of data:
+As well as [tidyr](http://tidyr.tidyverse.org), and [dplyr](http://dplyr.tidyverse.org), there are five packages designed to work with specific types of data:
 
 * [stringr](http://stringr.tidyverse.org) for strings.
 * [lubridate](http://lubridate.tidyverse.org) for dates and date-times.
@@ -107,11 +107,11 @@ As well as [purrr](http://purrr.tidyverse.org) which faciliates functional progr
 
 * [rlang](http://rlang.tidyverse.org) provides tools to work with core language features of R and the tidyverse
 
-* [magrittr](http://magrittr.tidyverse.org) provides the pipe, `%>%` used 
+* [magrittr](http://magrittr.tidyverse.org) provides the pipe, `%>%` used
   throughout the tidyverse. It also provide a number of more specialised
   piping operators (like `%$%` and `%<>%`) that can be useful in other places.
 
-* [glue](https://github.com/tidyverse/glue) provides an alternative to 
+* [glue](https://github.com/tidyverse/glue) provides an alternative to
   `paste()` that makes it easier to combine data and strings.
 
 ## Model
