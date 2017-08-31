@@ -36,6 +36,8 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
 * [Data visualisation with ggplot2](https://www.datacamp.com/courses/data-visualization-with-ggplot2-1) by
   Rick Scavetta, hosted on datacamp. Covers the basics of ggplot2. Followed by [part 2](https://www.datacamp.com/courses/data-visualization-with-ggplot2-2)
   which covers more advanced topics.
+ 
+* [Exploratory data analysis in R: case study](https://www.datacamp.com/courses/exploratory-data-analysis-in-r-case-study) by David Robinson, hosted on datacamp. This course brings ggplot2 and dplyr to action on a real dataset, also introducing broom for tidying model output and how to tidy up data to help you explore your dataset. 
 
 ## University courses
 
