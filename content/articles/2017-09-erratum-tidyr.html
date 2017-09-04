@@ -1,0 +1,152 @@
+---
+title: Erratum tidyr 0.7.0
+slug: erratum-tidyr-0.7.0
+description: >
+  We have updated tidyselect to revert a behaviour introduced in tidyr 0.7.0.
+author: Lionel Henry
+date: 2017-09-04
+photo:
+  url: https://unsplash.com/photos/0vY082Un2pk
+  author: Edu Grande
+categories: [packages]
+---
+
+
+
+<p>In <a href="http://www.tidyverse.org/articles/2017/08/tidyr-0.7.0/">tidyr 0.7.0</a>, we introduced a stronger distinction between data expressions and context expressions for selecting verbs like <code>gather()</code>. However that change caused a lot of trouble and confusion and we have updated <code>tidyselect</code> (the backend for selection functions) to revert that behaviour. In that article, we provide a few comments on these changes as well as some notes on good practices for writing functions with tidyverse tools. Finally we introduce two new selection features that help write safe code: improved support for strings and character vectors and a new selection helper <code>last_col()</code>.</p>
+<p>You can install the new version of tidyselect from CRAN:</p>
+<pre class="r"><code>install.packages(&quot;tidyselect&quot;)</code></pre>
+<div id="updated-selection-rules" class="section level3">
+<h3>Updated selection rules</h3>
+<p>Since tidyr 0.7.0, selecting functions like <code>gather()</code> use the tidyselect package as backend. Tidyselect was extracted from dplyr and provides the mechanism for helpers like <code>starts_with()</code> or <code>everything()</code>. However, tidyselect had one big change compared to dplyr: data expressions could no longer refer to contextual variables. A <strong>data</strong> expression is defined as either a bare symbol like <code>var</code>, or a call like <code>var1:var2</code> or <code>c(var1, var2)</code>. Any other expressions is a <strong>context</strong> expression. The semantic change meant that it was no longer legal to refer to a contextual variable in a data expression:</p>
+<pre class="r"><code>var &lt;- 5
+mtcars %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 1:var)</code></pre>
+<p>We thought this was a relatively uncommon occurrence in practice. However that broke a lot of code that had this form:</p>
+<pre class="r"><code>df %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 1:ncol(df))</code></pre>
+<p>Although the change was well-intentioned, it proved to be too disruptive and we have reverted it.</p>
+<p>Note that we still maintain a distinction between data and context expressions. The notion of context expression (anything that’s not a symbol or a call to <code>:</code> or <code>c()</code>) was introduced in dplyr 0.7.0. Since that version, context expressions cannot refer to the data. This makes it safer to refer to other objects.</p>
+</div>
+<div id="safety-versus-convenience" class="section level3">
+<h3>Safety versus convenience</h3>
+<p>Most datawise functions in R obey the same set rules regarding the visibility of objects. Visibility is hierarchical: data frame objects override those found in the context. This is convenient for interactive use and scripts, but can also cause issues. In the following example, should <code>gather()</code> select the first three columns (using the <code>x</code> defined in the global environment), or should it select the first two columns (using the column named <code>x</code>)?</p>
+<pre class="r"><code>x &lt;- 3
+df &lt;- tibble(w = 1, x = 2, y = 3)
+df %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 1:x)
+#&gt; # A tibble: 2 x 3
+#&gt;       y   key value
+#&gt;   &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
+#&gt; 1     3     w     1
+#&gt; 2     3     x     2</code></pre>
+<p>The answer is that it selects the first two variables because <code>x</code> is first found in the data.</p>
+<p>In practice, the hierarchical ambiguity is not a big problem when you use these tools interactively or in scripts. However it becomes worrying when you’re writing reusable functions because you don’t know in advance the variables in the input data frame. For those cases where ambiguity matters, the tidy eval feature of quasiquotation allows you to explicitly pick a variable from the context:</p>
+<pre class="r"><code>df %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 1 : (!! x))
+#&gt; # A tibble: 3 x 2
+#&gt;     key value
+#&gt;   &lt;chr&gt; &lt;dbl&gt;
+#&gt; 1     w     1
+#&gt; 2     x     2
+#&gt; 3     y     3</code></pre>
+</div>
+<div id="the-special-semantics-of-selection-functions" class="section level3">
+<h3>The special semantics of selection functions</h3>
+<p>Selection functions have always been a bit special in the tidyverse. They don’t behave exactly like regular quoting functions. In almost all quoting functions in R, variables represent a data frame <em>column</em>. That’s why expressions like this are natural:</p>
+<pre class="r"><code>lm(mass ~ scale(height), data = starwars)</code></pre>
+<p>Since variables represent actual columns, you can include them in expressions as if they were actual objects. For instance <code>scale(height)</code> is equivalent to <code>scale(starwars$height)</code>. The same is true for most tidyverse tools, e.g. <code>dplyr::mutate()</code>:</p>
+<pre class="r"><code>starwars %&gt;% mutate(height = scale(height))</code></pre>
+<p>However in selection functions, variables do not represent columns but <em>column positions</em>. That is a subtle but important distinction. When you type <code>height</code>, tidyselect actually sees the integer <code>2</code>. This makes sense for several reasons:</p>
+<ul>
+<li><p>Expressions such as <code>name:mass</code> evaluates to <code>1:3</code> in a natural way.</p></li>
+<li><p>You can select the same column multiple times. For example if you supply a selection for the dataset <code>starwars</code> with <code>starts_with(&quot;s&quot;)</code> and <code>ends_with(&quot;s&quot;)</code>, the variables <code>species</code> and <code>starships</code> would be matched twice. It is easy for tidyselect to take the intersection of the two sets of column positions. If the sets contained vectors instead, it could not determine whether it got two different but identical vectors rather than the same vector selected twice.</p></li>
+<li><p>Finally and most importantly, if the variables evaluated to the column vectors, we would have no information about their names or positions, which we need to reconstitute the data frame.</p></li>
+</ul>
+</div>
+<div id="safety-in-selection-functions" class="section level3">
+<h3>Safety in selection functions</h3>
+<p>Given the special semantics of selection functions, we had more freedom to solve the hierarchical ambiguity of quoting functions. Indeed, apart from <code>:</code> or <code>c()</code>, there rarely is any need for referring to column positions in helpers like <code>starts_with()</code> or <code>contains()</code>. For this reason, dplyr 0.7.0 introduced the notion of context expressions. Data frame columns are no longer in scope in these calls in order to solve the hierarchical ambiguity. This has the downside that context expressions in selection functions behave a bit differently from the rest of the tidyverse, but we gain safety in exchange.</p>
+<p>Given these special semantics, it seemed to make sense to give data expressions the opposite behaviour and only allow references to the data. This would solve the ambiguity in the opposite direction. As explained above, this broke too much code. We had to change it back and the issue of hierarchical ambiguity along with it.</p>
+<p>Luckily tidyselect 0.2.0 also introduces a few features that help writing safer code for data expressions. First, the support for strings and character vectors has been improved. All data expressions fully support strings. It is now valid to supply strings to <code>-</code> and <code>:</code>:</p>
+<pre class="r"><code>starwars %&gt;% gather(&quot;key&quot;, &quot;value&quot;, &quot;name&quot; : &quot;films&quot;)
+#&gt; # A tibble: 957 x 4
+#&gt;     vehicles starships   key     value
+#&gt;       &lt;list&gt;    &lt;list&gt; &lt;chr&gt;    &lt;list&gt;
+#&gt;  1 &lt;chr [2]&gt; &lt;chr [2]&gt;  name &lt;chr [1]&gt;
+#&gt;  2 &lt;chr [0]&gt; &lt;chr [0]&gt;  name &lt;chr [1]&gt;
+#&gt;  3 &lt;chr [0]&gt; &lt;chr [0]&gt;  name &lt;chr [1]&gt;
+#&gt;  4 &lt;chr [0]&gt; &lt;chr [1]&gt;  name &lt;chr [1]&gt;
+#&gt;  5 &lt;chr [1]&gt; &lt;chr [0]&gt;  name &lt;chr [1]&gt;
+#&gt;  6 &lt;chr [0]&gt; &lt;chr [0]&gt;  name &lt;chr [1]&gt;
+#&gt;  7 &lt;chr [0]&gt; &lt;chr [0]&gt;  name &lt;chr [1]&gt;
+#&gt;  8 &lt;chr [0]&gt; &lt;chr [0]&gt;  name &lt;chr [1]&gt;
+#&gt;  9 &lt;chr [0]&gt; &lt;chr [1]&gt;  name &lt;chr [1]&gt;
+#&gt; 10 &lt;chr [1]&gt; &lt;chr [5]&gt;  name &lt;chr [1]&gt;
+#&gt; # ... with 947 more rows
+starwars %&gt;% gather(&quot;key&quot;, &quot;value&quot;, -&quot;height&quot;)
+#&gt; # A tibble: 1,044 x 3
+#&gt;    height   key     value
+#&gt;     &lt;int&gt; &lt;chr&gt;    &lt;list&gt;
+#&gt;  1    172  name &lt;chr [1]&gt;
+#&gt;  2    167  name &lt;chr [1]&gt;
+#&gt;  3     96  name &lt;chr [1]&gt;
+#&gt;  4    202  name &lt;chr [1]&gt;
+#&gt;  5    150  name &lt;chr [1]&gt;
+#&gt;  6    178  name &lt;chr [1]&gt;
+#&gt;  7    165  name &lt;chr [1]&gt;
+#&gt;  8     97  name &lt;chr [1]&gt;
+#&gt;  9    183  name &lt;chr [1]&gt;
+#&gt; 10    182  name &lt;chr [1]&gt;
+#&gt; # ... with 1,034 more rows</code></pre>
+<p>Note that this only applies to data expressions and it would not make sense to write <code>seq(&quot;name&quot;, &quot;mass&quot;)</code>. Also, it only makes sense to support strings in this way because of the special nature of selection functions. This wouldn’t work with <code>mutate()</code> or <code>lm()</code> since they wouldn’t be able to differentiate between a column name or an actual column (by recycling the string to column length if the data frame has more than one row).</p>
+<p>The purpose of supporting strings in selection function is to make it easier to unquote column names. Excluding columns with quasiquotation is now as simple as this:</p>
+<pre class="r"><code>x &lt;- &quot;height&quot;
+starwars %&gt;% gather(&quot;key&quot;, &quot;value&quot;, -(!! x))
+#&gt; # A tibble: 1,044 x 3
+#&gt;    height   key     value
+#&gt;     &lt;int&gt; &lt;chr&gt;    &lt;list&gt;
+#&gt;  1    172  name &lt;chr [1]&gt;
+#&gt;  2    167  name &lt;chr [1]&gt;
+#&gt;  3     96  name &lt;chr [1]&gt;
+#&gt;  4    202  name &lt;chr [1]&gt;
+#&gt;  5    150  name &lt;chr [1]&gt;
+#&gt;  6    178  name &lt;chr [1]&gt;
+#&gt;  7    165  name &lt;chr [1]&gt;
+#&gt;  8     97  name &lt;chr [1]&gt;
+#&gt;  9    183  name &lt;chr [1]&gt;
+#&gt; 10    182  name &lt;chr [1]&gt;
+#&gt; # ... with 1,034 more rows</code></pre>
+<p>The second feature introduced in tidyselect 0.2.0 is the <code>last_col()</code> helper. We noticed in bug reports that many people use variants of:</p>
+<pre class="r"><code>x &lt;- starwars
+x %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 3 : ncol(x))
+#&gt; # A tibble: 957 x 4
+#&gt;                  name height   key     value
+#&gt;                 &lt;chr&gt;  &lt;int&gt; &lt;chr&gt;    &lt;list&gt;
+#&gt;  1     Luke Skywalker    172  mass &lt;dbl [1]&gt;
+#&gt;  2              C-3PO    167  mass &lt;dbl [1]&gt;
+#&gt;  3              R2-D2     96  mass &lt;dbl [1]&gt;
+#&gt;  4        Darth Vader    202  mass &lt;dbl [1]&gt;
+#&gt;  5        Leia Organa    150  mass &lt;dbl [1]&gt;
+#&gt;  6          Owen Lars    178  mass &lt;dbl [1]&gt;
+#&gt;  7 Beru Whitesun lars    165  mass &lt;dbl [1]&gt;
+#&gt;  8              R5-D4     97  mass &lt;dbl [1]&gt;
+#&gt;  9  Biggs Darklighter    183  mass &lt;dbl [1]&gt;
+#&gt; 10     Obi-Wan Kenobi    182  mass &lt;dbl [1]&gt;
+#&gt; # ... with 947 more rows</code></pre>
+<p>That is potentially unsafe in functions since the data frame might contain a column named <code>x</code>. You can now use <code>last_col()</code> instead:</p>
+<pre class="r"><code># Importing last_col() because it&#39;s not exported in dplyr yet
+last_col &lt;- tidyselect::last_col
+
+x %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 3 : last_col())
+#&gt; # A tibble: 957 x 4
+#&gt;                  name height   key     value
+#&gt;                 &lt;chr&gt;  &lt;int&gt; &lt;chr&gt;    &lt;list&gt;
+#&gt;  1     Luke Skywalker    172  mass &lt;dbl [1]&gt;
+#&gt;  2              C-3PO    167  mass &lt;dbl [1]&gt;
+#&gt;  3              R2-D2     96  mass &lt;dbl [1]&gt;
+#&gt;  4        Darth Vader    202  mass &lt;dbl [1]&gt;
+#&gt;  5        Leia Organa    150  mass &lt;dbl [1]&gt;
+#&gt;  6          Owen Lars    178  mass &lt;dbl [1]&gt;
+#&gt;  7 Beru Whitesun lars    165  mass &lt;dbl [1]&gt;
+#&gt;  8              R5-D4     97  mass &lt;dbl [1]&gt;
+#&gt;  9  Biggs Darklighter    183  mass &lt;dbl [1]&gt;
+#&gt; 10     Obi-Wan Kenobi    182  mass &lt;dbl [1]&gt;
+#&gt; # ... with 947 more rows</code></pre>
+</div>
