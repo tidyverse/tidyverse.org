@@ -103,7 +103,7 @@ As well as [tidyr](http://tidyr.tidyverse.org), and [dplyr](http://dplyr.tidyver
 
 ## Program
 
-As well as [purrr](http://purrr.tidyverse.org) which faciliates functional programming, there are two tidyverse packages that help with general programming challenges:
+As well as [purrr](http://purrr.tidyverse.org) which faciliates functional programming, there are three tidyverse packages that help with general programming challenges:
 
 * [rlang](http://rlang.tidyverse.org) provides tools to work with core language features of R and the tidyverse
 
