@@ -13,7 +13,7 @@ categories: [packages]
 
 
 
-<p>In <a href="http://www.tidyverse.org/articles/2017/08/tidyr-0.7.0/">tidyr 0.7.0</a>, we introduced a stronger distinction between data expressions and context expressions for selecting verbs like <code>gather()</code>. However that change caused a lot of trouble and confusion and we have updated <code>tidyselect</code> (the backend for selection functions) to revert that behaviour. In that article, we provide a few comments on these changes as well as some notes on good practices for writing functions with tidyverse tools. Finally we introduce two new selection features that help write safe code: improved support for strings and character vectors and a new selection helper <code>last_col()</code>.</p>
+<p>In <a href="http://www.tidyverse.org/articles/2017/08/tidyr-0.7.0/">tidyr 0.7.0</a>, we introduced a stronger distinction between data expressions and context expressions for selection verbs like <code>gather()</code>. However that change caused a lot of trouble and confusion and we have updated <code>tidyselect</code> (the backend for selection functions) to revert that behaviour. In that article, we provide a few comments on these changes as well as some notes on good practices for writing functions with tidyverse tools. Finally we introduce two new selection features that help write safer code: improved support for strings and character vectors and a new selection helper <code>last_col()</code>.</p>
 <p>You can install the new version of tidyselect from CRAN:</p>
 <pre class="r"><code>install.packages(&quot;tidyselect&quot;)</code></pre>
 <div id="updated-selection-rules" class="section level3">
@@ -39,7 +39,7 @@ df %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 1:x)
 #&gt; 2     3     x     2</code></pre>
 <p>The answer is that it selects the first two variables because <code>x</code> is first found in the data.</p>
 <p>In practice, the hierarchical ambiguity is not a big problem when you use these tools interactively or in scripts. However it becomes worrying when you’re writing reusable functions because you don’t know in advance the variables in the input data frame. For those cases where ambiguity matters, the tidy eval feature of quasiquotation allows you to explicitly pick a variable from the context:</p>
-<pre class="r"><code>df %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 1 : (!! x))
+<pre class="r"><code>df %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 1:(!! x))
 #&gt; # A tibble: 3 x 2
 #&gt;     key value
 #&gt;   &lt;chr&gt; &lt;dbl&gt;
@@ -55,14 +55,15 @@ df %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 1:x)
 <pre class="r"><code>starwars %&gt;% mutate(height = scale(height))</code></pre>
 <p>However in selection functions, variables do not represent columns but <em>column positions</em>. That is a subtle but important distinction. When you type <code>height</code>, tidyselect actually sees the integer <code>2</code>. This makes sense for several reasons:</p>
 <ul>
-<li><p>Expressions such as <code>name:mass</code> evaluates to <code>1:3</code> in a natural way.</p></li>
-<li><p>You can select the same column multiple times. For example if you supply a selection for the dataset <code>starwars</code> with <code>starts_with(&quot;s&quot;)</code> and <code>ends_with(&quot;s&quot;)</code>, the variables <code>species</code> and <code>starships</code> would be matched twice. It is easy for tidyselect to take the intersection of the two sets of column positions. If the sets contained vectors instead, it could not determine whether it got two different but identical vectors rather than the same vector selected twice.</p></li>
+<li><p>Expressions such as <code>name:mass</code> evaluate to <code>1:3</code> in a natural way.</p></li>
+<li><p>You can select the same column multiple times. For example if you supply a selection for the dataset <code>starwars</code> with <code>starts_with(&quot;s&quot;)</code> and <code>ends_with(&quot;s&quot;)</code>, the variables <code>species</code> and <code>starships</code> would be matched twice. It is easy for tidyselect to take the intersection of the two sets of column positions. If the sets contained vectors instead, it could not determine whether there were two different but identical vectors rather than the same vector selected twice.</p></li>
 <li><p>Finally and most importantly, if the variables evaluated to the column vectors, we would have no information about their names or positions, which we need to reconstitute the data frame.</p></li>
 </ul>
+<p>Since the variables represent positions, expressions such as <code>select(sqrt(hair_color):mass^2)</code> are valid but won’t do what you might think at first. In the selection context, that expression translates to <code>2:9</code> because <code>hair_color</code> and <code>mass</code> are the fourth and third column of the data frame.</p>
 </div>
 <div id="safety-in-selection-functions" class="section level3">
 <h3>Safety in selection functions</h3>
-<p>Given the special semantics of selection functions, we had more freedom to solve the hierarchical ambiguity of quoting functions. Indeed, apart from <code>:</code> or <code>c()</code>, there rarely is any need for referring to column positions in helpers like <code>starts_with()</code> or <code>contains()</code>. For this reason, dplyr 0.7.0 introduced the notion of context expressions. Data frame columns are no longer in scope in these calls in order to solve the hierarchical ambiguity. This has the downside that context expressions in selection functions behave a bit differently from the rest of the tidyverse, but we gain safety in exchange.</p>
+<p>Given the special semantics of selection functions, we had more freedom to solve the hierarchical ambiguity of quoting functions. Indeed, apart from <code>:</code>, <code>c()</code> or <code>-</code>, there rarely is any need for referring to column positions in helpers like <code>starts_with()</code> or <code>contains()</code>. For this reason, dplyr 0.7.0 introduced the notion of context expressions. Data frame columns are no longer in scope in these calls in order to solve the hierarchical ambiguity. This has the downside that context expressions in selection functions behave a bit differently from the rest of the tidyverse, but we gain safety in exchange.</p>
 <p>Given these special semantics, it seemed to make sense to give data expressions the opposite behaviour and only allow references to the data. This would solve the ambiguity in the opposite direction. As explained above, this broke too much code. We had to change it back and the issue of hierarchical ambiguity along with it.</p>
 <p>Luckily tidyselect 0.2.0 also introduces a few features that help writing safer code for data expressions. First, the support for strings and character vectors has been improved. All data expressions fully support strings. It is now valid to supply strings to <code>-</code> and <code>:</code>:</p>
 <pre class="r"><code>starwars %&gt;% gather(&quot;key&quot;, &quot;value&quot;, &quot;name&quot; : &quot;films&quot;)
@@ -95,7 +96,7 @@ starwars %&gt;% gather(&quot;key&quot;, &quot;value&quot;, -&quot;height&quot;)
 #&gt;  9    183  name &lt;chr [1]&gt;
 #&gt; 10    182  name &lt;chr [1]&gt;
 #&gt; # ... with 1,034 more rows</code></pre>
-<p>Note that this only applies to data expressions and it would not make sense to write <code>seq(&quot;name&quot;, &quot;mass&quot;)</code>. Also, it only makes sense to support strings in this way because of the special nature of selection functions. This wouldn’t work with <code>mutate()</code> or <code>lm()</code> since they wouldn’t be able to differentiate between a column name or an actual column (by recycling the string to column length if the data frame has more than one row).</p>
+<p>Note that this only applies to <code>c()</code>, <code>-</code> or <code>:</code> because it would not make sense to write <code>seq(&quot;name&quot;, &quot;mass&quot;)</code>. Also, it only makes sense to support strings in this way because of the special nature of selection functions. This wouldn’t work with <code>mutate()</code> or <code>lm()</code> since they wouldn’t be able to differentiate between a column name or an actual column (by recycling the string to column length if the data frame has more than one row).</p>
 <p>The purpose of supporting strings in selection function is to make it easier to unquote column names. Excluding columns with quasiquotation is now as simple as this:</p>
 <pre class="r"><code>x &lt;- &quot;height&quot;
 starwars %&gt;% gather(&quot;key&quot;, &quot;value&quot;, -(!! x))

@@ -19,13 +19,13 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 In [tidyr 0.7.0](http://www.tidyverse.org/articles/2017/08/tidyr-0.7.0/),
 we introduced a stronger distinction between data expressions and
-context expressions for selecting verbs like `gather()`. However that
+context expressions for selection verbs like `gather()`. However that
 change caused a lot of trouble and confusion and we have updated
 `tidyselect` (the backend for selection functions) to revert that
 behaviour. In that article, we provide a few comments on these changes
 as well as some notes on good practices for writing functions with
 tidyverse tools. Finally we introduce two new selection features that
-help write safe code: improved support for strings and character
+help write safer code: improved support for strings and character
 vectors and a new selection helper `last_col()`.
 
 You can install the new version of tidyselect from CRAN:
@@ -97,7 +97,7 @@ where ambiguity matters, the tidy eval feature of quasiquotation
 allows you to explicitly pick a variable from the context:
 
 ```{r}
-df %>% gather("key", "value", 1 : (!! x))
+df %>% gather("key", "value", 1:(!! x))
 ```
 
 
@@ -126,27 +126,33 @@ However in selection functions, variables do not represent columns but
 you type `height`, tidyselect actually sees the integer `2`. This
 makes sense for several reasons:
 
-* Expressions such as `name:mass` evaluates to `1:3` in a natural way.
+* Expressions such as `name:mass` evaluate to `1:3` in a natural way.
 
 * You can select the same column multiple times. For example if you
   supply a selection for the dataset `starwars` with
   `starts_with("s")` and `ends_with("s")`, the variables `species` and
   `starships` would be matched twice. It is easy for tidyselect to
   take the intersection of the two sets of column positions. If the
-  sets contained vectors instead, it could not determine whether it
-  got two different but identical vectors rather than the same
-  vector selected twice.
+  sets contained vectors instead, it could not determine whether there
+  were two different but identical vectors rather than the same vector
+  selected twice.
 
 * Finally and most importantly, if the variables evaluated to the
   column vectors, we would have no information about their names or
   positions, which we need to reconstitute the data frame.
+
+Since the variables represent positions, expressions such as
+`select(sqrt(hair_color):mass^2)` are valid but won't do what you
+might think at first. In the selection context, that expression
+translates to `2:9` because `hair_color` and `mass` are the fourth and
+third column of the data frame.
 
 
 ### Safety in selection functions
 
 Given the special semantics of selection functions, we had more
 freedom to solve the hierarchical ambiguity of quoting functions.
-Indeed, apart from `:` or `c()`, there rarely is any need for
+Indeed, apart from `:`, `c()` or `-`, there rarely is any need for
 referring to column positions in helpers like `starts_with()` or
 `contains()`. For this reason, dplyr 0.7.0 introduced the notion of
 context expressions. Data frame columns are no longer in scope in
@@ -171,13 +177,13 @@ starwars %>% gather("key", "value", "name" : "films")
 starwars %>% gather("key", "value", -"height")
 ```
 
-Note that this only applies to data expressions and it would not make
-sense to write `seq("name", "mass")`. Also, it only makes sense to
-support strings in this way because of the special nature of selection
-functions. This wouldn't work with `mutate()` or `lm()` since they
-wouldn't be able to differentiate between a column name or an actual
-column (by recycling the string to column length if the data frame has
-more than one row).
+Note that this only applies to `c()`, `-` or `:` because it would not
+make sense to write `seq("name", "mass")`. Also, it only makes sense
+to support strings in this way because of the special nature of
+selection functions. This wouldn't work with `mutate()` or `lm()`
+since they wouldn't be able to differentiate between a column name or
+an actual column (by recycling the string to column length if the data
+frame has more than one row).
 
 The purpose of supporting strings in selection function is to make it
 easier to unquote column names. Excluding columns with quasiquotation
