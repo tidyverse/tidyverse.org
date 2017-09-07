@@ -71,3 +71,17 @@ Every blog post needs to be accompanied by two versions of a photo:
   
 If you don't already have a image in mind, I recommend looking on <https://unsplash.com>. If you do use a photo from a website, make sure to credit the author as shown with the `photo` metadata shown above.
 
+Some indicative [magick](https://cran.r-project.org/web/packages/magick/vignettes/intro.html) code to produce suitable images:
+
+```R
+library(magick)
+img <- image_read("giant_cloud_image.jpg")
+img %>% 
+  image_crop("2988x2988+1200+0") %>% 
+  image_scale("300x300") %>% 
+  image_write("content/articles/googledrive-initial-release-sq.jpg")
+img %>% 
+  image_crop("5000x1000+200+1400") %>% 
+  image_scale("1000x200") %>% 
+  image_write("content/articles/googledrive-initial-release-wd.jpg")
+```
