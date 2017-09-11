@@ -50,6 +50,8 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
   course using a flipped classroom. The curriculum is designed to cover
   each main thread of R4DS multiple times, diving a little deeper at
   each pass.
+ 
+* [M.Sc. Industrial Analysis: An International Perspective](https://www.drhector.org/course/m-sc-industrial-analysis-an-international-perspective/). HEC Montreal; Thierry Warin. Graduate program in Data Science for International Business (DS4IB), where students learn how to use RStudio, RMardown, the tidyverse and open data in a reproducible research workflow. Hosted at [Dr.HECtoR](http://drhector.org).
 
 ### 2016
 
