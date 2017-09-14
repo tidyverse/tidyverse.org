@@ -71,11 +71,10 @@ If your code is not self-contained, running `reprex()` results in an error. It m
 
 Now that you've made a reprex that you can easily inflict on others, you need to share it in an appropriate forum. Here are some options:
 
-* __Mailing lists__.  There are two mailing lists that cover specific parts of the 
-  tidyverse. The [ggplot2 mailing list][ggplot2-ml] is devoted to anything
-  and everything related to visualisation with ggplot2. The
-  [manipulatr][manipulatr-ml] covers anything related to data manipulation,
-  including dplyr, tidyr, and all the data import packages.
+* [__community.rstudio.com__](http://community.rstudio.com): This is a warm
+  and welcoming place to ask any questions you might have about the
+  tidyverse (and you can also ask questions about shiny and RStudio there
+  too!)
   
 * [__Stack Overflow__](https://stackoverflow.com). You're probably already familiar
   with Stack Overflow from googling: it's a frequent source of answers to
