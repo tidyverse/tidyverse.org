@@ -53,6 +53,21 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
  
 * [M.Sc. Industrial Analysis: An International Perspective](https://www.drhector.org/course/m-sc-industrial-analysis-an-international-perspective/). HEC Montreal; Thierry Warin. Graduate program in Data Science for International Business (DS4IB), where students learn how to use RStudio, RMardown, the tidyverse and open data in a reproducible research workflow. Hosted at [Dr.HECtoR](http://drhector.org).
 
+* [Better Living with Data Science](http://www2.stat.duke.edu/courses/Fall17/sta112.01/).
+  Duke University; Mine Cetinkaya-Rundel. Data Science course for first year undergradiates
+  with little to no computing background. Combines techniques from statistics, math, computer 
+  science, and social sciences, to learn how to use data to understand natural phenomena, 
+  explore patterns, model outcomes, and make predictions. Data wrangling, exploratory data 
+  analysis, predictive modeling, data visualization, and effective communication of results. 
+  Discussions around reproducibility, data sharing, data privacy.
+  
+* [Statistical Computing](http://www2.stat.duke.edu/~cr173/Sta523_Fa17/) Duke University; 
+  Colin Rundel. MS level statistical computing course focusing on Best practices and software 
+  development for reproducible results, selecting topics from: use of markup languages, 
+  understanding data structures, design of graphics, object oriented programming, 
+  vectorized code, scoping, documenting code, profiling and debugging, building modular 
+  code, and version control-all in contexts of specific applied statistical analyses. 
+  
 ### 2016
 
 * [Stat545](http://stat545.com); UBC; Jenny Bryan. Data wrangling, 
