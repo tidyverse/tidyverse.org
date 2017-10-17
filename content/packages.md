@@ -60,7 +60,7 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
     <img class="package-image" src="/images/hex-tibble.png"></img>
     <div class="package-info">
       <h3><a href="http://tibble.tidyverse.org/">tibble</a></h3>
-      <p>tibble is a modern re-imaginging of the data frame, keeping what time has proven to be effective, and throwing out what it has not. Tibbles are data.frames that are lazy and surly: they do less and complain more forcing you to confront problems earlier, typically leading to cleaner, more expressive code.
+      <p>tibble is a modern reimagining of the data frame, keeping what time has proven to be effective, and throwing out what it has not. Tibbles are data.frames that are lazy and surly: they do less and complain more, forcing you to confront problems earlier, typically leading to cleaner, more expressive code.
       <a href="http://tibble.tidyverse.org/">Learn more ...</a></p>
     </div>
   </div>
