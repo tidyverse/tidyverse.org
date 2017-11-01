@@ -29,15 +29,15 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
 (_Do you have a course you'd like to see listed here? Please submit a [pull request](https://github.com/tidyverse/tidyverse.org/edit/master/content/learn.md)!_)
 
 * [Writing functions in R](https://www.datacamp.com/courses/writing-functions-in-r/)
-  by Hadley and Charlotte Wickham, hosted on datacamp. This course will teach you the fundamentals 
+  by Hadley and Charlotte Wickham, hosted on DataCamp. This course will teach you the fundamentals 
   of writing functions in R so that, among other things, you can make your code 
   more readable, avoid coding errors, and automate repetitive tasks.
 
 * [Data visualisation with ggplot2](https://www.datacamp.com/courses/data-visualization-with-ggplot2-1) by
-  Rick Scavetta, hosted on datacamp. Covers the basics of ggplot2. Followed by [part 2](https://www.datacamp.com/courses/data-visualization-with-ggplot2-2)
+  Rick Scavetta, hosted on DataCamp. Covers the basics of ggplot2. Followed by [part 2](https://www.datacamp.com/courses/data-visualization-with-ggplot2-2)
   which covers more advanced topics.
  
-* [Exploratory data analysis in R: case study](https://www.datacamp.com/courses/exploratory-data-analysis-in-r-case-study) by David Robinson, hosted on datacamp. This course brings ggplot2 and dplyr to action on a real dataset, also introducing broom for tidying model output and how to tidy up data to help you explore your dataset. 
+* [Exploratory data analysis in R: case study](https://www.datacamp.com/courses/exploratory-data-analysis-in-r-case-study) by David Robinson, hosted on DataCamp. This course brings ggplot2 and dplyr to action on a real dataset, also introducing broom for tidying model output and how to tidy up data to help you explore your dataset. 
 
 ## University courses
 
