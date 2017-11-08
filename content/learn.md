@@ -33,11 +33,13 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
   of writing functions in R so that, among other things, you can make your code 
   more readable, avoid coding errors, and automate repetitive tasks.
 
+* [Introduction to the tidyverse](https://www.datacamp.com/courses/introduction-to-the-tidyverse) by David Robinson, hosted on DataCamp. This is an introduction to the dplyr and ggplot2 packages through exploration and visualization of country data over time. This is a suitable course for people who have no or limited experience in R and are interested in learning to perform data analysis.
+
 * [Data visualisation with ggplot2](https://www.datacamp.com/courses/data-visualization-with-ggplot2-1) by
   Rick Scavetta, hosted on DataCamp. Covers the basics of ggplot2. Followed by [part 2](https://www.datacamp.com/courses/data-visualization-with-ggplot2-2)
   which covers more advanced topics.
- 
-* [Exploratory data analysis in R: case study](https://www.datacamp.com/courses/exploratory-data-analysis-in-r-case-study) by David Robinson, hosted on DataCamp. This course brings ggplot2 and dplyr to action on a real dataset, also introducing broom for tidying model output and how to tidy up data to help you explore your dataset. 
+
+* [Exploratory data analysis in R: case study](https://www.datacamp.com/courses/exploratory-data-analysis-in-r-case-study) by David Robinson, hosted on DataCamp. This course brings ggplot2 and dplyr into action in an in-depth analysis of United Nations voting data. The course also introduces broom for tidying model output and the tidyr package for wrangling data into an explorable shape.
 
 ## University courses
 
