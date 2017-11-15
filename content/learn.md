@@ -74,6 +74,8 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
   Master for Financial Engineering. An intermediate-to-advanced level programming course in R for data analytics
   and interactive content via web. It teaches R Markdown, Shiny, Tidyverse (dplyr/tidyr/ggplot2/lubridate).
   
+* [Computing for the Social Sciences](http://cfss.uchicago.edu/) University of Chicago; Benjamin Soltoff. This is an applied course for social scientists with little-to-no programming experience who wish to harness growing digital and computational resources. The focus of the course is on generating reproducible research through the use of programming languages and version control software. Major emphasis is placed on a pragmatic understanding of core principles of programming and packaged implementations of methods. Students will leave the course with basic computational skills implemented through many computational methods and approaches to social science; while students will not become expert programmers, they will gain the knowledge of how to adapt and expand these skills as they are presented with new questions, methods, and data.
+  
 ### 2016
 
 * [Stat545](http://stat545.com); UBC; Jenny Bryan. Data wrangling, 
