@@ -1,0 +1,165 @@
+---
+title: withr 2.1.0
+date: '2017-11-16'
+slug: withr-2.1.0
+author: Jim Hester
+categories: [package]
+description: >
+  withr 2.1.0 is now available on CRAN.
+photo:
+  url: https://unsplash.com/photos/V1YEEItoOTE
+  author: Suganth
+---
+
+
+
+<p><a href="http://withr.r-lib.org/news/index.html">withr 2.1.0</a> is now available on CRAN! <a href="http://withr.r-lib.org">withr</a> makes working with global state in R safer and less error prone. It has only base package dependencies so is easily included in packages.</p>
+<p>Install the latest version with:</p>
+<pre class="r"><code>install.packages(&quot;withr&quot;)</code></pre>
+<div id="whither-withr" class="section level1">
+<h1>Whither withr?</h1>
+<p>Many functions in R modify global state in some fashion. Some common examples are <code>par()</code> for graphics parameters, <code>dir()</code> to change the current directory and <code>options()</code> to set a global option. Using these functions is handy when using R interactively, because you can set them early in your experimentation and they will remain set for the duration of the session. However this makes programming with these settings difficult, because they make your function impure by modifying a global state. Therefore you should always strive to reset the previous state when the function exists.</p>
+<p>One common idiom for dealing with this problem is to save the current state, make your change, then restore the previous state.</p>
+<pre class="r"><code>par(&quot;col&quot; = &quot;black&quot;)
+my_plot &lt;- function(new) {
+  old &lt;- par(col = &quot;red&quot;, pch = 19)
+  plot(mtcars$hp, mtcars$wt)
+  par(old)
+}
+my_plot()</code></pre>
+<p><img src="/articles/2017-11-16-withr-2.1.0_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code>par(&quot;col&quot;)
+#&gt; [1] &quot;black&quot;</code></pre>
+<p>However this approach can fail if there’s an error before you are able to reset the options.</p>
+<pre class="r"><code>par(&quot;col&quot; = &quot;black&quot;)
+my_plot &lt;- function(new) {
+  old &lt;- par(col = &quot;red&quot;, pch = 19)
+  plot(mtcars$hpp, mtcars$wt)
+  par(old)
+}
+my_plot()
+#&gt; Error in xy.coords(x, y, xlabel, ylabel, log): &#39;x&#39; and &#39;y&#39; lengths differ
+par(&quot;col&quot;)
+#&gt; [1] &quot;red&quot;</code></pre>
+<p>Using the base function <code>on.exit()</code> is a robust solution to this problem. <code>on.exit()</code> will run the code when the function is exited, regardless whether it exits normally or with an error.</p>
+<pre class="r"><code>par(&quot;col&quot; = &quot;black&quot;)
+my_plot &lt;- function(new) {
+  old &lt;- par(col = &quot;red&quot;, pch = 19)
+  on.exit(par(old))
+  plot(mtcars$hpp, mtcars$wt)
+}
+my_plot()
+#&gt; Error in xy.coords(x, y, xlabel, ylabel, log): &#39;x&#39; and &#39;y&#39; lengths differ
+par(&quot;col&quot;)
+#&gt; [1] &quot;black&quot;
+
+options(test = 1)
+{
+  print(getOption(&quot;test&quot;))
+  on.exit(options(test = 2))
+}
+#&gt; [1] 1
+getOption(&quot;test&quot;)
+#&gt; [1] 2</code></pre>
+<p>However this solution is somewhat cumbersome to work with. You need to remember to use an <code>on.exit()</code> call after each stateful call. In addition by default each <code>on.exit()</code> action will overwrite any previous <code>on.exit()</code> action in the same function unless you use the <code>add = TRUE</code> option. <code>add = TRUE</code> also adds additional code to the <em>end</em> of existing code, which means the code is not run in the <a href="https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting">First-In First-Out</a> order you would generally prefer. It is also not possible to have this cleanup code performed before the function has finished.</p>
+<p><a href="http://withr.r-lib.org">withr</a> is a solution to these issues. It defines a <a href="http://withr.r-lib.org/#withr---run-code-with-modified-state">large set of functions</a> for dealing with global settings in R, such as <code>with_par()</code>. These functions set one of the global settings for the duration of a block of code, then automatically reset it after the block is completed.</p>
+<pre class="r"><code>par(&quot;col&quot; = &quot;black&quot;)
+my_plot &lt;- function(new) {
+  with_par(list(col = &quot;red&quot;, pch = 19),
+    plot(mtcars$hp, mtcars$wt)
+  )
+  par(&quot;col&quot;)
+}
+my_plot()</code></pre>
+<p><img src="/articles/2017-11-16-withr-2.1.0_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre><code>#&gt; [1] &quot;black&quot;
+par(&quot;col&quot;)
+#&gt; [1] &quot;black&quot;</code></pre>
+<p>In addition to the <code>with_*</code> functions there are <code>local_*</code> variants whose effects last until the end of the function they are included in. These work similar to <code>on.exit()</code>, but you can set the options in one call rather than two.</p>
+<pre class="r"><code>par(&quot;col&quot; = &quot;black&quot;)
+my_plot &lt;- function(new) {
+  local_par(list(col = &quot;red&quot;, pch = 19))
+  plot(mtcars$hp, mtcars$wt)
+}
+my_plot()</code></pre>
+<p><img src="/articles/2017-11-16-withr-2.1.0_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>par(&quot;col&quot;)
+#&gt; [1] &quot;black&quot;</code></pre>
+</div>
+<div id="new-features" class="section level1">
+<h1>New features</h1>
+<p>Here are some highlights of new functions for v2.1.0.</p>
+<div id="graphics-devices" class="section level2">
+<h2>Graphics devices</h2>
+<p>There are now a comprehensive set of functions to deal with R’s builtin <a href="http://withr.r-lib.org/reference/devices.html">graphics devices</a>.</p>
+<p>These functions open a new graphics device, run some code, then automatically close the device.</p>
+<pre class="r"><code>path &lt;- file.path(Sys.glob(&quot;*withr*_files/figure-html&quot;), &quot;test.png&quot;)
+with_png(path, width = 400, height = 300, {
+  plot(mtcars$hp, mtcars$mpg)
+})</code></pre>
+<div class="figure">
+<img src="/articles/2017-11-16-withr-2.1.0_files/figure-html/test.png" />
+
+</div>
+<p>Thanks to <a href="https://github.com/richierocks">Richard Cotton’s</a> great <a href="https://github.com/r-lib/withr/pull/37">pull request</a> for this feature!</p>
+</div>
+<div id="connections" class="section level2">
+<h2>Connections</h2>
+<p>There are two new functions for cleaning up connections in R. <code>with_connection()</code> allows you to automatically close R’s file connections. Here we create a writable file connection, write some lines to it with <code>with_connection()</code>, then open a read-only connection and read the file using <code>local_connection()</code>.</p>
+<pre class="r"><code>with_connection(list(con = file(&quot;temp&quot;, &quot;w&quot;)), {
+  writeLines(c(&quot;foo&quot;, &quot;bar&quot;), con)
+})
+read_temp &lt;- function() {
+  con &lt;- local_connection(file(&quot;temp&quot;, &quot;r&quot;))
+  readLines(con)
+}
+read_temp()
+#&gt; [1] &quot;foo&quot; &quot;bar&quot;</code></pre>
+<p><code>with_db_connection()</code> provides <a href="http://rstats-db.github.io/DBI">DBI</a> connections to databases which automatically call <code>DBI::dbDisconnect()</code>. Here we create a new <a href="https://www.sqlite.org/">SQLite</a> database, connect to it with <code>with_db_connection()</code>, and write a new table to it. We then create another connection with <code>local_db_connection()</code> and read from the table.</p>
+<pre class="r"><code>db &lt;- tempfile()
+with_db_connection(
+  list(con = DBI::dbConnect(RSQLite::SQLite(), db)), {
+    DBI::dbWriteTable(con, &quot;mtcars&quot;, mtcars)
+})
+#&gt; Loading required namespace: DBI
+
+head_db_table &lt;- function(...) {
+  con &lt;- local_db_connection(DBI::dbConnect(RSQLite::SQLite(), db))
+  head(DBI::dbReadTable(con, &quot;mtcars&quot;), ...)
+}
+head_db_table()
+#&gt;    mpg cyl disp  hp drat    wt  qsec vs am gear carb
+#&gt; 1 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
+#&gt; 2 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
+#&gt; 3 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1
+#&gt; 4 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1
+#&gt; 5 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2
+#&gt; 6 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1
+unlink(db)</code></pre>
+</div>
+<div id="packages" class="section level2">
+<h2>Packages</h2>
+<p><code>with_package()</code> allows you to temporarily attach a package.</p>
+<pre class="r"><code>with_package(&quot;lattice&quot;, {
+  xyplot(y ~ x, data.frame(x = -2:2, y = dnorm(-2:2)))
+})</code></pre>
+<p><img src="/articles/2017-11-16-withr-2.1.0_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+<div id="tempfiles" class="section level2">
+<h2>Tempfiles</h2>
+<p><code>with_tempfile()</code> handy for creating a new temporary files that are removed, often useful when writing tests.</p>
+<pre class="r"><code>with_tempfile(&quot;file1&quot;, {
+  print(file1)
+  writeLines(&quot;foo&quot;, file1)
+  readLines(file1)
+})
+#&gt; [1] &quot;/var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T//Rtmpbel4s6/file7f2e1d4e9585&quot;
+#&gt; [1] &quot;foo&quot;</code></pre>
+</div>
+<div id="other-changes" class="section level2">
+<h2>Other changes</h2>
+<p>There are many other bug fixes and other minor improvements in this release. You can see a complete list in the <a href="https://github.com/r-lib/withr/releases/tag/v2.1.0">release notes</a>.</p>
+<p>A big thanks goes to all the community members who contributed code and opened issues since the last release!</p>
+<p><a href="https://github.com/QuLogic">@QuLogic</a>, <a href="https://github.com/krlmlr">@krlmlr</a>, <a href="https://github.com/hadley">@hadley</a>, <a href="https://github.com/wlandau-lilly">@wlandau-lilly</a>, <a href="https://github.com/jimhester">@jimhester</a>, <a href="https://github.com/kevinushey">@kevinushey</a>, and <a href="https://github.com/richierocks">@richierocks</a></p>
+</div>
+</div>
