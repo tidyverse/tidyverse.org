@@ -1,0 +1,155 @@
+---
+title: testthat 2.0
+author: Hadley Wickham
+date: '2017-11-15'
+slug: testthat-2-0
+categories:
+  - package
+tags: []
+---
+
+```{r setup, include = FALSE}
+library(testthat)
+```
+
+We are very excited to announce that testthat 2.0.0 is now available on CRAN! Testthat makes it easy to turn your existing informal tests into formal automated tests that you can rerun quickly and easily. Learn more at <http://r-pkgs.had.co.nz/tests.html>. Install the latest version with:
+
+```{r, eval = FALSE}
+install.packages("testthat")
+```
+
+This is a massive release containing a bunch of new features. A big thanks goes to [Kirill Müller]() for his help running R CMD check on all the packages that use testthat - in total he ran R CMD check over 10,000 times! As part of a general process to make more tidyverse and r-lib packages available more widely, we are now testing testthat on R 3.1, 3.2, 3.3, 3.4, and 3.5. We hope this makes it easier to use our packages in slower moving environments.
+
+* New default reporter
+* New and improved expectations
+* Quasiquotation support
+* More setup and teardown tools
+
+Unfortunately along with these new features we had to make a few breaking changes to the API. These affected around 1 in 40 packages using testthat, and are described at the end of this post.
+
+## New default reporter
+
+A new default reporter, `ReporterProgress`, revamps the output to use colour more effectively and reveals details of failures as they occur rather than only showing at the end:
+
+INSERT GIF HERE
+
+If you prefer the previous version, you can turn back time by setting `option(testthat.default_reporter = "summary")`.
+
+## Setup and teardown
+
+There are two new ways to run code before and after tests
+
+* `setup()` and `teardown()` functions allow you to run at the start and
+  end of each test file.
+
+* `setup-xyz.R` files are run before all tests (and unlike the existing 
+  `helpers-xyz.R` are not run by `devtools::load_all()`)); 
+  `teardown-xyz.R` are run after all tests.
+  
+## New and improved expectations
+
+We have identified a useful family of expectations that compares the results of an expression to a known good value stored in a file. They are designed to be use in conjunction with git so that you can see what precisely has changed, and revert it if needed.
+
+* `expect_known_output()` replaces `expect_output_file()`, which has
+  been soft-deprecated. It now defaults to `update = TRUE` and warn, rather
+  than failing on the first run. It gains a `print` argument to automatically 
+  print the input (#627). It also sets the width option to 80 to ensure 
+  consistent output across environments (#514)
+
+* `expect_known_value()` replaces `expect_equal_to_reference()`, which
+  has been soft-deprecated. It gains an update argument defaulting to `TRUE`.
+  This changes behaviour from the previous version, and soft-deprecated
+  `expect_equal_to_reference()` gets `update = FALSE`. 
+
+We've also improved tools for failures:
+
+* `expect_known_failure()` stores and compares the failure message from
+  an expectation. It's a useful regression test when developing informative
+  failure messges for your own expectations.
+
+* `expect_condition()` works like `expect_error()` but captures any
+  condition, not just error conditions (#621).
+
+*  `expect_error()` gains a `class` argument that allows you to make an 
+  assertion about the class of the error object (#530).
+
+* `expect_setequal()` compares two sets (stored in vectors), ignoring
+  duplicates and differences in order (#528).
+
+And a few new skip helperes
+
+* `skip_if()` makes it easy to skip a test when a condition is true (#571).
+  For example, use `skip_if(getRversion() <= 3.1)` to skip a test in older
+  R versions.
+
+* `skip_if_translated()` skips tests if you're running in an locale
+  where translations are likely to occur (#565). Use this to avoid
+  spurious failures when checking the text of error messages in non-English
+  locales.
+  
+* `skip_if_not_installed()` gains new `minimum_version` argument. This allows
+  you to only test if a minimum version requrement is met:
+  `skip_if_not_installed("ggplot2", "2.0.0")`
+
+## Quasiquotation support
+
+All expectations can now use [unquoting](???). This makes it much easier to generate informative failure messages when running tests in a for loop. For example take this test:
+
+```{r, error = TRUE}
+f <- function(i) if (i > 3) i * 9 else i * 10
+
+for (i in 1:5) {
+  expect_equal(f(i), i * 10)
+}
+```
+
+The error message is not great because you don't know which iteration caused the problem! You can resolve that problem by using the unquoting operator `!!` (pronounced bang-bang):
+
+```{r, error = TRUE}
+for (i in 1:5) {
+  expect_equal(f(!!i), !!(i * 10))
+}
+```
+
+(Note that this is not tidy evaluation per se, but is closely related. This works a little differently in testthat to tidyverse package because the only quoting involved is for error message. See `?quasi_label()` for more details. At this time you can not unquote quosures.)
+
+## Breaking API changes
+
+Unfotunately
+
+* "Can't mock functions in base packages": You can no longer use `with_mock()` 
+  to mock functions in base packages, because this no longer works in 
+  R-devel due to changes with the byte code compiler. I recommend using
+  [mockery](https://github.com/n-s-f/mockery) instead.
+
+* The order of arguments to `expect_equivalent()` and `expect_error()` has
+  changed slightly as both now pass `...` on another function. This reveals
+  itself with a number of different errors, like:
+  
+    * 'what' must be a character vector
+    * 'check.attributes' must be logical
+    * 'tolerance' should be numeric
+    * argument is not interpretable as logical
+    * threw an error with unexpected class
+    * argument "quo" is missing, with no default
+    * argument is missing, with no default
+    
+    If you see one of these errors, check the number, order, and names of 
+    arguments to the expectation.
+
+* "Failure: (unknown)". The last release mistakenly failed to test 
+  bare expectations not wrapped inside `test_that()`. If you see "(unknown)"
+  in a failure message, this is a failing expectation that you previously
+  weren't seeing. As well as fixing the failure, please also wrap inside
+  a `test_that()` with an informative name.
+  
+* "Error: the argument has already been evaluated": the way in which 
+  expectations now need create labels has changed, which caused a couple 
+  of failures with unusual usage when combined with `Reduce`, `lapply()`, 
+  and `Map()`. Avoid these functions in favour of for loops. I also recommend
+  reading the section below on quasiquotation support in order to create more 
+  informative failure messages.
+  
+* `is_null()` and `matches()` have been deprecated because they conflict
+  with other functions in the tidyverse. As far as we could tell, no
+  CRAN packages used these functions
