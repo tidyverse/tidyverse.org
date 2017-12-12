@@ -33,7 +33,7 @@ Two specific slides generated [much discussion and consternation in #rstats Twit
 
 I stand by these strong opinions, but on their own, threats to commit arson aren't terribly helpful! Here I explain *why* these habits can be harmful and may be indicative of an awkward workflow.
 
-Caveat: only you can decide how much you care about this. The importance of these practices has a lot to do with whether your code will be run by other people, on other machines, and in the future. If your current practices serve your purposes, then go forth and be happy.
+ Feel free to discuss more on [community.rstudio.com](https://community.rstudio.com/t/project-oriented-workflow-setwd-rm-list-ls-and-computer-fires/3549).Caveat: only you can decide how much you care about this. The importance of these practices has a lot to do with whether your code will be run by other people, on other machines, and in the future. If your current practices serve your purposes, then go forth and be happy.
 
 ## Workflow versus Product
 
