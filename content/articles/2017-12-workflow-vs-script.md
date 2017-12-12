@@ -78,6 +78,7 @@ Direction of causality: long-time coders don't organize their work into self-con
 I run a lot of student code in [STAT 545](http://stat545.com) and, at the start, I see a lot of R scripts that look like this:
 
 ``` r
+library(ggplot2)
 setwd("/Users/jenny/cuddly_broccoli/verbose_funicular/foofy/data")
 df <- read.delim("raw_foofy_data.csv")
 p <- ggplot(df, aes(x, y)) + geom_point()
@@ -100,6 +101,7 @@ How can you avoid `setwd()` at the top of every script?
 To continue our example, start R in the `foofy` directory, wherever that may be. Now the code looks like so:
 
 ``` r
+library(ggplot2)
 df <- read.delim(here("data", "raw_foofy_data.csv"))
 p <- ggplot(df, aes(x, y)) + geom_point()
 ggsave(here("figs", "foofy_scatterplot.png"))

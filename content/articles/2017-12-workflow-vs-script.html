@@ -170,7 +170,8 @@ $(document).ready(function () {
 <div id="whats-wrong-with-setwd" class="section level2">
 <h2>What’s wrong with <code>setwd()</code>?</h2>
 <p>I run a lot of student code in <a href="http://stat545.com">STAT 545</a> and, at the start, I see a lot of R scripts that look like this:</p>
-<pre class="r"><code>setwd(&quot;/Users/jenny/cuddly_broccoli/verbose_funicular/foofy/data&quot;)
+<pre class="r"><code>library(ggplot2)
+setwd(&quot;/Users/jenny/cuddly_broccoli/verbose_funicular/foofy/data&quot;)
 df &lt;- read.delim(&quot;raw_foofy_data.csv&quot;)
 p &lt;- ggplot(df, aes(x, y)) + geom_point()
 ggsave(&quot;../figs/foofy_scatterplot.png&quot;)</code></pre>
@@ -187,7 +188,8 @@ ggsave(&quot;../figs/foofy_scatterplot.png&quot;)</code></pre>
 <li>Whenever you work on this project, launch the R process from the project’s top-level directory. If you launch R from the shell, <code>cd</code> to the correct folder first.</li>
 </ul>
 <p>To continue our example, start R in the <code>foofy</code> directory, wherever that may be. Now the code looks like so:</p>
-<pre class="r"><code>df &lt;- read.delim(here(&quot;data&quot;, &quot;raw_foofy_data.csv&quot;))
+<pre class="r"><code>library(ggplot2)
+df &lt;- read.delim(here(&quot;data&quot;, &quot;raw_foofy_data.csv&quot;))
 p &lt;- ggplot(df, aes(x, y)) + geom_point()
 ggsave(here(&quot;figs&quot;, &quot;foofy_scatterplot.png&quot;))</code></pre>
 <p>This will run, with no edits, for anyone who follows the convention about launching R in the project folder. In fact, it will even work if R’s working directory is anywhere inside the project, i.e. it will work from sub-folders. This plays well with knitr/rmarkdown’s default behavior around working directory and in package development/checking workflows.</p>
