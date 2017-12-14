@@ -22,9 +22,9 @@ categories: [package]
 <p>This will probably only affect your code in minor ways but helps improve consistency across the tidyverse. You can read about the complete set of changes at <a href="https://github.com/tidyverse/tidyr/releases/tag/v0.7.0" class="uri">https://github.com/tidyverse/tidyr/releases/tag/v0.7.0</a>.</p>
 <p>Install the latest version of tidyr with:</p>
 <pre class="r"><code>install.packages(&quot;tidyr&quot;)</code></pre>
-<div id="new-selection-rules" class="section level3">
+<section id="new-selection-rules" class="level3">
 <h3>New selection rules</h3>
-<p><strong>Erratum:</strong> The change in selection rules described in that article was reverted as it proved too disruptive. Please see the <a href="http://www.tidyverse.org/articles/2017/09/erratum-tidyr-0.7.0/">erratum article</a> for more information on this.</p>
+<p><strong>Erratum:</strong> The change in selection rules described in that article was reverted as it proved too disruptive. Please see the <a href="http://www.tidyverse.org/articles/2017/09/erratum-tidyr-0.7.0/">erratum article</a> for more information.</p>
 <p>Following the switch to tidyselect, selecting functions are now stricter in their arguments to avoid ambiguous cases. For example, take <code>gather()</code> and its <code>...</code> argument. Consider the following code:</p>
 <pre class="r"><code>x &lt;- 3
 df &lt;- tibble(w = 1, x = 2, y = 3)
@@ -47,8 +47,8 @@ mtcars %&gt;% gather(var, value, -(1:x))</code></pre>
 mtcars %&gt;% gather(var, value, !! 1:x)
 mtcars %&gt;% gather(var, value, !! -(1:x))</code></pre>
 <p>Read more about quasiquotation in the tidy eval section.</p>
-</div>
-<div id="tidy-evaluation" class="section level3">
+</section>
+<section id="tidy-evaluation" class="level3">
 <h3>Tidy evaluation</h3>
 <p>Tidy evaluation is a principled set of tools that allow programming with quoting functions (also called NSE functions) in a principled way. It was first introduced in dplyr 0.7.0 and you can learn more about it in the <a href="http://dplyr.tidyverse.org/articles/programming.html">programming with dplyr</a> vignette. At its core, tidy evaluation is the combination of two features: quasiquotation and quosures.</p>
 <p>The tidy eval tools live in rlang and many of them are reexported in dplyr. This includes <code>quo()</code>, <code>enquo()</code> and <code>quos()</code>. In addition, <code>rlang::expr()</code>, <code>rlang::sym()</code> and <code>rlang::syms()</code> may be useful as well and will be exported in the next version of dplyr.</p>
@@ -88,8 +88,8 @@ quo &lt;- local({
 })</code></pre>
 <p><code>prefix</code> only exist in the local context but the quosure can safely refer to it</p>
 <pre class="r"><code>quo
-#&gt; &lt;quosure: local&gt;
-#&gt; ~starts_with(prefix)</code></pre>
+#&gt; starts_with(prefix)
+#&gt; &lt;environment: 0x7fd0032a3988&gt;</code></pre>
 <p>In tidyr 0.7.0, all functions now support quosures:</p>
 <pre class="r"><code>gather(iris, key, value, !! quo)
 #&gt; # A tibble: 300 x 5
@@ -130,16 +130,16 @@ quo &lt;- local({
 #&gt;  9          1.4         0.2  setosa Sepal.Length   4.4
 #&gt; 10          1.5         0.1  setosa Sepal.Length   4.9
 #&gt; # ... with 290 more rows</code></pre>
-</div>
-<div id="special-tidy-evaluation-rules" class="section level3">
+</section>
+<section id="special-tidy-evaluation-rules" class="level3">
 <h3>Special tidy evaluation rules</h3>
 <p>The tidy evaluation implementation of tidyr is a bit special. While the philosophy of tidy evaluation is that R code should refer to real objects (from the data frame or from the context), we had to make some exceptions to this rule for tidyr. The reason is that several functions accept bare symbols to specify the names of <em>new</em> columns to create (<code>gather()</code> being a prime example). This is not tidy because the symbol do not represent any actual object.</p>
 <p>Our workaround is to capture these arguments using <code>rlang::quo_name()</code> (so they still support quasiquotation and you can unquote symbols or strings). This workaround is only provided for backward compatibility as this UI is not consistent with other tidyr functions that require strings (e.g. the <code>into</code> argument of <code>separate()</code>). More generally this type of NSE it is now discouraged in the tidyverse. We now prefer strings to refer to variables that don’t yet exist.</p>
-</div>
-<div id="breaking-changes" class="section level3">
+</section>
+<section id="breaking-changes" class="level3">
 <h3>Breaking changes</h3>
 <ul>
 <li><p>The underscored SE variants are softly deprecated.</p></li>
 <li><p>Selecting functions now make a distinction between data expressions and context expressions. The latter can refer only to contextual objects while the former can refer only to data variables. See above for more information.</p></li>
 </ul>
-</div>
+</section>

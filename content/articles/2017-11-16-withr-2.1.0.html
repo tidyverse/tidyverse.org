@@ -16,9 +16,9 @@ photo:
 <p><a href="http://withr.r-lib.org/news/index.html">withr 2.1.0</a> is now available on CRAN! <a href="http://withr.r-lib.org">withr</a> makes working with global state in R safer and less error prone. It has only base package dependencies so is easily included in packages.</p>
 <p>Install the latest version with:</p>
 <pre class="r"><code>install.packages(&quot;withr&quot;)</code></pre>
-<div id="whither-withr" class="section level1">
+<section id="whither-withr" class="level1">
 <h1>Whither withr?</h1>
-<p>Many functions in R modify global state in some fashion. Some common examples are <code>par()</code> for graphics parameters, <code>dir()</code> to change the current directory and <code>options()</code> to set a global option. Using these functions is handy when using R interactively, because you can set them early in your experimentation and they will remain set for the duration of the session. However this makes programming with these settings difficult, because they make your function impure by modifying a global state. Therefore you should always strive to reset the previous state when the function exists.</p>
+<p>Many functions in R modify global state in some fashion. Some common examples are <code>par()</code> for graphics parameters, <code>dir()</code> to change the current directory and <code>options()</code> to set a global option. Using these functions is handy when using R interactively, because you can set them early in your experimentation and they will remain set for the duration of the session. However this makes programming with these settings difficult, because they make your function impure by modifying a global state. Therefore you should always strive to reset the previous state when the function exits.</p>
 <p>One common idiom for dealing with this problem is to save the current state, make your change, then restore the previous state.</p>
 <pre class="r"><code>par(&quot;col&quot; = &quot;black&quot;)
 my_plot &lt;- function(new) {
@@ -41,7 +41,7 @@ my_plot()
 #&gt; Error in xy.coords(x, y, xlabel, ylabel, log): &#39;x&#39; and &#39;y&#39; lengths differ
 par(&quot;col&quot;)
 #&gt; [1] &quot;red&quot;</code></pre>
-<p>Using the base function <code>on.exit()</code> is a robust solution to this problem. <code>on.exit()</code> will run the code when the function is exited, regardless whether it exits normally or with an error.</p>
+<p>Using the base function <code>on.exit()</code> is a robust solution to this problem. <code>on.exit()</code> will run the code when the function is exited, regardless of whether it exits normally or with an error.</p>
 <pre class="r"><code>par(&quot;col&quot; = &quot;black&quot;)
 my_plot &lt;- function(new) {
   old &lt;- par(col = &quot;red&quot;, pch = 19)
@@ -85,11 +85,11 @@ my_plot()</code></pre>
 <p><img src="/articles/2017-11-16-withr-2.1.0_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <pre class="r"><code>par(&quot;col&quot;)
 #&gt; [1] &quot;black&quot;</code></pre>
-</div>
-<div id="new-features" class="section level1">
+</section>
+<section id="new-features" class="level1">
 <h1>New features</h1>
 <p>Here are some highlights of new functions for v2.1.0.</p>
-<div id="graphics-devices" class="section level2">
+<section id="graphics-devices" class="level2">
 <h2>Graphics devices</h2>
 <p>There are now a comprehensive set of functions to deal with R’s builtin <a href="http://withr.r-lib.org/reference/devices.html">graphics devices</a>.</p>
 <p>These functions open a new graphics device, run some code, then automatically close the device.</p>
@@ -97,13 +97,10 @@ my_plot()</code></pre>
 with_png(path, width = 400, height = 300, {
   plot(mtcars$hp, mtcars$mpg)
 })</code></pre>
-<div class="figure">
-<img src="/articles/2017-11-16-withr-2.1.0_files/figure-html/test.png" />
-
-</div>
+<p><img src="/articles/2017-11-16-withr-2.1.0_files/figure-html/test.png" /></p>
 <p>Thanks to <a href="https://github.com/richierocks">Richard Cotton’s</a> great <a href="https://github.com/r-lib/withr/pull/37">pull request</a> for this feature!</p>
-</div>
-<div id="connections" class="section level2">
+</section>
+<section id="connections" class="level2">
 <h2>Connections</h2>
 <p>There are two new functions for cleaning up connections in R. <code>with_connection()</code> allows you to automatically close R’s file connections. Here we create a writable file connection, write some lines to it with <code>with_connection()</code>, then open a read-only connection and read the file using <code>local_connection()</code>.</p>
 <pre class="r"><code>with_connection(list(con = file(&quot;temp&quot;, &quot;w&quot;)), {
@@ -136,16 +133,16 @@ head_db_table()
 #&gt; 5 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2
 #&gt; 6 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1
 unlink(db)</code></pre>
-</div>
-<div id="packages" class="section level2">
+</section>
+<section id="packages" class="level2">
 <h2>Packages</h2>
 <p><code>with_package()</code> allows you to temporarily attach a package.</p>
 <pre class="r"><code>with_package(&quot;lattice&quot;, {
   xyplot(y ~ x, data.frame(x = -2:2, y = dnorm(-2:2)))
 })</code></pre>
 <p><img src="/articles/2017-11-16-withr-2.1.0_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
-</div>
-<div id="tempfiles" class="section level2">
+</section>
+<section id="tempfiles" class="level2">
 <h2>Tempfiles</h2>
 <p><code>with_tempfile()</code> handy for creating a new temporary files that are removed, often useful when writing tests.</p>
 <pre class="r"><code>with_tempfile(&quot;file1&quot;, {
@@ -153,13 +150,13 @@ unlink(db)</code></pre>
   writeLines(&quot;foo&quot;, file1)
   readLines(file1)
 })
-#&gt; [1] &quot;/var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T//RtmpC6vpTp/file15b492f945411&quot;
+#&gt; [1] &quot;/var/folders/8l/fhmv3yj12kncddcjqwc19tkr0000gr/T//RtmpsN34Bh/file2d1c719bef37&quot;
 #&gt; [1] &quot;foo&quot;</code></pre>
-</div>
-<div id="other-changes" class="section level2">
+</section>
+<section id="other-changes" class="level2">
 <h2>Other changes</h2>
 <p>There are many other bug fixes and other minor improvements in this release. You can see a complete list in the <a href="https://github.com/r-lib/withr/releases/tag/v2.1.0">release notes</a>.</p>
 <p>A big thanks goes to all the community members who contributed code and opened issues since the last release!</p>
 <p><a href="https://github.com/QuLogic">@QuLogic</a>, <a href="https://github.com/krlmlr">@krlmlr</a>, <a href="https://github.com/hadley">@hadley</a>, <a href="https://github.com/wlandau-lilly">@wlandau-lilly</a>, <a href="https://github.com/jimhester">@jimhester</a>, <a href="https://github.com/kevinushey">@kevinushey</a>, and <a href="https://github.com/richierocks">@richierocks</a></p>
-</div>
-</div>
+</section>
+</section>

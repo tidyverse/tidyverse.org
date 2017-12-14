@@ -19,7 +19,7 @@ categories: [package]
 <p>Install the latest version of purrr with:</p>
 <pre class="r"><code>install.packages(&quot;purrr&quot;)</code></pre>
 <p>You can read about the complete set of changes at <a href="https://github.com/tidyverse/purrr/releases/tag/v0.2.3" class="uri">https://github.com/tidyverse/purrr/releases/tag/v0.2.3</a>. In this blog post, I will present the highlights of this version which are a family of generic mappers, a new <code>pluck()</code> function for accessing deep elements in a readable way, and a few nifty features and improvements.</p>
-<div id="generic-mapping" class="section level3">
+<section id="generic-mapping" class="level3">
 <h3>Generic mapping</h3>
 <p>The new <code>modify</code> family of functions introduces genericity to mapping. This means it is now easier to map functions over vector-like S3 objects. The reason is twofold:</p>
 <ul>
@@ -57,8 +57,8 @@ categories: [package]
 #&gt;  $ gear: num [1:3] 4 3 5
 #&gt;  $ carb: num [1:6] 4 1 2 3 6 8</code></pre>
 <p>As a developer there are two ways to make your class compatible with <code>modify()</code> . The easiest is to implement a method for the subset-assign operator <code>[&lt;-</code> which should be sufficient in most cases. Alternatively you can implement methods for the <code>modify</code> functions themselves as they are all generics.</p>
-</div>
-<div id="pluck-for-deep-subsetting" class="section level3">
+</section>
+<section id="pluck-for-deep-subsetting" class="level3">
 <h3>pluck() for deep subsetting</h3>
 <p>The plucking mechanism used for indexing into data structures with <code>map()</code> has been extracted into the function <code>pluck()</code>. Plucking is often more readable when extracting an element buried in a deep data structure. Compare this base R code which reads non-linearly:</p>
 <pre class="r"><code>accessor(x[[1]])$foo</code></pre>
@@ -106,9 +106,17 @@ x %&gt;% map(list(&quot;df&quot;, attr_getter(&quot;row.names&quot;)))
 #&gt;  [86]  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 101 102
 #&gt; [103] 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119
 #&gt; [120] 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136
-#&gt; [137] 137 138 139 140 141 142 143 144 145 146 147 148 149 150</code></pre>
-</div>
-<div id="set_names-is-much-more-flexible" class="section level3">
+#&gt; [137] 137 138 139 140 141 142 143 144 145 146 147 148 149 150
+x %&gt;% map(list(&quot;df&quot;, colnames))
+#&gt; [[1]]
+#&gt;  [1] &quot;mpg&quot;  &quot;cyl&quot;  &quot;disp&quot; &quot;hp&quot;   &quot;drat&quot; &quot;wt&quot;   &quot;qsec&quot; &quot;vs&quot;   &quot;am&quot;   &quot;gear&quot;
+#&gt; [11] &quot;carb&quot;
+#&gt; 
+#&gt; [[2]]
+#&gt; [1] &quot;Sepal.Length&quot; &quot;Sepal.Width&quot;  &quot;Petal.Length&quot; &quot;Petal.Width&quot; 
+#&gt; [5] &quot;Species&quot;</code></pre>
+</section>
+<section id="set_names-is-much-more-flexible" class="level3">
 <h3>set_names() is much more flexible</h3>
 <p><code>set_names()</code> (now reexported from the rlang package) has become much more flexible. It now takes <code>...</code> arguments and concatenates them into one vector of names. This saves a bit of typing as you don’t have to concatenate explicitly with <code>c()</code>. The code also looks a bit leaner:</p>
 <pre class="r"><code>x &lt;- letters[1:3] %&gt;% set_names(&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;)
@@ -123,8 +131,8 @@ x
 <pre class="r"><code>x %&gt;% set_names(paste, &quot;suffix&quot;, sep = &quot;_&quot;)
 #&gt; foo_suffix bar_suffix baz_suffix 
 #&gt;        &quot;a&quot;        &quot;b&quot;        &quot;c&quot;</code></pre>
-</div>
-<div id="reducing-with-a-three-argument-function" class="section level3">
+</section>
+<section id="reducing-with-a-three-argument-function" class="level3">
 <h3>Reducing with a three-argument function</h3>
 <p><code>reduce2()</code> makes it possible to reduce with a three-argument reducing function. <code>reduce2()</code> takes two vectors <code>.x</code> and <code>.y</code>, the first of which is reduced in the usual manner. The accumulated value is passed to the reducing function as first argument while the next value is passed as second argument. <code>.y</code> on the other hand is mapped, not reduced. At each reducing round, the next value of <code>.y</code> is passed to the reducing function as third argument.</p>
 <p>In the following example we have a binary paster that takes <code>sep</code> as third argument. With the ordinary <code>reduce()</code> we are stuck with a single separator during the whole reduction:</p>
@@ -136,8 +144,8 @@ reduce(x, paste2, sep = &quot;.&quot;)
 <pre class="r"><code>seps &lt;- c(&quot;-&quot;, &quot;.&quot;, &quot;_&quot;)
 reduce2(x, seps, paste2)
 #&gt; [1] &quot;a-b.c_d&quot;</code></pre>
-</div>
-<div id="variadic-lambda-formulas" class="section level3">
+</section>
+<section id="variadic-lambda-formulas" class="level3">
 <h3>Variadic lambda-formulas</h3>
 <p>You can now refer to arguments by position in lambda-formulas. The <code>..1</code> symbol refers to the first argument, <code>..2</code> to the second and so on. This makes it easier to use functions like <code>pmap()</code> with the formula shortcut:</p>
 <pre class="r"><code>pmap_chr(mtcars, ~paste(..2, ..4, sep = &quot; - &quot;))
@@ -146,8 +154,8 @@ reduce2(x, seps, paste2)
 #&gt; [15] &quot;8 - 205&quot; &quot;8 - 215&quot; &quot;8 - 230&quot; &quot;4 - 66&quot;  &quot;4 - 52&quot;  &quot;4 - 65&quot;  &quot;4 - 97&quot; 
 #&gt; [22] &quot;8 - 150&quot; &quot;8 - 150&quot; &quot;8 - 245&quot; &quot;8 - 175&quot; &quot;4 - 66&quot;  &quot;4 - 91&quot;  &quot;4 - 113&quot;
 #&gt; [29] &quot;8 - 264&quot; &quot;6 - 175&quot; &quot;8 - 335&quot; &quot;4 - 109&quot;</code></pre>
-</div>
-<div id="api-changes" class="section level3">
+</section>
+<section id="api-changes" class="level3">
 <h3>API changes</h3>
 <p>purrr no longer depends on lazyeval or Rcpp (or dplyr, as of the previous version). This makes the dependency graph of the tidyverse simpler, and makes purrr more suitable as a dependency of lower-level packages.</p>
 <p>A number of functions have been renamed or deprecated:</p>
@@ -164,4 +172,4 @@ reduce2(x, seps, paste2)
 <li><p>The previously deprecated functions <code>flatmap()</code>, <code>map3()</code>, <code>map_n()</code>, <code>walk3()</code>, <code>walk_n()</code>, <code>zip2()</code>, <code>zip3()</code>, <code>zip_n()</code> have been removed.</p></li>
 <li><p><code>order_by()</code>, <code>sort_by()</code> and <code>split_by()</code> have been removed. <code>order_by()</code> conflicted with <code>dplyr::order_by()</code> and the complete family doesn’t feel that useful. Use tibbles instead.</p></li>
 </ul>
-</div>
+</section>
