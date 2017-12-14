@@ -16,7 +16,7 @@ categories: [package]
 <p>In <a href="http://www.tidyverse.org/articles/2017/08/tidyr-0.7.0/">tidyr 0.7.0</a>, we introduced a stronger distinction between data expressions and context expressions for selection verbs like <code>gather()</code>. However that change caused a lot of trouble and confusion and we have updated <code>tidyselect</code> (the backend for selection functions) to revert that behaviour. In that article, we provide a few comments on these changes as well as some notes on good practices for writing functions with tidyverse tools. Finally we introduce two new selection features that help write safer code: improved support for strings and character vectors and a new selection helper <code>last_col()</code>.</p>
 <p>You can install the new version of tidyselect from CRAN:</p>
 <pre class="r"><code>install.packages(&quot;tidyselect&quot;)</code></pre>
-<section id="updated-selection-rules" class="level3">
+<div id="updated-selection-rules" class="section level3">
 <h3>Updated selection rules</h3>
 <p>Since tidyr 0.7.0, selecting functions like <code>gather()</code> use the tidyselect package as backend. Tidyselect was extracted from dplyr and provides the mechanism for helpers like <code>starts_with()</code> or <code>everything()</code>. However, tidyselect had one big change compared to dplyr: data expressions could no longer refer to contextual variables. A <strong>data</strong> expression is defined as either a bare symbol like <code>var</code>, or a call like <code>var1:var2</code> or <code>c(var1, var2)</code>. Any other expressions is a <strong>context</strong> expression. The semantic change meant that it was no longer legal to refer to a contextual variable in a data expression:</p>
 <pre class="r"><code>var &lt;- 5
@@ -25,8 +25,8 @@ mtcars %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 1:var)</code></pre>
 <pre class="r"><code>df %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 1:ncol(df))</code></pre>
 <p>Although the change was well-intentioned, it proved to be too disruptive and we have reverted it.</p>
 <p>Note that we still maintain a distinction between data and context expressions. The notion of context expression (anything that’s not a symbol or a call to <code>:</code> or <code>c()</code>) was introduced in dplyr 0.7.0. Since that version, context expressions cannot refer to the data. This makes it safer to refer to other objects.</p>
-</section>
-<section id="safety-versus-convenience" class="level3">
+</div>
+<div id="safety-versus-convenience" class="section level3">
 <h3>Safety versus convenience</h3>
 <p>Most datawise functions in R obey the same set rules regarding the visibility of objects. Visibility is hierarchical: data frame objects override those found in the context. This is convenient for interactive use and scripts, but can also cause issues. In the following example, should <code>gather()</code> select the first three columns (using the <code>x</code> defined in the global environment), or should it select the first two columns (using the column named <code>x</code>)?</p>
 <pre class="r"><code>x &lt;- 3
@@ -46,8 +46,8 @@ df %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 1:x)
 #&gt; 1     w     1
 #&gt; 2     x     2
 #&gt; 3     y     3</code></pre>
-</section>
-<section id="the-special-semantics-of-selection-functions" class="level3">
+</div>
+<div id="the-special-semantics-of-selection-functions" class="section level3">
 <h3>The special semantics of selection functions</h3>
 <p>Selection functions have always been a bit special in the tidyverse. They don’t behave exactly like regular quoting functions. In almost all quoting functions in R, variables represent a data frame <em>column</em>. That’s why expressions like this are natural:</p>
 <pre class="r"><code>lm(mass ~ scale(height), data = starwars)</code></pre>
@@ -60,8 +60,8 @@ df %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 1:x)
 <li><p>Finally and most importantly, if the variables evaluated to the column vectors, we would have no information about their names or positions, which we need to reconstitute the data frame.</p></li>
 </ul>
 <p>Since the variables represent positions, expressions such as <code>select(sqrt(hair_color):mass^2)</code> are valid but won’t do what you might think at first. In the selection context, that expression translates to <code>2:9</code> because <code>hair_color</code> and <code>mass</code> are the fourth and third column of the data frame.</p>
-</section>
-<section id="safety-in-selection-functions" class="level3">
+</div>
+<div id="safety-in-selection-functions" class="section level3">
 <h3>Safety in selection functions</h3>
 <p>Given the special semantics of selection functions, we had more freedom to solve the hierarchical ambiguity of quoting functions. Indeed, apart from <code>:</code>, <code>c()</code> or <code>-</code>, there rarely is any need for referring to column positions in helpers like <code>starts_with()</code> or <code>contains()</code>. For this reason, dplyr 0.7.0 introduced the notion of context expressions. Data frame columns are no longer in scope in these calls in order to solve the hierarchical ambiguity. This has the downside that context expressions in selection functions behave a bit differently from the rest of the tidyverse, but we gain safety in exchange.</p>
 <p>Given these special semantics, it seemed to make sense to give data expressions the opposite behaviour and only allow references to the data. This would solve the ambiguity in the opposite direction. As explained above, this broke too much code. We had to change it back and the issue of hierarchical ambiguity along with it.</p>
@@ -150,4 +150,4 @@ x %&gt;% gather(&quot;key&quot;, &quot;value&quot;, 3 : last_col())
 #&gt;  9  Biggs Darklighter    183  mass &lt;dbl [1]&gt;
 #&gt; 10     Obi-Wan Kenobi    182  mass &lt;dbl [1]&gt;
 #&gt; # ... with 947 more rows</code></pre>
-</section>
+</div>

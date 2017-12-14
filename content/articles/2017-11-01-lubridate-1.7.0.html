@@ -16,11 +16,11 @@ categories: [package]
 <p>We are pleased to announce that <a href="https://cran.r-project.org/web/packages/lubridate/index.html">lubridate 1.7.0</a> is now on CRAN! For a complete set of changes please see the release <a href="https://github.com/tidyverse/lubridate/releases/tag/v1.7.0">NEWS</a>.</p>
 <p>Lubridate is a package that makes working with date-time and time-span objects easier. It provides fast and user friendly parsing of date-time strings, extraction and updating of components of a date-time objects (years, months, days etc.) and algebraic manipulation on date-time and time-span objects.</p>
 <p>Here is a brief walk-through of the prominent new features in 1.7.0.</p>
-<section id="built-in-cctz-and-much-faster-update-and-force_tz" class="level2">
+<div id="built-in-cctz-and-much-faster-update-and-force_tz" class="section level2">
 <h2>Built-in CCTZ and much faster <code>update</code> and <code>force_tz</code></h2>
 <p>From this version lubridate relies on google’s <a href="https://github.com/google/cctz">CCTZ</a> library for the date-time updates and time-zone manipulation. This means that <code>force_tz</code>, <code>update</code>, <code>round</code>ing and a range of arithmetic operations on timespans are now considerably faster.</p>
-</section>
-<section id="vectorized-time-zone-manipulation" class="level2">
+</div>
+<div id="vectorized-time-zone-manipulation" class="section level2">
 <h2>Vectorized time-zone manipulation</h2>
 <p>Often date-time data comes with heterogeneous time-zones. For example, you might have a character vector of date-times and a separate vector of time-zones. In such cases you can parse your date-time vector in one time zone (<code>UTC</code>) and then “enforce” the heterogeneous time-zones with <code>force_tzs</code>.</p>
 <pre class="r"><code>x &lt;- ymd_hms(c(&quot;2009-08-01 00:00:00&quot;, &quot;2009-08-01 00:00:00&quot;))
@@ -43,8 +43,8 @@ tzs &lt;- c(&quot;America/New_York&quot;, &quot;Europe/Amsterdam&quot;)
 local_time(x, tzs, units = &quot;hours&quot;)
 ##=&gt; Time differences in hours
 ##=&gt; [1] 20  2</code></pre>
-</section>
-<section id="new-cutoff_2000-parameter-in-parsing-functions" class="level2">
+</div>
+<div id="new-cutoff_2000-parameter-in-parsing-functions" class="section level2">
 <h2>New <code>cutoff_2000</code> parameter in parsing functions</h2>
 <p>Lower level lubridate parser functions (<code>parse_datetime2</code>,<code>fast_strptime</code>) now accept <code>cutoff_2000</code> parameter to determine when the parsing of <code>yy</code> format should output 19th or 20th century.</p>
 <pre class="r"><code>x &lt;- c(&quot;50-01-01&quot;, &quot;70-01-01&quot;)
@@ -54,35 +54,33 @@ parse_date_time2(x, &quot;ymd&quot;, cutoff_2000 = 30)
 ##=&gt; [1] &quot;1950-01-01 UTC&quot; &quot;1970-01-01 UTC&quot;</code></pre>
 <p>By default <code>cutoff_2000</code> is 68 to comply with R’s <code>strptime</code> function.</p>
 <p>This feature was not propagated to higher level parsing function because base <code>strptime</code>, on which those occasionally rely, doesn’t support this option.</p>
-</section>
-<section id="functions-wday-and-month-are-now-localized" class="level2">
+</div>
+<div id="functions-wday-and-month-are-now-localized" class="section level2">
 <h2>Functions <code>wday</code> and <code>month</code> are now localized</h2>
 <p>When <code>label=TRUE</code> <code>wday</code> and <code>month</code> extractors return localized strings:</p>
 <pre class="r"><code>Sys.setlocale(locale = &quot;zh_CN.utf8&quot;)
-##=&gt; Warning in Sys.setlocale(locale = &quot;zh_CN.utf8&quot;): OS reports request to set
-##=&gt; locale to &quot;zh_CN.utf8&quot; cannot be honored
-##=&gt; [1] &quot;&quot;
+##=&gt; [1] &quot;LC_CTYPE=zh_CN.utf8;LC_NUMERIC=C;LC_TIME=zh_CN.utf8;LC_COLLATE=zh_CN.utf8;LC_MONETARY=zh_CN.utf8;LC_MESSAGES=C;LC_PAPER=en_GB.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=en_GB.UTF-8;LC_IDENTIFICATION=C&quot;
 wday(now(), label = TRUE)
-##=&gt; [1] Thu
-##=&gt; Levels: Sun &lt; Mon &lt; Tue &lt; Wed &lt; Thu &lt; Fri &lt; Sat
+##=&gt; [1] 三
+##=&gt; Levels: 日 &lt; 一 &lt; 二 &lt; 三 &lt; 四 &lt; 五 &lt; 六
 month(now(), label = TRUE)
-##=&gt; [1] Dec
-##=&gt; 12 Levels: Jan &lt; Feb &lt; Mar &lt; Apr &lt; May &lt; Jun &lt; Jul &lt; Aug &lt; Sep &lt; ... &lt; Dec</code></pre>
+##=&gt; [1] 11月
+##=&gt; 12 Levels: 1月 &lt; 2月 &lt; 3月 &lt; 4月 &lt; 5月 &lt; 6月 &lt; 7月 &lt; 8月 &lt; ... &lt; 12月</code></pre>
 <p>Please note that for this reason using labels for comparison is not recommended. You should use numeric output instead. Otherwise your code might not work on other computers.</p>
-</section>
-<section id="several-functions-gained-the-week_start-parameter" class="level2">
+</div>
+<div id="several-functions-gained-the-week_start-parameter" class="section level2">
 <h2>Several functions gained the <code>week_start</code> parameter</h2>
 <p>Functions for which depend on the week-start conventions (<code>wday</code>, <code>wday&lt;-</code>, <code>floor_date</code>, <code>ceiling_date</code> and <code>round_date</code>) now accept <code>week_start</code> argument which defaults to <code>getOption(&quot;lubridate.week.start&quot;, 7)</code>.</p>
 <pre class="r"><code>x &lt;- today()
 wday(x, label = TRUE, abbr = FALSE)
-##=&gt; [1] Thursday
-##=&gt; 7 Levels: Sunday &lt; Monday &lt; Tuesday &lt; Wednesday &lt; Thursday &lt; ... &lt; Saturday
+##=&gt; [1] 星期三
+##=&gt; 7 Levels: 星期日 &lt; 星期一 &lt; 星期二 &lt; 星期三 &lt; 星期四 &lt; ... &lt; 星期六
 wday(x)
-##=&gt; [1] 5
+##=&gt; [1] 4
 wday(x,  week_start = 2)
-##=&gt; [1] 3</code></pre>
-</section>
-<section id="rounding-to-fraction-of-a-second" class="level2">
+##=&gt; [1] 2</code></pre>
+</div>
+<div id="rounding-to-fraction-of-a-second" class="section level2">
 <h2>Rounding to fraction of a second</h2>
 <p>R’s date-time format (POSIXct) is accurate up to microseconds, thus it makes sense to round to fractions of a second. Unfortunately R currently prints fractional seconds incorrectly which can lead to confusion:</p>
 <pre class="r"><code>## print fractional seconds
@@ -97,8 +95,8 @@ c(rx, cx)
 as.double(c(rx, cx))
 ##=&gt; [1] 1249300919.03 1249300919.04</code></pre>
 <p>So, fractional rounding and ceiling work, but don’t be taken aback by incorrect printing;)</p>
-</section>
-<section id="new-epiweek-and-epiyear-functions" class="level2">
+</div>
+<div id="new-epiweek-and-epiyear-functions" class="section level2">
 <h2>New <code>epiweek</code> and <code>epiyear</code> functions</h2>
 <p>New functions <code>epiyear</code> and <code>epiweek</code> are the US CDC version of epidemiological weeks and years. They follow same rules as <code>isoweek</code> and <code>isoyear</code> but with the week starting on Sunday. In other parts of the world the convention is to start epidemiological weeks on Monday, which is then the same as for <code>isoweek</code> and <code>isoyear</code>.</p>
-</section>
+</div>
