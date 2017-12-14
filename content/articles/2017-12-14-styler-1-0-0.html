@@ -23,13 +23,13 @@ description: >
 <li><code>style_file()</code> styles R and Rmd files.</li>
 <li><code>style_dir()</code> styles all R and/or Rmd files in a directory.</li>
 <li><code>style_pkg()</code> styles the source files of an R package.</li>
-<li>An RStudio Addin that styles the active file R or Rmd file, the current package or the highlighted code.</li>
+<li>An RStudio Addin that styles the active R or Rmd file, the current package or the highlighted code.</li>
 </ul>
 <section id="styling-options" class="level2">
 <h2>styling options</h2>
 <p>A distinguishing feature of styler is its flexibility. The following options are available:</p>
 <ul>
-<li><code>scope</code>. What is to be styled, i.g. just spacing or also indention, line breaks, tokens?</li>
+<li><code>scope</code>. What is to be styled, e.g. just spacing or also indention, line breaks, tokens?</li>
 <li><code>strict</code>. How strict should be rules be applied?</li>
 <li><code>math_token_spacing</code>. Granular control for spacing around math tokens.</li>
 <li><code>reindention</code>. Allows to set the indention of certain regex patterns manually.</li>
@@ -49,11 +49,11 @@ description: >
 <p>Let’s now see a few examples. We can limit ourselves to styling just spacing information:</p>
 <pre class="r"><code>library(&quot;styler&quot;)
 style_text(&quot;a=3; 2&quot;, scope = &quot;spaces&quot;)</code></pre>
-<pre><code>#&gt; a = 3; 2</code></pre>
+<pre><code>a = 3; 2</code></pre>
 <p>Or, on the other extreme of the scale, styling spaces, indention, line breaks and tokens:</p>
 <pre class="r"><code>style_text(&quot;a=3; 2&quot;, scope = &quot;tokens&quot;)</code></pre>
-<pre><code>#&gt; a &lt;- 3
-#&gt; 2</code></pre>
+<pre><code>a &lt;- 3
+2</code></pre>
 <p>In the next example, we want to style spaces and indention, but not line breaks and tokens:</p>
 <pre class="r"><code>style_text(
   &quot;a=  function( x) {
@@ -61,9 +61,9 @@ style_text(&quot;a=3; 2&quot;, scope = &quot;spaces&quot;)</code></pre>
   }&quot;, 
   scope = &quot;indention&quot;
 )</code></pre>
-<pre><code>#&gt; a = function(x) {
-#&gt;   &quot;x&quot;
-#&gt; }</code></pre>
+<pre><code>a = function(x) {
+  &quot;x&quot;
+}</code></pre>
 </section>
 <section id="strict" class="level3">
 <h3>strict</h3>
@@ -76,11 +76,11 @@ style_text(&quot;a=3; 2&quot;, scope = &quot;spaces&quot;)</code></pre>
    )&quot;, 
   strict = FALSE
 )</code></pre>
-<pre><code>#&gt; data_frame(
-#&gt;   small  = 2,
-#&gt;   medium = 4, # comment without space
-#&gt;   large  = 6
-#&gt; )</code></pre>
+<pre><code>data_frame(
+  small  = 2,
+  medium = 4, # comment without space
+  large  = 6
+)</code></pre>
 <p>We prefer to keep the equal sign after “small”, “medium” and large aligned, so we set <code>strict = FALSE</code> to set spacing to <em>at least</em> one around <code>=</code>.</p>
 <p>Also, with <code>scope &gt;= &quot;line_breaks&quot;</code>, <code>strict = TRUE</code> will break the lines in the following call, whereas <code>strict = FALSE</code> will leave them as is:</p>
 <pre class="r"><code>style_text(
@@ -88,22 +88,22 @@ style_text(&quot;a=3; 2&quot;, scope = &quot;spaces&quot;)</code></pre>
                               &#39;and longer then lorem ipsum in its full length&#39;
                               )&quot;
 )</code></pre>
-<pre><code>#&gt; do_a_long_and_complicated_fun_cal(
-#&gt;   &quot;which&quot;, has, way, to,
-#&gt;   &quot;and longer then lorem ipsum in its full length&quot;
-#&gt; )</code></pre>
-<p>In addition, the <code>strict</code> option does also adds braces (if <code>scope = &quot;tokens&quot;</code>) to conditional statements if they are multi-line:</p>
+<pre><code>do_a_long_and_complicated_fun_cal(
+  &quot;which&quot;, has, way, to,
+  &quot;and longer then lorem ipsum in its full length&quot;
+)</code></pre>
+<p>In addition, the <code>strict</code> option also adds braces (if <code>scope = &quot;tokens&quot;</code>) to conditional statements if they are multi-line:</p>
 <pre class="r"><code>style_text(
   &quot;if (set_q(x))
     3 else 
     5&quot;,
   strict = TRUE
 )</code></pre>
-<pre><code>#&gt; if (set_q(x)) {
-#&gt;   3
-#&gt; } else {
-#&gt;   5
-#&gt; }</code></pre>
+<pre><code>if (set_q(x)) {
+  3
+} else {
+  5
+}</code></pre>
 </section>
 <section id="math-token-spacing" class="level3">
 <h3>math token spacing</h3>
@@ -117,7 +117,7 @@ style_text(&quot;a=3; 2&quot;, scope = &quot;spaces&quot;)</code></pre>
   &quot;1++1/2*2^2&quot;, 
   math_token_spacing = specify_math_token_spacing(zero = c(&quot;&#39;/&#39;&quot;, &quot;&#39;*&#39;&quot;, &quot;&#39;^&#39;&quot;))
 )</code></pre>
-<pre><code>#&gt; 1 + +1/2*2^2</code></pre>
+<pre><code>1 + +1/2*2^2</code></pre>
 </section>
 <section id="reindention" class="level3">
 <h3>reindention</h3>
@@ -130,17 +130,22 @@ style_text(&quot;a=3; 2&quot;, scope = &quot;spaces&quot;)</code></pre>
     }&quot;,
   reindention = specify_reindention(regex_pattern = &quot;^###&quot;, indention = 0)
 )</code></pre>
-<pre><code>#&gt; a &lt;- function() {
-#&gt; ### not to be indented
-#&gt;   # indent normally
-#&gt;   33
-#&gt; }</code></pre>
+<pre><code>a &lt;- function() {
+### not to be indented
+  # indent normally
+  33
+}</code></pre>
 <p>These are options that allow flexible reformatting. You can even go further, as described in the <a href="http://styler.r-lib.org/articles/customizing_styler.html">“Customizing styler”</a> vignette.</p>
 </section>
 </section>
 <section id="a-few-more-examples" class="level1">
 <h1>A few more examples</h1>
 <p>Now that you know that the rules can be applied in a flexible fashion, let’s focus on <code>scope = &quot;tokens&quot;</code> and <code>strict = TRUE</code> and illustrate how specific rules of the tidyverse style guide are implemented.</p>
+<p>Spaces are placed around operators such as <code>=</code>, after (but not before) commas, before comments etc.</p>
+<pre class="styler"><code># Before
+split_fast&lt;-split_into_fractions(target=&quot;fast&quot;,origin  =&quot;E2-k3&quot;,...)#comment</code></pre>
+<pre><code># After
+split_fast &lt;- split_into_fractions(target = &quot;fast&quot;, origin = &quot;E2-k3&quot;, ...) # comment</code></pre>
 <p>Function declarations are indented if multi-line:</p>
 <pre class="styler"><code># Before
 my_fun &lt;- function(x, 
@@ -183,22 +188,22 @@ do_a_long_and_complicated_fun_cal(
   &quot;and longer then lorem ipsum in its full length&quot;
 )</code></pre>
 <p>styler replaces <code>=</code> with <code>&lt;-</code> for assignment if necessary:</p>
-<pre class="r"><code>style_text(
-  &quot;
-  one = 3
-  data_frame(a = 3)
-  &quot;
-)</code></pre>
-<pre><code>#&gt; 
-#&gt; one &lt;- 3
-#&gt; data_frame(a = 3)</code></pre>
+<pre class="styler"><code># Before
+one = 3
+data_frame(a = 3)</code></pre>
+<pre><code># After
+one &lt;- 3
+data_frame(a = 3)</code></pre>
 <p>It also handles single quotes according to the tidyverse style guide:</p>
-<pre class="r"><code>&#39;one string&#39;</code></pre>
-<pre><code>#&gt; [1] &quot;one string&quot;</code></pre>
-<pre class="r"><code>&#39;one string in a &quot;string&quot;&#39;</code></pre>
-<pre><code>#&gt; [1] &quot;one string in a \&quot;string\&quot;&quot;</code></pre>
-<pre class="r"><code>&quot;one string in a &#39;string&#39;&quot;</code></pre>
-<pre><code>#&gt; [1] &quot;one string in a &#39;string&#39;&quot;</code></pre>
+<pre class="styler"><code># Before
+&#39;one string&#39;
+&#39;one string in a &quot;string&quot;&#39;
+&quot;one string in a &#39;string&#39;&quot;
+</code></pre>
+<pre><code># After
+&quot;one string&quot;
+&#39;one string in a &quot;string&quot;&#39;
+&quot;one string in a &#39;string&#39;&quot;</code></pre>
 <p>Braces are added to function calls in pipes:</p>
 <pre class="styler"><code># Before
 a %&gt;%
