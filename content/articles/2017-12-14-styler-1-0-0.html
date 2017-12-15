@@ -15,7 +15,7 @@ description: >
 
 
 
-<p>We’re pleased to announce the release of <a href="https://github.com/r-lib/styler/releases/tag/v1.0.0">styler 1.0.0</a>. styler is a source code formatter - a package to format R code according to a style guide. We’ve implemented the <a href="http://style.tidyverse.org">tidyverse style guide</a>, so you can format your code according to it. A coherent style is important for consistency and legibility. Just as it is important to putspcesbetweenwords. You can install styler from CRAN:</p>
+<p>We’re pleased to announce the release of <a href="https://github.com/r-lib/styler/releases/tag/v1.0.0">styler 1.0.0</a>. styler is a source code formatter - a package to format R code according to a style guide. It defaults to our implementation of the <a href="http://style.tidyverse.org">tidyverse style guide</a>, but there is plenty of flexibility for a user to specify their own style. A coherent style is important for consistency and legibility. Just as it is important to putspcesbetweenwords. You can install styler from CRAN:</p>
 <pre class="r"><code>install.packages(&quot;styler&quot;)</code></pre>
 <p>styler can style text, single files, packages and entire R source trees with the following functions:</p>
 <ul>
@@ -25,13 +25,13 @@ description: >
 <li><code>style_pkg()</code> styles the source files of an R package.</li>
 <li>An RStudio Addin that styles the active R or Rmd file, the current package or the highlighted code.</li>
 </ul>
-<p>Note that all functions except <code>style_text()</code> modify <em>in place</em>, that is, they overwrite the source. <code>style_file()</code> for example modifies the files it is given without creating a backup copy. We therefore strongly advice to use version control in conjunction with styler and consider the implications this might have on your workflow.</p>
+<p>Note that all functions except <code>style_text()</code> modify <em>in place</em>, that is, they overwrite the source. <code>style_file()</code> for example modifies the files it is given without creating a backup copy. We therefore strongly advise to use version control in conjunction with styler and consider the implications this might have on your workflow.</p>
 <section id="styling-options" class="level2">
 <h2>styling options</h2>
 <p>A distinguishing feature of styler is its flexibility. The following options are available:</p>
 <ul>
 <li><code>scope</code>. What is to be styled, e.g. just spacing or also indention, line breaks, tokens?</li>
-<li><code>strict</code>. How strict should be rules be applied?</li>
+<li><code>strict</code>. How strictly should the rules be applied?</li>
 <li><code>math_token_spacing</code>. Granular control for spacing around math tokens.</li>
 <li><code>reindention</code>. Allows to set the indention of certain regex patterns manually.</li>
 </ul>
@@ -41,7 +41,7 @@ description: >
 <p><code>scope</code> can take one of the following values:</p>
 <ul>
 <li>“none”: Performs no transformation at all.</li>
-<li>“spaces”: Manipulates spacing between token on the same line.</li>
+<li>“spaces”: Manipulates spacing between tokens on the same line.</li>
 <li>“indention”: In addition to “spaces”, this option also manipulates the indention level.</li>
 <li>“line_breaks”: In addition to “indention”, this option also manipulates line breaks.</li>
 <li>“tokens”: In addition to “line_breaks”, this option also manipulates tokens.</li>
@@ -82,7 +82,7 @@ style_text(&quot;a=3; 2&quot;, scope = &quot;spaces&quot;)</code></pre>
   medium = 4, # comment without space
   large  = 6
 )</code></pre>
-<p>We prefer to keep the equal sign after “small”, “medium” and large aligned, so we set <code>strict = FALSE</code> to set spacing to <em>at least</em> one around <code>=</code>.</p>
+<p>We prefer to keep the equal sign after “small”, “medium” and “large” aligned, so we set <code>strict = FALSE</code> to set spacing to <em>at least</em> one around <code>=</code>.</p>
 <p>Also, with <code>scope &gt;= &quot;line_breaks&quot;</code>, <code>strict = TRUE</code> will break the lines in the following call, whereas <code>strict = FALSE</code> will leave them as is:</p>
 <pre class="r"><code>style_text(
   &quot;do_a_long_and_complicated_fun_cal(&#39;which&#39;, has, way, to, 
