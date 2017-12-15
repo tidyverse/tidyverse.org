@@ -30,7 +30,7 @@ knitr::knit_engines$set(list(
 ```
 
 
-We're pleased to announce the release of [styler 1.0.0](https://github.com/r-lib/styler/releases/tag/v1.0.0). styler is a source code formatter - a package to format R code according to a style guide. We've implemented the [tidyverse style guide](http://style.tidyverse.org), so you can format your code according to it. A coherent style is important for consistency and legibility. Just as it is important to putspcesbetweenwords. 
+We're pleased to announce the release of [styler 1.0.0](https://github.com/r-lib/styler/releases/tag/v1.0.0). styler is a source code formatter - a package to format R code according to a style guide. It defaults to our implementation of the [tidyverse style guide](http://style.tidyverse.org), but there is plenty of flexibility for a user to specify their own style. A coherent style is important for consistency and legibility. Just as it is important to putspcesbetweenwords. 
 You can install styler from CRAN:
 
 ```{r, eval = FALSE}
@@ -47,14 +47,14 @@ R source trees with the following functions:
 * An RStudio Addin that styles the active R or Rmd file, the current 
   package or the highlighted code.
 
-Note that all functions except `style_text()` modify *in place*, that is, they overwrite the source. `style_file()` for example modifies the files it is given without creating a backup copy. We therefore strongly advice to use version control in conjunction with styler and consider the implications this might have on your workflow.
+Note that all functions except `style_text()` modify *in place*, that is, they overwrite the source. `style_file()` for example modifies the files it is given without creating a backup copy. We therefore strongly advise to use version control in conjunction with styler and consider the implications this might have on your workflow.
 
 ## styling options
 
 A distinguishing feature of styler is its flexibility. The following options are available:
 
 * `scope`. What is to be styled, e.g. just spacing or also indention, line breaks, tokens?
-* `strict`. How strict should be rules be applied?
+* `strict`. How strictly should the rules be applied?
 * `math_token_spacing`. Granular control for spacing around math tokens.
 * `reindention`. Allows to set the indention of certain regex patterns manually.
 
@@ -65,7 +65,7 @@ We will briefly describe all of them below.
 `scope` can take one of the following values:
 
 * "none": Performs no transformation at all.
-* "spaces": Manipulates spacing between token on the same line.
+* "spaces": Manipulates spacing between tokens on the same line.
 * "indention": In addition to "spaces", this option also manipulates the indention level.
 * "line_breaks": In addition to "indention", this option also manipulates line breaks.
 * "tokens": In addition to "line_breaks", this option also manipulates tokens.
@@ -113,7 +113,7 @@ style_text(
 )
 ```
 
-We prefer to keep the equal sign after "small", "medium" and large aligned, so we set `strict = FALSE` to set spacing to *at least* one around `=`.
+We prefer to keep the equal sign after "small", "medium" and "large" aligned, so we set `strict = FALSE` to set spacing to *at least* one around `=`.
 
 Also, with `scope >= "line_breaks"`, `strict = TRUE` will break the lines in the following call, whereas `strict = FALSE` will leave them as is:
 ```{r}
