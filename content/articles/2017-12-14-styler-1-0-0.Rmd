@@ -14,19 +14,39 @@ description: >
 ---
 
 ```{r setup, include = FALSE}
+library(magrittr)
+set_engine_options <- function(options, funs) {
+  all_names <- purrr::map(funs, ~names(as.list(args(.x)))) %>% 
+    purrr::flatten_chr()
+  options$text <- options$code
+  options[intersect(names(options), all_names)]
+}
+
+set_styler_engine_options <- purrr::partial(set_engine_options, 
+  funs = c(styler::style_text, styler::tidyverse_style)
+)
+
+construct_styler_call <- function(options) {
+  options <- set_styler_engine_options(options)
+  options$text <- NULL
+  used_styler_args <- paste(names(options), options, sep = " = ", collapse = ", ")
+  ifelse(length(options) > 0, 
+    paste0("style_text(..., ", used_styler_args, ")"), 
+     ""
+  )
+}
+
 knitr::opts_chunk$set(echo = TRUE, comment = NA, promt = TRUE)
 knitr::knit_engines$set(list(
   styler = function(options) {
-    options$comment <- ""
+    styled_text <- do.call(styler::style_text, set_styler_engine_options(options))
     knitr::engine_output(
       options,
-      
       c("# Before", options$code),
-      c("# After", styler::style_text(options$code))
+      c(paste("# After", construct_styler_call(options)), styled_text)
     )
   }
 ))
-
 ```
 
 
@@ -86,15 +106,20 @@ and tokens:
 style_text("a=3; 2", scope = "tokens")
 ```
 
+For the reader's convenience, we will now switch the mode of display. In the new mode, the above example looks like this:
+```{styler, scope = "tokens"}
+a=3; 2
+```
+
+Where `...` refers to the code to style.
+
+
 In the next example, we want to style spaces and indention, but not line breaks
 and tokens:
-```{r}
-style_text(
-  "a=  function( x) {
+```{styler, scope = "indention"}
+a=  function( x) {
   'x'
-  }", 
-  scope = "indention"
-)
+  }
 ```
 
 
@@ -102,37 +127,29 @@ style_text(
 
 Another option that is helpful to determine the level of 'invasiveness' is `strict`. If set to `TRUE`, spaces and line breaks before or after tokens are set to either zero or one. However, in some situations, this might be undesirable (so we set `strict = FALSE`), as the following example shows:
 
-```{r}
-style_text(
-  "data_frame(
+```{styler, strict = FALSE}
+data_frame(
      small  = 2 ,
      medium = 4,#comment without space
      large  =6
-   )", 
-  strict = FALSE
 )
 ```
 
 We prefer to keep the equal sign after "small", "medium" and "large" aligned, so we set `strict = FALSE` to set spacing to *at least* one around `=`.
 
 Also, with `scope >= "line_breaks"`, `strict = TRUE` will break the lines in the following call, whereas `strict = FALSE` will leave them as is:
-```{r}
-style_text(
-  "do_a_long_and_complicated_fun_cal('which', has, way, to, 
+```{styler}
+do_a_long_and_complicated_fun_cal('which', has, way, to, 
                               'and longer then lorem ipsum in its full length'
-                              )"
 )
 ```
 
 
 In addition, the `strict` option also adds braces (if `scope = "tokens"`) to conditional statements if they are multi-line:
-```{r}
-style_text(
-  "if (set_q(x))
+```{styler, strict = TRUE}
+if (set_q(x))
     3 else 
-    5",
-  strict = TRUE
-)
+    5
 ```
 
 
@@ -145,25 +162,19 @@ styler can identify and handle unary operators and other math tokens:
 ```
 
 This is tidyverse style. However, styler offers very granular control for math token spacing. Assuming you like spacing around `+` and `-`, but not around `/` and `*` and `^`. This can be achieved as follows:
-```{r}
-style_text(
-  "1++1/2*2^2", 
-  math_token_spacing = specify_math_token_spacing(zero = c("'/'", "'*'", "'^'"))
-)
+```{styler, math_token_spacing = specify_math_token_spacing(zero = c("'/'", "'*'", "'^'"))}
+1++1/2*2^2 
 ```
 
 ### reindention
 
 You can set the indention of lines that match a certain regular expression manually. For example, if you don't want comments starting with `###` to be indented, you can formulate an unindention rule:
-```{r}
-style_text(
-    "a <- function() {
+```{styler, reindention = specify_reindention(regex_pattern = "^###", indention = 0)}
+a <- function() {
     ### not to be indented
     # indent normally
     33
-    }",
-  reindention = specify_reindention(regex_pattern = "^###", indention = 0)
-)
+    }
 ```
 
 
@@ -235,3 +246,10 @@ mtcars %>%
 ```
 
 That was a quick overview of styler. Please feel free to grab styler from CRAN, run it on your own package and tell us what you think.
+
+
+```{styler, scope = "spaces"}
+a %>%
+  b %>%
+  c
+```
