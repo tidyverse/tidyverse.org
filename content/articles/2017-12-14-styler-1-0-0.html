@@ -55,52 +55,56 @@ style_text(&quot;a=3; 2&quot;, scope = &quot;spaces&quot;)</code></pre>
 <pre class="r"><code>style_text(&quot;a=3; 2&quot;, scope = &quot;tokens&quot;)</code></pre>
 <pre><code>a &lt;- 3
 2</code></pre>
+<p>For the reader’s convenience, we will now switch the mode of display. In the new mode, the above example looks like this:</p>
+<pre class="styler"><code># Before
+a=3; 2</code></pre>
+<pre><code># After style_text(..., scope = tokens)
+a &lt;- 3
+2</code></pre>
+<p>Where <code>...</code> refers to the code to style.</p>
 <p>In the next example, we want to style spaces and indention, but not line breaks and tokens:</p>
-<pre class="r"><code>style_text(
-  &quot;a=  function( x) {
+<pre class="styler"><code># Before
+a=  function( x) {
   &#39;x&#39;
-  }&quot;, 
-  scope = &quot;indention&quot;
-)</code></pre>
-<pre><code>a = function(x) {
+  }</code></pre>
+<pre><code># After style_text(..., scope = indention)
+a = function(x) {
   &quot;x&quot;
 }</code></pre>
 </section>
 <section id="strict" class="level3">
 <h3>strict</h3>
 <p>Another option that is helpful to determine the level of ‘invasiveness’ is <code>strict</code>. If set to <code>TRUE</code>, spaces and line breaks before or after tokens are set to either zero or one. However, in some situations, this might be undesirable (so we set <code>strict = FALSE</code>), as the following example shows:</p>
-<pre class="r"><code>style_text(
-  &quot;data_frame(
+<pre class="styler"><code># Before
+data_frame(
      small  = 2 ,
      medium = 4,#comment without space
      large  =6
-   )&quot;, 
-  strict = FALSE
 )</code></pre>
-<pre><code>data_frame(
+<pre><code># After style_text(..., strict = FALSE)
+data_frame(
   small  = 2,
   medium = 4, # comment without space
   large  = 6
 )</code></pre>
 <p>We prefer to keep the equal sign after “small”, “medium” and “large” aligned, so we set <code>strict = FALSE</code> to set spacing to <em>at least</em> one around <code>=</code>.</p>
 <p>Also, with <code>scope &gt;= &quot;line_breaks&quot;</code>, <code>strict = TRUE</code> will break the lines in the following call, whereas <code>strict = FALSE</code> will leave them as is:</p>
-<pre class="r"><code>style_text(
-  &quot;do_a_long_and_complicated_fun_cal(&#39;which&#39;, has, way, to, 
+<pre class="styler"><code># Before
+do_a_long_and_complicated_fun_cal(&#39;which&#39;, has, way, to, 
                               &#39;and longer then lorem ipsum in its full length&#39;
-                              )&quot;
 )</code></pre>
-<pre><code>do_a_long_and_complicated_fun_cal(
+<pre><code># After 
+do_a_long_and_complicated_fun_cal(
   &quot;which&quot;, has, way, to,
   &quot;and longer then lorem ipsum in its full length&quot;
 )</code></pre>
 <p>In addition, the <code>strict</code> option also adds braces (if <code>scope = &quot;tokens&quot;</code>) to conditional statements if they are multi-line:</p>
-<pre class="r"><code>style_text(
-  &quot;if (set_q(x))
+<pre class="styler"><code># Before
+if (set_q(x))
     3 else 
-    5&quot;,
-  strict = TRUE
-)</code></pre>
-<pre><code>if (set_q(x)) {
+    5</code></pre>
+<pre><code># After style_text(..., strict = TRUE)
+if (set_q(x)) {
   3
 } else {
   5
@@ -111,27 +115,25 @@ style_text(&quot;a=3; 2&quot;, scope = &quot;spaces&quot;)</code></pre>
 <p>styler can identify and handle unary operators and other math tokens:</p>
 <pre class="styler"><code># Before
 1++1-1-1/2</code></pre>
-<pre><code># After
+<pre><code># After 
 1 + +1 - 1 - 1 / 2</code></pre>
 <p>This is tidyverse style. However, styler offers very granular control for math token spacing. Assuming you like spacing around <code>+</code> and <code>-</code>, but not around <code>/</code> and <code>*</code> and <code>^</code>. This can be achieved as follows:</p>
-<pre class="r"><code>style_text(
-  &quot;1++1/2*2^2&quot;, 
-  math_token_spacing = specify_math_token_spacing(zero = c(&quot;&#39;/&#39;&quot;, &quot;&#39;*&#39;&quot;, &quot;&#39;^&#39;&quot;))
-)</code></pre>
-<pre><code>1 + +1/2*2^2</code></pre>
+<pre class="styler"><code># Before
+1++1/2*2^2 </code></pre>
+<pre><code># After style_text(..., math_token_spacing = list(one = c(&quot;&#39;+&#39;&quot;, &quot;&#39;-&#39;&quot;), zero = c(&quot;&#39;/&#39;&quot;, &quot;&#39;*&#39;&quot;, &quot;&#39;^&#39;&quot;)))
+1 + +1/2*2^2</code></pre>
 </section>
 <section id="reindention" class="level3">
 <h3>reindention</h3>
 <p>You can set the indention of lines that match a certain regular expression manually. For example, if you don’t want comments starting with <code>###</code> to be indented, you can formulate an unindention rule:</p>
-<pre class="r"><code>style_text(
-    &quot;a &lt;- function() {
+<pre class="styler"><code># Before
+a &lt;- function() {
     ### not to be indented
     # indent normally
     33
-    }&quot;,
-  reindention = specify_reindention(regex_pattern = &quot;^###&quot;, indention = 0)
-)</code></pre>
-<pre><code>a &lt;- function() {
+    }</code></pre>
+<pre><code># After style_text(..., reindention = list(regex_pattern = &quot;^###&quot;, indention = 0, comments_only = TRUE))
+a &lt;- function() {
 ### not to be indented
   # indent normally
   33
@@ -145,7 +147,7 @@ style_text(&quot;a=3; 2&quot;, scope = &quot;spaces&quot;)</code></pre>
 <p>Spaces are placed around operators such as <code>=</code>, after (but not before) commas, before comments etc.</p>
 <pre class="styler"><code># Before
 split_fast&lt;-split_into_fractions(target=&quot;fast&quot;,origin  =&quot;E2-k3&quot;,...)#comment</code></pre>
-<pre><code># After
+<pre><code># After 
 split_fast &lt;- split_into_fractions(target = &quot;fast&quot;, origin = &quot;E2-k3&quot;, ...) # comment</code></pre>
 <p>Function declarations are indented if multi-line:</p>
 <pre class="styler"><code># Before
@@ -154,7 +156,7 @@ y,
 z) {
   just(z)
 }</code></pre>
-<pre><code># After
+<pre><code># After 
 my_fun &lt;- function(x,
                    y,
                    z) {
@@ -168,7 +170,7 @@ c(there_are_fairly_long,
 2 * long_long_variable_names)%&gt;% k(
 
 ) }</code></pre>
-<pre><code># After
+<pre><code># After 
 if (x &gt; 3) {
   stop(&quot;this is an error&quot;)
 } else {
@@ -183,7 +185,7 @@ if (x &gt; 3) {
 do_a_long_and_complicated_fun_cal(&quot;which&quot;, has, way, to, 
                               &quot;and longer then lorem ipsum in its full length&quot;
                               )</code></pre>
-<pre><code># After
+<pre><code># After 
 do_a_long_and_complicated_fun_cal(
   &quot;which&quot;, has, way, to,
   &quot;and longer then lorem ipsum in its full length&quot;
@@ -192,7 +194,7 @@ do_a_long_and_complicated_fun_cal(
 <pre class="styler"><code># Before
 one = 3
 data_frame(a = 3)</code></pre>
-<pre><code># After
+<pre><code># After 
 one &lt;- 3
 data_frame(a = 3)</code></pre>
 <p>It also handles single quotes according to the tidyverse style guide:</p>
@@ -201,7 +203,7 @@ data_frame(a = 3)</code></pre>
 &#39;one string in a &quot;string&quot;&#39;
 &quot;one string in a &#39;string&#39;&quot;
 </code></pre>
-<pre><code># After
+<pre><code># After 
 &quot;one string&quot;
 &#39;one string in a &quot;string&quot;&#39;
 &quot;one string in a &#39;string&#39;&quot;</code></pre>
@@ -210,7 +212,7 @@ data_frame(a = 3)</code></pre>
 a %&gt;%
   b %&gt;%
   c</code></pre>
-<pre><code># After
+<pre><code># After 
 a %&gt;%
   b() %&gt;%
   c()</code></pre>
@@ -218,8 +220,16 @@ a %&gt;%
 <pre class="styler"><code># Before
 mtcars %&gt;%
   group_by(!!!my_vars)</code></pre>
-<pre><code># After
+<pre><code># After 
 mtcars %&gt;%
   group_by(!!! my_vars)</code></pre>
 <p>That was a quick overview of styler. Please feel free to grab styler from CRAN, run it on your own package and tell us what you think.</p>
+<pre class="styler"><code># Before
+a %&gt;%
+  b %&gt;%
+  c</code></pre>
+<pre><code># After style_text(..., scope = spaces)
+a %&gt;%
+  b %&gt;%
+  c</code></pre>
 </section>
