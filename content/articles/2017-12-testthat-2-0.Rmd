@@ -16,7 +16,9 @@ library(testthat)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-We are very excited to announce that testthat 2.0.0 is now available on CRAN! Testthat makes it easy to turn your existing informal tests into formal automated tests that you can rerun quickly and easily. Learn more at <http://r-pkgs.had.co.nz/tests.html>. Install the latest version with:
+We are very excited to announce that [testthat](http://testthat.r-lib.org) 2.0.0 is now available on CRAN! Testthat makes it easy to turn your existing informal tests into formal automated tests that you can rerun quickly and easily. testthat is used by over 2,600 CRAN packages and by many more [Github packages](https://github.com/search?q=filename%3Atestthat.R). Learn more about unit testing at <http://r-pkgs.had.co.nz/tests.html>. 
+
+Install the latest version of testthat with:
 
 ```{r, eval = FALSE}
 install.packages("testthat")
@@ -35,7 +37,7 @@ testthat 2.0.0 is a massive release containing a bunch of new features. For the 
 * Quasiquotation support makes it easier to embed tests in for loops and
   functions and still get useful failure messages.
 
-* Along with these new features we unforunately also had to make a few breaking 
+* Along with these new features we unfortunately also had to make a few breaking 
   changes. We describe the symptoms and how to work around the changes below.
   
 In addition, as part of a general process to make tidyverse and r-lib packages available more widely, we are now checking testthat with R 3.1, 3.2, 3.3, 3.4, and 3.5.
@@ -44,8 +46,9 @@ In addition, as part of a general process to make tidyverse and r-lib packages a
 
 A new default reporter, `ReporterProgress`, revamps the output to make use of colour and reveal details of failures as they occur:
 
+![](/images/testthat-2-0/progress.gif)
 
-If you prefer the previous version, you can turn back time by setting `option(testthat.default_reporter = "summary")`.
+If you prefer the previous version, you can run it once with `devtools::test(reporter = "summary")` or turn back time by setting `option(testthat.default_reporter = "summary")`.
 
 ## Setup and teardown
 
@@ -74,7 +77,7 @@ There are two new ways to setup and teardown code:
   
 ## New and improved expectations
 
-We have identified a new family of expectations that compares the results of an expression to a known good value stored in a file. They are designed to be use in conjunction with git so that you can see what precisely has changed, and revert it if needed:
+We have identified a new family of expectations that compares the results of an expression to a known good value stored in a file. They are designed to be used in conjunction with git so that you can see what precisely has changed, and revert it if needed:
 
 *   `expect_known_output()` saves the output of an expression and will fail
     the first time the output changes. The file is updated on each run, so
@@ -102,15 +105,15 @@ We have identified a new family of expectations that compares the results of an 
   This changes behaviour from the previous version, and soft-deprecated
   `expect_equal_to_reference()` gets `update = FALSE`. 
 
-We've also improved tools for failures:
+We've also improved tools for testing for failures:
 
 * `expect_condition()` works like `expect_error()` but captures any
   condition, not just error conditions.
 
 *  `expect_error()` gains a `class` argument that allows you to make an 
-  assertion about the class of the error object (#530).
+  assertion about the class of the error object.
 
-We've also added `expect_setequal()` to check if that compares two sets (stored in vectors), ignoring duplicates and differences in order. Finally we added few new helpers for skipping tests:
+We've also added `expect_setequal()` to compares two sets (stored in vectors), ignoring duplicates and differences in order. Finally, we added a few new helpers for skipping tests:
 
 * `skip_if()` makes it easy to skip a test when a condition is true.
   For example, use `skip_if(getRversion() <= 3.1)` to skip a test in older
@@ -147,11 +150,11 @@ for (i in 1:5) {
 }
 ```
 
-(Note that this is not tidy evaluation per se, but is closely related. This works a little differently in testthat to tidyverse package because the only quoting involved is for error message. See `?quasi_label()` for more details. At this time you can not unquote quosures.)
+(Note that this is not tidy evaluation _per se_, but is closely related. This works a little differently in testthat to tidyverse packages because quoting is only used to generate the failure messages: see `?quasi_label()` for more details. At this time you can not unquote quosures.)
 
 ## Breaking changes
 
-Unfortunately it was necessary to make a few API breaking changes in testthat in order to make testthat more flexible for the future, and deal with some changes made to R. These changes affected around 1 in 40 packages  using testthat on CRAN, and all maintainers were warned a month in advanced. 
+Unfortunately it was necessary to make a few API breaking changes in testthat in order to make testthat more flexible for the future, and deal with some changes made to R. These changes affected around 1 in 40 packages  using testthat on CRAN, and all maintainers were warned a month in advance. 
 
 If you have a non-CRAN package, read the following list of symptoms and remedies in order to get your package working with testthat 2.0.0:
 
@@ -183,10 +186,10 @@ If you have a non-CRAN package, read the following list of symptoms and remedies
   a `test_that()` with an informative name.
   
 * "Error: the argument has already been evaluated": the way in which 
-  expectations now need create labels has changed, which caused a couple 
+  expectations now create labels has changed, which caused a couple 
   of failures with unusual usage when combined with `Reduce`, `lapply()`, 
   and `Map()`. Avoid these functions in favour of for loops. I also recommend
-  reading the section below on quasiquotation support in order to create more 
+  reading the section on quasiquotation support (above) in order to create more 
   informative failure messages.
   
 * `is_null()` and `matches()` have been deprecated because they conflict
@@ -201,7 +204,7 @@ users <- sort(unique(purrr::map_chr(x, c("user", "login"))))
 length(users)
 clipr::write_clip(glue::collapse(glue::glue("[\\@{users}](https://github.com/{users})"), ", ", last = ", and "))
 ```
-A big thanks goes to [Kirill Müller](https://github.com/krlmlr) for his help running R CMD check on all the packages that use testthat - in total he ran R CMD check over 10,000 times!
+A big thanks goes to [Kirill Müller](https://github.com/krlmlr) for his help running R CMD check on all the packages that use testthat - in total he ran R CMD check over 10,000 times! Likewise, a big thanks to the CRAN team who also have to run these checks to ensure that other packages are not broken inadvertently.
 
 A whopping 103 people helped to make this release happen. Thanks to everyone who opened
 issues and contributed code: [\@3psil0n](https://github.com/3psil0n), [\@agricolamz](https://github.com/agricolamz), [\@akbertram](https://github.com/akbertram), [\@AmeliaMN](https://github.com/AmeliaMN), [\@andrie](https://github.com/andrie), [\@aronatkins](https://github.com/aronatkins), [\@BarkleyBG](https://github.com/BarkleyBG), [\@bbolker](https://github.com/bbolker), [\@bc](https://github.com/bc), [\@bdwyer2](https://github.com/bdwyer2), [\@billchenxi](https://github.com/billchenxi), [\@billdenney](https://github.com/billdenney), [\@BillDunlap](https://github.com/BillDunlap), [\@boennecd](https://github.com/boennecd), [\@bradleyjeck](https://github.com/bradleyjeck), [\@briencj](https://github.com/briencj), [\@brodieG](https://github.com/brodieG), [\@carlganz](https://github.com/carlganz), [\@cbare](https://github.com/cbare), [\@cderv](https://github.com/cderv), [\@cdriveraus](https://github.com/cdriveraus), [\@cfhammill](https://github.com/cfhammill), [\@chambm](https://github.com/chambm), [\@Christoph999](https://github.com/Christoph999), [\@cogmind](https://github.com/cogmind), [\@colearendt](https://github.com/colearendt), [\@dchudz](https://github.com/dchudz), [\@dlindelof](https://github.com/dlindelof), [\@dmenne](https://github.com/dmenne), [\@dougpagani](https://github.com/dougpagani), [\@egnha](https://github.com/egnha), [\@epurdom](https://github.com/epurdom), [\@fangly](https://github.com/fangly), [\@floybix](https://github.com/floybix), [\@FrancoisGuillem](https://github.com/FrancoisGuillem), [\@frankandrobot](https://github.com/frankandrobot), [\@fritzo](https://github.com/fritzo), [\@gaborcsardi](https://github.com/gaborcsardi), [\@george-weingart](https://github.com/george-weingart), [\@hadley](https://github.com/hadley), [\@hansharhoff](https://github.com/hansharhoff), [\@hesamaseh](https://github.com/hesamaseh), [\@HyukjinKwon](https://github.com/HyukjinKwon), [\@jackolney](https://github.com/jackolney), [\@jackwasey](https://github.com/jackwasey), [\@jcheng5](https://github.com/jcheng5), [\@jdblischak](https://github.com/jdblischak), [\@jdshkolnik](https://github.com/jdshkolnik), [\@jefferis](https://github.com/jefferis), [\@jennybc](https://github.com/jennybc), [\@jeroen](https://github.com/jeroen), [\@jimhester](https://github.com/jimhester), [\@joethorley](https://github.com/joethorley), [\@jspitzen](https://github.com/jspitzen), [\@kalibera](https://github.com/kalibera), [\@katrinleinweber](https://github.com/katrinleinweber), [\@kenahoo](https://github.com/kenahoo), [\@kenahoo-windlogics](https://github.com/kenahoo-windlogics), [\@kendonB](https://github.com/kendonB), [\@kevinushey](https://github.com/kevinushey), [\@kevinykuo](https://github.com/kevinykuo), [\@kforner](https://github.com/kforner), [\@klmr](https://github.com/klmr), [\@krlmlr](https://github.com/krlmlr), [\@lbartnik](https://github.com/lbartnik), [\@lc0](https://github.com/lc0), [\@lionel-](https://github.com/lionel-), [\@lorenzwalthert](https://github.com/lorenzwalthert), [\@mahaiyer](https://github.com/mahaiyer), [\@MarkEdmondson1234](https://github.com/MarkEdmondson1234), [\@maxheld83](https://github.com/maxheld83), [\@micstr](https://github.com/micstr), [\@mllg](https://github.com/mllg), [\@mlysy](https://github.com/mlysy), [\@mschubert](https://github.com/mschubert), [\@nabilabd](https://github.com/nabilabd), [\@nealrichardson](https://github.com/nealrichardson), [\@p-smirnov](https://github.com/p-smirnov), [\@paciorek](https://github.com/paciorek), [\@pat-s](https://github.com/pat-s), [\@patperry](https://github.com/patperry), [\@r2evans](https://github.com/r2evans), [\@rdiaz02](https://github.com/rdiaz02), [\@rgknight](https://github.com/rgknight), [\@richierocks](https://github.com/richierocks), [\@robwe](https://github.com/robwe), [\@ruaridhw](https://github.com/ruaridhw), [\@s6mike](https://github.com/s6mike), [\@schoettl](https://github.com/schoettl), [\@scottkosty](https://github.com/scottkosty), [\@Stan125](https://github.com/Stan125), [\@stla](https://github.com/stla), [\@swt30](https://github.com/swt30), [\@twolodzko](https://github.com/twolodzko), [\@unDocUMeantIt](https://github.com/unDocUMeantIt), [\@vermouthmjl](https://github.com/vermouthmjl), [\@wch](https://github.com/wch), [\@wlandau-lilly](https://github.com/wlandau-lilly), [\@wligtenberg](https://github.com/wligtenberg), [\@wsloand](https://github.com/wsloand), [\@wush978](https://github.com/wush978), [\@zachcp](https://github.com/zachcp), and [\@zer0hedge](https://github.com/zer0hedge)
