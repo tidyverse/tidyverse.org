@@ -90,6 +90,8 @@ img %>%
 
 Inline images can be added to articles by placing them in the `/static/images/` 
 directory. By current convention, these go in a subdirectory for each post.
-Images are added to the markdown using html, e.g. 
-`<img src="/static/images/subdir/image-name.jpg" />`.
+Images are added to the markdown by giving the full file-path, e.g.
 
+```
+![](/images/subdir/image-name.jpg)
+```
