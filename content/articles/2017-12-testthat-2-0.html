@@ -1,0 +1,131 @@
+---
+title: testthat 2.0.0
+author: Hadley Wickham
+date: '2017-12-19'
+slug: testthat-2-0-0
+categories:
+  - package
+tags: [package, r-lib]
+photo:
+  url: https://unsplash.com/photos/Lu2pfy_8VKg
+  author: Cameron Kirby
+---
+
+
+
+<p>We are very excited to announce that <a href="http://testthat.r-lib.org">testthat 2.0.0</a> is now available on CRAN! Testthat makes it easy to turn your existing informal tests into formal automated tests that you can rerun quickly and easily. testthat is the most popular unit testing package for R, and is used by over 2,600 CRAN packages and by many more <a href="https://github.com/search?q=filename%3Atestthat.R">Github packages</a>. Learn more about unit testing at <a href="http://r-pkgs.had.co.nz/tests.html" class="uri">http://r-pkgs.had.co.nz/tests.html</a>.</p>
+<p>Install the latest version of testthat with:</p>
+<pre class="r"><code>install.packages(&quot;testthat&quot;)</code></pre>
+<p>testthat 2.0.0 is a massive release containing a bunch of new features. For the full details, see the <a href="https://github.com/r-lib/testthat/releases/tag/v2.0.0">release notes</a>, or read the hightlights below:</p>
+<ul>
+<li><p>A new default reporter revamps the output to make better use of colour.</p></li>
+<li><p>New setup and teardown tools make it easier to run code before and after each test file, and before and after all tests.</p></li>
+<li><p>New and improved expectations make it easier to test printed output and precisely test conditions (i.e. errors, warnings, and messages).</p></li>
+<li><p>Quasiquotation support makes it easier to wrap tests in for loops and functions and still get useful failure messages.</p></li>
+<li><p>Along with these new features we unfortunately also had to make a few breaking changes. We describe the symptoms and how to work around the changes below.</p></li>
+</ul>
+<p>In addition, as part of a general process to make tidyverse and r-lib packages available more widely, we are now checking testthat with R 3.1, 3.2, 3.3, 3.4, and 3.5.</p>
+<div id="new-default-reporter" class="section level2">
+<h2>New default reporter</h2>
+<p>A new default reporter, <code>ReporterProgress</code>, revamps the output to make use of colour and reveal details of failures as they occur:</p>
+<p><img src="/images/testthat-2-0/progress.gif" /></p>
+<p>If you prefer the previous version, you can run it once with <code>devtools::test(reporter = &quot;summary&quot;)</code> or turn back time by setting <code>option(testthat.default_reporter = &quot;summary&quot;)</code>.</p>
+</div>
+<div id="setup-and-teardown" class="section level2">
+<h2>Setup and teardown</h2>
+<p>There are two new ways to setup and teardown code:</p>
+<ul>
+<li><p>New <code>setup()</code> and <code>teardown()</code> functions specify code to be run at the beginning and end of each test file. Write them next to each other so you can easily confirm that each <code>setup()</code> is paired with a <code>teardown()</code> that cleans up any changes to the global state.</p>
+<pre class="r"><code>tmp &lt;- tempfile()
+setup({
+  writeLines(&quot;TEST DATA&quot;, tmp)
+})
+teardown({
+  unlink(tmp)
+})</code></pre></li>
+<li><p><code>tests/testthat/setup-xyz.R</code> files are run before the first test file is executed. They are similar to the existing <code>helpers-xyz.R</code> files, but are not run by <code>devtools::load_all()</code>. Similarly, <code>test/teststhat/teardown-xyz.R</code> files are run after all tests are complete; use these to clean up any global changes made by the setup files.</p></li>
+</ul>
+</div>
+<div id="new-and-improved-expectations" class="section level2">
+<h2>New and improved expectations</h2>
+<p>We have identified a new family of expectations that compares the results of an expression to a known good value stored in a file. They are designed to be used in conjunction with git so that you can see what precisely has changed, and revert it if needed:</p>
+<ul>
+<li><p><code>expect_known_output()</code> saves the output of an expression and will fail the first time the output changes. The file is updated on each run, so needs to be used in conjunction with git. It replaces <code>expect_output_file()</code> which is now soft-deprecated.</p>
+<pre class="r"><code># File to save results: would usually be filename, which will be stored 
+# in tests/testthat.
+tmp &lt;- tempfile()
+
+# The first run always succeeds, but warns
+expect_known_output(mtcars[1:10, ], tmp, print = TRUE)
+#&gt; Warning: Creating reference output
+
+# Subsequent runs will suceed only if the file is unchanged
+# This will succeed:
+expect_known_output(mtcars[1:10, ], tmp, print = TRUE)
+
+# This will fail
+expect_known_output(mtcars[1:9, ], tmp, print = TRUE)
+#&gt; Error: `mtcars[1:9, ]` has changed from known value recorded in &#39;/tmp/Rtmphlp98S/file481a3697072d&#39;.
+#&gt; Lengths differ: 10 is not 11</code></pre></li>
+<li><p><code>expect_known_value()</code> replaces <code>expect_equal_to_reference()</code>, which has been soft-deprecated. It gains an update argument defaulting to <code>TRUE</code>. This changes behaviour from the previous version, and soft-deprecated <code>expect_equal_to_reference()</code> gets <code>update = FALSE</code>.</p></li>
+</ul>
+<p>We’ve also improved tools for testing for failures:</p>
+<ul>
+<li><p><code>expect_condition()</code> works like <code>expect_error()</code> but captures any condition, not just error conditions.</p></li>
+<li><p><code>expect_error()</code> gains a <code>class</code> argument that allows you to make an assertion about the class of the error object.</p></li>
+</ul>
+<p>We’ve also added <code>expect_setequal()</code> to compares two sets (stored in vectors), ignoring duplicates and differences in order. Finally, we added a few new helpers for skipping tests:</p>
+<ul>
+<li><p><code>skip_if()</code> makes it easy to skip a test when a condition is true. For example, use <code>skip_if(getRversion() &lt;= 3.1)</code> to skip a test in older R versions.</p></li>
+<li><p><code>skip_if_translated()</code> skips tests if you’re running in an locale where translations are likely to occur. Use this to avoid spurious failures when checking the text of error messages in non-English locales.</p></li>
+<li><p><code>skip_if_not_installed()</code> gains new <code>minimum_version</code> argument. This allows you to only test if a minimum version requrement is met, e.g.</p>
+<pre class="r"><code>skip_if_not_installed(&quot;ggplot2&quot;, &quot;2.0.0&quot;)</code></pre></li>
+</ul>
+</div>
+<div id="quasiquotation-support" class="section level2">
+<h2>Quasiquotation support</h2>
+<p>All expectations can now make use of <a href="https://adv-r.hadley.nz/tidy-eval">unquoting</a>, with <code>!!</code>. This makes it much easier to generate informative failure messages when running tests in a for loop or function. For example take this test:</p>
+<pre class="r"><code>f &lt;- function(i) if (i &gt; 3) i * 9 else i * 10
+
+for (i in 1:5) {
+  expect_equal(f(i), i * 10)
+}
+#&gt; Error: f(i) not equal to i * 10.
+#&gt; 1/1 mismatches
+#&gt; [1] 36 - 40 == -4</code></pre>
+<p>The error message is not great because you don’t know which iteration caused the problem! You can resolve that problem by using the unquoting operator <code>!!</code> (pronounced bang-bang):</p>
+<pre class="r"><code>for (i in 1:5) {
+  expect_equal(f(!!i), !!(i * 10))
+}
+#&gt; Error: f(4L) not equal to 40.
+#&gt; 1/1 mismatches
+#&gt; [1] 36 - 40 == -4</code></pre>
+<p>(Note that this is not tidy evaluation <em>per se</em>, but is closely related. It works a little differently compared to tidyverse packages because quoting is only used to generate the failure messages: see <code>?quasi_label()</code> for more details. At this time you can not unquote quosures.)</p>
+</div>
+<div id="breaking-changes" class="section level2">
+<h2>Breaking changes</h2>
+<p>Unfortunately it was necessary to make a few API breaking changes in testthat in order to make testthat more flexible for the future, and deal with some changes made to R. These changes affected around 1 in 40 packages using testthat on CRAN, and all maintainers were warned a month in advance.</p>
+<p>If you have a non-CRAN package, read the following list of symptoms and remedies in order to get your package working with testthat 2.0.0:</p>
+<ul>
+<li><p><strong>“Can’t mock functions in base packages”</strong>: You can no longer use <code>with_mock()</code> to mock functions in base packages, because this no longer works in R-devel due to changes with the byte code compiler. I recommend using <a href="https://github.com/n-s-f/mockery">mockery</a> or <a href="https://github.com/krlmlr/mockr">mockr</a> instead.</p></li>
+<li><p>The order of arguments to <code>expect_equivalent()</code> and <code>expect_error()</code> was changed slightly as both now pass <code>...</code> on to another function. This reveals itself with a number of different errors, like:</p>
+<ul>
+<li>‘what’ must be a character vector</li>
+<li>‘check.attributes’ must be logical</li>
+<li>‘tolerance’ should be numeric</li>
+<li>argument is not interpretable as logical</li>
+<li>threw an error with unexpected class</li>
+<li>argument “quo” is missing, with no default</li>
+<li>argument is missing, with no default</li>
+</ul>
+<p>If you see one of these errors, check the number, order, and names of arguments to the expectation.</p></li>
+<li><p><strong>“Failure: (unknown)”</strong>. The last release mistakenly failed to test bare expectations not wrapped inside <code>test_that()</code>. If you see “(unknown)” in a failure message, this is a failing expectation that you previously weren’t seeing. As well as fixing the failure, please also wrap inside a <code>test_that()</code> with an informative name.</p></li>
+<li><p><strong>“Error: the argument has already been evaluated”</strong>: the way in which expectations now create labels has changed, which caused a couple of failures with unusual usage when combined with <code>Reduce</code>, <code>lapply()</code>, and <code>Map()</code>. Avoid these functions in favour of for loops. I also recommend reading the section on quasiquotation support (above) in order to create more informative failure messages.</p></li>
+<li><p><code>is_null()</code> and <code>matches()</code> have been deprecated because they conflict with other functions in the tidyverse. Use the modern <code>expect_null()</code> and <code>expect_matches()</code> instead.</p></li>
+</ul>
+</div>
+<div id="acknowledgements" class="section level2">
+<h2>Acknowledgements</h2>
+<p>A big thanks goes to <a href="https://github.com/krlmlr">Kirill Müller</a> for his help running R CMD check on all the packages that use testthat - in total he ran R CMD check over 10,000 times! Likewise, a big thanks to the CRAN team who also have to run these checks to ensure that other packages are not broken inadvertently.</p>
+<p>A whopping 103 people helped to make this release happen. Thanks to everyone who opened issues and contributed code: <a href="https://github.com/3psil0n">@3psil0n</a>, <a href="https://github.com/agricolamz">@agricolamz</a>, <a href="https://github.com/akbertram">@akbertram</a>, <a href="https://github.com/AmeliaMN">@AmeliaMN</a>, <a href="https://github.com/andrie">@andrie</a>, <a href="https://github.com/aronatkins">@aronatkins</a>, <a href="https://github.com/BarkleyBG">@BarkleyBG</a>, <a href="https://github.com/bbolker">@bbolker</a>, <a href="https://github.com/bc">@bc</a>, <a href="https://github.com/bdwyer2">@bdwyer2</a>, <a href="https://github.com/billchenxi">@billchenxi</a>, <a href="https://github.com/billdenney">@billdenney</a>, <a href="https://github.com/BillDunlap">@BillDunlap</a>, <a href="https://github.com/boennecd">@boennecd</a>, <a href="https://github.com/bradleyjeck">@bradleyjeck</a>, <a href="https://github.com/briencj">@briencj</a>, <a href="https://github.com/brodieG">@brodieG</a>, <a href="https://github.com/carlganz">@carlganz</a>, <a href="https://github.com/cbare">@cbare</a>, <a href="https://github.com/cderv">@cderv</a>, <a href="https://github.com/cdriveraus">@cdriveraus</a>, <a href="https://github.com/cfhammill">@cfhammill</a>, <a href="https://github.com/chambm">@chambm</a>, <a href="https://github.com/Christoph999">@Christoph999</a>, <a href="https://github.com/cogmind">@cogmind</a>, <a href="https://github.com/colearendt">@colearendt</a>, <a href="https://github.com/dchudz">@dchudz</a>, <a href="https://github.com/dlindelof">@dlindelof</a>, <a href="https://github.com/dmenne">@dmenne</a>, <a href="https://github.com/dougpagani">@dougpagani</a>, <a href="https://github.com/egnha">@egnha</a>, <a href="https://github.com/epurdom">@epurdom</a>, <a href="https://github.com/fangly">@fangly</a>, <a href="https://github.com/floybix">@floybix</a>, <a href="https://github.com/FrancoisGuillem">@FrancoisGuillem</a>, <a href="https://github.com/frankandrobot">@frankandrobot</a>, <a href="https://github.com/fritzo">@fritzo</a>, <a href="https://github.com/gaborcsardi">@gaborcsardi</a>, <a href="https://github.com/george-weingart">@george-weingart</a>, <a href="https://github.com/hadley">@hadley</a>, <a href="https://github.com/hansharhoff">@hansharhoff</a>, <a href="https://github.com/hesamaseh">@hesamaseh</a>, <a href="https://github.com/HyukjinKwon">@HyukjinKwon</a>, <a href="https://github.com/jackolney">@jackolney</a>, <a href="https://github.com/jackwasey">@jackwasey</a>, <a href="https://github.com/jcheng5">@jcheng5</a>, <a href="https://github.com/jdblischak">@jdblischak</a>, <a href="https://github.com/jdshkolnik">@jdshkolnik</a>, <a href="https://github.com/jefferis">@jefferis</a>, <a href="https://github.com/jennybc">@jennybc</a>, <a href="https://github.com/jeroen">@jeroen</a>, <a href="https://github.com/jimhester">@jimhester</a>, <a href="https://github.com/joethorley">@joethorley</a>, <a href="https://github.com/jspitzen">@jspitzen</a>, <a href="https://github.com/kalibera">@kalibera</a>, <a href="https://github.com/katrinleinweber">@katrinleinweber</a>, <a href="https://github.com/kenahoo">@kenahoo</a>, <a href="https://github.com/kenahoo-windlogics">@kenahoo-windlogics</a>, <a href="https://github.com/kendonB">@kendonB</a>, <a href="https://github.com/kevinushey">@kevinushey</a>, <a href="https://github.com/kevinykuo">@kevinykuo</a>, <a href="https://github.com/kforner">@kforner</a>, <a href="https://github.com/klmr">@klmr</a>, <a href="https://github.com/krlmlr">@krlmlr</a>, <a href="https://github.com/lbartnik">@lbartnik</a>, <a href="https://github.com/lc0">@lc0</a>, <a href="https://github.com/lionel-">@lionel-</a>, <a href="https://github.com/lorenzwalthert">@lorenzwalthert</a>, <a href="https://github.com/mahaiyer">@mahaiyer</a>, <a href="https://github.com/MarkEdmondson1234">@MarkEdmondson1234</a>, <a href="https://github.com/maxheld83">@maxheld83</a>, <a href="https://github.com/micstr">@micstr</a>, <a href="https://github.com/mllg">@mllg</a>, <a href="https://github.com/mlysy">@mlysy</a>, <a href="https://github.com/mschubert">@mschubert</a>, <a href="https://github.com/nabilabd">@nabilabd</a>, <a href="https://github.com/nealrichardson">@nealrichardson</a>, <a href="https://github.com/p-smirnov">@p-smirnov</a>, <a href="https://github.com/paciorek">@paciorek</a>, <a href="https://github.com/pat-s">@pat-s</a>, <a href="https://github.com/patperry">@patperry</a>, <a href="https://github.com/r2evans">@r2evans</a>, <a href="https://github.com/rdiaz02">@rdiaz02</a>, <a href="https://github.com/rgknight">@rgknight</a>, <a href="https://github.com/richierocks">@richierocks</a>, <a href="https://github.com/robwe">@robwe</a>, <a href="https://github.com/ruaridhw">@ruaridhw</a>, <a href="https://github.com/s6mike">@s6mike</a>, <a href="https://github.com/schoettl">@schoettl</a>, <a href="https://github.com/scottkosty">@scottkosty</a>, <a href="https://github.com/Stan125">@Stan125</a>, <a href="https://github.com/stla">@stla</a>, <a href="https://github.com/swt30">@swt30</a>, <a href="https://github.com/twolodzko">@twolodzko</a>, <a href="https://github.com/unDocUMeantIt">@unDocUMeantIt</a>, <a href="https://github.com/vermouthmjl">@vermouthmjl</a>, <a href="https://github.com/wch">@wch</a>, <a href="https://github.com/wlandau-lilly">@wlandau-lilly</a>, <a href="https://github.com/wligtenberg">@wligtenberg</a>, <a href="https://github.com/wsloand">@wsloand</a>, <a href="https://github.com/wush978">@wush978</a>, <a href="https://github.com/zachcp">@zachcp</a>, and <a href="https://github.com/zer0hedge">@zer0hedge</a></p>
+</div>
