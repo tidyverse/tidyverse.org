@@ -16,7 +16,7 @@ library(testthat)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-We are very excited to announce that [testthat](http://testthat.r-lib.org) 2.0.0 is now available on CRAN! Testthat makes it easy to turn your existing informal tests into formal automated tests that you can rerun quickly and easily. testthat is used by over 2,600 CRAN packages and by many more [Github packages](https://github.com/search?q=filename%3Atestthat.R). Learn more about unit testing at <http://r-pkgs.had.co.nz/tests.html>. 
+We are very excited to announce that [testthat 2.0.0](http://testthat.r-lib.org) is now available on CRAN! Testthat makes it easy to turn your existing informal tests into formal automated tests that you can rerun quickly and easily. testthat is the most popular unit testing package for R, and is used by over 2,600 CRAN packages and by many more [Github packages](https://github.com/search?q=filename%3Atestthat.R). Learn more about unit testing at <http://r-pkgs.had.co.nz/tests.html>. 
 
 Install the latest version of testthat with:
 
@@ -28,13 +28,13 @@ testthat 2.0.0 is a massive release containing a bunch of new features. For the 
 
 * A new default reporter revamps the output to make better use of colour.
 
-* New setup and teardown tools provide rich ways of running code before and
+* New setup and teardown tools make it easier to run code before and
   after each test file, and before and after all tests.
 
 * New and improved expectations make it easier to test printed output and 
   precisely test conditions (i.e. errors, warnings, and messages).
 
-* Quasiquotation support makes it easier to embed tests in for loops and
+* Quasiquotation support makes it easier to wrap tests in for loops and
   functions and still get useful failure messages.
 
 * Along with these new features we unfortunately also had to make a few breaking 
@@ -132,7 +132,7 @@ We've also added `expect_setequal()` to compares two sets (stored in vectors), i
 
 ## Quasiquotation support
 
-All expectations can now use [unquoting](https://adv-r.hadley.nz/tidy-eval) with `!!`. This makes it much easier to generate informative failure messages when running tests in a for loop or function. For example take this test:
+All expectations can now make use of [unquoting](https://adv-r.hadley.nz/tidy-eval), with `!!`. This makes it much easier to generate informative failure messages when running tests in a for loop or function. For example take this test:
 
 ```{r, error = TRUE}
 f <- function(i) if (i > 3) i * 9 else i * 10
@@ -150,7 +150,7 @@ for (i in 1:5) {
 }
 ```
 
-(Note that this is not tidy evaluation _per se_, but is closely related. This works a little differently in testthat to tidyverse packages because quoting is only used to generate the failure messages: see `?quasi_label()` for more details. At this time you can not unquote quosures.)
+(Note that this is not tidy evaluation _per se_, but is closely related. It works a little differently compared to tidyverse packages because quoting is only used to generate the failure messages: see `?quasi_label()` for more details. At this time you can not unquote quosures.)
 
 ## Breaking changes
 
@@ -158,14 +158,14 @@ Unfortunately it was necessary to make a few API breaking changes in testthat in
 
 If you have a non-CRAN package, read the following list of symptoms and remedies in order to get your package working with testthat 2.0.0:
 
-* "Can't mock functions in base packages": You can no longer use `with_mock()` 
+* __"Can't mock functions in base packages"__: You can no longer use `with_mock()` 
   to mock functions in base packages, because this no longer works in 
   R-devel due to changes with the byte code compiler. I recommend using
   [mockery](https://github.com/n-s-f/mockery) or 
   [mockr](https://github.com/krlmlr/mockr) instead.
 
 * The order of arguments to `expect_equivalent()` and `expect_error()` was
-  changed slightly as both now pass `...` on another function. This reveals
+  changed slightly as both now pass `...` on to another function. This reveals
   itself with a number of different errors, like:
   
     * 'what' must be a character vector
@@ -179,13 +179,13 @@ If you have a non-CRAN package, read the following list of symptoms and remedies
     If you see one of these errors, check the number, order, and names of 
     arguments to the expectation.
 
-* "Failure: (unknown)". The last release mistakenly failed to test 
+* __"Failure: (unknown)"__. The last release mistakenly failed to test 
   bare expectations not wrapped inside `test_that()`. If you see "(unknown)"
   in a failure message, this is a failing expectation that you previously
   weren't seeing. As well as fixing the failure, please also wrap inside
   a `test_that()` with an informative name.
   
-* "Error: the argument has already been evaluated": the way in which 
+* __"Error: the argument has already been evaluated"__: the way in which 
   expectations now create labels has changed, which caused a couple 
   of failures with unusual usage when combined with `Reduce`, `lapply()`, 
   and `Map()`. Avoid these functions in favour of for loops. I also recommend

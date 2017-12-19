@@ -13,15 +13,15 @@ photo:
 
 
 
-<p>We are very excited to announce that <a href="http://testthat.r-lib.org">testthat</a> 2.0.0 is now available on CRAN! Testthat makes it easy to turn your existing informal tests into formal automated tests that you can rerun quickly and easily. testthat is used by over 2,600 CRAN packages and by many more <a href="https://github.com/search?q=filename%3Atestthat.R">Github packages</a>. Learn more about unit testing at <a href="http://r-pkgs.had.co.nz/tests.html" class="uri">http://r-pkgs.had.co.nz/tests.html</a>.</p>
+<p>We are very excited to announce that <a href="http://testthat.r-lib.org">testthat 2.0.0</a> is now available on CRAN! Testthat makes it easy to turn your existing informal tests into formal automated tests that you can rerun quickly and easily. testthat is the most popular unit testing package for R, and is used by over 2,600 CRAN packages and by many more <a href="https://github.com/search?q=filename%3Atestthat.R">Github packages</a>. Learn more about unit testing at <a href="http://r-pkgs.had.co.nz/tests.html" class="uri">http://r-pkgs.had.co.nz/tests.html</a>.</p>
 <p>Install the latest version of testthat with:</p>
 <pre class="r"><code>install.packages(&quot;testthat&quot;)</code></pre>
 <p>testthat 2.0.0 is a massive release containing a bunch of new features. For the full details, see the <a href="https://github.com/r-lib/testthat/releases/tag/v2.0.0">release notes</a>, or read the hightlights below:</p>
 <ul>
 <li><p>A new default reporter revamps the output to make better use of colour.</p></li>
-<li><p>New setup and teardown tools provide rich ways of running code before and after each test file, and before and after all tests.</p></li>
+<li><p>New setup and teardown tools make it easier to run code before and after each test file, and before and after all tests.</p></li>
 <li><p>New and improved expectations make it easier to test printed output and precisely test conditions (i.e. errors, warnings, and messages).</p></li>
-<li><p>Quasiquotation support makes it easier to embed tests in for loops and functions and still get useful failure messages.</p></li>
+<li><p>Quasiquotation support makes it easier to wrap tests in for loops and functions and still get useful failure messages.</p></li>
 <li><p>Along with these new features we unfortunately also had to make a few breaking changes. We describe the symptoms and how to work around the changes below.</p></li>
 </ul>
 <p>In addition, as part of a general process to make tidyverse and r-lib packages available more widely, we are now checking testthat with R 3.1, 3.2, 3.3, 3.4, and 3.5.</p>
@@ -65,7 +65,7 @@ expect_known_output(mtcars[1:10, ], tmp, print = TRUE)
 
 # This will fail
 expect_known_output(mtcars[1:9, ], tmp, print = TRUE)
-#&gt; Error: `mtcars[1:9, ]` has changed from known value recorded in &#39;/tmp/RtmpIZZWEb/file126161f2a8dc&#39;.
+#&gt; Error: `mtcars[1:9, ]` has changed from known value recorded in &#39;/tmp/Rtmphlp98S/file481a3697072d&#39;.
 #&gt; Lengths differ: 10 is not 11</code></pre></li>
 <li><p><code>expect_known_value()</code> replaces <code>expect_equal_to_reference()</code>, which has been soft-deprecated. It gains an update argument defaulting to <code>TRUE</code>. This changes behaviour from the previous version, and soft-deprecated <code>expect_equal_to_reference()</code> gets <code>update = FALSE</code>.</p></li>
 </ul>
@@ -84,7 +84,7 @@ expect_known_output(mtcars[1:9, ], tmp, print = TRUE)
 </div>
 <div id="quasiquotation-support" class="section level2">
 <h2>Quasiquotation support</h2>
-<p>All expectations can now use <a href="https://adv-r.hadley.nz/tidy-eval">unquoting</a> with <code>!!</code>. This makes it much easier to generate informative failure messages when running tests in a for loop or function. For example take this test:</p>
+<p>All expectations can now make use of <a href="https://adv-r.hadley.nz/tidy-eval">unquoting</a>, with <code>!!</code>. This makes it much easier to generate informative failure messages when running tests in a for loop or function. For example take this test:</p>
 <pre class="r"><code>f &lt;- function(i) if (i &gt; 3) i * 9 else i * 10
 
 for (i in 1:5) {
@@ -100,15 +100,15 @@ for (i in 1:5) {
 #&gt; Error: f(4L) not equal to 40.
 #&gt; 1/1 mismatches
 #&gt; [1] 36 - 40 == -4</code></pre>
-<p>(Note that this is not tidy evaluation <em>per se</em>, but is closely related. This works a little differently in testthat to tidyverse packages because quoting is only used to generate the failure messages: see <code>?quasi_label()</code> for more details. At this time you can not unquote quosures.)</p>
+<p>(Note that this is not tidy evaluation <em>per se</em>, but is closely related. It works a little differently compared to tidyverse packages because quoting is only used to generate the failure messages: see <code>?quasi_label()</code> for more details. At this time you can not unquote quosures.)</p>
 </div>
 <div id="breaking-changes" class="section level2">
 <h2>Breaking changes</h2>
 <p>Unfortunately it was necessary to make a few API breaking changes in testthat in order to make testthat more flexible for the future, and deal with some changes made to R. These changes affected around 1 in 40 packages using testthat on CRAN, and all maintainers were warned a month in advance.</p>
 <p>If you have a non-CRAN package, read the following list of symptoms and remedies in order to get your package working with testthat 2.0.0:</p>
 <ul>
-<li><p>“Can’t mock functions in base packages”: You can no longer use <code>with_mock()</code> to mock functions in base packages, because this no longer works in R-devel due to changes with the byte code compiler. I recommend using <a href="https://github.com/n-s-f/mockery">mockery</a> or <a href="https://github.com/krlmlr/mockr">mockr</a> instead.</p></li>
-<li><p>The order of arguments to <code>expect_equivalent()</code> and <code>expect_error()</code> was changed slightly as both now pass <code>...</code> on another function. This reveals itself with a number of different errors, like:</p>
+<li><p><strong>“Can’t mock functions in base packages”</strong>: You can no longer use <code>with_mock()</code> to mock functions in base packages, because this no longer works in R-devel due to changes with the byte code compiler. I recommend using <a href="https://github.com/n-s-f/mockery">mockery</a> or <a href="https://github.com/krlmlr/mockr">mockr</a> instead.</p></li>
+<li><p>The order of arguments to <code>expect_equivalent()</code> and <code>expect_error()</code> was changed slightly as both now pass <code>...</code> on to another function. This reveals itself with a number of different errors, like:</p>
 <ul>
 <li>‘what’ must be a character vector</li>
 <li>‘check.attributes’ must be logical</li>
@@ -119,8 +119,8 @@ for (i in 1:5) {
 <li>argument is missing, with no default</li>
 </ul>
 <p>If you see one of these errors, check the number, order, and names of arguments to the expectation.</p></li>
-<li><p>“Failure: (unknown)”. The last release mistakenly failed to test bare expectations not wrapped inside <code>test_that()</code>. If you see “(unknown)” in a failure message, this is a failing expectation that you previously weren’t seeing. As well as fixing the failure, please also wrap inside a <code>test_that()</code> with an informative name.</p></li>
-<li><p>“Error: the argument has already been evaluated”: the way in which expectations now create labels has changed, which caused a couple of failures with unusual usage when combined with <code>Reduce</code>, <code>lapply()</code>, and <code>Map()</code>. Avoid these functions in favour of for loops. I also recommend reading the section on quasiquotation support (above) in order to create more informative failure messages.</p></li>
+<li><p><strong>“Failure: (unknown)”</strong>. The last release mistakenly failed to test bare expectations not wrapped inside <code>test_that()</code>. If you see “(unknown)” in a failure message, this is a failing expectation that you previously weren’t seeing. As well as fixing the failure, please also wrap inside a <code>test_that()</code> with an informative name.</p></li>
+<li><p><strong>“Error: the argument has already been evaluated”</strong>: the way in which expectations now create labels has changed, which caused a couple of failures with unusual usage when combined with <code>Reduce</code>, <code>lapply()</code>, and <code>Map()</code>. Avoid these functions in favour of for loops. I also recommend reading the section on quasiquotation support (above) in order to create more informative failure messages.</p></li>
 <li><p><code>is_null()</code> and <code>matches()</code> have been deprecated because they conflict with other functions in the tidyverse. Use the modern <code>expect_null()</code> and <code>expect_matches()</code> instead.</p></li>
 </ul>
 </div>
