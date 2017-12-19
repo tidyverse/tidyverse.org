@@ -85,3 +85,13 @@ img %>%
   image_scale("1000x200") %>% 
   image_write("content/articles/googledrive-initial-release-wd.jpg")
 ```
+
+### Inline images
+
+Inline images can be added to articles by placing them in the `/static/images/` 
+directory. By current convention, these go in a subdirectory for each post.
+Images are added to the markdown by giving the full file-path, e.g.
+
+```
+![](/images/subdir/image-name.jpg)
+```
