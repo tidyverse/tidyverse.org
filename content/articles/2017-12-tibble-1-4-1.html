@@ -41,59 +41,59 @@ categories: [package]
 <h2>Compatibility fixes</h2>
 <p>Subsetting with logical or character indexes is now supported, just like with regular data frames:</p>
 <pre class="r"><code>tbl &lt;- tibble(a = 1:3, b = letters[1:3])
-tbl</code></pre>
-<pre><code>## # A tibble: 3 x 2
-##       a b    
-##   &lt;int&gt; &lt;chr&gt;
-## 1     1 a    
-## 2     2 b    
-## 3     3 c</code></pre>
-<pre class="r"><code>tbl[c(TRUE, FALSE, TRUE), ]</code></pre>
-<pre><code>## # A tibble: 2 x 2
-##       a b    
-##   &lt;int&gt; &lt;chr&gt;
-## 1     1 a    
-## 2     3 c</code></pre>
-<pre class="r"><code>tbl[c(&quot;2&quot;, &quot;odd-row-name&quot;), ]</code></pre>
-<pre><code>## # A tibble: 2 x 2
-##       a b    
-##   &lt;int&gt; &lt;chr&gt;
-## 1     2 b    
-## 2    NA &lt;NA&gt;</code></pre>
+tbl
+#&gt; # A tibble: 3 x 2
+#&gt;       a b    
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     1 a    
+#&gt; 2     2 b    
+#&gt; 3     3 c
+tbl[c(TRUE, FALSE, TRUE), ]
+#&gt; # A tibble: 2 x 2
+#&gt;       a b    
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     1 a    
+#&gt; 2     3 c
+tbl[c(&quot;2&quot;, &quot;odd-row-name&quot;), ]
+#&gt; # A tibble: 2 x 2
+#&gt;       a b    
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     2 b    
+#&gt; 2    NA &lt;NA&gt;</code></pre>
 <p>Passing <code>drop = TRUE</code> is now supported and gives the same result as for regular data frames:</p>
-<pre class="r"><code>tbl[1, 2, drop = TRUE]</code></pre>
-<pre><code>## [1] &quot;a&quot;</code></pre>
-<pre class="r"><code>tbl[1, drop = TRUE]</code></pre>
-<pre><code>## Warning: drop ignored</code></pre>
-<pre><code>## # A tibble: 3 x 1
-##       a
-##   &lt;int&gt;
-## 1     1
-## 2     2
-## 3     3</code></pre>
+<pre class="r"><code>tbl[1, 2, drop = TRUE]
+#&gt; [1] &quot;a&quot;
+tbl[1, drop = TRUE]
+#&gt; Warning: drop ignored
+#&gt; # A tibble: 3 x 1
+#&gt;       a
+#&gt;   &lt;int&gt;
+#&gt; 1     1
+#&gt; 2     2
+#&gt; 3     3</code></pre>
 <p>Both changes make it easier to use tibbles with code that is designed to work with data frames.</p>
 </div>
 <div id="improved-addition-of-columns" class="section level2">
 <h2>Improved addition of columns</h2>
 <p>The <code>add_column()</code> functions now keeps all attributes of the original tibble, this is important for packages that extend tibbles such as <a href="https://r-spatial.github.io/sf/">sf</a> or <a href="https://business-science.github.io/tibbletime/">tibbletime</a>.</p>
-<pre class="r"><code>library(tibbletime)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;tibbletime&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:stats&#39;:
-## 
-##     filter</code></pre>
-<pre class="r"><code>tbl_with_date &lt;- 
+<pre class="r"><code>library(tibbletime)
+#&gt; 
+#&gt; Attaching package: &#39;tibbletime&#39;
+#&gt; The following object is masked from &#39;package:stats&#39;:
+#&gt; 
+#&gt;     filter
+tbl_with_date &lt;- 
   tibble(a = 1:3, date = Sys.Date() + a) %&gt;%
   tbl_time(date)
 
-add_column(tbl_with_date, b = letters[1:3])</code></pre>
-<pre><code>## # A time tibble: 3 x 3
-## # Index: date
-##       a date       b    
-## * &lt;int&gt; &lt;date&gt;     &lt;chr&gt;
-## 1     1 2017-12-30 a    
-## 2     2 2017-12-31 b    
-## 3     3 2018-01-01 c</code></pre>
+add_column(tbl_with_date, b = letters[1:3])
+#&gt; # A time tibble: 3 x 3
+#&gt; # Index: date
+#&gt;       a date       b    
+#&gt; * &lt;int&gt; &lt;date&gt;     &lt;chr&gt;
+#&gt; 1     1 2017-12-30 a    
+#&gt; 2     2 2017-12-31 b    
+#&gt; 3     3 2018-01-01 c</code></pre>
 </div>
 <div id="trailing-comma" class="section level2">
 <h2>Trailing comma</h2>
@@ -101,23 +101,23 @@ add_column(tbl_with_date, b = letters[1:3])</code></pre>
 <pre class="r"><code>tibble(
   a = 1:3,
   b = letters[1:3],
-)</code></pre>
-<pre><code>## # A tibble: 3 x 2
-##       a b    
-##   &lt;int&gt; &lt;chr&gt;
-## 1     1 a    
-## 2     2 b    
-## 3     3 c</code></pre>
-<pre class="r"><code>add_column(
+)
+#&gt; # A tibble: 3 x 2
+#&gt;       a b    
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     1 a    
+#&gt; 2     2 b    
+#&gt; 3     3 c
+add_column(
   tbl,
   c = LETTERS[1:3],
-)</code></pre>
-<pre><code>## # A tibble: 3 x 3
-##       a b     c    
-##   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;
-## 1     1 a     A    
-## 2     2 b     B    
-## 3     3 c     C</code></pre>
+)
+#&gt; # A tibble: 3 x 3
+#&gt;       a b     c    
+#&gt;   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;
+#&gt; 1     1 a     A    
+#&gt; 2     2 b     B    
+#&gt; 3     3 c     C</code></pre>
 <p>This simplifies extending or adapting the code later, because you don’t need to remember to add or remove the trailing comma of the last function argument. (This functionality is available for all packages that support tidy evaluation, <em>rlang</em> &gt;= 0.1.6 is required.)</p>
 </div>
 <div id="acknowledgments" class="section level2">
