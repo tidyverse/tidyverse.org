@@ -19,6 +19,17 @@ The slug should match the file name. Generally, the `date` should be similar to 
 
 Categories should be one (or more of): "case studies", "learn", "package", "programming", or "other".
 
+### RMarkdown setup
+
+After the header, include our standard RMarkdown setup block:
+
+````
+```{r setup, include = FALSE}
+library(testthat)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+````
+
 ### Photos
 
 Every blog post needs to be accompanied by two versions of a photo:
