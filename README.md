@@ -2,11 +2,27 @@
 
 This repo is the source of <https://tidyverse.org>, and this readme tells you how it all works. If you spot any small problems with the website, please feel empowered to fix them directly with a PR. If you see any larger problems, an issue is probably better: that way we can discuss the problem before you commit any time to it.  Read more about contributing to the tidyverse at <https://www.tidyverse.org/contribute/>.
 
+## Structure
+
+The source of the website is a collection of `.md` files stored in [`content/`](content/), and turned in to html with [blogdown](https://bookdown.org/yihui/blogdown). 
+
+* `content/*.md`: these files generate the top-level pages on the site:
+  packages, learn, help, and contribute. 
+  
+* `content/articles/`: these files are the tidyverse blog. New blog entries
+  should be given name `year-month-slug.md`. Unfortunately this data isn't
+  actually used when generating the output file: you'll need to set up 
+  the yaml metadata. More on that below.
+
+* `data/events.yaml`: this yaml file contains information about upcoming 
+  events. The site automatically filters out events that have happened,
+  sorts by date, and then shows at most two events.
+
 ## Previewing changes
 
 ### Locally
 
-The source of the website is a collection of `.md` files stored in [`content/`](content/), and turned in to html with [blogdown](https://bookdown.org/yihui/blogdown). To build the site locally, you'll need to install blogdown, and then install hugo, the music behind the magic of blogdown:
+To build the site locally, you'll need to install blogdown, and then install hugo, the music behind the magic of blogdown:
 
 ```R
 install.packages("blogdown")
@@ -24,20 +40,6 @@ This will open a preview of the site in your web browser, and it will automatica
 ### In PRs
 
 The tidyverse site is automatically published with [netlify](http://netlify.com/). One big advantage of netlify is that every PR automatically gets a live preview. Once the PR is merged, that preview becomes the live site.
-
-## Content
-
-* `content/*.md`: these files generate the top-level pages on the site:
-  packages, learn, help, and contribute. 
-  
-* `content/articles/`: these files are the tidyverse blog. New blog entries
-  should be given name `year-month-slug.md`. Unfortunately this data isn't
-  actually used when generating the output file: you'll need to set up 
-  the yaml metadata. More on that below.
-
-* `data/events.yaml`: this yaml file contains information about upcoming 
-  events. The site automatically filters out events that have happened,
-  sorts by date, and then shows at most two events.
 
 ## Blog posts
 
@@ -95,3 +97,16 @@ Images are added to the markdown by giving the full file-path, e.g.
 ```
 ![](/images/subdir/image-name.jpg)
 ```
+
+### Acknowledgements
+
+Every package release should include an acknowledgements section individually thanks every major contributor, and collectively thanks all GitHub contributors. You can use the following block of code to get all contributors:
+
+```R
+x <- gh::gh("/repos/:owner/:repo/issues", owner = "r-lib", repo = "testthat", since = "2016-04-23", state = "all", .limit = Inf)
+users <- sort(unique(purrr::map_chr(x, c("user", "login"))))
+length(users)
+clipr::write_clip(glue::collapse(glue::glue("[\\@{users}](https://github.com/{users})"), ", ", last = ", and "))
+```
+
+(Make sure to update ower, repo, and since)
