@@ -30,6 +30,8 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 ````
 
+(Replace `testthat` here and below with your own package name.)
+
 ### Photos
 
 Every blog post needs to be accompanied by two versions of a photo:
