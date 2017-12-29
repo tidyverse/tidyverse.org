@@ -1,0 +1,106 @@
+---
+title: tibble 1.4.1
+slug: tibble-1-4-1
+description: >
+    Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! This article showcases the changes in the most recent version.
+date: 2017-12-29
+author: Kirill Müller, Hadley Wickham
+photo:
+  url: https://unsplash.com/photos/cFeRWofFkw8
+  author: Patrick Schneider
+categories: [package]
+---
+
+
+
+<p>We’re excited to announce version 1.4.1 of the tibble package. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the latest version with:</p>
+<pre class="r"><code>install.packages(&quot;tibble&quot;)</code></pre>
+<p>This release contains the following major changes:</p>
+<ul>
+<li>Colored terminal output</li>
+<li>Compatibility fixes for code that expects data frames</li>
+<li>Improved <code>add_column()</code></li>
+</ul>
+<p>There are many other small improvements and bug fixes: please see the <a href="https://github.com/tidyverse/tibble/releases/tag/v1.4.1">release notes</a> for a complete list.</p>
+<p>Thanks to <a href="https://github.com/LaDilettante">Anh Le</a> for the <code>add_cases()</code> alias, to <a href="https://github.com/DavisVaughan">Davis Vaughan</a> for improving <code>add_column()</code>, to <a href="https://github.com/patperry">Patrick O. Perry</a> for converting C++ code to C, and to all the other contributors. Use the <a href="https://github.com/tidyverse/tibble/issues">issue tracker</a> to submit bugs or suggest ideas, your contributions are always welcome.</p>
+<div id="colored-terminal-output" class="section level2">
+<h2>Colored terminal output</h2>
+<p>The most important change of this release is the use of color and other markup for the output in the terminal:</p>
+<div class="figure">
+<img src="/images/tibble-1-4-1/screenshot.png" />
+
+</div>
+<p>Also, the output routine has been optimized to display more data if the horizontal space is insufficient to show everything.</p>
+<p>For numbers, the three significant digits are highlighted, negative numbers are shown in red. Missing values have a green background, and character values and factors are abbreviated if necessary. The highlighting is implemented by the new pillar package, which also offers extension points for packages such as <code>hms</code> that provide custom data types. See the <a href="https://cran.r-project.org/web/packages/tibble/vignettes/extending.html">Extending tibble</a> vignette for details.</p>
+</div>
+<div id="compatibility-fixes" class="section level2">
+<h2>Compatibility fixes</h2>
+<p>Subsetting with logical or character indexes is now supported, just like with regular data frames:</p>
+<pre class="r"><code>tbl &lt;- tibble(a = 1:3, b = letters[1:3])
+tbl</code></pre>
+<pre><code>## # A tibble: 3 x 2
+##       a b    
+##   &lt;int&gt; &lt;chr&gt;
+## 1     1 a    
+## 2     2 b    
+## 3     3 c</code></pre>
+<pre class="r"><code>tbl[c(TRUE, FALSE, TRUE), ]</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##       a b    
+##   &lt;int&gt; &lt;chr&gt;
+## 1     1 a    
+## 2     3 c</code></pre>
+<pre class="r"><code>tbl[c(&quot;2&quot;, &quot;odd-row-name&quot;), ]</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##       a b    
+##   &lt;int&gt; &lt;chr&gt;
+## 1     2 b    
+## 2    NA &lt;NA&gt;</code></pre>
+<p>Passing <code>drop = TRUE</code> is now supported and gives the same result as for regular data frames:</p>
+<pre class="r"><code>tbl[1, 2, drop = TRUE]</code></pre>
+<pre><code>## [1] &quot;a&quot;</code></pre>
+<pre class="r"><code>tbl[1, drop = TRUE]</code></pre>
+<pre><code>## Warning: drop ignored</code></pre>
+<pre><code>## # A tibble: 3 x 1
+##       a
+##   &lt;int&gt;
+## 1     1
+## 2     2
+## 3     3</code></pre>
+<p>Both changes make it easier to use tibbles with code that is designed to work with data frames.</p>
+</div>
+<div id="improved-addition-of-columns" class="section level2">
+<h2>Improved addition of columns</h2>
+<p>The <code>add_column()</code> functions now keeps all attributes of the original tibble, this is important for packages that extend tibbles such as <a href="https://r-spatial.github.io/sf/">sf</a> or <a href="https://business-science.github.io/tibbletime/">tibbletime</a>.</p>
+<pre class="r"><code>library(tibbletime)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;tibbletime&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     filter</code></pre>
+<pre class="r"><code>tbl_with_date &lt;- 
+  tibble(a = 1:3, date = Sys.Date() + a) %&gt;%
+  tbl_time(date)
+
+add_column(tbl_with_date, b = letters[1:3])</code></pre>
+<pre><code>## # A time tibble: 3 x 3
+## # Index: date
+##       a date       b    
+## * &lt;int&gt; &lt;date&gt;     &lt;chr&gt;
+## 1     1 2017-12-30 a    
+## 2     2 2017-12-31 b    
+## 3     3 2018-01-01 c</code></pre>
+</div>
+<div id="trailing-comma" class="section level2">
+<h2>Trailing comma</h2>
+<p>You can now add a trailing comma in function calls with an <code>...</code> argument:</p>
+<pre><code>tibble(
+  a = 1:3,
+  b = letters[1:3],
+)
+add_column(
+  tbl,
+  c = LETTERS[1:3],
+)</code></pre>
+<p>This simplifies extending or adapting the code later, because you don’t need to remember to add or remove the trailing comma of the last function argument. (This functionality is available for all packages that support tidy evaluation, rlang &gt;= 0.1.6 is required.)</p>
+</div>
