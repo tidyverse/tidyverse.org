@@ -1,11 +1,12 @@
 ---
 title: dbplyr 1.2.0
 author: Edgar Ruiz
-date: '2017-12-29'
+date: '2018-01-03'
 slug: dbplyr-1-2
 categories:
   - package
 tags: [package, tidyverse, databases]
+description: "New version now on CRAN. It features new database backends, an enhanced copy_to(), and initial stringr support"
 photo:
   url: https://unsplash.com/photos/y7rGTFyOzxc
   author: Giulia Bertelli
@@ -13,14 +14,8 @@ photo:
 
 
 
-<p>We are very excited to announce that <a href="https://cran.rstudio.com/web/packages/dbplyr/index.html">dbplyr 1.2.0</a> is now available on CRAN!</p>
-<p>The dbplyr package is the database backend for dplyr. It interacts with databases directly by translating the dplyr verbs into SQL queries. Other advantages of this approach are:</p>
-<p><img src = "/images/dbplyr_1-2/interact.png" width = 400, align = "right"></p>
-<p><strong>Run data exploration routines over all of the data</strong>, instead of subsets or samples.</p>
-<p><strong>Use the SQL Engine to run the data transformations</strong>. In effect, dplyr pushes the computation to the database.</p>
-<p><strong>Collect into R only a targeted dataset.</strong></p>
-<p><strong>All of your code is in R! </strong> Because dplyr communicates directly with the database, there is no need to alternate between languages or tools.</p>
-<p>dbplyr is part of an ecosystem of packages meant to help analysts access and analyze data in databases. To learn more, visit our website dedicated to <em>all things R and databases</em>: <a href="http://db.rstudio.com/overview" class="uri">http://db.rstudio.com/overview</a></p>
+<p>We are very excited to announce that <a href="http://dbplyr.tidyverse.org/">dbplyr 1.2.0</a> is now available on CRAN!</p>
+<p>The dbplyr package is the database backend for dplyr. It interacts with databases directly by translating the dplyr verbs into SQL queries. dbplyr is part of an ecosystem of packages meant to help analysts access and analyze data in databases. To learn more, visit our website dedicated to <em>all things R and databases</em>: <a href="http://db.rstudio.com/overview" class="uri">http://db.rstudio.com/overview</a></p>
 <p>Install the latest version of dbplyr with:</p>
 <pre class="r"><code>install.packages(&quot;dbplyr&quot;)</code></pre>
 <div id="whats-new" class="section level2">
@@ -36,15 +31,14 @@ photo:
 </ol></li>
 <li><a href="https://cran.r-project.org/web/packages/ROracle/index.html">ROracle</a> connections now point to the <a href="http://db.rstudio.com/databases/oracle/">Oracle</a> translation.</li>
 <li><p>Cache query results using <code>copy_to</code>. This feature is very useful because after cached, the results of a long running query can be iteratively analyzed without having to wait for the same base query to run over and over.</p></li>
-<li><p><code>copy_to()</code> now allows to take the results from one database and cache them in a different database.</p></li>
 <li><p>stringr functions: <code>str_length()</code>, <code>str_to_upper()</code>, <code>str_to_lower()</code>, <code>str_replace_all()</code>, <code>str_detect()</code>, and <code>str_trim()</code> are now supported.</p></li>
 <li><p><code>in_schema()</code> should now work in more places, particularly in <code>copy_to()</code></p></li>
 <li><p>Add support for temporary tables in Microsoft SQL Server. Additionally, the issue of certain operators working only in <code>mutate()</code> or only in <code>filter()</code> has been resolved.</p></li>
 <li><p>New for developers: <code>remote_name()</code>, <code>remote_con()</code>, <code>remote_src()</code>, <code>remote_query()</code> and <code>remote_query_plan()</code> provide a standard API for get metadata about a remote <code>tbl</code>. Also new, <code>sql_aggregate()</code> and <code>win_aggregate()</code> for generating SQL and windowed SQL functions for aggregates.</p></li>
 </ul>
 </div>
-<div id="cache-query-results" class="section level2">
-<h2>Cache query results</h2>
+<div id="caching-results" class="section level2">
+<h2>Caching results</h2>
 <p>The <code>copy_to()</code> function is now able to <strong>cache the results of a set of dplyr database transformations</strong>. An additional advantage is that <code>copy_to()</code> uses the database to run and cache the data, so there is no data being transmitted back to R. For this feature to work, the user needs sufficient rights to create temporary tables in the database.</p>
 <pre class="r"><code>con &lt;- DBI::dbConnect(RSQLite::SQLite(), &quot;:memory:&quot;)
 copy_to(con, rownames_to_column(mtcars), &quot;mtcars&quot;)
@@ -52,9 +46,9 @@ copy_to(con, rownames_to_column(mtcars), &quot;mtcars&quot;)
 only_auto &lt;- tbl(con, &quot;mtcars&quot;) %&gt;%
   filter(am == 1) %&gt;%
   select(mpg, cyl, am)
-copy_to(con, only_auto, &quot;auto&quot;)                     # New in dbplyr 1.2.0
-tbl(con, &quot;auto&quot;) %&gt;%
-  head()
+
+auto &lt;- copy_to(con, only_auto, &quot;auto&quot;) # New in dbplyr 1.2.0
+head(auto)
 #&gt; # Source: lazy query [?? x 3]
 #&gt; # Database: sqlite 3.19.3 [:memory:]
 #&gt;     mpg   cyl    am
@@ -65,14 +59,10 @@ tbl(con, &quot;auto&quot;) %&gt;%
 #&gt; 4  32.4  4.00  1.00
 #&gt; 5  30.4  4.00  1.00
 #&gt; 6  33.9  4.00  1.00</code></pre>
-</div>
-<div id="cache-in-different-database" class="section level2">
-<h2>Cache in different database</h2>
-<p>If the set of dplyr transformations need to be cached to a different database, <code>copy_to()</code> is smart enough to download the data into memory in R, and then uploads the data to the target database.</p>
+<p>If the set of dplyr transformations need to be cached to a <strong>different database</strong>, <code>copy_to()</code> is smart enough to download the data into memory in R, and then uploads the data to the target database.</p>
 <pre class="r"><code>second_con &lt;- DBI::dbConnect(RSQLite::SQLite(), &quot;:memory:&quot;)
-copy_to(second_con, only_auto, &quot;auto&quot;)               # New in dbplyr 1.2.0
-tbl(second_con, &quot;auto&quot;) %&gt;%
-  head()
+second_auto &lt;- copy_to(second_con, only_auto, &quot;auto&quot;) # New in dbplyr 1.2.0
+head(second_auto)
 #&gt; # Source: lazy query [?? x 3]
 #&gt; # Database: sqlite 3.19.3 [:memory:]
 #&gt;     mpg   cyl    am
@@ -95,15 +85,17 @@ tbl(second_con, &quot;auto&quot;) %&gt;%
 <li><code>str_detect()</code></li>
 <li><code>str_trim()</code></li>
 </ol>
-<pre class="r"><code>tbl(con, &quot;mtcars&quot;) %&gt;% 
+<pre class="r"><code>tbl(con, &quot;mtcars&quot;) %&gt;%
   head() %&gt;%
   select(rowname) %&gt;%
-  mutate(s1 = str_length(rowname),                   # New in dbplyr 1.2.0
-         s2 = str_to_upper(rowname),                 # New in dbplyr 1.2.0
-         s3 = str_to_lower(rowname),                 # New in dbplyr 1.2.0
-         s4 = str_replace_all(rowname, &quot;M&quot;, &quot;X&quot;),    # New in dbplyr 1.2.0
-         s5 = str_detect(rowname, &quot;M&quot;),              # New in dbplyr 1.2.0
-         s6 = str_trim(rowname))                     # New in dbplyr 1.2.0
+  mutate(
+    s1 = str_length(rowname),                 # New in dbplyr 1.2.0
+    s2 = str_to_upper(rowname),               # New in dbplyr 1.2.0
+    s3 = str_to_lower(rowname),               # New in dbplyr 1.2.0
+    s4 = str_replace_all(rowname, &quot;M&quot;, &quot;X&quot;),  # New in dbplyr 1.2.0
+    s5 = str_detect(rowname, &quot;M&quot;),            # New in dbplyr 1.2.0
+    s6 = str_trim(rowname)                    # New in dbplyr 1.2.0
+  )
 #&gt; # Source: lazy query [?? x 7]
 #&gt; # Database: sqlite 3.19.3 [:memory:]
 #&gt;   rowname              s1 s2                s3       s4         s5 s6     
@@ -117,5 +109,5 @@ tbl(second_con, &quot;auto&quot;) %&gt;%
 </div>
 <div id="contributors" class="section level2">
 <h2>Contributors</h2>
-<p>A big thanks goes to those who made this release possible by contributing code or documentation: <span class="citation">@DavisVaughan</span>, <span class="citation">@baileych</span>, <span class="citation">@Hong-Revo</span>, <span class="citation">@cwarden</span>, <span class="citation">@zozlak</span>, <span class="citation">@denismaciel</span>, <span class="citation">@jonassundman</span>, <span class="citation">@wibeasley</span>, <span class="citation">@mungojam</span>, <span class="citation">@hoxo-m</span>, <span class="citation">@dpprdan</span> and <span class="citation">@javierluraschi</span>. Also, thank you to those who by reporting issues helped up improve this package: <span class="citation">@cderv</span>, <span class="citation">@heidekrueger</span> <span class="citation">@nilescbn</span>, <span class="citation">@JohnMount</span>, <span class="citation">@acthomasca</span>, <span class="citation">@baileych</span>, <span class="citation">@Deleetdk</span>, <span class="citation">@mgirlich</span> and <span class="citation">@petehobo</span>.</p>
+<p>A big thanks goes to those who made this release possible by contributing code or documentation: <a href="https://github.com/DavisVaughan">@DavisVaughan</a>, <a href="https://github.com/baileych">@baileych</a>, <a href="https://github.com/Hong-Revo">@Hong-Revo</a>, <a href="https://github.com/cwarden">@cwarden</a>, <a href="https://github.com/zozlak">@zozlak</a>, <a href="https://github.com/denismaciel">@denismaciel</a>, <a href="https://github.com/jonassundman">@jonassundman</a>, <a href="https://github.com/wibeasley">@wibeasley</a>, <a href="https://github.com/mungojam">@mungojam</a>, <a href="https://github.com/hoxo-m">@hoxo-m</a>, <a href="https://github.com/dpprdan">@dpprdan</a>,<a href="https://github.com/jimhester">@jimhester</a>, <a href="https://github.com/krlmlr">@krlmlr</a>, and <a href="https://github.com/javierluraschi">@javierluraschi</a>. Also, a thank you to those who helped up improve this package by suggesting features and reporting issues: <a href="https://github.com/drf5n">@drf5n</a>, <a href="https://github.com/larspijnappel">@larspijnappel</a>, <a href="https://github.com/lbakerIsazi">@lbakerIsazi</a>, <a href="https://github.com/mtmorgan">@mtmorgan</a>, <a href="https://github.com/refik">@refik</a>, <a href="https://github.com/sicarul">@sicarul</a>, and <a href="https://github.com/vitallish">@vitallish</a></p>
 </div>
