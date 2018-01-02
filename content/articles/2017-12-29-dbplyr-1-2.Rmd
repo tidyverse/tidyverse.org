@@ -58,9 +58,9 @@ The `copy_to()` function is now able to **cache the results of a set of dplyr da
 
 ```{r}
 con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-copy_to(con, rownames_to_column(mtcars), "mtcars")
+mtcars_db <- copy_to(con, rownames_to_column(mtcars), "mtcars")
 
-only_auto <- tbl(con, "mtcars") %>%
+only_auto <- mtcars_db %>%
   filter(am == 1) %>%
   select(mpg, cyl, am)
 

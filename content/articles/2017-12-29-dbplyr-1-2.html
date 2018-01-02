@@ -41,9 +41,9 @@ photo:
 <h2>Caching results</h2>
 <p>The <code>copy_to()</code> function is now able to <strong>cache the results of a set of dplyr database transformations</strong>. An additional advantage is that <code>copy_to()</code> uses the database to run and cache the data, so there is no data being transmitted back to R. For this feature to work, the user needs sufficient rights to create temporary tables in the database.</p>
 <pre class="r"><code>con &lt;- DBI::dbConnect(RSQLite::SQLite(), &quot;:memory:&quot;)
-copy_to(con, rownames_to_column(mtcars), &quot;mtcars&quot;)
+mtcars_db &lt;- copy_to(con, rownames_to_column(mtcars), &quot;mtcars&quot;)
 
-only_auto &lt;- tbl(con, &quot;mtcars&quot;) %&gt;%
+only_auto &lt;- mtcars_db %&gt;%
   filter(am == 1) %&gt;%
   select(mpg, cyl, am)
 
