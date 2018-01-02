@@ -20,9 +20,7 @@ library(tibble)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-We are very excited to announce that [dbplyr 1.2.0](http://dbplyr.tidyverse.org/)  is now available on CRAN!  
-
-The dbplyr package is the database backend for dplyr. It interacts with databases directly by translating the dplyr verbs into SQL queries. dbplyr is part of an ecosystem of packages meant to help analysts access and analyze data in databases. To learn more, visit our website dedicated to *all things R and databases*: http://db.rstudio.com/overview
+We are very excited to announce that [dbplyr 1.2.0](http://dbplyr.tidyverse.org/)  is now available on CRAN!  **dbplyr** is the database backend for dplyr. It interacts with databases directly by translating dplyr code into SQL queries. dbplyr is part of an expanding ecosystem of packages meant to help analysts access and analyze data in databases. To learn more, visit our website dedicated to *all things R and databases*: http://db.rstudio.com/
 
 Install the latest version of dbplyr with:
 ```{r, eval =  FALSE}
@@ -48,9 +46,11 @@ Here are some highlights of new features and fixes found in this release.  To se
 
 - `in_schema()` should now work in more places, particularly in `copy_to()` 
 
-- Add support for temporary tables in Microsoft SQL Server.  Additionally, the issue of certain operators working only in `mutate()` or only in `filter()` has been resolved.
+- For those who need to extract the resulting SQL query from dplyr code, there is now a new function called `remote_query()`.  Unlike `show_query()`, `remote_query()` returns a character object, and unlike `sql_render()`, the new function automatically detects the type of database attached to the given dplyr code and translates accordingly.  There are four additional functions that provide a standard API to get metadata about a remote `tbl`, these are: `remote_name()`, `remote_con()`, `remote_src()`, and  `remote_query_plan()`.  
 
--  New for developers: `remote_name()`, `remote_con()`, `remote_src()`, `remote_query()` and  `remote_query_plan()` provide a standard API for get metadata about a remote `tbl`. Also new, `sql_aggregate()` and `win_aggregate()` for generating SQL and windowed SQL functions for aggregates. 
+- Adds support for temporary tables in Microsoft SQL Server.  Additionally, the issue of certain operators working only in `mutate()` or only in `filter()` has been resolved.
+
+-  Two new functions for developers: `sql_aggregate()` and `win_aggregate()`.  They are for generating SQL and windowed SQL functions for aggregates. 
 
 ## Caching results
 
