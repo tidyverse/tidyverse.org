@@ -1,0 +1,86 @@
+---
+title: "Blog post"
+author: "Kirill Müller, Hadley Wickham"
+date: "`r Sys.Date()`"
+---
+
+```{r include = FALSE}
+library(tibble)
+```
+
+We’re excited to announce version 1.2.0 of the tibble package. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the latest version with:
+
+```r
+install.packages("tibble")
+```
+
+This release contains the following major changes:
+
+- Colored terminal output
+- Compatibility fixes for code that expects data frames
+- Improved `add_column()`
+
+There are many other small improvements and bug fixes: please see the [release notes](https://github.com/tidyverse/tibble/releases/tag/v1.4.1) for a complete list.
+
+Thanks to [Anh Le](https://github.com/LaDilettante) for the `add_cases()` alias, to [Davis Vaughan](https://github.com/DavisVaughan) for improving `add_column()`, to [Patrick O. Perry](https://github.com/patperry) for converting C++ code to C, and to all the other contributors. Use the [issue tracker](https://github.com/tidyverse/tibble/issues) to submit bugs or suggest ideas, your contributions are always welcome.
+
+## Colored terminal output
+
+The most important change of this release is the use of color and other markup for the output in the terminal:
+
+![flights screenshot](fig/flights.png)
+
+Also, the output routine has been optimized to display more data if the horizontal space is insufficient to show everything.
+
+For numbers, the three significant digits are highlighted, negative numbers are shown in red. Missing values have a green background, and character values and factors are abbreviated if necessary. The highlighting is implemented by the new pillar package, which also offers extension points for packages such as `hms` that provide custom data types. See the [Extending tibble](https://cran.r-project.org/web/packages/tibble/vignettes/extending.html) vignette for details.
+
+## Compatibility fixes
+
+Subsetting with logical or character indexes is now supported, just like with regular data frames:
+
+```{r}
+tbl <- tibble(a = 1:3, b = letters[1:3])
+tbl
+tbl[c(TRUE, FALSE, TRUE), ]
+tbl[c("2", "odd-row-name"), ]
+```
+
+Passing `drop = TRUE` is now supported and gives the same result as for regular data frames:
+
+```{r}
+tbl[1, 2, drop = TRUE]
+tbl[1, drop = TRUE]
+```
+
+Both changes make it easier to use tibbles with code that is designed to work with data frames.
+
+
+## Improved `add_column()`
+
+The `add_column()` functions now keeps all attributes of the original tibble, this is important for packages that extend tibbles such as [sf](https://r-spatial.github.io/sf/) or [tibbletime](https://business-science.github.io/tibbletime/).
+
+```{r, error = TRUE}
+library(tibbletime)
+tbl_with_date <- 
+  tibble(a = 1:3, date = Sys.Date() + a) %>%
+  tbl_time(date)
+
+add_column(tbl_with_date, b = letters[1:3])
+```
+
+## Trailing comma
+
+You can now add a trailing comma in function calls with an `...` argument:
+
+```
+tibble(
+  a = 1:3,
+  b = letters[1:3],
+)
+add_column(
+  tbl,
+  c = LETTERS[1:3],
+)
+```
+
+This simplifies extending or adapting the code later, because you don't need to remember to add or remove the trailing comma of the last function argument. (This functionality is available for all packages that support tidy evaluation, rlang >= 0.1.6 is required.)
