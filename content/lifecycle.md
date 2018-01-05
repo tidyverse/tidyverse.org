@@ -3,10 +3,32 @@ title: Lifecycle badges
 ---
 
 ![](/images/lifecycle/lifecycle.png)
+### Package lifecycles & APIs {#api}
+
+This page describes the typical lifecycle on an R package. Knowing where a
+package is in its lifecycle is particularly important for understand how the API
+will change over time. The API (short for application programming interface) is
+the set of functions (and their arguments) that defines how you interact with
+the package.
+
+There are three ways an API can change:
+
+ 1. It can __grow__ when a function or argument is added. 
+
+ 2. It can __shrink__ when a function or argument is removed. 
+
+ 3. It can __change__ when the meaning of an argument changes, or the type of 
+ data returned from a function changes.
+
+Changing or shrinking the API will __break__ it: code that previously worked
+will no any longer. (Sometimes code will break even if the API doesn't; for
+example, you might have accidentally depended on behaviour that the author
+thought was a bug).
+
 
 ### Experimental ![](https://img.shields.io/badge/lifecycle-experimental-orange.svg) {#experimental}
 
-An experimental package is in the very early stages of development. The API (application programming interface) will be changing frequently as we rapidly iterate and explore variations in search of the best fit. Experimental packages will make API breaking changes without deprecation, so you are generally best off waiting until the package is more mature before you use it. Experimental packages will not be released on CRAN
+An experimental package is in the very early stages of development. The API will be changing frequently as we rapidly iterate and explore variations in search of the best fit. Experimental packages will make API breaking changes without deprecation, so you are generally best off waiting until the package is more mature before you use it. Experimental packages will not be released on CRAN
 
 ### Maturing ![](https://img.shields.io/badge/lifecycle-maturing-blue.svg) {#maturing}
 
