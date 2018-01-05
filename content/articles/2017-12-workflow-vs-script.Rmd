@@ -22,14 +22,14 @@ Two specific slides generated [much discussion and consternation in #rstats Twit
 > `setwd("C:\Users\jenny\path\that\only\I\have")`
 > 
 > I will come into your office and
->      SET YOUR COMPUTER ON FIRE 🔥.
+>      SET YOUR COMPUTER ON FIRE `r emo::ji_glue(":fire:")`.
 
 > If the first line of your R script is
 > 
 > `rm(list = ls())`
 > 
 > I will come into your office and
->      SET YOUR COMPUTER ON FIRE 🔥.
+>      SET YOUR COMPUTER ON FIRE `r emo::ji_glue(":fire:")`.
 
 I stand by these strong opinions, but on their own, threats to commit
 arson aren't terribly helpful! Here I explain *why* these habits can
@@ -77,13 +77,15 @@ Direction of causality: long-time coders don't organize their work into self-con
 
 I run a lot of student code in [STAT 545](http://stat545.com) and, at the start, I see a lot of R scripts that look like this:
 
-``` r
+
+```{r, eval = FALSE}
 library(ggplot2)
 setwd("/Users/jenny/cuddly_broccoli/verbose_funicular/foofy/data")
 df <- read.delim("raw_foofy_data.csv")
 p <- ggplot(df, aes(x, y)) + geom_point()
 ggsave("../figs/foofy_scatterplot.png")
 ```
+
 
 The chance of the `setwd()` command having the desired effect -- making the file paths work -- for anyone besides its author is 0%. It's also unlikely to work for the author one or two years or computers from now. The project is not self-contained and portable. To recreate and perhaps extend this plot, the lucky recipient will need to hand edit one or more paths to reflect where the project has landed on their machine. When you do this for the 73rd time in 2 days, while marking an assignment, you start to fantasize about lighting the perpetrator's computer on fire.
 
@@ -100,12 +102,14 @@ How can you avoid `setwd()` at the top of every script?
   
 To continue our example, start R in the `foofy` directory, wherever that may be. Now the code looks like so:
 
-``` r
+
+```{r, eval = FALSE}
 library(ggplot2)
 df <- read.delim(here("data", "raw_foofy_data.csv"))
 p <- ggplot(df, aes(x, y)) + geom_point()
 ggsave(here("figs", "foofy_scatterplot.png"))
 ```
+
 
 This will run, with no edits, for anyone who follows the convention about launching R in the project folder. In fact, it will even work if R's working directory is anywhere inside the project, i.e. it will work from sub-folders. This plays well with knitr/rmarkdown's default behavior around working directory and in package development/checking workflows.
 
@@ -126,9 +130,11 @@ RStudio fully supports Project-based workflows, making it easy to switch from on
 
 It's also fairly common to see data analysis scripts that begin with this object-nuking command:
 
-``` r
+
+```{r, eval = FALSE}
 rm(list = ls())
 ```
+
 
 Just like hard-wiring the working directory, this is highly suggestive that
 the useR works in one R process and manually switches gears when they shift from
