@@ -6,7 +6,7 @@ title: Lifecycle badges
 ### Package lifecycles & APIs {#api}
 
 This page describes the typical lifecycle on an R package. Knowing where a
-package is in its lifecycle is particularly important for understand how the API
+package is in its lifecycle is particularly important for understanding how the API
 will change over time. The API (short for application programming interface) is
 the set of functions (and their arguments) that defines how you interact with
 the package.
