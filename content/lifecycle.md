@@ -2,7 +2,7 @@
 title: Lifecycle badges
 ---
 
-![](/images/lifecycle/lifecycle.png)
+![](/images/lifecycle/lifecycle.svg)
 ### Package lifecycles & APIs {#api}
 
 This page describes the typical lifecycle on an R package. Knowing where a
