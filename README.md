@@ -24,6 +24,12 @@ The source of the website is a collection of `.md` files stored in [`content/`](
   should be given name `year-month-slug.md`. Unfortunately this data isn't
   actually used when generating the output file: you'll need to set up 
   the yaml metadata. More on that below.
+    + For `*.md` posts, no `*.html` file should be generated.  
+    + For `*.Rmd` posts, an `*.html` file _should_ be generated when you run 
+    `blogdown::serve_site()` (see below).  
+    + If you plan to include emoji in your post, you should use the `.Rmd` 
+    format, and generate emoji using the [emo](https://github.com/hadley/emo)
+    package.  
 
 * `data/events.yaml`: this yaml file contains information about upcoming 
   events. The site automatically filters out events that have happened,
