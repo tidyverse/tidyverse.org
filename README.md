@@ -70,7 +70,7 @@ it.
 For generating files (and for previewing them as they will look on the site), 
 you should use `blogdown::serve_site()`. If, accidentally or intentionally, you 
 knit or preview the content using another method (e.g. click the **Preview** 
-button in RStudio for `.md`), you should delete the generated files before 
+button in RStudio for `.[R]md`), you should delete the generated files before 
 committing your work.
 
 ### In PRs
