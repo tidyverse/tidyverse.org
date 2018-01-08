@@ -1,0 +1,113 @@
+---
+title: dbplyr 1.2.0
+author: Edgar Ruiz
+date: '2018-01-08'
+slug: dbplyr-1-2
+categories:
+  - package
+tags: [package, tidyverse, databases]
+description: "New version now on CRAN. It features new database backends, an enhanced copy_to(), and initial stringr support"
+photo:
+  url: https://unsplash.com/photos/y7rGTFyOzxc
+  author: Giulia Bertelli
+---
+
+```{r setup, include = FALSE}
+library(dbplyr)
+library(dplyr)
+library(DBI)
+library(tibble)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+We are very excited to announce that [dbplyr 1.2.0](http://dbplyr.tidyverse.org/)  is now available on CRAN!  **dbplyr** is the database backend for dplyr. It interacts with databases directly by translating dplyr code into SQL queries. dbplyr is part of an expanding ecosystem of packages meant to help analysts access and analyze data in databases. To learn more, visit our website dedicated to *all things R and databases*: http://db.rstudio.com/
+
+Install the latest version of dbplyr with:
+```{r, eval =  FALSE}
+install.packages("dbplyr")
+```
+
+## What's new?
+
+Here are some highlights of new features and fixes found in this release.  To see the full details please refer to the [release notes](https://github.com/tidyverse/dbplyr/blob/master/NEWS.md#dbplyr-120):
+
+- New custom translation for **Microsoft Access** and [Teradata](http://db.rstudio.com/databases/teradata/) 
+
+- [Amazon Redshift](http://db.rstudio.com/databases/redshift/) connections now point to the PostgreSQL translation.
+
+- Adds support for **two new database R packages**.  These new packages are fully [DBI](http://db.rstudio.com/dbi/)-compliant and tested with [DBItest](https://cran.r-project.org/web/packages/DBItest/index.html). We recommend to use these instead of older packages:
+    1. [RMariaDB](https://cran.r-project.org/web/packages/RMariaDB/index.html), use in favor of RMySQL
+    1. [RPostgres](https://cran.r-project.org/web/packages/RPostgres/index.html), use in favor of RPostgreSQL
+
+- [ROracle](https://cran.r-project.org/web/packages/ROracle/index.html) connections now point to the [Oracle](http://db.rstudio.com/databases/oracle/) translation.
+- Cache query results using `copy_to`. This feature is very useful because after cached, the results of a long running query can be iteratively analyzed without having to wait for the same base query to run over and over.
+
+- stringr functions: `str_length()`, `str_to_upper()`, `str_to_lower()`, `str_replace_all()`, `str_detect()`, and  `str_trim()` are now supported.
+
+- `in_schema()` should now work in more places, particularly in `copy_to()` 
+
+- For those who need to extract the resulting SQL query from dplyr code, there is now a new function called `remote_query()`.  Unlike `show_query()`, `remote_query()` returns a character object, and unlike `sql_render()`, the new function automatically detects the type of database attached to the given dplyr code and translates accordingly.  There are four additional functions that provide a standard API to get metadata about a remote `tbl`, these are: `remote_name()`, `remote_con()`, `remote_src()`, and  `remote_query_plan()`.  
+
+- Adds support for temporary tables in Microsoft SQL Server.  Additionally, the issue of certain operators working only in `mutate()` or only in `filter()` has been resolved.
+
+-  Two new functions for developers: `sql_aggregate()` and `win_aggregate()`.  They are for generating SQL and windowed SQL functions for aggregates. 
+
+## Caching results
+
+The `copy_to()` function is now able to **cache the results of a set of dplyr database transformations**.  An additional advantage is that `copy_to()` uses the database to run and cache the data, so there is no data being transmitted back to R. For this feature to work, the user needs sufficient rights to create temporary tables in the database.  
+
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+mtcars_db <- copy_to(con, rownames_to_column(mtcars), "mtcars")
+
+only_auto <- mtcars_db %>%
+  filter(am == 1) %>%
+  select(mpg, cyl, am)
+
+auto <- copy_to(con, only_auto, "auto") # New in dbplyr 1.2.0
+head(auto)
+```
+
+If the set of dplyr transformations need to be cached to a **different database**, `copy_to()` is smart enough to download the data into memory in R, and then uploads the data to the target database. 
+
+```{r}
+second_con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+second_auto <- copy_to(second_con, only_auto, "auto") # New in dbplyr 1.2.0
+head(second_auto)
+```
+
+## stringr functions
+
+Six stringr functions are now supported.  Regular expression support varies from database to database, but most simple regular expressions should be ok.  The functions are:
+
+1. `str_length()` 
+2. `str_to_upper()`
+3. `str_to_lower()` 
+4. `str_replace_all()`
+5. `str_detect()`
+6. `str_trim()` 
+
+```{r}
+tbl(con, "mtcars") %>%
+  head() %>%
+  select(rowname) %>%
+  mutate(
+    s1 = str_length(rowname),                 # New in dbplyr 1.2.0
+    s2 = str_to_upper(rowname),               # New in dbplyr 1.2.0
+    s3 = str_to_lower(rowname),               # New in dbplyr 1.2.0
+    s4 = str_replace_all(rowname, "M", "X"),  # New in dbplyr 1.2.0
+    s5 = str_detect(rowname, "M"),            # New in dbplyr 1.2.0
+    s6 = str_trim(rowname)                    # New in dbplyr 1.2.0
+  )
+```
+
+## Contributors
+
+A big thanks goes to those who made this release possible by contributing code or documentation: [\@DavisVaughan](https://github.com/DavisVaughan), [\@baileych](https://github.com/baileych), [\@Hong-Revo](https://github.com/Hong-Revo), [\@cwarden](https://github.com/cwarden), [\@zozlak](https://github.com/zozlak), [\@denismaciel](https://github.com/denismaciel), [\@jonassundman](https://github.com/jonassundman), [\@wibeasley](https://github.com/wibeasley), [\@mungojam](https://github.com/mungojam),  [\@hoxo-m](https://github.com/hoxo-m), [\@dpprdan](https://github.com/dpprdan),[\@jimhester](https://github.com/jimhester),  [\@krlmlr](https://github.com/krlmlr), and [\@javierluraschi](https://github.com/javierluraschi).   Also, a thank you to those who helped up improve this package by suggesting features and reporting issues: [\@drf5n](https://github.com/drf5n), [\@larspijnappel](https://github.com/larspijnappel), [\@lbakerIsazi](https://github.com/lbakerIsazi), [\@mtmorgan](https://github.com/mtmorgan), [\@refik](https://github.com/refik), [\@sicarul](https://github.com/sicarul), and [\@vitallish](https://github.com/vitallish)
+
+ 
+
+```{r, include = FALSE}
+dbDisconnect(con)
+dbDisconnect(second_con)
+```
