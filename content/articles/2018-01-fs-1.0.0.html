@@ -14,7 +14,7 @@ photo:
 
 
 
-<p><a href="http://fs.r-lib.org">fs 1.0.0</a> is now available on CRAN! <a href="http://fs.r-lib.org">fs</a> provides a cross-platform, uniform interface to file system operations. <a href="http://fs.r-lib.org">fs</a> uses <a href="http://docs.libuv.org/en/v1.x/fs.html">libuv</a> under the hood which gives a rock solid cross-platform interface to the filesystem.</p>
+<p><a href="http://fs.r-lib.org">fs 1.0.0</a> is now available on CRAN! <a href="http://fs.r-lib.org">fs</a> provides a cross-platform, uniform interface to file system operations. <a href="http://fs.r-lib.org">fs</a> uses <a href="http://docs.libuv.org/en/v1.x/fs.html">libuv</a> under the hood, which gives a rock solid cross-platform interface to the filesystem.</p>
 <p>Install the latest version with:</p>
 <pre class="r"><code>install.packages(&quot;fs&quot;)</code></pre>
 <section id="comparison-vs-base-equivalents" class="level3">
@@ -30,13 +30,18 @@ photo:
 </section>
 <section id="tidy-paths" class="level3">
 <h3>Tidy paths</h3>
-<p><strong>fs</strong> functions always return ‘tidy’ paths. Tidy paths always expand <code>~</code>, use <code>/</code> to delimit directories and never have multiple <code>/</code> or trailing <code>/</code>.</p>
+<p><strong>fs</strong> functions always return ‘tidy’ paths. Tidy paths</p>
+<ul>
+<li>always expand <code>~</code></li>
+<li>use <code>/</code> to delimit directories</li>
+<li>never have multiple <code>/</code> or trailing <code>/</code></li>
+</ul>
 <p>Tidy paths are also coloured (if your terminal supports it) based on the file permissions and file type. This colouring can be customised or extended by setting the <code>LS_COLORS</code> environment variable, in the same output format as <a href="http://www.bigsoft.co.uk/blog/index.php/2008/04/11/configuring-ls_colors">GNU dircolors</a>.</p>
 <p><img src="/images/fs-1.0.0/colour.png" /></p>
 </section>
 <section id="usage" class="level3">
 <h3>Usage</h3>
-<p><strong>fs</strong> functions are divided into four main categories: manipulating paths (<code>path_</code>), files (<code>file_</code>), directories (<code>dir_</code>), and links (<code>link_</code>). Directories and links are special types of files, so <code>file_</code> functions will generally also work when applied to a directory or link.</p>
+<p><strong>fs</strong> functions are divided into four main categories: paths (<code>path_</code>), files (<code>file_</code>), directories (<code>dir_</code>), and links (<code>link_</code>). Directories and links are special types of files, so <code>file_</code> functions will generally also work when applied to a directory or link.</p>
 <pre class="r"><code>library(fs)
 
 # list files in the current directory
@@ -47,12 +52,12 @@ dir_ls()
 # create a new directory
 tmp &lt;- dir_create(file_temp())
 tmp
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpDxvuXw/file422873e15fb5
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c081d570249
 
 # create new files in that directory
 file_create(path(tmp, &quot;my-file.txt&quot;))
 dir_ls(tmp)
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpDxvuXw/file422873e15fb5/my-file.txt
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c081d570249/my-file.txt
 
 # remove files from the directory
 file_delete(path(tmp, &quot;my-file.txt&quot;))
@@ -61,7 +66,7 @@ dir_ls(tmp)
 
 # remove the directory
 dir_delete(tmp)</code></pre>
-<p><strong>fs</strong> is designed to work well with the pipe, although because it is a minimal-dependency infrastructure package it doesn’t provide the pipe itself. You will need to attach <a href="http://magrittr.tidyverse.org">magrittr</a> or similar.</p>
+<p><strong>fs</strong> is designed to work well with the pipe, though because it is a minimal-dependency infrastructure package it doesn’t provide the pipe itself. You will need to attach <a href="http://magrittr.tidyverse.org">magrittr</a> or similar.</p>
 <pre class="r"><code>library(magrittr)
 
 paths &lt;- file_temp() %&gt;%
@@ -69,17 +74,17 @@ paths &lt;- file_temp() %&gt;%
   path(letters[1:5]) %&gt;%
   file_create()
 paths
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpDxvuXw/file42287663984/a
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpDxvuXw/file42287663984/b
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpDxvuXw/file42287663984/c
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpDxvuXw/file42287663984/d
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpDxvuXw/file42287663984/e
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c08524fabfc/a
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c08524fabfc/b
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c08524fabfc/c
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c08524fabfc/d
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c08524fabfc/e
 
 paths %&gt;% file_delete()</code></pre>
-<p><strong>fs</strong> functions also work well in conjunction with other <a href="https://www.tidyverse.org/">tidyverse</a> packages like <a href="http://dplyr.tidyverse.org">dplyr</a> and <a href="http://purrr.tidyverse.org">purrr</a>.</p>
+<p><strong>fs</strong> functions also work well in conjunction with other <a href="https://www.tidyverse.org/">tidyverse</a> packages, like <a href="http://dplyr.tidyverse.org">dplyr</a> and <a href="http://purrr.tidyverse.org">purrr</a>. For example…</p>
 <pre class="r"><code>suppressMessages(
   library(tidyverse))</code></pre>
-<p>Filter files by type, permission and size</p>
+<p>Filter files by type, permission, size and 15 other attributes.</p>
 <pre class="r"><code>dir_info(recursive = TRUE) %&gt;%
   filter(type == &quot;file&quot;, permissions == &quot;u+r&quot;, size &gt; &quot;10KB&quot;) %&gt;%
   arrange(desc(size)) %&gt;%
@@ -91,7 +96,7 @@ paths %&gt;% file_delete()</code></pre>
 #&gt; 2 R/fs.rdb                   rw-r--r--        212.8K 2018-01-11 16:39:52
 #&gt; 3 help/fs.rdb                rw-r--r--         43.2K 2018-01-11 16:39:52
 #&gt; 4 tests/testthat/test-path.R rw-r--r--         11.1K 2018-01-11 16:39:51</code></pre>
-<p>Display folder size</p>
+<p>Tabulate and display folder size.</p>
 <pre class="r"><code>dir_info(recursive = TRUE) %&gt;%
   group_by(directory = path_dir(path)) %&gt;%
   tally(wt = size, sort = TRUE)
@@ -106,7 +111,8 @@ paths %&gt;% file_delete()</code></pre>
 #&gt; 6 .                    9.05K
 #&gt; 7 Meta                 4.78K
 #&gt; 8 tests                  774</code></pre>
-<p>Read a collection of files into one data frame. <code>dir_ls()</code> returns a named vector, so it can be used directly with <code>purrr::map_df(.id)</code>.</p>
+<p>Read a collection of files into one data frame.</p>
+<p><code>dir_ls()</code> returns a named vector, so it can be used directly with <code>purrr::map_df(.id)</code>.</p>
 <pre class="r"><code># Create separate files for each species
 iris %&gt;%
   split(.$Species) %&gt;%
@@ -118,7 +124,7 @@ iris_files &lt;- dir_ls(glob = &quot;*.tsv&quot;)
 iris_files
 #&gt; setosa.tsv     versicolor.tsv virginica.tsv
 
-# Read the data into a single table, including the filenames.
+# Read the data into a single table, including the filenames
 iris_files %&gt;%
   map_df(read_tsv, .id = &quot;file&quot;, col_types = cols(), n_max = 2)
 #&gt; # A tibble: 6 x 5
@@ -135,7 +141,7 @@ file_delete(iris_files)</code></pre>
 </section>
 <section id="feedback-wanted" class="level3">
 <h3>Feedback wanted!</h3>
-<p>We hope <strong>fs</strong> is a useful tool for both analysis scripts and packages. Please open <a href="">GitHub issues</a> for any feature requests or bugs.</p>
-<p>In particular, we have found Windows users using non-ASCII filenames on non-English locales to be especially tricky to reproduce and handle correctly, so feedback from those users is greatly appreciated.</p>
+<p>We hope <strong>fs</strong> is a useful tool for both analysis scripts and packages. Please open <a href="https://github.com/r-lib/fs">GitHub issues</a> for any feature requests or bugs.</p>
+<p>In particular, we have found non-ASCII filenames in non-English locales on Windows to be especially tricky to reproduce and handle correctly. Feedback from users who use commonly have this situation is greatly appreciated.</p>
 <p>Learn more about <strong>fs</strong> at - <a href="http://fs.r-lib.org" class="uri">http://fs.r-lib.org</a></p>
 </section>

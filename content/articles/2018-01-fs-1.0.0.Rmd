@@ -25,7 +25,7 @@ library(fs)
 
 [fs 1.0.0][fs] is now available on CRAN!
 [fs] provides a cross-platform, uniform interface to file system operations.
-[fs] uses [libuv](http://docs.libuv.org/en/v1.x/fs.html) under the hood which
+[fs] uses [libuv](http://docs.libuv.org/en/v1.x/fs.html) under the hood, which
 gives a rock solid cross-platform interface to the filesystem.
 
 
@@ -62,8 +62,11 @@ filesystem, we feel **fs** improves upon them in the following ways.
 
 ### Tidy paths
 
-**fs** functions always return 'tidy' paths. Tidy paths always expand `~`, use
-`/` to delimit directories and never have multiple `/` or trailing `/`.
+**fs** functions always return 'tidy' paths. Tidy paths
+
+  - always expand `~`
+  - use `/` to delimit directories
+  - never have multiple `/` or trailing `/`
 
 Tidy paths are also coloured (if your terminal supports it) based on the
 file permissions and file type. This colouring can be customised or extended by
@@ -74,7 +77,7 @@ dircolors](http://www.bigsoft.co.uk/blog/index.php/2008/04/11/configuring-ls_col
 
 ### Usage
 
-**fs** functions are divided into four main categories: manipulating paths
+**fs** functions are divided into four main categories: paths
 (`path_`), files (`file_`), directories (`dir_`), and links (`link_`).
 Directories and links are special types of files, so `file_` functions
 will generally also work when applied to a directory or link.
@@ -101,7 +104,7 @@ dir_ls(tmp)
 dir_delete(tmp)
 ```
 
-**fs** is designed to work well with the pipe, although because it is a
+**fs** is designed to work well with the pipe, though because it is a
 minimal-dependency infrastructure package it doesn't provide the pipe itself.
 You will need to attach [magrittr](http://magrittr.tidyverse.org) or similar.
 
@@ -118,15 +121,17 @@ paths %>% file_delete()
 ```
 
 **fs** functions also work well in conjunction with other
-[tidyverse](https://www.tidyverse.org/) packages like
+[tidyverse](https://www.tidyverse.org/) packages, like
 [dplyr](http://dplyr.tidyverse.org) and [purrr](http://purrr.tidyverse.org).
+For example...
 
 ```{r}
 suppressMessages(
   library(tidyverse))
 ```
 
-Filter files by type, permission and size
+Filter files by type, permission, size and 15 other attributes.
+
 ```{r}
 dir_info(recursive = TRUE) %>%
   filter(type == "file", permissions == "u+r", size > "10KB") %>%
@@ -134,15 +139,19 @@ dir_info(recursive = TRUE) %>%
   select(path, permissions, size, modification_time)
 ```
 
-Display folder size
+Tabulate and display folder size.
+
 ```{r}
 dir_info(recursive = TRUE) %>%
   group_by(directory = path_dir(path)) %>%
   tally(wt = size, sort = TRUE)
 ```
 
-Read a collection of files into one data frame. `dir_ls()` returns a named
-vector, so it can be used directly with `purrr::map_df(.id)`.
+Read a collection of files into one data frame.
+
+`dir_ls()` returns a named vector, so it can be used directly with
+`purrr::map_df(.id)`.
+
 ```{r}
 # Create separate files for each species
 iris %>%
@@ -154,7 +163,7 @@ iris %>%
 iris_files <- dir_ls(glob = "*.tsv")
 iris_files
 
-# Read the data into a single table, including the filenames.
+# Read the data into a single table, including the filenames
 iris_files %>%
   map_df(read_tsv, .id = "file", col_types = cols(), n_max = 2)
 
@@ -164,11 +173,11 @@ file_delete(iris_files)
 ### Feedback wanted!
 
 We hope **fs** is a useful tool for both analysis scripts and packages.
-Please open [GitHub issues]() for any feature requests or bugs.
+Please open [GitHub issues](https://github.com/r-lib/fs) for any feature requests or bugs.
 
-In particular, we have found Windows users using non-ASCII filenames on
-non-English locales to be especially tricky to reproduce and handle correctly,
-so feedback from those users is greatly appreciated.
+In particular, we have found non-ASCII filenames in non-English locales on
+Windows to be especially tricky to reproduce and handle correctly. Feedback
+from users who use commonly have this situation is greatly appreciated.
 
 Learn more about **fs** at
   - http://fs.r-lib.org
