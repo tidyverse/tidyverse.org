@@ -27,15 +27,10 @@ The source of the website is a collection of `.md` and `.Rmd` files stored in
   should be given name `year-month-slug.md`. Unfortunately this data isn't
   actually used when generating the output file: you'll need to set up 
   the yaml metadata. More on that below.  
-    + For `*.md` posts, no `*.html` file should be generated. If one is, it 
-    should not be committed/pushed, and can be deleted.  
+    + For `*.md` posts, no `*.html` file should be committed. If you generate one locally during development, delete it once it's no longer useful to you. Keep it out of this repo.
     
-    + For `*.Rmd` posts, an `*.html` file _should_ be generated when you run 
-    `blogdown::serve_site()` (see below).  
-    
-    + If you plan to include emoji in your post, you should use the `.Rmd` 
-    format, and generate emoji using the [emo](https://github.com/hadley/emo)
-    package.  
+    + For `*.Rmd` posts, an `*.html` file _should_ be committed. It will be generated when you run `blogdown::serve_site()` (see recommended workflow below).      
+    + If your post includes emoji, use the `.Rmd` format, and incorporate emoji using the [emo](https://github.com/hadley/emo) package.  
 
 * `data/events.yaml`: this yaml file contains information about upcoming 
   events. The site automatically filters out events that have happened,
@@ -43,7 +38,7 @@ The source of the website is a collection of `.md` and `.Rmd` files stored in
 
 ## Previewing changes
 
-### Locally
+### Use `blogdown::serve_site()`
 
 To build the site locally, you'll need to install blogdown, and then install 
 hugo, the music behind the magic of blogdown:
@@ -61,17 +56,11 @@ blogdown::serve_site()
 
 This will open a preview of the site in your web browser, and it will 
 automatically update whenever you modify one of the input files. For `.Rmd`, 
-this will generate an `.html` file, which you should commit/push to GitHub. If 
-this _does_ generate an `.html` file from an **`.md`** file, do **not** commit 
-it.
+this will generate an `.html` file, which you should commit and push to GitHub.
 
-#### Note re. local preview, not with blogdown
+#### Other methods of local preview
 
-For generating files (and for previewing them as they will look on the site), 
-you should use `blogdown::serve_site()`. If, accidentally or intentionally, you 
-knit or preview the content using another method (e.g. click the **Preview** 
-button in RStudio for `.[R]md`), you should delete the generated files before 
-committing your work.
+You should really preview the site using `blogdown::serve_site()`. But if, accidentally or intentionally, you knit or preview the content using another method (e.g. click the **Preview** button in RStudio for `.[R]md`), make sure you don't commit an `.html` file from an **`.md`** file.
 
 ### In PRs
 
