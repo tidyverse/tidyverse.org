@@ -41,6 +41,12 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
 
 * [Exploratory data analysis in R: case study](https://www.datacamp.com/courses/exploratory-data-analysis-in-r-case-study) by David Robinson, hosted on DataCamp. This course brings ggplot2 and dplyr into action in an in-depth analysis of United Nations voting data. The course also introduces broom for tidying model output and the tidyr package for wrangling data into an explorable shape.
 
+## Workshops
+
+(_Do you have a course you'd like to see listed here? Please submit a [pull request](https://github.com/tidyverse/tidyverse.org/edit/master/content/learn.md)!_)
+
+  * [Mastering the Tidyverse](https://www.jumpingrivers.com/courses/22_r-tidyverse) by Jumping Rivers. A one day crash course covering tidyverse fundamentals. The course is a mixture of lectures, short exercises and longer tutorial questions. During the day, we'll cover dplyr, tidy data, tibbles, dates/times and string manipulation.
+
 ## University courses
 
 (_Do you have a course you'd like to see listed here? Please submit a [pull request](https://github.com/tidyverse/tidyverse.org/edit/master/content/learn.md)!_)
