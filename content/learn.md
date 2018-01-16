@@ -45,7 +45,7 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
 
 (_Do you have a course you'd like to see listed here? Please submit a [pull request](https://github.com/tidyverse/tidyverse.org/edit/master/content/learn.md)!_)
 
-  * [Data Caperentry: Mastering the Tidyverse](https://www.jumpingrivers.com/courses/22_r-tidyverse) by Jumping Rivers. A one day crash course covering tidyverse fundamentals. The course is a mixture of lectures, short exercises and longer tutorial questions. During the day, we'll cover dplyr, tidy data, tibbles, dates/times and string manipulation.
+  * [Mastering the Tidyverse](https://www.jumpingrivers.com/courses/22_r-tidyverse) by Jumping Rivers. A one day crash course covering tidyverse fundamentals. The course is a mixture of lectures, short exercises and longer tutorial questions. During the day, we'll cover dplyr, tidy data, tibbles, dates/times and string manipulation.
 
 ## University courses
 
