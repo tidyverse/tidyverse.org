@@ -15,7 +15,7 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
 
 <div class="package-section-info">
   <h2 id="core-tidyverse">Core tidyverse</h2>
-  <p>The core tidyverse includes the packages that you're likely to use in every day data analyses. As of tidyverse 1.2.0, the following packages are included in the core tidyverse:</p>
+  <p>The core tidyverse includes the packages that you're likely to use in everyday data analyses. As of tidyverse 1.2.0, the following packages are included in the core tidyverse:</p>
 </div>
 
 <div class="packages">
@@ -68,7 +68,7 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
     <img class="package-image" src="/images/hex-stringr.png"></img>
     <div class="package-info">
       <h3><a href="http://stringr.tidyverse.org/">stringr</a></h3>
-      <p>stringr provide a cohesive set of functions designed to make working with strings as easy as possible. It is built on top of stringi, which uses the ICU C library to provide fast, correct implementations of common string manipulations.
+      <p>stringr provides a cohesive set of functions designed to make working with strings as easy as possible. It is built on top of stringi, which uses the ICU C library to provide fast, correct implementations of common string manipulations.
       <a href="http://stringr.tidyverse.org/">Learn more ...</a></p>
     </div>
   </div>
@@ -76,7 +76,7 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
     <img class="package-image" src="/images/hex-forcats.png"></img>
     <div class="package-info">
       <h3><a href="http://forcats.tidyverse.org/">forcats</a></h3>
-      <p>forcats package is to provide a suite of useful tools that solve common problems with factors. R uses factors to handle categorical variables, variables that have a fixed and known set of possible values.
+      <p>forcats provides a suite of useful tools that solve common problems with factors. R uses factors to handle categorical variables, variables that have a fixed and known set of possible values.
       <a href="http://forcats.tidyverse.org/">Learn more ...</a></p>
     </div>
   </div>
@@ -137,4 +137,4 @@ You may also find [broom](https://github.com/tidyverse/broom) to be useful: it t
 
 ## Get help
 
-If you’re asking for R help, reporting a bug, or requesting a new feature, you’re more likely to succeed if you include a good reproducible example, which precisely is what the [reprex](http://reprex.tidyverse.org/) package is meant for. You can learn more about reprex, along with other tips on how to help others help you in the [help section](https://www.tidyverse.org/help/).
+If you’re asking for R help, reporting a bug, or requesting a new feature, you’re more likely to succeed if you include a good reproducible example, which is precisely what the [reprex](http://reprex.tidyverse.org/) package is meant for. You can learn more about reprex, along with other tips on how to help others help you in the [help section](https://www.tidyverse.org/help/).
