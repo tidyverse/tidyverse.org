@@ -20,6 +20,9 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
 * [ggplot2: elegant graphics for data science](http://amzn.to/2tYdTqd) by 
   Hadley Wickham. Goes into greater depth into the ggplot2 visualisation 
   system.
+  
+* [Solutions and notes for R4DS](https://jrnold.github.io/r4ds-exercise-solutions/) 
+  by Jeffrey B. Arnold. Work in progress.
 
 ## Online courses
 
