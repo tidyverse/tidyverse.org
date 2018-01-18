@@ -15,7 +15,7 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
 
 <div class="package-section-info">
   <h2 id="core-tidyverse">Core tidyverse</h2>
-  <p>The core tidyverse includes the packages that you're likely to use in every day data analyses. As of tidyverse 1.1.0, the following packages are included in the core tidyverse:</p>
+  <p>The core tidyverse includes the packages that you're likely to use in every day data analyses. As of tidyverse 1.2.0, the following packages are included in the core tidyverse:</p>
 </div>
 
 <div class="packages">
@@ -64,6 +64,22 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
       <a href="http://tibble.tidyverse.org/">Learn more ...</a></p>
     </div>
   </div>
+  <div class="package">
+    <img class="package-image" src="/images/hex-stringr.png"></img>
+    <div class="package-info">
+      <h3><a href="http://stringr.tidyverse.org/">stringr</a></h3>
+      <p>stringr provide a cohesive set of functions designed to make working with strings as easy as possible. It is built on top of stringi, which uses the ICU C library to provide fast, correct implementations of common string manipulations.
+      <a href="http://stringr.tidyverse.org/">Learn more ...</a></p>
+    </div>
+  </div>
+  <div class="package">
+    <img class="package-image" src="/images/hex-forcats.png"></img>
+    <div class="package-info">
+      <h3><a href="http://forcats.tidyverse.org/">forcats</a></h3>
+      <p>forcats package is to provide a suite of useful tools that solve common problems with factors. R uses factors to handle categorical variables, variables that have a fixed and known set of possible values.
+      <a href="http://forcats.tidyverse.org/">Learn more ...</a></p>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -74,6 +90,7 @@ The tidyverse also includes many other packages with more specialised usage. The
 As well as [readr](http://readr.tidyverse.org), for reading flat files, the tidyverse includes:
 
 * [readxl](http://readxl.tidyverse.org) for `.xls` and `.xlsx` sheets.
+
 * [haven](http://haven.tidyverse.org) for SPSS, Stata, and SAS data.
 
 There are a handful of other packages that are not in the tidyverse, but are tidyverse-adjacent. They are very useful for importing data from other sources:
@@ -93,17 +110,15 @@ There are a handful of other packages that are not in the tidyverse, but are tid
 
 ## Wrangle
 
-As well as [tidyr](http://tidyr.tidyverse.org), and [dplyr](http://dplyr.tidyverse.org), there are five packages designed to work with specific types of data:
+In addition to [tidyr](http://tidyr.tidyverse.org), [dplyr](http://dplyr.tidyverse.org), [stringr](http://stringr.tidyverse.org/), and [forcats](http://forcats.tidyverse.org/), there are three more packages designed to work with specific types of data:
 
-* [stringr](http://stringr.tidyverse.org) for strings.
 * [lubridate](http://lubridate.tidyverse.org) for dates and date-times.
-* [forcats](http://forcats.tidyverse.org) for categorical variables (factors).
 * [hms](https://github.com/tidyverse/hms) for time-of-day values.
 * [blob](https://github.com/tidyverse/blob) for storing blob (binary) data.
 
 ## Program
 
-As well as [purrr](http://purrr.tidyverse.org) which faciliates functional programming, there are three tidyverse packages that help with general programming challenges:
+As well as [purrr](http://purrr.tidyverse.org) which facilitates functional programming, there are three tidyverse packages that help with general programming challenges:
 
 * [rlang](http://rlang.tidyverse.org) provides tools to work with core language features of R and the tidyverse
 
@@ -119,3 +134,7 @@ As well as [purrr](http://purrr.tidyverse.org) which faciliates functional progr
 Modelling within the tidyverse is largely a work in progress. You can see some of the pieces in the [recipes](http://github.com/topepo/recipes) and [rsample](http://github.com/topepo/rsample) packages but we do not yet have a cohesive system that solves a wide range of challenges. This work will largely replace the [modelr](https://github.com/tidyverse/modelr) package used in [R4DS](http://r4ds.had.co.nz/).
 
 You may also find [broom](https://github.com/tidyverse/broom) to be useful: it turns models into tidy data which you can then wrangle and visualise using the tools you already know.
+
+## Get help
+
+If you’re asking for R help, reporting a bug, or requesting a new feature, you’re more likely to succeed if you include a good reproducible example, which precisely is what the [reprex](http://reprex.tidyverse.org/) package is meant for. You can learn more about reprex, along with other tips on how to help others help you in the [help section](https://www.tidyverse.org/help/).
