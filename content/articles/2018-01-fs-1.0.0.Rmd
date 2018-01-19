@@ -1,6 +1,6 @@
 ---
 title: fs 1.0.0
-date: '2018-01-17'
+date: '2018-01-19'
 slug: fs-1.0.0
 author: Jim Hester
 categories: [package]
@@ -22,7 +22,6 @@ knitr::opts_knit$set(
 library(fs)
 ```
 
-
 [fs 1.0.0][fs] is now available on CRAN!
 [fs] provides a cross-platform, uniform interface to file system operations.
 [fs] uses [libuv](http://docs.libuv.org/en/v1.x/fs.html) under the hood, which
@@ -36,29 +35,29 @@ install.packages("fs")
 
 ### Comparison vs base equivalents
 
-While it is true R comes bundled with functions for interacting with the
-filesystem, we feel **fs** improves upon them in the following ways.
+**fs** functions smooth over some of the idiosyncrasies of file handling with
+base R functions:
 
-* All **fs** functions are vectorized, accepting multiple paths as input.
-  Base functions are inconsistently vectorized.
+* Vectorization. All **fs** functions are vectorized, accepting multiple paths
+  as input. Base functions are inconsistently vectorized.
 
-* All **fs** functions return a character vector of paths, a named integer or a
-  logical vector (where the names give the paths). Base return values are more
-  varied and typically return error codes which need to be manually checked.
+* Predictable return values that always convey a path. All **fs** functions
+  return a character vector of paths, a named integer or a logical vector, where
+  the names give the paths. Base return values are more varied: they are often
+  logical or contain error codes which require downstream processing.
 
-* If **fs** operations fail, they throw an error. Base functions
-  tend to generate a warning and a system dependent error code. This makes it
-  easy to miss a failure.
+* Explicit failure. If **fs** operations fail, they throw an error. Base
+  functions tend to generate a warning and a system dependent error code. This
+  makes it easy to miss a failure.
 
-* **fs** functions always convert input paths to UTF-8 and return results as
-  UTF-8. This gives you path encoding consistency across OSs. Base functions
-  rely on the native system encoding.
+* UTF-8 all the things! **fs** functions always convert input paths to UTF-8 and
+  return results as UTF-8. This gives you path encoding consistency across OSes.
+  Base functions rely on the native system encoding.
 
-* **fs** functions use a consistent naming convention. Because base R's functions
-  were gradually added over time there are a number of different conventions
-  used (e.g. `path.expand()` vs `normalizePath()`; `Sys.chmod()` vs 
-  `file.access()`).
-
+* Naming convention. **fs** functions use a consistent naming convention.
+  Because base R's functions were gradually added over time there are a number
+  of different conventions used (e.g. `path.expand()` vs `normalizePath()`;
+  `Sys.chmod()` vs `file.access()`).
 
 ### Tidy paths
 
@@ -77,8 +76,13 @@ dircolors](http://www.bigsoft.co.uk/blog/index.php/2008/04/11/configuring-ls_col
 
 ### Usage
 
-**fs** functions are divided into four main categories: paths
-(`path_`), files (`file_`), directories (`dir_`), and links (`link_`).
+**fs** functions are divided into four main categories:
+
+  * `path_` for manipulating paths
+  * `file_` for files
+  * `dir_` for directories
+  * `link_` for links
+
 Directories and links are special types of files, so `file_` functions
 will generally also work when applied to a directory or link.
 
