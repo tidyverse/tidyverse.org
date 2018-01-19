@@ -110,7 +110,7 @@ There are a handful of other packages that are not in the tidyverse, but are tid
 
 ## Wrangle
 
-In addition to [tidyr](http://tidyr.tidyverse.org), [dplyr](http://dplyr.tidyverse.org), [stringr](http://stringr.tidyverse.org/), and [forcats](http://forcats.tidyverse.org/), there are three more packages designed to work with specific types of data:
+In addition to [tidyr](http://tidyr.tidyverse.org), and [dplyr](http://dplyr.tidyverse.org), there are five packages (including [stringr](http://stringr.tidyverse.org) and [forcats](http://forcats.tidyverse.org)) which are designed to work with specific types of data:
 
 * [lubridate](http://lubridate.tidyverse.org) for dates and date-times.
 * [hms](https://github.com/tidyverse/hms) for time-of-day values.
@@ -118,7 +118,7 @@ In addition to [tidyr](http://tidyr.tidyverse.org), [dplyr](http://dplyr.tidyver
 
 ## Program
 
-As well as [purrr](http://purrr.tidyverse.org) which facilitates functional programming, there are three tidyverse packages that help with general programming challenges:
+In addition to [purrr](http://purrr.tidyverse.org), which provides very consistent and natural methods for iterating on R objects, there are three tidyverse packages that help with general programming challenges:
 
 * [rlang](http://rlang.tidyverse.org) provides tools to work with core language features of R and the tidyverse
 
