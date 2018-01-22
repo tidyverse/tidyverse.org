@@ -1,6 +1,6 @@
 ---
 title: fs 1.0.0
-date: '2018-01-17'
+date: '2018-01-22'
 slug: fs-1.0.0
 author: Jim Hester
 categories: [package]
@@ -19,13 +19,13 @@ photo:
 <pre class="r"><code>install.packages(&quot;fs&quot;)</code></pre>
 <section id="comparison-vs-base-equivalents" class="level3">
 <h3>Comparison vs base equivalents</h3>
-<p>While it is true R comes bundled with functions for interacting with the filesystem, we feel <strong>fs</strong> improves upon them in the following ways.</p>
+<p><strong>fs</strong> functions smooth over some of the idiosyncrasies of file handling with base R functions:</p>
 <ul>
-<li><p>All <strong>fs</strong> functions are vectorized, accepting multiple paths as input. Base functions are inconsistently vectorized.</p></li>
-<li><p>All <strong>fs</strong> functions return a character vector of paths, a named integer or a logical vector (where the names give the paths). Base return values are more varied and typically return error codes which need to be manually checked.</p></li>
-<li><p>If <strong>fs</strong> operations fail, they throw an error. Base functions tend to generate a warning and a system dependent error code. This makes it easy to miss a failure.</p></li>
-<li><p><strong>fs</strong> functions always convert input paths to UTF-8 and return results as UTF-8. This gives you path encoding consistency across OSs. Base functions rely on the native system encoding.</p></li>
-<li><p><strong>fs</strong> functions use a consistent naming convention. Because base R’s functions were gradually added over time there are a number of different conventions used (e.g. <code>path.expand()</code> vs <code>normalizePath()</code>; <code>Sys.chmod()</code> vs <code>file.access()</code>).</p></li>
+<li><p>Vectorization. All <strong>fs</strong> functions are vectorized, accepting multiple paths as input. Base functions are inconsistently vectorized.</p></li>
+<li><p>Predictable return values that always convey a path. All <strong>fs</strong> functions return a character vector of paths, a named integer or a logical vector, where the names give the paths. Base return values are more varied: they are often logical or contain error codes which require downstream processing.</p></li>
+<li><p>Explicit failure. If <strong>fs</strong> operations fail, they throw an error. Base functions tend to generate a warning and a system dependent error code. This makes it easy to miss a failure.</p></li>
+<li><p>UTF-8 all the things! <strong>fs</strong> functions always convert input paths to UTF-8 and return results as UTF-8. This gives you path encoding consistency across OSes. Base functions rely on the native system encoding.</p></li>
+<li><p>Naming convention. <strong>fs</strong> functions use a consistent naming convention. Because base R’s functions were gradually added over time there are a number of different conventions used (e.g. <code>path.expand()</code> vs <code>normalizePath()</code>; <code>Sys.chmod()</code> vs <code>file.access()</code>).</p></li>
 </ul>
 </section>
 <section id="tidy-paths" class="level3">
@@ -41,23 +41,30 @@ photo:
 </section>
 <section id="usage" class="level3">
 <h3>Usage</h3>
-<p><strong>fs</strong> functions are divided into four main categories: paths (<code>path_</code>), files (<code>file_</code>), directories (<code>dir_</code>), and links (<code>link_</code>). Directories and links are special types of files, so <code>file_</code> functions will generally also work when applied to a directory or link.</p>
+<p><strong>fs</strong> functions are divided into four main categories:</p>
+<ul>
+<li><code>path_</code> for manipulating paths</li>
+<li><code>file_</code> for files</li>
+<li><code>dir_</code> for directories</li>
+<li><code>link_</code> for links</li>
+</ul>
+<p>Directories and links are special types of files, so <code>file_</code> functions will generally also work when applied to a directory or link.</p>
 <pre class="r"><code>library(fs)
 
 # list files in the current directory
 dir_ls()
-#&gt; DESCRIPTION INDEX       LICENSE     Meta        NAMESPACE   NEWS.md     
+#&gt; COPYRIGHTS  DESCRIPTION INDEX       Meta        NAMESPACE   NEWS.md     
 #&gt; R           help        html        libs        tests
 
 # create a new directory
 tmp &lt;- dir_create(file_temp())
 tmp
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c081d570249
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45419bda5e2
 
 # create new files in that directory
 file_create(path(tmp, &quot;my-file.txt&quot;))
 dir_ls(tmp)
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c081d570249/my-file.txt
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45419bda5e2/my-file.txt
 
 # remove files from the directory
 file_delete(path(tmp, &quot;my-file.txt&quot;))
@@ -74,14 +81,15 @@ paths &lt;- file_temp() %&gt;%
   path(letters[1:5]) %&gt;%
   file_create()
 paths
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c08524fabfc/a
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c08524fabfc/b
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c08524fabfc/c
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c08524fabfc/d
-#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpT4ktV4/file7c08524fabfc/e
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45416d276a/a
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45416d276a/b
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45416d276a/c
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45416d276a/d
+#&gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45416d276a/e
 
 paths %&gt;% file_delete()</code></pre>
-<p><strong>fs</strong> functions also work well in conjunction with other <a href="https://www.tidyverse.org/">tidyverse</a> packages, like <a href="http://dplyr.tidyverse.org">dplyr</a> and <a href="http://purrr.tidyverse.org">purrr</a>. For example…</p>
+<p><strong>fs</strong> functions also work well in conjunction with other <a href="https://www.tidyverse.org/">tidyverse</a> packages, like <a href="http://dplyr.tidyverse.org">dplyr</a> and <a href="http://purrr.tidyverse.org">purrr</a>.</p>
+<p>Some examples…</p>
 <pre class="r"><code>suppressMessages(
   library(tidyverse))</code></pre>
 <p>Filter files by type, permission, size and 15 other attributes.</p>
@@ -89,13 +97,14 @@ paths %&gt;% file_delete()</code></pre>
   filter(type == &quot;file&quot;, permissions == &quot;u+r&quot;, size &gt; &quot;10KB&quot;) %&gt;%
   arrange(desc(size)) %&gt;%
   select(path, permissions, size, modification_time)
-#&gt; # A tibble: 4 x 4
+#&gt; # A tibble: 5 x 4
 #&gt;   path                       permissions        size modification_time  
 #&gt;   &lt;fs::path&gt;                 &lt;fs::perms&gt; &lt;fs::bytes&gt; &lt;dttm&gt;             
-#&gt; 1 libs/fs.so                 rwxr-xr-x        415.3K 2018-01-11 16:39:51
-#&gt; 2 R/fs.rdb                   rw-r--r--        212.8K 2018-01-11 16:39:52
-#&gt; 3 help/fs.rdb                rw-r--r--         43.2K 2018-01-11 16:39:52
-#&gt; 4 tests/testthat/test-path.R rw-r--r--         11.1K 2018-01-11 16:39:51</code></pre>
+#&gt; 1 libs/fs.so                 rwxr-xr-x        328.6K 2018-01-19 08:32:18
+#&gt; 2 R/fs.rdb                   rw-r--r--        214.7K 2018-01-19 08:32:18
+#&gt; 3 help/fs.rdb                rw-r--r--         45.1K 2018-01-19 08:32:19
+#&gt; 4 COPYRIGHTS                 rw-r--r--         24.1K 2018-01-19 08:32:18
+#&gt; 5 tests/testthat/test-path.R rw-r--r--         11.2K 2018-01-19 08:32:18</code></pre>
 <p>Tabulate and display folder size.</p>
 <pre class="r"><code>dir_info(recursive = TRUE) %&gt;%
   group_by(directory = path_dir(path)) %&gt;%
@@ -103,14 +112,14 @@ paths %&gt;% file_delete()</code></pre>
 #&gt; # A tibble: 8 x 2
 #&gt;   directory                n
 #&gt;   &lt;fs::path&gt;     &lt;fs::bytes&gt;
-#&gt; 1 libs               415.32K
-#&gt; 2 R                  215.95K
-#&gt; 3 tests/testthat      48.09K
-#&gt; 4 help                45.67K
-#&gt; 5 html                 9.15K
-#&gt; 6 .                    9.05K
-#&gt; 7 Meta                 4.78K
-#&gt; 8 tests                  774</code></pre>
+#&gt; 1 libs               328.62K
+#&gt; 2 R                   217.8K
+#&gt; 3 tests/testthat      48.18K
+#&gt; 4 help                47.67K
+#&gt; 5 .                   29.96K
+#&gt; 6 html                 9.25K
+#&gt; 7 Meta                 4.82K
+#&gt; 8 tests                  728</code></pre>
 <p>Read a collection of files into one data frame.</p>
 <p><code>dir_ls()</code> returns a named vector, so it can be used directly with <code>purrr::map_df(.id)</code>.</p>
 <pre class="r"><code># Create separate files for each species
@@ -142,6 +151,6 @@ file_delete(iris_files)</code></pre>
 <section id="feedback-wanted" class="level3">
 <h3>Feedback wanted!</h3>
 <p>We hope <strong>fs</strong> is a useful tool for both analysis scripts and packages. Please open <a href="https://github.com/r-lib/fs">GitHub issues</a> for any feature requests or bugs.</p>
-<p>In particular, we have found non-ASCII filenames in non-English locales on Windows to be especially tricky to reproduce and handle correctly. Feedback from users who use commonly have this situation is greatly appreciated.</p>
+<p>In particular, we have found non-ASCII filenames in non-English locales on Windows to be especially tricky to reproduce and handle correctly. There is already <a href="https://github.com/r-lib/fs/commit/b0b7a88de708300fd48273b0824e9bb265a0ee7b">one fix</a> for this issue since <strong>fs</strong> was submitted to CRAN. Additional Feedback from users is greatly appreciated!</p>
 <p>Learn more about <strong>fs</strong> at - <a href="http://fs.r-lib.org" class="uri">http://fs.r-lib.org</a></p>
 </section>
