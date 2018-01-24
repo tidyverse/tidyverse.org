@@ -1,0 +1,62 @@
+---
+title: tibble 1.4.2
+slug: tibble-1-4-2
+description: >
+    tibble 1.4.2 is on CRAN now, a minor update adding options and improving performance.
+date: 2018-01-24
+author: Kirill Müller, Hadley Wickham
+photo:
+  url: https://unsplash.com/photos/6GjHwABuci4
+  author: Mikael Kristenson
+categories: [package]
+---
+
+
+```{r setup, include = FALSE}
+library(tibble)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+We’re excited to announce version 1.4.2 of the *tibble* package, a minor update focusing mostly on display and performance.  This is a small release designed to address the biggest issues introduced in [version 1.4.1](tibble-1-4-1). We've introduced a number of option to give you greater control over the appearance, and tweaked the default to work better for more people. (The option names start with `pillar`, because that's the package that is actually responsible for printing; the new options are available with *pillar* 1.1.0 which will be installed automatically when you install or upgrade *tibble*.)
+In addition, tibbles are now displayed faster, even very wide ones. The subsetting performance has also improved.
+
+There are some other small improvements and bug fixes: please see the [release notes](https://github.com/tidyverse/tibble/releases/tag/v1.4.2) for a complete list.  Use the [issue tracker](https://github.com/tidyverse/tibble/issues) to submit bugs or suggest ideas, your contributions are always welcome.
+
+## New options
+
+This article shows the effect of each new option based on the following simple tibble.
+
+![](/images/tibble-1-4-2/default.png)
+
+The following options were added:
+
+- `pillar.bold`: Use bold font, e.g. for column headers? This currently defaults to `FALSE`, because many terminal fonts have poor support for bold fonts. If the bold-faced column names in tibble 1.4.1 worked for you, add `option(pillar.bold = TRUE)` to your `.Rprofile`.
+
+    ![](/images/tibble-1-4-2/bold.png)
+
+- `pillar.subtle`: Use subtle style, e.g. for insignificant digits? Default: `TRUE`, see below for the effects of `option(pillar.subtle = FALSE)`.
+
+    ![](/images/tibble-1-4-2/subtle.png)
+
+- `pillar.neg`: Highlight negative numbers? Default: `TRUE`, the output for `option(pillar.neg = FALSE)` is shown below.
+
+    ![](/images/tibble-1-4-2/neg.png)
+
+- `pillar.sigfig`: The number of significant digits that will be printed and
+    highlighted, default: 3.  (Set the `pillar.subtle` option to `FALSE` to
+    turn off highlighting of significant digits.)  See below for an example with
+    `option(pillar.sigfig = 5)`:
+
+    ![](/images/tibble-1-4-2/sigfig-5.png)
+
+- `pillar.min_title_chars`: The minimum number of characters for the column
+    title, default: `15`.  Column titles may be truncated up to that width to
+    save horizontal space. Set to `Inf` to turn off truncation of column
+    titles.  In our example, a column hidden previously is shown when reducing
+    `pillar.min_title_chars` to 10:
+
+    ![](/images/tibble-1-4-2/min-title-chars-10.png)
+
+## Acknowledgments
+
+Thanks to [Anh Le](https://github.com/anhqle) for adding support for trailing commas in `tribble()`, to [Tobias Gauster](https://github.com/mundl) for fixing a confusing error message, and to all other contributors.  We received issues, pull requests, and comments from 33 people since tibble 1.4.1. Thanks to everyone, your feedback is very valuable to us: [\@anhqle](https://github.com/anhqle), [\@batpigandme](https://github.com/batpigandme), [\@bgreenwell](https://github.com/bgreenwell), [\@blueprint-ade](https://github.com/blueprint-ade), [\@BruceZhaoR](https://github.com/BruceZhaoR), [\@chasemc](https://github.com/chasemc), [\@digital-dharma](https://github.com/digital-dharma), [\@drewgendreau](https://github.com/drewgendreau), [\@EdwardJRoss](https://github.com/EdwardJRoss), [\@hplieninger](https://github.com/hplieninger), [\@javierluraschi](https://github.com/javierluraschi), [\@jcpetkovich](https://github.com/jcpetkovich), [\@kevinushey](https://github.com/kevinushey), [\@kevinykuo](https://github.com/kevinykuo), [\@khughitt](https://github.com/khughitt), [\@kovla](https://github.com/kovla), [\@lorenzwalthert](https://github.com/lorenzwalthert), [\@lpmarco](https://github.com/lpmarco), [\@mmuurr](https://github.com/mmuurr), [\@mundl](https://github.com/mundl), [\@NathanCDay](https://github.com/NathanCDay), [\@p0bs](https://github.com/p0bs), [\@patperry](https://github.com/patperry), [\@slonik-az](https://github.com/slonik-az), [\@Tazinho](https://github.com/Tazinho), [\@tjmahr](https://github.com/tjmahr), [\@trinker](https://github.com/trinker), [\@vnijs](https://github.com/vnijs), [\@vspinu](https://github.com/vspinu), [\@WB-Student](https://github.com/WB-Student), [\@wch](https://github.com/wch), [\@yutannihilation](https://github.com/yutannihilation), and [\@Zedseayou](https://github.com/Zedseayou).

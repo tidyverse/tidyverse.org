@@ -1,0 +1,57 @@
+---
+title: tibble 1.4.2
+slug: tibble-1-4-2
+description: >
+    tibble 1.4.2 is on CRAN now, a minor update adding options and improving performance.
+date: 2018-01-24
+author: Kirill Müller, Hadley Wickham
+photo:
+  url: https://unsplash.com/photos/6GjHwABuci4
+  author: Mikael Kristenson
+categories: [package]
+---
+
+
+
+<p>We’re excited to announce version 1.4.2 of the <em>tibble</em> package, a minor update focusing mostly on display and performance. This is a small release designed to address the biggest issues introduced in <a href="tibble-1-4-1">version 1.4.1</a>. We’ve introduced a number of option to give you greater control over the appearance, and tweaked the default to work better for more people. (The option names start with <code>pillar</code>, because that’s the package that is actually responsible for printing; the new options are available with <em>pillar</em> 1.1.0 which will be installed automatically when you install or upgrade <em>tibble</em>.) In addition, tibbles are now displayed faster, even very wide ones. The subsetting performance has also improved.</p>
+<p>There are some other small improvements and bug fixes: please see the <a href="https://github.com/tidyverse/tibble/releases/tag/v1.4.2">release notes</a> for a complete list. Use the <a href="https://github.com/tidyverse/tibble/issues">issue tracker</a> to submit bugs or suggest ideas, your contributions are always welcome.</p>
+<div id="new-options" class="section level2">
+<h2>New options</h2>
+<p>This article shows the effect of each new option based on the following simple tibble.</p>
+<div class="figure">
+<img src="/images/tibble-1-4-2/default.png" />
+
+</div>
+<p>The following options were added:</p>
+<ul>
+<li><p><code>pillar.bold</code>: Use bold font, e.g. for column headers? This currently defaults to <code>FALSE</code>, because many terminal fonts have poor support for bold fonts. If the bold-faced column names in tibble 1.4.1 worked for you, add <code>option(pillar.bold = TRUE)</code> to your <code>.Rprofile</code>.</p>
+<div class="figure">
+<img src="/images/tibble-1-4-2/bold.png" />
+
+</div></li>
+<li><p><code>pillar.subtle</code>: Use subtle style, e.g. for insignificant digits? Default: <code>TRUE</code>, see below for the effects of <code>option(pillar.subtle = FALSE)</code>.</p>
+<div class="figure">
+<img src="/images/tibble-1-4-2/subtle.png" />
+
+</div></li>
+<li><p><code>pillar.neg</code>: Highlight negative numbers? Default: <code>TRUE</code>, the output for <code>option(pillar.neg = FALSE)</code> is shown below.</p>
+<div class="figure">
+<img src="/images/tibble-1-4-2/neg.png" />
+
+</div></li>
+<li><p><code>pillar.sigfig</code>: The number of significant digits that will be printed and highlighted, default: 3. (Set the <code>pillar.subtle</code> option to <code>FALSE</code> to turn off highlighting of significant digits.) See below for an example with <code>option(pillar.sigfig = 5)</code>:</p>
+<div class="figure">
+<img src="/images/tibble-1-4-2/sigfig-5.png" />
+
+</div></li>
+<li><p><code>pillar.min_title_chars</code>: The minimum number of characters for the column title, default: <code>15</code>. Column titles may be truncated up to that width to save horizontal space. Set to <code>Inf</code> to turn off truncation of column titles. In our example, a column hidden previously is shown when reducing <code>pillar.min_title_chars</code> to 10:</p>
+<div class="figure">
+<img src="/images/tibble-1-4-2/min-title-chars-10.png" />
+
+</div></li>
+</ul>
+</div>
+<div id="acknowledgments" class="section level2">
+<h2>Acknowledgments</h2>
+<p>Thanks to <a href="https://github.com/anhqle">Anh Le</a> for adding support for trailing commas in <code>tribble()</code>, to <a href="https://github.com/mundl">Tobias Gauster</a> for fixing a confusing error message, and to all other contributors. We received issues, pull requests, and comments from 33 people since tibble 1.4.1. Thanks to everyone, your feedback is very valuable to us: <a href="https://github.com/anhqle">@anhqle</a>, <a href="https://github.com/batpigandme">@batpigandme</a>, <a href="https://github.com/bgreenwell">@bgreenwell</a>, <a href="https://github.com/blueprint-ade">@blueprint-ade</a>, <a href="https://github.com/BruceZhaoR">@BruceZhaoR</a>, <a href="https://github.com/chasemc">@chasemc</a>, <a href="https://github.com/digital-dharma">@digital-dharma</a>, <a href="https://github.com/drewgendreau">@drewgendreau</a>, <a href="https://github.com/EdwardJRoss">@EdwardJRoss</a>, <a href="https://github.com/hplieninger">@hplieninger</a>, <a href="https://github.com/javierluraschi">@javierluraschi</a>, <a href="https://github.com/jcpetkovich">@jcpetkovich</a>, <a href="https://github.com/kevinushey">@kevinushey</a>, <a href="https://github.com/kevinykuo">@kevinykuo</a>, <a href="https://github.com/khughitt">@khughitt</a>, <a href="https://github.com/kovla">@kovla</a>, <a href="https://github.com/lorenzwalthert">@lorenzwalthert</a>, <a href="https://github.com/lpmarco">@lpmarco</a>, <a href="https://github.com/mmuurr">@mmuurr</a>, <a href="https://github.com/mundl">@mundl</a>, <a href="https://github.com/NathanCDay">@NathanCDay</a>, <a href="https://github.com/p0bs">@p0bs</a>, <a href="https://github.com/patperry">@patperry</a>, <a href="https://github.com/slonik-az">@slonik-az</a>, <a href="https://github.com/Tazinho">@Tazinho</a>, <a href="https://github.com/tjmahr">@tjmahr</a>, <a href="https://github.com/trinker">@trinker</a>, <a href="https://github.com/vnijs">@vnijs</a>, <a href="https://github.com/vspinu">@vspinu</a>, <a href="https://github.com/WB-Student">@WB-Student</a>, <a href="https://github.com/wch">@wch</a>, <a href="https://github.com/yutannihilation">@yutannihilation</a>, and <a href="https://github.com/Zedseayou">@Zedseayou</a>.</p>
+</div>
