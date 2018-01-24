@@ -82,7 +82,7 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
   
 * [Computing for the Social Sciences](http://cfss.uchicago.edu/) University of Chicago; Benjamin Soltoff. This is an applied course for social scientists with little-to-no programming experience who wish to harness growing digital and computational resources. The focus of the course is on generating reproducible research through the use of programming languages and version control software. Major emphasis is placed on a pragmatic understanding of core principles of programming and packaged implementations of methods. Students will leave the course with basic computational skills implemented through many computational methods and approaches to social science; while students will not become expert programmers, they will gain the knowledge of how to adapt and expand these skills as they are presented with new questions, methods, and data.
 
-* [Applied Media Analytics](https://www.elon.edu/u/academics/communications/academics/media-analytics-major/) Elon University; Brian Walsh. An Undergraduate course for Media Analytics majors, students are introduced to R programming via the tidyverse and learn ggplot, dplyr, & lubridate, as well as basic sentiment analysis, Twitter analysis, and Google Analytics insights. 
+* [Applied Media Analytics](https://www.elon.edu/u/academics/communications/academics/media-analytics-major/) Elon University; Brian Walsh. An Undergraduate introduction to R programming for Media Analytics majors. Students learn ggplot2, dplyr, and lubridate, as well as basic sentiment analysis, Twitter insights, and Google Analytics. 
   
 ### 2016
 
