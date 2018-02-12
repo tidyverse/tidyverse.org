@@ -10,9 +10,9 @@ The best place to start learning the tidyverse is [R for Data Science](http://r4
 
 We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstudio.com/resources/cheatsheets/). These cheatsheets have been carefully designed to pack a lot of information into a small amount of space. You can keep them handy at your desk and quickly jog your memory when you get stuck. Most of the cheatsheets have been translated into multiple languages.
 
-<h2 class='stopFloatBefore' id="books">Books</h2>
-
 (_Do you have a book you'd like to see listed here? Please submit a [pull request](https://github.com/tidyverse/tidyverse.org/edit/master/content/learn.md)!_)
+
+<h2 class='stopFloatBefore' id="books">Books</h2>
 
 * [ModernDive: An Introduction to Statistical and Data Sciences via R](http://moderndive.com/) by
   Chester Ismay and Albert Y. Kim. "Help! I’m new to R and RStudio and I need to learn them! What do I do?" If you're asking yourself this, this book is for you.
@@ -24,32 +24,28 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
 * [Solutions and notes for R4DS](https://jrnold.github.io/r4ds-exercise-solutions/) 
   by Jeffrey B. Arnold. Work in progress.
 
-## Online courses
+## DataCamp
 
-(_Do you have a course you'd like to see listed here? Please submit a [pull request](https://github.com/tidyverse/tidyverse.org/edit/master/content/learn.md)!_)
+DataCamp is an excellent way to improve your R skills, including the tidyverse. Take a look at [all tidyverse courses](https://www.datacamp.com/tidyverse-tutorials?tap_a=5644-dce66f&tap_s=213362-c9f98c) or see selected favourites below:
 
-* [Writing functions in R](https://www.datacamp.com/courses/writing-functions-in-r/)
+* [Writing functions in R](https://www.datacamp.com/courses/writing-functions-in-r?tap_a=5644-dce66f&tap_s=213362-c9f98c)
   by Hadley and Charlotte Wickham, hosted on DataCamp. This course will teach you the fundamentals 
   of writing functions in R so that, among other things, you can make your code 
   more readable, avoid coding errors, and automate repetitive tasks.
 
-* [Introduction to the tidyverse](https://www.datacamp.com/courses/introduction-to-the-tidyverse) by David Robinson, hosted on DataCamp. This is an introduction to the dplyr and ggplot2 packages through exploration and visualization of country data over time. This is a suitable course for people who have no or limited experience in R and are interested in learning to perform data analysis.
+* [Introduction to the tidyverse](https://www.datacamp.com/courses/introduction-to-the-tidyverse?tap_a=5644-dce66f&tap_s=213362-c9f98c) by David Robinson, hosted on DataCamp. This is an introduction to the dplyr and ggplot2 packages through exploration and visualization of country data over time. This is a suitable course for people who have no or limited experience in R and are interested in learning to perform data analysis.
 
-* [Data visualisation with ggplot2](https://www.datacamp.com/courses/data-visualization-with-ggplot2-1) by
-  Rick Scavetta, hosted on DataCamp. Covers the basics of ggplot2. Followed by [part 2](https://www.datacamp.com/courses/data-visualization-with-ggplot2-2)
+* [Data visualisation with ggplot2](https://www.datacamp.com/courses/data-visualization-with-ggplot2-1?tap_a=5644-dce66f&tap_s=213362-c9f98c) by
+  Rick Scavetta, hosted on DataCamp. Covers the basics of ggplot2. Followed by [part 2](https://www.datacamp.com/courses/data-visualization-with-ggplot2-2?tap_a=5644-dce66f&tap_s=213362-c9f98c)
   which covers more advanced topics.
 
-* [Exploratory data analysis in R: case study](https://www.datacamp.com/courses/exploratory-data-analysis-in-r-case-study) by David Robinson, hosted on DataCamp. This course brings ggplot2 and dplyr into action in an in-depth analysis of United Nations voting data. The course also introduces broom for tidying model output and the tidyr package for wrangling data into an explorable shape.
+* [Exploratory data analysis in R: case study](https://www.datacamp.com/courses/exploratory-data-analysis-in-r-case-study?tap_a=5644-dce66f&tap_s=213362-c9f98c) by David Robinson, hosted on DataCamp. This course brings ggplot2 and dplyr into action in an in-depth analysis of United Nations voting data. The course also introduces broom for tidying model output and the tidyr package for wrangling data into an explorable shape.
 
 ## Workshops
-
-(_Do you have a course you'd like to see listed here? Please submit a [pull request](https://github.com/tidyverse/tidyverse.org/edit/master/content/learn.md)!_)
 
   * [Mastering the Tidyverse](https://www.jumpingrivers.com/courses/22_r-tidyverse) by Jumping Rivers. A one day crash course covering tidyverse fundamentals. The course is a mixture of lectures, short exercises and longer tutorial questions. During the day, we'll cover dplyr, tidy data, tibbles, dates/times and string manipulation.
 
 ## University courses
-
-(_Do you have a course you'd like to see listed here? Please submit a [pull request](https://github.com/tidyverse/tidyverse.org/edit/master/content/learn.md)!_)
 
 ### 2017
 
