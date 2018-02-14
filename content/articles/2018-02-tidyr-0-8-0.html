@@ -15,10 +15,10 @@ photo:
 
 <p>We are pleased to announce that tidyr 0.8.0 is now available on CRAN. tidyr makes it easy to “tidy” your data, storing it in a consistent form so that it’s easy to manipulate, visualise and model. Tidy data has a simple convention: put variables in the columns and observations in the rows. You can learn more about it in the <a href="http://tidyr.tidyverse.org/articles/tidy-data.html">tidy data vignette</a>. Install it with:</p>
 <pre class="r"><code>install.packages(&quot;tidyr&quot;)</code></pre>
-<p>This release mainly contains a bumper crop of small bug fixes and minor improvements, and a considerably increase in test coverage (84% to 99%). For the full details, see the <a href="https://github.com/tidyverse/tidyr/releases/tag/v0.8.0">release notes</a>. Here we’ll highlight an important bug fix that might change existing code, and one new feature you might like to try out.</p>
+<p>This release mainly contains a bumper crop of small bug fixes and minor improvements, and a considerably increase in test coverage (84% to 99%). For the full details, see the <a href="https://github.com/tidyverse/tidyr/releases/tag/v0.8.0">release notes</a>. Here we’ll highlight an important bug fix that might change existing code, and one new feature to try out.</p>
 <div id="api-changes" class="section level2">
 <h2>API changes</h2>
-<p>There was a bug in <code>separate()</code> where negative values had an off by one error. Now -1 correctly refers to the first position between characters counting from the right hand side.</p>
+<p>There was a bug in <code>separate()</code> where negative values had an off-by-one error. Now -1 correctly refers to the first position between characters counting from the right hand side.</p>
 <pre class="r"><code>df &lt;- tibble(x = c(&quot;male1&quot;, &quot;female2&quot;, &quot;male2&quot;))
 df %&gt;% separate(x, c(&quot;gender&quot;, &quot;number&quot;), -1)
 #&gt; # A tibble: 3 x 2
@@ -30,7 +30,7 @@ df %&gt;% separate(x, c(&quot;gender&quot;, &quot;number&quot;), -1)
 </div>
 <div id="new-features" class="section level2">
 <h2>New features</h2>
-<p>Thanks to the suggestion of <a href="https://andrewpbray.github.io">Andrew Bray</a>, tidyr can now “uncount” a data frame, duplicating aggregate rows</p>
+<p>Thanks to the suggestion of <a href="https://andrewpbray.github.io">Andrew Bray</a>, tidyr can now “uncount” a data frame, duplicating aggregate rows:</p>
 <pre class="r"><code>df &lt;- tibble(x = c(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;), n = c(2, 3, 1))
 df %&gt;% uncount(n)
 #&gt; # A tibble: 6 x 1
@@ -42,7 +42,7 @@ df %&gt;% uncount(n)
 #&gt; 4 b    
 #&gt; 5 b    
 #&gt; 6 c</code></pre>
-<p>You can use the <code>.id</code> argument if you want to add a unique identifer to each row:</p>
+<p>If you want a unique identifier for each row, use the <code>.id</code> argument:</p>
 <pre class="r"><code>df %&gt;% uncount(n, .id = &quot;id&quot;)
 #&gt; # A tibble: 6 x 2
 #&gt;   x        id
