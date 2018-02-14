@@ -1,0 +1,54 @@
+---
+title: tidyr 0.8.0
+author: Hadley Wickham
+date: '2018-02-13'
+slug: tidyr-0-8-0
+categories:
+  - package
+tags: []
+photo:
+  url: https://unsplash.com/photos/byXFt2LwVac
+  author: Samuel Zeller
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(tidyr)
+library(tibble)
+```
+
+We are pleased to announce that tidyr 0.8.0 is now available on CRAN. tidyr makes it easy to “tidy” your data, storing it in a consistent form so that it’s easy to manipulate, visualise and model. Tidy data has a simple convention: put variables in the columns and observations in the rows. You can learn more about it in the [tidy data vignette](http://tidyr.tidyverse.org/articles/tidy-data.html). Install it with:
+
+```{r, eval = FALSE}
+install.packages("tidyr")
+```
+
+This release mainly contains a bumper crop of small bug fixes and minor improvements, and a considerably increase in test coverage (84% to 99%). For the full details, see the [release notes](https://github.com/tidyverse/tidyr/releases/tag/v0.8.0). Here we'll highlight an important bug fix that might change existing code, and one new feature to try out.
+
+## API changes
+
+There was a bug in `separate()` where negative values had an off-by-one error. Now -1 correctly refers to the first position between characters counting from the right hand side.
+
+```{r}
+df <- tibble(x = c("male1", "female2", "male2"))
+df %>% separate(x, c("gender", "number"), -1)
+```
+
+## New features
+
+Thanks to the suggestion of [Andrew Bray](https://andrewpbray.github.io), tidyr can now "uncount" a data frame, duplicating aggregate rows:
+
+```{r}
+df <- tibble(x = c("a", "b", "c"), n = c(2, 3, 1))
+df %>% uncount(n)
+```
+
+If you want a unique identifier for each row, use the `.id` argument:
+
+```{r}
+df %>% uncount(n, .id = "id")
+```
+
+## Acknowledgements
+
+A big thanks goes out to all 90 users who contributed issues, pull requests, and comments since the last release: [\@aaronwolen](https://github.com/aaronwolen), [\@adeldaoud](https://github.com/adeldaoud), [\@amarchin](https://github.com/amarchin), [\@AndreMikulec](https://github.com/AndreMikulec), [\@andrewhn](https://github.com/andrewhn), [\@andrewpbray](https://github.com/andrewpbray), [\@antoine-sachet](https://github.com/antoine-sachet), [\@aosmith16](https://github.com/aosmith16), [\@Ax3man](https://github.com/Ax3man), [\@batpigandme](https://github.com/batpigandme), [\@bheavner](https://github.com/bheavner), [\@billdenney](https://github.com/billdenney), [\@burchill](https://github.com/burchill), [\@carlganz](https://github.com/carlganz), [\@casras111](https://github.com/casras111), [\@cb4ds](https://github.com/cb4ds), [\@chris-park](https://github.com/chris-park), [\@colearendt](https://github.com/colearendt), [\@cpsievert](https://github.com/cpsievert), [\@cswarth](https://github.com/cswarth), [\@cviner](https://github.com/cviner), [\@dscarlat](https://github.com/dscarlat), [\@echasnovski](https://github.com/echasnovski), [\@eibanez](https://github.com/eibanez), [\@feuerbach](https://github.com/feuerbach), [\@flying-sheep](https://github.com/flying-sheep), [\@GegznaV](https://github.com/GegznaV), [\@geotheory](https://github.com/geotheory), [\@ggrothendieck](https://github.com/ggrothendieck), [\@gireeshkbogu](https://github.com/gireeshkbogu), [\@gregmacfarlane](https://github.com/gregmacfarlane), [\@hadley](https://github.com/hadley), [\@halpo](https://github.com/halpo), [\@holgerbrandl](https://github.com/holgerbrandl), [\@huftis](https://github.com/huftis), [\@Hydr0Ge0Dude](https://github.com/Hydr0Ge0Dude), [\@instantkaffee](https://github.com/instantkaffee), [\@jarodmeng](https://github.com/jarodmeng), [\@jebyrnes](https://github.com/jebyrnes), [\@jennybc](https://github.com/jennybc), [\@jerryfuyu0104](https://github.com/jerryfuyu0104), [\@JerryWho](https://github.com/JerryWho), [\@jgellar](https://github.com/jgellar), [\@JoFrhwld](https://github.com/JoFrhwld), [\@jstitlow](https://github.com/jstitlow), [\@junoslukan](https://github.com/junoslukan), [\@jzadra](https://github.com/jzadra), [\@karldw](https://github.com/karldw), [\@kendonB](https://github.com/kendonB), [\@krlmlr](https://github.com/krlmlr), [\@l-d-s](https://github.com/l-d-s), [\@leungi](https://github.com/leungi), [\@lorenzwalthert](https://github.com/lorenzwalthert), [\@luke-a](https://github.com/luke-a), [\@MarcusWalz](https://github.com/MarcusWalz), [\@markdly](https://github.com/markdly), [\@mattmills49](https://github.com/mattmills49), [\@maurolepore](https://github.com/maurolepore), [\@MaximeWack](https://github.com/MaximeWack), [\@meow9th](https://github.com/meow9th), [\@mgirlich](https://github.com/mgirlich), [\@mmuurr](https://github.com/mmuurr), [\@Monduiz](https://github.com/Monduiz), [\@naveennjs](https://github.com/naveennjs), [\@ngr-t](https://github.com/ngr-t), [\@njtierney](https://github.com/njtierney), [\@npjc](https://github.com/npjc), [\@paulponcet](https://github.com/paulponcet), [\@petereckley](https://github.com/petereckley), [\@pgensler](https://github.com/pgensler), [\@pietermarsman](https://github.com/pietermarsman), [\@PMassicotte](https://github.com/PMassicotte), [\@ripkrizbi](https://github.com/ripkrizbi), [\@sfirke](https://github.com/sfirke), [\@slygent](https://github.com/slygent), [\@stefvanbuuren](https://github.com/stefvanbuuren), [\@t-kalinowski](https://github.com/t-kalinowski), [\@tbradley1013](https://github.com/tbradley1013), [\@tcovert](https://github.com/tcovert), [\@tentacles-from-outer-space](https://github.com/tentacles-from-outer-space), [\@thays42](https://github.com/thays42), [\@tiagowright](https://github.com/tiagowright), [\@tiernanmartin](https://github.com/tiernanmartin), [\@tshynik](https://github.com/tshynik), [\@urskalbitzer](https://github.com/urskalbitzer), [\@voxnonecho](https://github.com/voxnonecho), [\@wibeasley](https://github.com/wibeasley), [\@yutannihilation](https://github.com/yutannihilation), [\@zelite](https://github.com/zelite), and [\@zhukunism](https://github.com/zhukunism).
