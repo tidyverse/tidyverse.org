@@ -20,24 +20,18 @@ see the <a href="https://github.com/tidyverse/stringr/releases/tag/v1.3.0">relea
 <h2>What’s new?</h2>
 <ul>
 <li><p>Two new wrappers from the <a href="http://glue.tidyverse.org/">glue</a>
-package: <code>str_glue()</code> and <code>str_glue_data()</code>.</p></li>
+package: <code>str_glue()</code> and <code>str_glue_data()</code>. If you haven’t heard of glue, you’re in for a treat! Glue lets you easily interpolate data into strings.</p>
+<pre class="r"><code>name &lt;- &quot;Chet Manley&quot;
+str_glue(&quot;My name is {name}.&quot;)
+#&gt; My name is Chet Manley.</code></pre>
+<p>Since stringr is loaded with tidyverse, this means that you can now access glue’s functionality without loading another package.</p></li>
 <li><p><code>str_flatten()</code>, a wrapper for the <code>stri_flatten()</code> function, which
-flattens a character vector into a single string.</p></li>
+flattens a character vector into a single string. This is equivalent to <code>paste(x, collapse = &quot;-&quot;)</code> but it is a bit more explicit in your code – <code>str_flatten()</code> always returns a single string.</p></li>
 <li><p><code>str_remove()</code> and <code>str_remove_all()</code>, which wrap <code>str_replace()</code> and <code>str_replace_all()</code> for removing patterns from strings.</p></li>
-<li><p><code>str_squish()</code> removes whitespace from the left and right sides of strings, and converts multiple spaces or space-like characters from the <em>middle</em> of strings into a single space.</p></li>
-</ul>
+<li><p><code>str_squish()</code>, which removes whitespace from the left and right sides of strings, and converts multiple spaces or space-like characters from the <em>middle</em> of strings into a single space.</p>
 <pre class="r"><code>str_squish(&quot;\n\nString \t\nwith all \tthis     \rspace   in it.\n\n&quot;)
-#&gt; [1] &quot;String with all this space in it.&quot;</code></pre>
-<ul>
-<li><code>str_sub()</code> now has an <code>omit_na</code> argument which can be used to ignore NAs and keep the original strings.</li>
+#&gt; [1] &quot;String with all this space in it.&quot;</code></pre></li>
 </ul>
-<pre class="r"><code>x1 &lt;- x2 &lt;- x3 &lt;- x4 &lt;- &quot;AAA&quot;
-str_sub(x1, 1, NA) &lt;- &quot;B&quot;
-str_sub(x2, 1, 2) &lt;- NA
-str_sub(x3, 1, NA, omit_na = TRUE) &lt;- &quot;B&quot;
-str_sub(x4, 1, 2, omit_na = TRUE) &lt;- NA
-c(x1, x2, x3, x4)
-#&gt; [1] NA    NA    &quot;AAA&quot; &quot;AAA&quot;</code></pre>
 </div>
 <div id="api-changes" class="section level2">
 <h2>API changes</h2>

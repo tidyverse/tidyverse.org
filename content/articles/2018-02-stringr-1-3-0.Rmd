@@ -23,29 +23,24 @@ see the [release notes](https://github.com/tidyverse/stringr/releases/tag/v1.3.0
 ## What's new?
 
 *  Two new wrappers from the [glue](http://glue.tidyverse.org/)
-package: `str_glue()` and `str_glue_data()`.
+package: `str_glue()` and `str_glue_data()`. If you haven't heard of glue, you're in for a treat! Glue lets you easily interpolate data into strings.
+
+    ```{r gluex}
+    name <- "Chet Manley"
+    str_glue("My name is {name}.")
+    ```
+    Since stringr is loaded with tidyverse, this means that you can now access glue's functionality without loading     another package.
 
 *  `str_flatten()`, a wrapper for the `stri_flatten()` function, which 
-flattens a character vector into a single string.
+flattens a character vector into a single string. This is equivalent to `paste(x, collapse = "-")` but it is a bit more explicit in your code -- `str_flatten()` always returns a single string.
 
 *  `str_remove()` and `str_remove_all()`, which wrap `str_replace()` and `str_replace_all()` for removing patterns from strings.
 
-*  `str_squish()` removes whitespace from the left and right sides of strings, and converts multiple spaces or space-like characters from the _middle_ of strings into a single space.
+*  `str_squish()`, which removes whitespace from the left and right sides of strings, and converts multiple spaces or space-like characters from the _middle_ of strings into a single space.
 
-```{r spacejam}
-str_squish("\n\nString \t\nwith all \tthis     \rspace   in it.\n\n")
-```
-
-*  `str_sub()` now has an `omit_na` argument which can be used to ignore NAs and keep the original strings.
-
-```{r strsub}
-x1 <- x2 <- x3 <- x4 <- "AAA"
-str_sub(x1, 1, NA) <- "B"
-str_sub(x2, 1, 2) <- NA
-str_sub(x3, 1, NA, omit_na = TRUE) <- "B"
-str_sub(x4, 1, 2, omit_na = TRUE) <- NA
-c(x1, x2, x3, x4)
-```
+    ```{r spacejam}
+    str_squish("\n\nString \t\nwith all \tthis     \rspace   in it.\n\n")
+    ```
 
 ## API changes
 
