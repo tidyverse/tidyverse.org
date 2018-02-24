@@ -17,16 +17,7 @@ photo:
 
 <p>We are pleased to announce that <a href="http://usethis.r-lib.org">usethis</a> 1.3.0 is now available on CRAN. usethis automates many common setup tasks for R projects, especially, but not only, for R packages. You can learn more about it at <a href="http://usethis.r-lib.org" class="uri">http://usethis.r-lib.org</a>. Install it with:</p>
 <pre class="r"><code>install.packages(&quot;usethis&quot;)</code></pre>
-<p>usethis is part of the refactoring of the <a href="https://github.com/r-lib/devtools#readme">devtools</a> package and was <a href="https://www.tidyverse.org/articles/2017/11/usethis-1.0.0/">first released in late 2017</a>, at version 1.0.0. We say a bit more about its past and future below and then highlight notable developments in this version. For the full details, see the <a href="https://github.com/r-lib/usethis/releases/tag/v1.3.0">release notes</a>.</p>
-<div id="usethis-vs.devtools" class="section level2">
-<h2>usethis vs. devtools</h2>
-<p><a href="https://github.com/r-lib/devtools#readme">devtools</a> is an R package that helps you create, develop, and install R packages. By 2017, it was clear that devtools would be easier to maintain if it was split into a few smaller and more focused packages. usethis is the first of these to be released publicly on CRAN. usethis is the home for functions related to package and project setup.</p>
-<p>devtools will continue to exist as a meta-package, exposing functionality from lower-level, domain-specific packages. In the long-run, a useR should attach devtools, via <code>library(&quot;devtools&quot;)</code>, and then call devtools functions in their daily workflow, as usual. There are two reasons you might need to know about our internal refactoring:</p>
-<ul>
-<li>The Awkward Adolescent Phase. It is impossible to choreograph the release of a suite of packages on CRAN. Therefore, there may be periods when functionality exists in, e.g., usethis, that is not yet exposed by devtools. During such times, you would access those specific functions directly through usethis. This implies you should attach devtools first and then any of its constituent packages, as they roll out. This applies to the interactive use of usethis/devtools functions in your daily workflow.</li>
-<li>Programming and Development. If you are using devtools functions programmatically, i.e. in production scripts or in another package, it is recommended to do so via the function’s primary package home and not through devtools.</li>
-</ul>
-</div>
+<p>usethis is part of the refactoring of the <a href="https://github.com/r-lib/devtools#readme">devtools</a> package, which is described more fully in this blog post (ADD LINK). usethis was first released in late 2017 at version 1.0.0 (<a href="https://www.tidyverse.org/articles/2017/11/usethis-1.0.0/">blog post</a>). Here we highlight notable developments since then. For the full details, see the <a href="https://github.com/r-lib/usethis/releases/tag/v1.3.0">release notes</a>.</p>
 <div id="website-including-setup-advice" class="section level2">
 <h2>Website, including setup advice</h2>
 <p>usethis now has a basic website, <a href="http://usethis.r-lib.org" class="uri">http://usethis.r-lib.org</a>. It includes a <a href="http://usethis.r-lib.org/articles/articles/usethis-setup.html">setup article</a>, with a “to do” list of tasks that are especially rewarding for R developers who use usethis and devtools.</p>
@@ -46,7 +37,7 @@ photo:
 <p><a href="http://usethis.r-lib.org/reference/browse_github_pat.html"><code>browse_github_pat()</code></a> takes you to a pre-filled web form to generate a GitHub personal access token (PAT). You are instructed how to store this as an environment variable, which usethis can then use downstream to, e.g., create new GitHub repositories on your behalf.</p>
 <p><a href="http://usethis.r-lib.org/reference/create_from_github.html"><code>create_from_github()</code></a> is not new, but is newly capable of both the <a href="https://help.github.com/articles/cloning-a-repository/">“clone”</a> or <a href="https://help.github.com/articles/fork-a-repo/">“fork and clone”</a> workflows, with either the https or ssh protocols. It gains optional arguments for direct provision of the PAT, Git credentials, and GitHub host. usethis can now facilitate all the major workflows:</p>
 <ul>
-<li>GitHub first, local project/repo second: <a href="http://usethis.r-lib.org/reference/create_from_github.html"><code>create_from_github()</code></a> does this, with and without forking. In the case of a fork, both the <code>origin</code> and <code>upstream</code> remotes are configured, so you are ready to stay in sync with the upstream repo.</li>
+<li>GitHub first, local project/repo last: <a href="http://usethis.r-lib.org/reference/create_from_github.html"><code>create_from_github()</code></a> does this, with and without forking. In the case of a fork, both the <code>origin</code> and <code>upstream</code> remotes are configured, so you are ready to stay in sync with the upstream repo.</li>
 <li>Local project/repo first, GitHub last: <a href="http://usethis.r-lib.org/reference/use_github.html"><code>use_github()</code></a> does this.</li>
 </ul>
 </div>
@@ -61,10 +52,10 @@ photo:
 </div>
 <div id="community-specific-conventions" class="section level2">
 <h2>Community-specific conventions</h2>
-<p>The development conventions for <a href="https://github.com/tidyverse/">tidyverse packages</a> are gradually being codified into a set of <a href="http://usethis.r-lib.org/reference/tidyverse.html"><code>use_tidy_*()</code></a> helper functions.</p>
+<p>The development conventions for <a href="https://www.tidyverse.org/packages/">tidyverse packages</a> are gradually being codified into a set of <a href="http://usethis.r-lib.org/reference/tidyverse.html"><code>use_tidy_*()</code></a> helper functions. Some of these functions are directly useful to other developers, such as <code>use_tidy_ci()</code>, whereas others draw on templates very specific to the <a href="https://github.com/tidyverse/">tidyverse organization</a>, such as <code>use_tidy_support()</code>.</p>
 <ul>
-<li><code>use_tidy_style()</code> is a new function that uses the <a href="http://styler.r-lib.org">styler package</a> to restyle code according to the <a href="http://style.tidyverse.org">tidyverse style guide</a>.</li>
-<li><code>use_tidy_github()</code> is a new function that adds several standard files, such as contribution guidelines and an issue template, to make a project <a href="https://help.github.com/articles/helping-people-contribute-to-your-project/">more transparent to outside contributors</a>.</li>
+<li><code>use_tidy_style()</code> is a new function that uses the <a href="http://styler.r-lib.org">styler package</a> to restyle code according to the <a href="http://style.tidyverse.org">tidyverse style guide</a>. It’s an example of a function that is generally useful.</li>
+<li><code>use_tidy_github()</code> is a new function that adds several standard files, such as contribution guidelines and an issue template, to make a project <a href="https://help.github.com/articles/helping-people-contribute-to-your-project/">more transparent to outside contributors</a>. These files include hyperlinks that are specific to the tidyverse, so other developers will need to edit the resulting files to reflect their reality.</li>
 </ul>
 <p>The community has contributed new <a href="http://usethis.r-lib.org/reference/badges.html">badging functions</a>, such as <code>use_bioc_badge()</code> for the build status of BioConductor packages and <code>use_binder_badge()</code> for <a href="https://mybinder.org">binder</a> projects. The tidyverse team is starting to use <code>use_lifecycle_badge()</code> to indicate the <a href="https://www.tidyverse.org/lifecycle/">developmental stage</a> of a package.</p>
 </div>
