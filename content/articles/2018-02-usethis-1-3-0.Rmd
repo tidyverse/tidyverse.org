@@ -1,0 +1,106 @@
+---
+title: usethis 1.3.0
+slug: usethis-1-3-0
+description: >
+  usethis 1.3.0 is now on CRAN.
+author: Jenny Bryan
+date: 2018-02-23
+categories:
+  - package
+tags: []
+photo:
+  url: https://pixabay.com/en/tools-vintage-woodworking-saw-1209764/
+  author: unknown
+---
+
+```{r setup, include = FALSE}
+library(usethis)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+We are pleased to announce that [usethis](http://usethis.r-lib.org) 1.3.0 is now available on CRAN. usethis automates many common setup tasks for R projects, especially, but not only, for R packages. You can learn more about it at <http://usethis.r-lib.org>. Install it with:
+
+```{r, eval = FALSE}
+install.packages("usethis")
+```
+
+usethis is part of the refactoring of the [devtools](https://github.com/r-lib/devtools#readme) package and was [first released in late 2017](https://www.tidyverse.org/articles/2017/11/usethis-1.0.0/), at version 1.0.0. We say a bit more about its past and future below and then highlight notable developments in this version. For the full details, see the [release notes](https://github.com/r-lib/usethis/releases/tag/v1.3.0).
+
+## usethis vs. devtools
+
+[devtools](https://github.com/r-lib/devtools#readme) is an R package that helps you create, develop, and install R packages. By 2017, it was clear that devtools would be easier to maintain if it was split into a few smaller and more focused packages. usethis is the first of these to be released publicly on CRAN. usethis is the home for functions related to package and project setup.
+
+devtools will continue to exist as a meta-package, exposing functionality from lower-level, domain-specific packages. In the long-run, a useR should attach devtools, via `library("devtools")`, and then call devtools functions in their daily workflow, as usual. There are two reasons you might need to know about our internal refactoring:
+
+  * The Awkward Adolescent Phase. It is impossible to choreograph the release of a suite of packages on CRAN. Therefore, there may be periods when functionality exists in, e.g., usethis, that is not yet exposed by devtools. During such times, you would access those specific functions directly through usethis. This implies you should attach devtools first and then any of its constituent packages, as they roll out. This applies to the interactive use of usethis/devtools functions in your daily workflow.
+  * Programming and Development. If you are using devtools functions programmatically, i.e. in production scripts or in another package, it is recommended to do so via the function's primary package home and not through devtools.
+
+## Website, including setup advice
+
+usethis now has a basic website, <http://usethis.r-lib.org>. It includes a [setup article](http://usethis.r-lib.org/articles/articles/usethis-setup.html), with a "to do"  list of tasks that are especially rewarding for R developers who use usethis and devtools.
+
+In particular, usethis can help with the Git and GitHub side of your R projects, if you do the necessary software installation and configuration. usethis even offers several functions to help with this: [configuration functions](http://usethis.r-lib.org/reference/index.html#section-configuration).
+
+## Git and GitHub
+
+usethis has gained new functions to help with Git/GitHub and some existing functions are now more powerful.
+
+[`use_git_config()`](http://usethis.r-lib.org/reference/use_git_config.html) allows you to set (or view) `user.name` and `user.email` from within R, at either the user or project level (global or local, in Git-speak).
+
+``` r
+use_git_config(user.name = "Jane Doe", user.email = "jane@example.com")
+#> ✔ Writing to user git config file
+#> $user.name
+#> [1] "Jane Doe"
+#> 
+#> $user.email
+#> [1] "jane@example.com"
+```
+
+[`browse_github_pat()`](http://usethis.r-lib.org/reference/browse_github_pat.html) takes you to a pre-filled web form to generate a GitHub personal access token (PAT). You are instructed how to store this as an environment variable, which usethis can then use downstream to, e.g., create new GitHub repositories on your behalf.
+
+[`create_from_github()`](http://usethis.r-lib.org/reference/create_from_github.html) is not new, but is newly capable of both the ["clone"](https://help.github.com/articles/cloning-a-repository/) or ["fork and clone"](https://help.github.com/articles/fork-a-repo/) workflows, with either the https or ssh protocols. It gains optional arguments for direct provision of the PAT, Git credentials, and GitHub host. usethis can now facilitate all the major workflows:
+
+  * GitHub first, local project/repo second: [`create_from_github()`](http://usethis.r-lib.org/reference/create_from_github.html) does this, with and without forking. In the case of a fork, both the `origin` and `upstream` remotes are configured, so you are ready to stay in sync with the upstream repo.
+  * Local project/repo first, GitHub last: [`use_github()`](http://usethis.r-lib.org/reference/use_github.html) does this.
+
+## Distribution of course materials
+
+Many courses and workshops kick-off with the participants downloading a set of files from the instructor, such as slides or code examples. We have found this to be a reliable source of aggravation, due to the diversity of the learners' file system knowledge and habits. You cannot assume that everyone will quickly download an entire set of files, and only those files, to a well-named folder, that they can find in their file browser. [`use_course()`](http://usethis.r-lib.org/reference/use_course.html) is a targeted solution to this problem, when time is of the essence.
+
+[`use_course()`](http://usethis.r-lib.org/reference/use_course.html) accepts a link and interactively obtains user's permission to download a ZIP archive and unpack it to a deliberately named folder on user's desktop. If an RStudio Project file is found, the new Project is launched and, otherwise, the folder is opened in the file manager, e.g. Finder or File Explorer.
+
+Here's an example where the bit.ly shortlink points to the usethis source on GitHub.
+
+``` r
+usethis::use_course("bit.ly/usethis-shortlink-example")
+#> ✔ Downloading ZIP file to '/Users/jenny/Desktop/r-lib-usethis-v1.2.0-93-g7d1c255.zip'
+#> ✔ Unpacking ZIP file into '/Users/jenny/Desktop/r-lib-usethis-7d1c255/' (272 files extracted)
+```
+
+## Community-specific conventions
+
+The development conventions for [tidyverse packages](https://github.com/tidyverse/) are gradually being codified into a set of [`use_tidy_*()`](http://usethis.r-lib.org/reference/tidyverse.html) helper functions.
+
+   * `use_tidy_style()` is a new function that uses the [styler package](http://styler.r-lib.org) to restyle code according to the [tidyverse style guide](http://style.tidyverse.org).
+   * `use_tidy_github()` is a new function that adds several standard files, such as contribution guidelines and an issue template, to make a project [more transparent to outside contributors](https://help.github.com/articles/helping-people-contribute-to-your-project/).
+
+The community has contributed new [badging functions](http://usethis.r-lib.org/reference/badges.html), such as `use_bioc_badge()` for the build status of BioConductor packages and `use_binder_badge()` for [binder](https://mybinder.org) projects. The tidyverse team is starting to use `use_lifecycle_badge()` to indicate the [developmental stage](https://www.tidyverse.org/lifecycle/) of a package.
+
+## Acknowledgements
+
+A big thanks goes out to all XX users who contributed issues, pull requests, and comments since the last release: *still need to add the explicit acknowledgements and run the script*
+
+```{r, include = FALSE, eval = FALSE}
+library(magick)
+img <- image_read("content/articles/tools-1209764_1920.jpg")
+img %>% 
+  image_crop("1280x1280+300+0") %>% 
+  image_scale("300x300") %>% 
+  image_write("content/articles/usethis-1-3-0-sq.jpg")
+img %>% 
+  image_crop("1920x384+0+600") %>% 
+  image_scale("1000x200") %>% 
+  image_write("content/articles/usethis-1-3-0-wd.jpg")
+```
+
