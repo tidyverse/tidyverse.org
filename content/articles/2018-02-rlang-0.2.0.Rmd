@@ -61,3 +61,125 @@ expr((!!a)(bar, baz))
 op <- sym(">")
 expr((!!op)(bar, baz))
 ```
+
+
+### A new print method for quosures
+
+When R code is printed at the console (be it a function, an
+expression, a formula or a quosure), R runs the function `deparse()`
+to transform the code to a printable string. The deparsing mechanism
+in base R is not optimal for tidy eval:
+
+  - It adds redundant parentheses between the `!` of `!!`:
+
+    ```{r}
+    quote(!!x)
+    ```
+
+  - The way it prints inlined vectors is ambiguous. R expressions can
+    contain actual data structures not just symbolic code. It is
+    especially easy to inline vectors and other objects with
+    quasiquotation:
+
+    ```{r}
+    expr(mean(!!c(1, 2, 3)))
+    ```
+
+    Note how the output above is indistinguishable from the following
+    output:
+
+    ```{r}
+    expr(mean(c(1, 2, 3)))
+    ```
+
+    In both cases, the R printer outputs the code that creates the
+    vector, even if the vector is already created as in the first
+    case!
+
+  - Quosures are currently implemented as formulas but that's an
+    implementation detail. Quosures and formulas behave differently
+    and it is misleading to have them print as formulas:
+
+    ```{r}
+    expr(mean(!!quo(c(1, 2, 3))))
+    ```
+
+    Furthermore, it would be nice to have a way to distinguish
+    quosures coming from different contexts.
+
+To solve these problems, rlang now features `expr_print()` powered by
+`expr_deparse()`. These functions are now used in the print method of
+quosures and solve all the problems nicely:
+
+  - Inlined vectors are represented with angular brackets and are
+    abbreviated to avoid taking too much space:
+
+    ```{r}
+    quo(list(code = 1:10, data = !!(1:10)))
+    ```
+
+    S3 objects are printed based on the extensible
+    `pillar::type_sum()` generic:
+
+    ```{r}
+    quo(lm(!!(disp ~ cyl), data = !!mtcars))
+    ```
+
+  - As you can see in the output above quosures are now displayed with
+    a leading `^` instead of a tilde in order to distinguish them from
+    formulas. In addition, they are now colourised according to their
+    environments. Quosures from the global environment are always
+    printed with the default colour. Quosures from local environments
+    are printed with a unique colour. To illustrate this, let's create
+    two quosures referring to `x`, where `x` represents a different
+    object:
+
+    ```{r}
+    make_quo <- function(x) {
+      quo(x)
+    }
+
+    q1 <- make_quo("foo")
+    q2 <- make_quo("bar")
+    q3 <- quo(list(!!q1, !!q2))
+
+    q3
+    ```
+
+    Since this blog doesn't support colourised output yet you can see
+    how the quosure we have just created is confusing. `q3` contains
+    two nested quosures that point to objects called `x`. While they
+    have the same names these objects come from different contexts,
+    the contexts that were created each time we called
+    `make_quo()`. Let's evaluate `q3` to verify this:
+
+    ```{r}
+    eval_tidy(q3)
+    ```
+
+    If you run this code and print `q3` in your console, you should
+    see both nested quosures `^x` printed in their own colour to
+    reflect that they come from different contexts.
+
+Note that if you are ever confused by how a quosure prints out
+(perhaps because of those intervening `^` symbols), you can use the
+new function `quo_squash()` to get rid of all the nested quosures and
+print a naked version:
+
+```{r}
+quo_squash(q3)
+```
+
+Finally, raw expressions created by `expr()` are still printed with
+the base R deparser. If you would like to debug tidy eval code and
+inspect the result of quasiquotation, use the new `qq_show()` function
+to display a raw expression with the new printer:
+
+```{r}
+my_wrapper <- function(data, expr) {
+  expr <- enquo(expr)
+  qq_show(data %>% mutate(mean(!!expr)))
+}
+
+my_wrapper(mtcars, cyl)
+```
