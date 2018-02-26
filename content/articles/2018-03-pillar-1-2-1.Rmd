@@ -19,8 +19,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 colourise_chunk <- function(type) {
   function(x, options) {
-    sprintf('<div class = "%s"><pre class="knitr %s">%s</pre></div>\n',
-      type,
+    sprintf('<pre class="knitr %s">%s</pre>\n',
       tolower(options$engine),
       ansistrings::ansi_to_html(x, fullpage = FALSE)
     )
@@ -28,10 +27,13 @@ colourise_chunk <- function(type) {
 }
 
 knitr::knit_hooks$set(
+  output = colourise_chunk("output"),
   message = colourise_chunk("message"),
   warning = colourise_chunk("warning"),
   error = colourise_chunk("error")
 )
+
+options(crayon.enabled = TRUE)
 ```
 
 We’re excited to present version 1.2.1 of the *pillar* package, the package that is responsible for printing [tibbles](http://tibble.tidyverse.org/) to the terminal.  This small release addresses feedback concerning the output of tibbles.  In particular, groups of three digits are now highlighted to give a better idea about the order of magnitude of decimal numbers.  In addition, a few minor bugs were fixed, such as the output for S3 classes extending `numeric` (like durations from *lubridate*) and the output very small numbers.
@@ -48,7 +50,7 @@ In response to use feedback, the following changes were made to the output:
 - Groups of three digits are now underlined, starting with the fourth before/after the decimal point. This gives a better idea of the order of magnitude of the numbers.
 
 ```{r feedback}
-x <- -123456789 * (10 ^ c(-2, -5, NA, -8, -10))
+x <- -123456789 * (10 ^ c(-2, -5, -6, NA, -8, -10)) * c(-1, 1)
 x
 library(pillar)
 pillar(x)
