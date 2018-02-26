@@ -14,12 +14,18 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library("rlang")
 ```
 
-The r-lib team is happy to announce a new version of rlang that
-features many improvements to tidy evaluation. Many bugs have been
-fixed, the performance of quoting, splicing and quosure evaluation was
-vastly improved, the quirks in the quasiquotation syntax have been
-solved, and quosures gained a much improved printing method with
-colour support.
+We are happy to announce a new version of rlang that features many
+improvements to tidy evaluation:
+
+* The quirks in the quasiquotation syntax have been solved.
+
+* Quosures gained a much improved printing method with colour support.
+
+* The performance of quoting, splicing and quosure evaluation was
+  vastly improved.
+
+* Many bugs have been fixed.
+
 
 Install the latest version of rlang with:
 
@@ -40,7 +46,7 @@ operator. The major downside of this approach was that our `!!`
 operator inherited from the operation precedence of `!`, which is very
 low. As a result `!!a + b` was interpreted by R as `!!(a + b)` rather
 than `(!!a) + b`. To work around this, tidy eval users had to add
-explicit parentheses.
+explicit parentheses, which was often confusing.
 
 Happily this is no longer necessary. We now reprocess the whole syntax
 tree to give `!!` a more natural operation precedence, i.e. that of
