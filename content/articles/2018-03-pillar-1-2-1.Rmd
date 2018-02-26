@@ -1,0 +1,94 @@
+---
+title: pillar 1.2.1
+slug: pillar-1-2-1
+description: >
+    pillar 1.2.1 is on CRAN now, a minor update that tweaks the output of
+    tibbles again.
+date: 2018-01-24
+author: Kirill Müller, Hadley Wickham
+photo:
+  url: https://unsplash.com/photos/ZMRMFULofus
+  author: Joel Filipe
+categories: [package]
+---
+
+
+```{r setup, include = FALSE}
+library(tibble)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+
+colourise_chunk <- function(type) {
+  function(x, options) {
+    sprintf('<div class = "%s"><pre class="knitr %s">%s</pre></div>\n',
+      type,
+      tolower(options$engine),
+      ansistrings::ansi_to_html(x, fullpage = FALSE)
+    )
+  }
+}
+
+knitr::knit_hooks$set(
+  message = colourise_chunk("message"),
+  warning = colourise_chunk("warning"),
+  error = colourise_chunk("error")
+)
+```
+
+We’re excited to present version 1.2.1 of the *pillar* package, the package that is responsible for printing [tibbles](http://tibble.tidyverse.org/) to the terminal.  This small release addresses feedback concerning the output of tibbles.  In particular, groups of three digits are now highlighted to give a better idea about the order of magnitude of decimal numbers.  In addition, a few minor bugs were fixed, such as the output for S3 classes extending `numeric` (like durations from *lubridate*) and the output very small numbers.
+
+Please see the [release notes](https://github.com/r-lib/pillar/releases/v1.2.1) for the full list of improvements and bug fixes.  Use the [*tibble* issue tracker](https://github.com/tidyverse/tibble/issues) to submit bugs or suggest ideas for the output of tibbles, your contributions are always welcome.  You can also use the [*pillar* issue tracker](https://github.com/r-lib/pillar/issues) if you are developing a package that uses *pillar* and if your [reprex](http://reprex.tidyverse.org/) only uses the *pillar* package.
+
+
+## Improved output
+
+In response to use feedback, the following changes were made to the output:
+
+- Previous versions of *pillar* showed all but the three "significant" digits in a subtle color.  This highlights the wrong digits in some common use cases and is now turned off by default.  
+- The negation sign is printed next to the number again.  Aligning all negation signs turned out to be confusing in some cases.
+- Groups of three digits are now underlined, starting with the fourth before/after the decimal point. This gives a better idea of the order of magnitude of the numbers.
+
+```{r feedback}
+x <- -123456789 * (10 ^ c(-2, -5, NA, -8, -10))
+x
+library(pillar)
+pillar(x)
+```
+
+- Scientific notation uses regular digits again for exponents, to improve legibility and because in some common fonts the superscript digits aren't aligned correctly.
+
+```{r feedback-sci}
+pillar(x, width = 6)
+```
+
+To avoid confusion, the decimal dot is now always printed for numbers of type `numeric`, but trailing zeros are no longer shown if all displayed numbers are whole numbers. Compare the following outputs:
+
+```{r decimal-dot}
+y <- c(1, 3, 5)
+pillar(y)
+pillar(y + 0.00000001)
+```
+
+
+## Bug fixes
+
+Are you a *lubridate* user? Durations and other objects are displayed again:
+
+```{r lubridate}
+pillar(lubridate::as.duration(1:3))
+```
+
+(This also works for other data types that extend `numeric` but don't implement a `pillar_shaft()` method. See the ["Extending tibble" vignette](http://tibble.tidyverse.org/articles/extending.html) for details on providing better support for printing your data type in a tibble.)
+
+Very small numbers are now printed correctly.
+
+```{r small}
+x <- c(1e-310, 1e-320, 1e-330)
+x
+pillar(x)
+```
+
+
+## Acknowledgments
+
+We'd like to use the opportunity to thank all contributors to *pillar* since its inception. Thanks to everyone, your feedback is very valuable to us: 
+[\@adsaxon](https://github.com/adsaxon), [\@benmarwick](https://github.com/benmarwick), [\@brodieG](https://github.com/brodieG), [\@cboettig](https://github.com/cboettig), [\@DavisVaughan](https://github.com/DavisVaughan), [\@dpeterson71](https://github.com/dpeterson71), [\@echasnovski](https://github.com/echasnovski), [\@edzer](https://github.com/edzer), [\@ijlyttle](https://github.com/ijlyttle), [\@jennybc](https://github.com/jennybc), [\@leondutoit](https://github.com/leondutoit), [\@lionel-](https://github.com/lionel-), [\@martinjhnhadley](https://github.com/martinjhnhadley), [\@PMassicotte](https://github.com/PMassicotte), [\@randomgambit](https://github.com/randomgambit), [\@rkahne](https://github.com/rkahne), [\@strengejacke](https://github.com/strengejacke), [\@tmelconian](https://github.com/tmelconian), and [\@wibeasley](https://github.com/wibeasley).

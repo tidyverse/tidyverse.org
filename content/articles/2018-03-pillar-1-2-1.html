@@ -1,0 +1,84 @@
+---
+title: pillar 1.2.1
+slug: pillar-1-2-1
+description: >
+    pillar 1.2.1 is on CRAN now, a minor update that tweaks the output of
+    tibbles again.
+date: 2018-01-24
+author: Kirill Müller, Hadley Wickham
+photo:
+  url: https://unsplash.com/photos/ZMRMFULofus
+  author: Joel Filipe
+categories: [package]
+---
+
+
+
+<p>We’re excited to present version 1.2.1 of the <em>pillar</em> package, the package that is responsible for printing <a href="http://tibble.tidyverse.org/">tibbles</a> to the terminal. This small release addresses feedback concerning the output of tibbles. In particular, groups of three digits are now highlighted to give a better idea about the order of magnitude of decimal numbers. In addition, a few minor bugs were fixed, such as the output for S3 classes extending <code>numeric</code> (like durations from <em>lubridate</em>) and the output very small numbers.</p>
+<p>Please see the <a href="https://github.com/r-lib/pillar/releases/v1.2.1">release notes</a> for the full list of improvements and bug fixes. Use the <a href="https://github.com/tidyverse/tibble/issues"><em>tibble</em> issue tracker</a> to submit bugs or suggest ideas for the output of tibbles, your contributions are always welcome. You can also use the <a href="https://github.com/r-lib/pillar/issues"><em>pillar</em> issue tracker</a> if you are developing a package that uses <em>pillar</em> and if your <a href="http://reprex.tidyverse.org/">reprex</a> only uses the <em>pillar</em> package.</p>
+<div id="improved-output" class="section level2">
+<h2>Improved output</h2>
+<p>In response to use feedback, the following changes were made to the output:</p>
+<ul>
+<li>Previous versions of <em>pillar</em> showed all but the three “significant” digits in a subtle color. This highlights the wrong digits in some common use cases and is now turned off by default.<br />
+</li>
+<li>The negation sign is printed next to the number again. Aligning all negation signs turned out to be confusing in some cases.</li>
+<li>Groups of three digits are now underlined, starting with the fourth before/after the decimal point. This gives a better idea of the order of magnitude of the numbers.</li>
+</ul>
+<pre class="r"><code>x &lt;- -123456789 * (10 ^ c(-2, -5, NA, -8, -10))
+x
+#&gt; [1] -1.234568e+06 -1.234568e+03            NA -1.234568e+00 -1.234568e-02
+library(pillar)
+pillar(x)
+#&gt;         &lt;dbl&gt;
+#&gt; -1234568.    
+#&gt;    -1235.    
+#&gt;       NA     
+#&gt;       -1.23  
+#&gt;       -0.0123</code></pre>
+<ul>
+<li>Scientific notation uses regular digits again for exponents, to improve legibility and because in some common fonts the superscript digits aren’t aligned correctly.</li>
+</ul>
+<pre class="r"><code>pillar(x, width = 6)
+#&gt;     &lt;dbl&gt;
+#&gt;  -1.23e+6
+#&gt;  -1.23e+3
+#&gt;  NA      
+#&gt;  -1.23e+0
+#&gt;  -1.23e-2</code></pre>
+<p>To avoid confusion, the decimal dot is now always printed for numbers of type <code>numeric</code>, but trailing zeros are no longer shown if all displayed numbers are whole numbers. Compare the following outputs:</p>
+<pre class="r"><code>y &lt;- c(1, 3, 5)
+pillar(y)
+#&gt; &lt;dbl&gt;
+#&gt;    1.
+#&gt;    3.
+#&gt;    5.
+pillar(y + 0.00000001)
+#&gt; &lt;dbl&gt;
+#&gt;  1.00
+#&gt;  3.00
+#&gt;  5.00</code></pre>
+</div>
+<div id="bug-fixes" class="section level2">
+<h2>Bug fixes</h2>
+<p>Are you a <em>lubridate</em> user? Durations and other objects are displayed again:</p>
+<pre class="r"><code>pillar(lubridate::as.duration(1:3))
+#&gt; &lt;S4: Duration&gt;
+#&gt; 1s            
+#&gt; 2s            
+#&gt; 3s</code></pre>
+<p>(This also works for other data types that extend <code>numeric</code> but don’t implement a <code>pillar_shaft()</code> method. See the <a href="http://tibble.tidyverse.org/articles/extending.html">“Extending tibble” vignette</a> for details on providing better support for printing your data type in a tibble.)</p>
+<p>Very small numbers are now printed correctly.</p>
+<pre class="r"><code>x &lt;- c(1e-310, 1e-320, 1e-330)
+x
+#&gt; [1] 1.000000e-310 9.999889e-321  0.000000e+00
+pillar(x)
+#&gt;      &lt;dbl&gt;
+#&gt;  1.00e-310
+#&gt; 10.00e-321
+#&gt;  0.</code></pre>
+</div>
+<div id="acknowledgments" class="section level2">
+<h2>Acknowledgments</h2>
+<p>We’d like to use the opportunity to thank all contributors to <em>pillar</em> since its inception. Thanks to everyone, your feedback is very valuable to us: <a href="https://github.com/adsaxon">@adsaxon</a>, <a href="https://github.com/benmarwick">@benmarwick</a>, <a href="https://github.com/brodieG">@brodieG</a>, <a href="https://github.com/cboettig">@cboettig</a>, <a href="https://github.com/DavisVaughan">@DavisVaughan</a>, <a href="https://github.com/dpeterson71">@dpeterson71</a>, <a href="https://github.com/echasnovski">@echasnovski</a>, <a href="https://github.com/edzer">@edzer</a>, <a href="https://github.com/ijlyttle">@ijlyttle</a>, <a href="https://github.com/jennybc">@jennybc</a>, <a href="https://github.com/leondutoit">@leondutoit</a>, <a href="https://github.com/lionel-">@lionel-</a>, <a href="https://github.com/martinjhnhadley">@martinjhnhadley</a>, <a href="https://github.com/PMassicotte">@PMassicotte</a>, <a href="https://github.com/randomgambit">@randomgambit</a>, <a href="https://github.com/rkahne">@rkahne</a>, <a href="https://github.com/strengejacke">@strengejacke</a>, <a href="https://github.com/tmelconian">@tmelconian</a>, and <a href="https://github.com/wibeasley">@wibeasley</a>.</p>
+</div>
