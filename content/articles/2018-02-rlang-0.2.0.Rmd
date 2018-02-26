@@ -1,0 +1,63 @@
+---
+title: rlang 0.2.0
+slug: rlang-0.2.0
+description: >
+  rlang 0.2.0 is on CRAN! This version brings many improvements to
+  tidy evaluation.
+author: Lionel Henry
+date: 2018-02-26
+categories: [package]
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library("rlang")
+```
+
+The r-lib team is happy to announce a new version of rlang that
+features many improvements to tidy evaluation. Many bugs have been
+fixed, the performance of quoting, splicing and quosure evaluation was
+vastly improved, the quirks in the quasiquotation syntax have been
+solved, and quosures gained a much improved printing method with
+colour support.
+
+Install the latest version of rlang with:
+
+```{r, eval = FALSE}
+install.packages("rlang")
+```
+
+
+### The syntax of the !! operator
+
+The headline improvement is a much improved syntax for the `!!`
+operator (pronounced bang-bang). In a way bang-bang is a lie, or
+a [polite fiction](https://adv-r.hadley.nz/quasiquotation.html#the-polite-fiction-of).
+It is not a real R operator and only works in tidy evaluation
+functions. To implement `!!`, we simply look at the code and
+reinterpret two consecutive `!` negations as the unquoting
+operator. The major downside of this approach was that our `!!`
+operator inherited from the operation precedence of `!`, which is very
+low. As a result `!!a + b` was interpreted by R as `!!(a + b)` rather
+than `(!!a) + b`. To work around this, tidy eval users had to add
+explicit parentheses.
+
+Happily this is no longer necessary. We now reprocess the whole syntax
+tree to give `!!` a more natural operation precedence, i.e. that of
+unary `+` and `-`. This means that expressions like `!!a > b` now do
+the expected thing (only `a` is unquoted):
+
+```{r}
+a <- sym("foo")
+expr(!!a > b)
+```
+
+In addition, we automatically strip one layer when `!!` is wrapped in
+parentheses. This is useful for unquoting function names cleanly:
+
+```{r}
+expr((!!a)(bar, baz))
+
+op <- sym(">")
+expr((!!op)(bar, baz))
+```
