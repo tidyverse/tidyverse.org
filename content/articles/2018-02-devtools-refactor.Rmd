@@ -1,0 +1,65 @@
+---
+title: The refactoring of devtools
+slug: devtools-refactor
+description: >
+  Refactoring devtools: why and how
+author: Jenny Bryan
+date: 2018-02-26
+categories:
+  - package
+tags: []
+photo:
+  url: https://morguefile.com/p/734816
+  author: mconnors
+---
+
+```{r setup, include = FALSE}
+library(usethis)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+[devtools](https://github.com/r-lib/devtools#readme) is an R package that helps you create, develop, and install R packages. By 2017, it was clear that devtools would be easier to maintain if it was split into a few smaller and more focused packages. For example, there is internal tension from trying to serve two radically opposing aims: a batteries-included framework for rapid iteration in local package development and a minimal-dependency package installer and checker, e.g., for continuous integration settings like [Travis CI](https://travis-ci.org).
+
+[usethis](http://usethis.r-lib.org/) is the first of these more focused packages to be released publicly on CRAN. usethis is the home for functions related to package and project setup. Writing the blog post for its recent CRAN release (ADD LINK) inspired us to clarify the devtools situation in this post.
+
+Other packages in development on GitHub, but not yet released on CRAN:
+
+  * FILL
+  * THIS
+  * IN?
+
+## Long live devtools!
+
+devtools has a bright future and is an important package for the r-lib/tidyverse team. devtools will continue to exist as a meta-package, exposing functionality from lower-level, domain-specific packages. The implementation will be different from the [tidyverse meta-package](http://tidyverse.tidyverse.org), but the spirit is the same.
+
+In steady state, if you use functions like `load_all()` or `install_github()` in your daily workflow, you should attach devtools via `library("devtools")` and carry on.
+
+There are a few reasons you might want to know more about our internal refactoring:
+
+  * The Awkward Adolescent Phase. It is impossible to choreograph the release of a suite of packages on CRAN. Therefore, there may be periods when functionality exists in usethis, for example, that is not yet exposed by devtools. During such times, you could access those specific functions directly through usethis. If you attach devtools in `.Rprofile`, for interactive use, this implies you should attach devtools first and then any of its constituent packages, as they roll out onto CRAN. Again, this should only be necessary during the transition period.
+  * If you depend on devtools in production scripts or in a package, you should transition that dependency to the lower level package that hosts the functions you need. More below.
+  * If you find a bug, it is most helpful to report it in the repository of package where that function is defined.
+
+## Don't depend on devtools!
+
+Although devtools is here to stay, we'd prefer to see no new direct reverse dependencies. And once the remaining consituent packages are released, we'd like to see existing dependencies transfer away from devtools when possible. devtools has been a *de facto* meta-package for a while and that will become technically true in the coming months. Like the tidyverse meta-package, devtools is convenient for interactive use, but if you are using specific functions programmatically, i.e. in production scripts or in another package, please do so via the function's primary package home and not through devtools.
+
+What are the payoffs for creating these lower-level packages?
+
+  * It becomes easier to update and release devtools and the underlying packages. They have fewer reverse dependencies, especially reverse dependencies via completely unrelated functionality that previously lived "under one roof" for reasons of history.
+  * Client packages have lighter dependencies. You can depend only on the packages that offer the functions you use. 
+  * Finer grained versioning (can depend on pkgbuild 1.2.3 and pkgload 4.5.6 even if devtools uses pkgbuild 4.5.6 and pkgload 4.5.6).
+
+```{r, include = FALSE, eval = FALSE}
+library(magick)
+img <- image_read("fodder/file7451297827754-puzzle.jpg")
+img %>% 
+  image_crop("1475x1475+1100+200") %>% 
+  image_scale("300x300") %>% 
+  image_write("content/articles/devtools-refactor-sq.jpg")
+img %>% 
+  image_crop("3648x729+0+750") %>% 
+  image_scale("1000x200") %>% 
+  image_write("content/articles/devtools-refactor-wd.jpg")
+```
+
