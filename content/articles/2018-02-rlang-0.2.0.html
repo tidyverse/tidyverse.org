@@ -11,9 +11,9 @@ categories: [package]
 
 
 
-<p>We are happy to announce a new version of rlang that features many improvements to tidy evaluation:</p>
+<p>We are happy to announce a new version of <a href="http://rlang.tidyverse.org/">rlang</a> that features many improvements to tidy evaluation:</p>
 <ul>
-<li><p>The quirks in the quasiquotation syntax have been solved.</p></li>
+<li><p>The quirks in the quasiquotation syntax have been much reduced.</p></li>
 <li><p>Quosures gained a much improved printing method with colour support.</p></li>
 <li><p>The performance of quoting, splicing and quosure evaluation was vastly improved.</p></li>
 <li><p>Many bugs have been fixed.</p></li>
@@ -25,78 +25,91 @@ categories: [package]
 <p>The headline improvement is a much improved syntax for the <code>!!</code> operator (pronounced bang-bang). In a way bang-bang is a lie, or a <a href="https://adv-r.hadley.nz/quasiquotation.html#the-polite-fiction-of">polite fiction</a>. It is not a real R operator and only works in tidy evaluation functions. To implement <code>!!</code>, we simply look at the code and reinterpret two consecutive <code>!</code> negations as the unquoting operator. The major downside of this approach was that our <code>!!</code> operator inherited from the operation precedence of <code>!</code>, which is very low. As a result <code>!!a + b</code> was interpreted by R as <code>!!(a + b)</code> rather than <code>(!!a) + b</code>. To work around this, tidy eval users had to add explicit parentheses, which was often confusing.</p>
 <p>Happily this is no longer necessary. We now reprocess the whole syntax tree to give <code>!!</code> a more natural operation precedence, i.e. that of unary <code>+</code> and <code>-</code>. This means that expressions like <code>!!a &gt; b</code> now do the expected thing (only <code>a</code> is unquoted):</p>
 <pre class="r"><code>a &lt;- sym(&quot;foo&quot;)
-expr(!!a &gt; b)
-#&gt; foo &gt; b</code></pre>
+expr(!!a &gt; b)</code></pre>
+<pre class="knitr r">#> foo > b
+</pre>
 <p>In addition, we automatically strip one layer when <code>!!</code> is wrapped in parentheses. This is useful for unquoting function names cleanly:</p>
-<pre class="r"><code>expr((!!a)(bar, baz))
-#&gt; foo(bar, baz)
-
+<pre class="r"><code>expr((!!a)(bar, baz))</code></pre>
+<pre class="knitr r">#> foo(bar, baz)
+</pre>
+<pre class="r"><code>
 op &lt;- sym(&quot;&gt;&quot;)
-expr((!!op)(bar, baz))
-#&gt; bar &gt; baz</code></pre>
+expr((!!op)(bar, baz))</code></pre>
+<pre class="knitr r">#> bar > baz
+</pre>
 </div>
 <div id="a-new-print-method-for-quosures" class="section level3">
 <h3>A new print method for quosures</h3>
 <p>When R code is printed at the console (be it a function, an expression, a formula or a quosure), R runs the function <code>deparse()</code> to transform the code to a printable string. The deparsing mechanism in base R is not optimal for tidy eval:</p>
 <ul>
 <li><p>It adds redundant parentheses between the <code>!</code> of <code>!!</code>:</p>
-<pre class="r"><code>quote(!!x)
-#&gt; !(!x)</code></pre></li>
+<pre class="r"><code>quote(!!x)</code></pre>
+<pre class="knitr r">#> !(!x)
+</pre></li>
 <li><p>The way it prints inlined vectors is ambiguous. R expressions can contain actual data structures not just symbolic code. It is especially easy to inline vectors and other objects with quasiquotation:</p>
-<pre class="r"><code>expr(mean(!!c(1, 2, 3)))
-#&gt; mean(c(1, 2, 3))</code></pre>
+<pre class="r"><code>expr(mean(!!c(1, 2, 3)))</code></pre>
+<pre class="knitr r">#> mean(c(1, 2, 3))
+</pre>
 <p>Note how the output above is indistinguishable from the following output:</p>
-<pre class="r"><code>expr(mean(c(1, 2, 3)))
-#&gt; mean(c(1, 2, 3))</code></pre>
+<pre class="r"><code>expr(mean(c(1, 2, 3)))</code></pre>
+<pre class="knitr r">#> mean(c(1, 2, 3))
+</pre>
 <p>In both cases, the R printer outputs the code that creates the vector, even if the vector is already created as in the first case!</p></li>
 <li><p>Quosures are currently implemented as formulas but that’s an implementation detail. Quosures and formulas behave differently and it is misleading to have them print as formulas:</p>
-<pre class="r"><code>expr(mean(!!quo(c(1, 2, 3))))
-#&gt; mean(~c(1, 2, 3))</code></pre>
+<pre class="r"><code>expr(mean(!!quo(c(1, 2, 3))))</code></pre>
+<pre class="knitr r">#> mean(~c(1, 2, 3))
+</pre>
 <p>Furthermore, it would be nice to have a way to distinguish quosures coming from different contexts.</p></li>
 </ul>
 <p>To solve these problems, rlang now features <code>expr_print()</code> powered by <code>expr_deparse()</code>. These functions are now used in the print method of quosures and solve all the problems nicely:</p>
 <ul>
 <li><p>Inlined vectors are represented with angular brackets and are abbreviated to avoid taking too much space:</p>
-<pre class="r"><code>quo(list(code = 1:10, data = !!(1:10)))
-#&gt; &lt;quosure&gt;
-#&gt;   expr: ^list(code = 1:10, data = &lt;int: 1L, 2L, 3L, 4L, 5L, ...&gt;)
-#&gt;   env:  global</code></pre>
+<pre class="r"><code>quo(list(code = 1:10, data = !!(1:10)))</code></pre>
+<pre class="knitr r">#> <quosure>
+#>   expr: [39m^list(code = 1:10, data = <int: 1L, 2L, 3L, 4L, 5L, ...>)[39m
+#>   env:  global
+</pre>
 <p>S3 objects are printed based on the extensible <code>pillar::type_sum()</code> generic:</p>
-<pre class="r"><code>quo(lm(!!(disp ~ cyl), data = !!mtcars))
-#&gt; &lt;quosure&gt;
-#&gt;   expr: ^lm(&lt;S3: formula&gt;, data = &lt;data.frame&gt;)
-#&gt;   env:  global</code></pre></li>
+<pre class="r"><code>quo(lm(!!(disp ~ cyl), data = !!mtcars))</code></pre>
+<pre class="knitr r">#> <quosure>
+#>   expr: [39m^lm(<S3: formula>, data = <data.frame>)[39m
+#>   env:  global
+</pre></li>
 <li><p>As you can see in the output above quosures are now displayed with a leading <code>^</code> instead of a tilde in order to distinguish them from formulas. In addition, they are now colourised according to their environments. Quosures from the global environment are always printed with the default colour. Quosures from local environments are printed with a unique colour. To illustrate this, let’s create two quosures referring to <code>x</code>, where <code>x</code> represents a different object:</p>
-<pre class="r"><code>make_quo &lt;- function(x) {
-  quo(x)
+<pre class="r"><code>make_quo &lt;- function(arg) {
+  quo(arg)
 }
 
 q1 &lt;- make_quo(&quot;foo&quot;)
 q2 &lt;- make_quo(&quot;bar&quot;)
 q3 &lt;- quo(list(!!q1, !!q2))
 
-q3
-#&gt; &lt;quosure&gt;
-#&gt;   expr: ^list(^x, ^x)
-#&gt;   env:  global</code></pre>
-<p>Since this blog doesn’t support colourised output yet you can see how the quosure we have just created is confusing. <code>q3</code> contains two nested quosures that point to objects called <code>x</code>. While they have the same names these objects come from different contexts, the contexts that were created each time we called <code>make_quo()</code>. Let’s evaluate <code>q3</code> to verify this:</p>
-<pre class="r"><code>eval_tidy(q3)
-#&gt; [[1]]
-#&gt; [1] &quot;foo&quot;
-#&gt; 
-#&gt; [[2]]
-#&gt; [1] &quot;bar&quot;</code></pre>
-<p>If you run this code and print <code>q3</code> in your console, you should see both nested quosures <code>^x</code> printed in their own colour to reflect that they come from different contexts.</p></li>
+q3</code></pre>
+<pre class="knitr r">#> <quosure>
+#>   expr: ^list(<span style="color:#3465a4">^arg</span>, <span style="color:#4e9a06">^arg</span>)
+#>   env:  global
+</pre>
+<p>Since this blog doesn’t support colourised output yet you can see how the quosure we have just created is confusing. <code>q3</code> contains two nested quosures that point to objects called <code>arg</code>. While they have the same names these objects come from different contexts, the contexts that were created each time we called <code>make_quo()</code>. Let’s evaluate <code>q3</code> to verify this:</p>
+<pre class="r"><code>eval_tidy(q3)</code></pre>
+<pre class="knitr r">#> [[1]]
+#> [1] "foo"
+#> 
+#> [[2]]
+#> [1] "bar"
+</pre>
+<p>If you run this code and print <code>q3</code> in your console, you should see both nested quosures <code>^arg</code> printed in their own colour to reflect that they come from different contexts.</p></li>
 </ul>
 <p>Note that if you are ever confused by how a quosure prints out (perhaps because of those intervening <code>^</code> symbols), you can use the new function <code>quo_squash()</code> to get rid of all the nested quosures and print a naked version:</p>
-<pre class="r"><code>quo_squash(q3)
-#&gt; list(x, x)</code></pre>
+<pre class="r"><code>quo_squash(q3)</code></pre>
+<pre class="knitr r">#> list(arg, arg)
+</pre>
 <p>Finally, raw expressions created by <code>expr()</code> are still printed with the base R deparser. If you would like to debug tidy eval code and inspect the result of quasiquotation, use the new <code>qq_show()</code> function to display a raw expression with the new printer:</p>
 <pre class="r"><code>my_wrapper &lt;- function(data, expr) {
   expr &lt;- enquo(expr)
   qq_show(data %&gt;% mutate(mean(!!expr)))
 }
 
-my_wrapper(mtcars, cyl)
-#&gt; data %&gt;% mutate(mean(^cyl))</code></pre>
+my_wrapper(mtcars, cyl)</code></pre>
+<pre class="knitr r">#> data %>% mutate(mean([39m^cyl[39m))
+</pre>
 </div>

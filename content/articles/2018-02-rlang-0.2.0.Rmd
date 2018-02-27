@@ -10,14 +10,33 @@ categories: [package]
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library("rlang")
+
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+
+colourise_chunk <- function(type) {
+  function(x, options) {
+    sprintf('<pre class="knitr %s">%s</pre>\n',
+      tolower(options$engine),
+      ansistrings::ansi_to_html(x, fullpage = FALSE)
+    )
+  }
+}
+
+knitr::knit_hooks$set(
+  output = colourise_chunk("output"),
+  message = colourise_chunk("message"),
+  warning = colourise_chunk("warning"),
+  error = colourise_chunk("error")
+)
+
+options(crayon.enabled = TRUE)
 ```
 
 We are happy to announce a new version of [rlang](http://rlang.tidyverse.org/)
 that features many improvements to tidy evaluation:
 
-* The quirks in the quasiquotation syntax have been solved.
+* The quirks in the quasiquotation syntax have been much reduced.
 
 * Quosures gained a much improved printing method with colour support.
 
@@ -141,8 +160,8 @@ quosures and solve all the problems nicely:
     object:
 
     ```{r}
-    make_quo <- function(x) {
-      quo(x)
+    make_quo <- function(arg) {
+      quo(arg)
     }
 
     q1 <- make_quo("foo")
@@ -154,7 +173,7 @@ quosures and solve all the problems nicely:
 
     Since this blog doesn't support colourised output yet you can see
     how the quosure we have just created is confusing. `q3` contains
-    two nested quosures that point to objects called `x`. While they
+    two nested quosures that point to objects called `arg`. While they
     have the same names these objects come from different contexts,
     the contexts that were created each time we called
     `make_quo()`. Let's evaluate `q3` to verify this:
@@ -164,7 +183,7 @@ quosures and solve all the problems nicely:
     ```
 
     If you run this code and print `q3` in your console, you should
-    see both nested quosures `^x` printed in their own colour to
+    see both nested quosures `^arg` printed in their own colour to
     reflect that they come from different contexts.
 
 Note that if you are ever confused by how a quosure prints out
