@@ -40,6 +40,8 @@ expr((!!op)(bar, baz))</code></pre>
 </div>
 <div id="a-new-print-method-for-quosures" class="section level3">
 <h3>A new print method for quosures</h3>
+<div id="problems-with-base-r-deparsing" class="section level4">
+<h4>Problems with base R deparsing</h4>
 <p>When R code is printed at the console (be it a function, an expression, a formula or a quosure), R runs the function <code>deparse()</code> to transform the code to a printable string. The deparsing mechanism in base R is not optimal for tidy eval:</p>
 <ul>
 <li><p>It adds redundant parentheses between the <code>!</code> of <code>!!</code>:</p>
@@ -61,6 +63,9 @@ expr((!!op)(bar, baz))</code></pre>
 </pre>
 <p>Furthermore, it would be nice to have a way to distinguish quosures coming from different contexts.</p></li>
 </ul>
+</div>
+<div id="deparsing-with-rlang" class="section level4">
+<h4>Deparsing with rlang</h4>
 <p>To solve these problems, rlang now features <code>expr_print()</code> powered by <code>expr_deparse()</code>. These functions are now used in the print method of quosures and solve all the problems nicely:</p>
 <ul>
 <li><p>Inlined vectors are represented with angular brackets and are abbreviated to avoid taking too much space:</p>
@@ -112,4 +117,5 @@ q3</code></pre>
 my_wrapper(mtcars, cyl)</code></pre>
 <pre class="knitr r">#> data %>% mutate(mean([39m^cyl[39m))
 </pre>
+</div>
 </div>
