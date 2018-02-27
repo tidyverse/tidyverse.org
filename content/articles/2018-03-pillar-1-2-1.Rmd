@@ -14,14 +14,16 @@ categories: [package]
 
 
 ```{r setup, include = FALSE}
+options(crayon.enabled = TRUE)
+
 library(tibble)
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+knitr::opts_chunk$set(collapse = TRUE, comment = pillar::style_subtle("#>"))
 
 colourise_chunk <- function(type) {
   function(x, options) {
     sprintf('<pre class="knitr %s">%s</pre>\n',
       tolower(options$engine),
-      ansistrings::ansi_to_html(x, fullpage = FALSE)
+      ansistrings::ansi_to_html(htmltools::htmlEscape(x), fullpage = FALSE)
     )
   }
 }
@@ -32,13 +34,11 @@ knitr::knit_hooks$set(
   warning = colourise_chunk("warning"),
   error = colourise_chunk("error")
 )
-
-options(crayon.enabled = TRUE)
 ```
 
 We’re excited to present version 1.2.1 of the *pillar* package, the package that is responsible for printing [tibbles](http://tibble.tidyverse.org/) to the terminal.  This small release addresses feedback concerning the output of tibbles.  In particular, groups of three digits are now highlighted to give a better idea about the order of magnitude of decimal numbers.  In addition, a few minor bugs were fixed, such as the output for S3 classes extending `numeric` (like durations from *lubridate*) and the output very small numbers.
 
-Please see the [release notes](https://github.com/r-lib/pillar/releases/v1.2.1) for the full list of improvements and bug fixes.  Use the [*tibble* issue tracker](https://github.com/tidyverse/tibble/issues) to submit bugs or suggest ideas for the output of tibbles, your contributions are always welcome.  You can also use the [*pillar* issue tracker](https://github.com/r-lib/pillar/issues) if you are developing a package that uses *pillar* and if your [reprex](http://reprex.tidyverse.org/) only uses the *pillar* package.
+Please see the [release notes](https://github.com/r-lib/pillar/releases/v1.2.1) for the full list of improvements and bug fixes.  Because the changes in this package mostly affect the output for tibbles, examples in this blog post are shown using the *tibble* package.
 
 
 ## Improved output
@@ -52,22 +52,21 @@ In response to use feedback, the following changes were made to the output:
 ```{r feedback}
 x <- -123456789 * (10 ^ c(-2, -5, -6, NA, -8, -10)) * c(-1, 1)
 x
-library(pillar)
-pillar(x)
+tibble(x)
 ```
 
 - Scientific notation uses regular digits again for exponents, to improve legibility and because in some common fonts the superscript digits aren't aligned correctly.
 
 ```{r feedback-sci}
-pillar(x, width = 6)
+print(tibble(x), width = 15)
 ```
 
 To avoid confusion, the decimal dot is now always printed for numbers of type `numeric`, but trailing zeros are no longer shown if all displayed numbers are whole numbers. Compare the following outputs:
 
 ```{r decimal-dot}
-y <- c(1, 3, 5)
-pillar(y)
-pillar(y + 0.00000001)
+whole <- c(1, 3, 5)
+tibble(whole)
+tibble(wholeish = whole + 0.00000001)
 ```
 
 
@@ -76,7 +75,7 @@ pillar(y + 0.00000001)
 Are you a *lubridate* user? Durations and other objects are displayed again:
 
 ```{r lubridate}
-pillar(lubridate::as.duration(1:3))
+tibble(duration = lubridate::as.duration(1:3))
 ```
 
 (This also works for other data types that extend `numeric` but don't implement a `pillar_shaft()` method. See the ["Extending tibble" vignette](http://tibble.tidyverse.org/articles/extending.html) for details on providing better support for printing your data type in a tibble.)
@@ -84,10 +83,21 @@ pillar(lubridate::as.duration(1:3))
 Very small numbers are now printed correctly.
 
 ```{r small}
-x <- c(1e-310, 1e-320, 1e-330)
-x
-pillar(x)
+tiny <- c(1e-310, 1e-320, 1e-330)
+tiny
+tibble(tiny)
 ```
+
+
+## Tibble or pillar?
+
+Now that *pillar* is responsible for generating the output for tibbles, what is the best place to discuss problems or suggest ideas?
+
+As usual, if you're not sure if a particular behavior is intended, [StackOverflow](https://stackoverflow.com/) is a good place to ask, use the `[r]` and `[tibble]` tags and perhaps the `[tidyverse]` tag.  Include a reproducible example, perhaps using the [*reprex*](http://reprex.tidyverse.org/) package with a `reprex::reprex(venue = "so")` call.
+
+To submit bugs or suggest ideas for the output of tibbles, use the [*tibble* issue tracker](https://github.com/tidyverse/tibble/issues), your contributions are always welcome.  Add a reprex with `reprex::reprex()`.  Unfortunately, the *reprex* package doesn't support rendering color and font effects yet, please include a screenshot if these details matter for your example.
+
+If you are developing a package that uses *pillar*, or if you are sure that you have found a problem in this package, you can also use the [*pillar* issue tracker](https://github.com/r-lib/pillar/issues).  Please restrict your reprex to the *pillar* package in these situations.
 
 
 ## Acknowledgments

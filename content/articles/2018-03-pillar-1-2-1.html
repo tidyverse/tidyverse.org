@@ -15,7 +15,7 @@ categories: [package]
 
 
 <p>We’re excited to present version 1.2.1 of the <em>pillar</em> package, the package that is responsible for printing <a href="http://tibble.tidyverse.org/">tibbles</a> to the terminal. This small release addresses feedback concerning the output of tibbles. In particular, groups of three digits are now highlighted to give a better idea about the order of magnitude of decimal numbers. In addition, a few minor bugs were fixed, such as the output for S3 classes extending <code>numeric</code> (like durations from <em>lubridate</em>) and the output very small numbers.</p>
-<p>Please see the <a href="https://github.com/r-lib/pillar/releases/v1.2.1">release notes</a> for the full list of improvements and bug fixes. Use the <a href="https://github.com/tidyverse/tibble/issues"><em>tibble</em> issue tracker</a> to submit bugs or suggest ideas for the output of tibbles, your contributions are always welcome. You can also use the <a href="https://github.com/r-lib/pillar/issues"><em>pillar</em> issue tracker</a> if you are developing a package that uses <em>pillar</em> and if your <a href="http://reprex.tidyverse.org/">reprex</a> only uses the <em>pillar</em> package.</p>
+<p>Please see the <a href="https://github.com/r-lib/pillar/releases/v1.2.1">release notes</a> for the full list of improvements and bug fixes. Because the changes in this package mostly affect the output for tibbles, examples in this blog post are shown using the <em>tibble</em> package.</p>
 <div id="improved-output" class="section level2">
 <h2>Improved output</h2>
 <p>In response to use feedback, the following changes were made to the output:</p>
@@ -27,67 +27,86 @@ categories: [package]
 </ul>
 <pre class="r"><code>x &lt;- -123456789 * (10 ^ c(-2, -5, -6, NA, -8, -10)) * c(-1, 1)
 x</code></pre>
-<pre class="knitr r">#> [1]  1.234568e+06 -1.234568e+03  1.234568e+02            NA  1.234568e+00
-#> [6] -1.234568e-02
+<pre class="knitr r"><span style="color:#8a8a8a">#&gt;</span> [1]  1.234568e+06 -1.234568e+03  1.234568e+02            NA  1.234568e+00
+<span style="color:#8a8a8a">#&gt;</span> [6] -1.234568e-02
 </pre>
-<pre class="r"><code>library(pillar)
-pillar(x)</code></pre>
-<pre class="knitr r">#>         <span style="font-style:italic"><span style="color:#8a8a8a"><dbl></span></span>
-#>  1<span style="text-decoration:underline">2</span><span style="text-decoration:underline">3</span><span style="text-decoration:underline">4</span>568.    
-#>    -<span style="color:#cc0000"><span style="text-decoration:underline">1</span>23</span><span style="color:#cc0000">5</span><span style="color:#cc0000">.</span>    
-#>      123.    
-#>       <span style="color:#cc0000">NA</span>     
-#>        1.23  
-#>       -<span style="color:#cc0000">0</span><span style="color:#cc0000">.</span><span style="color:#cc0000">0</span><span style="color:#cc0000">12<span style="text-decoration:underline">3</span></span>
+<pre class="r"><code>tibble(x)</code></pre>
+<pre class="knitr r"><span style="color:#8a8a8a">#&gt;</span> <span style="color:#8a8a8a"># A tibble: 6 x 1</span>
+<span style="color:#8a8a8a">#&gt;</span>               x
+<span style="color:#8a8a8a">#&gt;</span>           <span style="font-style:italic"><span style="color:#8a8a8a">&lt;dbl&gt;</span></span>
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">1</span>  1<span style="text-decoration:underline">2</span><span style="text-decoration:underline">3</span><span style="text-decoration:underline">4</span>568.    
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">2</span>    -<span style="color:#cc0000"><span style="text-decoration:underline">1</span>23</span><span style="color:#cc0000">5</span><span style="color:#cc0000">.</span>    
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">3</span>      123.    
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">4</span>       <span style="color:#cc0000">NA</span>     
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">5</span>        1.23  
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">6</span>       -<span style="color:#cc0000">0</span><span style="color:#cc0000">.</span><span style="color:#cc0000">0</span><span style="color:#cc0000">12<span style="text-decoration:underline">3</span></span>
 </pre>
 <ul>
 <li>Scientific notation uses regular digits again for exponents, to improve legibility and because in some common fonts the superscript digits aren’t aligned correctly.</li>
 </ul>
-<pre class="r"><code>pillar(x, width = 6)</code></pre>
-<pre class="knitr r">#>     <span style="font-style:italic"><span style="color:#8a8a8a"><dbl></span></span>
-#>   1.23<span style="color:#8a8a8a">e</span>+6
-#>  -<span style="color:#cc0000">1</span><span style="color:#cc0000">.</span><span style="color:#cc0000">23</span><span style="color:#8a8a8a">e</span>+3
-#>   1.23<span style="color:#8a8a8a">e</span>+2
-#>  <span style="color:#cc0000">NA</span>   <span style="color:#8a8a8a"> </span>  
-#>   1.23<span style="color:#8a8a8a">e</span>+0
-#>  -<span style="color:#cc0000">1</span><span style="color:#cc0000">.</span><span style="color:#cc0000">23</span><span style="color:#8a8a8a">e</span><span style="color:#cc0000">-2</span>
-</pre>
+<pre class="r"><code>print(tibble(x), width = 15)</code></pre>
+<pre class="knitr r"><span style="color:#8a8a8a">#&gt; <span style="color:#8a8a8a"># A tibble: 6
+<span style="color:#8a8a8a">#&gt;</span></span> #   x 1
+<span style="color:#8a8a8a">#&gt;</span>              x
+<span style="color:#8a8a8a">#&gt;</span>          <span style="font-style:italic"><span style="color:#8a8a8a">&lt;dbl&gt;</span></span>
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">1</span>      1.23<span style="color:#8a8a8a">e</span>+6
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">2</span>     -<span style="color:#cc0000">1</span><span style="color:#cc0000">.</span><span style="color:#cc0000">23</span><span style="color:#8a8a8a">e</span>+3
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">3</span>      1.23<span style="color:#8a8a8a">e</span>+2
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">4</span>     <span style="color:#cc0000">NA</span>   <span style="color:#8a8a8a"> </span>  
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">5</span>      1.23<span style="color:#8a8a8a">e</span>+0
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">6</span>     -<span style="color:#cc0000">1</span><span style="color:#cc0000">.</span><span style="color:#cc0000">23</span><span style="color:#8a8a8a">e</span><span style="color:#cc0000">-2</span>
+</span></pre>
 <p>To avoid confusion, the decimal dot is now always printed for numbers of type <code>numeric</code>, but trailing zeros are no longer shown if all displayed numbers are whole numbers. Compare the following outputs:</p>
-<pre class="r"><code>y &lt;- c(1, 3, 5)
-pillar(y)</code></pre>
-<pre class="knitr r">#> <span style="font-style:italic"><span style="color:#8a8a8a"><dbl></span></span>
-#>    1.
-#>    3.
-#>    5.
+<pre class="r"><code>whole &lt;- c(1, 3, 5)
+tibble(whole)</code></pre>
+<pre class="knitr r"><span style="color:#8a8a8a">#&gt;</span> <span style="color:#8a8a8a"># A tibble: 3 x 1</span>
+<span style="color:#8a8a8a">#&gt;</span>   whole
+<span style="color:#8a8a8a">#&gt;</span>   <span style="font-style:italic"><span style="color:#8a8a8a">&lt;dbl&gt;</span></span>
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">1</span>    1.
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">2</span>    3.
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">3</span>    5.
 </pre>
-<pre class="r"><code>pillar(y + 0.00000001)</code></pre>
-<pre class="knitr r">#> <span style="font-style:italic"><span style="color:#8a8a8a"><dbl></span></span>
-#>  1.00
-#>  3.00
-#>  5.00
+<pre class="r"><code>tibble(wholeish = whole + 0.00000001)</code></pre>
+<pre class="knitr r"><span style="color:#8a8a8a">#&gt;</span> <span style="color:#8a8a8a"># A tibble: 3 x 1</span>
+<span style="color:#8a8a8a">#&gt;</span>   wholeish
+<span style="color:#8a8a8a">#&gt;</span>      <span style="font-style:italic"><span style="color:#8a8a8a">&lt;dbl&gt;</span></span>
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">1</span>     1.00
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">2</span>     3.00
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">3</span>     5.00
 </pre>
 </div>
 <div id="bug-fixes" class="section level2">
 <h2>Bug fixes</h2>
 <p>Are you a <em>lubridate</em> user? Durations and other objects are displayed again:</p>
-<pre class="r"><code>pillar(lubridate::as.duration(1:3))</code></pre>
-<pre class="knitr r">#> <span style="font-style:italic"><span style="color:#8a8a8a"><S4: Duration></span></span>
-#> 1s            
-#> 2s            
-#> 3s
+<pre class="r"><code>tibble(duration = lubridate::as.duration(1:3))</code></pre>
+<pre class="knitr r"><span style="color:#8a8a8a">#&gt;</span> <span style="color:#8a8a8a"># A tibble: 3 x 1</span>
+<span style="color:#8a8a8a">#&gt;</span>   duration      
+<span style="color:#8a8a8a">#&gt;</span>   <span style="font-style:italic"><span style="color:#8a8a8a">&lt;S4: Duration&gt;</span></span>
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">1</span> 1s            
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">2</span> 2s            
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">3</span> 3s
 </pre>
 <p>(This also works for other data types that extend <code>numeric</code> but don’t implement a <code>pillar_shaft()</code> method. See the <a href="http://tibble.tidyverse.org/articles/extending.html">“Extending tibble” vignette</a> for details on providing better support for printing your data type in a tibble.)</p>
 <p>Very small numbers are now printed correctly.</p>
-<pre class="r"><code>x &lt;- c(1e-310, 1e-320, 1e-330)
-x</code></pre>
-<pre class="knitr r">#> [1] 1.000000e-310 9.999889e-321  0.000000e+00
+<pre class="r"><code>tiny &lt;- c(1e-310, 1e-320, 1e-330)
+tiny</code></pre>
+<pre class="knitr r"><span style="color:#8a8a8a">#&gt;</span> [1] 1.000000e-310 9.999889e-321  0.000000e+00
 </pre>
-<pre class="r"><code>pillar(x)</code></pre>
-<pre class="knitr r">#>      <span style="font-style:italic"><span style="color:#8a8a8a"><dbl></span></span>
-#>  1.00<span style="color:#8a8a8a">e</span><span style="color:#cc0000">-310</span>
-#> 10.00<span style="color:#8a8a8a">e</span><span style="color:#cc0000">-321</span>
-#>  0.  <span style="color:#8a8a8a"> </span>
+<pre class="r"><code>tibble(tiny)</code></pre>
+<pre class="knitr r"><span style="color:#8a8a8a">#&gt;</span> <span style="color:#8a8a8a"># A tibble: 3 x 1</span>
+<span style="color:#8a8a8a">#&gt;</span>         tiny
+<span style="color:#8a8a8a">#&gt;</span>        <span style="font-style:italic"><span style="color:#8a8a8a">&lt;dbl&gt;</span></span>
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">1</span>  1.00<span style="color:#8a8a8a">e</span><span style="color:#cc0000">-310</span>
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">2</span> 10.00<span style="color:#8a8a8a">e</span><span style="color:#cc0000">-321</span>
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">3</span>  0.  <span style="color:#8a8a8a"> </span>
 </pre>
+</div>
+<div id="tibble-or-pillar" class="section level2">
+<h2>Tibble or pillar?</h2>
+<p>Now that <em>pillar</em> is responsible for generating the output for tibbles, what is the best place to discuss problems or suggest ideas?</p>
+<p>As usual, if you’re not sure if a particular behavior is intended, <a href="https://stackoverflow.com/">StackOverflow</a> is a good place to ask, use the <code>[r]</code> and <code>[tibble]</code> tags and perhaps the <code>[tidyverse]</code> tag. Include a reproducible example, perhaps using the <a href="http://reprex.tidyverse.org/"><em>reprex</em></a> package with a <code>reprex::reprex(venue = &quot;so&quot;)</code> call.</p>
+<p>To submit bugs or suggest ideas for the output of tibbles, use the <a href="https://github.com/tidyverse/tibble/issues"><em>tibble</em> issue tracker</a>, your contributions are always welcome. Add a reprex with <code>reprex::reprex()</code>. Unfortunately, the <em>reprex</em> package doesn’t support rendering color and font effects yet, please include a screenshot if these details matter for your example.</p>
+<p>If you are developing a package that uses <em>pillar</em>, or if you are sure that you have found a problem in this package, you can also use the <a href="https://github.com/r-lib/pillar/issues"><em>pillar</em> issue tracker</a>. Please restrict your reprex to the <em>pillar</em> package in these situations.</p>
 </div>
 <div id="acknowledgments" class="section level2">
 <h2>Acknowledgments</h2>
