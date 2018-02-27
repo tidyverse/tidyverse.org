@@ -11,15 +11,16 @@ categories: [package]
 
 ```{r setup, include = FALSE}
 library("rlang")
-
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
 
+```{r crayon, include = FALSE}
 colourise_chunk <- function(type) {
   function(x, options) {
-    sprintf('<pre class="knitr %s">%s</pre>\n',
-      tolower(options$engine),
-      ansistrings::ansi_to_html(x, fullpage = FALSE)
-    )
+    x <- pkgdown:::escape_html(x)
+    x <- ansistrings::ansi_to_html(x, fullpage = FALSE)
+    class <- tolower(options$engine)
+    sprintf('<pre class="knitr %s">%s</pre>\n', class, x)
   }
 }
 
@@ -30,7 +31,7 @@ knitr::knit_hooks$set(
   error = colourise_chunk("error")
 )
 
-options(crayon.enabled = TRUE)
+options(crayon.enabled = FALSE)
 ```
 
 We are happy to announce a new version of [rlang](http://rlang.tidyverse.org/)
@@ -137,9 +138,9 @@ in base R is not optimal for tidy eval:
 
 #### Deparsing with rlang
 
-To solve these problems, rlang now features `expr_print()` powered by
-`expr_deparse()`. These functions are now used in the print method of
-quosures and solve all the problems nicely:
+rlang now features `expr_print()` powered by `expr_deparse()`. These
+functions are used in the print method of quosures and nicely solve
+the printing issues:
 
   - Inlined vectors are represented with angular brackets and are
     abbreviated to avoid taking too much space:
@@ -161,8 +162,12 @@ quosures and solve all the problems nicely:
     environments. Quosures from the global environment are always
     printed with the default colour. Quosures from local environments
     are printed with a unique colour. To illustrate this, let's create
-    two quosures referring to `x`, where `x` represents a different
+    two quosures referring to `arg`, where `arg` represents a different
     object:
+
+    ```{r, include = FALSE}
+    options(crayon.enabled = TRUE)
+    ```
 
     ```{r}
     make_quo <- function(arg) {
@@ -176,20 +181,25 @@ quosures and solve all the problems nicely:
     q3
     ```
 
-    Since this blog doesn't support colourised output yet you can see
-    how the quosure we have just created is confusing. `q3` contains
-    two nested quosures that point to objects called `arg`. While they
-    have the same names these objects come from different contexts,
-    the contexts that were created each time we called
-    `make_quo()`. Let's evaluate `q3` to verify this:
+    ```{r, include = FALSE}
+    # Work around ansistrings issue
+    # See https://github.com/r-lib/ansistrings/issues/20
+    options(crayon.enabled = FALSE)
+    ```
+
+    `q3` contains two nested quosures that both point to objects
+    called `arg`. While they have the same names these objects come
+    from different contexts, the contexts that were created each time
+    we called the function `make_quo()`. Let's evaluate `q3` to verify
+    this:
 
     ```{r}
     eval_tidy(q3)
     ```
 
-    If you run this code and print `q3` in your console, you should
-    see both nested quosures `^arg` printed in their own colour to
-    reflect that they come from different contexts.
+    The colours should help you figure out what is happening when
+    quosures from disparate contexts are unquoted in a larger
+    expression.
 
 Note that if you are ever confused by how a quosure prints out
 (perhaps because of those intervening `^` symbols), you can use the
