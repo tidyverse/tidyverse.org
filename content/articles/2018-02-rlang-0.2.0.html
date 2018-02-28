@@ -7,6 +7,9 @@ description: >
 author: Lionel Henry
 date: 2018-02-26
 categories: [package]
+photo:
+  url: https://unsplash.com/photos/K5gBXHSvtkc
+  author: Denise Johnson
 ---
 
 
@@ -20,8 +23,8 @@ categories: [package]
 </ul>
 <p>Install the latest version of rlang with:</p>
 <pre class="r"><code>install.packages(&quot;rlang&quot;)</code></pre>
-<div id="the-syntax-of-the-operator" class="section level3">
-<h3>The syntax of the !! operator</h3>
+<div id="syntax-adjustments-for-the-operator" class="section level3">
+<h3>Syntax adjustments for the !! operator</h3>
 <p>The headline improvement is a much improved syntax for the <code>!!</code> operator (pronounced bang-bang). In a way bang-bang is a lie, or a <a href="https://adv-r.hadley.nz/quasiquotation.html#the-polite-fiction-of">polite fiction</a>. It is not a real R operator and only works in tidy evaluation functions. To implement <code>!!</code>, we simply look at the code and reinterpret two consecutive <code>!</code> negations as the unquoting operator. The major downside of this approach was that our <code>!!</code> operator inherited from the operation precedence of <code>!</code>, which is very low. As a result <code>!!a + b</code> was interpreted by R as <code>!!(a + b)</code> rather than <code>(!!a) + b</code>. To work around this, tidy eval users had to add explicit parentheses, which was often confusing.</p>
 <p>Happily this is no longer necessary. We now reprocess the whole syntax tree to give <code>!!</code> a more natural operation precedence, i.e. that of unary <code>+</code> and <code>-</code>. This means that expressions like <code>!!a &gt; b</code> now do the expected thing (only <code>a</code> is unquoted):</p>
 <pre class="r"><code>a &lt;- sym(&quot;foo&quot;)
