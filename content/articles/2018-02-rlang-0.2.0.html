@@ -5,7 +5,7 @@ description: >
   rlang 0.2.0 is on CRAN! This version brings many improvements to
   tidy evaluation.
 author: Lionel Henry
-date: 2018-02-26
+date: 2018-03-02
 categories: [package]
 photo:
   url: https://unsplash.com/photos/K5gBXHSvtkc
@@ -50,7 +50,8 @@ expr((!!op)(bar, baz))</code></pre>
 <li><p>It adds redundant parentheses between the <code>!</code> of <code>!!</code>:</p>
 <pre class="r"><code>quote(!!x)</code></pre>
 <pre class="knitr r">#&gt; !(!x)
-</pre></li>
+</pre>
+<p>If you ever encounter these weird <code>!(!x)</code> statements (for instance by printing the code of a tidy eval function in the console), it’s because the R printer adds the pair of parentheses at printing-time. The good news is that it is merely a printing problem.</p></li>
 <li><p>The way it prints inlined vectors is ambiguous. R expressions can contain actual data structures not just symbolic code. It is especially easy to inline vectors and other objects with quasiquotation:</p>
 <pre class="r"><code>expr(mean(!!c(1, 2, 3)))</code></pre>
 <pre class="knitr r">#&gt; mean(c(1, 2, 3))
