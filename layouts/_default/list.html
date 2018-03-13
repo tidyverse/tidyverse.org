@@ -6,7 +6,8 @@
       <div class="column75">
         <div class="sectionTitle">Recent Articles</div>
 
-        <div>{{ range .Data.Pages }}
+        {{ $paginator := .Paginate (where .Data.Pages "Section" "!=" "") }}
+        <div>{{ range $paginator.Pages }}
           <div class="listItem">
             <a class="itemImage project" href="{{ .RelPermalink }}" style="background-image: url(/articles/{{ .Param "slug"}}-sq.jpg);"></a>
             <div class="itemDetails">
@@ -30,6 +31,7 @@
             </div>
           </div>
         {{ end }}</div>
+      {{ template "_internal/pagination.html" . }}
       </div>
 
       <div class="column25">
