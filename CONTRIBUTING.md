@@ -76,7 +76,7 @@ Every package release should include an acknowledgements section individually th
 x <- gh::gh("/repos/:owner/:repo/issues", owner = "r-lib", repo = "testthat", since = "2016-04-23", state = "all", .limit = Inf)
 users <- sort(unique(purrr::map_chr(x, c("user", "login"))))
 length(users)
-clipr::write_clip(glue::collapse(glue::glue("[\\@{users}](https://github.com/{users})"), ", ", last = ", and "))
+clipr::write_clip(glue::glue_collapse(glue::glue("[\\@{users}](https://github.com/{users})"), ", ", last = ", and "))
 ```
 
-(Make sure to update ower, repo, and since)
+(Make sure to update owner, repo, and since)
