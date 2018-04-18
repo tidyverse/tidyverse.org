@@ -1,0 +1,93 @@
+---
+title: pillar 1.2.2
+slug: pillar-1-2-2
+description: >
+    pillar 1.2.2 is on CRAN now, losing that extra dot for whole numbers and those extra zeros when there's nothing more to see. If you still prefer the good old data frame output, this post shows how to get it back for tibbles too.
+date: 2018-04-18
+author: Kirill Müller, Hadley Wickham
+photo:
+  url: https://unsplash.com/photos/UoWfBET-G9k
+  author: Chris Barbalis
+categories: [package]
+---
+
+
+```{r setup, include = FALSE}
+options(crayon.enabled = TRUE)
+
+library(tibble)
+knitr::opts_chunk$set(collapse = TRUE, comment = pillar::style_subtle("#>"))
+
+colourise_chunk <- function(type) {
+  function(x, options) {
+    sprintf('<pre class="knitr %s">%s</pre>\n',
+      tolower(options$engine),
+      ansistrings::ansi_to_html(htmltools::htmlEscape(x), fullpage = FALSE)
+    )
+  }
+}
+
+knitr::knit_hooks$set(
+  output = colourise_chunk("output"),
+  message = colourise_chunk("message"),
+  warning = colourise_chunk("warning"),
+  error = colourise_chunk("error")
+)
+```
+
+Announcing version 1.2.2 of the *pillar* package which prints [tibbles](http://tibble.tidyverse.org/) to the terminal.  This is yet another small release that addresses user feedback.  Numbers are printed more consicely and accurately.  We show how to enable the original data frame printing for tibbles, and an outlook on upcoming formatting improvement for list columns.
+
+Please see the [release notes](https://github.com/r-lib/pillar/releases/v1.2.2) for the full list of changes.  Examples in this blog post are shown using the *tibble* package, which uses *pillar* under the hood.
+
+
+## Improved output
+
+The decimal dot that was always printed since *pillar* 1.2.1 seems to have contributed to more confusion, not less.  It's gone now, whole numbers don't have the dot anymore.  Unless.
+
+Unless it's a whole number a tiny number has been added to or subtracted from.  In other words, `1` is shown as `1`, but `1 + 1e-6` is shown as `1.00`, and `123 + 1e-6` is shown as `123.`.  This is a hint that there's more than can be shown with the requested number of significant digits (which is 3 by default and can be changed by setting the `pillar.sigfig` option).
+
+Likewise, decimal numbers that don't use the requested number of significant digits are shortened.  The number `0.1` is no longer shown as `0.100`.  Because most finite decimal representations don't have an accurate representation in the underlying floating-point format, *pillar* uses a heuristic: if the number multiplied by a power of 10 is a whole number within a small tolerance of about `1e-8` (on most systems), it can be shortened.  This is the same tolerance that the `all.equal()` function uses for comparing numeric values.
+
+```{r shortening-example}
+tibble(numbers = c(1, 0.1, 0.01, c(1, 12, 123, 1234, 0.1, 0.01) + 1e-6))
+```
+
+
+## Don't like the printing?
+
+Just like with the absence of row names or the default `drop = FALSE`, tibbles are opinionated in how they print.  We're working on providing a sensible default that suits most use cases, but some users have expressed the desire to revert to the good old data frame output.
+
+This is possible already by overriding the `print.tbl_df` method, which is called when a tibble is printed (either explicitly via `print()` or implicitly from the console).  On the downside, this also loses the second header row with the data types and the restriction in the number of rows and columns shown.
+
+```{r print}
+tibble(a = 1:3)
+print.tbl_df <- function(x, ...) {
+  print.data.frame(x, ...)
+  invisible(x)
+}
+tibble(a = 1:3)
+```
+
+```{r include=FALSE}
+rm(print.tbl_df)
+```
+
+
+## Outlook: formatting list columns
+
+List columns (and the special case of nested data frames) are a very powerful idiom.  In R, a list is just a special case of a vector that can hold arbitrary complex objects; it can be added to a data frame if it has the same lengths as the other columns:
+
+```{r list-col}
+tibble(a = 1:3, b = list(4, 5:6, letters[7:9]))
+```
+
+Often, all objects in a list column have the same data type.  A different formatting for such homogeneous lists would help focus on the relevant parts (e.g. the dimensions of the objects in that list) and save space too.  This feature isn't ready for prime time yet, but the screenshot below shows how this could look like.  Feel free to comment on the [relevant pull request](https://github.com/r-lib/pillar/pull/109) on GitHub.
+
+![](/images/pillar-1-2-2/colored-list-col.png)
+
+
+## Acknowledgments
+
+We'd like to use the opportunity to thank all recent contributors to *pillar* and *tibble*.  Thanks to everyone, your contributions help improve the tidyverse:
+
+[\@adsaxon](https://github.com/adsaxon), [\@aegerton](https://github.com/aegerton), [\@alaindanet](https://github.com/alaindanet), [\@alexwhan](https://github.com/alexwhan), [\@alistaire47](https://github.com/alistaire47), [\@anhqle](https://github.com/anhqle), [\@batpigandme](https://github.com/batpigandme), [\@bgreenwell](https://github.com/bgreenwell), [\@blueprint-ade](https://github.com/blueprint-ade), [\@brodieG](https://github.com/brodieG), [\@BruceZhaoR](https://github.com/BruceZhaoR), [\@cboettig](https://github.com/cboettig), [\@chasemc](https://github.com/chasemc), [\@cimentadaj](https://github.com/cimentadaj), [\@czeildi](https://github.com/czeildi), [\@DavisVaughan](https://github.com/DavisVaughan), [\@digital-dharma](https://github.com/digital-dharma), [\@dpeterson71](https://github.com/dpeterson71), [\@drewgendreau](https://github.com/drewgendreau), [\@echasnovski](https://github.com/echasnovski), [\@EdwardJRoss](https://github.com/EdwardJRoss), [\@edzer](https://github.com/edzer), [\@Eluvias](https://github.com/Eluvias), [\@flying-sheep](https://github.com/flying-sheep), [\@gregorp](https://github.com/gregorp), [\@holstius](https://github.com/holstius), [\@hplieninger](https://github.com/hplieninger), [\@ijlyttle](https://github.com/ijlyttle), [\@iron0012](https://github.com/iron0012), [\@javierluraschi](https://github.com/javierluraschi), [\@jcpetkovich](https://github.com/jcpetkovich), [\@jennybc](https://github.com/jennybc), [\@JLYJabc](https://github.com/JLYJabc), [\@jonathan-g](https://github.com/jonathan-g), [\@jtelleriar](https://github.com/jtelleriar), [\@kendonB](https://github.com/kendonB), [\@kevinushey](https://github.com/kevinushey), [\@kevinykuo](https://github.com/kevinykuo), [\@khughitt](https://github.com/khughitt), [\@kovla](https://github.com/kovla), [\@lbusett](https://github.com/lbusett), [\@lionel-](https://github.com/lionel-), [\@lorenzwalthert](https://github.com/lorenzwalthert), [\@lpmarco](https://github.com/lpmarco), [\@lwiklendt](https://github.com/lwiklendt), [\@martinjhnhadley](https://github.com/martinjhnhadley), [\@martj42](https://github.com/martj42), [\@mattfidler](https://github.com/mattfidler), [\@mmuurr](https://github.com/mmuurr), [\@momeara](https://github.com/momeara), [\@mubeenarasack](https://github.com/mubeenarasack), [\@mundl](https://github.com/mundl), [\@nathancday](https://github.com/nathancday), [\@p0bs](https://github.com/p0bs), [\@PalaceChan](https://github.com/PalaceChan), [\@patperry](https://github.com/patperry), [\@plantarum](https://github.com/plantarum), [\@PMassicotte](https://github.com/PMassicotte), [\@randomgambit](https://github.com/randomgambit), [\@rkahne](https://github.com/rkahne), [\@slonik-az](https://github.com/slonik-az), [\@strengejacke](https://github.com/strengejacke), [\@sumtxt](https://github.com/sumtxt), [\@t-kalinowski](https://github.com/t-kalinowski), [\@Tazinho](https://github.com/Tazinho), [\@tjmahr](https://github.com/tjmahr), [\@tmelconian](https://github.com/tmelconian), [\@tomroh](https://github.com/tomroh), [\@trinker](https://github.com/trinker), [\@vnijs](https://github.com/vnijs), [\@vspinu](https://github.com/vspinu), [\@WB-Student](https://github.com/WB-Student), [\@wch](https://github.com/wch), [\@wibeasley](https://github.com/wibeasley), [\@wpetry](https://github.com/wpetry), [\@yutannihilation](https://github.com/yutannihilation), and [\@Zedseayou](https://github.com/Zedseayou).
