@@ -1,0 +1,156 @@
+---
+title: readxl 1.1.0
+slug: readxl-1-1-0
+description: >
+  readxl 1.1.0 is now on CRAN.
+author: Jenny Bryan
+date: 2018-04-17
+categories:
+  - package
+photo:
+  url: https://httpbin.org/image/jpeg
+  author: Some Photographer
+output:
+  blogdown::html_page:
+    css: "/css/article-image.css"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+
+# ideas for photos
+# https://www.pinterest.com.au/pin/275001120966367679/
+# https://www.flickr.com/photos/mazzapix/5904512406/in/photostream/
+# https://mymodernmet.com/pietro-dangelo-paperclip-sculptures/
+# https://www.themarysue.com/paperclip-art/
+# http://365project.org/cjphoto/365/2017-07-10
+# http://www.cjohnsonphoto.com/2017/07/03/latest-365-project-creatve-paperclip-theme/
+```
+
+We are pleased to announce that [readxl](http://readxl.tidyverse.org) 1.1.0 is now available on CRAN. Learn more about readxl at <http://readxl.tidyverse.org>.
+
+The readxl package makes it easy to get tabular data out of Excel files and into R with code, not mouse clicks. It supports both the legacy `.xls` format and the modern xml-based `.xlsx` format. readxl is expressly designed to be easy to install and use on all operating systems. Therefore it has no external dependencies, such as Java or Perl, which have historically been a source of aggravation with some R packages that read Excel files. 
+
+The easiest way to install the latest version from CRAN is to install the whole tidyverse.
+
+```{r eval = FALSE}
+install.packages("tidyverse")
+```
+
+Alternatively, install just readxl from CRAN:
+
+```{r eval = FALSE}
+install.packages("readxl")
+```
+
+Regardless, you will still need to load readxl explicitly via `library(readxl)`, because it is not a core tidyverse package loaded via `library(tidyverse)`. Do this like so in your scripts:
+
+```{r eval = FALSE}
+library(readxl)
+```
+
+readxl was last released almost exactly one year ago, in April 2017, at version 1.0.0. The associated [blog post](http://readxl.tidyverse.org/articles/releases/readxl-1.0.0.html) summarizes many nifty new features in version 1.0.0. In contrast, version 1.1.0 is considerably less exciting for most users, but includes two important improvements:
+
+  * Security patches in the embedded libxls library
+  * Better support for detecting the format of files, i.e. whether to read as xls or xlsx
+  
+Version 1.1.0 also includes several other small features and bug fixes. For full details on all versions, see the [changelog](http://readxl.tidyverse.org/news/index.html).
+
+## Security fixes for libxls
+
+readxl embeds the library [libxls](https://github.com/evanmiller/libxls) in order to read xls files. In fall 2017, three security vulnerabilities were identified in libxls and were shown to affect readxl:
+
+  * [CVE-2017-12110](https://www.talosintelligence.com/vulnerability_reports/TALOS-2017-0462)
+  * [CVE-2017-2896](https://www.talosintelligence.com/vulnerability_reports/TALOS-2017-0403)
+  * [CVE-2017-2897](https://www.talosintelligence.com/vulnerability_reports/TALOS-2017-0404)
+  
+Those have now been addressed upstream and version 1.1.0 of readxl embeds a version of libxls that includes those fixes.
+
+FYI, there are two other CVEs for libxls that have long been resolved in libxls itself, that do not affect readxl, have never affected readxl, but nonetheless still mention readxl in their text. [CVE-2017-12111](https://www.talosintelligence.com/vulnerability_reports/TALOS-2017-0463), [CVE-2017-2919](https://www.talosintelligence.com/vulnerability_reports/TALOS-2017-0426)
+
+The recent maintenance of libxls is a very positive development and has allowed us to close many readxl issues related to crashes or other unsavory behaviour seen when reading specific xls files.
+
+## Is it xls or xlsx?
+
+readxl has 3 main functions for reading Excel files:
+
+  * [`read_xlsx()`](http://readxl.tidyverse.org/reference/read_excel.html) reads input as xlsx
+  * [`read_xls()`](http://readxl.tidyverse.org/reference/read_excel.html) reads input as xls
+  * [`read_excel()`](http://readxl.tidyverse.org/reference/read_excel.html) determines whether the input is xls or xlsx, then calls one of the functions above
+    
+`read_excel()` has gotten better at inferring the file format and this functionality is now exposed, in case others need access. This is implemented in [`excel_format()`](http://readxl.tidyverse.org/reference/excel_format.html), which first calls [`format_from_ext()`](http://readxl.tidyverse.org/reference/excel_format.html) to consult the extension and may then fall back to [`format_from_signature()`](http://readxl.tidyverse.org/reference/excel_format.html) to consult the [file's signature](https://en.wikipedia.org/wiki/List_of_file_signatures), a.k.a. its "magic number".
+
+`format_from_ext()` and, therefore, `excel_format()`, now recognize more file extensions in the xlsx family, namely `.xlsm`, `.xltx`, and `.xltm`, in addition to `.xlsx`.
+  
+```{r}
+library(readxl)
+library(tibble)
+
+tibble(
+  path = c(readxl_example()[1:2], "foo.xlsm", "bar.xltx", "yo.jpg", "blah.csv"),
+  format = excel_format(path, guess = FALSE) # consult extension only
+)
+```
+
+`format_from_signature()` and, therefore, `excel_format()` can determine the format of extensionless Excel files.
+
+```{r}
+guess_my_format <- c(
+  readxl_example("clippy.xls"),
+  readxl_example("datasets.xlsx"),
+  file.path(R.home("doc"), "html", "logo.jpg")
+)
+
+## copy and strip the extension
+filename <- tools::file_path_sans_ext(basename(guess_my_format))
+tmpdir <- tempdir()
+file.copy(from = guess_my_format, to = file.path(tmpdir, filename))
+
+tibble(
+  filename = filename,
+  format = excel_format(file.path(tmpdir, filename))
+)
+```
+
+## Future outlook
+
+I predict the next user-visible changes in readxl will be improvements around column type specification, cell coercion, and reading from more general forms of input, e.g., from a URL. You can see other improvements and bug fixes that are on the radar in [readxl's GitHub issues](https://github.com/tidyverse/readxl/issues).
+
+The next release will also have a breaking-ish change around name repair. readxl will switch to [`tibble::set_tidy_names()`](http://tibble.tidyverse.org/reference/tidy_names.html), which remediates missing and duplicate variable names. I will make this change soon in the dev version, so that interested users can begin to adjust.
+
+## Acknowledgements
+
+I am very thankful to the maintainers of the embedded libraries, especially the recent work on libxls by David Hoerl and Evan Miller. readxl includes a great deal of compiled code, from disparate sources, and Jim Hester is a fantastic troubleshooter.
+
+A big thanks goes out to the 86 users who contributed issues and pull requests since the previous readxl release: [\@aaa34169](https://github.com/aaa34169), [\@afdta](https://github.com/afdta), [\@alexeyknorre](https://github.com/alexeyknorre), [\@alexhallam](https://github.com/alexhallam), [\@anjurad](https://github.com/anjurad), [\@arnyeinstein](https://github.com/arnyeinstein), [\@batpigandme](https://github.com/batpigandme), [\@bbrewington](https://github.com/bbrewington), [\@bellafeng](https://github.com/bellafeng), [\@burchill](https://github.com/burchill), [\@chrisholbrook](https://github.com/chrisholbrook), [\@Courvoisier13](https://github.com/Courvoisier13), [\@danielsjf](https://github.com/danielsjf), [\@DavisVaughan](https://github.com/DavisVaughan), [\@dchiu911](https://github.com/dchiu911), [\@Deepu298](https://github.com/Deepu298), [\@dpprdan](https://github.com/dpprdan), [\@ea-guerette](https://github.com/ea-guerette), [\@espinielli](https://github.com/espinielli), [\@gergness](https://github.com/gergness), [\@gp2x](https://github.com/gp2x), [\@heseber](https://github.com/heseber), [\@hlynurhallgrims](https://github.com/hlynurhallgrims), [\@hrecht](https://github.com/hrecht), [\@huftis](https://github.com/huftis), [\@hughmarera](https://github.com/hughmarera), [\@iiLaurens](https://github.com/iiLaurens), [\@ilpepe](https://github.com/ilpepe), [\@Ironholds](https://github.com/Ironholds), [\@jameshowison](https://github.com/jameshowison), [\@jamesLSI](https://github.com/jamesLSI), [\@jcolomb](https://github.com/jcolomb), [\@jebyrnes](https://github.com/jebyrnes), [\@jekriske-lilly](https://github.com/jekriske-lilly), [\@jennybc](https://github.com/jennybc), [\@jeroen](https://github.com/jeroen), [\@jimhester](https://github.com/jimhester), [\@jjcad](https://github.com/jjcad), [\@Jmarks199](https://github.com/Jmarks199), [\@KKPMW](https://github.com/KKPMW), [\@krlmlr](https://github.com/krlmlr), [\@kwstat](https://github.com/kwstat), [\@KyleHaynes](https://github.com/KyleHaynes), [\@Lu2017](https://github.com/Lu2017), [\@lz1nwm](https://github.com/lz1nwm), [\@m-macaskill](https://github.com/m-macaskill), [\@mbeer](https://github.com/mbeer), [\@mdbauer](https://github.com/mdbauer), [\@melikovk](https://github.com/melikovk), [\@MichaelChirico](https://github.com/MichaelChirico), [\@MidhunT](https://github.com/MidhunT), [\@MikhailLagutin](https://github.com/MikhailLagutin), [\@mplatzer](https://github.com/mplatzer), [\@msgoussi](https://github.com/msgoussi), [\@nacnudus](https://github.com/nacnudus), [\@nealrichardson](https://github.com/nealrichardson), [\@nick-ulle](https://github.com/nick-ulle), [\@nortonle](https://github.com/nortonle), [\@oozdmr](https://github.com/oozdmr), [\@PMassicotte](https://github.com/PMassicotte), [\@ramanan82](https://github.com/ramanan82), [\@reinderien](https://github.com/reinderien), [\@reinierv4](https://github.com/reinierv4), [\@robbriers](https://github.com/robbriers), [\@RobertMyles](https://github.com/RobertMyles), [\@rsbivand](https://github.com/rsbivand), [\@rstub](https://github.com/rstub), [\@ruaridhw](https://github.com/ruaridhw), [\@sebastianschweer](https://github.com/sebastianschweer), [\@shoebodh](https://github.com/shoebodh), [\@simonthelwall](https://github.com/simonthelwall), [\@slfan2013](https://github.com/slfan2013), [\@smasuda](https://github.com/smasuda), [\@sncr-github](https://github.com/sncr-github), [\@stephlocke](https://github.com/stephlocke), [\@steve4444](https://github.com/steve4444), [\@sz-cgt](https://github.com/sz-cgt), [\@t-kalinowski](https://github.com/t-kalinowski), [\@tarunparmar](https://github.com/tarunparmar), [\@tbeu](https://github.com/tbeu), [\@thothal](https://github.com/thothal), [\@tomsing1](https://github.com/tomsing1), [\@tres-pitt](https://github.com/tres-pitt), [\@vkapartzianis](https://github.com/vkapartzianis), [\@willtudorevans](https://github.com/willtudorevans), and [\@zauster](https://github.com/zauster).
+
+```{r, include = FALSE, eval = FALSE}
+x <- gh::gh(
+  "/repos/tidyverse/readxl/issues",
+  since = "2017-04-18",
+  state = "all",
+  .limit = Inf
+)
+users <- sort(unique(purrr::map_chr(x, c("user", "login"))))
+length(users)
+clipr::write_clip(
+  glue::collapse(
+    glue::glue("[\\@{users}](https://github.com/{users})"),
+    ", ", last = ", and "
+  )
+)
+```
+
+```{r, include = FALSE, eval = FALSE}
+library(magick)
+img <- image_read("fodder/tools-1209764_1920.jpg")
+img %>% 
+  image_crop("1280x1280+300+0") %>% 
+  image_scale("300x300") %>% 
+  image_write("content/articles/usethis-1-3-0-sq.jpg")
+img %>% 
+  image_crop("1920x440+0+600") %>% 
+  image_scale("1000x200") %>% 
+  image_write("content/articles/usethis-1-3-0-wd.jpg")
+```
+
