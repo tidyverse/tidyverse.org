@@ -19,7 +19,7 @@ output:
 
 
 <p>We are pleased to announce that <a href="http://readxl.tidyverse.org">readxl</a> 1.1.0 is now available on CRAN. Learn more about readxl at <a href="http://readxl.tidyverse.org" class="uri">http://readxl.tidyverse.org</a>.</p>
-<p>The readxl package makes it easy to get tabular data out of Excel files and into R with code, not mouse clicks. It supports both the legacy <code>.xls</code> format and the modern xml-based <code>.xlsx</code> format. readxl is expressly designed to be easy to install and use on all operating systems. Therefore it has no external dependencies, such as Java or Perl, which have historically been a source of aggravation with some R packages that read Excel files.</p>
+<p>The readxl package makes it easy to get tabular data out of Excel files and into R with code, not mouse clicks. It supports both the legacy <code>.xls</code> format and the modern XML-based <code>.xlsx</code> format. readxl is expressly designed to be easy to install and use on all operating systems. Therefore it has no external dependencies, such as Java or Perl, which have historically been a source of aggravation with some R packages that read Excel files.</p>
 <p>The easiest way to install the latest version from CRAN is to install the whole tidyverse.</p>
 <pre class="r"><code>install.packages(&quot;tidyverse&quot;)</code></pre>
 <p>Alternatively, install just readxl from CRAN:</p>
@@ -32,6 +32,7 @@ output:
 <li>Better support for detecting the format of files, i.e. whether to read as xls or xlsx</li>
 </ul>
 <p>Version 1.1.0 also includes several other small features and bug fixes. For full details on all versions, see the <a href="http://readxl.tidyverse.org/news/index.html">changelog</a>.</p>
+<p>Read (or skip!) to the end for a story about how readxl was used in a recent Los Angeles Times piece about homeless arrests. Or, rather, was not used.</p>
 <div id="security-fixes-for-libxls" class="section level2">
 <h2>Security fixes for libxls</h2>
 <p>readxl embeds the library <a href="https://github.com/evanmiller/libxls">libxls</a> in order to read xls files. In fall 2017, three security vulnerabilities were identified in libxls and were shown to affect readxl:</p>
@@ -58,18 +59,19 @@ output:
 library(tibble)
 
 tibble(
-  path = c(readxl_example()[1:2], &quot;foo.xlsm&quot;, &quot;bar.xltx&quot;, &quot;yo.jpg&quot;, &quot;blah.csv&quot;),
-  format = excel_format(path, guess = FALSE) # consult extension only
+  excel_paths  = c(&quot;a.xlsx&quot;, &quot;b.xls&quot;, &quot;c.xlsm&quot;, &quot;d.xltx&quot;, &quot;e.jpg&quot;, &quot;f.csv&quot;, &quot;g&quot;),
+  format = excel_format(excel_paths, guess = FALSE) # consult extension **only**
 )
-#&gt; # A tibble: 6 x 2
-#&gt;   path        format
+#&gt; # A tibble: 7 x 2
+#&gt;   excel_paths format
 #&gt;   &lt;chr&gt;       &lt;chr&gt; 
-#&gt; 1 clippy.xls  xls   
-#&gt; 2 clippy.xlsx xlsx  
-#&gt; 3 foo.xlsm    xlsx  
-#&gt; 4 bar.xltx    xlsx  
-#&gt; 5 yo.jpg      &lt;NA&gt;  
-#&gt; 6 blah.csv    &lt;NA&gt;</code></pre>
+#&gt; 1 a.xlsx      xlsx  
+#&gt; 2 b.xls       xls   
+#&gt; 3 c.xlsm      xlsx  
+#&gt; 4 d.xltx      xlsx  
+#&gt; 5 e.jpg       &lt;NA&gt;  
+#&gt; 6 f.csv       &lt;NA&gt;  
+#&gt; 7 g           &lt;NA&gt;</code></pre>
 <p><code>format_from_signature()</code> and, therefore, <code>excel_format()</code> can determine the format of extensionless Excel files.</p>
 <pre class="r"><code>guess_my_format &lt;- c(
   readxl_example(&quot;clippy.xls&quot;),
@@ -93,6 +95,12 @@ tibble(
 #&gt; 1 clippy   xls   
 #&gt; 2 datasets xlsx  
 #&gt; 3 logo     &lt;NA&gt;</code></pre>
+</div>
+<div id="readxl-in-the-real-world" class="section level2">
+<h2>readxl in the real world</h2>
+<p>According to <a href="https://cranlogs.r-pkg.org">METACRAN</a> and <a href="https://www.rdocumentation.org/trends">rdocumentation.org</a>, readxl has over 2.7 million cumulative downloads and is consistently one of the top CRAN packages in terms of direct downloads. readxl has relatively few reverse dependencies (only about 70), so I believe the vast majority of usage occurs in users’ R scripts. And these users throw an incredibly diverse set of Excel files at readxl, mostly with quiet success.</p>
+<p>A recent failure, however, inspired an <a href="https://github.com/tidyverse/readxl/commit/eeeebf8171540a7cd14b373d20b08efbac7e3cd2">upgrade of readxl’s parsing of xlsx files</a>. <a href="https://twitter.com/christinezhang">Christine Zhang</a> did the data work behind a recent <a href="http://www.latimes.com/local/politics/la-me-homeless-arrests-20180204-story.html">front-page Los Angeles Times story about homeless arrests</a>. The Los Angeles Police Department provides daily arrest logs in the form of xlsx files, written by an unknown third-party tool. These files are a literal implementation the “minimal conformant SpreadsheetML package” and we had never seen such a specimen before. Both R/tidyverse/readxl and Python/pandas/xlrd refused to read these files. Undeterred, Christine took advantage of the fact that xlsx is “just” a bunch of XML files and took matters into her own hands. But I <a href="https://github.com/tidyverse/readxl/pull/437">got busy</a>, making sure that readxl would be ready the next time.</p>
+<p>Read the full backstory behind the LA Times story here: <a href="https://source.opennews.org/articles/how-we-found-new-patterns-la-homeless-arrest/">How We Found New Patterns in LA’s Homeless Arrest Data</a>. In the end, Christine got her job done and readxl is a more capable package as a result of this challenge.</p>
 </div>
 <div id="future-outlook" class="section level2">
 <h2>Future outlook</h2>
