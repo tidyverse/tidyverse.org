@@ -120,7 +120,7 @@ In addition to [tidyr](http://tidyr.tidyverse.org), and [dplyr](http://dplyr.tid
 
 In addition to [purrr](http://purrr.tidyverse.org), which provides very consistent and natural methods for iterating on R objects, there are three tidyverse packages that help with general programming challenges:
 
-* [rlang](http://rlang.tidyverse.org) provides tools to work with core language features of R and the tidyverse
+* [rlang](http://rlang.r-lib.org/) provides tools to work with core language features of R and the tidyverse
 
 * [magrittr](http://magrittr.tidyverse.org) provides the pipe, `%>%` used
   throughout the tidyverse. It also provide a number of more specialised
