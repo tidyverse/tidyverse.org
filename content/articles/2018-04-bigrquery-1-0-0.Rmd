@@ -27,7 +27,7 @@ I'm very excited to announce that bigrquery 1.0.0 is now on CRAN. This package m
   
 * The [DBI interface](http://www.r-dbi.org) wraps the low-level API and
   makes working with BigQuery like working with any other database system.
-  This is most convenient layer if you want to execute SQL queries in 
+  This is the most convenient layer if you want to execute SQL queries in 
   BigQuery or upload smaller amounts (i.e. <100 MB) of data.
 
 * The [dplyr interface](http://dbplyr.tidyverse.org/) lets you treat BigQuery 
@@ -82,9 +82,9 @@ This work has made me think a bunch about list-colums and df-columns (which migh
 
 ## Cross-dataset queries
 
-In the previous version of bigrquery it was difficult to perform queries across datasets because `dbConnect()` forced you to supply a `dataset` and only allowed you to reference tables within that dataset. Now the dataset is optional (the only required argument to `DBI::dbConnect()` is a project to bill) and both DBI and dplyr interfaces accept qualified table names: either `dataset.table` or `project.dataset.table`.
+In the previous version of bigrquery it was difficult to perform queries across datasets because `dbConnect()` forced you to specify a `dataset` and only allowed you to reference tables within that dataset. Now the dataset is optional (the only required argument to `DBI::dbConnect()` is a project to bill) and both DBI and dplyr interfaces accept qualified table names: either `dataset.table` or `project.dataset.table`.
 
-The following example this using my test project, which contains a `basedata` dataset containing the `mtcars` table:
+The following example demonstrates with my test project, which contains a `basedata` dataset containing the `mtcars` table:
 
 ```{r}
 library(bigrquery)
@@ -99,17 +99,18 @@ head(mtcars2)
 
 ## Improved download speeds
 
-The system for downloading data from BigQuery into R has been rewritten from the ground up to give considerably improve performance:
+The system for downloading data from BigQuery into R has been rewritten from the ground up to considerably improve performance:
 
 * By default, data is downloaded from BigQuery in pages of 10,000 rows. 
-  Previously bigrquery downloaded then parsed each page. Now, bigrquery 
-  downloads all pages, then parses all pages. This means that you'll now see t
-  wo progress bars: one for downloading JSON from BigQuery and one for parsing 
+  Previously, bigrquery downloaded then parsed each page. Now, bigrquery 
+  downloads all pages, then parses all pages. This means that you'll now see 
+  two progress bars: one for downloading JSON from BigQuery and one for parsing 
   that JSON into a data frame.
   
-* Because all pages are downloaded in a single, we can now download in parallel, 
-  using up to 6 simultaneous connections by default. This generally doesn't
-  result in a six-fold speed up, but should at least double download speed.
+* Because all pages are downloaded in a single pass, we can now download in 
+  parallel, using up to 6 simultaneous connections by default. This generally 
+  doesn't result in a six-fold speed up, but should at least double download 
+  speed.
 
 * The parsing code has been rewritten in C++. This eliminates several expensive
   intermediate computations, and means that bigrquery no longer requires 

@@ -22,7 +22,7 @@ you’re familiar with the REST API and you want do something not supported in
 the higher-level APIs.</p></li>
 <li><p>The <a href="http://www.r-dbi.org">DBI interface</a> wraps the low-level API and
 makes working with BigQuery like working with any other database system.
-This is most convenient layer if you want to execute SQL queries in
+This is the most convenient layer if you want to execute SQL queries in
 BigQuery or upload smaller amounts (i.e. &lt;100 MB) of data.</p></li>
 <li><p>The <a href="http://dbplyr.tidyverse.org/">dplyr interface</a> lets you treat BigQuery
 tables as if they are in-memory data frames. This is the most convenient
@@ -78,8 +78,8 @@ out$df[[1]]
 </div>
 <div id="cross-dataset-queries" class="section level2">
 <h2>Cross-dataset queries</h2>
-<p>In the previous version of bigrquery it was difficult to perform queries across datasets because <code>dbConnect()</code> forced you to supply a <code>dataset</code> and only allowed you to reference tables within that dataset. Now the dataset is optional (the only required argument to <code>DBI::dbConnect()</code> is a project to bill) and both DBI and dplyr interfaces accept qualified table names: either <code>dataset.table</code> or <code>project.dataset.table</code>.</p>
-<p>The following example this using my test project, which contains a <code>basedata</code> dataset containing the <code>mtcars</code> table:</p>
+<p>In the previous version of bigrquery it was difficult to perform queries across datasets because <code>dbConnect()</code> forced you to specify a <code>dataset</code> and only allowed you to reference tables within that dataset. Now the dataset is optional (the only required argument to <code>DBI::dbConnect()</code> is a project to bill) and both DBI and dplyr interfaces accept qualified table names: either <code>dataset.table</code> or <code>project.dataset.table</code>.</p>
+<p>The following example demonstrates with my test project, which contains a <code>basedata</code> dataset containing the <code>mtcars</code> table:</p>
 <pre class="r"><code>library(bigrquery)
 con &lt;- DBI::dbConnect(bigquery(), project = bq_test_project())
 
@@ -110,16 +110,17 @@ head(mtcars2)
 </div>
 <div id="improved-download-speeds" class="section level2">
 <h2>Improved download speeds</h2>
-<p>The system for downloading data from BigQuery into R has been rewritten from the ground up to give considerably improve performance:</p>
+<p>The system for downloading data from BigQuery into R has been rewritten from the ground up to considerably improve performance:</p>
 <ul>
 <li><p>By default, data is downloaded from BigQuery in pages of 10,000 rows.
-Previously bigrquery downloaded then parsed each page. Now, bigrquery
-downloads all pages, then parses all pages. This means that you’ll now see t
-wo progress bars: one for downloading JSON from BigQuery and one for parsing
+Previously, bigrquery downloaded then parsed each page. Now, bigrquery
+downloads all pages, then parses all pages. This means that you’ll now see
+two progress bars: one for downloading JSON from BigQuery and one for parsing
 that JSON into a data frame.</p></li>
-<li><p>Because all pages are downloaded in a single, we can now download in parallel,
-using up to 6 simultaneous connections by default. This generally doesn’t
-result in a six-fold speed up, but should at least double download speed.</p></li>
+<li><p>Because all pages are downloaded in a single pass, we can now download in
+parallel, using up to 6 simultaneous connections by default. This generally
+doesn’t result in a six-fold speed up, but should at least double download
+speed.</p></li>
 <li><p>The parsing code has been rewritten in C++. This eliminates several expensive
 intermediate computations, and means that bigrquery no longer requires
 <a href="http://readr.tidyverse.org/">readr</a>.</p></li>
