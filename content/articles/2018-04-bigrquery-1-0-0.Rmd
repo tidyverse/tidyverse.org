@@ -17,7 +17,7 @@ library(tidyr)
 library(tibble)
 ```
 
-I'm very pleased to announce that bigrquery 1.0.0 is now on CRAN. This package makes it easy to work with data stored in [Google BigQuery](https://developers.google.com/bigquery/), a hosted database for big data. The bigrquery package provides three levels of abstraction on top of BigQuery:
+I'm very excited to announce that bigrquery 1.0.0 is now on CRAN. This package makes it easy to work with data stored in [Google BigQuery](https://developers.google.com/bigquery/), a hosted database for big data. The bigrquery package provides three levels of abstraction on top of BigQuery:
 
 * The low-level API provides thin wrappers over the underlying REST API. In
   this version, all the low-level functions start with `bq_`, and mostly have
@@ -41,22 +41,18 @@ Install it with:
 install.packages("bigrquery")
 ```
 
-There are three four changes in this version of bigrquery:
+Four big changes in this version of bigrquery are described in detail below:
 
-* Support for repeated and nested fields, which are read into list-columns.
-  
-* Improved support for cross-dataset queries.
-
-* Greatly improved download speeds thanks to downloading pages of data 
-  in parallel, and custom C++ parsing code.
-
-* A new low-level API provides a much more consistent interface
+* Support for repeated and nested fields.
+* Easier cross-dataset queries.
+* Greatly improved download speeds.
+* A new low-level API.
 
 There are also many smaller improvements and bug fixes, as described in the [release notes](https://github.com/r-dbi/bigrquery/releases/tag/v1.0.0).
 
 ## Nested and repeated fields
 
-One of the neatest things about BigQuery is that it supports nested and repeated fields, which also also called structs (or records) and arrays. bigrquery now supports those fields, reading them into list-columns:
+One of the neatest things about BigQuery is that it supports nested and repeated fields, which are also called structs (or records) and arrays. bigrquery now supports those types of fields, reading them into list-columns:
 
 * Repeated values become list-columns containing vectors.
 * Nested values become list-columns containing named lists.
@@ -82,17 +78,16 @@ out$df[[1]]
 
 Note that results are now returned as tibbles, not data frames, because the base print method does not handle list columns well. If for some reason you do need a data frame, use `as.data.frame()` to convert back.
 
-This work has made me think a bunch about list-colums and df-columns (which might be a better fit for non-repeated nested fields). The germination of these ideas is likely to have widespread (if subtle) infuence throughout the tidyverse, with initial impacts most likely to be felt in [tidyr](http://tidyr.tidyverse.org/)
+This work has made me think a bunch about list-colums and df-columns (which might be a better fit for non-repeated nested fields). The germination of these ideas is likely to have widespread (if subtle) infuence throughout the tidyverse, with initial impacts most likely to be felt in [tidyr](http://tidyr.tidyverse.org/).
 
 ## Cross-dataset queries
 
-In the previous version of bigrquery it was difficult to perform queries across datasets because `dbConnect()` forced you to supply a `dataset` and only allowed you to reference tables inside that dataset. Now the dataset is optional (the only required argument to `DBI::dbConnect()` is a project to bill) and both DBI and dplyr interfaces accept qualified table names: either `dataset.table` or `project.dataset.table`.
+In the previous version of bigrquery it was difficult to perform queries across datasets because `dbConnect()` forced you to supply a `dataset` and only allowed you to reference tables within that dataset. Now the dataset is optional (the only required argument to `DBI::dbConnect()` is a project to bill) and both DBI and dplyr interfaces accept qualified table names: either `dataset.table` or `project.dataset.table`.
 
-The following example this using my test project, which contains a `basedata` dataset containing the `mtcars` table.
+The following example this using my test project, which contains a `basedata` dataset containing the `mtcars` table:
 
 ```{r}
 library(bigrquery)
-
 con <- DBI::dbConnect(bigquery(), project = bq_test_project())
 
 mtcars1 <- DBI::dbReadTable(con, "basedata.mtcars")
@@ -104,14 +99,15 @@ head(mtcars2)
 
 ## Improved download speeds
 
-The system for downloading data from BigQuery into R has been rewritten from the ground up to give considerable improvements in performance and flexibility:
+The system for downloading data from BigQuery into R has been rewritten from the ground up to give considerably improve performance:
 
-* Data is downloaded from BigQuery in pages. Previously bigrquery download then
-  parsed each page. Now, bigrquery downloads all pages, then parse all pages.
-  This means that you'll now see two progress bars: one for downloading JSON 
-  from BigQuery and one for parsing that JSON into a data frame.
+* By default, data is downloaded from BigQuery in pages of 10,000 rows. 
+  Previously bigrquery downloaded then parsed each page. Now, bigrquery 
+  downloads all pages, then parses all pages. This means that you'll now see t
+  wo progress bars: one for downloading JSON from BigQuery and one for parsing 
+  that JSON into a data frame.
   
-* Because all pages are downloaded first, we can now download in parallel, 
+* Because all pages are downloaded in a single, we can now download in parallel, 
   using up to 6 simultaneous connections by default. This generally doesn't
   result in a six-fold speed up, but should at least double download speed.
 
@@ -119,11 +115,11 @@ The system for downloading data from BigQuery into R has been rewritten from the
   intermediate computations, and means that bigrquery no longer requires 
   [readr](http://readr.tidyverse.org/).
 
-I can now download the first million rows of `publicdata.samples.natality` in about a minute, about 10x faster than the previous version. This data frame takes up 170 MB of space in BigQuery and 140 MB of memory in R, so a minute to download doesn't seem unreasonable. The bottleneck for loading BigQuery data is now parsing BigQuery's json format, which is difficult to optimise further as I'm already using the fastest C++ json parser, [RapidJson](http://rapidjson.org). If this is still too slow (because you download a lot of data), see `?bq_table_download` for an alternative approach.
+All up, I can now download the first million rows of `publicdata.samples.natality` in about a minute, about 8x faster than the previous version. This data frame takes up 170 MB of space in BigQuery and 140 MB of memory in R, so a minute to download doesn't seem unreasonable. The bottleneck for loading BigQuery data is now parsing BigQuery's JSON format, which is difficult to optimise further because I'm already using the fastest C++ JSON parser, [RapidJson](http://rapidjson.org). If this is still too slow (because you download a lot of data), see `?bq_table_download` for an alternative approach.
 
 ## Low-level API
 
-The low-level API has been completely overhauled to make it easier to use. The primary motivation was to make bigrquery development more enjoyable for me, but it should also be helpful to you when you need to go outside of the features provided by higher-level DBI and dplyr interfaces. The old API has been soft-deprecated - it will continue to work, but no further development will occur (including bug fixes). It will be formally deprecated in the next version, and then removed in the version after that.
+The low-level API has been completely overhauled to make it easier to use. The primary motivation was to make bigrquery development more enjoyable for me, but it should also be helpful to you when you need to go outside of the features provided by the higher-level DBI and dplyr interfaces.
 
 * __Consistent naming scheme__:
   All API functions now have the form `bq_object_verb()`, e.g. 
@@ -131,9 +127,8 @@ The low-level API has been completely overhauled to make it easier to use. The p
 
 * __S3 classes__:
   `bq_table()`, `bq_dataset()`, `bq_job()`, `bq_field()` and `bq_fields()`
-  constructor functions create S3 objects corresponding to important BigQuery 
-  objects (#150). These are paired with `as_` coercion functions and used throughout 
-  the new API.
+  constructors create S3 objects corresponding to important BigQuery objects. T
+  hese are paired with `as_` coercion functions and used throughout the new API.
 
 * __Easier local testing__:
   New `bq_test_project()` and `bq_test_dataset()` make it easier to run 
@@ -142,11 +137,13 @@ The low-level API has been completely overhauled to make it easier to use. The p
 
 * __More efficient data transfer__: 
   The new API makes extensive use of the `fields` query parameter, ensuring 
-  that functions only download data that they actually use (#153).
+  that functions only download data that they actually use.
 
-* __Tighter GCS connection__: 
+* __Tighter GCS connections__: 
   New `bq_table_load()` loads data from a Google Cloud Storage URI, pairing 
-  with `bq_table_save()` which saves data to a GCS URI (#155).
+  with `bq_table_save()` which saves data to a GCS URI.
+
+The old API has been soft-deprecated - it will continue to work, but no further development will occur (including bug fixes). It will be formally deprecated in the next version, and then removed in the version after that.
 
 ## Acknowledgements
 
