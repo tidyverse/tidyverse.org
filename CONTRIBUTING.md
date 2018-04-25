@@ -73,10 +73,22 @@ Images are added to the markdown by giving the full file-path, e.g.
 Every package release should include an acknowledgements section individually thanks every major contributor, and collectively thanks all GitHub contributors. You can use the following block of code to get all contributors:
 
 ```R
-x <- gh::gh("/repos/:owner/:repo/issues", owner = "r-lib", repo = "testthat", since = "2016-04-23", state = "all", .limit = Inf)
-users <- sort(unique(purrr::map_chr(x, c("user", "login"))))
+gh_users <- function(owner, repo, since) {
+  x <- gh::gh(
+    "/repos/:owner/:repo/issues", 
+    owner = owner, 
+    repo = repo, 
+    since = since, 
+    state = "all", 
+    .limit = Inf
+  )
+  sort(unique(purrr::map_chr(x, c("user", "login"))))
+}
+
+users <- gh_users("r-dbi", "bigrquery", "2017-06-26")
 length(users)
-clipr::write_clip(glue::glue_collapse(glue::glue("[\\@{users}](https://github.com/{users})"), ", ", last = ", and "))
+ack <- glue::collapse(glue::glue("[\\@{users}](https://github.com/{users})"), ", ", last = ", and ")
+clipr::write_clip(ack)
 ```
 
 (Make sure to update owner, repo, and since)
