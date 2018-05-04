@@ -92,3 +92,33 @@ clipr::write_clip(ack)
 ```
 
 (Make sure to update owner, repo, and since)
+
+### First sentence
+
+```R
+start <- tibble::tribble(
+  ~word, ~modifiers,
+  "chuffed", character(),
+  "pleased", c("most", "very", "extremely", "well"),
+  "stoked", character(),
+  "chuffed", "very",
+  "happy", c("so", "very", "exceedingly"),
+  "thrilled", character(),
+  "deligthed", character(),
+  "tickled pink", character(),
+)
+
+phrase <- function(package) {
+  row <- start[sample(nrow(start), 1), ]
+
+  phrase <- row$word
+  modifiers <- row$modifiers[[1]]
+  if (length(modifiers) > 0 && runif(1) < 0.5) {
+    phrase <- paste0(sample(modifiers, 1), " ", phrase)
+  }
+  
+  glue::glue("We're {phrase} to announce the release of {package}")
+}
+
+replicate(50, phrase("ggplot2"))
+```
