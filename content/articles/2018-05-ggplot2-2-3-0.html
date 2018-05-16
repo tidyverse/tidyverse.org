@@ -1,0 +1,118 @@
+---
+title: ggplot2 2.3.0 — pre-release
+author: Mara Averick
+date: '2018-05-18'
+slug: ggplot2-2-3-0
+description: >
+    What you need to know about upcoming changes for ggplot2 2.3.0.
+categories: [package]
+photo:
+  url: https://unsplash.com/photos/OhQhkkVJYhI
+  author: chuttersnap
+---
+
+
+
+<p>A new release of ggplot2 (2.3.0) is on the horizon, and we’d love to have people
+try it out, give us feedback, and <a href="https://github.com/tidyverse/ggplot2/issues">report issues</a>
+before we submit it to CRAN. This version is the culmination of over a year and
+a half of development, not all of which will be captured here. So, please see <a href="https://github.com/tidyverse/ggplot2/blob/master/NEWS.md">NEWS</a> for a fuller
+account of updates and changes.</p>
+<p>In addition to highlighting a few features and improvements, we also want to
+share a bit about our release-preparation process for ggplot2, which has over
+1,700 reverse dependencies.</p>
+<div id="breaking-changes" class="section level2">
+<h2>Breaking changes</h2>
+<div id="our-process" class="section level3">
+<h3>Our process</h3>
+<p>Regression testing, visual and otherwise, allows us to keep track of changes
+throughout the development process. Before submitting an update to CRAN,
+you need to ensure that the packages that depend on yours still pass <code>R CMD check</code>, and inform reverse-dependency maintainers in the event that they do not.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>
+We use <a href="https://github.com/r-lib/revdepcheck">revdepcheck</a> to help automate this
+process, and distinguish between “false positives” (pre-existing failures), and
+issues introduced in the development version of your package.</p>
+<p>At this point, we begin to manually examine the failures. “Newly broken” issues
+are extracted from the problems report and put into a Google sheet where (with
+the great help of Thomas Lin Pedersen, Claus Wilke, and Kara Woo) we identified
+clusters of errors to tackle. For example, 97 packages returned a warning due
+to a namespace clash between <code>dplyr::vars()</code> and <code>ggplot2::vars()</code>. That’s
+something we clearly need to fix, so we open an <a href="https://github.com/%20tidyverse/ggplot2/issues/2585">issue</a> to track progress.</p>
+<p>Where reverse-dependency errors result from a deliberate design change, we now
+have a collection of “symptomatic” error messages, and (hopefully) fixes to
+offer the maintainers of affected packages. These go in the “Breaking changes”
+section of the NEWS file, so that if you encounter a new error you can easily
+search for the error message and find the resolution. Because ggplot2 is an old
+and much used package, we try to keep breaking changes to a minimum. However,
+sometimes we deem it important to make a change that break existing code.
+Typically this is for one of two reasons:</p>
+<ul>
+<li><p>We discover that code that previously appeared to work was actually hiding a
+potential error. For example, in this version of ggplot2 we ensure that input
+data frames don’t have duplicate column names. Previously ggplot2 just took the
+first column with a name, which might have concealed a bug.</p></li>
+<li><p>We decided that it’s worth breaking a small amount of existing code in the
+interests of improving future code. For example, this version of ggplot2 adds
+support for <a href="https://github.com/tidyverse/ggplot2/blob/master/NEWS.md#tidy-evaluation">tidy evaluation</a>
+making ggplot2 more compatible with the rest of the tidyverse. This breaks a
+small number of packages that use ggplot2 but should affect very little data
+analysis code, so we decided that it was worth it.</p></li>
+</ul>
+</div>
+<div id="what-to-do-if-you-run-into-a-breaking-change" class="section level3">
+<h3>What to do if you run into a breaking change</h3>
+<p>The maintainers of reverse dependencies that are likely to encounter a breaking
+change will be contacted. However, it’s always possible that we’ve missed
+something. If you run into an error when running code that works with ggplot2
+2.2.1 (the version on CRAN as of this writing), you should look for it in the
+<a href="https://github.com/tidyverse/ggplot2/blob/master/NEWS.md#breaking-changes">“Breaking changes”</a>
+section of news. If you <em>can’t</em> find it in the news, please file an issue -
+either it’s an inadvertent change, or we need to describe it better in the news
+(or make it easier to find when searching for keywords). As per usual, please
+do a search of <a href="https://github.com/tidyverse/ggplot2/issues">existing issues</a>
+before filing a new one to avoid duplication.</p>
+<p>You can also ask for help in <a href="https://community.rstudio.com/">community.rstudio.com</a>.</p>
+</div>
+</div>
+<div id="new-features" class="section level2">
+<h2>New features</h2>
+<div id="tidy-evaluation" class="section level3">
+<h3>Tidy evaluation</h3>
+<p>You can now use quasiquotation in <code>aes()</code>, <code>facet_wrap()</code>, and <code>facet_grid()</code>.
+The formula interface for faceting is not going away, but this is meant to
+make it easier to create functions around <code>facet_wrap()</code> and <code>facet_grid()</code>,
+including label titles for facets with variable names and values.</p>
+<pre class="r"><code>p &lt;- ggplot(mtcars, aes(wt, mpg)) + geom_point()
+
+p + facet_grid(vars(vs), vars(cyl), labeller = label_both)</code></pre>
+<p><img src="/articles/2018-05-ggplot2-2-3-0_files/figure-html/label_both-1.png" width="2100" /></p>
+</div>
+<div id="nonstandard-aesthetics" class="section level3">
+<h3>Nonstandard aesthetics</h3>
+<p>Support for nonstandard aesthetics has been dramatically improved, thanks to
+Claus Wilke, author of the popular <a href="https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html">cowplot</a>
+and <a href="https://cran.r-project.org/web/packages/ggridges/vignettes/introduction.html">ggridges</a>
+packages. You can now specify aesthetics independent of the scale name, and
+specify more than one aesthetic at once, e.g. <code>aesthetics = c(&quot;colour&quot;, &quot;fill&quot;)</code>.</p>
+<pre class="r"><code>ggplot(iris, aes(x = Sepal.Length, fill = Species)) +
+  geom_density(alpha = 0.7) +
+  scale_colour_brewer(type = &quot;qual&quot;, aesthetics = &quot;fill&quot;)</code></pre>
+<p><img src="/articles/2018-05-ggplot2-2-3-0_files/figure-html/density-alpha-1.png" width="2100" /></p>
+<pre class="r"><code>ggplot(iris, aes(x = Species, y = Sepal.Length, color = Species, fill = Species)) +
+  geom_boxplot(alpha = 0.2) +
+  geom_point(position = &quot;jitter&quot;) +
+  scale_colour_hue(c = 50, l = 40, aesthetics = c(&quot;colour&quot;, &quot;fill&quot;))</code></pre>
+<p><img src="/articles/2018-05-ggplot2-2-3-0_files/figure-html/multiple-aes-1.png" width="2100" /></p>
+</div>
+</div>
+<div id="and-more" class="section level2">
+<h2>And more…</h2>
+<p>There are several other improvements, which we’ll describe in further detail
+once the ggplot 2.3.0 is released on CRAN. For now, please kick the tires and let us
+know what you think!</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://cran.r-project.org/web/packages/policies.html">CRAN Repository Policy</a>, Version $Revision: 3874. CRAN Repository Maintainers. <a href="https://cran.r-project.org/web/packages/policies.html" class="uri">https://cran.r-project.org/web/packages/policies.html</a><a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</div>

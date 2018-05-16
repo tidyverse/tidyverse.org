@@ -1,0 +1,126 @@
+---
+title: ggplot2 2.3.0 — pre-release
+author: Mara Averick
+date: '2018-05-18'
+slug: ggplot2-2-3-0
+description: >
+    What you need to know about upcoming changes for ggplot2 2.3.0.
+categories: [package]
+photo:
+  url: https://unsplash.com/photos/OhQhkkVJYhI
+  author: chuttersnap
+---
+```{r setup, include = FALSE}
+library(ggplot2)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", dpi = 300, fig.retina = 2)
+```
+
+A new release of ggplot2 (2.3.0) is on the horizon, and we'd love to have people 
+try it out, give us feedback, and [report issues](https://github.com/tidyverse/ggplot2/issues) 
+before we submit it to CRAN. This version is the culmination of over a year and 
+a half of development, not all of which will be captured here. So, please see [NEWS](https://github.com/tidyverse/ggplot2/blob/master/NEWS.md) for a fuller 
+account of updates and changes.
+
+In addition to highlighting a few features and improvements, we also want to 
+share a bit about our release-preparation process for ggplot2, which has over 
+1,700 reverse dependencies.
+
+## Breaking changes
+
+### Our process
+
+Regression testing, visual and otherwise, allows us to keep track of changes
+throughout the development process. Before submitting an update to CRAN,
+you need to ensure that the packages that depend on yours still pass `R CMD
+check`, and inform reverse-dependency maintainers in the event that they do not.[^1] 
+We use [revdepcheck](https://github.com/r-lib/revdepcheck) to help automate this 
+process, and distinguish between "false positives" (pre-existing failures), and 
+issues introduced in the development version of your package. 
+
+At this point, we begin to manually examine the failures. "Newly broken" issues
+are extracted from the problems report and put into a Google sheet where (with
+the great help of Thomas Lin Pedersen, Claus Wilke, and Kara Woo) we identified
+clusters of errors to tackle. For example, 97 packages returned a warning due
+to a namespace clash between `dplyr::vars()` and `ggplot2::vars()`. That’s
+something we clearly need to fix, so we open an [issue](https://github.com/
+tidyverse/ggplot2/issues/2585) to track progress.
+
+Where reverse-dependency errors result from a deliberate design change, we now
+have a collection of "symptomatic" error messages, and (hopefully) fixes to
+offer the maintainers of affected packages. These go in the "Breaking changes"
+section of the NEWS file, so that if you encounter a new error you can easily
+search for the error message and find the resolution. Because ggplot2 is an old
+and much used package, we try to keep breaking changes to a minimum. However,
+sometimes we deem it important to make a change that break existing code.
+Typically this is for one of two reasons:
+
+ * We discover that code that previously appeared to work was actually hiding a 
+ potential error. For example, in this version of ggplot2 we ensure that input 
+ data frames don’t have duplicate column names. Previously ggplot2 just took the 
+ first column with a name, which might have concealed a bug.  
+
+ * We decided that it’s worth breaking a small amount of existing code in the 
+ interests of improving future code. For example, this version of ggplot2 adds 
+ support for [tidy evaluation](https://github.com/tidyverse/ggplot2/blob/master/NEWS.md#tidy-evaluation) 
+ making ggplot2 more compatible with the rest of the tidyverse. This breaks a 
+ small number of packages that use ggplot2 but should affect very little data 
+ analysis code, so we decided that it was worth it.  
+
+### What to do if you run into a breaking change
+
+The maintainers of reverse dependencies that are likely to encounter a breaking 
+change will be contacted. However, it's always possible that we've missed 
+something. If you run into an error when running code that works with ggplot2 
+2.2.1 (the version on CRAN as of this writing), you should look for it in the
+["Breaking changes"](https://github.com/tidyverse/ggplot2/blob/master/NEWS.md#breaking-changes) 
+section of news. If you _can't_ find it in the news, please file an issue - 
+either it's an inadvertent change, or we need to describe it better in the news 
+(or make it easier to find when searching for keywords). As per usual, please 
+do a search of [existing issues](https://github.com/tidyverse/ggplot2/issues) 
+before filing a new one to avoid duplication.
+
+You can also ask for help in [community.rstudio.com](https://community.rstudio.com/).
+
+## New features
+
+### Tidy evaluation
+
+You can now use quasiquotation in `aes()`, `facet_wrap()`, and `facet_grid()`. 
+The formula interface for faceting is not going away, but this is meant to 
+make it easier to create functions around `facet_wrap()` and `facet_grid()`, 
+including label titles for facets with variable names and values.
+
+```{r label_both}
+p <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
+
+p + facet_grid(vars(vs), vars(cyl), labeller = label_both)
+```
+
+### Nonstandard aesthetics
+
+Support for nonstandard aesthetics has been dramatically improved, thanks to
+Claus Wilke, author of the popular [cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html) 
+and [ggridges](https://cran.r-project.org/web/packages/ggridges/vignettes/introduction.html) 
+packages. You can now specify aesthetics independent of the scale name, and 
+specify more than one aesthetic at once, e.g. `aesthetics = c("colour", "fill")`.
+
+```{r density-alpha}
+ggplot(iris, aes(x = Sepal.Length, fill = Species)) +
+  geom_density(alpha = 0.7) +
+  scale_colour_brewer(type = "qual", aesthetics = "fill")
+```
+
+```{r multiple-aes}
+ggplot(iris, aes(x = Species, y = Sepal.Length, color = Species, fill = Species)) +
+  geom_boxplot(alpha = 0.2) +
+  geom_point(position = "jitter") +
+  scale_colour_hue(c = 50, l = 40, aesthetics = c("colour", "fill"))
+```
+
+## And more...
+
+There are several other improvements, which we'll describe in further detail 
+once the ggplot 2.3.0 is released on CRAN. For now, please kick the tires and let us 
+know what you think!
+
+[^1]: [CRAN Repository Policy](https://cran.r-project.org/web/packages/policies.html), Version $Revision: 3874. CRAN Repository Maintainers. <https://cran.r-project.org/web/packages/policies.html>
