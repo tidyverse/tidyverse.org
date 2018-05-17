@@ -31,7 +31,7 @@ share a bit about our release-preparation process for ggplot2, which has over
 
 Regression testing, visual and otherwise, allows us to keep track of changes
 throughout the development process. Before submitting an update to CRAN,
-you need to ensure that the packages that depend on yours still pass `R CMD
+we need to ensure that the packages that depend on ours still pass `R CMD
 check`, and inform reverse-dependency maintainers in the event that they do not.[^1] 
 We use [revdepcheck](https://github.com/r-lib/revdepcheck) to help automate this 
 process, and distinguish between "false positives" (pre-existing failures), and 
@@ -45,14 +45,14 @@ to a namespace clash between `dplyr::vars()` and `ggplot2::vars()`. That’s
 something we clearly need to fix, so we open an [issue](https://github.com/
 tidyverse/ggplot2/issues/2585) to track progress.
 
-Where reverse-dependency errors result from a deliberate design change, we now
-have a collection of "symptomatic" error messages, and (hopefully) fixes to
-offer the maintainers of affected packages. These go in the "Breaking changes"
-section of the NEWS file, so that if you encounter a new error you can easily
-search for the error message and find the resolution. Because ggplot2 is an old
-and much used package, we try to keep breaking changes to a minimum. However,
-sometimes we deem it important to make a change that break existing code.
-Typically this is for one of two reasons:
+Where reverse-dependency errors result from a deliberate design change, we 
+collect "symptomatic" error messages, and (hopefully) fixes to offer the 
+maintainers of affected packages. These go in the "Breaking changes" section of 
+the NEWS file, so that if you encounter a new error you can easily search for 
+the error message and find the resolution. Because ggplot2 is an old and much 
+used package, we try to keep breaking changes to a minimum. However, sometimes 
+we deem it important to make a change that break existing code. Typically this 
+is for one of two reasons:
 
  * We discover that code that previously appeared to work was actually hiding a 
  potential error. For example, in this version of ggplot2 we ensure that input 
@@ -68,9 +68,7 @@ Typically this is for one of two reasons:
 
 ### What to do if you run into a breaking change
 
-The maintainers of reverse dependencies that are likely to encounter a breaking 
-change will be contacted. However, it's always possible that we've missed 
-something. If you run into an error when running code that works with ggplot2 
+If you run into an error when running code that works with ggplot2 
 2.2.1 (the version on CRAN as of this writing), you should look for it in the
 ["Breaking changes"](https://github.com/tidyverse/ggplot2/blob/master/NEWS.md#breaking-changes) 
 section of news. If you _can't_ find it in the news, please file an issue - 
@@ -86,41 +84,59 @@ You can also ask for help in [community.rstudio.com](https://community.rstudio.c
 ### Tidy evaluation
 
 You can now use quasiquotation in `aes()`, `facet_wrap()`, and `facet_grid()`. 
-The formula interface for faceting is not going away, but this is meant to 
-make it easier to create functions around `facet_wrap()` and `facet_grid()`, 
-including label titles for facets with variable names and values.
+To support quasiquotation in facetting we've added a new helper that works 
+similarly to `aes()`: `vars()`, short for variables, and instead of 
+`facet_grid(x + y ~ a + b)` you can now write `facet_grid(vars(x, y), vars(a, b))`. 
+The formula interface won't go away; but the new `vars()` interface should be 
+much easier to program with.
 
-```{r label_both}
-p <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
+```{r label-both}
+x_var <- quo(wt)
+y_var <- quo(mpg)
+group_var <- quo(cyl)
 
-p + facet_grid(vars(vs), vars(cyl), labeller = label_both)
+ggplot(mtcars, aes(!!x_var, !!y_var)) + 
+  geom_point() + 
+  facet_wrap(vars(!!group_var))
 ```
 
-### Nonstandard aesthetics
+### sf
 
-Support for nonstandard aesthetics has been dramatically improved, thanks to
-Claus Wilke, author of the popular [cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html) 
-and [ggridges](https://cran.r-project.org/web/packages/ggridges/vignettes/introduction.html) 
-packages. You can now specify aesthetics independent of the scale name, and 
-specify more than one aesthetic at once, e.g. `aesthetics = c("colour", "fill")`.
+ggplot2 now has full support for simple features through 
+[sf](https://r-spatial.github.io/sf/) using `geom_sf()` and `coord_sf()`; it now 
+automatically aligns CRS across layers, sets up the correct aspect ratio, and 
+draws a graticule.
 
-```{r density-alpha}
-ggplot(iris, aes(x = Sepal.Length, fill = Species)) +
-  geom_density(alpha = 0.7) +
-  scale_colour_brewer(type = "qual", aesthetics = "fill")
+```{r sf, message = FALSE}
+nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"))
+ggplot(nc) +
+  geom_sf() +
+  annotate("point", x = -80, y = 35, colour = "red", size = 4)
 ```
 
-```{r multiple-aes}
-ggplot(iris, aes(x = Species, y = Sepal.Length, color = Species, fill = Species)) +
-  geom_boxplot(alpha = 0.2) +
-  geom_point(position = "jitter") +
-  scale_colour_hue(c = 50, l = 40, aesthetics = c("colour", "fill"))
-```
+### Calculated aesthetics
+
+The new `calc()` function offers a cleaner, and better-documented syntax for 
+calculated-aesthetic variables. This replaces the older approach of surrounding 
+the variable name with `...`. Instead of using `aes(y = ..count..)`, you can use 
+`aes(y = calc(count))`. 
+
+This is particularly nice for more complex calculations, as `calc()` only needs 
+to be specified once; e.g. `aes(y = calc(count / max(count)))` rather than 
+`aes(y = ..count.. / max(..count..))`.
+
+### Viridis
+
+Several new functions have been added to make it easy to use Viridis colour 
+scales: `scale_colour_viridis_c()` and `scale_fill_viridis_c()` for continuous, 
+and `scale_colour_viridis_d()` and `scale_fill_viridis_d()` for discrete. 
+Viridis is also now used as the default colour and fill scale for ordered 
+factors.
 
 ## And more...
 
-There are several other improvements, which we'll describe in further detail 
-once the ggplot 2.3.0 is released on CRAN. For now, please kick the tires and let us 
-know what you think!
+There are several other improvements, which will be described in further detail 
+once the ggplot 2.3.0 is released on CRAN (currently targeted for June 25th). 
+For now, please kick the tires and let us know what you think!
 
 [^1]: [CRAN Repository Policy](https://cran.r-project.org/web/packages/policies.html), Version $Revision: 3874. CRAN Repository Maintainers. <https://cran.r-project.org/web/packages/policies.html>
