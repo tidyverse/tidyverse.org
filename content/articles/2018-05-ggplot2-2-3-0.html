@@ -1,0 +1,142 @@
+---
+title: ggplot2 2.3.0 — upcoming release
+author: Mara Averick
+date: '2018-05-21'
+slug: ggplot2-2-3-0
+description: >
+    What you need to know about upcoming changes for ggplot2 2.3.0.
+categories: [package]
+photo:
+  url: https://unsplash.com/photos/OhQhkkVJYhI
+  author: chuttersnap
+---
+
+
+
+<p>A new release of ggplot2 (2.3.0) is on the horizon, and we’d love to have people
+try it out, give us feedback, and <a href="https://github.com/tidyverse/ggplot2/issues">report issues</a>
+before we submit it to CRAN. This version is the culmination of over a year and
+a half of development, not all of which will be captured here. So, please see <a href="https://github.com/tidyverse/ggplot2/blob/master/NEWS.md">NEWS</a> for a fuller
+account of updates and changes.</p>
+<p>In addition to highlighting a few features and improvements, we also want to
+share a bit about our release-preparation process for ggplot2, which has over
+2,000 reverse dependencies.</p>
+<div id="breaking-changes" class="section level2">
+<h2>Breaking changes</h2>
+<div id="our-process" class="section level3">
+<h3>Our process</h3>
+<p>Regression testing, visual and otherwise, allows us to keep track of changes
+throughout the development process. Before submitting an update to CRAN,
+we need to ensure that the packages that depend on ours still pass <code>R CMD check</code>, and inform reverse-dependency maintainers in the event that they do not.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>
+We use <a href="https://github.com/r-lib/revdepcheck">revdepcheck</a> to help automate this
+process, and distinguish between “false positives” (pre-existing failures), and
+issues introduced in the development version of your package.</p>
+<p>At this point, we begin to manually examine the failures. “Newly broken” issues
+are extracted from the problems report and put into a Google sheet where (with
+the great help of Thomas Lin Pedersen, Claus Wilke, and Kara Woo) we identified
+clusters of errors to tackle. For example, 97 packages returned a warning due
+to a namespace clash between <code>dplyr::vars()</code> and <code>ggplot2::vars()</code>. That’s
+something we clearly need to fix, so we open an <a href="https://github.com/%20tidyverse/ggplot2/issues/2585">issue</a> to track progress.</p>
+<p>Where reverse-dependency errors result from a deliberate design change, we
+collect “symptomatic” error messages, and (hopefully) fixes to offer the
+maintainers of affected packages. These go in the “Breaking changes” section of
+the NEWS file, so that if you encounter a new error you can easily search for
+the error message and find the resolution. Because ggplot2 is an old and much
+used package, we try to keep breaking changes to a minimum. However, sometimes
+we deem it important to make a change that break existing code. Typically this
+is for one of two reasons:</p>
+<ul>
+<li><p>We discover that code that previously appeared to work was actually hiding a
+potential error. For example, in this version of ggplot2 we ensure that input
+data frames don’t have duplicate column names. Previously ggplot2 just took the
+first column with a name, which might have concealed a bug.</p></li>
+<li><p>We decided that it’s worth breaking a small amount of existing code in the
+interests of improving future code. For example, this version of ggplot2 adds
+support for <a href="https://github.com/tidyverse/ggplot2/blob/master/NEWS.md#tidy-evaluation">tidy evaluation</a>
+making ggplot2 more compatible with the rest of the tidyverse. This breaks a
+small number of packages that use ggplot2 but should affect very little data
+analysis code, so we decided that it was worth it.</p></li>
+</ul>
+</div>
+<div id="what-to-do-if-you-run-into-a-breaking-change" class="section level3">
+<h3>What to do if you run into a breaking change</h3>
+<p>If you run into an error when running code that works with ggplot2
+2.2.1 (the version on CRAN as of this writing), you should look for it in the
+<a href="https://github.com/tidyverse/ggplot2/blob/master/NEWS.md#breaking-changes">“Breaking changes”</a>
+section of news. If you <em>can’t</em> find it in the news, please file an issue -
+either it’s an inadvertent change, or we need to describe it better in the news
+(or make it easier to find when searching for keywords). As per usual, please
+do a search of <a href="https://github.com/tidyverse/ggplot2/issues">existing issues</a>
+before filing a new one to avoid duplication.</p>
+<p>You can also ask for help in <a href="https://community.rstudio.com/">community.rstudio.com</a>.</p>
+</div>
+</div>
+<div id="new-features" class="section level2">
+<h2>New features</h2>
+<div id="tidy-evaluation" class="section level3">
+<h3>Tidy evaluation</h3>
+<p>You can now use quasiquotation in <code>aes()</code>, <code>facet_wrap()</code>, and <code>facet_grid()</code>.
+To support quasiquotation in facetting we’ve added a new helper that works
+similarly to <code>aes()</code>: <code>vars()</code>, short for variables, and instead of
+<code>facet_grid(x + y ~ a + b)</code> you can now write <code>facet_grid(vars(x, y), vars(a, b))</code>.
+The formula interface won’t go away; but the new <code>vars()</code> interface should be
+much easier to program with.</p>
+<pre class="r"><code>x_var &lt;- quo(wt)
+y_var &lt;- quo(mpg)
+group_var &lt;- quo(cyl)
+
+ggplot(mtcars, aes(!!x_var, !!y_var)) + 
+  geom_point() + 
+  facet_wrap(vars(!!group_var))</code></pre>
+<p><img src="/articles/2018-05-ggplot2-2-3-0_files/figure-html/label-both-1.png" width="2100" /></p>
+</div>
+<div id="sf" class="section level3">
+<h3>sf</h3>
+<p>ggplot2 now has full support for simple features through
+<a href="https://r-spatial.github.io/sf/">sf</a> using <code>geom_sf()</code> and <code>coord_sf()</code>; it now
+automatically aligns CRS across layers, sets up the correct aspect ratio, and
+draws a graticule.</p>
+<pre class="r"><code>nc &lt;- sf::st_read(system.file(&quot;shape/nc.shp&quot;, package = &quot;sf&quot;))
+#&gt; Reading layer `nc&#39; from data source `/Library/Frameworks/R.framework/Versions/3.4/Resources/library/sf/shape/nc.shp&#39; using driver `ESRI Shapefile&#39;
+#&gt; Simple feature collection with 100 features and 14 fields
+#&gt; geometry type:  MULTIPOLYGON
+#&gt; dimension:      XY
+#&gt; bbox:           xmin: -84.32385 ymin: 33.88199 xmax: -75.45698 ymax: 36.58965
+#&gt; epsg (SRID):    4267
+#&gt; proj4string:    +proj=longlat +datum=NAD27 +no_defs
+ggplot(nc) +
+  geom_sf() +
+  annotate(&quot;point&quot;, x = -80, y = 35, colour = &quot;red&quot;, size = 4)</code></pre>
+<p><img src="/articles/2018-05-ggplot2-2-3-0_files/figure-html/sf-1.png" width="2100" /></p>
+</div>
+<div id="calculated-aesthetics" class="section level3">
+<h3>Calculated aesthetics</h3>
+<p>The new <code>stat()</code> function offers a cleaner, and better-documented syntax for
+calculated-aesthetic variables. This replaces the older approach of surrounding
+the variable name with <code>...</code>. Instead of using <code>aes(y = ..count..)</code>, you can use
+<code>aes(y = stat(count))</code>.</p>
+<p>This is particularly nice for more complex calculations, as <code>stat()</code> only needs
+to be specified once; e.g. <code>aes(y = stat(count / max(count)))</code> rather than
+<code>aes(y = ..count.. / max(..count..))</code>.</p>
+</div>
+<div id="viridis" class="section level3">
+<h3>Viridis</h3>
+<p>Several new functions have been added to make it easy to use Viridis colour
+scales: <code>scale_colour_viridis_c()</code> and <code>scale_fill_viridis_c()</code> for continuous,
+and <code>scale_colour_viridis_d()</code> and <code>scale_fill_viridis_d()</code> for discrete.
+Viridis is also now used as the default colour and fill scale for ordered
+factors.</p>
+</div>
+</div>
+<div id="and-more" class="section level2">
+<h2>And more…</h2>
+<p>There are several other improvements, which will be described in further detail
+once the ggplot 2.3.0 is released on CRAN (currently targeted for June 25th).
+For now, please kick the tires and let us know what you think!</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://cran.r-project.org/web/packages/policies.html">CRAN Repository Policy</a>, Version $Revision: 3874. CRAN Repository Maintainers. <a href="https://cran.r-project.org/web/packages/policies.html" class="uri">https://cran.r-project.org/web/packages/policies.html</a><a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
