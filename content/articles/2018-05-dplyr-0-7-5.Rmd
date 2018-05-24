@@ -1,0 +1,161 @@
+---
+title: dplyr 0.7.5
+slug: dplyr-0.7.5
+description: >
+    dplyr 0.7.5 has reached CRAN. This is mostly a bugfix release with two important new changes.
+date: 2018-05-25
+author: Kirill Müller, Romain François, Hadley Wickham
+photo:
+  url: https://unsplash.com/photos/aqrIcYonB-o
+  author: Phúc Long
+categories: [package]
+---
+
+
+```{r setup, include = FALSE}
+options(crayon.enabled = TRUE)
+options(pillar.bold = TRUE)
+
+library(dplyr)
+knitr::opts_chunk$set(collapse = TRUE, comment = pillar::style_subtle("#>"))
+
+colourise_chunk <- function(type) {
+  function(x, options) {
+    sprintf('<pre class="knitr %s">%s</pre>\n',
+      tolower(options$engine),
+      fansi::sgr_to_html(htmltools::htmlEscape(x))
+    )
+  }
+}
+
+knitr::knit_hooks$set(
+  output = colourise_chunk("output"),
+  message = colourise_chunk("message"),
+  warning = colourise_chunk("warning"),
+  error = colourise_chunk("error")
+)
+```
+
+We’re excited to announce version 0.7.5 of the *dplyr* package, the grammar of data manipulation in the tidyverse.  This minor release features the move to *tidyselect*, minor features like scoped operations on grouped data frames and support for raw vectors, and a number of bug fixes.  Please see the [release notes](https://github.com/tidyverse/dplyr/releases/tag/v0.7.5) for the full list of improvements and bug fixes.
+
+The next planned release of *dplyr* will be a feature release: Romain, author of the data frame backend for *dplyr* and coauthor of the *Rcpp* package, has joined the team and hit the ground running.  He has implemented many of the features described in this blog post, many more are already available in the development version.  Welcome (back), Romain, looking forward to a great time!
+
+
+## tidyselect
+
+*dplyr* always supported selecting by name, excluding columns, selecting by range, by match, or by position:
+
+```{r select}
+tbl <- data.frame(a1 = 1, a2 = 2, a3 = 3, b = "x")
+
+tbl %>%
+  select(a1, a2)
+tbl %>%
+  select(-b)
+tbl %>%
+  select(a1:a3)
+tbl %>%
+  select(starts_with("a"))
+tbl %>%
+  select(2:4)
+vars <- syms(c("a2", "b"))
+tbl %>%
+  select(!!!vars)
+```
+
+Last year, the core code that provides this functionality out of *dplyr* into the fairly new *tidyselect* package.  Selecting columns in a data frame (or items in a character vector, for that matter) is a common task in many other situations.  The *tidyselect* package offers a consistent and convenient interface with full support for quasiquotation, and is used by more than 20 packages, and now also by *dplyr*.  Internally, the `select()` calls above are translated into the following *tidyselect* operations:
+
+```{r tidyselect}
+tbl_names <- names(tbl)
+
+tbl_names %>%
+  tidyselect::vars_select(a1, a2)
+tbl_names %>%
+  tidyselect::vars_select(-b)
+tbl_names %>%
+  tidyselect::vars_select(a1:a3)
+tbl_names %>%
+  tidyselect::vars_select(starts_with("a"))
+tbl_names %>%
+  tidyselect::vars_select(2:4)
+vars <- syms(c("a2", "b"))
+tbl_names %>%
+  tidyselect::vars_select(!!!vars)
+```
+
+The net effect of this change is improved consistency across the tidyverse and the other packages that use *tidyselect*.  The user interface is affected in two ways:
+
+- The `select_vars()`, `select_var()` and `rename_vars()` functions are soft-deprecated and will start issuing warnings in a future version. Instead, use `tidyselect::vars_select()`, `tidyselect::vars_pull()` and `tidyselect::rename_vars()`, respectively.
+
+- `select()` and `rename()` fully support character vectors. You can now unquote variables like this:
+
+    ```{r select-char}
+    vars <- c("a2", "b")
+    select(tbl, !!vars)
+    select(tbl, -(!!vars))
+    ```
+
+## Scoped verbs for grouped data
+
+Scoped verbs are useful when you want to apply the same operation on multiple columns.  These functions end with `_all` (affect all columns), `_at` (affect selected columns), or `_if` (affect columns that satisfy a predicate), and replaced the older `_each` family of functions in *dplyr* 0.7.0.  In the most recent version of *dplyr*, these functions have been extended to work on grouped data frames.  Because the group columns need to stay unchanged, these operations work slightly differently on grouped data frames:
+
+- In `select_...()`, the group columns are always kept.
+
+    ```{r scoped-select}
+    grouped_iris <-
+      iris %>%
+      group_by(Species) %>%
+      slice(1:2)
+    
+    grouped_iris %>%
+      select_if(funs(is.numeric))
+    ```
+
+- In `mutate_...()` and `transmute_...()`, group columns are never altered:
+
+    ```{r scoped-mutate}
+    grouped_iris %>%
+      mutate_all(funs(. + 1))
+    ```
+
+- `filter_...()` currently includes group columns:
+
+    ```{r scoped-filter}
+    grouped_iris %>%
+      filter_if(funs(is.numeric), all_vars(. > 1))
+    ```
+
+- `arrange_...()` ignores group columns:
+
+    ```{r scoped-arrange}
+    grouped_iris %>%
+      arrange_all()
+    ```
+
+## Raw vectors
+
+The `raw` data type is a first-class citizen in R's type system, but has been somewhat neglected in *dplyr* so far.  In this version of *dplyr* you can compute on that data type:
+
+```{r raw}
+raw_tbl <- tibble(a = 1:3, b = as.raw(1:3))
+raw_tbl %>%
+  filter(b < 2)
+raw_tbl %>%
+  arrange(desc(b))
+all_equal(raw_tbl, slice(raw_tbl, 3:1))
+left_join(slice(raw_tbl, 1:2), slice(raw_tbl, 2:3), by = "b")
+```
+
+Be aware that `raw` doesn't know an `NA` value, the result of a join may be surprising.
+
+```{r raw-na}
+left_join(slice(raw_tbl, 1:2), slice(raw_tbl, 2:3), by = "a")
+```
+
+
+## Romain
+
+## Acknowledgments
+
+Thanks to all contributors to *dplyr*, your feedback helps make this package better and easier to use:
+[\@2533245542](https://github.com/2533245542), [\@aammd](https://github.com/aammd), [\@ablack3](https://github.com/ablack3), [\@adder](https://github.com/adder), [\@AHoerner](https://github.com/AHoerner), [\@AjarKeen](https://github.com/AjarKeen), [\@ajay-d](https://github.com/ajay-d), [\@alexfun](https://github.com/alexfun), [\@alexhallam](https://github.com/alexhallam), [\@alexiglaser](https://github.com/alexiglaser), [\@AljazJ](https://github.com/AljazJ), [\@amjiuzi](https://github.com/amjiuzi), [\@andreaspano](https://github.com/andreaspano), [\@AndreMikulec](https://github.com/AndreMikulec), [\@andresimi](https://github.com/andresimi), [\@andrewjpfeiffer](https://github.com/andrewjpfeiffer), [\@anescalc](https://github.com/anescalc), [\@AngryR11](https://github.com/AngryR11), [\@apreshill](https://github.com/apreshill), [\@aswan89](https://github.com/aswan89), [\@Athospd](https://github.com/Athospd), [\@aurelberra](https://github.com/aurelberra), [\@austensen](https://github.com/austensen), [\@baileych](https://github.com/baileych), [\@batpigandme](https://github.com/batpigandme), [\@behrman](https://github.com/behrman), [\@benmarwick](https://github.com/benmarwick), [\@bensoltoff](https://github.com/bensoltoff), [\@bheavner](https://github.com/bheavner), [\@bigmw](https://github.com/bigmw), [\@billdenney](https://github.com/billdenney), [\@bilydr](https://github.com/bilydr), [\@BishtDinesh](https://github.com/BishtDinesh), [\@bjornerstedt](https://github.com/bjornerstedt), [\@bkkkk](https://github.com/bkkkk), [\@bobokdalibor](https://github.com/bobokdalibor), [\@brendanf](https://github.com/brendanf), [\@brianstamper](https://github.com/brianstamper), [\@briglass](https://github.com/briglass), [\@brooke-watson](https://github.com/brooke-watson), [\@capelastegui](https://github.com/capelastegui), [\@cderv](https://github.com/cderv), [\@CerebralMastication](https://github.com/CerebralMastication), [\@ChadEfaw](https://github.com/ChadEfaw), [\@ChiWPak](https://github.com/ChiWPak), [\@chrnin](https://github.com/chrnin), [\@chunjiw](https://github.com/chunjiw), [\@cipherz](https://github.com/cipherz), [\@cjyetman](https://github.com/cjyetman), [\@ckarras](https://github.com/ckarras), [\@cmhh](https://github.com/cmhh), [\@cnjr2](https://github.com/cnjr2), [\@colearendt](https://github.com/colearendt), [\@ColinFay](https://github.com/ColinFay), [\@coloneltriq](https://github.com/coloneltriq), [\@congdanh8391](https://github.com/congdanh8391), [\@coolbutuseless](https://github.com/coolbutuseless), [\@copernican](https://github.com/copernican), [\@courtiol](https://github.com/courtiol), [\@cperk](https://github.com/cperk), [\@cturbelin](https://github.com/cturbelin), [\@cuttlefish44](https://github.com/cuttlefish44), [\@daattali](https://github.com/daattali), [\@dadwalrajiv](https://github.com/dadwalrajiv), [\@dan87134](https://github.com/dan87134), [\@danielcanueto](https://github.com/danielcanueto), [\@danielmcauley](https://github.com/danielmcauley), [\@danielsjf](https://github.com/danielsjf), [\@danishahmadamu](https://github.com/danishahmadamu), [\@dantonnoriega](https://github.com/dantonnoriega), [\@darrkj](https://github.com/darrkj), [\@DasHammett](https://github.com/DasHammett), [\@DataStrategist](https://github.com/DataStrategist), [\@DataWookie](https://github.com/DataWookie), [\@davharris](https://github.com/davharris), [\@davidkane9](https://github.com/davidkane9), [\@DavisVaughan](https://github.com/DavisVaughan), [\@deeenes](https://github.com/deeenes), [\@deymos314](https://github.com/deymos314), [\@dgromer](https://github.com/dgromer), [\@dhicks](https://github.com/dhicks), [\@djbirke](https://github.com/djbirke), [\@dkincaid](https://github.com/dkincaid), [\@donaldmusgrove](https://github.com/donaldmusgrove), [\@dpeterson71](https://github.com/dpeterson71), [\@dpolychr](https://github.com/dpolychr), [\@dpprdan](https://github.com/dpprdan), [\@drf5n](https://github.com/drf5n), [\@dustindall](https://github.com/dustindall), [\@eamoncaddigan](https://github.com/eamoncaddigan), [\@earthcli](https://github.com/earthcli), [\@echasnovski](https://github.com/echasnovski), [\@econandrew](https://github.com/econandrew), [\@EconomiCurtis](https://github.com/EconomiCurtis), [\@edgararuiz](https://github.com/edgararuiz), [\@eduardgrebe](https://github.com/eduardgrebe), [\@edublancas](https://github.com/edublancas), [\@EdwardJRoss](https://github.com/EdwardJRoss), [\@edwindj](https://github.com/edwindj), [\@EdwinTh](https://github.com/EdwinTh), [\@edzer](https://github.com/edzer), [\@elben10](https://github.com/elben10), [\@EmilRehnberg](https://github.com/EmilRehnberg), [\@emilyriederer](https://github.com/emilyriederer), [\@enesn](https://github.com/enesn), [\@erikerhardt](https://github.com/erikerhardt), [\@etiennebr](https://github.com/etiennebr), [\@evanbiederstedt](https://github.com/evanbiederstedt), [\@filipefilardi](https://github.com/filipefilardi), [\@flying-sheep](https://github.com/flying-sheep), [\@fmichonneau](https://github.com/fmichonneau), [\@fnamugera](https://github.com/fnamugera), [\@foo-bar-baz-qux](https://github.com/foo-bar-baz-qux), [\@foundinblank](https://github.com/foundinblank), [\@fpmcardoso](https://github.com/fpmcardoso), [\@Fredo-XVII](https://github.com/Fredo-XVII), [\@gadenbuie](https://github.com/gadenbuie), [\@ganong123](https://github.com/ganong123), [\@garrettgman](https://github.com/garrettgman), [\@GeorgeRJacobs](https://github.com/GeorgeRJacobs), [\@ggrothendieck](https://github.com/ggrothendieck), [\@ghaarsma](https://github.com/ghaarsma), [\@gireeshkbogu](https://github.com/gireeshkbogu), [\@greg-botwin](https://github.com/greg-botwin), [\@gtumuluri](https://github.com/gtumuluri), [\@GuillaumePressiat](https://github.com/GuillaumePressiat), [\@halpo](https://github.com/halpo), [\@hameddashti](https://github.com/hameddashti), [\@hannesmuehleisen](https://github.com/hannesmuehleisen), [\@happyfishyqy](https://github.com/happyfishyqy), [\@happyshows](https://github.com/happyshows), [\@harryzyming](https://github.com/harryzyming), [\@hdelrio](https://github.com/hdelrio), [\@heavywatal](https://github.com/heavywatal), [\@Henrik-P](https://github.com/Henrik-P), [\@homerhanumat](https://github.com/homerhanumat), [\@Hong-Revo](https://github.com/Hong-Revo), [\@HuangRicky](https://github.com/HuangRicky), [\@huftis](https://github.com/huftis), [\@hughjonesd](https://github.com/hughjonesd), [\@iangow](https://github.com/iangow), [\@ijlyttle](https://github.com/ijlyttle), [\@ilyaminati](https://github.com/ilyaminati), [\@iron0012](https://github.com/iron0012), [\@itcarroll](https://github.com/itcarroll), [\@jabranham](https://github.com/jabranham), [\@Jafet](https://github.com/Jafet), [\@jakefrost](https://github.com/jakefrost), [\@jalsalam](https://github.com/jalsalam), [\@jamesthurgood34](https://github.com/jamesthurgood34), [\@jarauh](https://github.com/jarauh), [\@jarekj71](https://github.com/jarekj71), [\@jarodmeng](https://github.com/jarodmeng), [\@JasonAizkalns](https://github.com/JasonAizkalns), [\@jasperDD](https://github.com/jasperDD), [\@javierluraschi](https://github.com/javierluraschi), [\@jbao](https://github.com/jbao), [\@jcfisher](https://github.com/jcfisher), [\@jcheng5](https://github.com/jcheng5), [\@jennybc](https://github.com/jennybc), [\@jerryfuyu0104](https://github.com/jerryfuyu0104), [\@jerryzhujian9](https://github.com/jerryzhujian9), [\@jessekps](https://github.com/jessekps), [\@jfcharney](https://github.com/jfcharney), [\@jgellar](https://github.com/jgellar), [\@jhofman](https://github.com/jhofman), [\@jianboli](https://github.com/jianboli), [\@jimvine](https://github.com/jimvine), [\@jjacks12](https://github.com/jjacks12), [\@jjchern](https://github.com/jjchern), [\@JLYJabc](https://github.com/JLYJabc), [\@jnolis](https://github.com/jnolis), [\@joelgombin](https://github.com/joelgombin), [\@JohnMount](https://github.com/JohnMount), [\@jonocarroll](https://github.com/jonocarroll), [\@josnarog](https://github.com/josnarog), [\@jrosen48](https://github.com/jrosen48), [\@jrubinstein](https://github.com/jrubinstein), [\@jschelbert](https://github.com/jschelbert), [\@jtelleriar](https://github.com/jtelleriar), [\@jthurner](https://github.com/jthurner), [\@jtrecenti](https://github.com/jtrecenti), [\@juliangkr](https://github.com/juliangkr), [\@jwhendy](https://github.com/jwhendy), [\@jwnorman](https://github.com/jwnorman), [\@karldw](https://github.com/karldw), [\@KasperSkytte](https://github.com/KasperSkytte), [\@kdaily](https://github.com/kdaily), [\@kerry-ja](https://github.com/kerry-ja), [\@ketansahils](https://github.com/ketansahils), [\@kevinykuo](https://github.com/kevinykuo), [\@kforner](https://github.com/kforner), [\@klmr](https://github.com/klmr), [\@knbknb](https://github.com/knbknb), [\@knokknok](https://github.com/knokknok), [\@Koantig](https://github.com/Koantig), [\@komalsrathi](https://github.com/komalsrathi), [\@konny0201](https://github.com/konny0201), [\@kravhowe](https://github.com/kravhowe), [\@kylebarron](https://github.com/kylebarron), [\@kylelundstedt](https://github.com/kylelundstedt), [\@larmarange](https://github.com/larmarange), [\@lawremi](https://github.com/lawremi), [\@lbakerIsazi](https://github.com/lbakerIsazi), [\@lepennec](https://github.com/lepennec), [\@leungi](https://github.com/leungi), [\@lgautier](https://github.com/lgautier), [\@lhunsicker](https://github.com/lhunsicker), [\@lindesaysh](https://github.com/lindesaysh), [\@lionel-](https://github.com/lionel-), [\@lmullen](https://github.com/lmullen), [\@Lopa2016](https://github.com/Lopa2016), [\@lorenzwalthert](https://github.com/lorenzwalthert), [\@lukeholman](https://github.com/lukeholman), [\@MargaretJones](https://github.com/MargaretJones), [\@markvanderloo](https://github.com/markvanderloo), [\@Marlein](https://github.com/Marlein), [\@mathematiguy](https://github.com/mathematiguy), [\@matsuobasho](https://github.com/matsuobasho), [\@mattbaggott](https://github.com/mattbaggott), [\@matthieugomez](https://github.com/matthieugomez), [\@MatthieuStigler](https://github.com/MatthieuStigler), [\@md0u80c9](https://github.com/md0u80c9), [\@mdancho84](https://github.com/mdancho84), [\@mdlincoln](https://github.com/mdlincoln), [\@metanoid](https://github.com/metanoid), [\@mgirlich](https://github.com/mgirlich), [\@michaellevy](https://github.com/michaellevy), [\@mienkoja](https://github.com/mienkoja), [\@mikldk](https://github.com/mikldk), [\@mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [\@mkirzon](https://github.com/mkirzon), [\@mkwiecinski](https://github.com/mkwiecinski), [\@mlell](https://github.com/mlell), [\@moodymudskipper](https://github.com/moodymudskipper), [\@mr-majkel](https://github.com/mr-majkel), [\@mredaelli](https://github.com/mredaelli), [\@mrkowalski](https://github.com/mrkowalski), [\@msberends](https://github.com/msberends), [\@msgoussi](https://github.com/msgoussi), [\@mtmorgan](https://github.com/mtmorgan), [\@mungojam](https://github.com/mungojam), [\@mwillumz](https://github.com/mwillumz), [\@my-katie](https://github.com/my-katie), [\@MZLABS](https://github.com/MZLABS), [\@nachocab](https://github.com/nachocab), [\@nc6](https://github.com/nc6), [\@neelrakholia](https://github.com/neelrakholia), [\@Nick-Rivera](https://github.com/Nick-Rivera), [\@nickbond](https://github.com/nickbond), [\@nilescbn](https://github.com/nilescbn), [\@OssiLehtinen](https://github.com/OssiLehtinen), [\@otoomet](https://github.com/otoomet), [\@otsaw](https://github.com/otsaw), [\@pachamaltese](https://github.com/pachamaltese), [\@paulponcet](https://github.com/paulponcet), [\@petehobo](https://github.com/petehobo), [\@PeterBolo](https://github.com/PeterBolo), [\@pgensler](https://github.com/pgensler), [\@phirsch](https://github.com/phirsch), [\@piccolbo](https://github.com/piccolbo), [\@pierucci](https://github.com/pierucci), [\@potterzot](https://github.com/potterzot), [\@profdave](https://github.com/profdave), [\@Prometheus77](https://github.com/Prometheus77), [\@pssguy](https://github.com/pssguy), [\@QuentinRoy](https://github.com/QuentinRoy), [\@ramongallego](https://github.com/ramongallego), [\@rappster](https://github.com/rappster), [\@rasmusrhl](https://github.com/rasmusrhl), [\@rebeccaferrell](https://github.com/rebeccaferrell), [\@renlund](https://github.com/renlund), [\@rgknight](https://github.com/rgknight), [\@RickPack](https://github.com/RickPack), [\@ringprince](https://github.com/ringprince), [\@rkrug](https://github.com/rkrug), [\@rtaph](https://github.com/rtaph), [\@rundel](https://github.com/rundel), [\@russellpierce](https://github.com/russellpierce), [\@s-geissler](https://github.com/s-geissler), [\@saberbouabid](https://github.com/saberbouabid), [\@salim-b](https://github.com/salim-b), [\@sammcq](https://github.com/sammcq), [\@sandan](https://github.com/sandan), [\@saurfang](https://github.com/saurfang), [\@SeabassWells](https://github.com/SeabassWells), [\@sfirke](https://github.com/sfirke), [\@shizidushu](https://github.com/shizidushu), [\@shntnu](https://github.com/shntnu), [\@sibojan](https://github.com/sibojan), [\@Sidt1](https://github.com/Sidt1), [\@simonthelwall](https://github.com/simonthelwall), [\@skranz](https://github.com/skranz), [\@sollano](https://github.com/sollano), [\@spedygiorgio](https://github.com/spedygiorgio), [\@srlivingstone](https://github.com/srlivingstone), [\@stephlocke](https://github.com/stephlocke), [\@steromano](https://github.com/steromano), [\@stevenfazzio](https://github.com/stevenfazzio), [\@strengejacke](https://github.com/strengejacke), [\@stufield](https://github.com/stufield), [\@SulevR](https://github.com/SulevR), [\@sz-cgt](https://github.com/sz-cgt), [\@t-kalinowski](https://github.com/t-kalinowski), [\@takahisah](https://github.com/takahisah), [\@thomascwells](https://github.com/thomascwells), [\@thomasp85](https://github.com/thomasp85), [\@timothyslau](https://github.com/timothyslau), [\@tobiasgerstenberg](https://github.com/tobiasgerstenberg), [\@topepo](https://github.com/topepo), [\@tslumley](https://github.com/tslumley), [\@tvedebrink](https://github.com/tvedebrink), [\@twolodzko](https://github.com/twolodzko), [\@tzoltak](https://github.com/tzoltak), [\@VikrantDogra](https://github.com/VikrantDogra), [\@VincentGuyader](https://github.com/VincentGuyader), [\@vitallish](https://github.com/vitallish), [\@vjcitn](https://github.com/vjcitn), [\@vnijs](https://github.com/vnijs), [\@vpanfilov](https://github.com/vpanfilov), [\@vspinu](https://github.com/vspinu), [\@washcycle](https://github.com/washcycle), [\@WaterworthD](https://github.com/WaterworthD), [\@wch](https://github.com/wch), [\@wenbostar](https://github.com/wenbostar), [\@wodsworth](https://github.com/wodsworth), [\@xuefliang](https://github.com/xuefliang), [\@youcc](https://github.com/youcc), [\@yutannihilation](https://github.com/yutannihilation), [\@zeehio](https://github.com/zeehio), [\@zenggyu](https://github.com/zenggyu), [\@zhangchuck](https://github.com/zhangchuck), and [\@zx8754](https://github.com/zx8754)

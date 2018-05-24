@@ -1,0 +1,213 @@
+---
+title: dplyr 0.7.5
+slug: dplyr-0.7.5
+description: >
+    dplyr 0.7.5 has reached CRAN. This is mostly a bugfix release with two important new changes.
+date: 2018-05-25
+author: Kirill Müller, Romain François, Hadley Wickham
+photo:
+  url: https://unsplash.com/photos/aqrIcYonB-o
+  author: Phúc Long
+categories: [package]
+---
+
+
+
+<p>We’re excited to announce version 0.7.5 of the <em>dplyr</em> package, the grammar of data manipulation in the tidyverse. This minor release features the move to <em>tidyselect</em>, minor features like scoped operations on grouped data frames and support for raw vectors, and a number of bug fixes. Please see the <a href="https://github.com/tidyverse/dplyr/releases/tag/v0.7.5">release notes</a> for the full list of improvements and bug fixes.</p>
+<p>The next planned release of <em>dplyr</em> will be a feature release: Romain, author of the data frame backend for <em>dplyr</em> and coauthor of the <em>Rcpp</em> package, has joined the team and hit the ground running. He has implemented many of the features described in this blog post, many more are already available in the development version. Welcome (back), Romain, looking forward to a great time!</p>
+<div id="tidyselect" class="section level2">
+<h2>tidyselect</h2>
+<p><em>dplyr</em> always supported selecting by name, excluding columns, selecting by range, by match, or by position:</p>
+<pre class="r"><code>tbl &lt;- data.frame(a1 = 1, a2 = 2, a3 = 3, b = &quot;x&quot;)
+
+tbl %&gt;%
+  select(a1, a2)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a1 a2
+</span><span style='color: #949494;'>#&gt;</span><span> 1  1  2
+</span></pre>
+<pre class="r"><code>tbl %&gt;%
+  select(-b)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a1 a2 a3
+</span><span style='color: #949494;'>#&gt;</span><span> 1  1  2  3
+</span></pre>
+<pre class="r"><code>tbl %&gt;%
+  select(a1:a3)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a1 a2 a3
+</span><span style='color: #949494;'>#&gt;</span><span> 1  1  2  3
+</span></pre>
+<pre class="r"><code>tbl %&gt;%
+  select(starts_with(&quot;a&quot;))</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a1 a2 a3
+</span><span style='color: #949494;'>#&gt;</span><span> 1  1  2  3
+</span></pre>
+<pre class="r"><code>tbl %&gt;%
+  select(2:4)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a2 a3 b
+</span><span style='color: #949494;'>#&gt;</span><span> 1  2  3 x
+</span></pre>
+<pre class="r"><code>vars &lt;- syms(c(&quot;a2&quot;, &quot;b&quot;))
+tbl %&gt;%
+  select(!!!vars)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a2 b
+</span><span style='color: #949494;'>#&gt;</span><span> 1  2 x
+</span></pre>
+<p>Last year, the core code that provides this functionality out of <em>dplyr</em> into the fairly new <em>tidyselect</em> package. Selecting columns in a data frame (or items in a character vector, for that matter) is a common task in many other situations. The <em>tidyselect</em> package offers a consistent and convenient interface with full support for quasiquotation, and is used by more than 20 packages, and now also by <em>dplyr</em>. Internally, the <code>select()</code> calls above are translated into the following <em>tidyselect</em> operations:</p>
+<pre class="r"><code>tbl_names &lt;- names(tbl)
+
+tbl_names %&gt;%
+  tidyselect::vars_select(a1, a2)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a1   a2 
+</span><span style='color: #949494;'>#&gt;</span><span> "a1" "a2"
+</span></pre>
+<pre class="r"><code>tbl_names %&gt;%
+  tidyselect::vars_select(-b)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a1   a2   a3 
+</span><span style='color: #949494;'>#&gt;</span><span> "a1" "a2" "a3"
+</span></pre>
+<pre class="r"><code>tbl_names %&gt;%
+  tidyselect::vars_select(a1:a3)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a1   a2   a3 
+</span><span style='color: #949494;'>#&gt;</span><span> "a1" "a2" "a3"
+</span></pre>
+<pre class="r"><code>tbl_names %&gt;%
+  tidyselect::vars_select(starts_with(&quot;a&quot;))</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a1   a2   a3 
+</span><span style='color: #949494;'>#&gt;</span><span> "a1" "a2" "a3"
+</span></pre>
+<pre class="r"><code>tbl_names %&gt;%
+  tidyselect::vars_select(2:4)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a2   a3    b 
+</span><span style='color: #949494;'>#&gt;</span><span> "a2" "a3"  "b"
+</span></pre>
+<pre class="r"><code>vars &lt;- syms(c(&quot;a2&quot;, &quot;b&quot;))
+tbl_names %&gt;%
+  tidyselect::vars_select(!!!vars)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a2    b 
+</span><span style='color: #949494;'>#&gt;</span><span> "a2"  "b"
+</span></pre>
+<p>The net effect of this change is improved consistency across the tidyverse and the other packages that use <em>tidyselect</em>. The user interface is affected in two ways:</p>
+<ul>
+<li><p>The <code>select_vars()</code>, <code>select_var()</code> and <code>rename_vars()</code> functions are soft-deprecated and will start issuing warnings in a future version. Instead, use <code>tidyselect::vars_select()</code>, <code>tidyselect::vars_pull()</code> and <code>tidyselect::rename_vars()</code>, respectively.</p></li>
+<li><p><code>select()</code> and <code>rename()</code> fully support character vectors. You can now unquote variables like this:</p>
+<pre class="r"><code>vars &lt;- c(&quot;a2&quot;, &quot;b&quot;)
+select(tbl, !!vars)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a2 b
+</span><span style='color: #949494;'>#&gt;</span><span> 1  2 x
+</span></pre>
+<pre class="r"><code>select(tbl, -(!!vars))</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a1 a3
+</span><span style='color: #949494;'>#&gt;</span><span> 1  1  3
+</span></pre></li>
+</ul>
+</div>
+<div id="scoped-verbs-for-grouped-data" class="section level2">
+<h2>Scoped verbs for grouped data</h2>
+<p>Scoped verbs are useful when you want to apply the same operation on multiple columns. These functions end with <code>_all</code> (affect all columns), <code>_at</code> (affect selected columns), or <code>_if</code> (affect columns that satisfy a predicate), and replaced the older <code>_each</code> family of functions in <em>dplyr</em> 0.7.0. In the most recent version of <em>dplyr</em>, these functions have been extended to work on grouped data frames. Because the group columns need to stay unchanged, these operations work slightly differently on grouped data frames:</p>
+<ul>
+<li><p>In <code>select_...()</code>, the group columns are always kept.</p>
+<pre class="r"><code>grouped_iris &lt;-
+  iris %&gt;%
+  group_by(Species) %&gt;%
+  slice(1:2)
+
+grouped_iris %&gt;%
+  select_if(funs(is.numeric))</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #949494;'># A tibble: 6 x 5</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #949494;'># Groups:   Species [3]</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span>   </span><span style='font-weight: bold;'>Species</span><span>    </span><span style='font-weight: bold;'>Sepal.Length</span><span> </span><span style='font-weight: bold;'>Sepal.Width</span><span> </span><span style='font-weight: bold;'>Petal.Length</span><span> </span><span style='font-weight: bold;'>Petal.Width</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span>   </span><span style='color: #949494;font-style: italic;'>&lt;fct&gt;</span><span>             </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>        </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>1</span><span> setosa              5.1         3.5          1.4         0.2
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>2</span><span> setosa              4.9         3            1.4         0.2
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>3</span><span> versicolor          7           3.2          4.7         1.4
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>4</span><span> versicolor          6.4         3.2          4.5         1.5
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>5</span><span> virginica           6.3         3.3          6           2.5
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>6</span><span> virginica           5.8         2.7          5.1         1.9
+</span></pre></li>
+<li><p>In <code>mutate_...()</code> and <code>transmute_...()</code>, group columns are never altered:</p>
+<pre class="r"><code>grouped_iris %&gt;%
+  mutate_all(funs(. + 1))</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #949494;'># A tibble: 6 x 5</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #949494;'># Groups:   Species [3]</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span>   </span><span style='font-weight: bold;'>Sepal.Length</span><span> </span><span style='font-weight: bold;'>Sepal.Width</span><span> </span><span style='font-weight: bold;'>Petal.Length</span><span> </span><span style='font-weight: bold;'>Petal.Width</span><span> </span><span style='font-weight: bold;'>Species</span><span>   
+</span><span style='color: #949494;'>#&gt;</span><span>          </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>        </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;fct&gt;</span><span>     
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>1</span><span>          6.1         4.5          2.4         1.2 setosa    
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>2</span><span>          5.9         4            2.4         1.2 setosa    
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>3</span><span>          8           4.2          5.7         2.4 versicolor
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>4</span><span>          7.4         4.2          5.5         2.5 versicolor
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>5</span><span>          7.3         4.3          7           3.5 virginica 
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>6</span><span>          6.8         3.7          6.1         2.9 virginica
+</span></pre></li>
+<li><p><code>filter_...()</code> currently includes group columns:</p>
+<pre class="r"><code>grouped_iris %&gt;%
+  filter_if(funs(is.numeric), all_vars(. &gt; 1))</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #949494;'># A tibble: 4 x 5</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #949494;'># Groups:   Species [2]</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span>   </span><span style='font-weight: bold;'>Sepal.Length</span><span> </span><span style='font-weight: bold;'>Sepal.Width</span><span> </span><span style='font-weight: bold;'>Petal.Length</span><span> </span><span style='font-weight: bold;'>Petal.Width</span><span> </span><span style='font-weight: bold;'>Species</span><span>   
+</span><span style='color: #949494;'>#&gt;</span><span>          </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>        </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;fct&gt;</span><span>     
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>1</span><span>          7           3.2          4.7         1.4 versicolor
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>2</span><span>          6.4         3.2          4.5         1.5 versicolor
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>3</span><span>          6.3         3.3          6           2.5 virginica 
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>4</span><span>          5.8         2.7          5.1         1.9 virginica
+</span></pre></li>
+<li><p><code>arrange_...()</code> ignores group columns:</p>
+<pre class="r"><code>grouped_iris %&gt;%
+  arrange_all()</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #949494;'># A tibble: 6 x 5</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #949494;'># Groups:   Species [3]</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span>   </span><span style='font-weight: bold;'>Sepal.Length</span><span> </span><span style='font-weight: bold;'>Sepal.Width</span><span> </span><span style='font-weight: bold;'>Petal.Length</span><span> </span><span style='font-weight: bold;'>Petal.Width</span><span> </span><span style='font-weight: bold;'>Species</span><span>   
+</span><span style='color: #949494;'>#&gt;</span><span>          </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>        </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;fct&gt;</span><span>     
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>1</span><span>          4.9         3            1.4         0.2 setosa    
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>2</span><span>          5.1         3.5          1.4         0.2 setosa    
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>3</span><span>          5.8         2.7          5.1         1.9 virginica 
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>4</span><span>          6.3         3.3          6           2.5 virginica 
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>5</span><span>          6.4         3.2          4.5         1.5 versicolor
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>6</span><span>          7           3.2          4.7         1.4 versicolor
+</span></pre></li>
+</ul>
+</div>
+<div id="raw-vectors" class="section level2">
+<h2>Raw vectors</h2>
+<p>The <code>raw</code> data type is a first-class citizen in R’s type system, but has been somewhat neglected in <em>dplyr</em> so far. In this version of <em>dplyr</em> you can compute on that data type:</p>
+<pre class="r"><code>raw_tbl &lt;- tibble(a = 1:3, b = as.raw(1:3))
+raw_tbl %&gt;%
+  filter(b &lt; 2)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #949494;'># A tibble: 1 x 2</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span>       </span><span style='font-weight: bold;'>a</span><span> </span><span style='font-weight: bold;'>b</span><span>    
+</span><span style='color: #949494;'>#&gt;</span><span>   </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;raw&gt;</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>1</span><span>     1 01
+</span></pre>
+<pre class="r"><code>raw_tbl %&gt;%
+  arrange(desc(b))</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #949494;'># A tibble: 3 x 2</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span>       </span><span style='font-weight: bold;'>a</span><span> </span><span style='font-weight: bold;'>b</span><span>    
+</span><span style='color: #949494;'>#&gt;</span><span>   </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;raw&gt;</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>1</span><span>     3 03   
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>2</span><span>     2 02   
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>3</span><span>     1 01
+</span></pre>
+<pre class="r"><code>all_equal(raw_tbl, slice(raw_tbl, 3:1))</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span> [1] TRUE
+</span></pre>
+<pre class="r"><code>left_join(slice(raw_tbl, 1:2), slice(raw_tbl, 2:3), by = &quot;b&quot;)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #949494;'># A tibble: 2 x 3</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span>     </span><span style='font-weight: bold;'>a.x</span><span> </span><span style='font-weight: bold;'>b</span><span>       </span><span style='font-weight: bold;'>a.y</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span>   </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;raw&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>1</span><span>     1 01       </span><span style='color: #BB0000;'>NA</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>2</span><span>     2 02        2
+</span></pre>
+<p>Be aware that <code>raw</code> doesn’t know an <code>NA</code> value, the result of a join may be surprising.</p>
+<pre class="r"><code>left_join(slice(raw_tbl, 1:2), slice(raw_tbl, 2:3), by = &quot;a&quot;)</code></pre>
+<pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #949494;'># A tibble: 2 x 3</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span>       </span><span style='font-weight: bold;'>a</span><span> </span><span style='font-weight: bold;'>b.x</span><span>   </span><span style='font-weight: bold;'>b.y</span><span>  
+</span><span style='color: #949494;'>#&gt;</span><span>   </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;raw&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;raw&gt;</span><span>
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>1</span><span>     1 01    00   
+</span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>2</span><span>     2 02    02
+</span></pre>
+</div>
+<div id="romain" class="section level2">
+<h2>Romain</h2>
+</div>
+<div id="acknowledgments" class="section level2">
+<h2>Acknowledgments</h2>
+<p>Thanks to all contributors to <em>dplyr</em>, your feedback helps make this package better and easier to use: <a href="https://github.com/2533245542">@2533245542</a>, <a href="https://github.com/aammd">@aammd</a>, <a href="https://github.com/ablack3">@ablack3</a>, <a href="https://github.com/adder">@adder</a>, <a href="https://github.com/AHoerner">@AHoerner</a>, <a href="https://github.com/AjarKeen">@AjarKeen</a>, <a href="https://github.com/ajay-d">@ajay-d</a>, <a href="https://github.com/alexfun">@alexfun</a>, <a href="https://github.com/alexhallam">@alexhallam</a>, <a href="https://github.com/alexiglaser">@alexiglaser</a>, <a href="https://github.com/AljazJ">@AljazJ</a>, <a href="https://github.com/amjiuzi">@amjiuzi</a>, <a href="https://github.com/andreaspano">@andreaspano</a>, <a href="https://github.com/AndreMikulec">@AndreMikulec</a>, <a href="https://github.com/andresimi">@andresimi</a>, <a href="https://github.com/andrewjpfeiffer">@andrewjpfeiffer</a>, <a href="https://github.com/anescalc">@anescalc</a>, <a href="https://github.com/AngryR11">@AngryR11</a>, <a href="https://github.com/apreshill">@apreshill</a>, <a href="https://github.com/aswan89">@aswan89</a>, <a href="https://github.com/Athospd">@Athospd</a>, <a href="https://github.com/aurelberra">@aurelberra</a>, <a href="https://github.com/austensen">@austensen</a>, <a href="https://github.com/baileych">@baileych</a>, <a href="https://github.com/batpigandme">@batpigandme</a>, <a href="https://github.com/behrman">@behrman</a>, <a href="https://github.com/benmarwick">@benmarwick</a>, <a href="https://github.com/bensoltoff">@bensoltoff</a>, <a href="https://github.com/bheavner">@bheavner</a>, <a href="https://github.com/bigmw">@bigmw</a>, <a href="https://github.com/billdenney">@billdenney</a>, <a href="https://github.com/bilydr">@bilydr</a>, <a href="https://github.com/BishtDinesh">@BishtDinesh</a>, <a href="https://github.com/bjornerstedt">@bjornerstedt</a>, <a href="https://github.com/bkkkk">@bkkkk</a>, <a href="https://github.com/bobokdalibor">@bobokdalibor</a>, <a href="https://github.com/brendanf">@brendanf</a>, <a href="https://github.com/brianstamper">@brianstamper</a>, <a href="https://github.com/briglass">@briglass</a>, <a href="https://github.com/brooke-watson">@brooke-watson</a>, <a href="https://github.com/capelastegui">@capelastegui</a>, <a href="https://github.com/cderv">@cderv</a>, <a href="https://github.com/CerebralMastication">@CerebralMastication</a>, <a href="https://github.com/ChadEfaw">@ChadEfaw</a>, <a href="https://github.com/ChiWPak">@ChiWPak</a>, <a href="https://github.com/chrnin">@chrnin</a>, <a href="https://github.com/chunjiw">@chunjiw</a>, <a href="https://github.com/cipherz">@cipherz</a>, <a href="https://github.com/cjyetman">@cjyetman</a>, <a href="https://github.com/ckarras">@ckarras</a>, <a href="https://github.com/cmhh">@cmhh</a>, <a href="https://github.com/cnjr2">@cnjr2</a>, <a href="https://github.com/colearendt">@colearendt</a>, <a href="https://github.com/ColinFay">@ColinFay</a>, <a href="https://github.com/coloneltriq">@coloneltriq</a>, <a href="https://github.com/congdanh8391">@congdanh8391</a>, <a href="https://github.com/coolbutuseless">@coolbutuseless</a>, <a href="https://github.com/copernican">@copernican</a>, <a href="https://github.com/courtiol">@courtiol</a>, <a href="https://github.com/cperk">@cperk</a>, <a href="https://github.com/cturbelin">@cturbelin</a>, <a href="https://github.com/cuttlefish44">@cuttlefish44</a>, <a href="https://github.com/daattali">@daattali</a>, <a href="https://github.com/dadwalrajiv">@dadwalrajiv</a>, <a href="https://github.com/dan87134">@dan87134</a>, <a href="https://github.com/danielcanueto">@danielcanueto</a>, <a href="https://github.com/danielmcauley">@danielmcauley</a>, <a href="https://github.com/danielsjf">@danielsjf</a>, <a href="https://github.com/danishahmadamu">@danishahmadamu</a>, <a href="https://github.com/dantonnoriega">@dantonnoriega</a>, <a href="https://github.com/darrkj">@darrkj</a>, <a href="https://github.com/DasHammett">@DasHammett</a>, <a href="https://github.com/DataStrategist">@DataStrategist</a>, <a href="https://github.com/DataWookie">@DataWookie</a>, <a href="https://github.com/davharris">@davharris</a>, <a href="https://github.com/davidkane9">@davidkane9</a>, <a href="https://github.com/DavisVaughan">@DavisVaughan</a>, <a href="https://github.com/deeenes">@deeenes</a>, <a href="https://github.com/deymos314">@deymos314</a>, <a href="https://github.com/dgromer">@dgromer</a>, <a href="https://github.com/dhicks">@dhicks</a>, <a href="https://github.com/djbirke">@djbirke</a>, <a href="https://github.com/dkincaid">@dkincaid</a>, <a href="https://github.com/donaldmusgrove">@donaldmusgrove</a>, <a href="https://github.com/dpeterson71">@dpeterson71</a>, <a href="https://github.com/dpolychr">@dpolychr</a>, <a href="https://github.com/dpprdan">@dpprdan</a>, <a href="https://github.com/drf5n">@drf5n</a>, <a href="https://github.com/dustindall">@dustindall</a>, <a href="https://github.com/eamoncaddigan">@eamoncaddigan</a>, <a href="https://github.com/earthcli">@earthcli</a>, <a href="https://github.com/echasnovski">@echasnovski</a>, <a href="https://github.com/econandrew">@econandrew</a>, <a href="https://github.com/EconomiCurtis">@EconomiCurtis</a>, <a href="https://github.com/edgararuiz">@edgararuiz</a>, <a href="https://github.com/eduardgrebe">@eduardgrebe</a>, <a href="https://github.com/edublancas">@edublancas</a>, <a href="https://github.com/EdwardJRoss">@EdwardJRoss</a>, <a href="https://github.com/edwindj">@edwindj</a>, <a href="https://github.com/EdwinTh">@EdwinTh</a>, <a href="https://github.com/edzer">@edzer</a>, <a href="https://github.com/elben10">@elben10</a>, <a href="https://github.com/EmilRehnberg">@EmilRehnberg</a>, <a href="https://github.com/emilyriederer">@emilyriederer</a>, <a href="https://github.com/enesn">@enesn</a>, <a href="https://github.com/erikerhardt">@erikerhardt</a>, <a href="https://github.com/etiennebr">@etiennebr</a>, <a href="https://github.com/evanbiederstedt">@evanbiederstedt</a>, <a href="https://github.com/filipefilardi">@filipefilardi</a>, <a href="https://github.com/flying-sheep">@flying-sheep</a>, <a href="https://github.com/fmichonneau">@fmichonneau</a>, <a href="https://github.com/fnamugera">@fnamugera</a>, <a href="https://github.com/foo-bar-baz-qux">@foo-bar-baz-qux</a>, <a href="https://github.com/foundinblank">@foundinblank</a>, <a href="https://github.com/fpmcardoso">@fpmcardoso</a>, <a href="https://github.com/Fredo-XVII">@Fredo-XVII</a>, <a href="https://github.com/gadenbuie">@gadenbuie</a>, <a href="https://github.com/ganong123">@ganong123</a>, <a href="https://github.com/garrettgman">@garrettgman</a>, <a href="https://github.com/GeorgeRJacobs">@GeorgeRJacobs</a>, <a href="https://github.com/ggrothendieck">@ggrothendieck</a>, <a href="https://github.com/ghaarsma">@ghaarsma</a>, <a href="https://github.com/gireeshkbogu">@gireeshkbogu</a>, <a href="https://github.com/greg-botwin">@greg-botwin</a>, <a href="https://github.com/gtumuluri">@gtumuluri</a>, <a href="https://github.com/GuillaumePressiat">@GuillaumePressiat</a>, <a href="https://github.com/halpo">@halpo</a>, <a href="https://github.com/hameddashti">@hameddashti</a>, <a href="https://github.com/hannesmuehleisen">@hannesmuehleisen</a>, <a href="https://github.com/happyfishyqy">@happyfishyqy</a>, <a href="https://github.com/happyshows">@happyshows</a>, <a href="https://github.com/harryzyming">@harryzyming</a>, <a href="https://github.com/hdelrio">@hdelrio</a>, <a href="https://github.com/heavywatal">@heavywatal</a>, <a href="https://github.com/Henrik-P">@Henrik-P</a>, <a href="https://github.com/homerhanumat">@homerhanumat</a>, <a href="https://github.com/Hong-Revo">@Hong-Revo</a>, <a href="https://github.com/HuangRicky">@HuangRicky</a>, <a href="https://github.com/huftis">@huftis</a>, <a href="https://github.com/hughjonesd">@hughjonesd</a>, <a href="https://github.com/iangow">@iangow</a>, <a href="https://github.com/ijlyttle">@ijlyttle</a>, <a href="https://github.com/ilyaminati">@ilyaminati</a>, <a href="https://github.com/iron0012">@iron0012</a>, <a href="https://github.com/itcarroll">@itcarroll</a>, <a href="https://github.com/jabranham">@jabranham</a>, <a href="https://github.com/Jafet">@Jafet</a>, <a href="https://github.com/jakefrost">@jakefrost</a>, <a href="https://github.com/jalsalam">@jalsalam</a>, <a href="https://github.com/jamesthurgood34">@jamesthurgood34</a>, <a href="https://github.com/jarauh">@jarauh</a>, <a href="https://github.com/jarekj71">@jarekj71</a>, <a href="https://github.com/jarodmeng">@jarodmeng</a>, <a href="https://github.com/JasonAizkalns">@JasonAizkalns</a>, <a href="https://github.com/jasperDD">@jasperDD</a>, <a href="https://github.com/javierluraschi">@javierluraschi</a>, <a href="https://github.com/jbao">@jbao</a>, <a href="https://github.com/jcfisher">@jcfisher</a>, <a href="https://github.com/jcheng5">@jcheng5</a>, <a href="https://github.com/jennybc">@jennybc</a>, <a href="https://github.com/jerryfuyu0104">@jerryfuyu0104</a>, <a href="https://github.com/jerryzhujian9">@jerryzhujian9</a>, <a href="https://github.com/jessekps">@jessekps</a>, <a href="https://github.com/jfcharney">@jfcharney</a>, <a href="https://github.com/jgellar">@jgellar</a>, <a href="https://github.com/jhofman">@jhofman</a>, <a href="https://github.com/jianboli">@jianboli</a>, <a href="https://github.com/jimvine">@jimvine</a>, <a href="https://github.com/jjacks12">@jjacks12</a>, <a href="https://github.com/jjchern">@jjchern</a>, <a href="https://github.com/JLYJabc">@JLYJabc</a>, <a href="https://github.com/jnolis">@jnolis</a>, <a href="https://github.com/joelgombin">@joelgombin</a>, <a href="https://github.com/JohnMount">@JohnMount</a>, <a href="https://github.com/jonocarroll">@jonocarroll</a>, <a href="https://github.com/josnarog">@josnarog</a>, <a href="https://github.com/jrosen48">@jrosen48</a>, <a href="https://github.com/jrubinstein">@jrubinstein</a>, <a href="https://github.com/jschelbert">@jschelbert</a>, <a href="https://github.com/jtelleriar">@jtelleriar</a>, <a href="https://github.com/jthurner">@jthurner</a>, <a href="https://github.com/jtrecenti">@jtrecenti</a>, <a href="https://github.com/juliangkr">@juliangkr</a>, <a href="https://github.com/jwhendy">@jwhendy</a>, <a href="https://github.com/jwnorman">@jwnorman</a>, <a href="https://github.com/karldw">@karldw</a>, <a href="https://github.com/KasperSkytte">@KasperSkytte</a>, <a href="https://github.com/kdaily">@kdaily</a>, <a href="https://github.com/kerry-ja">@kerry-ja</a>, <a href="https://github.com/ketansahils">@ketansahils</a>, <a href="https://github.com/kevinykuo">@kevinykuo</a>, <a href="https://github.com/kforner">@kforner</a>, <a href="https://github.com/klmr">@klmr</a>, <a href="https://github.com/knbknb">@knbknb</a>, <a href="https://github.com/knokknok">@knokknok</a>, <a href="https://github.com/Koantig">@Koantig</a>, <a href="https://github.com/komalsrathi">@komalsrathi</a>, <a href="https://github.com/konny0201">@konny0201</a>, <a href="https://github.com/kravhowe">@kravhowe</a>, <a href="https://github.com/kylebarron">@kylebarron</a>, <a href="https://github.com/kylelundstedt">@kylelundstedt</a>, <a href="https://github.com/larmarange">@larmarange</a>, <a href="https://github.com/lawremi">@lawremi</a>, <a href="https://github.com/lbakerIsazi">@lbakerIsazi</a>, <a href="https://github.com/lepennec">@lepennec</a>, <a href="https://github.com/leungi">@leungi</a>, <a href="https://github.com/lgautier">@lgautier</a>, <a href="https://github.com/lhunsicker">@lhunsicker</a>, <a href="https://github.com/lindesaysh">@lindesaysh</a>, <a href="https://github.com/lionel-">@lionel-</a>, <a href="https://github.com/lmullen">@lmullen</a>, <a href="https://github.com/Lopa2016">@Lopa2016</a>, <a href="https://github.com/lorenzwalthert">@lorenzwalthert</a>, <a href="https://github.com/lukeholman">@lukeholman</a>, <a href="https://github.com/MargaretJones">@MargaretJones</a>, <a href="https://github.com/markvanderloo">@markvanderloo</a>, <a href="https://github.com/Marlein">@Marlein</a>, <a href="https://github.com/mathematiguy">@mathematiguy</a>, <a href="https://github.com/matsuobasho">@matsuobasho</a>, <a href="https://github.com/mattbaggott">@mattbaggott</a>, <a href="https://github.com/matthieugomez">@matthieugomez</a>, <a href="https://github.com/MatthieuStigler">@MatthieuStigler</a>, <a href="https://github.com/md0u80c9">@md0u80c9</a>, <a href="https://github.com/mdancho84">@mdancho84</a>, <a href="https://github.com/mdlincoln">@mdlincoln</a>, <a href="https://github.com/metanoid">@metanoid</a>, <a href="https://github.com/mgirlich">@mgirlich</a>, <a href="https://github.com/michaellevy">@michaellevy</a>, <a href="https://github.com/mienkoja">@mienkoja</a>, <a href="https://github.com/mikldk">@mikldk</a>, <a href="https://github.com/mine-cetinkaya-rundel">@mine-cetinkaya-rundel</a>, <a href="https://github.com/mkirzon">@mkirzon</a>, <a href="https://github.com/mkwiecinski">@mkwiecinski</a>, <a href="https://github.com/mlell">@mlell</a>, <a href="https://github.com/moodymudskipper">@moodymudskipper</a>, <a href="https://github.com/mr-majkel">@mr-majkel</a>, <a href="https://github.com/mredaelli">@mredaelli</a>, <a href="https://github.com/mrkowalski">@mrkowalski</a>, <a href="https://github.com/msberends">@msberends</a>, <a href="https://github.com/msgoussi">@msgoussi</a>, <a href="https://github.com/mtmorgan">@mtmorgan</a>, <a href="https://github.com/mungojam">@mungojam</a>, <a href="https://github.com/mwillumz">@mwillumz</a>, <a href="https://github.com/my-katie">@my-katie</a>, <a href="https://github.com/MZLABS">@MZLABS</a>, <a href="https://github.com/nachocab">@nachocab</a>, <a href="https://github.com/nc6">@nc6</a>, <a href="https://github.com/neelrakholia">@neelrakholia</a>, <a href="https://github.com/Nick-Rivera">@Nick-Rivera</a>, <a href="https://github.com/nickbond">@nickbond</a>, <a href="https://github.com/nilescbn">@nilescbn</a>, <a href="https://github.com/OssiLehtinen">@OssiLehtinen</a>, <a href="https://github.com/otoomet">@otoomet</a>, <a href="https://github.com/otsaw">@otsaw</a>, <a href="https://github.com/pachamaltese">@pachamaltese</a>, <a href="https://github.com/paulponcet">@paulponcet</a>, <a href="https://github.com/petehobo">@petehobo</a>, <a href="https://github.com/PeterBolo">@PeterBolo</a>, <a href="https://github.com/pgensler">@pgensler</a>, <a href="https://github.com/phirsch">@phirsch</a>, <a href="https://github.com/piccolbo">@piccolbo</a>, <a href="https://github.com/pierucci">@pierucci</a>, <a href="https://github.com/potterzot">@potterzot</a>, <a href="https://github.com/profdave">@profdave</a>, <a href="https://github.com/Prometheus77">@Prometheus77</a>, <a href="https://github.com/pssguy">@pssguy</a>, <a href="https://github.com/QuentinRoy">@QuentinRoy</a>, <a href="https://github.com/ramongallego">@ramongallego</a>, <a href="https://github.com/rappster">@rappster</a>, <a href="https://github.com/rasmusrhl">@rasmusrhl</a>, <a href="https://github.com/rebeccaferrell">@rebeccaferrell</a>, <a href="https://github.com/renlund">@renlund</a>, <a href="https://github.com/rgknight">@rgknight</a>, <a href="https://github.com/RickPack">@RickPack</a>, <a href="https://github.com/ringprince">@ringprince</a>, <a href="https://github.com/rkrug">@rkrug</a>, <a href="https://github.com/rtaph">@rtaph</a>, <a href="https://github.com/rundel">@rundel</a>, <a href="https://github.com/russellpierce">@russellpierce</a>, <a href="https://github.com/s-geissler">@s-geissler</a>, <a href="https://github.com/saberbouabid">@saberbouabid</a>, <a href="https://github.com/salim-b">@salim-b</a>, <a href="https://github.com/sammcq">@sammcq</a>, <a href="https://github.com/sandan">@sandan</a>, <a href="https://github.com/saurfang">@saurfang</a>, <a href="https://github.com/SeabassWells">@SeabassWells</a>, <a href="https://github.com/sfirke">@sfirke</a>, <a href="https://github.com/shizidushu">@shizidushu</a>, <a href="https://github.com/shntnu">@shntnu</a>, <a href="https://github.com/sibojan">@sibojan</a>, <a href="https://github.com/Sidt1">@Sidt1</a>, <a href="https://github.com/simonthelwall">@simonthelwall</a>, <a href="https://github.com/skranz">@skranz</a>, <a href="https://github.com/sollano">@sollano</a>, <a href="https://github.com/spedygiorgio">@spedygiorgio</a>, <a href="https://github.com/srlivingstone">@srlivingstone</a>, <a href="https://github.com/stephlocke">@stephlocke</a>, <a href="https://github.com/steromano">@steromano</a>, <a href="https://github.com/stevenfazzio">@stevenfazzio</a>, <a href="https://github.com/strengejacke">@strengejacke</a>, <a href="https://github.com/stufield">@stufield</a>, <a href="https://github.com/SulevR">@SulevR</a>, <a href="https://github.com/sz-cgt">@sz-cgt</a>, <a href="https://github.com/t-kalinowski">@t-kalinowski</a>, <a href="https://github.com/takahisah">@takahisah</a>, <a href="https://github.com/thomascwells">@thomascwells</a>, <a href="https://github.com/thomasp85">@thomasp85</a>, <a href="https://github.com/timothyslau">@timothyslau</a>, <a href="https://github.com/tobiasgerstenberg">@tobiasgerstenberg</a>, <a href="https://github.com/topepo">@topepo</a>, <a href="https://github.com/tslumley">@tslumley</a>, <a href="https://github.com/tvedebrink">@tvedebrink</a>, <a href="https://github.com/twolodzko">@twolodzko</a>, <a href="https://github.com/tzoltak">@tzoltak</a>, <a href="https://github.com/VikrantDogra">@VikrantDogra</a>, <a href="https://github.com/VincentGuyader">@VincentGuyader</a>, <a href="https://github.com/vitallish">@vitallish</a>, <a href="https://github.com/vjcitn">@vjcitn</a>, <a href="https://github.com/vnijs">@vnijs</a>, <a href="https://github.com/vpanfilov">@vpanfilov</a>, <a href="https://github.com/vspinu">@vspinu</a>, <a href="https://github.com/washcycle">@washcycle</a>, <a href="https://github.com/WaterworthD">@WaterworthD</a>, <a href="https://github.com/wch">@wch</a>, <a href="https://github.com/wenbostar">@wenbostar</a>, <a href="https://github.com/wodsworth">@wodsworth</a>, <a href="https://github.com/xuefliang">@xuefliang</a>, <a href="https://github.com/youcc">@youcc</a>, <a href="https://github.com/yutannihilation">@yutannihilation</a>, <a href="https://github.com/zeehio">@zeehio</a>, <a href="https://github.com/zenggyu">@zenggyu</a>, <a href="https://github.com/zhangchuck">@zhangchuck</a>, and <a href="https://github.com/zx8754">@zx8754</a></p>
+</div>
