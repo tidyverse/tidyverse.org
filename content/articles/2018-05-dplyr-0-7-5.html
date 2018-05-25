@@ -13,8 +13,8 @@ categories: [package]
 
 
 
-<p>We’re excited to announce version 0.7.5 of the <em>dplyr</em> package, the grammar of data manipulation in the tidyverse. This minor release features the move to <em>tidyselect</em>, minor features like scoped operations on grouped data frames and support for raw vectors, and a number of bug fixes. Please see the <a href="https://github.com/tidyverse/dplyr/releases/tag/v0.7.5">release notes</a> for the full list of improvements and bug fixes.</p>
-<p>The next planned release of <em>dplyr</em> will be a feature release: Romain, author of the data frame backend for <em>dplyr</em> and coauthor of the <em>Rcpp</em> package, has joined the team and hit the ground running. He has implemented many of the features described in this blog post, many more are already available in the development version. Welcome (back), Romain, looking forward to a great time!</p>
+<p>We’re excited to announce version 0.7.5 of the <em>dplyr</em> package, the grammar of data manipulation in the tidyverse. This minor release includes the move to <em>tidyselect</em>, features like scoped operations on grouped data frames and support for raw vectors, and a number of bug fixes. Please see the <a href="https://github.com/tidyverse/dplyr/releases/tag/v0.7.5">release notes</a> for the full list of improvements and bug fixes.</p>
+<p>The next planned release of <em>dplyr</em>, for which work has already started, will be a feature release. Many of the features are available in the development version.</p>
 <div id="tidyselect" class="section level2">
 <h2>tidyselect</h2>
 <p><em>dplyr</em> always supported selecting by name, excluding columns, selecting by range, by match, or by position:</p>
@@ -51,7 +51,7 @@ tbl %&gt;%
 <pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span>   a2 b
 </span><span style='color: #949494;'>#&gt;</span><span> 1  2 x
 </span></pre>
-<p>Last year, the core code that provides this functionality out of <em>dplyr</em> into the fairly new <em>tidyselect</em> package. Selecting columns in a data frame (or items in a character vector, for that matter) is a common task in many other situations. The <em>tidyselect</em> package offers a consistent and convenient interface with full support for quasiquotation, and is used by more than 20 packages, and now also by <em>dplyr</em>. Internally, the <code>select()</code> calls above are translated into the following <em>tidyselect</em> operations:</p>
+<p>Last year, the core code that provides this functionality moved out of <em>dplyr</em> into the fairly new <em>tidyselect</em> package. Selecting columns in a data frame (or items in a character vector, for that matter) is a common task in many other situations. The <em>tidyselect</em> package offers a consistent and convenient interface with full support for quasiquotation, and is used by more than 20 packages, and now also by <em>dplyr</em>. Internally, the <code>select()</code> calls above are translated into the following <em>tidyselect</em> operations:</p>
 <pre class="r"><code>tbl_names &lt;- names(tbl)
 
 tbl_names %&gt;%
@@ -87,7 +87,7 @@ tbl_names %&gt;%
 </span></pre>
 <p>The net effect of this change is improved consistency across the tidyverse and the other packages that use <em>tidyselect</em>. The user interface is affected in two ways:</p>
 <ul>
-<li><p>The <code>select_vars()</code>, <code>select_var()</code> and <code>rename_vars()</code> functions are soft-deprecated and will start issuing warnings in a future version. Instead, use <code>tidyselect::vars_select()</code>, <code>tidyselect::vars_pull()</code> and <code>tidyselect::rename_vars()</code>, respectively.</p></li>
+<li><p>The <code>select_vars()</code>, <code>select_var()</code> and <code>rename_vars()</code> functions are soft-deprecated and will start issuing warnings in a future version. Instead, use <code>tidyselect::vars_select()</code>, <code>tidyselect::vars_pull()</code> and <code>tidyselect::vars_rename()</code>, respectively.</p></li>
 <li><p><code>select()</code> and <code>rename()</code> fully support character vectors. You can now unquote variables like this:</p>
 <pre class="r"><code>vars &lt;- c(&quot;a2&quot;, &quot;b&quot;)
 select(tbl, !!vars)</code></pre>
@@ -104,7 +104,7 @@ select(tbl, !!vars)</code></pre>
 <h2>Scoped verbs for grouped data</h2>
 <p>Scoped verbs are useful when you want to apply the same operation on multiple columns. These functions end with <code>_all</code> (affect all columns), <code>_at</code> (affect selected columns), or <code>_if</code> (affect columns that satisfy a predicate), and replaced the older <code>_each</code> family of functions in <em>dplyr</em> 0.7.0. In the most recent version of <em>dplyr</em>, these functions have been extended to work on grouped data frames. Because the group columns need to stay unchanged, these operations work slightly differently on grouped data frames:</p>
 <ul>
-<li><p>In <code>select_...()</code>, the group columns are always kept.</p>
+<li><p>In <code>select_*()</code>, the group columns are always kept.</p>
 <pre class="r"><code>grouped_iris &lt;-
   iris %&gt;%
   group_by(Species) %&gt;%
@@ -123,7 +123,7 @@ grouped_iris %&gt;%
 </span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>5</span><span> virginica           6.3         3.3          6           2.5
 </span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>6</span><span> virginica           5.8         2.7          5.1         1.9
 </span></pre></li>
-<li><p>In <code>mutate_...()</code> and <code>transmute_...()</code>, group columns are never altered:</p>
+<li><p>In <code>mutate_*()</code> and <code>transmute_*()</code>, group columns are never altered:</p>
 <pre class="r"><code>grouped_iris %&gt;%
   mutate_all(funs(. + 1))</code></pre>
 <pre class="knitr r"><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #949494;'># A tibble: 6 x 5</span><span>
@@ -204,8 +204,11 @@ raw_tbl %&gt;%
 </span><span style='color: #949494;'>#&gt;</span><span> </span><span style='color: #BCBCBC;'>2</span><span>     2 02    02
 </span></pre>
 </div>
-<div id="romain" class="section level2">
-<h2>Romain</h2>
+<div id="welcome-back-romain" class="section level2">
+<h2>Welcome back Romain</h2>
+<p>Romain François, the author of the data frame backend for <em>dplyr</em>, has joined the team and hit the ground running. He has implemented many of the features described in this blog post, and is now focused on features of the next release.</p>
+<p>The next release involves substantial refactoring of the internals to make hybrid evaluation simpler and less surprising, a new implementation of grouping that better respects levels of factors, and redesign of the grouping metadata to replace the current collection of attributes by a single tidy tibble. This is ambitious work, it is great to have Romain on board to tackle it.</p>
+<p>Welcome (back), Romain, looking forward to a great time!</p>
 </div>
 <div id="acknowledgments" class="section level2">
 <h2>Acknowledgments</h2>
