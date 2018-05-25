@@ -36,7 +36,7 @@ knitr::knit_hooks$set(
 )
 ```
 
-We’re excited to announce version 0.7.5 of the *dplyr* package, the grammar of data manipulation in the tidyverse.  This minor release features the move to *tidyselect*, minor features like scoped operations on grouped data frames and support for raw vectors, and a number of bug fixes.  Please see the [release notes](https://github.com/tidyverse/dplyr/releases/tag/v0.7.5) for the full list of improvements and bug fixes.
+We’re excited to announce version 0.7.5 of the *dplyr* package, the grammar of data manipulation in the tidyverse.  This minor release includes the move to *tidyselect*, features like scoped operations on grouped data frames and support for raw vectors, and a number of bug fixes.  Please see the [release notes](https://github.com/tidyverse/dplyr/releases/tag/v0.7.5) for the full list of improvements and bug fixes.
 
 The next planned release of *dplyr*, for which work has already started, will be a feature release. Many of the features are available in the development version. 
 
@@ -84,7 +84,7 @@ tbl_names %>%
 
 The net effect of this change is improved consistency across the tidyverse and the other packages that use *tidyselect*.  The user interface is affected in two ways:
 
-- The `select_vars()`, `select_var()` and `rename_vars()` functions are soft-deprecated and will start issuing warnings in a future version. Instead, use `tidyselect::vars_select()`, `tidyselect::vars_pull()` and `tidyselect::rename_vars()`, respectively.
+- The `select_vars()`, `select_var()` and `rename_vars()` functions are soft-deprecated and will start issuing warnings in a future version. Instead, use `tidyselect::vars_select()`, `tidyselect::vars_pull()` and `tidyselect::vars_rename()`, respectively.
 
 - `select()` and `rename()` fully support character vectors. You can now unquote variables like this:
 
@@ -98,7 +98,7 @@ The net effect of this change is improved consistency across the tidyverse and t
 
 Scoped verbs are useful when you want to apply the same operation on multiple columns.  These functions end with `_all` (affect all columns), `_at` (affect selected columns), or `_if` (affect columns that satisfy a predicate), and replaced the older `_each` family of functions in *dplyr* 0.7.0.  In the most recent version of *dplyr*, these functions have been extended to work on grouped data frames.  Because the group columns need to stay unchanged, these operations work slightly differently on grouped data frames:
 
-- In `select_...()`, the group columns are always kept.
+- In `select_*()`, the group columns are always kept.
 
     ```{r scoped-select}
     grouped_iris <-
@@ -110,7 +110,7 @@ Scoped verbs are useful when you want to apply the same operation on multiple co
       select_if(funs(is.numeric))
     ```
 
-- In `mutate_...()` and `transmute_...()`, group columns are never altered:
+- In `mutate_*()` and `transmute_*()`, group columns are never altered:
 
     ```{r scoped-mutate}
     grouped_iris %>%
