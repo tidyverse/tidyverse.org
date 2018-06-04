@@ -14,8 +14,8 @@ tags: []
 
 
 <pre class="r"><code>knitr::opts_chunk$set(collapse = TRUE, comment = &quot;#&gt;&quot;)</code></pre>
-<p>We’re stoked to announce the initial release of the <a href="https://github.com/r-lib/conflicted#conflicted">conflicted</a> package. The goal of conflicted is to provide alternative way of resolving conflicts caused by ambiguous function names. R handles ambiguity by reporting conflicts when you load a package, then having the most recently loaded package win. This can make it hard to detect conflicts, because it’s easy to miss the messages since you often load packages at the top of the script, and you don’t see a problem until much later. conflicted takes a different approach to resolving ambiguity, instead making every conflict an error and forcing you to always choose which function to use.</p>
-<p>Installed conflicted by running:</p>
+<p>We’re stoked to announce the initial release of the <a href="https://github.com/r-lib/conflicted#conflicted">conflicted</a> package. The goal of conflicted is to provide an alternative way of resolving conflicts caused by ambiguous function names. R handles ambiguity by reporting conflicts when you load a package, but otherwise lets the most recently loaded package win. This can make it hard to detect conflicts, because it’s easy to miss the messages since you often load packages at the top of the script, and you don’t see a problem until much later. conflicted takes a different approach to resolving ambiguity, instead making every conflict an error and forcing you to explicitly choose which function to use.</p>
+<p>Install conflicted by running:</p>
 <pre class="r"><code>install.packages(&quot;conflicted&quot;)</code></pre>
 <div id="how-do-i-use-it" class="section level2">
 <h2>How do I use it?</h2>
@@ -40,8 +40,8 @@ filter(mtcars, am &amp; cyl == 8)
 </div>
 <div id="how-does-it-work" class="section level2">
 <h2>How does it work?</h2>
-<p>Loading conflicted creates a new “conflicted” environment that is attached just after the global environment. This environment contains an active bindings for any object that is exported by multiple packages; the active binding will throw an error message describing how to disambiguate the name.</p>
-<p>The conflicted environment also contains bindings for <code>library()</code> and <code>require()</code>, these suppress the default conflict reporting (i.e. <code>warn.conflicts = FALSE</code>) and ensure that the conflicted environment is updated with any new conflicts. Because they occur in the search path before the base package, they will be called instead of <code>base::library()</code> and <code>base::require()</code>.</p>
+<p>Loading conflicted creates a new “conflicted” environment that is attached just after the global environment. This environment contains an active binding for any object that is exported by multiple packages; the active binding will throw an error message describing how to disambiguate the name.</p>
+<p>The conflicted environment also contains bindings for <code>library()</code> and <code>require()</code>, which suppress the default conflict reporting (i.e. <code>warn.conflicts = FALSE</code>) and ensure that the conflicted environment is updated with any new conflicts. Because they occur in the search path before the base package, they will be called instead of <code>base::library()</code> and <code>base::require()</code>.</p>
 </div>
 <div id="what-does-the-future-hold" class="section level2">
 <h2>What does the future hold?</h2>
