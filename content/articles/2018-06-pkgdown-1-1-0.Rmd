@@ -1,0 +1,63 @@
+---
+title: pkgdown 1.1.0
+author: Mara Averick
+date: '2018-06-05'
+slug: pkgdown-1-1-0
+description: >
+    pkgdown 1.1.0 is now on CRAN.
+categories: [package]
+photo:
+  url: https://www.pexels.com/photo/person-s-holds-brown-gift-box-842876/
+  author: Kim Stiver
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", dpi = 300, fig.retina = 2)
+```
+
+We're delighted to announce the release of [pkgdown](http://pkgdown.r-lib.org/)
+1.1.0. pkgdown is designed to make it quick and easy to build a website for
+your package. In addition to minor fixes, this release includes front-end and
+Rd-translation improvements. For a full list of changes, please see the 
+[NEWS](https://github.com/r-lib/pkgdown/blob/master/NEWS.md#pkgdown-110).
+
+## New features
+
+`build_reference()` and `build_site()` have gained a new `document` argument,
+which defaults to `TRUE`. This ensures that your documentation is up to date
+by automatically running `devtools::document()`.
+
+The `build_site()` function has also gained a `new_process` argument. When
+`new_process` is set to `TRUE` (as it is by default), pkgdown will be run in
+a separate process to improve reproducibility. This also means that in example
+code `interactive()` will return `FALSE`, making that the best way to run code
+that is truly interactive (as with shiny apps).
+
+The new, improved display for icons can be seen in the [ggplot2 documentation](http://ggplot2.tidyverse.org/reference/index.html). Icons must 
+be 30px, and stored in a top-level [`icons/`](https://github.com/tidyverse/ggplot2/tree/master/icons) 
+directory. Icon names are matched to the name of the Rd file. The icons will be 
+embedded in a separate column of the reference index table, rather than inside 
+of comments. (See ggplot2's [`icons.R`](https://github.com/tidyverse/ggplot2/blob/master/icons/icons.R) 
+for detail).
+
+## Front end
+
+Users can now access search with a keyboard shortcut, `shift` + `/ (?)`.
+We've also improved active-tab highlighting in the navbar, and better isolated
+`pkgdown.js` to avoid issues when widgets loaded use a different version of
+jquery.
+
+## Rd translation
+
+This release includes several improvements to Rd translation. Automatic linking
+now works for re-exported objects that are not functions. `vignette()` calls
+that don't link to existing vignettes fail silently, instead of generating
+uninformative errors. Empty `\section{}`s are now ignored. `\Sexpr{}` now
+supports `results=text`, `results=Rd`, and `results=hide`. Lastly, `\tabular{}`
+no longer requires a terminal `\cr`.
+
+## Acknowledgements
+
+For other minor bug fixes and improvements, please see the [Changelog](http://pkgdown.r-lib.org/news/index.html#pkgdown-1-1-0). 
+Thank you to everyone who contributed to this release:
+[\@adibender](https://github.com/adibender), [\@aoles](https://github.com/aoles), [\@aravind-j](https://github.com/aravind-j), [\@batpigandme](https://github.com/batpigandme), [\@dchiu911](https://github.com/dchiu911), [\@Enchufa2](https://github.com/Enchufa2), [\@gaborcsardi](https://github.com/gaborcsardi), [\@GeoBosh](https://github.com/GeoBosh), [\@hadley](https://github.com/hadley), [\@hrecht](https://github.com/hrecht), [\@ijlyttle](https://github.com/ijlyttle), [\@IndrajeetPatil](https://github.com/IndrajeetPatil), [\@jackwasey](https://github.com/jackwasey), [\@jakob-r](https://github.com/jakob-r), [\@JasperHG90](https://github.com/JasperHG90), [\@jayhesselberth](https://github.com/jayhesselberth), [\@jennybc](https://github.com/jennybc), [\@jeroen](https://github.com/jeroen), [\@jflournoy](https://github.com/jflournoy), [\@JohnCoene](https://github.com/JohnCoene), [\@kenahoo](https://github.com/kenahoo), [\@krlmlr](https://github.com/krlmlr), [\@mcneney](https://github.com/mcneney), [\@md0u80c9](https://github.com/md0u80c9), [\@merliseclyde](https://github.com/merliseclyde), [\@Miachol](https://github.com/Miachol), [\@pat-s](https://github.com/pat-s), [\@rmendels](https://github.com/rmendels), [\@s-fleck](https://github.com/s-fleck), [\@strengejacke](https://github.com/strengejacke), [\@surh](https://github.com/surh), [\@WastlM](https://github.com/WastlM), and [\@yutannihilation](https://github.com/yutannihilation)
