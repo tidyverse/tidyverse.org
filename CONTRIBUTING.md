@@ -82,8 +82,6 @@ Every package release should include an acknowledgements section individually th
 use_tidy_thanks("r-lib/usethis", from = "2018-05-01")
 ```
 
-(Make sure to update owner/repo, and from)
-
 ### First sentence
 
 ```R
