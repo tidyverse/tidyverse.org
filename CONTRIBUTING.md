@@ -21,9 +21,9 @@ Categories should be one (or more of): "case studies", "learn", "package", "prog
 
 ### Filetype
 
-Posts can be written in any of the blogdown-supported formats: `.Rmd`, `.Rmarkdown`, and `.md` (in the event that you do not have any code in your post). 
+Posts should be written as either `.Rmarkdown`, or `.md` files (in the event that you do not have any code in your post). 
 
-If you have any subheaders in your post you should use `.Rmarkdown`. An `.Rmarkdown` file renders to `.md`, which Hugo uses to create a table of contents, displayed in the sidebar. This does not work for `.Rmd`, which renders directly to `.html`.
+An `.Rmarkdown` file renders to `.md`, which Hugo uses to create a table of contents from your post headers, displayed in the sidebar. This does not work for `.Rmd`, which renders directly to `.html`.
 
 ### RMarkdown setup
 
@@ -76,28 +76,13 @@ Images are added to the markdown by giving the full file-path, e.g.
 
 ### Acknowledgements
 
-Every package release should include an acknowledgements section individually thanks every major contributor, and collectively thanks all GitHub contributors. You can use the following block of code to get all contributors:
+Every package release should include an acknowledgements section individually thanks every major contributor, and collectively thanks all GitHub contributors. You can use the following block of code to get all contributors to a package since its last release, and paste it into your post:
 
 ```R
-gh_users <- function(owner, repo, since) {
-  x <- gh::gh(
-    "/repos/:owner/:repo/issues", 
-    owner = owner, 
-    repo = repo, 
-    since = since, 
-    state = "all", 
-    .limit = Inf
-  )
-  sort(unique(purrr::map_chr(x, c("user", "login"))))
-}
-
-users <- gh_users("r-dbi", "bigrquery", "2017-06-26")
-length(users)
-ack <- glue::glue_collapse(glue::glue("[\\@{users}](https://github.com/{users})"), ", ", last = ", and ")
-clipr::write_clip(ack)
+use_tidy_thanks("r-lib/usethis", from = "2018-05-01")
 ```
 
-(Make sure to update owner, repo, and since)
+(Make sure to update owner/repo, and from)
 
 ### First sentence
 
