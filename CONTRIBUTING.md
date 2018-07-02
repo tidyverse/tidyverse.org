@@ -15,9 +15,15 @@ photo:
 categories: [Other]
 ```
 
-The slug should match the file name. Generally, the `date` should be similar to the file name, but won't be identical - name the file according to when you created the blog post, but make sure you update the date when you publish the post.
+The slug should match the file name. Generally, the `date` should be similar to the file name, but won't be identical - name the file according to when you created the blog post using the format `yyyy-mm-post-slug`, but make sure you update the date in the YAML header when you publish the post.
 
 Categories should be one (or more of): "case studies", "learn", "package", "programming", or "other".
+
+### Filetype
+
+Posts can be written in any of the blogdown-supported formats: `.Rmd`, `.Rmarkdown`, and `.md` (in the event that you do not have any code in your post). 
+
+If you have any subheaders in your post you should use `.Rmarkdown`. A `.Rmarkdown` file renders to `.md`. A markdown source file will include a table of contents in the sidebar. This does not work for `.Rmd` rendered directly to `.html`.
 
 ### RMarkdown setup
 
@@ -87,7 +93,7 @@ gh_users <- function(owner, repo, since) {
 
 users <- gh_users("r-dbi", "bigrquery", "2017-06-26")
 length(users)
-ack <- glue::collapse(glue::glue("[\\@{users}](https://github.com/{users})"), ", ", last = ", and ")
+ack <- glue::glue_collapse(glue::glue("[\\@{users}](https://github.com/{users})"), ", ", last = ", and ")
 clipr::write_clip(ack)
 ```
 
