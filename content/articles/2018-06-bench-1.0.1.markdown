@@ -13,14 +13,7 @@ photo:
   author: Rula Sibai
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  out.width = "100%"
-)
-options(width = 120)
-```
+
 
 [bench] is now available on CRAN!
 
@@ -37,7 +30,8 @@ install.packages("bench")
 Benchmarks can be run with `bench::mark()`, which takes one or more expressions
 to benchmark against each other.
 
-```{r example}
+
+```r
 library(bench)
 set.seed(42)
 dat <- data.frame(x = runif(10000, 1, 1000), y=runif(10000, 1, 1000))
@@ -45,27 +39,44 @@ dat <- data.frame(x = runif(10000, 1, 1000), y=runif(10000, 1, 1000))
 
 `bench::mark()` will throw an error if the results are not equivalent, so you
 don't accidentally benchmark non-equivalent code.
-```{r example1-1, error = TRUE}
+
+```r
 bench::mark(
   dat[dat$x > 500, ],
   dat[which(dat$x > 499), ],
   subset(dat, x > 500))
+#> Error: Each result must equal the first result:
+#>   `dat[dat$x > 500, ]` does not equal `dat[which(dat$x > 499), ]`
 ```
 
 Results are easy to interpret, with human readable units in a rectangular data frame.
-```{r example1-2}
+
+```r
 bnch <- bench::mark(
   dat[dat$x > 500, ],
   dat[which(dat$x > 500), ],
   subset(dat, x > 500))
 bnch
+#> # A tibble: 3 x 10
+#>   expression                     min     mean   median      max `itr/sec` mem_alloc  n_gc n_itr total_time
+#>   <chr>                     <bch:tm> <bch:tm> <bch:tm> <bch:tm>     <dbl> <bch:byt> <dbl> <int>   <bch:tm>
+#> 1 dat[dat$x > 500, ]           284µs    326µs    302µs 893.78µs     3064.     416KB    97  1097      358ms
+#> 2 dat[which(dat$x > 500), ]    212µs    257µs    234µs   1.18ms     3888.     357KB    91  1301      335ms
+#> 3 subset(dat, x > 500)         345µs    373µs    359µs 910.37µs     2683.     548KB   101   849      316ms
 ```
 
 By default, the summary uses absolute measures, however relative results can be
 obtained by using `relative = TRUE` in your call to `bench::mark()` or by calling
 `summary(relative = TRUE)` on the results.
-```{r example1-3}
+
+```r
 summary(bnch, relative = TRUE)
+#> # A tibble: 3 x 10
+#>   expression                  min  mean median   max `itr/sec` mem_alloc  n_gc n_itr total_time
+#>   <chr>                     <dbl> <dbl>  <dbl> <dbl>     <dbl>     <dbl> <dbl> <dbl>      <dbl>
+#> 1 dat[dat$x > 500, ]         1.34  1.27   1.29  1         1.14      1.16  1.07  1.29       1.13
+#> 2 dat[which(dat$x > 500), ]  1     1      1     1.32      1.45      1     1     1.53       1.06
+#> 3 subset(dat, x > 500)       1.62  1.45   1.54  1.02      1         1.53  1.11  1          1
 ```
 
 `bench::press()` is used to run benchmarks against a grid of parameters.
@@ -75,7 +86,8 @@ expanded and the benchmarks are then _pressed_ together in the result. This
 allows you to benchmark a set of expressions across a wide variety of input
 sizes, perform replications and other useful tasks.
 
-```{r example2, cache = TRUE, message = FALSE}
+
+```r
 set.seed(42)
 
 create_df <- function(rows, cols) {
@@ -98,6 +110,21 @@ results <- bench::press(
   }
 )
 results
+#> # A tibble: 12 x 12
+#>    expression   rows  cols      min     mean   median      max `itr/sec` mem_alloc  n_gc n_itr total_time
+#>    <chr>       <dbl> <dbl> <bch:tm> <bch:tm> <bch:tm> <bch:tm>     <dbl> <bch:byt> <dbl> <int>   <bch:tm>
+#>  1 bracket     10000    10 719.72µs 820.85µs 767.54µs   2.19ms   1218.      1.17MB    84   293   240.51ms
+#>  2 which       10000    10 389.07µs 434.84µs  413.9µs   1.35ms   2300.    827.04KB   104   597    259.6ms
+#>  3 subset      10000    10 786.42µs 905.91µs 848.75µs   1.97ms   1104.      1.28MB    58   295   267.24ms
+#>  4 bracket    100000    10  12.81ms  14.61ms  14.52ms     19ms     68.4    11.54MB    62    39   569.94ms
+#>  5 which      100000    10    8.9ms  10.41ms  10.39ms  12.79ms     96.1     7.91MB    42    58   603.83ms
+#>  6 subset     100000    10  14.07ms  16.01ms  15.98ms   20.3ms     62.5    12.68MB    85    28    448.2ms
+#>  7 bracket     10000   100   5.61ms   6.96ms   6.73ms  10.54ms    144.      9.71MB    43    57   396.63ms
+#>  8 which       10000   100   2.51ms   3.27ms   3.26ms   5.34ms    306.      5.91MB    31    87   284.69ms
+#>  9 subset      10000   100   5.96ms      7ms    6.9ms   9.06ms    143.      9.84MB    56    45   314.83ms
+#> 10 bracket    100000   100   97.5ms 101.01ms 100.67ms 108.74ms      9.90   97.47MB    94    14      1.41s
+#> 11 which      100000   100  54.52ms  56.77ms  55.94ms  66.16ms     17.6    59.51MB    56    44       2.5s
+#> 12 subset     100000   100  98.23ms 102.08ms 101.13ms 110.84ms      9.80   98.62MB    92    23      2.35s
 ```
 
 ### Plotting
@@ -111,15 +138,19 @@ however you can also specify other plot types (`jitter`, `ridge`,
 you a nice overview of the runs and allows you to gauge the effects of garbage
 collection on the results.
 
-```{r autoplot, message = FALSE, warning = FALSE, cache = TRUE, dependson = "example2"}
+
+```r
 ggplot2::autoplot(results)
 ```
+
+<img src="/articles/2018-06-bench-1.0.1_files/figure-html/autoplot-1.png" width="100%" />
 
 You can also produce fully custom plots by un-nesting the results and
 working with the data directly. In this case we are exploring how the amount of
 memory allocated by each expression interacts with the time taken to run.
 
-```{r custom-plot, message = FALSE, cache = TRUE, dependson = "example2"}
+
+```r
 library(tidyverse)
 results %>%
   unnest() %>%
@@ -129,6 +160,8 @@ results %>%
     scale_color_brewer(type = "qual", palette = 3) +
     geom_smooth(method = "lm", se = F, colour = "grey50")
 ```
+
+<img src="/articles/2018-06-bench-1.0.1_files/figure-html/custom-plot-1.png" width="100%" />
 
 ### Compared to existing methods
 
