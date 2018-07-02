@@ -15,9 +15,15 @@ photo:
 categories: [Other]
 ```
 
-The slug should match the file name. Generally, the `date` should be similar to the file name, but won't be identical - name the file according to when you created the blog post, but make sure you update the date when you publish the post.
+The slug should match the file name. Generally, the `date` should be similar to the file name, but won't be identical - name the file according to when you created the blog post using the format `yyyy-mm-post-slug`, but make sure you update the date in the YAML header when you publish the post.
 
 Categories should be one (or more of): "case studies", "learn", "package", "programming", or "other".
+
+### Filetype
+
+Posts should be written as either `.Rmarkdown`, or `.md` files (in the event that you do not have any code in your post). 
+
+An `.Rmarkdown` file renders to `.md`, which Hugo uses to create a table of contents from your post headers, displayed in the sidebar. This does not work for `.Rmd`, which renders directly to `.html`.
 
 ### RMarkdown setup
 
@@ -70,28 +76,11 @@ Images are added to the markdown by giving the full file-path, e.g.
 
 ### Acknowledgements
 
-Every package release should include an acknowledgements section individually thanks every major contributor, and collectively thanks all GitHub contributors. You can use the following block of code to get all contributors:
+Every package release should include an acknowledgements section individually thanks every major contributor, and collectively thanks all GitHub contributors. You can use the following block of code to get all contributors to a package since its last release, and paste it into your post:
 
 ```R
-gh_users <- function(owner, repo, since) {
-  x <- gh::gh(
-    "/repos/:owner/:repo/issues", 
-    owner = owner, 
-    repo = repo, 
-    since = since, 
-    state = "all", 
-    .limit = Inf
-  )
-  sort(unique(purrr::map_chr(x, c("user", "login"))))
-}
-
-users <- gh_users("r-dbi", "bigrquery", "2017-06-26")
-length(users)
-ack <- glue::collapse(glue::glue("[\\@{users}](https://github.com/{users})"), ", ", last = ", and ")
-clipr::write_clip(ack)
+use_tidy_thanks("r-lib/usethis", from = "2018-05-01")
 ```
-
-(Make sure to update owner, repo, and since)
 
 ### First sentence
 
