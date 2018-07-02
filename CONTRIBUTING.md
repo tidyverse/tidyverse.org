@@ -23,7 +23,7 @@ Categories should be one (or more of): "case studies", "learn", "package", "prog
 
 Posts can be written in any of the blogdown-supported formats: `.Rmd`, `.Rmarkdown`, and `.md` (in the event that you do not have any code in your post). 
 
-If you have any subheaders in your post you should use `.Rmarkdown`. A `.Rmarkdown` file renders to `.md`. A markdown source file will include a table of contents in the sidebar. This does not work for `.Rmd` rendered directly to `.html`.
+If you have any subheaders in your post you should use `.Rmarkdown`. An `.Rmarkdown` file renders to `.md`, which Hugo uses to create a table of contents, displayed in the sidebar. This does not work for `.Rmd`, which renders directly to `.html`.
 
 ### RMarkdown setup
 
