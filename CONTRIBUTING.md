@@ -76,12 +76,13 @@ Images are added to the markdown by giving the full file-path, e.g.
 
 ### Acknowledgements
 
-Every package release should include an acknowledgements section individually thanks every major contributor, and collectively thanks all GitHub contributors. You can use the following block of code to get all contributors to a package since its last release, and paste it into your post:
+Every package release should include an acknowledgements section individually thanks every major contributor, and collectively thanks all GitHub contributors. You can use `usethis::use_tidy_thanks()` to get all contributors to a package in a time interval and paste this into your post. Examples:
 
 ```R
-use_tidy_thanks("r-lib/usethis", from = "2018-05-01")
+use_tidy_thanks("OWNER/REPO") ## default: interval = since the last release
+use_tidy_thanks("OWNER/REPO", from = "2018-05-01")
+use_tidy_thanks("OWNER/REPO", from = "v1.3.0")
 ```
-
 ### First sentence
 
 ```R
