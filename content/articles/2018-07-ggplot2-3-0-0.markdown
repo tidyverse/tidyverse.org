@@ -14,7 +14,7 @@ photo:
 
 
 
-We're well chuffed to announce the release of ggplot2 3.0.0. This is a major release: it was previously announced as ggplot2 2.3.0, but we decided to increment the version number because there are some big changes under the hood. Most importantly ggplot2 now supports tidy evaluation, which makes it easier to programmatically build plots with ggplot2 in the same way you can programmatically build data manipulation pipelines with dplyr.
+We're extremely pleased to announce the release of [ggplot2](https://ggplot2.tidyverse.org/) 3.0.0. This is a major release: it was previously announced as ggplot2 2.3.0, but we decided to increment the version number because there are some big changes under the hood. Most importantly ggplot2 now supports tidy evaluation, which makes it easier to programmatically build plots with ggplot2 in the same way you can programmatically build data manipulation pipelines with dplyr.
 
 Install ggplot2 with:
 
@@ -25,20 +25,18 @@ install.packages("ggplot2")
 
 ## Breaking changes
 
-As described in our [pre-release post](https://www.tidyverse.org/articles/2018/05/ggplot2-2-3-0/), we decided 
-that it’s worth breaking a small amount of existing code in the interests of 
-improving future code. The changes should affect relatively little user code, but have required developers to make changes. A separate post will address developer-facing changes in further detail, however, common errors and ways to work around them can be found 
-in the [Breaking changes](https://github.com/tidyverse/ggplot2/blob/master/NEWS.md#breaking-changes) section of ggplot2's [NEWS](https://github.com/tidyverse/ggplot2/blob/master/NEWS.md). If you discover something missing, please let us know so we can add it. 
+In stable, long-standing packages like ggplot2, we put in a lot of effort to make sure that we don't introduce backward incompatible changes. For this release, that involved testing on five versions of R (3.1 - 3.5) writing a new visual testing package ([vdiffr](https://github.com/lionel-/vdiffr)), running R CMD check on downstream packages (over [6,000 times!](https://www.tidyverse.org/articles/2018/05/ggplot2-2-3-0/#our-process)), and [widely advertising](https://www.tidyverse.org/articles/2018/05/ggplot2-2-3-0/) the release to get the community's help. However, sometimes we do decide that it's worth breaking it’s worth breaking a small amount of existing code in the interests of improving future code. 
 
-ggplot2 now works on R 3.1 onwards, and uses the [vdiffr](https://github.com/lionel-/vdiffr) package for visual testing. This helps us make only deliberate breaking changes.
+The changes should affect relatively little user code, but have required developers to make changes. A separate post will address developer-facing changes in further detail, however, common errors and ways to work around them can be found 
+in the [Breaking changes](https://github.com/tidyverse/ggplot2/blob/master/NEWS.md#breaking-changes) section of ggplot2's [NEWS](https://github.com/tidyverse/ggplot2/blob/master/NEWS.md). If you discover something missing, please let us know so we can add it. 
 
 ## Tidy evaluation
 
 You can now use [quasiquotation](https://adv-r.hadley.nz/quasiquotation.html) in `aes()`, `facet_wrap()`, and `facet_grid()`. 
 To support quasiquotation in facetting we've added a new helper that works 
-similarly to `aes()`: `vars()`, short for variables, and instead of 
+similarly to `aes()`: `vars()`, short for variables, so instead of 
 `facet_grid(x + y ~ a + b)` you can now write `facet_grid(vars(x, y), vars(a, b))`. 
-The formula interface won't go away; but the new `vars()` interface should be 
+The formula interface won't go away; but the new `vars()` interface is 
 much easier to program with.
 
 
@@ -52,11 +50,11 @@ ggplot(mtcars, aes(!!x_var, !!y_var)) +
   facet_wrap(vars(!!group_var))
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/label-both-1.png" width="720" />
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/label-both-1.png" width="576" />
 
 ## New features
 
-Below we describe just some of the new features and functionality added. For a full account of these improvements, please see [NEWS](https://github.com/tidyverse/ggplot2/blob/master/NEWS.md).
+We only touch on a few of the new features in ggplot2 — there are many many more. For a full account of these improvements, please see [NEWS](https://github.com/tidyverse/ggplot2/blob/master/NEWS.md). If there's a feature you particularly like, and you write a blog post about, please share it with us using [this form](https://goo.gl/forms/elGvrlIXgTZVtCap1), and we'll include in a round up post in a month's time.
 
 ### sf
 
@@ -80,7 +78,7 @@ ggplot(nc) +
   annotate("point", x = -80, y = 35, colour = "red", size = 4)
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/sf-1.png" width="720" />
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/sf-1.png" width="576" />
 
 ### Calculated aesthetics
 
@@ -104,41 +102,24 @@ ggplot(mtcars) +
   labs(tag = 'A', title = 'Title of this plot')
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/tag-1.png" width="720" />
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/tag-1.png" width="576" />
 
 ### Layers: geoms, stats, and position adjustments
 
-The new `position_dodge2()` allows you to arrange the horizontal position of plots with variable widths (i.e. bars and rectangles, in addition to box plots). By default, `position_dodge2()` preserves the width of each element.
+The new [`position_dodge2()`](https://ggplot2.tidyverse.org/reference/position_dodge.html) allows you to arrange the horizontal position of plots with variable widths (i.e. bars and rectangles, in addition to box plots). By default, `position_dodge2()` preserves the width of each element. You can choose to preserve the total width by setting the `preserve` argument to `"total"`. Thank you to Kara Woo for all of her work on this.
 
 
 ```r
 ggplot(mtcars, aes(factor(cyl), fill = factor(vs))) +
   geom_bar(position = position_dodge2(preserve = "single"))
-```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/dodge2-single-1.png" width="720" />
-
-You can choose to preserve the total width by setting the `preserve` argument to `"total"`. Thank you to Kara Woo for all of her work on this.
-
-
-```r
 ggplot(mtcars, aes(factor(cyl), fill = factor(vs))) +
   geom_bar(position = position_dodge2(preserve = "total"))
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/dodge2-total-1.png" width="720" />
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/dodge-st-1.png" width="50%" /><img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/dodge-st-2.png" width="50%" />
 
 ### Scales and guides
-
-The new `scale_alpha()` function can be used to but can be used to visually down-weight less important observations.
-
-
-```r
-ggplot(mpg, aes(displ, hwy)) +
-  geom_point(aes(alpha = year))
-```
-
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/scale-alpha-1.png" width="720" />
 
 Several new functions have been added to make it easy to use Viridis colour 
 scales: `scale_colour_viridis_c()` and `scale_fill_viridis_c()` for continuous, 
@@ -154,7 +135,8 @@ d <- ggplot(dsamp, aes(carat, price)) +
 d + scale_colour_viridis_d()
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/viridis-1.png" width="720" />
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/viridis-1.png" width="576" />
+
 
 ```r
 v <- ggplot(faithfuld) +
@@ -162,27 +144,30 @@ v <- ggplot(faithfuld) +
 v + scale_fill_viridis_c()
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/viridis-c-1.png" width="720" />
-
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/viridis-c-1.png" width="576" />
 
 `guide_colorbar()` is more configurable: tick marks and color bar frame can now by styled with arguments `ticks.colour`, `ticks.linewidth`, `frame.colour`, `frame.linewidth`, and `frame.linetype`.
 
 
 ```r
 set.seed(123)
-df <- data.frame(x <- rnorm(10),
-                 y <- rnorm(10),
-                 fill <- rnorm(10))
+df <- data.frame(
+  x <- rnorm(10),
+  y <- rnorm(10),
+  fill <- rnorm(10)
+)
 
 p <- ggplot(df, aes(x, y, fill = fill)) + geom_point()
-p + scale_fill_gradient(low = 'white', high = 'red',
-                        guide = guide_colorbar(frame.colour = "black",
-                                               ticks.colour = "black"))
+p + scale_fill_gradient(
+  low = "white", high = "red",
+  guide = guide_colorbar(
+    frame.colour = "black",
+    ticks.colour = "black"
+  )
+)
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/guide-colorbar-1.png" width="720" />
-
-## Other improvements
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/guide-colorbar-1.png" width="576" />
 
 ### Nonstandard aesthetics
 
@@ -197,9 +182,7 @@ ggplot(iris, aes(x = Sepal.Length, fill = Species)) +
   scale_colour_brewer(type = "qual", aesthetics = "fill")
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/nsa-independent-scale-1.png" width="720" />
-
-We only touch on a few of the new features in ggplot2 — there are many many more. If there's a feature you particularly like, and you write a blog post about, please share it with us using [this form](https://goo.gl/forms/elGvrlIXgTZVtCap1), and we'll include in a round up post in a month's time.
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/nsa-independent-scale-1.png" width="576" />
 
 ## Acknowledgements
 
