@@ -50,7 +50,7 @@ ggplot(mtcars, aes(!!x_var, !!y_var)) +
   facet_wrap(vars(!!group_var))
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/label-both-1.png" width="576" />
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/label-both-1.png" width="1200" />
 
 ## New features
 
@@ -78,7 +78,7 @@ ggplot(nc) +
   annotate("point", x = -80, y = 35, colour = "red", size = 4)
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/sf-1.png" width="576" />
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/sf-1.png" width="1200" />
 
 ### Calculated aesthetics
 
@@ -102,7 +102,7 @@ ggplot(mtcars) +
   labs(tag = 'A', title = 'Title of this plot')
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/tag-1.png" width="576" />
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/tag-1.png" width="1200" />
 
 ### Layers: geoms, stats, and position adjustments
 
@@ -135,39 +135,44 @@ d <- ggplot(dsamp, aes(carat, price)) +
 d + scale_colour_viridis_d()
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/viridis-1.png" width="576" />
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/viridis-1.png" width="1200" />
+
+`scale_colour_continuous()` and `scale_colour_gradient()` are now controlled  by global options `ggplot2.continuous.colour` and `ggplot2.continuous.fill`. You can set them to `"viridis"` to use the viridis colour scale by default:
+
+
+```r
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+```
 
 
 ```r
 v <- ggplot(faithfuld) +
   geom_tile(aes(waiting, eruptions, fill = density))
-v + scale_fill_viridis_c()
+v + scale_fill_continuous()
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/viridis-c-1.png" width="576" />
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/viridis-c-1.png" width="1200" />
 
 `guide_colorbar()` is more configurable: tick marks and color bar frame can now by styled with arguments `ticks.colour`, `ticks.linewidth`, `frame.colour`, `frame.linewidth`, and `frame.linetype`.
 
 
 ```r
-set.seed(123)
-df <- data.frame(
-  x <- rnorm(10),
-  y <- rnorm(10),
-  fill <- rnorm(10)
-)
+p <- ggplot(mtcars, aes(wt, mpg))
 
-p <- ggplot(df, aes(x, y, fill = fill)) + geom_point()
-p + scale_fill_gradient(
-  low = "white", high = "red",
-  guide = guide_colorbar(
-    frame.colour = "black",
-    ticks.colour = "black"
+p + geom_point(aes(colour = cyl)) +
+  scale_colour_gradient(
+    low = "white", high = "red",
+    guide = guide_colorbar(
+      frame.colour = "black",
+      ticks.colour = "black"
+    )
   )
-)
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/guide-colorbar-1.png" width="576" />
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/guide-colorbar-1.png" width="1200" />
 
 ### Nonstandard aesthetics
 
@@ -182,7 +187,7 @@ ggplot(iris, aes(x = Sepal.Length, fill = Species)) +
   scale_colour_brewer(type = "qual", aesthetics = "fill")
 ```
 
-<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/nsa-independent-scale-1.png" width="576" />
+<img src="/articles/2018-07-ggplot2-3-0-0_files/figure-html/nsa-independent-scale-1.png" width="1200" />
 
 ## Acknowledgements
 
