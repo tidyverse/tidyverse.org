@@ -16,6 +16,8 @@ Summer conference season is in full swing, with [useR! 2018 in Brisbane](https:/
 
 Conference talks are a great opportunity to help people learn about the cool and useful things you have built. A few concrete practices will make your marketing efforts more effective.
 
+*We assume your product meets your quality standards and that you have already documented it. This is about stuff you can do in ~1 hour as you prepare you talk that will have high payoff in terms of recruiting users. This is also not about how to give a great talk.*
+
 ## Marketing is not a Four Letter Word
 
 First, let's deal with the word and concept of "marketing".
@@ -64,6 +66,8 @@ Admit that people photograph and share individual slides, e.g., via Twitter. Thi
 If something would be terrible taken out of context or circulated widely, reflect on that and take appropriate measures.
 
 If you have a pithy and hilarious point, give that slide some extra attention.
+
+*Link to some guides on live-tweeting? If you'd be chuffed to see people tweet about your talk, view your talk through their eyes. This is like grant-writing: notice the words the funder uses to describe what they want to fund and repeat them back, verbatim. Find out what a live-tweeter needs and give them exactly that.*
 
 ## Post it before the talk
 
