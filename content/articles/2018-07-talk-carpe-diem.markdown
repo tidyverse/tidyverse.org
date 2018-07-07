@@ -80,3 +80,84 @@ Even if you add more materials or update your slides after the talk, it is still
 Consider how easy it is for a wide audience to click through your slides with minimum friction. Slide-specific platforms, such as [SpeakerDeck](https://speakerdeck.com), are ideal for quick browsing and linking to specific slides.
 
 The way you interact with and present your slides is not necessarily a great distribution platform. Large PDFs in GitHub repo do not offer a pleasant browsing experience and raw HTML slides on GitHub are even worse, i.e. are not viewable.
+
+## Notes dump so I can work on the plane
+
+Complete the cycle: when you give talks, put links to those slides or to the video back in the appropriate part of your product's main landing page.
+
+Ethics and mechanics of crediting others:
+
+  * Over-creditting and over-thanking is *always* better than under. Did you get great ideas somewhere? Express this.
+  * Don't use things w/o permission. Comply with licenses. Attribute. Link back to source.
+  * Tricky: whether to credit/link each thing on each slide. Styles vary. I (JB) tend to create collect all such attributions in a talk-related README or on dedicated slides, as opposed to cluttering up each slide. Find something you feel is fair but aesthetically acceptable.
+
+If you've been wavering, create a Twitter account and publicize your handle. Even if you have no immediate plans to tweet. Why? People who tweet about your talk will tag you if they can. This way you'll know about that and any ensuring likes, retweets, and discussion. Place a link to your primary website in your twitter profile, which helps people find you later and start to get a sense of your work. In effect, your Twitter handle can act as a shortlink for *you*.
+
+Making your talk tweetable is like universal design: it makes it better for everyone, even those who don't Twitter. It's the modern version of the [Elevator Pitch](https://en.wikipedia.org/wiki/Elevator_pitch) or [Three Minute Thesis](https://en.wikipedia.org/wiki/Three_Minute_Thesis).
+
+Think about the consumer. For example, just a link to a Youtube video will severely limit who can and will quickly take a look at your thing.
+
+For sharing slides, the point: minimize friction!
+
+Making slides in Rmd is great; making readers clone your repo, install any necessary packages, and knit the document in order to see your slides is not.
+
+SpeakerDeck has some downsides (e.g. any links from your slide won't work), but you can always link to the PDF version on GitHub, etc.
+
+Lucy: A few off the top of my head that were well publicized & had other appealing features (I'll add as I come up with more):
+
+Alison Hill's "Take a Sad Plot and Make it Better"
+
+  * catchy title
+  * includes a gif
+  * website with social buttons to immediately share: https://alison.rbind.io/talk/ohsu-biodatavis/
+  * tweet: https://twitter.com/apreshill/status/982424211590230016
+
+Kara Woo's "Anyone can play Git/R"
+
+  * GREAT title!
+  * Mara made a great tweet compilation: https://twitter.com/dataandme/status/1007333360509874177
+
+Jennifer Thompson's "Intro to purrr"
+
+  * promoted on twitter:
+    - https://twitter.com/jent103/status/992417941533569024
+    - https://twitter.com/jent103/status/976114726215266306
+    - https://twitter.com/jent103/status/930455794516185088
+  * beautiful (and tweet-able) slides
+  * Includes a picture of a Very Cute cat
+
+sdsifleet story of the Shiny apps, Youtube link
+
+Jeffrey M Girard: I recently made a presentation to promote and instruct on my developing "circumplex" package. My slides are here: https://osf.io/wdaet/ and my repo is here: http://github.com/jmgirard/circumplex. Some things I learned while making this presentation:
+
+  * I hosted my slides on the Open Science Framework as part of the conference "meeting" page
+  * Putting syntax on the slides with comments in a different color was very helpful
+  * Using a different (fixed width) font for syntax in the presentation was helpful
+  * Making function names bold in syntax was helpful when highlighting their use
+  * Putting a semi-transparent rectangle over important/changing parts of syntax was a good pointer
+  * Not having my package on CRAN yet made it difficult for people to try the package out, I showed them how to install from GitHub using devtools but not everyone had Rtools installed and it was a hassle
+
+Jennifer Thompson: Julia Silge's talk on PCA at SO is a nice example of several things:
+
+  * where to find Julia/good ending slide
+  * talk explains both the concept and the need for it
+  * slides are attractive and tweetable - enough to follow without being a paper in slide form
+  * stored on speakerdeck
+  * one thing I also love about Alison's talk that Lucy mentioned is that the gifs + title + material all revolve around a theme! It's not only fun, but makes the talk more memorable and thus more likely to be shared. A+ marketing.
+
+Garrick Aden-Buie: Just today I was admiring the fantastic README for @aedobbyn's postal package https://github.com/aedobbyn/postal#readme
+
+Maelle: I saw @antuki present her COGugaison using a slidedeck like the one from her R-Ladies Paris talk https://antuki.github.io/presentations/ it's in French. I really liked the fact that her last slide had info about her, where to find the package (in today's talk direct link to the repo, in the R-Ladies one to her GitHub account) and meta-info about how she made the slides. Besides, having a talks section on her page is clever.
+
+Maelle: For my own slides, the last few times I used gh-pages, and the last 2 times I had a shortlink to them. http://bit.do/rr2018 for instance
+
+As a side note, making gh-pages use the master branch to render html slides is probably not as good as speaker deck since I imagine people are more used to that interface for browsing a slidedeck and discovering slidedecks but... It's so easy if you developed the slides in a GitHub repo, even a private one, that I consider this method to be a good lazy middleground. my slides about blog marketing (so not a product) were shared a lot thanks to a tweet, despite the ugly long URL https://twitter.com/robinson_es/status/977941365119176704?s=19 End of laziness advocacy. And links work with my lazy method
+
+caitlinhudon
+
+  * Jesse Maegan had a great shareable slide on learning with a community.
+  * Eric Leung had a great slide on how to use skimr // slide 7 of this deck
+  * Jonathan Nolan's presentation at Cascadia R, "Using deep learning and R to generate offensive license plates" was also great marketing for his growing consulting venture. The subject matter made everything very shareable, and the opening and closing slides were lovely too.
+  * I'm fond of my own opening slide for Cascadia R as well.
+
+Add to people to thank: Maelle Salmon, Lucy McGowan, Jeffrey M Girard, Jennifer Thompson, Garrick Aden-Buie, Caitlin Hudon
