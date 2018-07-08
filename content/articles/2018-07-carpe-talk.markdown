@@ -60,7 +60,7 @@ Visit this with the eyes of a newcomer. Do you show basic usage? Do you define k
 
 If your thing has multiple online homes, make sure they are interlinked. There should be a strong push towards the primary home, which then links out to the other locations.
 
-As you give talks or write papers related to you product, be sure to incorporate the associated links back into the primary online home or docs.
+As you give talks or write papers related to your product, be sure to incorporate the associated links back into the primary online home or docs.
 
 ## A URL is a user interface
 
