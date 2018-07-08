@@ -2,7 +2,7 @@
 title: Carpe Talk
 author: Jenny Bryan and Mara Averick
 date: '2018-07-06'
-slug: talk-carpe-diem
+slug: carpe-talk
 description: >
   Seize the day and show off your work!
 categories:
