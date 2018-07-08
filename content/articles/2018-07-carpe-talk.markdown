@@ -1,7 +1,7 @@
 ---
 title: Carpe Talk
 author: Jenny Bryan and Mara Averick
-date: '2018-07-06'
+date: '2018-07-08'
 slug: carpe-talk
 description: >
   Seize the day and show off your work!
