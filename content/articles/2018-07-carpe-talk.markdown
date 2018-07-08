@@ -28,7 +28,8 @@ This post is not about how to build a high-quality package, how to write documen
 
 ## Marketing is not a Four Letter Word
 
-First, let's deal with the word and concept of "marketing".
+First, 
+deal with the word and concept of "marketing".
 
 > Marketing is the study and management of exchange relationships.
 >
@@ -69,7 +70,7 @@ Ideally your URL is easy to hold in human memory long enough to type it, with fa
 
 ## Personal online home and shortlink
 
-If you've been considering a Twitter account, go ahead and get one. Why? A Twitter handle can serve as a great shortlink for you as a person. You can include a link to your primary online presence in your Twitter profile. If people tweet about your talk and product, they will want to `@` mention you. And that, in turn, let's you see the reaction and join in any downstream conversations.
+If you've been considering a Twitter account, go ahead and get one. Why? A Twitter handle can serve as a great shortlink for you as a person. You can include a link to your primary online presence in your Twitter profile. If people tweet about your talk and product, they will want to `@` mention you. And that, in turn, lets you see the reaction and join in any downstream conversations.
 
 ## Title slide
 
