@@ -16,20 +16,19 @@ Summer conference season is in full swing, with [useR! 2018 Brisbane](https://us
 
 Conference talks are a great opportunity to help people learn about the cool and useful things you have built. Given all the hard work you've already put in, a bit of marketing effort can be a wise investment in drumming up users.
 
-Making your talk tweet-able is like [universal design](http://universaldesign.ie/What-is-Universal-Design/): it makes your accomplishment more accessible for everyone, whether or not they use Twitter. It's another version of the [Elevator Pitch](https://en.wikipedia.org/wiki/Elevator_pitch) or [Three Minute Thesis](https://en.wikipedia.org/wiki/Three_Minute_Thesis), but with more hyperlinks!
+Making your talk easy for others to promote is like [universal design](http://universaldesign.ie/What-is-Universal-Design/): it makes your accomplishment more accessible for everyone, whether or not they use Twitter or maintain a blog. It's another version of the [Elevator Pitch](https://en.wikipedia.org/wiki/Elevator_pitch) or [Three Minute Thesis](https://en.wikipedia.org/wiki/Three_Minute_Thesis), but with more hyperlinks!
 
 ## What this post is and is not about
 
-We provide very concrete tips. Even if you can only dedicate 30 minutes or a couple of hours to this, you should find a few things here that feel worth implementing. No one does all of this, nor do they need to. At the very end we link to an annotated, crowd-sourced list of great examples of talk-based marketing.
+We provide concrete tips to make your product easier for others to appreciate. Even if you can only dedicate 30 minutes or a couple of hours to this, you should find a few things here that feel doable and worth it. No one does all of this, nor do they need to. At the end, we link to an annotated, crowd-sourced list of great examples of talk-based marketing. We also draw on this for examples along the way.
 
-We assume that your product already exists and is ready to be shared with others. We assume that it is already documented. For example, if it's a package, we assume you already have a good README, vignettes, or articles. There should be a way for someone to learn about your product and *then* install it. Realistically, this order of operations is much more likely than "install on blind faith, then figure out what it does".
+We assume that your product already exists and is ready to share with others. We assume that it is already documented. For example, if it's a package, we assume you already have a good README, vignettes, or articles. There should be a way for someone to learn about your product and *then* install it. Realistically, this order of operations is much more likely than "install on blind faith, then figure out what it does".
 
 This post is not about how to build a high-quality package, how to write documentation, or how to give a great talk. We include a few links to such resources below.
 
 ## Marketing is not a Four Letter Word
 
-First, 
-deal with the word and concept of "marketing".
+First, deal with the word and concept of "marketing".
 
 > Marketing is the study and management of exchange relationships.
 >
@@ -46,31 +45,36 @@ You can acknowledge the value in marketing or you can declare that cultivating b
 
 ## Designate a primary online home
 
-Pick one primary landing page for your product. Possibilities include:
+Pick one primary landing page for your product. Here are some possibilities, illustrated with the infer package:
 
   * A dedicated website, possibly made with [pkgdown](http://pkgdown.r-lib.org), [blogdown](https://bookdown.org/yihui/blogdown/), [bookdown](https://bookdown.org/yihui/bookdown/), or, in the case of [Shiny](https://shiny.rstudio.com), a [running app](https://www.shinyapps.io)
+    - <https://infer.netlify.com> is a site generated with pkgdown and the landing page has links to GitHub, CRAN, etc.
   * A development venue, such as a [GitHub repository](https://github.com)
+    - <https://github.com/andrewpbray/infer> features a link to main pkgdown site, plus a badge that links to CRAN.
   * A [CRAN](https://cran.r-project.org/web/packages/index.html) package landing page
+    - <https://cran.r-project.org/web/packages/infer/index.html> links to development repo on GitHub in URL and BugReports field.
 
 Visit this with the eyes of a newcomer. Do you show basic usage? Do you define key terms and acronyms? If your product is related to vis, are there any actual visualizations? Refine accordingly.
 
+  * [ggrepel](https://github.com/slowkow/ggrepel#readme) is a good example of a README for a vis package that includes figures.
+
 If your thing has multiple online homes, make sure they are interlinked. There should be a strong push towards the primary home, which then links out to the other locations.
 
-As you give talks or workshops related to you product, be sure to incorporate links to the slides or videos back into the primary online home or docs.
+As you give talks or write papers related to you product, be sure to incorporate the associated links back into the primary online home or docs.
 
 ## A URL is a user interface
 
 Take a hard look at your product's URL. Is it short, memorable, and informative? If not, work on that. Options include:
 
-  * Give it a nice URL within your own website. Examples: <https://earo.me/talk/>.
-  * Purchase a domain. Example: [happygitwithr.com](http://happygitwithr.com).
-  * Make a shortlink using a service use as <http://bit.ly>.
+  * Give it a nice URL within your own website. Examples: <https://earo.me/talk/>, <http://rich-iannone.github.io/DiagrammeR/>, <https://alison.rbind.io/talk/ohsu-biodatavis/>.
+  * Purchase a domain (typical cost is \$5-\$20/year). Example: [happygitwithr.com](http://happygitwithr.com).
+  * Make a shortlink using a service, such as <http://bit.ly>. Examples: Maëlle Salmon's recent talk at Rencontres R <http://bit.do/rr2018>, Jenny Bryan webinar on row-oriented workflows <https://rstd.io/row-work>.
 
-Ideally your URL is easy to hold in human memory long enough to type it, with fat fingers, on a phone. In some settings, you might even include this URL in the slide footer, so it's visible at all times.
+Ideally your URL is easy to hold in human memory long enough to type it with fat fingers, on a phone. In some settings, you might even include this URL and/or a Twitter handle in the slide footer, so it's visible at all times.
 
 ## Personal online home and shortlink
 
-If you've been considering a Twitter account, go ahead and get one. Why? A Twitter handle can serve as a great shortlink for you as a person. You can include a link to your primary online presence in your Twitter profile. If people tweet about your talk and product, they will want to `@` mention you. And that, in turn, lets you see the reaction and join in any downstream conversations.
+If you've been considering a Twitter account, go ahead and get one, even if you have no immediate plans to be active. Why? A Twitter handle can serve as a great shortlink for you as a person. You can include a link to your primary online presence in your Twitter profile. If people tweet about your talk and product, they will want to `@` mention you. And that, in turn, lets you see the reaction and join in any downstream conversations.
 
 ## Title slide
 
@@ -85,7 +89,7 @@ Leave this slide up for a bigly amount of time, so people have ample opportunity
 
 ## Closing slide
 
-Make a conclusion slide to display as you wrap up and take questions. It should repeat key URLs and handles from the title slide. Consider doing that in a smaller font, so you have room to recap a few key points. This delivers more value than a generic "THANK YOU" slide that lacks identifying content.
+Make a conclusion slide to display as you wrap up and take questions. It should repeat key URLs and handles from the title slide. Consider doing that in a smaller font, so you have room to recap a few key points. This delivers more value than a generic "THANK YOU" or "Questions?" slide that lacks identifying content.
 
 ## Feature slides
 
@@ -110,9 +114,9 @@ Even if you add more materials or update your slides after the talk, it is still
 ## Make your slides easy to consume
 
 When sharing slides, the main point is to minimize friction for the consumer. Making slides in Rmd is great; making readers clone your repo, install any necessary packages, and knit the document in order to see your slides is not.
- The way *you* store, interact with, and present your slides is not necessarily a great distribution platform, although it is certainly better than nothing.
+ The way *you* store, interact with, and present your slides is not necessarily a great distribution platform, although it is certainly better than keeping them to yourself.
 
-Slide-specific platforms, such as [SpeakerDeck](https://speakerdeck.com), are very good for quick browsing, linking to specific slides, and embedding in blogs or websites. One downside is that hyperlinks in slides viewed this way are not immediately clickable.
+Slide-specific platforms, such as [SpeakerDeck](https://speakerdeck.com), are the best for pleasant and immediate browsing, linking to specific slides, and embedding in blogs or websites. The main downside is that hyperlinks in slides viewed this way are not immediately clickable.
 
 PDF files can be shared in a GitHub repo, but this doesn't offer a very pleasant browsing experience, especially if the file is large. Raw R Markdown or HTML on GitHub are even more frustrating because they are not immediately consumable by the user. Video is also not a great primary source, as the perceived time commitment can be off-putting and it is often awkward to consume in the workplace.
 
@@ -126,11 +130,11 @@ A tricky mechanical question is where to provide information, such as photo cred
 
 ## Wild-caught and crowd-sourced examples
 
-We solicited submissions from the community of talks that exemplified various aspects of good marketing. The response was fantastic and, indeed, proved to be too much to summarize here. So instead we encourage you to mine [this issue thread](https://github.com/tidyverse/tidyverse.org/issues/182) for inspiration. There are specific examples, complete with hyperlinks, of lots of different mechanics.
+We solicited submissions from the community of talks that exemplified various aspects of good marketing. The response was fantastic and, indeed, proved to be too much to summarize here. So instead we encourage you to mine [this issue thread](https://github.com/tidyverse/tidyverse.org/issues/182) for inspiration. There are specific examples, complete with hyperlinks, of many different implementations of the recommendations here.
 
 ## Thanks and additional resources
 
-Special thanks to Maëlle Salmon. In addition to weighing in on the [GitHub thread](https://github.com/tidyverse/tidyverse.org/issues/182), she provided several general suggestions that are incorporated above.
+Special thanks to Maëlle Salmon. In addition to weighing in on the [GitHub thread](https://github.com/tidyverse/tidyverse.org/issues/182), she provided several general suggestions that are incorporated above. We thank everyone who contributed to or was nominated in the [GitHub thread](https://github.com/tidyverse/tidyverse.org/issues/182) for making their work publicly available.
 
 Recommended resources on talk preparation and the value of marketing and networking in data science:
 
