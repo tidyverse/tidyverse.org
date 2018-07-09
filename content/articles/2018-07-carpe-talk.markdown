@@ -147,7 +147,7 @@ We solicited submissions from the community of talks that exemplified various as
 
 ## Thanks and additional resources
 
-Special thanks to Maëlle Salmon. In addition to weighing in on the [GitHub thread](https://github.com/tidyverse/tidyverse.org/issues/182), she provided several general suggestions that are incorporated above. We thank everyone who contributed to or was nominated in the [GitHub thread](https://github.com/tidyverse/tidyverse.org/issues/182) for making their work publicly available.
+Special thanks to [Maëlle Salmon](https://masalmon.eu/). In addition to weighing in on the [GitHub thread](https://github.com/tidyverse/tidyverse.org/issues/182), she provided several general suggestions that are incorporated above. We thank everyone who contributed to or was nominated in the [GitHub thread](https://github.com/tidyverse/tidyverse.org/issues/182) for making their work publicly available.
 
 Recommended resources on talk preparation and the value of marketing and networking in data science:
 
