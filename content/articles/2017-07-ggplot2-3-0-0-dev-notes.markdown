@@ -51,6 +51,24 @@ p + facet_grid(rows = vars(drv))
 
 <img src="/articles/2017-07-ggplot2-3-0-0-dev-notes_files/figure-html/facet-vars-1.png" width="2100" />
 
+Using quosures ensures that the variable comes from the context of the dataframe, as opposed to, say the global environment.
+
+
+```r
+mans <- c("chevrolet", "dodge", "ford", "toyota")
+
+year <- 2018
+
+mpg2 <- mpg %>%
+  filter(manufacturer %in% mans)
+
+d <- ggplot(mpg2, aes(displ, cty)) + geom_point()
+
+d + facet_grid(vars(year), vars(manufacturer))
+```
+
+<img src="/articles/2017-07-ggplot2-3-0-0-dev-notes_files/figure-html/vars-env-1.png" width="2100" />
+
 Inside of `vars()` you can easily supply names, which will add titles to the facets.
 
 
