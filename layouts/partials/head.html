@@ -1,15 +1,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="og:image" content="https://www.tidyverse.org/images/tidyverse-default.png" >
 {{ .Hugo.Generator }}
 
 {{ if eq .URL "/" -}}
 <title>{{ .Site.Title }}</title>
 <meta property="og:title" content="{{ .Site.Title }}">
 <meta property="og:type" content="website">
+<meta property="description" content="{{ .Site.Params.description }}">
+<meta property="og:description" content="{{ .Site.Params.description }}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.tidyverse.org/images/hex-tidyverse.png" >
 {{- else -}}
 <title>{{ .Title }}{{ with .Params.subtitle }} - {{ . }} {{ end }} - {{ .Site.Title }}</title>
 <meta property="og:title" content="{{ .Title }} - {{ .Site.Title }}">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.tidyverse.org/articles/{{ .Params.slug }}-sq.jpg" >
+<meta property="description" content="{{ .Params.description }}">
+<meta property="og:description" content="{{ .Params.description }}">
 {{- end }}
 
 <script type="text/javascript" src="{{ "js/jquery-1.11.0.min.js" | relURL }}"></script>
@@ -20,6 +30,7 @@
 {{- partial "head_highlightjs" . -}}
 
 <link rel="stylesheet" href="{{ "css/tidyverse-site.css" | relURL }}" />
+<link rel="stylesheet" href="{{ "css/tweaks.css" | relURL }}" />
 <link rel="icon" href="{{ "images/favicon.ico" | relURL }}" />
 {{ if hasPrefix .URL "/articles" -}}
 <link rel="alternate" type="application/atom+xml" title="Blog" href="/articles/index.xml" />

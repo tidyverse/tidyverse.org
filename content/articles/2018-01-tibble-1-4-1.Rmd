@@ -1,0 +1,103 @@
+---
+title: tibble 1.4.1
+slug: tibble-1-4-1
+description: >
+    Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! This article showcases the changes in the most recent version.
+date: 2018-01-03
+author: Kirill Müller, Hadley Wickham
+photo:
+  url: https://unsplash.com/photos/cFeRWofFkw8
+  author: Patrick Schneider
+categories: [package]
+---
+
+
+```{r setup, include = FALSE}
+library(tibble)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+We’re excited to announce version 1.4.1 of the *tibble* package. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the latest version with:
+
+```r
+install.packages("tibble")
+```
+
+This release contains the following major changes:
+
+- Colored terminal output
+- Compatibility fixes for code that expects data frames
+- Improved `add_column()`
+
+There are many other small improvements and bug fixes: please see the [release notes](https://github.com/tidyverse/tibble/releases/tag/v1.4.1) for a complete list.
+
+Thanks to [Anh Le](https://github.com/LaDilettante) for the `add_cases()` alias, to [Davis Vaughan](https://github.com/DavisVaughan) for improving `add_column()`, to [Patrick O. Perry](https://github.com/patperry) for converting C++ code to C, and to all the other contributors. Use the [issue tracker](https://github.com/tidyverse/tibble/issues) to submit bugs or suggest ideas, your contributions are always welcome.
+
+## Colored terminal output
+
+The most important change of this release is the use of color and other markup for the output in the terminal:
+
+![](/images/tibble-1-4-1/screenshot.png)
+
+- Numeric columns have two displays. If there is room, the full number is displayed, making it easy to compare order of magnitude. Digits after the first three are dimmed to emphasise the important components. Negative numbers are shown in red. The display switches to scientific format if there is not enough room.
+
+- Missing values get a yellow background. This makes it easier to distinguish the string `"NA"` from a missing value.
+
+- Long character values and factors are abbreviated in order to fit more columns on screen.
+
+The highlighting is implemented by the new *pillar* package, which also offers extension points for packages such as *hms* that provide custom data types. See the [Extending tibble](https://cran.r-project.org/web/packages/tibble/vignettes/extending.html) vignette for details. We're still figuring out how to use colour most effectively, so expect this to change in minor ways in the in future. If you have feedback, please let us know by [filing an issue](https://github.com/r-lib/pillar/issues) in the *pillar* package.
+
+## Compatibility fixes
+
+Subsetting with logical or character indexes is now supported, just like with regular data frames:
+
+```{r}
+tbl <- tibble(a = 1:3, b = letters[1:3])
+tbl
+tbl[c(TRUE, FALSE, TRUE), ]
+tbl[c("2", "odd-row-name"), ]
+```
+
+Passing `drop = TRUE` is now supported and gives the same result as for regular data frames:
+
+```{r}
+tbl[1, 2, drop = TRUE]
+tbl[1, drop = TRUE]
+```
+
+Both changes make it easier to use tibbles with code that is designed to work with data frames.
+
+
+## Improved addition of columns
+
+The `add_column()` functions now keeps all attributes of the original tibble, this is important for packages that extend tibbles such as [sf](https://r-spatial.github.io/sf/) or [tibbletime](https://business-science.github.io/tibbletime/).
+
+```{r, error = TRUE}
+library(tibbletime)
+tbl_with_date <- 
+  tibble(a = 1:3, date = Sys.Date() + a) %>%
+  tbl_time(date)
+
+add_column(tbl_with_date, b = letters[1:3])
+```
+
+## Trailing comma
+
+You can now add a trailing comma in function calls with an `...` argument:
+
+```{r}
+tibble(
+  a = 1:3,
+  b = letters[1:3],
+)
+add_column(
+  tbl,
+  c = LETTERS[1:3],
+)
+```
+
+This simplifies extending or adapting the code later, because you don't need to remember to add or remove the trailing comma of the last function argument. (This functionality is available for all packages that support tidy evaluation, *rlang* >= 0.1.6 is required.)
+
+## Acknowledgments
+
+We received issues, pull requests, and comments from 109 people since tibble 1.2.0. Thanks to everyone: [\@aalexandersson](https://github.com/aalexandersson), [\@adnbps](https://github.com/adnbps), [\@AkhilNairAmey](https://github.com/AkhilNairAmey), [\@alexhallam](https://github.com/alexhallam), [\@alibat](https://github.com/alibat), [\@amjiuzi](https://github.com/amjiuzi), [\@AndreMikulec](https://github.com/AndreMikulec), [\@andrewjpfeiffer](https://github.com/andrewjpfeiffer), [\@ashiklom](https://github.com/ashiklom), [\@atribe](https://github.com/atribe), [\@bapfeld](https://github.com/bapfeld), [\@barnettjacob](https://github.com/barnettjacob), [\@behrman](https://github.com/behrman), [\@BillDunlap](https://github.com/BillDunlap), [\@BruceZhaoR](https://github.com/BruceZhaoR), [\@cassiusoat](https://github.com/cassiusoat), [\@cboettig](https://github.com/cboettig), [\@cderv](https://github.com/cderv), [\@ckluss](https://github.com/ckluss), [\@ClaytonJY](https://github.com/ClaytonJY), [\@colearendt](https://github.com/colearendt), [\@csgillespie](https://github.com/csgillespie), [\@dalejbarr](https://github.com/dalejbarr), [\@dan87134](https://github.com/dan87134), [\@DavisVaughan](https://github.com/DavisVaughan), [\@ddiez](https://github.com/ddiez), [\@dhicks](https://github.com/dhicks), [\@dlpd](https://github.com/dlpd), [\@drewgendreau](https://github.com/drewgendreau), [\@drolejoel](https://github.com/drolejoel), [\@echasnovski](https://github.com/echasnovski), [\@edzer](https://github.com/edzer), [\@ElsLommelen](https://github.com/ElsLommelen), [\@etiennebr](https://github.com/etiennebr), [\@FabianRoger](https://github.com/FabianRoger), [\@garrettgman](https://github.com/garrettgman), [\@gavinsimpson](https://github.com/gavinsimpson), [\@geotheory](https://github.com/geotheory), [\@ginolhac](https://github.com/ginolhac), [\@hadley](https://github.com/hadley), [\@happyshows](https://github.com/happyshows), [\@heavywatal](https://github.com/heavywatal), [\@helix123](https://github.com/helix123), [\@holstius](https://github.com/holstius), [\@huftis](https://github.com/huftis), [\@ianmcook](https://github.com/ianmcook), [\@imanuelcostigan](https://github.com/imanuelcostigan), [\@janschulz](https://github.com/janschulz), [\@javierluraschi](https://github.com/javierluraschi), [\@jennybc](https://github.com/jennybc), [\@jimhester](https://github.com/jimhester), [\@joelgombin](https://github.com/joelgombin), [\@jonathan-g](https://github.com/jonathan-g), [\@kendonB](https://github.com/kendonB), [\@kevinushey](https://github.com/kevinushey), [\@khughitt](https://github.com/khughitt), [\@kismsu](https://github.com/kismsu), [\@krlmlr](https://github.com/krlmlr), [\@kwstat](https://github.com/kwstat), [\@LaDilettante](https://github.com/LaDilettante), [\@lcolladotor](https://github.com/lcolladotor), [\@lionel-](https://github.com/lionel-), [\@lpmarco](https://github.com/lpmarco), [\@m-sostero](https://github.com/m-sostero), [\@MarcusWalz](https://github.com/MarcusWalz), [\@matteodefelice](https://github.com/matteodefelice), [\@mattfidler](https://github.com/mattfidler), [\@mgirlich](https://github.com/mgirlich), [\@michaellevy](https://github.com/michaellevy), [\@MikeBadescu](https://github.com/MikeBadescu), [\@mkearney](https://github.com/mkearney), [\@mmuurr](https://github.com/mmuurr), [\@Monduiz](https://github.com/Monduiz), [\@mubeenarasack](https://github.com/mubeenarasack), [\@mundl](https://github.com/mundl), [\@nbenn](https://github.com/nbenn), [\@ncarchedi](https://github.com/ncarchedi), [\@NikNakk](https://github.com/NikNakk), [\@noamross](https://github.com/noamross), [\@ntguardian](https://github.com/ntguardian), [\@p0bs](https://github.com/p0bs), [\@patperry](https://github.com/patperry), [\@pgensler](https://github.com/pgensler), [\@phalexo](https://github.com/phalexo), [\@pssguy](https://github.com/pssguy), [\@r2evans](https://github.com/r2evans), [\@rentrop](https://github.com/rentrop), [\@richierocks](https://github.com/richierocks), [\@Rongpeng](https://github.com/Rongpeng), [\@s-fleck](https://github.com/s-fleck), [\@sainathadapa](https://github.com/sainathadapa), [\@sebschub](https://github.com/sebschub), [\@sibojan](https://github.com/sibojan), [\@slonik-az](https://github.com/slonik-az), [\@sskim47](https://github.com/sskim47), [\@t-kalinowski](https://github.com/t-kalinowski), [\@thercast](https://github.com/thercast), [\@thornend](https://github.com/thornend), [\@tjmahr](https://github.com/tjmahr), [\@trinker](https://github.com/trinker), [\@vnijs](https://github.com/vnijs), [\@vspinu](https://github.com/vspinu), [\@vvrably](https://github.com/vvrably), [\@wibom](https://github.com/wibom), [\@wpetry](https://github.com/wpetry), [\@yeedle](https://github.com/yeedle), [\@yihui](https://github.com/yihui), [\@yutannihilation](https://github.com/yutannihilation), and [\@Zedseayou](https://github.com/Zedseayou).

@@ -1,0 +1,113 @@
+---
+title: dbplyr 1.2.0
+author: Edgar Ruiz
+date: '2018-01-08'
+slug: dbplyr-1-2
+categories:
+  - package
+tags: [package, tidyverse, databases]
+description: "New version now on CRAN. It features new database backends, an enhanced copy_to(), and initial stringr support"
+photo:
+  url: https://unsplash.com/photos/y7rGTFyOzxc
+  author: Giulia Bertelli
+---
+
+
+
+<p>We are very excited to announce that <a href="http://dbplyr.tidyverse.org/">dbplyr 1.2.0</a> is now available on CRAN! <strong>dbplyr</strong> is the database backend for dplyr. It interacts with databases directly by translating dplyr code into SQL queries. dbplyr is part of an expanding ecosystem of packages meant to help analysts access and analyze data in databases. To learn more, visit our website dedicated to <em>all things R and databases</em>: <a href="http://db.rstudio.com/" class="uri">http://db.rstudio.com/</a></p>
+<p>Install the latest version of dbplyr with:</p>
+<pre class="r"><code>install.packages(&quot;dbplyr&quot;)</code></pre>
+<div id="whats-new" class="section level2">
+<h2>What’s new?</h2>
+<p>Here are some highlights of new features and fixes found in this release. To see the full details please refer to the <a href="https://github.com/tidyverse/dbplyr/blob/master/NEWS.md#dbplyr-120">release notes</a>:</p>
+<ul>
+<li><p>New custom translation for <strong>Microsoft Access</strong> and <a href="http://db.rstudio.com/databases/teradata/">Teradata</a></p></li>
+<li><p><a href="http://db.rstudio.com/databases/redshift/">Amazon Redshift</a> connections now point to the PostgreSQL translation.</p></li>
+<li>Adds support for <strong>two new database R packages</strong>. These new packages are fully <a href="http://db.rstudio.com/dbi/">DBI</a>-compliant and tested with <a href="https://cran.r-project.org/web/packages/DBItest/index.html">DBItest</a>. We recommend to use these instead of older packages:
+<ol style="list-style-type: decimal">
+<li><a href="https://cran.r-project.org/web/packages/RMariaDB/index.html">RMariaDB</a>, use in favor of RMySQL</li>
+<li><a href="https://cran.r-project.org/web/packages/RPostgres/index.html">RPostgres</a>, use in favor of RPostgreSQL</li>
+</ol></li>
+<li><a href="https://cran.r-project.org/web/packages/ROracle/index.html">ROracle</a> connections now point to the <a href="http://db.rstudio.com/databases/oracle/">Oracle</a> translation.</li>
+<li><p>Cache query results using <code>copy_to</code>. This feature is very useful because after cached, the results of a long running query can be iteratively analyzed without having to wait for the same base query to run over and over.</p></li>
+<li><p>stringr functions: <code>str_length()</code>, <code>str_to_upper()</code>, <code>str_to_lower()</code>, <code>str_replace_all()</code>, <code>str_detect()</code>, and <code>str_trim()</code> are now supported.</p></li>
+<li><p><code>in_schema()</code> should now work in more places, particularly in <code>copy_to()</code></p></li>
+<li><p>For those who need to extract the resulting SQL query from dplyr code, there is now a new function called <code>remote_query()</code>. Unlike <code>show_query()</code>, <code>remote_query()</code> returns a character object, and unlike <code>sql_render()</code>, the new function automatically detects the type of database attached to the given dplyr code and translates accordingly. There are four additional functions that provide a standard API to get metadata about a remote <code>tbl</code>, these are: <code>remote_name()</code>, <code>remote_con()</code>, <code>remote_src()</code>, and <code>remote_query_plan()</code>.</p></li>
+<li><p>Adds support for temporary tables in Microsoft SQL Server. Additionally, the issue of certain operators working only in <code>mutate()</code> or only in <code>filter()</code> has been resolved.</p></li>
+<li><p>Two new functions for developers: <code>sql_aggregate()</code> and <code>win_aggregate()</code>. They are for generating SQL and windowed SQL functions for aggregates.</p></li>
+</ul>
+</div>
+<div id="caching-results" class="section level2">
+<h2>Caching results</h2>
+<p>The <code>copy_to()</code> function is now able to <strong>cache the results of a set of dplyr database transformations</strong>. An additional advantage is that <code>copy_to()</code> uses the database to run and cache the data, so there is no data being transmitted back to R. For this feature to work, the user needs sufficient rights to create temporary tables in the database.</p>
+<pre class="r"><code>con &lt;- DBI::dbConnect(RSQLite::SQLite(), &quot;:memory:&quot;)
+mtcars_db &lt;- copy_to(con, rownames_to_column(mtcars), &quot;mtcars&quot;)
+
+only_auto &lt;- mtcars_db %&gt;%
+  filter(am == 1) %&gt;%
+  select(mpg, cyl, am)
+
+auto &lt;- copy_to(con, only_auto, &quot;auto&quot;) # New in dbplyr 1.2.0
+head(auto)
+#&gt; # Source: lazy query [?? x 3]
+#&gt; # Database: sqlite 3.19.3 [:memory:]
+#&gt;     mpg   cyl    am
+#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1  21.0  6.00  1.00
+#&gt; 2  21.0  6.00  1.00
+#&gt; 3  22.8  4.00  1.00
+#&gt; 4  32.4  4.00  1.00
+#&gt; 5  30.4  4.00  1.00
+#&gt; 6  33.9  4.00  1.00</code></pre>
+<p>If the set of dplyr transformations need to be cached to a <strong>different database</strong>, <code>copy_to()</code> is smart enough to download the data into memory in R, and then uploads the data to the target database.</p>
+<pre class="r"><code>second_con &lt;- DBI::dbConnect(RSQLite::SQLite(), &quot;:memory:&quot;)
+second_auto &lt;- copy_to(second_con, only_auto, &quot;auto&quot;) # New in dbplyr 1.2.0
+head(second_auto)
+#&gt; # Source: lazy query [?? x 3]
+#&gt; # Database: sqlite 3.19.3 [:memory:]
+#&gt;     mpg   cyl    am
+#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1  21.0  6.00  1.00
+#&gt; 2  21.0  6.00  1.00
+#&gt; 3  22.8  4.00  1.00
+#&gt; 4  32.4  4.00  1.00
+#&gt; 5  30.4  4.00  1.00
+#&gt; 6  33.9  4.00  1.00</code></pre>
+</div>
+<div id="stringr-functions" class="section level2">
+<h2>stringr functions</h2>
+<p>Six stringr functions are now supported. Regular expression support varies from database to database, but most simple regular expressions should be ok. The functions are:</p>
+<ol style="list-style-type: decimal">
+<li><code>str_length()</code></li>
+<li><code>str_to_upper()</code></li>
+<li><code>str_to_lower()</code></li>
+<li><code>str_replace_all()</code></li>
+<li><code>str_detect()</code></li>
+<li><code>str_trim()</code></li>
+</ol>
+<pre class="r"><code>tbl(con, &quot;mtcars&quot;) %&gt;%
+  head() %&gt;%
+  select(rowname) %&gt;%
+  mutate(
+    s1 = str_length(rowname),                 # New in dbplyr 1.2.0
+    s2 = str_to_upper(rowname),               # New in dbplyr 1.2.0
+    s3 = str_to_lower(rowname),               # New in dbplyr 1.2.0
+    s4 = str_replace_all(rowname, &quot;M&quot;, &quot;X&quot;),  # New in dbplyr 1.2.0
+    s5 = str_detect(rowname, &quot;M&quot;),            # New in dbplyr 1.2.0
+    s6 = str_trim(rowname)                    # New in dbplyr 1.2.0
+  )
+#&gt; # Source: lazy query [?? x 7]
+#&gt; # Database: sqlite 3.19.3 [:memory:]
+#&gt;   rowname              s1 s2                s3       s4         s5 s6
+#&gt;   &lt;chr&gt;             &lt;int&gt; &lt;chr&gt;             &lt;chr&gt;    &lt;chr&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1 Mazda RX4             9 MAZDA RX4         mazda r~ Xazda ~     0 Mazda ~
+#&gt; 2 Mazda RX4 Wag        13 MAZDA RX4 WAG     mazda r~ Xazda ~     0 Mazda ~
+#&gt; 3 Datsun 710           10 DATSUN 710        datsun ~ Datsun~     0 Datsun~
+#&gt; 4 Hornet 4 Drive       14 HORNET 4 DRIVE    hornet ~ Hornet~     0 Hornet~
+#&gt; 5 Hornet Sportabout    17 HORNET SPORTABOUT hornet ~ Hornet~     0 Hornet~
+#&gt; 6 Valiant               7 VALIANT           valiant  Valiant     0 Valiant</code></pre>
+</div>
+<div id="contributors" class="section level2">
+<h2>Contributors</h2>
+<p>A big thanks goes to those who made this release possible by contributing code or documentation: <a href="https://github.com/DavisVaughan">@DavisVaughan</a>, <a href="https://github.com/baileych">@baileych</a>, <a href="https://github.com/Hong-Revo">@Hong-Revo</a>, <a href="https://github.com/cwarden">@cwarden</a>, <a href="https://github.com/zozlak">@zozlak</a>, <a href="https://github.com/denismaciel">@denismaciel</a>, <a href="https://github.com/jonassundman">@jonassundman</a>, <a href="https://github.com/wibeasley">@wibeasley</a>, <a href="https://github.com/mungojam">@mungojam</a>, <a href="https://github.com/hoxo-m">@hoxo-m</a>, <a href="https://github.com/dpprdan">@dpprdan</a>,<a href="https://github.com/jimhester">@jimhester</a>, <a href="https://github.com/krlmlr">@krlmlr</a>, and <a href="https://github.com/javierluraschi">@javierluraschi</a>. Also, a thank you to those who helped up improve this package by suggesting features and reporting issues: <a href="https://github.com/drf5n">@drf5n</a>, <a href="https://github.com/larspijnappel">@larspijnappel</a>, <a href="https://github.com/lbakerIsazi">@lbakerIsazi</a>, <a href="https://github.com/mtmorgan">@mtmorgan</a>, <a href="https://github.com/refik">@refik</a>, <a href="https://github.com/sicarul">@sicarul</a>, and <a href="https://github.com/vitallish">@vitallish</a></p>
+</div>

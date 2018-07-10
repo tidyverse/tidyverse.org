@@ -6,9 +6,10 @@
       <div class="column75">
         <div class="sectionTitle">Recent Articles</div>
 
-        <div>{{ range .Data.Pages }}
+        {{ $paginator := .Paginate (where .Data.Pages "Section" "!=" "") }}
+        <div>{{ range $paginator.Pages }}
           <div class="listItem">
-            <a class="itemImage project" href="#" style="background-image: url(/articles/{{ .Param "slug"}}-sq.jpg);"></a>
+            <a class="itemImage project" href="{{ .RelPermalink }}" style="background-image: url(/articles/{{ .Param "slug"}}-sq.jpg);"></a>
             <div class="itemDetails">
               <div class="itemHeader">
                 <div class="itemTitle"><a href="{{ .RelPermalink }}">{{ .Title }}</a></div>
@@ -21,7 +22,7 @@
               <div class="itemMeta">
                 <div class="author">{{ .Params.author }}</div>
                 <div class="itemDescription">{{ default .Description | markdownify }}
-                  <a class="readMore" href="#">Read more ...</a>
+                  <a class="readMore" href="{{ .RelPermalink }}">Read more ...</a>
                 </div>
                 <div class="itemDate">
                   <div class="created">{{ .Date.Format "2006/01/02" }}</div>
@@ -30,6 +31,7 @@
             </div>
           </div>
         {{ end }}</div>
+      {{ template "_internal/pagination.html" . }}
       </div>
 
       <div class="column25">

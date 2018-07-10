@@ -1,0 +1,82 @@
+---
+title: pillar 1.2.2
+slug: pillar-1-2-2
+description: >
+    pillar 1.2.2 is on CRAN now, losing that extra dot for whole numbers and those extra zeros when there's nothing more to see. If you still prefer the good old data frame output, this post shows how to get it back for tibbles too.
+date: 2018-04-30
+author: Kirill Müller, Hadley Wickham
+photo:
+  url: https://unsplash.com/photos/UoWfBET-G9k
+  author: Chris Barbalis
+categories: [package]
+---
+
+
+
+<p>Announcing version 1.2.2 of the <em>pillar</em> package which prints <a href="http://tibble.tidyverse.org/">tibbles</a> to the terminal. This is yet another small release that addresses user feedback. Numbers are printed more consicely and accurately. We show how to enable the original data frame printing for tibbles, and an outlook on upcoming formatting improvement for list columns.</p>
+<p>Please see the <a href="https://github.com/r-lib/pillar/releases/v1.2.2">release notes</a> for the full list of changes. Examples in this blog post are shown using the <em>tibble</em> package, which uses <em>pillar</em> under the hood.</p>
+<div id="improved-output" class="section level2">
+<h2>Improved output</h2>
+<p>The decimal dot that was always printed since <em>pillar</em> 1.2.1 seems to have contributed to more confusion, not less. It’s gone now, whole numbers don’t have the dot anymore. Unless.</p>
+<p>Unless it’s a whole number a tiny number has been added to or subtracted from. In other words, <code>1</code> is shown as <code>1</code>, but <code>1 + 1e-6</code> is shown as <code>1.00</code>, and <code>123 + 1e-6</code> is shown as <code>123.</code>. This is a hint that there’s more than can be shown with the requested number of significant digits (which is 3 by default and can be changed by setting the <code>pillar.sigfig</code> option).</p>
+<p>Likewise, decimal numbers that don’t use the requested number of significant digits are shortened. The number <code>0.1</code> is no longer shown as <code>0.100</code>. Because most finite decimal representations don’t have an accurate representation in the underlying floating-point format, <em>pillar</em> uses a heuristic: if the number multiplied by a power of 10 is a whole number within a small tolerance of about <code>1e-8</code> (on most systems), it can be shortened. This is the same tolerance that the <code>all.equal()</code> function uses for comparing numeric values.</p>
+<pre class="r"><code>tibble(numbers = c(1, 0.1, 0.01, c(1, 12, 123, 1234, 0.1, 0.01) + 1e-6))</code></pre>
+<pre class="knitr r"><span style="color:#8a8a8a">#&gt;</span> <span style="color:#8a8a8a"># A tibble: 9 x 1</span>
+<span style="color:#8a8a8a">#&gt;</span>     numbers
+<span style="color:#8a8a8a">#&gt;</span>       <span style="font-style:italic"><span style="color:#8a8a8a">&lt;dbl&gt;</span></span>
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">1</span>    1     
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">2</span>    0.1   
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">3</span>    0.01  
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">4</span>    1.00  
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">5</span>   12.0   
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">6</span>  123.    
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">7</span> <span style="text-decoration:underline">1</span>234.    
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">8</span>    0.100 
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">9</span>    0.010<span style="text-decoration:underline">0</span>
+</pre>
+</div>
+<div id="dont-like-the-printing" class="section level2">
+<h2>Don’t like the printing?</h2>
+<p>Just like with the absence of row names or the default <code>drop = FALSE</code>, tibbles are opinionated in how they print. We’re working on providing a sensible default that suits most use cases, but some users have expressed the desire to revert to the good old data frame output.</p>
+<p>This is possible already by overriding the <code>print.tbl_df</code> method, which is called when a tibble is printed (either explicitly via <code>print()</code> or implicitly from the console). On the downside, this also loses the second header row with the data types and the restriction in the number of rows and columns shown.</p>
+<pre class="r"><code>tibble(a = 1:3)</code></pre>
+<pre class="knitr r"><span style="color:#8a8a8a">#&gt;</span> <span style="color:#8a8a8a"># A tibble: 3 x 1</span>
+<span style="color:#8a8a8a">#&gt;</span>       a
+<span style="color:#8a8a8a">#&gt;</span>   <span style="font-style:italic"><span style="color:#8a8a8a">&lt;int&gt;</span></span>
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">1</span>     1
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">2</span>     2
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">3</span>     3
+</pre>
+<pre class="r"><code>print.tbl_df &lt;- function(x, ...) {
+  print.data.frame(x, ...)
+  invisible(x)
+}
+tibble(a = 1:3)</code></pre>
+<pre class="knitr r"><span style="color:#8a8a8a">#&gt;</span>   a
+<span style="color:#8a8a8a">#&gt;</span> 1 1
+<span style="color:#8a8a8a">#&gt;</span> 2 2
+<span style="color:#8a8a8a">#&gt;</span> 3 3
+</pre>
+</div>
+<div id="outlook-formatting-list-columns" class="section level2">
+<h2>Outlook: formatting list columns</h2>
+<p>List columns (and the special case of nested data frames) are a very powerful idiom. In R, a list is just a special case of a vector that can hold arbitrary complex objects; it can be added to a data frame if it has the same lengths as the other columns:</p>
+<pre class="r"><code>tibble(a = 1:3, b = list(4, 5:6, letters[7:9]))</code></pre>
+<pre class="knitr r"><span style="color:#8a8a8a">#&gt;</span> <span style="color:#8a8a8a"># A tibble: 3 x 2</span>
+<span style="color:#8a8a8a">#&gt;</span>       a b        
+<span style="color:#8a8a8a">#&gt;</span>   <span style="font-style:italic"><span style="color:#8a8a8a">&lt;int&gt;</span></span> <span style="font-style:italic"><span style="color:#8a8a8a">&lt;list&gt;</span></span>   
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">1</span>     1 <span style="color:#8a8a8a">&lt;dbl [1]&gt;</span>
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">2</span>     2 <span style="color:#8a8a8a">&lt;int [2]&gt;</span>
+<span style="color:#8a8a8a">#&gt;</span> <span style="color:#b2b2b2">3</span>     3 <span style="color:#8a8a8a">&lt;chr [3]&gt;</span>
+</pre>
+<p>Often, all objects in a list column have the same data type. A different formatting for such homogeneous lists would help focus on the relevant parts (e.g. the dimensions of the objects in that list) and save space too. This feature isn’t ready for prime time yet, but the screenshot below shows how this could look like. Feel free to comment on the <a href="https://github.com/r-lib/pillar/pull/109">relevant pull request</a> on GitHub.</p>
+<div class="figure">
+<img src="/images/pillar-1-2-2/colored-list-col.png" />
+
+</div>
+</div>
+<div id="acknowledgments" class="section level2">
+<h2>Acknowledgments</h2>
+<p>We’d like to use the opportunity to thank all recent contributors to <em>pillar</em> and <em>tibble</em>. Thanks to everyone, your contributions help improve the tidyverse:</p>
+<p><a href="https://github.com/adsaxon">@adsaxon</a>, <a href="https://github.com/aegerton">@aegerton</a>, <a href="https://github.com/alaindanet">@alaindanet</a>, <a href="https://github.com/alexwhan">@alexwhan</a>, <a href="https://github.com/alistaire47">@alistaire47</a>, <a href="https://github.com/anhqle">@anhqle</a>, <a href="https://github.com/batpigandme">@batpigandme</a>, <a href="https://github.com/bgreenwell">@bgreenwell</a>, <a href="https://github.com/blueprint-ade">@blueprint-ade</a>, <a href="https://github.com/brodieG">@brodieG</a>, <a href="https://github.com/BruceZhaoR">@BruceZhaoR</a>, <a href="https://github.com/cboettig">@cboettig</a>, <a href="https://github.com/chasemc">@chasemc</a>, <a href="https://github.com/cimentadaj">@cimentadaj</a>, <a href="https://github.com/czeildi">@czeildi</a>, <a href="https://github.com/DavisVaughan">@DavisVaughan</a>, <a href="https://github.com/digital-dharma">@digital-dharma</a>, <a href="https://github.com/dpeterson71">@dpeterson71</a>, <a href="https://github.com/drewgendreau">@drewgendreau</a>, <a href="https://github.com/echasnovski">@echasnovski</a>, <a href="https://github.com/EdwardJRoss">@EdwardJRoss</a>, <a href="https://github.com/edzer">@edzer</a>, <a href="https://github.com/Eluvias">@Eluvias</a>, <a href="https://github.com/flying-sheep">@flying-sheep</a>, <a href="https://github.com/gregorp">@gregorp</a>, <a href="https://github.com/holstius">@holstius</a>, <a href="https://github.com/hplieninger">@hplieninger</a>, <a href="https://github.com/ijlyttle">@ijlyttle</a>, <a href="https://github.com/iron0012">@iron0012</a>, <a href="https://github.com/javierluraschi">@javierluraschi</a>, <a href="https://github.com/jcpetkovich">@jcpetkovich</a>, <a href="https://github.com/jennybc">@jennybc</a>, <a href="https://github.com/JLYJabc">@JLYJabc</a>, <a href="https://github.com/jonathan-g">@jonathan-g</a>, <a href="https://github.com/jtelleriar">@jtelleriar</a>, <a href="https://github.com/kendonB">@kendonB</a>, <a href="https://github.com/kevinushey">@kevinushey</a>, <a href="https://github.com/kevinykuo">@kevinykuo</a>, <a href="https://github.com/khughitt">@khughitt</a>, <a href="https://github.com/kovla">@kovla</a>, <a href="https://github.com/lbusett">@lbusett</a>, <a href="https://github.com/lionel-">@lionel-</a>, <a href="https://github.com/lorenzwalthert">@lorenzwalthert</a>, <a href="https://github.com/lpmarco">@lpmarco</a>, <a href="https://github.com/lwiklendt">@lwiklendt</a>, <a href="https://github.com/martinjhnhadley">@martinjhnhadley</a>, <a href="https://github.com/martj42">@martj42</a>, <a href="https://github.com/mattfidler">@mattfidler</a>, <a href="https://github.com/mmuurr">@mmuurr</a>, <a href="https://github.com/momeara">@momeara</a>, <a href="https://github.com/mubeenarasack">@mubeenarasack</a>, <a href="https://github.com/mundl">@mundl</a>, <a href="https://github.com/nathancday">@nathancday</a>, <a href="https://github.com/p0bs">@p0bs</a>, <a href="https://github.com/PalaceChan">@PalaceChan</a>, <a href="https://github.com/patperry">@patperry</a>, <a href="https://github.com/plantarum">@plantarum</a>, <a href="https://github.com/PMassicotte">@PMassicotte</a>, <a href="https://github.com/randomgambit">@randomgambit</a>, <a href="https://github.com/rkahne">@rkahne</a>, <a href="https://github.com/slonik-az">@slonik-az</a>, <a href="https://github.com/strengejacke">@strengejacke</a>, <a href="https://github.com/sumtxt">@sumtxt</a>, <a href="https://github.com/t-kalinowski">@t-kalinowski</a>, <a href="https://github.com/Tazinho">@Tazinho</a>, <a href="https://github.com/tjmahr">@tjmahr</a>, <a href="https://github.com/tmelconian">@tmelconian</a>, <a href="https://github.com/tomroh">@tomroh</a>, <a href="https://github.com/trinker">@trinker</a>, <a href="https://github.com/vnijs">@vnijs</a>, <a href="https://github.com/vspinu">@vspinu</a>, <a href="https://github.com/WB-Student">@WB-Student</a>, <a href="https://github.com/wch">@wch</a>, <a href="https://github.com/wibeasley">@wibeasley</a>, <a href="https://github.com/wpetry">@wpetry</a>, <a href="https://github.com/yutannihilation">@yutannihilation</a>, and <a href="https://github.com/Zedseayou">@Zedseayou</a>.</p>
+</div>

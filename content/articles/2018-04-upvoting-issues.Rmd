@@ -1,0 +1,97 @@
+---
+title: Upvoting issues
+author: Mara Averick
+date: '2018-04-12'
+slug: upvoting-issues
+categories:
+  - other
+description: >
+  If you go to a GitHub repo to file an issue/request a feature and find an open 
+  thread, give it a thumbs up: we are listening!
+photo:
+  url: https://unsplash.com/photos/Ze3l02aRwmE
+  author: Annie Spratt
+output:
+  blogdown::html_page:
+    css: "/css/article-image.css"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+Contributions to the tidyverse, and to open source software in general can
+be framed as various forms of "feedback." Giving useful feedback can be hard!
+That's one of the reasons that [**File issues**](https://www.tidyverse.org/contribute/) 
+is part of our contributing guide. Hopefully, it's a mutually-beneficial endeavor 
+— if you've found a bug while [getting help](https://www.tidyverse.org/help/), 
+we want to know about it so we can improve the software.
+
+For the purposes of this post, let's suppose you've found a bug or there's a
+feature you'd like to see added to one of your favourite packages. Being the
+thoughtful user that you are, you've made your way to the appropriate GitHub
+repo. Before writing anything, you search the existing issues to see if it's
+already there, or perhaps you've landed yourself in the open issue by way of
+searching for your error message. The point is: you have an issue, and you're
+not alone — someone's beat you to the punch/blazed a trail ahead of you.
+
+Sometimes you'll have something to add to the conversation (like adding a
+[reprex](http://reprex.tidyverse.org/) if one doesn't exist, or making an
+existing reprex more minimal), but that's not always the case. This is precisely
+what [GitHub Reactions](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) were meant for. To quote from their launch
+post:
+
+> We’re adding Reactions to conversations today to help people express their 
+> feelings more simply and effectively.
+
+Feedback that falls on deaf ears isn't worth much, so we've started tracking 
+these using the [gh](https://github.com/r-lib/gh) package and [GitHub's API](https://developer.github.com/v3/reactions/#list-reactions-for-an-issue).
+
+```
+GET /repos/:owner/:repo/issues/:number/reactions
+```
+
+GitHub has six reaction types, but we've bagged them into two categories, 
+`:+1:` (thumbs up), and the others. 
+
+![](/images/upvoting-issues/reaction_types.png)
+
+When we pull the repo, issue, and reaction data together we end up with 
+something that looks like the following figure.
+
+![](/images/upvoting-issues/tidyverse_issue_reactions.png)
+
+It's a far cry from a fancy report, but it provides another avenue for easy 
+communication among users and developers.
+
+#### How do I react?
+
+As long as you have a GitHub account, all you need to do is click-and-pick. 
+This isn't a _true_ upvoting system, just a way of saying `+1` without having 
+to write a comment to that same effect.
+
+![](/images/upvoting-issues/pkgdown_upvoting.gif)
+
+#### What if the issue is closed?
+
+We are _not_ tracking reactions on closed issues.
+
+#### What about comments?
+
+Comments are great, and they're not going away. Tracking upvotes is intended to
+be an at-a-glance indicator. Comments don't serve this purpose quite so well, as
+they can be positive, negative, or anything in between.
+
+![](/images/upvoting-issues/pkgdown_comment.gif)
+
+#### Does this mean that issues will be dealt with sequentially by popular demand?
+
+Nope. While we want and value your feedback, our development process isn't a
+popularity contest — we carefully weigh the severity of the issue, the number
+of people it affects, our estimate of how much time it will take to fix, and our
+current development foci to decide what to work on next.
+
+### TL;DR
+
+If you go to a GitHub repo to file an issue/request a feature and find an open 
+thread, give it a thumbs up: we are listening!
