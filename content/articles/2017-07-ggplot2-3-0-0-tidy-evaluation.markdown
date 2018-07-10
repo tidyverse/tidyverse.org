@@ -1,30 +1,28 @@
 ---
-title: ggplot2 3.0.0 - dev notes
-date: '2018-07-09'
-slug: ggplot2-3-0-0-dev-notes
+title: ggplot2 3.0.0 - tidy evaluation
+date: '2018-07-11'
+slug: ggplot2-3-0-0-tidy-evaluation
 author: Mara Averick
 categories: [package]
 description: >
-  ggplot2 3.0.0 — what package developers need to know.
+  Changes in ggplot2 3.0.0, tidy-evaluation edition.
 photo:
   url: https://unsplash.com/photos/8KfCR12oeUM
   author: Christopher Burns
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.retina = 2, dpi = 300)
-library(tidyverse)
-```
 
-As noted in our [pre-release announcement](https://www.tidyverse.org/articles/2018/05/ggplot2-2-3-0/) back in May, ggplot2 3.0.0 contains some breaking changes that we believe to be worthwhile in the interest of improving future code. Here, we outline the most prominent of those changes, and "symptomatic" error messages you may encounter. For our complete list of such messages, please see the [Breaking changes](https://ggplot2.tidyverse.org/news/index.html#breaking-changes) section of the [release notes](https://ggplot2.tidyverse.org/news/index.html#ggplot2-3-0-0).
 
 ## Tidy evaluation
 
-ggplot2 now supports [tidy evaluation](https://adv-r.hadley.nz/evaluation.html#tidy-evaluation), making it more programmable, and more consistent with the rest of the tidyverse. 
+One of the biggest changes in [ggplot2](https://ggplot2.tidyverse.org/) 3.0.0 is support for [tidy evaluation](https://adv-r.hadley.nz/evaluation.html#tidy-evaluation), making it more programmable, and more consistent with the rest of the tidyverse. Though this introduces some breaking changes, we believe it to be worthwhile in the interest of improving future code. Here, we outline some of the more prominent of those changes, and "symptomatic" error messages you may encounter. For our complete list of such messages, please see the [Breaking changes](https://ggplot2.tidyverse.org/news/index.html#breaking-changes) section of the [release notes](https://ggplot2.tidyverse.org/news/index.html#ggplot2-3-0-0).
+
+### `aes()` contains quosures
 
 The primary developer-facing change is that `aes()` now contains [quosures](https://adv-r.hadley.nz/evaluation.html#quosures) (expression + environment pairs), rather than symbols. As a result, you'll need to take a different approach to extracting the information you need. 
 
-```{r aes-quo}
+
+```r
 x_var <- quo(cyl)
 y_var <- quo(mpg)
 
@@ -36,21 +34,29 @@ ggplot(by_cyl, aes(!!x_var, mean)) +
   geom_point()
 ```
 
+<img src="/articles/2017-07-ggplot2-3-0-0-tidy-evaluation_files/figure-html/aes-quo-1.png" width="2100" />
+
 You can now use [quasiquotation](https://adv-r.hadley.nz/quasiquotation.html) in [`aes()`](https://ggplot2.tidyverse.org/reference/aes.html), [`facet_wrap()`](https://ggplot2.tidyverse.org/reference/facet_wrap.html), and [`facet_grid()`](https://ggplot2.tidyverse.org/reference/facet_grid.html). For `aes()`, quasiquotation (`!!`, `!!!`, `:=`) replaces [`aes_()`](https://ggplot2.tidyverse.org/reference/aes_.html) and [`aes_string()`](https://ggplot2.tidyverse.org/reference/aes_.html) (though these functions are being soft deprecated, and will be around for a while).
+
+### Facetting with `vars()`
 
 To support quasiquotation in facetting we’ve added a new helper function: [`vars()`](https://ggplot2.tidyverse.org/reference/vars.html), short for variables. Instead of `facet_grid(x + y ~ a + b)` you can now write `facet_grid(vars(x, y), vars(a, b))`. The formula interface won’t go away; but the new `vars()` interface should be much easier to program with.
 
 `vars()` is used to supply variables or expressions, evaluated in the context of the dataset to form facetting groups.
 
-```{r facet-vars}
+
+```r
 p <- ggplot(mpg, aes(displ, cty)) + geom_point()
 
 p + facet_grid(rows = vars(drv))
 ```
 
+<img src="/articles/2017-07-ggplot2-3-0-0-tidy-evaluation_files/figure-html/facet-vars-1.png" width="2100" />
+
 Using quosures ensures that the variable comes from the context of the dataframe, as opposed to, say the global environment.
 
-```{r vars-env}
+
+```r
 mans <- c("chevrolet", "dodge", "ford", "toyota")
 
 year <- 2018
@@ -63,16 +69,23 @@ d <- ggplot(mpg2, aes(displ, cty)) + geom_point()
 d + facet_grid(vars(year), vars(manufacturer))
 ```
 
+<img src="/articles/2017-07-ggplot2-3-0-0-tidy-evaluation_files/figure-html/vars-env-1.png" width="2100" />
+
 Inside of `vars()` you can easily supply names, which will add titles to the facets.
 
-```{r labelled-grid}
+
+```r
 p + facet_grid(vars(Cylinder = cyl), labeller = label_both)
 ```
 
+<img src="/articles/2017-07-ggplot2-3-0-0-tidy-evaluation_files/figure-html/labelled-grid-1.png" width="2100" />
 
-`vars()` also makes it easier to pass variables from wrapper functions.
+### Using `vars()` for wrapper functions
 
-```{r wrap-by}
+`vars()` makes it easier to pass variables from wrapper functions.
+
+
+```r
 p <- ggplot(mtcars, aes(wt, disp)) + geom_point()
 
 wrap_by <- function(...) {
@@ -82,9 +95,12 @@ wrap_by <- function(...) {
 p + wrap_by(vs, am)
 ```
 
+<img src="/articles/2017-07-ggplot2-3-0-0-tidy-evaluation_files/figure-html/wrap-by-1.png" width="2100" />
+
 In our `wrap_by()` function above, we used tidy dots ([`...`](https://adv-r.hadley.nz/quasiquotation.html#dot-dot-dot-...)), which represent an arbitrary number of additional arguments. For a function to use *named arguments*, we'll need to "enquote" the named argument with [`enquo()`](http://rlang.r-lib.org/reference/quotation.html). To create a default name, we'll use [`quo_name()`](http://rlang.r-lib.org/reference/quo_label.html), which transforms a quosure into a simple string. Then we unquote and evaluate our arguments in their proper contexts using the [`!!`](http://rlang.r-lib.org/reference/quasiquotation.html) (read: bang bang) operator, and the `:=` operator to unquote the name.
 
-```{r wrap-cut}
+
+```r
 wrap_cut <- function(var, n = 3) {
   var <- enquo(var)
   nm <- quo_name(var)
@@ -94,18 +110,24 @@ wrap_cut <- function(var, n = 3) {
 p + wrap_cut(drat)
 ```
 
+<img src="/articles/2017-07-ggplot2-3-0-0-tidy-evaluation_files/figure-html/wrap-cut-1.png" width="2100" />
+
 Symptomatic error message:
-```{r}
+
+```r
 #> Error...undefined columns selected
 ```
 
 You will also need to use [rlang](http://rlang.r-lib.org/) tools if computing on the mapping of an existing ggplot2 object.
 
 Symptomatic error message:
-```{r}
+
+```r
 #> Error...invalid 'type' (list) of argument
 ```
 
+## Getting help
 
+If you're new to tidy evaluation, the best place to learn more about it is in the work-in-progress 2nd edition of [Advanced R](https://adv-r.hadley.nz/), especially the [Metaprogramming section](https://adv-r.hadley.nz/meta.html). You may also want to check out RStudio's [tidy evaluation webinar](https://www.rstudio.com/resources/webinars/tidy-eval/) with Lionel Henry, or (if you're short on time) Hadley's video: [Tidy evaluation in 5 minutes](https://www.youtube.com/watch?v=nERXS3ssntw). 
 
-
+You can also always ask for help at [community.rstudio.com](https://community.rstudio.com/).
