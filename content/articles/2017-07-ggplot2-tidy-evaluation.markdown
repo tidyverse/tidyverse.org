@@ -89,7 +89,6 @@ scatter_by(mtcars, disp, drat)
 
 <img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/scatter-by-1.png" width="2100" />
 
-
 ### Facetting with `vars()`
 
 To support quasiquotation in facetting we’ve added a new helper function: [`vars()`](https://ggplot2.tidyverse.org/reference/vars.html), short for variables. Instead of `facet_grid(x + y ~ a + b)` you can now write `facet_grid(vars(x, y), vars(a, b))`. The formula interface won’t go away; but the new `vars()` interface supports tidy evaluation, so can be easily programmed with.
@@ -105,7 +104,7 @@ p + facet_grid(rows = vars(drv))
 
 <img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/facet-vars-1.png" width="2100" />
 
-Using quosures ensures that the variable comes from the context of the dataframe, as opposed to, say the global environment.
+Using quosures ensures that the variable comes from the context of the dataframe, as opposed to, say the global environment. You can also use unquote splicing with the `!!!` operator to pass in a list of named arguments.
 
 
 ```r
@@ -118,7 +117,9 @@ mpg2 <- mpg %>%
 
 d <- ggplot(mpg2, aes(displ, cty)) + geom_point()
 
-d + facet_grid(vars(year), vars(manufacturer))
+args <- list(rows = quo(year), cols = quo(manufacturer))
+
+d + facet_grid(vars(!!!args))
 ```
 
 <img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/vars-env-1.png" width="2100" />

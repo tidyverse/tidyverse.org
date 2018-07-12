@@ -92,7 +92,7 @@ p <- ggplot(mpg, aes(displ, cty)) + geom_point()
 p + facet_grid(rows = vars(drv))
 ```
 
-Using quosures ensures that the variable comes from the context of the dataframe, as opposed to, say the global environment.
+Using quosures ensures that the variable comes from the context of the dataframe, as opposed to, say the global environment. You can also use unquote splicing with the `!!!` operator to pass in a list of named arguments.
 
 ```{r vars-env}
 mans <- c("chevrolet", "dodge", "ford", "toyota")
@@ -104,7 +104,9 @@ mpg2 <- mpg %>%
 
 d <- ggplot(mpg2, aes(displ, cty)) + geom_point()
 
-d + facet_grid(vars(year), vars(manufacturer))
+args <- list(rows = quo(year), cols = quo(manufacturer))
+
+d + facet_grid(vars(!!!args))
 ```
 
 Inside of `vars()` you can easily supply names, which will add titles to the facets.
