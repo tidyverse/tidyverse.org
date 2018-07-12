@@ -104,7 +104,7 @@ p + facet_grid(rows = vars(drv))
 
 <img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/facet-vars-1.png" width="2100" />
 
-Using quosures ensures that the variable comes from the context of the dataframe, as opposed to, say the global environment. You can also use unquote splicing with the `!!!` operator to pass in a list of named arguments.
+Using quosures ensures that the variable comes from the context of the dataframe. Since the ellipsis is the first and only argument of `vars()`, you can use unquote splicing with the `!!!` operator to pass in a list of named arguments.
 
 
 ```r
