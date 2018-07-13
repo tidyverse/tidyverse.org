@@ -108,14 +108,12 @@ Using quosures ensures that the variable comes from the context of the dataframe
 
 
 ```r
-mans <- c("chevrolet", "dodge", "ford", "toyota")
-
 year <- 2018
 
-mpg2 <- mpg %>%
-  filter(manufacturer %in% mans)
-
-d <- ggplot(mpg2, aes(displ, cty)) + geom_point()
+d <- mpg %>%
+  filter(manufacturer %in% c("chevrolet", "dodge", "ford", "toyota")) %>%
+  ggplot() +
+    geom_point(aes(displ, cty))
 
 args <- list(rows = quo(year), cols = quo(manufacturer))
 
