@@ -38,18 +38,18 @@ tidy(fit)
 ```
 
 
-These changes will mostly likely affect you when:
+These changes will mostly likely affect you when you:
 
-- subset with `[`, which always returns a tibble
-- set rownames on a tibble, which is deprecated
-- use augment methods on models with matrix covariates specified in a formula, which will error
+- subset with `[`, which always returns a tibble.
+- set rownames on a tibble, which is deprecated.
+- use augment methods on models with matrix covariates specified in a formula, which will error.
 
-Augment will error with matrix covariates because tibbles are more strict about their contents than data frames. Data frames allow users to specify columns in a matrix, like so:
+`augment()` will error with matrix covariates because tibbles are more strict about their contents than data frames. Data frames allow users to specify columns in a matrix, like so:
 
 
 ```r
-y <- 1:3
-x <- matrix(1:9, nrow = 3)
+y <- rnorm(5)
+x <- matrix(rnorm(10), nrow = 5)
 df <- data.frame(x, y)
 ```
 
@@ -66,7 +66,7 @@ tibble(x, y)
 ## Error: Column `x` must be a 1d atomic vector or a list
 ```
 
-Modelling functions will occassional create a data frame like this, but since the model frame can't be coerced a tibble method, `augment` will fail:
+Modelling functions will occassionally create a data frame like this, but since the model frame can't be coerced a tibble method, `augment()` will fail:
 
 
 ```r
@@ -86,62 +86,62 @@ augment(fit, data = df)
 ```
 
 ```
-## # A tibble: 3 x 9
-##      X1    X2    X3     y .fitted .se.fit .resid  .hat .sigma
-## * <int> <int> <int> <int>   <dbl>   <dbl>  <dbl> <dbl>  <dbl>
-## 1     1     4     7     1       1       0      0 0.833    NaN
-## 2     2     5     8     2       2       0      0 0.333    NaN
-## 3     3     6     9     3       3       0      0 0.833    NaN
+## # A tibble: 5 x 10
+##       X1     X2      y .fitted .se.fit  .resid  .hat  .sigma .cooksd
+## *  <dbl>  <dbl>  <dbl>   <dbl>   <dbl>   <dbl> <dbl>   <dbl>   <dbl>
+## 1 -1.45   0.538 0.0268   0.559   0.483 -0.532  0.622 0.00798 1.10   
+## 2  0.436 -0.188 0.927    1.22    0.559 -0.290  0.833 0.497   2.23   
+## 3 -1.35   0.139 1.60     1.00    0.441  0.594  0.519 0.123   0.706  
+## 4  0.429  0.424 0.601    0.526   0.335  0.0753 0.300 0.861   0.00310
+## 5  0.803  0.770 0.254    0.101   0.521  0.153  0.726 0.815   0.200  
+## # ... with 1 more variable: .std.resid <dbl>
 ```
 
-In any case, support for matrix-columns is on the way in dplyr and in a release cycle or two this won't be an issue.
+Support for matrix-columns is on the way in dplyr and in a release cycle or two this won't be an issue.
 
-A number of deprecated tidiers (or tidiers that will be deprecated in the next release) have not been updated to use tibble output. Most notably, this includes tidiers for mixed models. More on this below.
+Deprecated tidiers still return data frames. Tidiers for mixed models also return data frames; more on this below.
 
 ## New infrastructure for testing and documentation
 
-We are heavily invested in making it easier to contribute to broom, and also in making broom behavior more standardized and consistent. To this end, we've written new testing and documentation infrastructure that automates much of these processes.
+We are heavily invested in making it easier to contribute to broom, and also in making broom behavior more standardized and consistent. To this end, we've written new testing and documentation infrastructure that automates many of these processes.
 
-In broom 0.5.0 these tests mostly ensure tibble output along with one or two other consistency items. However, stricter versions of these tests are under development for future releases.
+In broom 0.5.0 these tests mostly ensure tibble output. However, stricter versions of these tests are under development for future releases.
 
-We have also migrated to a new template based documentation strategy. Now repeated documentation material lives in `roxygen2` templates and can easily added to a new tidy method. For an example of how this works, see [`R/aer-tidiers.R`](https://github.com/alexpghayes/broom/blob/master/R/aer-tidiers.R).
+We have also migrated to a new template-based documentation strategy. Repeated documentation material now lives in `roxygen2` templates and can easily be added to a new tidy method. For an example of how this works, see [`R/aer-tidiers.R`](https://github.com/alexpghayes/broom/blob/master/R/aer-tidiers.R).
 
 ## Mixed models are moving to `broom.mixed`
 
-As broom's popularity has grown, broom has grown to encompass a fairly broad range of models. Dave and I have little to no experience with many of these models, and while we can fix bugs in the tidying code, we are no longer able to determine what constitutes a reasonable summary for reasonable summary for many of these models.
+As broom's popularity has grown, broom has grown to encompass a fairly broad range of models. Dave and I have little to no experience with many of these models, and while we can fix bugs in the tidying code, we are no longer able to determine what constitutes a reasonable summary for many of these models.
 
-Our intended solution is to split broom into several packages for tidying model objects. broom will provide tidiers for the most common tidiers (and those in `base` and `stats`), and then domain experts will manage domain specific tidying packages. Currently we're working on a spec for all these sub-packages to implement. With any luck this we'll have a well-written spec to accompany the next release. We'd like all of the domain specific tidying packages to eventually live in tidymodels, so that users can load a bunch of tools all at once with `library(tidymodels)`.
+Our intended solution is to split broom into several packages for tidying model objects. broom will provide tidiers for popular models (and those in `base` and `stats`), and then domain experts will manage domain-specific tidying packages. Currently we're working on a spec for all of these sub-packages to implement. With any luck this we'll have a well-written spec to accompany the next release. We'd like all of the domain-specific tidying packages to eventually live in [tidymodels](https://github.com/tidymodels), so that users can load a bunch of tools all at once with `library(tidymodels)`. tidymodels will act as meta-package that gathers together tidyverse compatible tools for modelling. Max Kuhn has migrated a number of his packages to the tidymodels organization, and we plan to move broom at in the near future.
 
-Mixed models tidiers have long been a bit of a mess in broom, and a while back [`broom.mixed`](
-https://github.com/bbolker/broom.mixed) forked off to clean them up. broom.mixed is now a pilot for the larger project of splitting broom into domain specific tidying packages. We anticipate that broom.mixed will makes its way onto CRAN in the next several weeks, which will allow us to deprecate mixed model tidiers in broom 0.7.0. Although these models are not yet deprecated, there is currently no ongoing development work for them. In particular, the tidiers for:
+Mixed-model tidiers have long been a bit of a mess in broom. A while back [`broom.mixed`](https://github.com/bbolker/broom.mixed) forked off to clean them up. broom.mixed is now a pilot for the larger project of splitting broom into domain specific tidying packages. We anticipate that broom.mixed will makes its way onto CRAN in the next several weeks, which will allow us to deprecate mixed model tidiers in broom 0.7.0. Although these models are [not yet deprecated](https://broom.tidyverse.org/news/index.html#deprecations), there is currently no ongoing development work for them. In particular, the tidiers for:
 
-- lme, lme4 and nmle models
-- brms models
-- rstanarm models
+- lme, lme4 and nmle models,
+- brms models,
+- rstanarm models, and 
 - mcmc objects
 
 are one release away from deprecation, and effectively frozen.
 
 ## New suggested workflow
 
-Broom has been around so long that the original recommended workflow when working with multiple models mostly used `dplyr::group_by` combined with `dplyr::do`. Now, we recommend using list-columns and a `nest-map-unnest` workflow. This is in line with the rest of the tidyverse. We have updated the [kmeans](https://broom.tidyverse.org/articles/kmeans.html), [broom and dplyr](https://broom.tidyverse.org/articles/broom_and_dplyr.html) and  [bootstrapping](https://broom.tidyverse.org/articles/bootstrapping.html) vignettes to reflect this. Additional, we've updated the bootstrapping vignette to use [rsample](https://tidymodels.github.io/rsample/) rather than the now-deprecated `bootstrap()` function.
+When working with many models at the same time, we now recommend using list-columns and a `nest()-map()-unnest()` workflow. This mirrors similar moves across the rest of the tidyverse. We have updated the [kmeans](https://broom.tidyverse.org/articles/kmeans.html), [broom and dplyr](https://broom.tidyverse.org/articles/broom_and_dplyr.html) and  [bootstrapping](https://broom.tidyverse.org/articles/bootstrapping.html) vignettes to reflect the new workflow. Additional, we've updated the bootstrapping vignette to use [rsample](https://tidymodels.github.io/rsample/) rather than the now-deprecated `bootstrap()` function. We no longer recommend the older `group_by()-do()` workflow.
 
 ## New vignettes
 
 The list of available tidiers has been moved out of the README and into the [Available Methods](https://broom.tidyverse.org/articles/available-methods.html) vignette. 
 
-We also have two new vignettes that are **strictly works in progress** at this point in time. The first covers [Adding New Tidiers](https://broom.tidyverse.org/articles/adding-tidiers.html) and seeks to make the barrier of entry for broom contributions as low as possible.
-
-Finally, we are developing a [Glossary](https://broom.tidyverse.org/articles/glossary.html) of terms for use in an upcoming release of broom. This glossary will standardize argument names across tidiers, and column names across tidy output.
+We also have two new vignettes that are **strictly works in progress** at the moment. The first covers [Adding New Tidiers](https://broom.tidyverse.org/articles/adding-tidiers.html) and seeks to make the barrier of entry for broom contributions as low as possible. The second contains a [Glossary](https://broom.tidyverse.org/articles/glossary.html) of terms we are developing for use in an upcoming release of broom. This glossary will standardize argument names across tidiers, and column names across tidy output.
 
 ## Deprecations
 
 ### Deprecations in 0.5.0
 
-- Matrix and vector tidiers have been deprecated in  favor of `tibble::as_tibble` and `tibble::enframe`
+- Matrix and vector tidiers have been deprecated in  favor of `tibble::as_tibble()` and `tibble::enframe()`
 - Dataframe tidiers and rowwise dataframe tidiers have been deprecated
 - `bootstrap()` has been deprecated in favor of the [`rsample`](https://tidymodels.github.io/rsample/)
-- `inflate` has been removed from `broom`
+- `inflate()` has been removed from `broom`
 
 ### Likely future deprecations
 
