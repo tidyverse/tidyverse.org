@@ -1,6 +1,6 @@
 ---
 title: Tidy evaluation in ggplot2
-date: '2018-07-13'
+date: '2018-07-17'
 slug: ggplot2-tidy-evaluation
 author: Mara Averick
 categories: [package]
@@ -92,7 +92,7 @@ p <- ggplot(mpg, aes(displ, cty)) + geom_point()
 p + facet_grid(rows = vars(drv))
 ```
 
-Using quosures ensures that the variable comes from the context of the dataframe. Since the ellipsis is the first and only argument of `vars()`, you can use unquote splicing with the `!!!` operator to pass in a list of named arguments.
+Using quosures ensures that the variable comes from the context of the dataframe. Since the ellipsis is the first and only argument of `vars()`, you can use unquote splicing with the `!!!` operator to pass in a list of arguments.
 
 ```{r vars-env}
 year <- 2018
@@ -102,7 +102,7 @@ d <- mpg %>%
   ggplot() +
     geom_point(aes(displ, cty))
 
-args <- list(rows = quo(year), cols = quo(manufacturer))
+args <- list(quo(year), quo(manufacturer))
 
 d + facet_grid(vars(!!!args))
 ```
