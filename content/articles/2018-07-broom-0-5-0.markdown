@@ -24,7 +24,7 @@ h2 code {
 
 I am delighted to announced that [broom](https://broom.tidyverse.org/) 0.5.0 is now available on CRAN. broom 0.5.0 is a major new release featuring changes that affect both users and developers. See the [News]( https://broom.tidyverse.org/news/) for a detailed list of changes.
 
-This release was possible due to RStudio's internship program, which has enabled me to act as broom's maintainer for the course of the summer. David Robinson continues to steer design decisions. Many thanks to both RStudio and Dave for this opportunity.
+This release was possible due to RStudio's internship program, which has enabled me ([Alex Hayes](https://github.com/alexpghayes/)) to act as broom's maintainer for the course of the summer. David Robinson continues to steer design decisions. Many thanks to both RStudio and Dave for this opportunity.
 
 ## Tibble output {#tibble}
 
@@ -60,6 +60,24 @@ These changes will mostly likely affect you when you:
 `augment()` will error with matrix covariates because tibbles are more strict about their contents than data frames. More details are [available below](#appendix).
 
 Deprecated tidiers still return data frames. Tidiers for mixed models also return data frames.
+
+## New tidiers
+
+broom 0.5.0 supports introduces tidiers for:
+
+- `lavaan` objects from the `lavaan` package
+- `ivreg` objects from the `AER` package
+- `Kendall` objects from the `Kendall` package
+- `garch` objects from the `tseries` package
+- `irlba` lists from the `irlba` package
+- `durbinWatsonTest` objects from the `car` package
+- `confusionMatrix` objects from the `caret` package
+- `glmnet` and `cv.glmnet` objects from the `glmnetUtils` package
+- `clm` and `clmm` objects from the `ordinal` package
+- `svyolr` objects from the `survey` package, and
+- `polr` objects from the `MASS` package.
+
+In addition to these new tidiers, this release includes fixes for a large number of bugs in existing tidiers.
 
 ## New test suite
 
@@ -172,13 +190,13 @@ augment(fit, data = df)
 
 ```
 ## # A tibble: 5 x 10
-##       X1     X2      y .fitted .se.fit  .resid  .hat .sigma .cooksd
-## *  <dbl>  <dbl>  <dbl>   <dbl>   <dbl>   <dbl> <dbl>  <dbl>   <dbl>
-## 1 -1.46  -0.844  0.754   0.543   0.517  0.211  0.483  1.01   0.0482
-## 2  1.15  -2.22  -0.433  -0.359   0.734 -0.0737 0.972  0.958  3.97  
-## 3 -1.02  -0.359  0.187   1.02    0.429 -0.829  0.332  0.285  0.306 
-## 4  1.35  -0.315  1.41    1.32    0.710  0.0882 0.909  1.01   0.519 
-## 5 -0.941 -0.423  1.57    0.969   0.411  0.604  0.304  0.765  0.138 
+##       X1    X2      y .fitted .se.fit .resid  .hat .sigma .cooksd
+## *  <dbl> <dbl>  <dbl>   <dbl>   <dbl>  <dbl> <dbl>  <dbl>   <dbl>
+## 1 -0.318  1.55  1.40    0.362   1.32   1.03  0.689   1.27   1.01 
+## 2  0.588 -2.19  0.215  -0.733   1.18   0.947 0.555   1.74   0.332
+## 3  0.426 -1.80 -1.79   -0.623   1.07  -1.17  0.451   1.60   0.272
+## 4  1.62   1.53  0.927   0.499   1.52   0.428 0.912   1.72   2.84 
+## 5  0.343  1.85 -0.732   0.504   0.995 -1.24  0.392   1.59   0.214
 ## # ... with 1 more variable: .std.resid <dbl>
 ```
 
