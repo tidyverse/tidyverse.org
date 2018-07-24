@@ -14,7 +14,13 @@ photo:
 
 ```{r setup, include = FALSE}
 library(ggplot2)
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", dpi = 300, fig.width = 4, fig.height = 3)
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>", 
+  fig.width = 7, 
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  out.width = "700px"
+)
 ```
 
 We're extremely pleased to announce the release of [ggplot2](https://ggplot2.tidyverse.org/) 3.0.0. This is a major release: it was previously announced as ggplot2 2.3.0, but we decided to increment the version number because there are some big changes under the hood. Most importantly ggplot2 now supports tidy evaluation, which makes it easier to programmatically build plots with ggplot2 in the same way you can programmatically build data manipulation pipelines with dplyr.
@@ -62,7 +68,7 @@ Thanks to the help of [Edzer Pebesma](https://github.com/edzer) and the [r-spati
 automatically aligns CRS across layers, sets up the correct aspect ratio, and 
 draws a graticule.
 
-```{r sf, message = FALSE}
+```{r sf, fig.asp = 0.5, message = FALSE}
 nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"))
 ggplot(nc) +
   geom_sf() +
@@ -94,7 +100,7 @@ ggplot(mtcars) +
 
 The new [`position_dodge2()`](https://ggplot2.tidyverse.org/reference/position_dodge.html) allows you to arrange the horizontal position of plots with variable widths (i.e. bars and rectangles, in addition to box plots). By default, `position_dodge2()` preserves the width of each element. You can choose to preserve the total width by setting the `preserve` argument to `"total"`. Thank you to [Kara Woo](https://github.com/karawoo) for all of her work on this.
 
-```{r dodge-st, fig.show = "hold", out.width = "50%"}
+```{r dodge-st, fig.width = 4, out.width = "50%", fig.align = "default", fig.show = "hold"}
 ggplot(mtcars, aes(factor(cyl), fill = factor(vs))) +
   geom_bar(position = position_dodge2(preserve = "single"))
 
