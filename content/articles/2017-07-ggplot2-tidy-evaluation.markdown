@@ -1,6 +1,6 @@
 ---
 title: Tidy evaluation in ggplot2
-date: '2018-07-17'
+date: '2018-07-24'
 slug: ggplot2-tidy-evaluation
 author: Mara Averick
 categories: [package]
