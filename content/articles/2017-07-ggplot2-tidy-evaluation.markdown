@@ -12,6 +12,7 @@ photo:
 ---
 
 
+
 <html>
 <style>
 h2 code {
@@ -42,7 +43,7 @@ piechart_basic <- function(data, mapping) {
 piechart_basic(mpg, aes(factor(1), fill = class))
 ```
 
-<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/piechart-basic-1.png" width="2100" />
+<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/piechart-basic-1.png" width="700px" style="display: block; margin: auto;" />
 
 The key to calling a tidy evaluation function inside of another function is to quote (with `enquo()`) and unquote (with `!!`):
 
@@ -55,7 +56,7 @@ pie_chart <- function(data, var, ...) {
 pie_chart(mpg, class)
 ```
 
-<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/piechart-qq-1.png" width="2100" />
+<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/piechart-qq-1.png" width="700px" style="display: block; margin: auto;" />
 
 We could use this same pattern to make a scatterplot:
 
@@ -70,7 +71,7 @@ scatter_plot <- function(data, x, y) {
 scatter_plot(mtcars, disp, drat)
 ```
 
-<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/scatter-by-1.png" width="2100" />
+<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/scatter-by-1.png" width="700px" style="display: block; margin: auto;" />
 
 ## Tidy facets with `vars()`
 
@@ -85,7 +86,7 @@ p <- ggplot(mpg, aes(displ, cty)) + geom_point()
 p + facet_grid(rows = vars(drv))
 ```
 
-<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/facet-vars-1.png" width="2100" />
+<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/facet-vars-1.png" width="700px" style="display: block; margin: auto;" />
 
 Compared to `aes()`, `vars()` takes unnamed arguments. This makes it a more 
 natural fit for use with `!!!`, the unquote-splice operator.
@@ -104,7 +105,7 @@ args <- quos(year, manufacturer)
 d + facet_grid(vars(!!!args))
 ```
 
-<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/vars-env-1.png" width="2100" />
+<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/vars-env-1.png" width="700px" style="display: block; margin: auto;" />
 
 Inside of `vars()` you can easily supply names, which will add titles to the facets.
 
@@ -113,7 +114,7 @@ Inside of `vars()` you can easily supply names, which will add titles to the fac
 p + facet_grid(vars(Cylinder = cyl), labeller = label_both)
 ```
 
-<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/labelled-grid-1.png" width="2100" />
+<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/labelled-grid-1.png" width="700px" style="display: block; margin: auto;" />
 
 
 `vars()` makes it easier to pass variables from wrapper functions.
@@ -129,7 +130,7 @@ wrap_by <- function(...) {
 p + wrap_by(vs, am)
 ```
 
-<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/wrap-by-1.png" width="2100" />
+<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/wrap-by-1.png" width="700px" style="display: block; margin: auto;" />
 
 In our `wrap_by()` function above, we used tidy dots ([`...`](https://adv-r.hadley.nz/quasiquotation.html#dot-dot-dot-...)), which represent an arbitrary number of additional arguments. Alternatively, we could allow the user to provide a single named argument with [`enquo()`](http://rlang.r-lib.org/reference/quotation.html). To create a default name, we'll use [`quo_name()`](http://rlang.r-lib.org/reference/quo_label.html), which transforms a quosure into a simple string. Then we unquote and evaluate our arguments in their proper contexts using the [`!!`](http://rlang.r-lib.org/reference/quasiquotation.html) (read: bang bang) operator, and the `:=` operator to unquote the name.
 
@@ -144,7 +145,7 @@ wrap_cut <- function(var, n = 3) {
 p + wrap_cut(drat)
 ```
 
-<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/wrap-cut-1.png" width="2100" />
+<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/wrap-cut-1.png" width="700px" style="display: block; margin: auto;" />
 
 You will also need to use [rlang](http://rlang.r-lib.org/) tools if computing on the mapping of an existing ggplot2 object.
 
