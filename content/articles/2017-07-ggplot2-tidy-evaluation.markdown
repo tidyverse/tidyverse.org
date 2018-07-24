@@ -22,30 +22,13 @@ h2 code {
 </html>
 ## Tidy evaluation
 
-One of the biggest changes in [ggplot2](https://ggplot2.tidyverse.org/) 3.0.0 is support for [tidy evaluation](https://adv-r.hadley.nz/evaluation.html#tidy-evaluation), making it more programmable, and more consistent with the rest of the tidyverse. Though this introduces some breaking changes, we believe it to be worthwhile in the interest of improving future code. Here, we outline some of the more prominent of those changes. For our complete list of changes, including symptomatic error messages, please see the [Breaking changes](https://ggplot2.tidyverse.org/news/index.html#breaking-changes) section of the [release notes](https://ggplot2.tidyverse.org/news/index.html#ggplot2-3-0-0).
+One of the biggest changes in [ggplot2](https://ggplot2.tidyverse.org/) 3.0.0 is support for [tidy evaluation](https://adv-r.hadley.nz/evaluation.html#tidy-evaluation), making it more programmable, and more consistent with the rest of the tidyverse. Though this introduces some breaking changes, we believe it to be worthwhile in the interest of improving future code. Here we show a couple of examples of how you might use it. New developer facing changes are also discussed (see [below](#developer-facing-changes)).
 
-### `aes()` contains quosures
-
-The primary developer-facing change is that `aes()` now contains [quosures](https://adv-r.hadley.nz/evaluation.html#quosures) (expression + environment pairs), rather than symbols. As a result, you'll need to take a different approach to extracting the information you need. Below, we use a "quote-and-unquote" pattern for the aesthetic parameter `x_var`.
-
-
-```r
-x_var <- quo(cyl)
-y_var <- quo(mpg)
-
-by_cyl <- mtcars %>%
-  group_by(!!x_var) %>%
-  summarise(mean = mean(!!y_var))
-
-ggplot(by_cyl, aes(!!x_var, mean)) +
-  geom_point()
-```
-
-<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/aes-quo-1.png" width="2100" />
+## Tidy aesthetics with `aes()`
 
 You can now use [quasiquotation](https://adv-r.hadley.nz/quasiquotation.html) in [`aes()`](https://ggplot2.tidyverse.org/reference/aes.html), [`facet_wrap()`](https://ggplot2.tidyverse.org/reference/facet_wrap.html), and [`facet_grid()`](https://ggplot2.tidyverse.org/reference/facet_grid.html). For `aes()`, quasiquotation (`!!`, `!!!`, `:=`) replaces [`aes_()`](https://ggplot2.tidyverse.org/reference/aes_.html) and [`aes_string()`](https://ggplot2.tidyverse.org/reference/aes_.html) (though these functions are being soft deprecated, and will be around for a while).
 
-Here we'll use quasiquotation in place of `aes_()` to make a function to make a pie chart that allows the user to avoid using quotation marks when they pass their arguments to the function.[^1] The initial function, below, would require that the user know the exact specifications to pass to `aes()`.
+Here we'll use quasiquotation to make a function to make a pie chart that allows the user to avoid using quotation marks when they pass their arguments to the function.[^1] The initial function, below, would require that the user know the exact specifications to pass to `aes()`.
 
 
 ```r
@@ -61,37 +44,37 @@ piechart_basic(mpg, aes(factor(1), fill = class))
 
 <img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/piechart-basic-1.png" width="2100" />
 
-By quoting and unquoting the arguments, the user can leave the arguments bare when calling the function.
+The key to calling a tidy evaluation function inside of another function is to quote (with `enquo()`) and unquote (with `!!`):
 
 
 ```r
-piechart <- function(data, var, ...) {
+pie_chart <- function(data, var, ...) {
   var <- enquo(var)
-  piechart_basic(data, aes(!!factor(1), fill = !!var))
+  piechart_basic(data, aes(factor(1), fill = !!var))
 }
-piechart(mpg, class)
+pie_chart(mpg, class)
 ```
 
 <img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/piechart-qq-1.png" width="2100" />
 
-The basic pattern is to enquote and unquote named arguments.
+We could use this same pattern to make a scatterplot:
 
 
 ```r
-scatter_by <- function(data, x, y) {
+scatter_plot <- function(data, x, y) {
   x <- enquo(x)
   y <- enquo(y)
 
   ggplot(data) + geom_point(aes(!!x, !!y))
 }
-scatter_by(mtcars, disp, drat)
+scatter_plot(mtcars, disp, drat)
 ```
 
 <img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/scatter-by-1.png" width="2100" />
 
-### Facetting with `vars()`
+## Tidy facets with `vars()`
 
-To support quasiquotation in facetting we’ve added a new helper function: [`vars()`](https://ggplot2.tidyverse.org/reference/vars.html), short for variables. Instead of `facet_grid(x + y ~ a + b)` you can now write `facet_grid(vars(x, y), vars(a, b))`. The formula interface won’t go away; but the new `vars()` interface supports tidy evaluation, so can be easily programmed with.
+To support quasiquotation in facetting, we’ve added a new helper function: [`vars()`](https://ggplot2.tidyverse.org/reference/vars.html), short for variables. Instead of `facet_grid(x + y ~ a + b)` you can now write `facet_grid(vars(x, y), vars(a, b))`. The formula interface won’t go away; but the new `vars()` interface supports tidy evaluation, so can be easily programmed with.
 
 `vars()` is used to supply variables or expressions, evaluated in the context of the dataset to form facetting groups.
 
@@ -104,7 +87,8 @@ p + facet_grid(rows = vars(drv))
 
 <img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/facet-vars-1.png" width="2100" />
 
-Using quosures ensures that the variable comes from the context of the dataframe. Since the ellipsis is the first and only argument of `vars()`, you can use unquote splicing with the `!!!` operator to pass in a list of arguments.
+Compared to `aes()`, `vars()` takes unnamed arguments. This makes it a more 
+natural fit for use with `!!!`, the unquote-splice operator.
 
 
 ```r
@@ -115,7 +99,7 @@ d <- mpg %>%
   ggplot() +
     geom_point(aes(displ, cty))
 
-args <- list(quo(year), quo(manufacturer))
+args <- quos(year, manufacturer)
 
 d + facet_grid(vars(!!!args))
 ```
@@ -131,7 +115,6 @@ p + facet_grid(vars(Cylinder = cyl), labeller = label_both)
 
 <img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/labelled-grid-1.png" width="2100" />
 
-### Using `vars()` for wrapper functions
 
 `vars()` makes it easier to pass variables from wrapper functions.
 
@@ -148,7 +131,7 @@ p + wrap_by(vs, am)
 
 <img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/wrap-by-1.png" width="2100" />
 
-In our `wrap_by()` function above, we used tidy dots ([`...`](https://adv-r.hadley.nz/quasiquotation.html#dot-dot-dot-...)), which represent an arbitrary number of additional arguments. For a function to use *named arguments*, we'll need to quote the named argument with [`enquo()`](http://rlang.r-lib.org/reference/quotation.html). To create a default name, we'll use [`quo_name()`](http://rlang.r-lib.org/reference/quo_label.html), which transforms a quosure into a simple string. Then we unquote and evaluate our arguments in their proper contexts using the [`!!`](http://rlang.r-lib.org/reference/quasiquotation.html) (read: bang bang) operator, and the `:=` operator to unquote the name.
+In our `wrap_by()` function above, we used tidy dots ([`...`](https://adv-r.hadley.nz/quasiquotation.html#dot-dot-dot-...)), which represent an arbitrary number of additional arguments. Alternatively, we could allow the user to provide a single named argument with [`enquo()`](http://rlang.r-lib.org/reference/quotation.html). To create a default name, we'll use [`quo_name()`](http://rlang.r-lib.org/reference/quo_label.html), which transforms a quosure into a simple string. Then we unquote and evaluate our arguments in their proper contexts using the [`!!`](http://rlang.r-lib.org/reference/quasiquotation.html) (read: bang bang) operator, and the `:=` operator to unquote the name.
 
 
 ```r
@@ -164,6 +147,26 @@ p + wrap_cut(drat)
 <img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/wrap-cut-1.png" width="2100" />
 
 You will also need to use [rlang](http://rlang.r-lib.org/) tools if computing on the mapping of an existing ggplot2 object.
+
+## Developer facing changes
+
+If you're building an extension package on top of ggplot2, you need to be aware that the introduction of tidy evaluation fundamentally changes the data structures that `aes()` uses. In brief:
+
+
+```r
+mapping <- aes(mpg, colour = "smoothed")
+
+# Variables are now stored as quosures
+mapping$x
+#> <quosure>
+#>   expr: ^mpg
+#>   env:  global
+
+# Constants (atomic vectors of length 1), remain
+# as is
+mapping$colour
+#> [1] "smoothed"
+```
 
 ## Getting help
 
