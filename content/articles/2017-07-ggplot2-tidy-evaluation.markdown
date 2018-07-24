@@ -14,7 +14,7 @@ photo:
 
 <html>
 <style>
-h3 code {
+h2 code {
     font-size: 1em;
     
 }
