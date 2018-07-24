@@ -79,7 +79,7 @@ To support quasiquotation in facetting, we’ve added a new helper function: [`v
 
 `vars()` is used to supply variables or expressions, evaluated in the context of the dataset to form facetting groups.
 
-```{r facet-vars, fig.asp = 1.836, fig.width = 3, out.width = "400px"}
+```{r facet-vars, fig.asp = 1.836, fig.width = 3, out.width = "218px"}
 p <- ggplot(mpg, aes(displ, cty)) + geom_point()
 
 p + facet_grid(rows = vars(drv))
@@ -88,11 +88,11 @@ p + facet_grid(rows = vars(drv))
 Compared to `aes()`, `vars()` takes unnamed arguments. This makes it a more 
 natural fit for use with `!!!`, the unquote-splice operator.
 
-```{r vars-env, fig.asp = 3.672, fig.width = 3, out.width = "300px"}
+```{r vars-env, fig.asp = 2.448, fig.width = 3, out.width = "177px"}
 year <- 2018
 
 d <- mpg %>%
-  filter(manufacturer %in% c("dodge", "ford", "toyota")) %>%
+  filter(manufacturer %in% c("dodge", "ford")) %>%
   ggplot() +
     geom_point(aes(displ, cty))
 
@@ -103,7 +103,7 @@ d + facet_grid(vars(!!!args))
 
 Inside of `vars()` you can easily supply names, which will add titles to the facets.
 
-```{r labelled-grid, fig.asp = 2.448, out.width = "300px"}
+```{r labelled-grid, fig.asp = 2.448, fig.width = 3, out.width = "177px"}
 p + facet_grid(vars(Cylinder = cyl), labeller = label_both)
 ```
 
@@ -122,7 +122,7 @@ p + wrap_by(vs, am)
 
 In our `wrap_by()` function above, we used tidy dots ([`...`](https://adv-r.hadley.nz/quasiquotation.html#dot-dot-dot-...)), which represent an arbitrary number of additional arguments. Alternatively, we could allow the user to provide a single named argument with [`enquo()`](http://rlang.r-lib.org/reference/quotation.html). To create a default name, we'll use [`quo_name()`](http://rlang.r-lib.org/reference/quo_label.html), which transforms a quosure into a simple string. Then we unquote and evaluate our arguments in their proper contexts using the [`!!`](http://rlang.r-lib.org/reference/quasiquotation.html) (read: bang bang) operator, and the `:=` operator to unquote the name.
 
-```{r wrap-cut, fig.asp = 0.4}
+```{r wrap-cut, fig.asp = 0.31}
 wrap_cut <- function(var, n = 3) {
   var <- enquo(var)
   nm <- quo_name(var)
