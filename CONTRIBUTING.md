@@ -32,7 +32,13 @@ After the header, include our standard RMarkdown setup block:
 ````
 ```{r setup, include = FALSE}
 library(testthat)
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>", 
+  fig.width = 7, 
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  out.width = "700px"
+)
 ```
 ````
 
