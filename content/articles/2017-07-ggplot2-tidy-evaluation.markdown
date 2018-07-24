@@ -86,7 +86,7 @@ p <- ggplot(mpg, aes(displ, cty)) + geom_point()
 p + facet_grid(rows = vars(drv))
 ```
 
-<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/facet-vars-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/facet-vars-1.png" width="400px" style="display: block; margin: auto;" />
 
 Compared to `aes()`, `vars()` takes unnamed arguments. This makes it a more 
 natural fit for use with `!!!`, the unquote-splice operator.
@@ -96,7 +96,7 @@ natural fit for use with `!!!`, the unquote-splice operator.
 year <- 2018
 
 d <- mpg %>%
-  filter(manufacturer %in% c("chevrolet", "dodge", "ford", "toyota")) %>%
+  filter(manufacturer %in% c("dodge", "ford", "toyota")) %>%
   ggplot() +
     geom_point(aes(displ, cty))
 
@@ -105,7 +105,7 @@ args <- quos(year, manufacturer)
 d + facet_grid(vars(!!!args))
 ```
 
-<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/vars-env-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/vars-env-1.png" width="300px" style="display: block; margin: auto;" />
 
 Inside of `vars()` you can easily supply names, which will add titles to the facets.
 
@@ -114,7 +114,7 @@ Inside of `vars()` you can easily supply names, which will add titles to the fac
 p + facet_grid(vars(Cylinder = cyl), labeller = label_both)
 ```
 
-<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/labelled-grid-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="/articles/2017-07-ggplot2-tidy-evaluation_files/figure-html/labelled-grid-1.png" width="300px" style="display: block; margin: auto;" />
 
 
 `vars()` makes it easier to pass variables from wrapper functions.
