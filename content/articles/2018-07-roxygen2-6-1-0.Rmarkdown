@@ -16,7 +16,7 @@ library(roxygen2)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-We're pleased to announce that [roxygen2](https://CRAN.R-project.org/package=roxygen2) 
+We're delighted to announce that [roxygen2](https://CRAN.R-project.org/package=roxygen2) 
 6.1.0 is now on CRAN. The goal of roxygen is to make documenting your code as 
 easy as possible. It allows you to describe your functions in comments next to 
 their definitions, and processes your source code and comments to produce `.Rd` 
@@ -36,17 +36,30 @@ was previously possible to get into a state that you could only get out of by
 carefully editing the `NAMESPACE` by hand.
 
 `roxygenise()` now uses `pkgload::load_all()` instead of a homegrown solution 
-to simulate package loading. This is needed because roxygen2 uses run-time 
-information to generate the documentation. This should reduce S4-related 
-problems, and ensure that `devtools::document()` and `roxygenise()` always have 
-the same behaviour.
+to simulate package loading. This is one of the benefits of the 
+[conscious uncoupling of devtools](http://devtools.r-lib.org/#diaspora). The 
+simulated package loading is needed because roxygen2 uses run-time information 
+to generate the documentation. This should reduce S4-related problems, and 
+ensure that `devtools::document()` and `roxygenise()` always have the same 
+behaviour.
 
 `@evalRd` `foo()` evaluates `foo()` defined in the package namespace and 
 inserts the results into the current block. The code should return a character 
-vector with one entry for each line (and they should not start with `#'`).
-There are two small limitations to the current implementation: the generated 
-roxygen will not affect the `@md/@noMd` status, and `@evalRd` does not work 
-inside templates.  
+vector with one entry for each line (and they should not start with `#'`). This 
+provides a flexible way to extract out duplicated documentation. For example:
+
+```{r eval = FALSE}
+today <- function() {
+  paste0("Today is \\strong{", format(Sys.Date(), "%A"), "}")
+}
+
+#' @evalRd today()
+NULL
+```
+
+`today()` will be executed every time that you run roxygen2. There are two small 
+limitations to the current implementation: the generated roxygen will not affect 
+the `@md/@noMd` status, and `@evalRd` does not work inside templates.  
 
 `@evalNamespace` does for `NAMESPACE` what `@evalRd` does for `Rd` files: you 
 give it R code that produces a literal entry in `NAMESPACE` when run. This 
@@ -60,6 +73,8 @@ roxygen tags (learn more [here](https://cran.r-project.org/web/packages/roxygen2
 [`usethis::use_roxygen_md()`](http://usethis.r-lib.org/reference/use_roxygen_md.html), 
 which uses the [roxygen2md](https://github.com/r-lib/roxygen2md) package to 
 convert Rd expressions to markdown. 
+
+In this version, we've made a number of bug fixes to markdown translation:  
 
 * Whitespace between words in link text is now preserved as single space for 
 links of the form `[text][fcn]` and `[text](URL)`.  
