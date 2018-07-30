@@ -1,7 +1,7 @@
 ---
 title: "scales 1.0.0"
 author: Dana Seidel
-date: '2018-07-30'
+date: '2018-08-01'
 slug: scales-1-0-0
 description: >
   scales 1.0.0 is now on CRAN.
@@ -14,12 +14,23 @@ tags: []
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(scales)
+suppressWarnings(suppressPackageStartupMessages(library(dplyr)))
+library(ggplot2)
+set.seed(5678)
+
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>", 
+  fig.width = 7, 
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  out.width = "700px"
+)
 ```
 
 We're delighted to announce the release of [scales](https://scales.r-lib.org/) 1.0.0. 
 This is a major release with significant changes to the popular formatter
-functions and added transformations.
+functions, and added transformations.
 See the [News](https://scales.r-lib.org/news/index.html) for a detailed list of changes.
 
 Install the latest version with:
@@ -31,13 +42,14 @@ install.packages("scales")
 ## Formatter changes
 
 Thanks to the help of [@larmarange](https://github.com/larmarange), scales has 
-now added a generic formatter function `number_format()` that powers the majority
+now added a generic formatter function, `number_format()`, that powers the majority
 of the formatters in the package. 
 
 This change altered the arguments of most of the formatters: 
 `comma_format()`, `percent_format()`, `unit_format()`, `dollar_format()`,
-`ordinal_format()`, and `scientific_format()` all gained new arguments allowing 
-users to specify rounding accuracy, a scaling value, a prefix, and a suffix to 
+`ordinal_format()`, and `scientific_format()`. All gained new arguments `accuracy`, 
+`scale`, `prefix`, and `suffix`, allowing users to specify rounding accuracy, 
+a scaling value, a prefix, and a suffix to 
 customize output. Furthermore, all of these functions now allow user 
 specification of the thousands separator, `big.mark`, and the decimal separator,
 `decimal.mark`. Users of these formatters will notice that the default thousands
@@ -52,16 +64,14 @@ Those interested in number formatting with no separator can simply define
 `big.mark = ""` to revert to the previous behaviour. 
 
 ```{r}
-library(scales)
 number(c(12.3, 4, 12345.789, 0.0002))
 
 # these functions round by default, but you can set the accuracy
 number(c(12.3, 4, 12345.789, 0.0002), big.mark = "", accuracy = .01)
 ```
 
-Finally, three additional formatters have been added and `ordinal_format()` has
-gained new rules for French and Spanish formatting. The new `pvalue_format()` formats p-values, `number_bytes_format()` formats numeric vectors into byte measurements, and 
-`time_format()` provides support for formatting POSIXt and hms objects.
+Three additional formatters have been added: `pvalue_format()` formats p-values, `number_bytes_format()` formats numeric vectors into byte measurements, and 
+`time_format()` provides support for formatting POSIXt and hms objects. Finally, `ordinal_format()` has gained new rules for French and Spanish formatting. 
 
 ## New transformations
 
@@ -71,22 +81,15 @@ logarithmic scale with a smooth transition to a linear scale around 0. The
 `modulus_trans()` was added along with a refactored `boxcox_trans()` to 
 provide a better option for negative numbers. Both `modulus_trans()` and 
 `boxcox_trans()` gained an argument `offset` which now allows users to fit both
-type 1 and type 2 Box-Cox transformations. 
+type-1 and type-2 Box-Cox transformations. 
 
 ## Better breaks
 
 In a long awaited fix, `log_breaks()` now returns integer multiples of 
 integer powers of base when finer breaks are needed on the log scale.
 This will change all ggplot graphics with log-transformed axes. 
-```{r, load, echo = FALSE}
-suppressWarnings(suppressPackageStartupMessages(library(dplyr)))
-```
 
 ```{r, logbreaks}
-library(dplyr)
-library(ggplot2)
-set.seed(5678)
-
 dsamp <- sample_n(1000, tbl = diamonds)
 ggplot(dsamp, aes(y = price, x = carat)) + 
   geom_point() + scale_x_log10() + scale_y_log10()
@@ -95,4 +98,4 @@ ggplot(dsamp, aes(y = price, x = carat)) +
 # Acknowledgements
 We’re grateful to the 24 people who contributed issues, code and comments:
 [@alexandreliborio](https://github.com/alexandreliborio), [@AndreaCirilloAC](https://github.com/AndreaCirilloAC), [@batpigandme](https://github.com/batpigandme), [@BenOnEarth](https://github.com/BenOnEarth), [@billdenney](https://github.com/billdenney), [@Bisaloo](https://github.com/Bisaloo), [@CesarSancho](https://github.com/CesarSancho), [@christianhomberg](https://github.com/christianhomberg), [@clauswilke](https://github.com/clauswilke), [@cwickham](https://github.com/cwickham), 
-[@dpseidel](https://github.com/dpseidel), [@foo-bar-baz-qux](https://github.com/foo-bar-baz-qux), [@graciecorgi](https://github.com/graciecorgi), [@hadley](https://github.com/hadley), [@jimhester](https://github.com/jimhester), [@jnolis](https://github.com/jnolis), [@larmarange](https://github.com/larmarange), [@lepennec](https://github.com/lepennec), [@markvanderloo](https://github.com/markvanderloo), [@ptoche](https://github.com/ptoche), [@RobertMyles](https://github.com/RobertMyles), [@statist7](https://github.com/statist7), [@ThierryO](https://github.com/ThierryO), and [@zeehio](https://github.com/zeehio)
+[@dpseidel](https://github.com/dpseidel), [@foo-bar-baz-qux](https://github.com/foo-bar-baz-qux), [@graciecorgi](https://github.com/graciecorgi), [@hadley](https://github.com/hadley), [@jimhester](https://github.com/jimhester), [@jnolis](https://github.com/jnolis), [@larmarange](https://github.com/larmarange), [@lepennec](https://github.com/lepennec), [@markvanderloo](https://github.com/markvanderloo), [@ptoche](https://github.com/ptoche), [@RobertMyles](https://github.com/RobertMyles), [@statist7](https://github.com/statist7), [@ThierryO](https://github.com/ThierryO), and [@zeehio](https://github.com/zeehio).
