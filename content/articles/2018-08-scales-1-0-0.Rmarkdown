@@ -1,7 +1,7 @@
 ---
 title: "scales 1.0.0"
 author: Dana Seidel
-date: '2018-08-01'
+date: '2018-08-03'
 slug: scales-1-0-0
 description: >
   scales 1.0.0 is now on CRAN.
@@ -15,9 +15,8 @@ tags: []
 
 ```{r setup, include=FALSE}
 library(scales)
-suppressWarnings(suppressPackageStartupMessages(library(dplyr)))
+library(dplyr)
 library(ggplot2)
-set.seed(5678)
 
 knitr::opts_chunk$set(
   collapse = TRUE, comment = "#>", 
@@ -64,6 +63,8 @@ Those interested in number formatting with no separator can simply define
 `big.mark = ""` to revert to the previous behaviour. 
 
 ```{r}
+library(scales)
+
 number(c(12.3, 4, 12345.789, 0.0002))
 
 # these functions round by default, but you can set the accuracy
@@ -90,6 +91,10 @@ integer powers of base when finer breaks are needed on the log scale.
 This will change all ggplot graphics with log-transformed axes. 
 
 ```{r, logbreaks}
+library(ggplot2)
+library(dplyr)
+set.seed(5678)
+
 dsamp <- sample_n(1000, tbl = diamonds)
 ggplot(dsamp, aes(y = price, x = carat)) + 
   geom_point() + scale_x_log10() + scale_y_log10()
