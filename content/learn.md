@@ -55,10 +55,10 @@ DataCamp is an excellent way to improve your R skills, including the tidyverse. 
   each main thread of R4DS multiple times, diving a little deeper at
   each pass.
  
-* [M.Sc. Industrial Analysis: An International Perspective](https://www.drhector.org/course/m-sc-industrial-analysis-an-international-perspective/). HEC Montreal; Thierry Warin. Graduate program in Data Science for International Business (DS4IB), where students learn how to use RStudio, RMardown, the tidyverse and open data in a reproducible research workflow. Hosted at [Dr.HECtoR](http://drhector.org).
+* [M.Sc. Industrial Analysis: An International Perspective](https://www.drhector.org/course/m-sc-industrial-analysis-an-international-perspective/). HEC Montreal; Thierry Warin. Graduate program in Data Science for International Business (DS4IB), where students learn how to use RStudio, RMarkdown, the tidyverse and open data in a reproducible research workflow. Hosted at [Dr.HECtoR](http://drhector.org).
 
 * [Better Living with Data Science](http://www2.stat.duke.edu/courses/Fall17/sta112.01/).
-  Duke University; Mine Cetinkaya-Rundel. Data Science course for first year undergradiates
+  Duke University; Mine Cetinkaya-Rundel. Data Science course for first year undergraduates
   with little to no computing background. Combines techniques from statistics, math, computer 
   science, and social sciences, to learn how to use data to understand natural phenomena, 
   explore patterns, model outcomes, and make predictions. Data wrangling, exploratory data 
