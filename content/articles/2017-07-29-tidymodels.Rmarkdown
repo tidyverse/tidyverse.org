@@ -1,7 +1,7 @@
 ---
 title: The tidymodels Package
 author: Max Kuhn
-date: '2018-07-30'
+date: '2018-08-06'
 slug: tidymodels-0-0-1
 description: > 
   tidymodels 0.0.1 is on CRAN.
