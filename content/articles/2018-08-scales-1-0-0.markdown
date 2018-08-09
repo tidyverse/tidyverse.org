@@ -15,10 +15,20 @@ tags: []
 
 
 
-We're delighted to announce the release of [scales](https://scales.r-lib.org/) 1.0.0. 
+We're delighted to announce the release of [scales](https://scales.r-lib.org/) 1.0.0.
+The scales packages provides the internal scaling infrastructure to ggplot2 and its functions allow users to customize the transformations, breaks, guides and palettes used in visualizations in ggplot2 and beyond.
+
 This is a major release with significant changes to the popular formatter
-functions, and added transformations.
-See the [News](https://scales.r-lib.org/news/index.html) for a detailed list of changes.
+functions, and added transformations. Below we demonstrate some of the biggest 
+changes in this release including:
+
+- updated formatter functions
+- new transformations
+- improved breaks on log-transformed scales
+
+See the [News](https://scales.r-lib.org/news/index.html) for a detailed list of changes
+and visit [the new website](https://scales.r-lib.org/) for complete documentation and 
+additional usage examples.
 
 Install the latest version with:
 
@@ -26,7 +36,6 @@ Install the latest version with:
 install.packages("scales")
 ```
 
-# New features
 ## Formatter changes
 
 Thanks to the help of [@larmarange](https://github.com/larmarange), scales has 
@@ -61,6 +70,25 @@ number(c(12.3, 4, 12345.789, 0.0002))
 # these functions round by default, but you can set the accuracy
 number(c(12.3, 4, 12345.789, 0.0002), big.mark = "", accuracy = .01)
 #> [1] "12.30"    "4.00"     "12345.79" "0.00"
+
+# percent() function takes a numeric and does your division and labelling for you
+percent(c(0.1, 1 / 3, 0.56))
+#> [1] "10.0%" "33.3%" "56.0%"
+
+# comma() adds commas into large numbers for easier readability
+comma(10e6)
+#> [1] "10,000,000"
+
+# dollar() adds currency symbols speficifed by `prefix` or `suffix`
+dollar(c(100, 125, 3000))
+#> [1] "$100"   "$125"   "$3,000"
+dollar(c(100, 125, 3000), suffix = "€", prefix = "")
+#> [1] "100€"   "125€"   "3,000€"
+
+# unit_format() adds unique units
+# the scale argument can do simple conversion on the fly
+unit_format(unit = "ha", scale = 1e-4)(c(10e6, 10e4, 8e3))
+#> [1] "1 000 ha" "10 ha"    "1 ha"
 ```
 
 Three additional formatters have been added: `pvalue_format()` formats p-values, `number_bytes_format()` formats numeric vectors into byte measurements, and 
