@@ -23,7 +23,7 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
     <img class="package-image" src="/images/hex-ggplot2.png" alt=""></img>
     <div class="package-info">
       <h3><a href="http://ggplot2.tidyverse.org/">ggplot2</a></h3>
-      <p>ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details. <a href="http://ggplot2.tidyverse.org/">Learn more ...</a></p>
+      <p>ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details. <a href="http://ggplot2.tidyverse.org/" aria-hidden="true">Learn more ...</a></p>
 
     </div>
   </div>
@@ -31,21 +31,21 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
     <img class="package-image" src="/images/hex-dplyr.png" alt=""></img>
     <div class="package-info">
       <h3><a href="http://dplyr.tidyverse.org/">dplyr</a></h3>
-      <p>dplyr provides a grammar of data manipulation, providing a consistent set of verbs that solve the most common data manipulation challenges. <a href="http://dplyr.tidyverse.org/">Learn more ...</a></p>
+      <p>dplyr provides a grammar of data manipulation, providing a consistent set of verbs that solve the most common data manipulation challenges. <a href="http://dplyr.tidyverse.org/" aria-hidden="true">Learn more ...</a></p>
     </div>
   </div>
   <div class="package">
     <img class="package-image" src="/images/hex-tidyr.png" alt=""></img>
     <div class="package-info">
       <h3><a href="http://tidyr.tidyverse.org/">tidyr</a></h3>
-      <p>tidyr provides a set of functions that help you get to tidy data. Tidy data is data with a consistent form: in brief, every variable goes in a column, and every column is a variable. <a href="http://tidyr.tidyverse.org/">Learn more ...</a></p>
+      <p>tidyr provides a set of functions that help you get to tidy data. Tidy data is data with a consistent form: in brief, every variable goes in a column, and every column is a variable. <a href="http://tidyr.tidyverse.org/" aria-hidden="true">Learn more ...</a></p>
     </div>
   </div>
   <div class="package">
     <img class="package-image" src="/images/hex-readr.png" alt=""></img>
     <div class="package-info">
       <h3><a href="http://readr.tidyverse.org/">readr</a></h3>
-      <p>readr provides a fast and friendly way to read rectangular data (like csv, tsv, and fwf). It is designed to flexibly parse many types of data found in the wild, while still cleanly failing when data unexpectedly changes. <a href="http://readr.tidyverse.org/">Learn more ...</a></p>
+      <p>readr provides a fast and friendly way to read rectangular data (like csv, tsv, and fwf). It is designed to flexibly parse many types of data found in the wild, while still cleanly failing when data unexpectedly changes. <a href="http://readr.tidyverse.org/" aria-hidden="true">Learn more ...</a></p>
     </div>
   </div>
   <div class="package">
@@ -53,7 +53,7 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
     <div class="package-info">
       <h3><a href="http://purrr.tidyverse.org/">purrr</a></h3>
       <p>purrr enhances R’s functional programming (FP) toolkit by providing a complete and consistent set of tools for working with functions and vectors. Once you master the basic concepts, purrr allows you to replace many for loops with code that is easier to write and more expressive.
-      <a href="http://purrr.tidyverse.org/">Learn more ...</a></p>
+      <a href="http://purrr.tidyverse.org/" aria-hidden="true">Learn more ...</a></p>
     </div>
   </div>
   <div class="package">
@@ -61,7 +61,7 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
     <div class="package-info">
       <h3><a href="http://tibble.tidyverse.org/">tibble</a></h3>
       <p>tibble is a modern re-imagining of the data frame, keeping what time has proven to be effective, and throwing out what it has not. Tibbles are data.frames that are lazy and surly: they do less and complain more forcing you to confront problems earlier, typically leading to cleaner, more expressive code.
-      <a href="http://tibble.tidyverse.org/">Learn more ...</a></p>
+      <a href="http://tibble.tidyverse.org/" aria-hidden="true">Learn more ...</a></p>
     </div>
   </div>
   <div class="package">
@@ -69,7 +69,7 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
     <div class="package-info">
       <h3><a href="http://stringr.tidyverse.org/">stringr</a></h3>
       <p>stringr provides a cohesive set of functions designed to make working with strings as easy as possible. It is built on top of stringi, which uses the ICU C library to provide fast, correct implementations of common string manipulations.
-      <a href="http://stringr.tidyverse.org/">Learn more ...</a></p>
+      <a href="http://stringr.tidyverse.org/" aria-hidden="true">Learn more ...</a></p>
     </div>
   </div>
   <div class="package">
@@ -77,7 +77,7 @@ Learn more about the tidyverse package at <http://tidyverse.tidyverse.org>.
     <div class="package-info">
       <h3><a href="http://forcats.tidyverse.org/">forcats</a></h3>
       <p>forcats provides a suite of useful tools that solve common problems with factors. R uses factors to handle categorical variables, variables that have a fixed and known set of possible values.
-      <a href="http://forcats.tidyverse.org/">Learn more ...</a></p>
+      <a href="http://forcats.tidyverse.org/" aria-hidden="true">Learn more ...</a></p>
     </div>
   </div>
 </div>
