@@ -18,7 +18,9 @@ photo:
 
 On the Saturday following [rstudio::conf](https://www.rstudio.com/conference/), 
 we'll be holding our first ever **tidyverse developer day**, and you're invited! 
-So, if you're interested, plan to be in Austin on the 19th of January.
+So, if you're interested, plan on being in Austin on the 19th of January. 
+The venue is not settled yet, but the intent is to make it convenient for 
+people who’ve chosen lodging based on the rstudio::conf location.
 
 ### Squad goals 🎯
 
