@@ -23,7 +23,7 @@ and more visibility into the running process.
 
 It's hard to make processx examples work across platforms because system
 utilities vary from OS to OS. To work around this problem, processx bundles
-a small program `px`, which can perform some basic tasks, like printing
+a small program, `px`, which can perform some basic tasks, like printing
 to the standard output and error, and waiting for a given amount of time.
 
 
@@ -52,7 +52,7 @@ processx::run(command, args)
 `command` is a string (length 1 character vector), and `args` should be a
 character vector of arguments. `command` can be an absolute file name, a
 relative file name, or a command name. For the latter, the current `PATH`
-is used to find the command. E.g. these both work on Unix systems:
+is used to find the command. For example these both work on Unix systems:
 
 ```r
 run("/bin/ls")
@@ -85,7 +85,7 @@ cat(pxhelp$stderr)
 processx does not use a shell to start up the external process, so special
 characters in `command` and `args` need _not_ be shell quoted. This makes it
 much easier to support arbitrary file names (that may contain spaces or
-special characters), in calls to external programs.
+special characters) in calls to external programs.
 
 
 ```r
@@ -174,7 +174,7 @@ outp <- run("ls", "..", echo = TRUE)
 
 ### Setting environment variables
 
-You can set environment variables for the external process, via the `env`
+You can set environment variables for the external process via the `env`
 argument. Usually you want to add these variables to those already set in
 the current process, otherwise the external process might fail if some
 essential environment variables (like `PATH`) are not set:
@@ -242,7 +242,7 @@ proc$get_exit_status()
 
 ### Output and polling
 
-The standard output and standard error of a background process is ignored
+The standard output and standard error of a background process are ignored
 by default. To write them to files, set the `stdout` and/or `stderr`
 arguments to the paths of the files. Alternatively, processx can create
 connections for standard output and error, and R can read from these
