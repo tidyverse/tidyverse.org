@@ -24,7 +24,7 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
 * [Solutions and notes for R4DS](https://jrnold.github.io/r4ds-exercise-solutions/) 
   by Jeffrey B. Arnold. Work in progress.
 
-* [Data Manipulation in R](http://geni.us/datamanipulationir) by Steph Locke. Covers data manipalation in a tidyverse way.
+* [Data Manipulation in R](http://geni.us/datamanipulationir) by Steph Locke. Covers data manipulation in a tidyverse way.
 
 ## DataCamp
 
@@ -46,7 +46,7 @@ DataCamp is an excellent way to improve your R skills, including the tidyverse. 
 ## Workshops
 
   * [Mastering the Tidyverse](https://www.jumpingrivers.com/courses/22_r-tidyverse) by Jumping Rivers. A one day crash course covering tidyverse fundamentals. The course is a mixture of lectures, short exercises and longer tutorial questions. During the day, we'll cover dplyr, tidy data, tibbles, dates/times and string manipulation.
-  * [Introduction to R](https://itsalocke.com/courses/intro-to-r/) by Locke Data. A two day course covering data manipulation and reporting fundamentals using the tidyverse, rmarkdown and shiny. The course blends lectures, exercises, and practicals over two days to cover the 80% of work that almost everyone needs to do.
+  * [Introduction to R](https://itsalocke.com/courses/intro-to-r/) by Locke Data. A two day course covering data manipulation and reporting fundamentals using the tidyverse, rmarkdown, and shiny. The course blends lectures, exercises, and practicals over two days to cover the 80% of work that almost everyone needs to do.
 
 ## University courses
 
