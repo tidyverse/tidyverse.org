@@ -28,7 +28,9 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
 
 ## DataCamp
 
-DataCamp is an excellent way to improve your R skills, including the tidyverse. Take a look at [all tidyverse courses](https://www.datacamp.com/tidyverse-tutorials?tap_a=5644-dce66f&tap_s=213362-c9f98c) or see selected favourites below:
+DataCamp is an excellent way to improve your R skills, including the tidyverse. A great place to start is the [Tidyverse Fundamentals with R](https://www.datacamp.com/tracks/tidyverse-fundamentals) skill track that walks users through many of the packages in the tidyverse in a sequence of five courses. 
+
+Take a look at [all tidyverse courses](https://www.datacamp.com/tidyverse-tutorials?tap_a=5644-dce66f&tap_s=213362-c9f98c) or see selected favourites below:
 
 * [Writing functions in R](https://www.datacamp.com/courses/writing-functions-in-r?tap_a=5644-dce66f&tap_s=213362-c9f98c)
   by Hadley and Charlotte Wickham, hosted on DataCamp. This course will teach you the fundamentals 
