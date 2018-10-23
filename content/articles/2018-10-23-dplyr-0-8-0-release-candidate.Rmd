@@ -1,0 +1,176 @@
+---
+title: dplyr 0.8.0 release candidate
+author: Romain François
+date: '2018-10-23'
+slug: dplyr-0-8-0-release-candidate
+description: > 
+  dplyr 0.8.0 release candidate
+categories:
+  - package
+tags:
+  - dplyr
+  - tidyverse
+---
+
+```{r, echo = FALSE, message = FALSE}
+knitr::opts_chunk$set(collapse = T, comment = "#>")
+options(tibble.print_min = 4L, tibble.print_max = 4L)
+library(dplyr)
+```
+
+# Tidy grouping structure
+
+Previous versions of `dplyr` used a messy set of attributes in grouped
+tibbles to keep track of the groups and their indices. This has been 
+re-organized into a tibble that can be accessed with the new 
+`group_data()` function. 
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  group_data()
+```
+
+The first columns of that tibble describe the groups in terms of the 
+grouping variables, and the last column (always called `.rows`)
+is a list of integer vectors identifying the (one-based) indices of 
+each group. 
+
+The related function `group_rows()` gives just that last column. 
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  group_rows()
+```
+
+# New grouping algorithm
+
+The algorithm behind `group_by()` has been redesigned to better respect factors. 
+In previous versions of `dplyr` groups were created to only match the observed data,
+which was potentially losing groups when factors are involved. 
+
+The new algorithm respects the levels of the factors that are involved in the 
+grouping, by creating groups even if there is no data in that group. 
+
+```{r}
+df <- tibble(
+  x = c(1,1,2,2), 
+  f = factor(c("a", "b", "a", "b"), levels = c("a", "b", "c"))
+)
+df %>% 
+  group_by(f) %>% 
+  group_data()
+```
+
+Where previous versions of `dplyr` would have created only two groups (for levels `a` and `b`), 
+it now creates one group per level, and the group related to the level `c` just happens to be 
+empty. 
+
+Groups are still made to match the data on other variables: 
+
+```{r}
+df %>% 
+  group_by(x) %>% 
+  group_data()
+```
+
+Consider this tibble using a mix of factors and non factors
+
+```{r}
+df <- tibble(
+  f1 = factor(c("a", "a", "a", "b", "b"), levels = c("a", "b", "c")), 
+  f2 = factor(c("d", "e", "d", "e", "f"), levels = c("d", "e", "f")), 
+  x  = c(1, 1, 1, 2, 2), 
+  y  = 1:5
+)
+```
+
+If we group by the factors `f1` and `f2`, we get 9 groups
+
+```
+# 9 groups : 3 x 3
+df %>% 
+  group_by(f1, f2) %>% 
+  group_data()
+```
+
+When factors and non factors are involved in the grouping, the number of 
+groups depends on the order. At each level of grouping, factors are always expanded
+to one group per level, but non factors only create groups based on observed data. 
+
+```
+# 3 groups
+df %>% 
+  group_by(f1, x) %>% 
+  group_data()
+```
+
+In this example, we group by `f1` then `x`. At the first layer, grouping on `f1` creates
+two groups. Each of these grouops is then subdivided based on the values of the second 
+variable `x`. Since `x` is always 1 when `f1` is `a` the group is not 
+further divided. 
+
+The last group, associated with the level `c` of the factor `f1` is empty, and 
+consequently has no values for the vector `x`. In that case, `group_by()` uses 
+`NA`. 
+
+```
+# 6 groups
+df %>% 
+  group_by(x, f1) %>% 
+  group_data()
+```
+
+When we group by `x` then `f1` we initially split the data according to `x` which 
+gives 2 groups. Each of these two groups is then further divided in 3 groups, 
+i.e. one for each level of `f1`. 
+
+# Performance
+
+TODO: 
+ - unwind protect
+
+# Less surprising hybrid evaluation
+
+Hybrid evaluation has been entirely redesigned to be more predictable 
+and less surprising. 
+
+When we evaluate an expression in `mutate()` or `summarise()`, the hybrid system
+first assert that it can entirely evaluate the expression independently with native code, 
+if it can it does. 
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  summarise(Petal.Length = mean(Petal.Length))
+```
+
+The expression `mean(Petal.Length)` is handled by native code because there is an hybrid 
+internal version of `mean`, and its first argument is a column of the data, and the type of 
+that column can be treated by the internal function. 
+
+If the expression can not be evaluated completely, it gets evaluated using R standard 
+evaluation rules in a special environment that makes the columns available (the data mask). 
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  summarise(Petal.Length = sum(Petal.Length) / n())
+```
+
+The expression `sum(Petal.Length) / n()` is not recognized, so evaluation goes through the 
+standard path. For each group, the subset of `Petal.Length` is extracted, then the R function `sum` 
+is called on it and this is divided by the result of calling the `n()` function from `dplyr`. 
+
+Previous versions of `dplyr` attempted to partially evaluate `sum(Petal.Length) / n()` with the 
+hybrid evaluator, because `sum(Petal.Length)` and `n()` can both independently be handled. This was 
+making it hard to obey R semantics because R is too flexible. 
+
+# nest_by, nest_join
+
+TODO
+
+# colwise verbs
+
+TODO 
