@@ -98,8 +98,6 @@ summary(last_error())
 
 Each call is prepended with a namespace prefix[^1] to reveal the flow of control across package contexts.
 
-Link to lobstr talk?
-
 [^1]: Or `global::` if the function is defined in the global workspace.
 
 
@@ -435,37 +433,6 @@ While `list2()` hard-codes these features, `dots_list()` gains several options t
   #&gt; 
   #&gt; $bar
   #&gt; [1] 5
-  </pre></div>
-
-* `.check_assign` checks for `<-` calls passed in dots and asks the user to be explicit about the assignment. This helps detecting code typos where `=` should have been used instead of `<-`.
-
-  
-  ```r
-  list3 <- function(...) dots_list(..., .check_assign = TRUE)
-  
-  list3(
-    foo = 1,
-    bar <- 2,
-  )
-  ```
-  
-  <div class = "output"><pre class="knitr r">#&gt; Warning: Using `&lt;-` as argument is often a mistake.
-  #&gt; Do you need to use `=` to match an argument?
-  #&gt; 
-  #&gt; If you really want to use `&lt;-`, please wrap in braces:
-  #&gt; 
-  #&gt;   # Bad:
-  #&gt;   fn(a &lt;- 1)
-  #&gt; 
-  #&gt;   # Good:
-  #&gt;   fn(a = 1)       # Match 1 to parameter `a`
-  #&gt;   fn({ a &lt;- 1 })  # Assign 1 to variable `a`
-  </pre></div>
-  <div class = "output"><pre class="knitr r">#&gt; $foo
-  #&gt; [1] 1
-  #&gt; 
-  #&gt; [[2]]
-  #&gt; [1] 2
   </pre></div>
 
 These options can be set in `enquos()` as well.

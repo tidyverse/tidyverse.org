@@ -94,8 +94,6 @@ summary(last_error())
 
 Each call is prepended with a namespace prefix[^1] to reveal the flow of control across package contexts.
 
-Link to lobstr talk?
-
 [^1]: Or `global::` if the function is defined in the global workspace.
 
 
@@ -286,17 +284,6 @@ While `list2()` hard-codes these features, `dots_list()` gains several options t
   list3 <- function(...) dots_list(..., .homonyms = "last")
 
   list3(foo = 1, bar = 2, foo = 3, bar = 4, bar = 5)
-  ```
-
-* `.check_assign` checks for `<-` calls passed in dots and asks the user to be explicit about the assignment. This helps detecting code typos where `=` should have been used instead of `<-`.
-
-  ```{r}
-  list3 <- function(...) dots_list(..., .check_assign = TRUE)
-
-  list3(
-    foo = 1,
-    bar <- 2,
-  )
   ```
 
 These options can be set in `enquos()` as well.
