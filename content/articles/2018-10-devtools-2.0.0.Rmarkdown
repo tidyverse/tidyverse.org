@@ -1,14 +1,14 @@
 ---
 title: devtools 2.0.0
 date: 2018-10-26
-slug: devtools-3.2.0
+slug: devtools-2-0-0
 author: Jim Hester
 categories: [package]
 description: >
     Make package development easier by providing R functions that simplify and expedite common tasks.
 photo:
-  url: TODO
-  author: TODO
+  url: https://unsplash.com/photos/wEJK4q_YlNQ
+  author: Hunter Haley
 ---
 
 ## Introduction
