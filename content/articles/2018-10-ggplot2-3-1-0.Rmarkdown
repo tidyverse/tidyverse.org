@@ -63,14 +63,14 @@ ggplot() +
   coord_sf(label_axes = list(top = "E", left = "N"))
 ```
 
-<!---- I cannot get the functions below to work, so eval is off ----->
 
 Two new geoms, `geom_sf_label()` and `geom_sf_text()`, can draw labels and text
 on sf objects. Under the hood, a new `stat_sf_coordinates()` calculates the
 x and y coordinates from the coordinates of the sf geometries. You can customize
 the calculation method via `fun.geometry` argument.
 
-```{r geom-sf-text, warning = FALSE, eval = FALSE}
+```{r geom-sf-text, warning = FALSE}
+nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
 ggplot(nc[1:3, ]) +
   geom_sf(aes(fill = AREA)) +
   geom_sf_label(aes(label = NAME))
