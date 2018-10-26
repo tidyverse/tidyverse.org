@@ -20,12 +20,14 @@ photo:
 
 ## Introduction
 
-We're happy to announce that [rlang 0.3.0](https://cran.r-project.org/package=rlang) in now on CRAN! rlang implements a consistent API for working with base types, hosts the tidy evaluation framework, and offers tools for error reporting. This release provides major improvements for each of those themes. Consult the [changelog](https://rlang.r-lib.org/news/index.html#rlang-0-3-0) for the full list of changes.
+We're happy to announce that [rlang 0.3.0](https://cran.r-project.org/package=rlang) in now on CRAN! rlang is of most interest to package developers and R programmers, as it is intended for people developing data science tools rather than data scientists. rlang implements a consistent API for working with base types, hosts the tidy evaluation framework, and offers tools for error reporting. This release provides major improvements for each of those themes.
+
+Consult the [changelog](https://rlang.r-lib.org/news/index.html#rlang-0-3-0) for the full list of changes, including many bug fixes. The rlang API is still maturing and a number of functions and arguments were deprecated or renamed. Check the [lifecycle section](https://rlang.r-lib.org/news/index.html#lifecycle) for a summary of the API changes.
 
 
 ## Error reporting
 
-`abort()` is a version of `base::stop()` that makes it easy to create error objects with custom class and metadata. With rlang 0.3.0, `abort()` automatically stores a backtrace in the error object and supports chaining errors.
+`abort()` extends `base::stop()` to make it easy to create error objects with [custom class and metadata](https://adv-r.hadley.nz/conditions.html). With rlang 0.3.0, `abort()` automatically stores a backtrace in the error object and supports chaining errors.
 
 
 ### Backtraces
@@ -43,12 +45,7 @@ When a function signals an error with `abort()`, the user is invited to call `la
 
 
 ```r
-{
-  # Isolate the backtrace from the RMarkdown context
-  scoped_options(rlang_trace_top_env = current_env())
-
-  f()
-}
+f()
 ```
 
 <div class = "output"><pre class="knitr r">#&gt; Error: Oh no!
@@ -103,7 +100,9 @@ Each call is prepended with a namespace prefix[^1] to reveal the flow of control
 
 ### Chained errors
 
-Chaining errors is relevant when you're calling low-level APIs such as web scraping, JSON parsing, etc. When these APIs encounter an error, they often fail with technical error messages. Several programming languages provide the ability of chaining errors for these situations. With chained errors, the low level and high level contexts are clearly separated in the error report. This makes the error more legible for the end user, without hiding the low level information that might be crucial for figuring out the problem.
+Chaining errors is relevant when you're calling low-level APIs such as web scraping, JSON parsing, etc. When these APIs encounter an error, they often fail with technical error messages. It is often a good idea to transform these developer-friendly error messages into something more meaningful and actionable for end users.
+
+Several programming languages provide the ability of chaining errors for these situations. With chained errors, the low level and high level contexts are clearly separated in the error report. This makes the error more legible for the end user, without hiding the low level information that might be crucial for figuring out the problem.
 
 Say we're writing a function `make_report()` to create an automated report and we're downloading a file as part of the process with `fetch_csv()`, which might be implemented in a package:
 
@@ -139,7 +138,7 @@ make_report("https://rstats.edu/awesome-data.csv")
 <div class = "output"><pre class="knitr r">#&gt; Error in open.connection(file, "rt"): cannot open the connection to 'https://rstats.edu/awesome-data.csv'
 </pre></div>
 
-There are two steps involved in error chaining: catch low level errors, and rethrow them with a high level message. Catching can be done with `base::tryCatch()` or `rlang::with_handlers()`. Both these functions take an error handler: a function of one argument which is passed an error object when an error occurs. 
+Chaining errors makes it possible to transform this low-level API error into a high level error, without losing any debugging information. There are two steps involved in error chaining: catch low level errors, and rethrow them with a high level message. Catching can be done with `base::tryCatch()` or `rlang::with_handlers()`. Both these functions take an error handler: a function of one argument which is passed an error object when an error occurs.
 
 To chain an error, simply call `abort()` in the error handler, with a high level error message and the original error passed as the `parent` argument. Here we're going to use `with_handlers()` because it supports the rlang syntax for lambda functions (also used in purrr), which makes it easy to write simple handlers:
 
@@ -153,12 +152,7 @@ prepare_data <- function(url) {
   tibble::as_tibble(data)
 }
 
-{
-  # Isolate the backtrace from the RMarkdown context
-  scoped_options(rlang_trace_top_env = current_env())
-
-  make_report("https://rstats.edu/awesome-data.csv")
-}
+make_report("https://rstats.edu/awesome-data.csv")
 ```
 
 <div class = "output"><pre class="knitr r">#&gt; Error: Can't download file!
@@ -210,12 +204,7 @@ Our own function calls `abort()` and the foreign functions are called within a `
 
 
 ```r
-{
-  # Isolate the backtrace from the RMarkdown context
-  scoped_options(rlang_trace_top_env = current_env())
-
-  make_report("https://rstats.edu/awesome-data.csv")
-}
+make_report("https://rstats.edu/awesome-data.csv")
 ```
 
 <div class = "output"><pre class="knitr r">#&gt; Error: Can't download file!
@@ -413,7 +402,7 @@ e <- env(env(empty_env()))
 env_parents(e)
 ```
 
-<div class = "output"><pre class="knitr r">#&gt; [[1]]   &lt;env: 0x7f9b3f250168&gt;
+<div class = "output"><pre class="knitr r">#&gt; [[1]]   &lt;env: 0x7f981b78fbc8&gt;
 #&gt; [[2]] $ &lt;env: empty&gt;
 </pre></div>
 
