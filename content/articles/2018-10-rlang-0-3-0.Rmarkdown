@@ -57,6 +57,89 @@ We're happy to announce that [rlang 0.3.0](https://cran.r-project.org/package=rl
 Consult the [changelog](https://rlang.r-lib.org/news/index.html#rlang-0-3-0) for the full list of changes, including many bug fixes. The rlang API is still maturing and a number of functions and arguments were deprecated or renamed. Check the [lifecycle section](https://rlang.r-lib.org/news/index.html#lifecycle) for a summary of the API changes.
 
 
+## Tidy evaluation and tidy dots
+
+Tidy evaluation is the framework that powers data-masking APIs like dplyr, tidyr, or ggplot2. Tidy dots is a related feature that allows you to use `!!!` in functions taking dots, among other things.
+
+
+### Referring to columns with `.data`
+
+The main user-facing change is that subsetting the `.data` pronoun with `[[` now behaves as if the index were implicitly unquoted. Concretely, this means that the index can no longer be confused with a data frame column. Subsetting `.data` is now always safe, even in functions:
+
+```{r}
+suppressPackageStartupMessages(
+  library("dplyr")
+)
+
+df <- tibble(var = 1:4, g = c(1, 1, 2, 2))
+var <- "g"
+
+# `df` contains `var` but the column doesn't count!
+df %>% group_by(.data[[var]])
+```
+
+
+### New tidy dots options
+
+Tidy dots refers to a set of features enabled in functions collecting dots. To enable tidy dots, use `list2()` instead of list:
+
+```{r}
+fn <- function(...) list2(...)
+```
+
+With tidy dots, users can splice in lists of arguments:
+
+```{r}
+x <- list(arg1 = "A", arg2 = "B")
+
+fn(1, 2, !!!x, 3)
+```
+
+They can unquote names:
+
+```{r}
+nm <- "b"
+
+fn(a = 1, !!nm := 2)
+```
+
+And trailing empty arguments are always ignored to make copy-pasting easier:
+
+```{r}
+fn(
+  foo = "foo",
+  foo = "bar",
+)
+```
+
+While `list2()` hard-codes these features, `dots_list()` gains several options to control how to collect dots:
+
+* `.preserve_empty` preserves empty arguments:
+
+  ```{r}
+  list3 <- function(...) dots_list(..., .preserve_empty = TRUE)
+
+  list3(a = 1, b = , c = 2)
+  ```
+
+  We are using this option in `env_bind()` and `call_modify()` to allow assigning explicit missing values (see `?missing_arg()`):
+
+  ```{r}
+  call <- quote(mean())
+  call_modify(call, ... = , trim = )
+  ```
+
+* `.homonyms` controls whether to keep all arguments that have the same name (the default), only the first or last of these, or throw an error:
+
+  ```{r}
+  list3 <- function(...) dots_list(..., .homonyms = "last")
+
+  list3(foo = 1, bar = 2, foo = 3, bar = 4, bar = 5)
+  ```
+
+These options can be set in `enquos()` as well.
+
+
 ## Error reporting
 
 `abort()` extends `base::stop()` to make it easy to create error objects with [custom class and metadata](https://adv-r.hadley.nz/conditions.html). With rlang 0.3.0, `abort()` automatically stores a backtrace in the error object and supports chaining errors.
@@ -246,89 +329,6 @@ env_parents(e)
 ```
 
 We hope that these print methods make it easier to explore the structure and contents of R environments.
-
-
-## Tidy evaluation and tidy dots
-
-Tidy evaluation is the framework that powers data-masking APIs like dplyr, tidyr, or ggplot2. Tidy dots is a related feature that allows you to use `!!!` in functions taking dots, among other things.
-
-
-### Referring to columns with `.data`
-
-The main user-facing change is that subsetting the `.data` pronoun with `[[` now behaves as if the index were implicitly unquoted. Concretely, this means that the index can no longer be confused with a data frame column. Subsetting `.data` is now always safe, even in functions:
-
-```{r}
-suppressPackageStartupMessages(
-  library("dplyr")
-)
-
-df <- tibble(var = 1:4, g = c(1, 1, 2, 2))
-var <- "g"
-
-# `df` contains `var` but the column doesn't count!
-df %>% group_by(.data[[var]])
-```
-
-
-### New tidy dots options
-
-Tidy dots refers to a set of features enabled in functions collecting dots. To enable tidy dots, use `list2()` instead of list:
-
-```{r}
-fn <- function(...) list2(...)
-```
-
-With tidy dots, users can splice in lists of arguments:
-
-```{r}
-x <- list(arg1 = "A", arg2 = "B")
-
-fn(1, 2, !!!x, 3)
-```
-
-They can unquote names:
-
-```{r}
-nm <- "b"
-
-fn(a = 1, !!nm := 2)
-```
-
-And trailing empty arguments are always ignored to make copy-pasting easier:
-
-```{r}
-fn(
-  foo = "foo",
-  foo = "bar",
-)
-```
-
-While `list2()` hard-codes these features, `dots_list()` gains several options to control how to collect dots:
-
-* `.preserve_empty` preserves empty arguments:
-
-  ```{r}
-  list3 <- function(...) dots_list(..., .preserve_empty = TRUE)
-
-  list3(a = 1, b = , c = 2)
-  ```
-
-  We are using this option in `env_bind()` and `call_modify()` to allow assigning explicit missing values (see `?missing_arg()`):
-
-  ```{r}
-  call <- quote(mean())
-  call_modify(call, ... = , trim = )
-  ```
-
-* `.homonyms` controls whether to keep all arguments that have the same name (the default), only the first or last of these, or throw an error:
-
-  ```{r}
-  list3 <- function(...) dots_list(..., .homonyms = "last")
-
-  list3(foo = 1, bar = 2, foo = 3, bar = 4, bar = 5)
-  ```
-
-These options can be set in `enquos()` as well.
 
 
 ## Acknowledgements

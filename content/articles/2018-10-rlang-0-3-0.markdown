@@ -25,6 +25,157 @@ We're happy to announce that [rlang 0.3.0](https://cran.r-project.org/package=rl
 Consult the [changelog](https://rlang.r-lib.org/news/index.html#rlang-0-3-0) for the full list of changes, including many bug fixes. The rlang API is still maturing and a number of functions and arguments were deprecated or renamed. Check the [lifecycle section](https://rlang.r-lib.org/news/index.html#lifecycle) for a summary of the API changes.
 
 
+## Tidy evaluation and tidy dots
+
+Tidy evaluation is the framework that powers data-masking APIs like dplyr, tidyr, or ggplot2. Tidy dots is a related feature that allows you to use `!!!` in functions taking dots, among other things.
+
+
+### Referring to columns with `.data`
+
+The main user-facing change is that subsetting the `.data` pronoun with `[[` now behaves as if the index were implicitly unquoted. Concretely, this means that the index can no longer be confused with a data frame column. Subsetting `.data` is now always safe, even in functions:
+
+
+```r
+suppressPackageStartupMessages(
+  library("dplyr")
+)
+
+df <- tibble(var = 1:4, g = c(1, 1, 2, 2))
+var <- "g"
+
+# `df` contains `var` but the column doesn't count!
+df %>% group_by(.data[[var]])
+```
+
+<div class = "output"><pre class="knitr r">#&gt; <span style='color: #555555;'># A tibble: 4 x 2</span><span>
+#&gt; </span><span style='color: #555555;'># Groups:   g [2]</span><span>
+#&gt;     var     g
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>1</span><span>     1     1
+#&gt; </span><span style='color: #555555;'>2</span><span>     2     1
+#&gt; </span><span style='color: #555555;'>3</span><span>     3     2
+#&gt; </span><span style='color: #555555;'>4</span><span>     4     2
+</span></pre></div>
+
+
+### New tidy dots options
+
+Tidy dots refers to a set of features enabled in functions collecting dots. To enable tidy dots, use `list2()` instead of list:
+
+
+```r
+fn <- function(...) list2(...)
+```
+
+With tidy dots, users can splice in lists of arguments:
+
+
+```r
+x <- list(arg1 = "A", arg2 = "B")
+
+fn(1, 2, !!!x, 3)
+```
+
+<div class = "output"><pre class="knitr r">#&gt; [[1]]
+#&gt; [1] 1
+#&gt; 
+#&gt; [[2]]
+#&gt; [1] 2
+#&gt; 
+#&gt; $arg1
+#&gt; [1] "A"
+#&gt; 
+#&gt; $arg2
+#&gt; [1] "B"
+#&gt; 
+#&gt; [[5]]
+#&gt; [1] 3
+</pre></div>
+
+They can unquote names:
+
+
+```r
+nm <- "b"
+
+fn(a = 1, !!nm := 2)
+```
+
+<div class = "output"><pre class="knitr r">#&gt; $a
+#&gt; [1] 1
+#&gt; 
+#&gt; $b
+#&gt; [1] 2
+</pre></div>
+
+And trailing empty arguments are always ignored to make copy-pasting easier:
+
+
+```r
+fn(
+  foo = "foo",
+  foo = "bar",
+)
+```
+
+<div class = "output"><pre class="knitr r">#&gt; $foo
+#&gt; [1] "foo"
+#&gt; 
+#&gt; $foo
+#&gt; [1] "bar"
+</pre></div>
+
+While `list2()` hard-codes these features, `dots_list()` gains several options to control how to collect dots:
+
+* `.preserve_empty` preserves empty arguments:
+
+  
+  ```r
+  list3 <- function(...) dots_list(..., .preserve_empty = TRUE)
+  
+  list3(a = 1, b = , c = 2)
+  ```
+  
+  <div class = "output"><pre class="knitr r">#&gt; $a
+  #&gt; [1] 1
+  #&gt; 
+  #&gt; $b
+  #&gt; 
+  #&gt; 
+  #&gt; $c
+  #&gt; [1] 2
+  </pre></div>
+
+  We are using this option in `env_bind()` and `call_modify()` to allow assigning explicit missing values (see `?missing_arg()`):
+
+  
+  ```r
+  call <- quote(mean())
+  call_modify(call, ... = , trim = )
+  ```
+  
+  <div class = "output"><pre class="knitr r">#&gt; mean(..., trim = )
+  </pre></div>
+
+* `.homonyms` controls whether to keep all arguments that have the same name (the default), only the first or last of these, or throw an error:
+
+  
+  ```r
+  list3 <- function(...) dots_list(..., .homonyms = "last")
+  
+  list3(foo = 1, bar = 2, foo = 3, bar = 4, bar = 5)
+  ```
+  
+  <div class = "output"><pre class="knitr r">#&gt; $foo
+  #&gt; [1] 3
+  #&gt; 
+  #&gt; $bar
+  #&gt; [1] 5
+  </pre></div>
+
+These options can be set in `enquos()` as well.
+
+
 ## Error reporting
 
 `abort()` extends `base::stop()` to make it easy to create error objects with [custom class and metadata](https://adv-r.hadley.nz/conditions.html). With rlang 0.3.0, `abort()` automatically stores a backtrace in the error object and supports chaining errors.
@@ -288,15 +439,22 @@ env_print()
 ```
 
 <div class = "output"><pre class="knitr r">#&gt; <span style='font-weight: bold;'>&lt;environment: global&gt;</span><span>
-#&gt; parent: &lt;environment: package:rlang&gt;
+#&gt; parent: &lt;environment: package:bindrcpp&gt;
 #&gt; bindings:
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>fn: &lt;fn&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>var: &lt;chr&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>x: &lt;list&gt;
 #&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>fetch_csv: &lt;fn&gt;
 #&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>my_fetch_csv: &lt;fn&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>list3: &lt;fn&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>nm: &lt;chr&gt;
 #&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>.Random.seed: &lt;int&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>call: &lt;language&gt;
 #&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>f: &lt;fn&gt;
 #&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>g: &lt;fn&gt;
 #&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>h: &lt;fn&gt;
 #&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>make_report: &lt;fn&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>df: &lt;tibble&gt;
 #&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>colourise_chunk: &lt;fn&gt;
 #&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>prepare_data: &lt;fn&gt;
 </span></pre></div>
@@ -344,15 +502,17 @@ search_envs()
 ```
 
 <div class = "output"><pre class="knitr r">#&gt;  [[1]] $ &lt;env: global&gt;
-#&gt;  [[2]] $ &lt;env: package:rlang&gt;
-#&gt;  [[3]] $ &lt;env: package:stats&gt;
-#&gt;  [[4]] $ &lt;env: package:graphics&gt;
-#&gt;  [[5]] $ &lt;env: package:grDevices&gt;
-#&gt;  [[6]] $ &lt;env: package:utils&gt;
-#&gt;  [[7]] $ &lt;env: package:datasets&gt;
-#&gt;  [[8]] $ &lt;env: package:methods&gt;
-#&gt;  [[9]] $ &lt;env: Autoloads&gt;
-#&gt; [[10]] $ &lt;env: package:base&gt;
+#&gt;  [[2]] $ &lt;env: package:bindrcpp&gt;
+#&gt;  [[3]] $ &lt;env: package:dplyr&gt;
+#&gt;  [[4]] $ &lt;env: package:rlang&gt;
+#&gt;  [[5]] $ &lt;env: package:stats&gt;
+#&gt;  [[6]] $ &lt;env: package:graphics&gt;
+#&gt;  [[7]] $ &lt;env: package:grDevices&gt;
+#&gt;  [[8]] $ &lt;env: package:utils&gt;
+#&gt;  [[9]] $ &lt;env: package:datasets&gt;
+#&gt; [[10]] $ &lt;env: package:methods&gt;
+#&gt; [[11]] $ &lt;env: Autoloads&gt;
+#&gt; [[12]] $ &lt;env: package:base&gt;
 </pre></div>
 
 The print method for lists of environments is also used for the lists returned by `env_parents()`. This function returns all parents of a given environment. For search environments, the last parent of the list is the empty environment:
@@ -402,162 +562,11 @@ e <- env(env(empty_env()))
 env_parents(e)
 ```
 
-<div class = "output"><pre class="knitr r">#&gt; [[1]]   &lt;env: 0x7f981b78fbc8&gt;
+<div class = "output"><pre class="knitr r">#&gt; [[1]]   &lt;env: 0x7facbe8c6a38&gt;
 #&gt; [[2]] $ &lt;env: empty&gt;
 </pre></div>
 
 We hope that these print methods make it easier to explore the structure and contents of R environments.
-
-
-## Tidy evaluation and tidy dots
-
-Tidy evaluation is the framework that powers data-masking APIs like dplyr, tidyr, or ggplot2. Tidy dots is a related feature that allows you to use `!!!` in functions taking dots, among other things.
-
-
-### Referring to columns with `.data`
-
-The main user-facing change is that subsetting the `.data` pronoun with `[[` now behaves as if the index were implicitly unquoted. Concretely, this means that the index can no longer be confused with a data frame column. Subsetting `.data` is now always safe, even in functions:
-
-
-```r
-suppressPackageStartupMessages(
-  library("dplyr")
-)
-
-df <- tibble(var = 1:4, g = c(1, 1, 2, 2))
-var <- "g"
-
-# `df` contains `var` but the column doesn't count!
-df %>% group_by(.data[[var]])
-```
-
-<div class = "output"><pre class="knitr r">#&gt; <span style='color: #555555;'># A tibble: 4 x 2</span><span>
-#&gt; </span><span style='color: #555555;'># Groups:   g [2]</span><span>
-#&gt;     var     g
-#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
-#&gt; </span><span style='color: #555555;'>1</span><span>     1     1
-#&gt; </span><span style='color: #555555;'>2</span><span>     2     1
-#&gt; </span><span style='color: #555555;'>3</span><span>     3     2
-#&gt; </span><span style='color: #555555;'>4</span><span>     4     2
-</span></pre></div>
-
-
-### New tidy dots options
-
-Tidy dots refers to a set of features enabled in functions collecting dots. To enable tidy dots, use `list2()` instead of list:
-
-
-```r
-fn <- function(...) list2(...)
-```
-
-With tidy dots, users can splice in lists of arguments:
-
-
-```r
-x <- list(arg1 = "A", arg2 = "B")
-
-fn(1, 2, !!!x, 3)
-```
-
-<div class = "output"><pre class="knitr r">#&gt; [[1]]
-#&gt; [1] 1
-#&gt; 
-#&gt; [[2]]
-#&gt; [1] 2
-#&gt; 
-#&gt; $arg1
-#&gt; [1] "A"
-#&gt; 
-#&gt; $arg2
-#&gt; [1] "B"
-#&gt; 
-#&gt; [[5]]
-#&gt; [1] 3
-</pre></div>
-
-They can unquote names:
-
-
-```r
-nm <- "b"
-
-fn(a = 1, !!nm := 2)
-```
-
-<div class = "output"><pre class="knitr r">#&gt; $a
-#&gt; [1] 1
-#&gt; 
-#&gt; $b
-#&gt; [1] 2
-</pre></div>
-
-And trailing empty arguments are always ignored to make copy-pasting easier:
-
-
-```r
-fn(
-  foo = "foo",
-  foo = "bar",
-)
-```
-
-<div class = "output"><pre class="knitr r">#&gt; $foo
-#&gt; [1] "foo"
-#&gt; 
-#&gt; $foo
-#&gt; [1] "bar"
-</pre></div>
-
-While `list2()` hard-codes these features, `dots_list()` gains several options to control how to collect dots:
-
-* `.preserve_empty` preserves empty arguments:
-
-  
-  ```r
-  list3 <- function(...) dots_list(..., .preserve_empty = TRUE)
-  
-  list3(a = 1, b = , c = 2)
-  ```
-  
-  <div class = "output"><pre class="knitr r">#&gt; $a
-  #&gt; [1] 1
-  #&gt; 
-  #&gt; $b
-  #&gt; 
-  #&gt; 
-  #&gt; $c
-  #&gt; [1] 2
-  </pre></div>
-
-  We are using this option in `env_bind()` and `call_modify()` to allow assigning explicit missing values (see `?missing_arg()`):
-
-  
-  ```r
-  call <- quote(mean())
-  call_modify(call, ... = , trim = )
-  ```
-  
-  <div class = "output"><pre class="knitr r">#&gt; mean(..., trim = )
-  </pre></div>
-
-* `.homonyms` controls whether to keep all arguments that have the same name (the default), only the first or last of these, or throw an error:
-
-  
-  ```r
-  list3 <- function(...) dots_list(..., .homonyms = "last")
-  
-  list3(foo = 1, bar = 2, foo = 3, bar = 4, bar = 5)
-  ```
-  
-  <div class = "output"><pre class="knitr r">#&gt; $foo
-  #&gt; [1] 3
-  #&gt; 
-  #&gt; $bar
-  #&gt; [1] 5
-  </pre></div>
-
-These options can be set in `enquos()` as well.
 
 
 ## Acknowledgements
