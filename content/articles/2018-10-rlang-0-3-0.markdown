@@ -23,12 +23,12 @@ photo:
 We're happy to announce that [rlang 0.3.0](https://cran.r-project.org/package=rlang) in now on CRAN! rlang implements a consistent API for working with base types, hosts the tidy evaluation framework, and offers tools for error reporting. This release provides major improvements for each of those themes. Consult the [changelog](https://rlang.r-lib.org/news/index.html#rlang-0-3-0) for the full list of changes.
 
 
-### Error reporting
+## Error reporting
 
 `abort()` is a version of `base::stop()` that makes it easy to create error objects with custom class and metadata. With rlang 0.3.0, `abort()` automatically stores a backtrace in the error object and supports chaining errors.
 
 
-#### Backtraces
+### Backtraces
 
 Storing a backtrace in rlang errors makes it possible to post-process the call tree that lead to an error and simplify it substantially. Let's define three functions calling each other, with `tryCatch()` and `evalq()` interspersed in order to create a complicated call tree:
 
@@ -101,7 +101,7 @@ Each call is prepended with a namespace prefix[^1] to reveal the flow of control
 [^1]: Or `global::` if the function is defined in the global workspace.
 
 
-#### Chained errors
+### Chained errors
 
 Chaining errors is relevant when you're calling low-level APIs such as web scraping, JSON parsing, etc. When these APIs encounter an error, they often fail with technical error messages. Several programming languages provide the ability of chaining errors for these situations. With chained errors, the low level and high level contexts are clearly separated in the error report. This makes the error more legible for the end user, without hiding the low level information that might be crucial for figuring out the problem.
 
@@ -185,7 +185,7 @@ last_error()
 For this reason, chaining errors is more effective with rlang errors. However, many errors are thrown with `stop()` rather than `abort()`. That's the case of errors thrown by `fetch_csv()`. Fortunately it is easy to transform any error into rlang errors.
 
 
-#### Promoting base errors to rlang errors
+### Promoting base errors to rlang errors
 
 rlang provides `with_abort()` to run code with base errors automatically promoted to rlang errors. Let's wrap around `fetch_csv()` to run it in a `with_abort` context:
 
@@ -287,12 +287,12 @@ if (requireNamespace("rlang", quietly = TRUE)) {
 ```
 
 
-### Tidy evaluation and tidy dots
+## Tidy evaluation and tidy dots
 
 Tidy evaluation is the framework that powers data-masking APIs like dplyr, tidyr, or ggplot2. Tidy dots is a related feature that allows you to use `!!!` in functions taking dots, among other things.
 
 
-#### Referring to columns with `.data`
+### Referring to columns with `.data`
 
 The main user-facing change is that subsetting the `.data` pronoun with `[[` now behaves as if the index were implicitly unquoted. Concretely, this means that the index can no longer be confused with a data frame column. Subsetting `.data` is now always safe, even in functions:
 
@@ -320,7 +320,7 @@ df %>% group_by(.data[[var]])
 </span></pre></div>
 
 
-#### New tidy dots options
+### New tidy dots options
 
 Tidy dots refers to a set of features enabled in functions collecting dots. To enable tidy dots, use `list2()` instead of list:
 
@@ -438,7 +438,7 @@ While `list2()` hard-codes these features, `dots_list()` gains several options t
 These options can be set in `enquos()` as well.
 
 
-# Acknowledgements
+## Acknowledgements
 
 Thanks to all contributors!
 
