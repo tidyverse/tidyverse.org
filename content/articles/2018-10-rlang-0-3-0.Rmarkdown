@@ -206,6 +206,58 @@ if (requireNamespace("rlang", quietly = TRUE)) {
 ```
 
 
+## Environments
+
+The environment API gains two specialised print methods. `env_print()` prints information about the contents and the properties of environments. If you don't specify an environment, it prints the current environment by default, here the global environment:
+
+```{r}
+env_print()
+```
+
+The global environment doesn't have any fancy features. Let's look at a package environment:
+
+```{r}
+env_print(pkg_env("rlang"))
+```
+
+This environment contains all functions exported by rlang. Its header includes the `[L]` tag to indicate that the environment is locked: you can't add or remove bindings from it. The same tag appears next to each binding to indicate that the bindings are locked and can't be changed to point to a different object. Finally, note how the type of many bindings is `<lazy>`. That's because packages are lazily loaded for performance reasons. Technically, the binding points to a *promise* that will eventually evaluate to the actual object, the first time it is accsessed.
+
+The second print method concerns lists of environments. For instance, you can examine the search path environments with:
+
+```{r}
+search_envs()
+```
+
+The print method for lists of environments is also used for the lists returned by `env_parents()`. This function returns all parents of a given environment. For search environments, the last parent of the list is the empty environment:
+
+```{r}
+envs <- env_parents(pkg_env("utils"))
+envs
+```
+
+For all other environments, the last parent is either the empty environment or the global environment. Most of the time the global env is part of the ancestry because package namespaces inherit from the search path:
+
+```{r}
+env_parents(ns_env("rlang"))
+```
+
+However it's possible to construct environments insulated from the search path. We'll use `env()` to create such an environment. Counting from rlang 0.3.0, pass an unnamed environment to specify a parent:
+
+```{r}
+e <- env(base_env(), foo = "bar")
+env_parents(e)
+```
+
+Here is how to create a grandchild of the empty environment:
+
+```{r}
+e <- env(env(empty_env()))
+env_parents(e)
+```
+
+We hope that these print methods make it easier to explore the structure and contents of R environments.
+
+
 ## Tidy evaluation and tidy dots
 
 Tidy evaluation is the framework that powers data-masking APIs like dplyr, tidyr, or ggplot2. Tidy dots is a related feature that allows you to use `!!!` in functions taking dots, among other things.

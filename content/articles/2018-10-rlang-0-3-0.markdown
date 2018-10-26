@@ -287,6 +287,137 @@ if (requireNamespace("rlang", quietly = TRUE)) {
 ```
 
 
+## Environments
+
+The environment API gains two specialised print methods. `env_print()` prints information about the contents and the properties of environments. If you don't specify an environment, it prints the current environment by default, here the global environment:
+
+
+```r
+env_print()
+```
+
+<div class = "output"><pre class="knitr r">#&gt; <span style='font-weight: bold;'>&lt;environment: global&gt;</span><span>
+#&gt; parent: &lt;environment: package:rlang&gt;
+#&gt; bindings:
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>fetch_csv: &lt;fn&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>my_fetch_csv: &lt;fn&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>.Random.seed: &lt;int&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>f: &lt;fn&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>g: &lt;fn&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>h: &lt;fn&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>make_report: &lt;fn&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>colourise_chunk: &lt;fn&gt;
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>prepare_data: &lt;fn&gt;
+</span></pre></div>
+
+The global environment doesn't have any fancy features. Let's look at a package environment:
+
+
+```r
+env_print(pkg_env("rlang"))
+```
+
+<div class = "output"><pre class="knitr r">#&gt; <span style='font-weight: bold;'>&lt;environment: package:rlang&gt; [L]</span><span>
+#&gt; parent: &lt;environment: package:stats&gt;
+#&gt; bindings:
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>is_dbl_na: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>coerce_class: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>as_quosure: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>as_quosures: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>quo_get_env: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>return_to: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>env_binding_are_lazy: &lt;fn&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>quo_is_call: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>new_call: &lt;fn&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>is_scoped: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>set_names: &lt;fn&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>expr_deparse: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>`f_env&lt;-`: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>as_box_if: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>`%|%`: &lt;fn&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>lang_head: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>ns_env: &lt;fn&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>list_along: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>parse_quo: &lt;lazy&gt; [L]
+#&gt;  </span><span style='color: #555555;font-weight: bold;'>* </span><span>lang_tail: &lt;lazy&gt; [L]
+#&gt;    * ... with 438 more bindings
+</span></pre></div>
+
+This environment contains all functions exported by rlang. Its header includes the `[L]` tag to indicate that the environment is locked: you can't add or remove bindings from it. The same tag appears next to each binding to indicate that the bindings are locked and can't be changed to point to a different object. Finally, note how the type of many bindings is `<lazy>`. That's because packages are lazily loaded for performance reasons. Technically, the binding points to a *promise* that will eventually evaluate to the actual object, the first time it is accsessed.
+
+The second print method concerns lists of environments. For instance, you can examine the search path environments with:
+
+
+```r
+search_envs()
+```
+
+<div class = "output"><pre class="knitr r">#&gt;  [[1]] $ &lt;env: global&gt;
+#&gt;  [[2]] $ &lt;env: package:rlang&gt;
+#&gt;  [[3]] $ &lt;env: package:stats&gt;
+#&gt;  [[4]] $ &lt;env: package:graphics&gt;
+#&gt;  [[5]] $ &lt;env: package:grDevices&gt;
+#&gt;  [[6]] $ &lt;env: package:utils&gt;
+#&gt;  [[7]] $ &lt;env: package:datasets&gt;
+#&gt;  [[8]] $ &lt;env: package:methods&gt;
+#&gt;  [[9]] $ &lt;env: Autoloads&gt;
+#&gt; [[10]] $ &lt;env: package:base&gt;
+</pre></div>
+
+The print method for lists of environments is also used for the lists returned by `env_parents()`. This function returns all parents of a given environment. For search environments, the last parent of the list is the empty environment:
+
+
+```r
+envs <- env_parents(pkg_env("utils"))
+envs
+```
+
+<div class = "output"><pre class="knitr r">#&gt; [[1]] $ &lt;env: package:datasets&gt;
+#&gt; [[2]] $ &lt;env: package:methods&gt;
+#&gt; [[3]] $ &lt;env: Autoloads&gt;
+#&gt; [[4]] $ &lt;env: package:base&gt;
+#&gt; [[5]] $ &lt;env: empty&gt;
+</pre></div>
+
+For all other environments, the last parent is either the empty environment or the global environment. Most of the time the global env is part of the ancestry because package namespaces inherit from the search path:
+
+
+```r
+env_parents(ns_env("rlang"))
+```
+
+<div class = "output"><pre class="knitr r">#&gt; [[1]] $ &lt;env: imports:rlang&gt;
+#&gt; [[2]] $ &lt;env: namespace:base&gt;
+#&gt; [[3]] $ &lt;env: global&gt;
+</pre></div>
+
+However it's possible to construct environments insulated from the search path. We'll use `env()` to create such an environment. Counting from rlang 0.3.0, pass an unnamed environment to specify a parent:
+
+
+```r
+e <- env(base_env(), foo = "bar")
+env_parents(e)
+```
+
+<div class = "output"><pre class="knitr r">#&gt; [[1]] $ &lt;env: package:base&gt;
+#&gt; [[2]] $ &lt;env: empty&gt;
+</pre></div>
+
+Here is how to create a grandchild of the empty environment:
+
+
+```r
+e <- env(env(empty_env()))
+env_parents(e)
+```
+
+<div class = "output"><pre class="knitr r">#&gt; [[1]]   &lt;env: 0x7ffd3bbdcf70&gt;
+#&gt; [[2]] $ &lt;env: empty&gt;
+</pre></div>
+
+We hope that these print methods make it easier to explore the structure and contents of R environments.
+
+
 ## Tidy evaluation and tidy dots
 
 Tidy evaluation is the framework that powers data-masking APIs like dplyr, tidyr, or ggplot2. Tidy dots is a related feature that allows you to use `!!!` in functions taking dots, among other things.
