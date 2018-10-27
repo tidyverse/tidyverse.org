@@ -311,7 +311,7 @@ make_report("https://rstats.edu/awesome-data.csv")
 #&gt;  ─cannot open the connection to 'https://rstats.edu/awesome-data.csv'
 </pre></div>
 
-The main error message is now the high level one. The low level message is still included in the output to avoid hiding precious debugging information. Errors can be chained multiple times and all the messages and all parent messages are included in the output. However, only errors thrown with `abort()` contain a backtrace:
+The main error message is now the high level one. The low level message is still included in the output to avoid hiding precious debugging information. Errors can be chained multiple times and all the messages and all parent messages are included in the output. But note that only errors thrown with `abort()` contain a backtrace:
 
 
 ```r
@@ -329,7 +329,7 @@ last_error()
 #&gt; class:   `simpleError`
 </span></pre></div>
 
-For this reason, chaining errors is more effective with rlang errors. However, many errors are thrown with `stop()` rather than `abort()`. That's the case of errors thrown by `fetch_csv()`. Fortunately it is easy to transform any error into rlang errors.
+For this reason, chaining errors is more effective with rlang errors than with errors thrown with `stop()` and the error report could be improved if `fetch_csv()` used `abort()` instead of `thrown()`. Fortunately it is easy to transform any error into an rlang error without changing any code!
 
 
 ### Promoting base errors to rlang errors
@@ -492,9 +492,9 @@ env_print(pkg_env("rlang"))
 #&gt;    * ... with 438 more bindings
 </span></pre></div>
 
-This environment contains all functions exported by rlang. Its header includes the `[L]` tag to indicate that the environment is locked: you can't add or remove bindings from it. The same tag appears next to each binding to indicate that the bindings are locked and can't be changed to point to a different object. Finally, note how the type of many bindings is `<lazy>`. That's because packages are lazily loaded for performance reasons. Technically, the binding points to a *promise* that will eventually evaluate to the actual object, the first time it is accsessed.
+This environment contains all functions exported by rlang. Its header includes the `[L]` tag to indicate that the environment is locked: you can't add or remove bindings from it. The same tag appears next to each binding to indicate that the bindings are locked and can't be changed to point to a different object. Finally, note how the type of many bindings is `<lazy>`. That's because packages are lazily loaded for performance reasons. Technically, the binding points to a *promise* that will eventually evaluate to the actual object, the first time it is accessed.
 
-The second print method concerns lists of environments. For instance, you can examine the search path environments with:
+The second print method concerns lists of environments as returned by `search_envs()` and `env_parents()`. While `base::search()` returns the names of environments on the search path, `search_envs()` returns the corresponding list of environments:
 
 
 ```r
@@ -515,7 +515,7 @@ search_envs()
 #&gt; [[12]] $ &lt;env: package:base&gt;
 </pre></div>
 
-The print method for lists of environments is also used for the lists returned by `env_parents()`. This function returns all parents of a given environment. For search environments, the last parent of the list is the empty environment:
+`env_parents()` returns all parents of a given environment. For search environments, the last parent of the list is the empty environment:
 
 
 ```r
@@ -542,7 +542,7 @@ env_parents(ns_env("rlang"))
 #&gt; [[3]] $ &lt;env: global&gt;
 </pre></div>
 
-However it's possible to construct environments insulated from the search path. We'll use `env()` to create such an environment. Counting from rlang 0.3.0, pass an unnamed environment to specify a parent:
+It is possible to construct environments insulated from the search path. We'll use `env()` to create such an environment. Counting from rlang 0.3.0, you can pass a single unnamed environment to `env()` to specify a parent. The following creates a child of the base package:
 
 
 ```r
@@ -562,7 +562,7 @@ e <- env(env(empty_env()))
 env_parents(e)
 ```
 
-<div class = "output"><pre class="knitr r">#&gt; [[1]]   &lt;env: 0x7facbe8c6a38&gt;
+<div class = "output"><pre class="knitr r">#&gt; [[1]]   &lt;env: 0x7fb6ec084238&gt;
 #&gt; [[2]] $ &lt;env: empty&gt;
 </pre></div>
 
