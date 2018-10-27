@@ -1,7 +1,7 @@
 ---
 title: 'ggplot2 3.1.0'
 author: Mara Averick and Claus Wilke
-date: '2018-10-26'
+date: '2018-10-29'
 slug: ggplot2-3-1-0
 description: > 
   ggplot2 3.1.0 is now on CRAN!
@@ -15,30 +15,9 @@ photo:
 
 
 We're happy to announce the release of
-[ggplot2 3.1.0](https://ggplot2.tidyverse.org/) on CRAN. For a complete list of
-changes, please see the [release notes](https://github.com/tidyverse/ggplot2/releases/tag/v3.1.0).
+[ggplot2 3.1.0](https://ggplot2.tidyverse.org/) on CRAN. ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details.
 
-## Breaking changes
-
-This is a minor release and breaking changes have been kept to a minimum. End users of ggplot2 are unlikely to encounter any issues. However, there are a few items that developers of ggplot2 extensions should be aware of.[^deets]
-
-* In non-user-facing internal code (specifically in the `aes()` function and in
-the `aesthetics` argument of scale functions), ggplot2 now always uses the British
-spelling for aesthetics containing the word "colour". When users specify a "color"
-aesthetic it is automatically renamed to "colour". This convention makes it easier to support both
-British and American spelling for novel, non-standard aesthetics, but it may require
-some adjustment for packages that have previously introduced non-standard color
-aesthetics using American spelling. A new function `standardise_aes_names()` is
-provided in case extension writers need to perform this renaming in their own code.
-
-* Functions that generate other functions (closures) now force the arguments that are
-used from the generated functions, to avoid hard-to-catch errors. This may affect
-some users of manual scales (such as `scale_colour_manual()`, `scale_fill_manual()`,
-etc.) who depend on incorrect behavior.
-
-* `Coord` objects now have a function `backtransform_range()` that returns the
-panel range in data coordinates. This change may affect developers of custom coords or custom
-geoms that use the `range()`.
+The 3.1.0 release is a minor release that fixes a number of bugs and adds a few new features. Breaking changes have been kept to a minimum and end users of ggplot2 are unlikely to encounter any issues when switching from 3.0.0 to 3.1.0. However, there are a few items that developers of ggplot2 extensions should be aware of. For a complete list of changes and issues of relevance for extension developers, please see the [release notes](https://github.com/tidyverse/ggplot2/releases/tag/v3.1.0).
 
 ## New features
 
@@ -107,7 +86,7 @@ ggplot(nc) +
 
 ## Minor fixes and improvements
 
-Because the British and American spellings of "color" are now fully equivalent throughout the entire ggplot2 code base, the following four examples all produce the same plot.
+Aesthetics containing the word "color" are now always standardized internally to read "colour". This happens transparently to the end user, so that the British and American spellings of "colour" / "color" are fully equivalent throughout the entire ggplot2 code base. Therefore, the following four examples all produce the same plot.
 
 
 ```r
@@ -167,7 +146,3 @@ ggplot(diamonds, aes(x, depth)) +
 
 Thank you to the **126** people who who contributed issues, code and comments to this release:
 [&#xFF20;abeeCrombie](https://github.com/abeeCrombie), [&#xFF20;adam-erickson](https://github.com/adam-erickson), [&#xFF20;adrfantini](https://github.com/adrfantini), [&#xFF20;Adri1CIRAD](https://github.com/Adri1CIRAD), [&#xFF20;agarwal-peeush](https://github.com/agarwal-peeush), [&#xFF20;alexhallam](https://github.com/alexhallam), [&#xFF20;alireza08](https://github.com/alireza08), [&#xFF20;alistaire47](https://github.com/alistaire47), [&#xFF20;amhedberg](https://github.com/amhedberg), [&#xFF20;amirmasoudabdol](https://github.com/amirmasoudabdol), [&#xFF20;andrewheiss](https://github.com/andrewheiss), [&#xFF20;andrewmarx](https://github.com/andrewmarx), [&#xFF20;anhttdang](https://github.com/anhttdang), [&#xFF20;aosmith16](https://github.com/aosmith16), [&#xFF20;artidata](https://github.com/artidata), [&#xFF20;baderstine](https://github.com/baderstine), [&#xFF20;barana912](https://github.com/barana912), [&#xFF20;batpigandme](https://github.com/batpigandme), [&#xFF20;benjaminhlina](https://github.com/benjaminhlina), [&#xFF20;billdenney](https://github.com/billdenney), [&#xFF20;Bisaloo](https://github.com/Bisaloo), [&#xFF20;bjreisman](https://github.com/bjreisman), [&#xFF20;bpbraun](https://github.com/bpbraun), [&#xFF20;brodieG](https://github.com/brodieG), [&#xFF20;bschneidr](https://github.com/bschneidr), [&#xFF20;carlislerainey](https://github.com/carlislerainey), [&#xFF20;ccpsilva](https://github.com/ccpsilva), [&#xFF20;Chrismarsh](https://github.com/Chrismarsh), [&#xFF20;chrismp](https://github.com/chrismp), [&#xFF20;cipi118](https://github.com/cipi118), [&#xFF20;clauswilke](https://github.com/clauswilke), [&#xFF20;coolbutuseless](https://github.com/coolbutuseless), [&#xFF20;corybrunson](https://github.com/corybrunson), [&#xFF20;DarioS](https://github.com/DarioS), [&#xFF20;dpseidel](https://github.com/dpseidel), [&#xFF20;dracodoc](https://github.com/dracodoc), [&#xFF20;drammock](https://github.com/drammock), [&#xFF20;earthcli](https://github.com/earthcli), [&#xFF20;edmundesterbauer](https://github.com/edmundesterbauer), [&#xFF20;elbamos](https://github.com/elbamos), [&#xFF20;eliocamp](https://github.com/eliocamp), [&#xFF20;Eluvias](https://github.com/Eluvias), [&#xFF20;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#xFF20;EmmanuelCharpentier](https://github.com/EmmanuelCharpentier), [&#xFF20;emrichter](https://github.com/emrichter), [&#xFF20;espher1987](https://github.com/espher1987), [&#xFF20;ftabaro](https://github.com/ftabaro), [&#xFF20;gregrs-uk](https://github.com/gregrs-uk), [&#xFF20;guillaumecharbonnier](https://github.com/guillaumecharbonnier), [&#xFF20;hadley](https://github.com/hadley), [&#xFF20;Henrik-P](https://github.com/Henrik-P), [&#xFF20;hisakatha](https://github.com/hisakatha), [&#xFF20;hzarkoob](https://github.com/hzarkoob), [&#xFF20;igordot](https://github.com/igordot), [&#xFF20;ilarischeinin](https://github.com/ilarischeinin), [&#xFF20;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#xFF20;itcarroll](https://github.com/itcarroll), [&#xFF20;Janewyx](https://github.com/Janewyx), [&#xFF20;jar1karp](https://github.com/jar1karp), [&#xFF20;jdrum00](https://github.com/jdrum00), [&#xFF20;JessicaGarzke](https://github.com/JessicaGarzke), [&#xFF20;JHonaker](https://github.com/JHonaker), [&#xFF20;jiho](https://github.com/jiho), [&#xFF20;jimhester](https://github.com/jimhester), [&#xFF20;JM-RG](https://github.com/JM-RG), [&#xFF20;JohnMount](https://github.com/JohnMount), [&#xFF20;jonocarroll](https://github.com/jonocarroll), [&#xFF20;josesho](https://github.com/josesho), [&#xFF20;jpasquier](https://github.com/jpasquier), [&#xFF20;jpgoldberg](https://github.com/jpgoldberg), [&#xFF20;jtelleria](https://github.com/jtelleria), [&#xFF20;justinjunge](https://github.com/justinjunge), [&#xFF20;karawoo](https://github.com/karawoo), [&#xFF20;kendonB](https://github.com/kendonB), [&#xFF20;kimmagnusb](https://github.com/kimmagnusb), [&#xFF20;klmr](https://github.com/klmr), [&#xFF20;krlmlr](https://github.com/krlmlr), [&#xFF20;lawremi](https://github.com/lawremi), [&#xFF20;lhunsicker](https://github.com/lhunsicker), [&#xFF20;lionel-](https://github.com/lionel-), [&#xFF20;lorenzwalthert](https://github.com/lorenzwalthert), [&#xFF20;mafed](https://github.com/mafed), [&#xFF20;makis23](https://github.com/makis23), [&#xFF20;malcolmbarrett](https://github.com/malcolmbarrett), [&#xFF20;MarioClueless](https://github.com/MarioClueless), [&#xFF20;martisak](https://github.com/martisak), [&#xFF20;mikesafar](https://github.com/mikesafar), [&#xFF20;mikmart](https://github.com/mikmart), [&#xFF20;MJochim](https://github.com/MJochim), [&#xFF20;mkoohafkan](https://github.com/mkoohafkan), [&#xFF20;mojaveazure](https://github.com/mojaveazure), [&#xFF20;msberends](https://github.com/msberends), [&#xFF20;neoworld77](https://github.com/neoworld77), [&#xFF20;PabloRMira](https://github.com/PabloRMira), [&#xFF20;paleolimbot](https://github.com/paleolimbot), [&#xFF20;pank](https://github.com/pank), [&#xFF20;pitakakariki](https://github.com/pitakakariki), [&#xFF20;ptoche](https://github.com/ptoche), [&#xFF20;rensa](https://github.com/rensa), [&#xFF20;rharfoot](https://github.com/rharfoot), [&#xFF20;RichardJActon](https://github.com/RichardJActon), [&#xFF20;royfrancis](https://github.com/royfrancis), [&#xFF20;rpruim](https://github.com/rpruim), [&#xFF20;rsaporta](https://github.com/rsaporta), [&#xFF20;sambweber](https://github.com/sambweber), [&#xFF20;schloerke](https://github.com/schloerke), [&#xFF20;slowkow](https://github.com/slowkow), [&#xFF20;statsandthings](https://github.com/statsandthings), [&#xFF20;stephenbfroehlich](https://github.com/stephenbfroehlich), [&#xFF20;steveharoz](https://github.com/steveharoz), [&#xFF20;stragu](https://github.com/stragu), [&#xFF20;tbobin](https://github.com/tbobin), [&#xFF20;the-Hull](https://github.com/the-Hull), [&#xFF20;thomasp85](https://github.com/thomasp85), [&#xFF20;topepo](https://github.com/topepo), [&#xFF20;tstev](https://github.com/tstev), [&#xFF20;TylerGrantSmith](https://github.com/TylerGrantSmith), [&#xFF20;vikram-rawat](https://github.com/vikram-rawat), [&#xFF20;wch](https://github.com/wch), [&#xFF20;willgearty](https://github.com/willgearty), [&#xFF20;woodwards](https://github.com/woodwards), [&#xFF20;YinLiLin](https://github.com/YinLiLin), [&#xFF20;yutannihilation](https://github.com/yutannihilation), [&#xFF20;yyffang](https://github.com/yyffang), [&#xFF20;zeehio](https://github.com/zeehio), and [&#xFF20;ZelinC](https://github.com/ZelinC).
-
-
-[^deets]: For additional details, see also the discussion [here](https://github.com/tidyverse/ggplot2/issues/2890).  
-
