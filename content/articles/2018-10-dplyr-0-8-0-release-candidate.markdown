@@ -397,16 +397,79 @@ iris %>%
 
 # Performance
 
-TODO: 
- - some initial results in [this issue](https://github.com/tidyverse/dplyr/issues/3881)
+When `summarise()` or `mutate()` use expressions that cannot be handled by
+hybrid evaluation, they call back to R from the c++ internals for each group. 
 
-# nest_by, nest_join
+This is an expensive operation because the expressions have to be evaluated 
+with extra care, traditionally it meant wrapping the expression in an R `tryCatch()` 
+before evaluating, but R 3.5.0 has added unwind protection and we exposed that to 
+Rcpp. Consequently, the cost of evaluating an R expression carefully is lower 
+than before. 
 
-TODO
+We ran a benchmark of calculating the means of 10 000 small groups with the 
+release version of dplyr (0.7.7) and this release candidate with and without 
+using the unwind protect feature. 
 
-# colwise verbs
+Just using the `mean()` function would not illustrate the feature, because dplyr would
+use hybrid evaluation and never use callbacks to R, so instead we defined a `mean_` 
+function that has the same body as `base::mean()`, we also compare this to 
+the expression `sum(x) / n()` because it woudld have been handled by 
+partial hybrid evaluation in previous versions. 
 
-TODO 
+![](/articles/2018-10-dplyr-0-8-0_files/timings_summarise_mean.jpeg)
+
+The unwind protect feature gives better performance, however 
+hybrid evaluation is still very relevant. 
+
+# nest_join
+
+The `nest_join()` function is the newest addition to the join family. 
+
+
+```r
+band_members %>% 
+  nest_join(band_instruments)
+#> Joining, by = "name"
+#> # A tibble: 3 x 3
+#>   name  band    band_instruments
+#> * <chr> <chr>   <list>          
+#> 1 Mick  Stones  <tibble [0 × 1]>
+#> 2 John  Beatles <tibble [1 × 1]>
+#> 3 Paul  Beatles <tibble [1 × 1]>
+```
+
+A nest join of `x` and `y` returns all rows and all columns from `x`, plus an additional column 
+that contains a list of tibbles. Each tibble contains all the rows from `y` that match that row of `x`. 
+When there is no match, the list column is a 0-row tibble with the same column names and types as `y`.
+
+`nest_join()` is the most fundamental join since you can recreate the other joins from it: 
+ - `inner_join()` is a `nest_join()` plus an `tidyr::unnest()`.
+ - `left_join()` is a `nest_join()` plus an `unnest(drop = FALSE)`. 
+ - `semi_join()` is a `nest_join()` plus a `filter()` where you check that every element of data has at least one row. 
+ - `anti_join()` is a `nest_join()` plus a `filter()` where you check every element has zero rows.
+
+# nest_by
+
+With the new grouping algorithm, dplyr gains the `nest_by()` function, and 
+associated `nest_by_at()` and `nest_by_if()` column wise variants. `nest_by()` is 
+similar to `tidyr::nest()` but focuses on the columns that define the grouping
+rather than the columns that are nested. 
+
+
+```r
+iris %>% 
+  nest_by(Species)
+#> # A tibble: 3 x 2
+#>   Species    data             
+#>   <fct>      <list>           
+#> 1 setosa     <tibble [50 × 4]>
+#> 2 versicolor <tibble [50 × 4]>
+#> 3 virginica  <tibble [50 × 4]>
+```
+
+# column wise verbs
+
+Mention `last_col()` and `group_cols()`
 
 # Tidy grouping structure
 
