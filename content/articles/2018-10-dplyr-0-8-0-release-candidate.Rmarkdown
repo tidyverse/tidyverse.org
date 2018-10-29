@@ -15,20 +15,61 @@ photo:
   author: Pau Casals
 ---
 
-```{r setup, echo = FALSE, message = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 options(tibble.print_min = 4L, tibble.print_max = 4L)
 library(dplyr)
+# devtools::install_github("rstudio/gt@colorize")
+library(gt)
+
+show_groups <- function(tbl) {
+  # Get a named list of column labels
+  col_labels <-
+    lapply(names(tbl), function(name) {
+      x <- tbl[[name]]
+      class_x <- class(x)
+      
+      value <- if (class_x == "factor") {
+        paste0("fctr<", paste0(levels(x), collapse = ","), ">")
+      } else {
+        paste0("<", class(x), ">")
+      }
+      paste0(name, " ", value)
+    }) %>%
+    magrittr::set_names(names(tbl))
+  
+  # Create the gt table
+  gt(tbl) %>%
+    cols_label(.list = col_labels) %>%
+    cols_color_gradient_n(
+      column = "x",
+    	breaks = c(0, 3),
+    	colors = c("lightblue", "steelblue")
+    ) %>%
+    cols_color_manual(
+      column = "f1", values = c("a", "b", "c"),
+      colors = c("cornsilk", "bisque", "goldenrod")
+    ) %>% 
+    cols_color_manual(
+      column = "f2", values = c("d", "e", "f"),
+      colors = c("pink", "pink2", "pink3")
+    ) %>% 
+    cols_color_gradient_n(
+      column = "n", breaks = c(0, 1),
+      colors = c("red", "white")
+    ) 
+}
 ```
 
 A new release of dplyr (0.8.0) is on the horizon, and since it is a major release, we'd love for the 
 community to try it out, give us some feedback and [report issues](https://github.com/tidyverse/dplyr/issues)
 before we submit to CRAN. This version represents about six months of development, making dplyr more
-respectful of factors and less surprising in its evaluation of expression. In this post, we'll highlight 
-the major changes, please see the [NEWS](https://github.com/tidyverse/dplyr/blob/master/NEWS.md) for a more 
-detailed description of changes. 
+respectful of factors and less surprising in its evaluation of expressions. 
 
-Our formalised process for this release is captured in [this issue](https://github.com/tidyverse/dplyr/issues/3931)
+In this post, we'll highlight the major changes, please see the 
+[NEWS](https://github.com/tidyverse/dplyr/blob/master/NEWS.md) for a more 
+detailed description of changes. Our formalised process for this release is captured 
+in [this issue](https://github.com/tidyverse/dplyr/issues/3931)
 
 ```{r, eval = FALSE}
 # install.packages("devtools")
@@ -48,20 +89,34 @@ install.packages("dplyr")
 The algorithm behind `group_by()` has been redesigned to better respect factor levels, 
 a group is created for each level of the factor, even if there is no data. This 
 differs from previous versions of dplyr where groups were only created to 
-match the observed data.
+match the observed data. This closes the epic issue 
+[341](https://github.com/tidyverse/dplyr/issues/341) that dates back to 2014. 
 
 Let's illustrate the new algorithm with the [count()](https://dplyr.tidyverse.org/reference/tally.html) 
 function:
 
-```{r}
+```{r, results = "hide"}
 df <- tibble(
   f1 = factor(c("a", "a", "a", "b", "b"), levels = c("a", "b", "c")), 
   f2 = factor(c("d", "e", "d", "e", "f"), levels = c("d", "e", "f")), 
   x  = c(1, 1, 1, 2, 2), 
   y  = 1:5
 )
+```
+
+```{r, echo = FALSE}
+show_groups(df)
+```
+
+```{r, results = "hide"}
 df %>% 
   count(f1)
+```
+
+```{r, echo = FALSE}
+df %>% 
+  count(f1) %>% 
+  show_groups()
 ```
 
 Where previous versions of `dplyr` would have created only two groups (for levels `a` and `b`), 
@@ -70,27 +125,47 @@ empty.
 
 Groups are still made to match the data on other types of columns:
 
-```{r}
+```{r, results = "hide"}
 df %>% 
   count(x)
+```
+
+```{r, echo = FALSE}
+df %>% 
+  count(x) %>% 
+  show_groups()
 ```
 
 Expansion of groups for factors happens at each step of the grouping, so if we group
 by `f1` and `f2` we get 9 groups, 
 
-```{r}
+```{r, results = "hide"}
 df %>% 
   count(f1, f2)
 ```
+
+```{r, echo = FALSE}
+df %>% 
+  count(f1, f2) %>% 
+  show_groups()
+```
+
 
 When factors and non factors are involved in the grouping, the number of 
 groups depends on the order. At each level of grouping, factors are always expanded
 to one group per level, but non factors only create groups based on observed data. 
 
-```
+```{r, results = "hide"}
 df %>% 
   count(f1, x)
 ```
+
+```{r, echo = FALSE}
+df %>% 
+  count(f1, x) %>% 
+  show_groups()
+```
+
 
 In this example, we group by `f1` then `x`. At the first layer, grouping on `f1` creates
 two groups. Each of these grouops is then subdivided based on the values of the second 
@@ -101,9 +176,15 @@ The last group, associated with the level `c` of the factor `f1` is empty, and
 consequently has no values for the vector `x`. In that case, `group_by()` uses 
 `NA`. 
 
-```
+```{r, results = "hide"}
 df %>% 
   count(x, f1)
+```
+
+```{r, echo = FALSE}
+df %>% 
+  count(x, f1) %>% 
+  show_groups()
 ```
 
 When we group by `x` then `f1` we initially split the data according to `x` which 
@@ -120,6 +201,13 @@ in previous versions because the verbs did not reconstruct the groups.
 df %>% 
   group_by(x, f1) %>% 
   summarise(y = mean(y))
+```
+
+The expression `mean(y)` is evaluated for the empty groups as well, and gives 
+coherent results with : 
+
+```{r}
+mean(numeric())
 ```
 
 In particular the result of `filter()` preserves the grouping structure of the input 
@@ -143,7 +231,19 @@ when `.preserve` is `FALSE` the data is first filtered and then grouped by:
 ```{r}
 df %>% 
   group_by(x, f1) %>% 
-  filter(y < 4, .preserve = FALSE)
+  filter(y < 5, .preserve = FALSE)
+```
+
+Note however, than even `.preserve = FALSE` respects the factors that are used as 
+grouping variables, in particular `filter( , .preserve = FALSE)` is not a way to 
+discard empty groups. The forcats `r emo::ji("package")` may help: 
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  filter(stringr::str_detect(Species, "^v")) %>% 
+  ungroup() %>% 
+  group_by(Species = forcats::fct_drop(Species))
 ```
 
 # Changes in filter and slice
@@ -246,7 +346,7 @@ iris %>%
 # Performance
 
 TODO: 
- - unwind protect
+ - some initial results in [this issue](https://github.com/tidyverse/dplyr/issues/3881)
 
 # nest_by, nest_join
 
@@ -281,5 +381,3 @@ iris %>%
   group_by(Species) %>% 
   group_rows()
 ```
-
-
