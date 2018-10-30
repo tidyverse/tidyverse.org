@@ -1,6 +1,6 @@
 ---
 title: devtools 2.0.0
-date: 2018-10-26
+date: 2018-10-30
 slug: devtools-2-0-0
 author: Jim Hester
 categories: [package]
