@@ -230,7 +230,7 @@ df %>%
 #> 4 b     e         2     4
 ```
 
-Note however, than even `.preserve = FALSE` respects the factors that are used as 
+Note however, that even `.preserve = FALSE` respects the factors that are used as 
 grouping variables, in particular `filter( , .preserve = FALSE)` is not a way to 
 discard empty groups. The forcats 📦 may help: 
 
@@ -330,12 +330,13 @@ iris %>%
 ```
 
 The gain of replacing parts of the expression with the result of the
-hybrid versions was minimal, and the we had to rely on many 
-ad-hoc to try to respect standard R evaluation semantics. 
+hybrid versions was minimal, and the we had to rely on 
+brittle heuristics to try to respect standard R evaluation semantics. 
 
 ## New implementation
 
-The new hybrid system is less greedy and falls back to standard R evaluation 
+The new hybrid system is stricter and falls back to standard R evaluation 
+
 when the expression is not entirely recognized. 
 
 The `hybrid_call()` function (subject to change) can be used to test if an expression
