@@ -380,8 +380,9 @@ match, then we have all the information we need, and R is never called
 to materialize the result. 
 
 When there is no match, the expression gets evaluated for each group using R standard 
-evaluation rules in the data mask: a special environment that makes the columns available
-and uses context aware information for functions such as `n()`. 
+evaluation rules in the data mask: a special environment that makes the 
+columns available and uses contextual information for functions such as `n()`
+and `row_number()`. 
 
 
 ```r
