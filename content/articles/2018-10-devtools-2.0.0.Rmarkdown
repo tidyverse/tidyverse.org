@@ -42,20 +42,20 @@ packages which are simpler to develop and also easier for other packages to
 depend on. In particular the following packages have been spun off in what we
 are calling the [conscious uncoupling] of devtools.
 
-* [remotes](https://remotes.r-lib.org): Installs packages (i.e.
+* [remotes](https://remotes.r-lib.org): Installs packages (e.g.
   `install_github()`).
 * [pkgbuild](https://github.com/r-lib/pkgbuild): Builds binary packages
-  (including checking if build tools are available) (i.e. `build()`).
-* [pkgload](https://github.com/r-lib/pkgload): Simulates package loading (i.e.
+  (including checking if build tools are available) (e.g. `build()`).
+* [pkgload](https://github.com/r-lib/pkgload): Simulates package loading (e.g.
   `load_all()`).
 * [rcmdcheck](https://github.com/r-lib/rcmdcheck): Runs `R CMD check` and
-  reports the results (i.e. `check()`).
+  reports the results (e.g. `check()`).
 * [revdepcheck](https://github.com/r-lib/revdepcheck): Runs `R CMD check` on
   all reverse dependencies, and figures out what has changed since the last CRAN
-  release (i.e. `revdep_check()`).
-* [sessioninfo](https://github.com/r-lib/sessioninfo): R session info (i.e.
+  release (e.g. `revdep_check()`).
+* [sessioninfo](https://github.com/r-lib/sessioninfo): R session info (e.g.
   `session_info()`).
-* [usethis](https://usethis.r-lib.org): Automates package setup (i.e.
+* [usethis](https://usethis.r-lib.org): Automates package setup (e.g.
   `use_test()`).
 
 devtools will remain the primary package developers will interact with when
