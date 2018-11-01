@@ -1,7 +1,7 @@
 ---
 title: 'Tidyverse developer day 2019'
 author: Mara Averick
-date: '2018-11-02'
+date: '2018-11-05'
 slug: tidyverse-developer-day-2019
 description: > 
   Join us for tidyverse developer day on January 19!
@@ -11,6 +11,7 @@ photo:
   url: https://unsplash.com/photos/yB5cYEq7y2U
   author: fancycrave
 ---
+
 
 On the Saturday following [rstudio::conf](https://www.rstudio.com/conference/), we'll be holding our first ever tidyverse developer day!
 
@@ -27,13 +28,13 @@ The broad goal of this event is to nurture regular contributors. The tidyverse t
 
 We'll have tables led by different members of the team focusing on topics including: 
 
-  * First-time contributions, 
-  * Code makeovers, 
-  * rlang and tidy eval, 
-  * Primers, 
-  * Spanish translations, 
-  * Modelling, and 
-  * Repo hygiene. 
+* First-time contributions, 
+* Code makeovers, 
+* rlang and tidy eval, 
+* Primers, 
+* Spanish translations, 
+* Modelling, and 
+* Repo hygiene. 
 
 ## Tickets 🎫
 
