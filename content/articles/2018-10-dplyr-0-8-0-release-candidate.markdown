@@ -69,7 +69,7 @@ df
 #> 2 a     e         1     2
 #> 3 a     d         1     3
 #> 4 b     e         2     4
-#> # ... with 1 more row
+#> # … with 1 more row
 df %>% 
   count(f1)
 #> # A tibble: 3 x 2
@@ -111,7 +111,7 @@ df %>%
 #> 2 a     e         1
 #> 3 a     f         0
 #> 4 b     d         0
-#> # ... with 5 more rows
+#> # … with 5 more rows
 ```
 
 When factors and non factors are involved in the grouping, the number of 
@@ -151,7 +151,7 @@ df %>%
 #> 2     1 b         0
 #> 3     1 c         0
 #> 4     2 a         0
-#> # ... with 2 more rows
+#> # … with 2 more rows
 ```
 
 When we group by `x` then `f1` we initially split the data according to `x` which 
@@ -177,7 +177,7 @@ df %>%
 #> 2     1 b       NaN
 #> 3     1 c       NaN
 #> 4     2 a       NaN
-#> # ... with 2 more rows
+#> # … with 2 more rows
 ```
 
 The expression `mean(y)` is evaluated for the empty groups as well, and gives 
@@ -249,7 +249,7 @@ iris %>%
 #> 2          6.4         3.2          4.5         1.5 versicolor
 #> 3          6.9         3.1          4.9         1.5 versicolor
 #> 4          5.5         2.3          4           1.3 versicolor
-#> # ... with 96 more rows
+#> # … with 96 more rows
 ```
 
 # Changes in filter and slice
@@ -467,6 +467,47 @@ iris %>%
 #> 1 setosa     <tibble [50 × 4]>
 #> 2 versicolor <tibble [50 × 4]>
 #> 3 virginica  <tibble [50 × 4]>
+```
+
+# split_by
+
+The new function `split_by()` and its column wise variants `split_by_at()` and `split_by_if()`
+implements a tidy version of split. We anticipate that `split_by()` + `purrr::map()` will 
+replace the `do()` questioning idiom. 
+
+
+```r
+mtcars %>% 
+  split_by(cyl) %>% 
+  purrr::map(~lm(mpg ~ disp, data = .))
+#> [[1]]
+#> 
+#> Call:
+#> lm(formula = mpg ~ disp, data = .)
+#> 
+#> Coefficients:
+#> (Intercept)         disp  
+#>     40.8720      -0.1351  
+#> 
+#> 
+#> [[2]]
+#> 
+#> Call:
+#> lm(formula = mpg ~ disp, data = .)
+#> 
+#> Coefficients:
+#> (Intercept)         disp  
+#>   19.081987     0.003605  
+#> 
+#> 
+#> [[3]]
+#> 
+#> Call:
+#> lm(formula = mpg ~ disp, data = .)
+#> 
+#> Coefficients:
+#> (Intercept)         disp  
+#>    22.03280     -0.01963
 ```
 
 # column wise verbs
