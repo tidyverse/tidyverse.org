@@ -376,9 +376,30 @@ mtcars %>%
   purrr::map(~lm(mpg ~ disp, data = .))
 ```
 
-# column wise verbs
+# Scoped variants
 
-Mention `last_col()` and `group_cols()`
+The scoped (or colwise) verbs are the set of verbs with `_at`, `_if` and `_all` suffixes. In dplyr 0.7.0, we have implemented support for functions and purrr-style lambda functions:
+
+```{r}
+iris <- as_tibble(iris) # For concise print method
+
+mutate_if(iris, is.numeric, ~ . - mean(.))
+```
+
+And lists of functions and purrr-style lambda functions:
+
+```{r}
+fns <- list(
+  centered = mean,                # Function object
+  scaled = ~ . - mean(.) / sd(.)  # Purrr-style lambda
+)
+mutate_if(iris, is.numeric, fns)
+```
+
+This is now the preferred syntax for passing functions to the scoped verbs because it is simpler and consistent with purrr. Counting from dplyr 0.8.0, the hybrid evaluator recognises and inlines these lambdas, so that native implementation of common algorithms will kick in just as it did with expressions passed with `funs()`. Consequently, we are soft-deprecating `funs()`. They will continue to work without any warnings for now, but will eventually start issuing warnings.
+
+TODO: Mention `last_col()` and `group_cols()`
+
 
 # Tidy grouping structure
 
