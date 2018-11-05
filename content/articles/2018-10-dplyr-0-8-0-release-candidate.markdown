@@ -510,9 +510,138 @@ mtcars %>%
 #>    22.03280     -0.01963
 ```
 
-# column wise verbs
+# Scoped variants
 
-Mention `last_col()` and `group_cols()`
+The scoped (or colwise) verbs are the set of verbs with `_at`, `_if` and `_all` suffixes. 
+These verbs apply a certain behaviour (for instance, a mutating or summarising operation) to a given 
+selection of column. This release of dplyr improves the consistency of the syntax and the behaviour with grouped tibbles.
+
+
+## A purrr-like syntax for passing functions
+
+In dplyr 0.7.0, we have implemented support for functions and purrr-style lambda functions:
+
+
+```r
+iris <- as_tibble(iris) # For concise print method
+
+mutate_if(iris, is.numeric, ~ . - mean(.))
+#> # A tibble: 150 x 5
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>  
+#> 1       -0.743      0.443         -2.36      -0.999 setosa 
+#> 2       -0.943     -0.0573        -2.36      -0.999 setosa 
+#> 3       -1.14       0.143         -2.46      -0.999 setosa 
+#> 4       -1.24       0.0427        -2.26      -0.999 setosa 
+#> # … with 146 more rows
+```
+
+And lists of functions and purrr-style lambda functions:
+
+
+```r
+fns <- list(
+  centered = mean,                # Function object
+  scaled = ~ . - mean(.) / sd(.)  # Purrr-style lambda
+)
+mutate_if(iris, is.numeric, fns)
+#> # A tibble: 150 x 13
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>  
+#> 1          5.1         3.5          1.4         0.2 setosa 
+#> 2          4.9         3            1.4         0.2 setosa 
+#> 3          4.7         3.2          1.3         0.2 setosa 
+#> 4          4.6         3.1          1.5         0.2 setosa 
+#> # … with 146 more rows, and 8 more variables: Sepal.Length_centered <dbl>,
+#> #   Sepal.Width_centered <dbl>, Petal.Length_centered <dbl>,
+#> #   Petal.Width_centered <dbl>, Sepal.Length_scaled <dbl>,
+#> #   Sepal.Width_scaled <dbl>, Petal.Length_scaled <dbl>,
+#> #   Petal.Width_scaled <dbl>
+```
+
+This is now the preferred syntax for passing functions to the scoped verbs because it is simpler and consistent with purrr. 
+Counting from dplyr 0.8.0, the hybrid evaluator recognises and inlines these lambdas, so that native implementation of 
+common algorithms will kick in just as it did with expressions passed with `funs()`. 
+Consequently, we are soft-deprecating `funs()`. They will continue to work without any warnings for now, but will eventually start issuing warnings.
+
+
+## Behaviour with grouped tibbles
+
+We have reviewed the documentation of all scoped variants to make clear how the scoped operations 
+are applied to grouped tibbles. For most of the scoped verbs, the operation also apply on 
+the grouping variables when they are part of the selection. This includes:
+
+* [arrange_all()], [arrange_at()], and [arrange_if()]
+* [distinct_all()], [distinct_at()], and [distinct_if()]
+* [filter_all()], [filter_at()], and [filter_if()]
+* [group_by_all()], [group_by_at()], and [group_by_if()]
+* [select_all()], [select_at()], and [select_if()]
+
+This is not the case for summarising and mutating variants where operations are *not* applied on grouping variables. 
+The behaviour depends on whether the selection is **implicit** (`all` and `if` selections) or **explicit** (`at` selections). 
+Grouping variables covered by explicit selections (with [summarise_at()], [mutate_at()], and [transmute_at()]) are always an error.
+For implicit selections, the grouping variables are always ignored. In this case, the level of verbosity depends on the kind of operation:
+
+* Summarising operations ([summarise_all()] and [summarise_if()])
+  ignore grouping variables silently because it is obvious that
+  operations are not applied on grouping variables.
+
+* On the other hand it isn't as obvious in the case of mutating operations ([mutate_all()], [mutate_if()], [transmute_all()], and [transmute_if()]). 
+ For this reason, they issue a message indicating which grouping variables are ignored.
+
+In order to make it easier to explicitly remove the grouping columns from an `_at` selection, we have introduced a 
+new selection helper `group_cols()`. Just like `last_col()` matches the last column of a tibble, `group_cols()` matches all grouping columns:
+
+
+```r
+mtcars %>%
+  group_by(cyl) %>%
+  select(group_cols())
+#> # A tibble: 32 x 1
+#> # Groups:   cyl [3]
+#>     cyl
+#> * <dbl>
+#> 1     6
+#> 2     6
+#> 3     4
+#> 4     6
+#> # … with 28 more rows
+```
+
+This new helper is mostly intended for selection in scoped variants:
+
+
+```r
+mtcars %>%
+  group_by(cyl) %>%
+  mutate_at(
+    vars(starts_with("c")),
+    ~ . - mean(.)
+  )
+#> Error: Column `cyl` can't be modified because it's a grouping variable
+```
+
+It makes it easy to remove explicitly the grouping variables:
+
+
+```r
+mtcars %>%
+  group_by(cyl) %>%
+  mutate_at(
+    vars(starts_with("c"), -group_cols()),
+    ~ . - mean(.)
+  )
+#> # A tibble: 32 x 11
+#> # Groups:   cyl [3]
+#>     mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear   carb
+#>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl>
+#> 1  21       6   160   110  3.9   2.62  16.5     0     1     4  0.571
+#> 2  21       6   160   110  3.9   2.88  17.0     0     1     4  0.571
+#> 3  22.8     4   108    93  3.85  2.32  18.6     1     1     4 -0.545
+#> 4  21.4     6   258   110  3.08  3.22  19.4     1     0     3 -2.43 
+#> # … with 28 more rows
+```
+
 
 # Tidy grouping structure
 

@@ -378,7 +378,9 @@ mtcars %>%
 
 # Scoped variants
 
-The scoped (or colwise) verbs are the set of verbs with `_at`, `_if` and `_all` suffixes. These verbs apply a certain behaviour (for instance, a mutating or summarising operation) to a given selection of column. This release of dplyr improves the consistency of the syntax and the behaviour with grouped tibbles.
+The scoped (or colwise) verbs are the set of verbs with `_at`, `_if` and `_all` suffixes. 
+These verbs apply a certain behaviour (for instance, a mutating or summarising operation) to a given 
+selection of column. This release of dplyr improves the consistency of the syntax and the behaviour with grouped tibbles.
 
 
 ## A purrr-like syntax for passing functions
@@ -401,12 +403,17 @@ fns <- list(
 mutate_if(iris, is.numeric, fns)
 ```
 
-This is now the preferred syntax for passing functions to the scoped verbs because it is simpler and consistent with purrr. Counting from dplyr 0.8.0, the hybrid evaluator recognises and inlines these lambdas, so that native implementation of common algorithms will kick in just as it did with expressions passed with `funs()`. Consequently, we are soft-deprecating `funs()`. They will continue to work without any warnings for now, but will eventually start issuing warnings.
+This is now the preferred syntax for passing functions to the scoped verbs because it is simpler and consistent with purrr. 
+Counting from dplyr 0.8.0, the hybrid evaluator recognises and inlines these lambdas, so that native implementation of 
+common algorithms will kick in just as it did with expressions passed with `funs()`. 
+Consequently, we are soft-deprecating `funs()`. They will continue to work without any warnings for now, but will eventually start issuing warnings.
 
 
 ## Behaviour with grouped tibbles
 
-We have reviewed the documentation of all scoped variants to make clear how the scoped operations are applied to grouped tibbles. For most of the scoped verbs, the operation also apply on the grouping variables when they are part of the selection. This includes:
+We have reviewed the documentation of all scoped variants to make clear how the scoped operations 
+are applied to grouped tibbles. For most of the scoped verbs, the operation also apply on 
+the grouping variables when they are part of the selection. This includes:
 
 * [arrange_all()], [arrange_at()], and [arrange_if()]
 * [distinct_all()], [distinct_at()], and [distinct_if()]
@@ -414,15 +421,20 @@ We have reviewed the documentation of all scoped variants to make clear how the 
 * [group_by_all()], [group_by_at()], and [group_by_if()]
 * [select_all()], [select_at()], and [select_if()]
 
-This is not the case for summarising and mutating variants where operations are *not* applied on grouping variables. The behaviour depends on whether the selection is **implicit** (`all` and `if` selections) or **explicit** (`at` selections). Grouping variables covered by explicit selections (with [summarise_at()], [mutate_at()], and [transmute_at()]) are always an error. For implicit selections, the grouping variables are always ignored. In this case, the level of verbosity depends on the kind of operation:
+This is not the case for summarising and mutating variants where operations are *not* applied on grouping variables. 
+The behaviour depends on whether the selection is **implicit** (`all` and `if` selections) or **explicit** (`at` selections). 
+Grouping variables covered by explicit selections (with [summarise_at()], [mutate_at()], and [transmute_at()]) are always an error.
+For implicit selections, the grouping variables are always ignored. In this case, the level of verbosity depends on the kind of operation:
 
 * Summarising operations ([summarise_all()] and [summarise_if()])
   ignore grouping variables silently because it is obvious that
   operations are not applied on grouping variables.
 
-* On the other hand it isn't as obvious in the case of mutating operations ([mutate_all()], [mutate_if()], [transmute_all()], and [transmute_if()]). For this reason, they issue a message indicating which grouping variables are ignored.
+* On the other hand it isn't as obvious in the case of mutating operations ([mutate_all()], [mutate_if()], [transmute_all()], and [transmute_if()]). 
+ For this reason, they issue a message indicating which grouping variables are ignored.
 
-In order to make it easier to explicitly remove the grouping columns from an `_at` selection, we have introduced a new selection helper `group_cols()`. Just like `last_col()` matches the last column of a tibble, `group_cols()` matches all grouping columns:
+In order to make it easier to explicitly remove the grouping columns from an `_at` selection, we have introduced a 
+new selection helper `group_cols()`. Just like `last_col()` matches the last column of a tibble, `group_cols()` matches all grouping columns:
 
 ```{r}
 mtcars %>%
