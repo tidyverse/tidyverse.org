@@ -514,7 +514,7 @@ mtcars %>%
 
 The scoped (or colwise) verbs are the set of verbs with `_at`, `_if` and `_all` suffixes. 
 These verbs apply a certain behaviour (for instance, a mutating or summarising operation) to a given 
-selection of column. This release of dplyr improves the consistency of the syntax and the behaviour with grouped tibbles.
+selection of columns. This release of dplyr improves the consistency of the syntax and the behaviour with grouped tibbles.
 
 
 ## A purrr-like syntax for passing functions
