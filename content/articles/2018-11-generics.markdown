@@ -1,3 +1,16 @@
+---
+title: generics 0.0.1
+date: 2018-11-08
+slug: generics-0-0-1
+author: Max Kuhn, Davis Vaughan
+categories: [package]
+description: >
+    General S3 methods
+photo:
+  url: https://unsplash.com/photos/9GMO0Sxyw_Y
+  author: Jonathan Knepper
+---
+
 The `generics` package is now on CRAN . `generics` is a lightweight package that is designed to help developers reduce dependencies for their packages.
 
 The idea is to have many generic S3 functions live in a single package with almost no dependencies. For example, if you wanted to use a `broom::tidy()` method, you would use `broom` as an import dependency, import the `tidy()` generic, then export it so that your package can have a specific method. One issue with this is that your package now carries along the dependencies of the package that defines the generic (in this case, `broom`).
