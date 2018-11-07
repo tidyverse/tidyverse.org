@@ -472,7 +472,7 @@ iris %>%
 # split_by
 
 The new function `split_by()` and its column wise variants `split_by_at()` and `split_by_if()`
-implements a tidy version of split. We anticipate that `split_by()` + `purrr::map()` will 
+implements a tidy version of `split()`. We anticipate that `split_by()` + `purrr::map()` will 
 replace the `do()` questioning idiom. 
 
 
@@ -508,6 +508,35 @@ mtcars %>%
 #> Coefficients:
 #> (Intercept)         disp  
 #>    22.03280     -0.01963
+```
+
+For convenience, dplyr also now has a `split()` method for grouped tibbles. 
+
+
+```r
+iris %>% 
+  filter(Species == "setosa") %>% 
+  group_by(Species) %>% 
+  split()
+#> [[1]]
+#> # A tibble: 50 x 5
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>  
+#> 1          5.1         3.5          1.4         0.2 setosa 
+#> 2          4.9         3            1.4         0.2 setosa 
+#> 3          4.7         3.2          1.3         0.2 setosa 
+#> 4          4.6         3.1          1.5         0.2 setosa 
+#> # … with 46 more rows
+#> 
+#> [[2]]
+#> # A tibble: 0 x 5
+#> # … with 5 variables: Sepal.Length <dbl>, Sepal.Width <dbl>,
+#> #   Petal.Length <dbl>, Petal.Width <dbl>, Species <fct>
+#> 
+#> [[3]]
+#> # A tibble: 0 x 5
+#> # … with 5 variables: Sepal.Length <dbl>, Sepal.Width <dbl>,
+#> #   Petal.Length <dbl>, Petal.Width <dbl>, Species <fct>
 ```
 
 # Scoped variants

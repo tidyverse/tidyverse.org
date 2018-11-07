@@ -367,13 +367,22 @@ iris %>%
 # split_by
 
 The new function `split_by()` and its column wise variants `split_by_at()` and `split_by_if()`
-implements a tidy version of split. We anticipate that `split_by()` + `purrr::map()` will 
+implements a tidy version of `split()`. We anticipate that `split_by()` + `purrr::map()` will 
 replace the `do()` questioning idiom. 
 
 ```{r}
 mtcars %>% 
   split_by(cyl) %>% 
   purrr::map(~lm(mpg ~ disp, data = .))
+```
+
+For convenience, dplyr also now has a `split()` method for grouped tibbles. 
+
+```{r}
+iris %>% 
+  filter(Species == "setosa") %>% 
+  group_by(Species) %>% 
+  split()
 ```
 
 # Scoped variants
