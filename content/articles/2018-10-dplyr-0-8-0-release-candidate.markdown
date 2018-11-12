@@ -130,7 +130,6 @@ df %>%
 #> 3 c        NA     0
 ```
 
-
 In this example, we group by `f1` then `x`. At the first layer, grouping on `f1` creates
 two groups. Each of these grouops is then subdivided based on the values of the second 
 variable `x`. Since `x` is always 1 when `f1` is `a` the group is not 
@@ -213,7 +212,8 @@ groups.
 
 Because this is potentially disruptive, `filter()` has gained a `.preserve` argument, 
 the default value (`TRUE`) keeps the existing groups, but
-when `.preserve` is `FALSE` the data is first filtered and then grouped by:
+when `.preserve` is `FALSE` the data is first filtered and then implicitely 
+grouped by:
 
 
 ```r
@@ -548,7 +548,7 @@ selection of columns. This release of dplyr improves the consistency of the synt
 
 ## A purrr-like syntax for passing functions
 
-In dplyr 0.7.0, we have implemented support for functions and purrr-style lambda functions:
+In dplyr 0.8.0, we have implemented support for functions and purrr-style lambda functions:
 
 
 ```r
@@ -591,8 +591,8 @@ mutate_if(iris, is.numeric, fns)
 This is now the preferred syntax for passing functions to the scoped verbs because it is simpler and consistent with purrr. 
 Counting from dplyr 0.8.0, the hybrid evaluator recognises and inlines these lambdas, so that native implementation of 
 common algorithms will kick in just as it did with expressions passed with `funs()`. 
-Consequently, we are soft-deprecating `funs()`. They will continue to work without any warnings for now, but will eventually start issuing warnings.
-
+Consequently, we are soft-deprecating `funs()`. They will continue to work without any warnings for now, 
+but will eventually start issuing warnings.
 
 ## Behaviour with grouped tibbles
 
