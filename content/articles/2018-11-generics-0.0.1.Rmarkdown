@@ -5,14 +5,13 @@ slug: generics-0.0.1
 author: Max Kuhn, Davis Vaughan
 categories: [package]
 description: >
-    General S3 methods
+    Reduce package dependencies by using common lightweight S3 generics.
 photo:
   url: https://unsplash.com/photos/9GMO0Sxyw_Y
   author: Jonathan Knepper
 ---
 
 ```{r setup, include = FALSE}
-library(generics)
 knitr::opts_chunk$set(
   collapse = TRUE, comment = "#>", 
   fig.width = 7, 
@@ -28,9 +27,14 @@ The idea is to have many generic S3 functions live in a single package that has 
 
 Consider `fit()`. There are at least 15 packages that export an object called `fit` (either a function or method), and at least 12 have specific S3 `fit()` methods. When more than one is loaded, there is a potential for conflicts to arise:
 
-```{r}
+```r
 library(NMF)
 library(text2vec)
+#> 
+#> Attaching package: 'text2vec'
+#> The following object is masked from 'package:NMF':
+#> 
+#>     fit
 ```
 
 `generics` provides a way to avoid such conflicts. To do so, a package would include `generics` as an import dependency, import the generic function of interest, then re-export using the `roxygen2` commands:
