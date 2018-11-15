@@ -25,6 +25,8 @@ Posts should be written as either `.Rmarkdown`, or `.md` files (in the event tha
 
 An `.Rmarkdown` file renders to `.md`, which Hugo uses to create a table of contents from your post headers, displayed in the sidebar. This does not work for `.Rmd`, which renders directly to `.html`.
 
+If you are using `.Rmarkdown`, you should render the `.md` yourself before submitting the post using `blogdown::serve_site()`. This also provides a way for you to check that the post is rendering on the site the way you intended.
+
 ### RMarkdown setup
 
 After the header, include our standard RMarkdown setup block:
