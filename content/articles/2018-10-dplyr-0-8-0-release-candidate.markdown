@@ -252,6 +252,190 @@ iris %>%
 #> # … with 96 more rows
 ```
 
+## New grouping fuctions
+
+The grouping family is extended with new functions:
+
+ - `group_nest()` : similar to `tidyr::nest()` but focusing on the grouping columns
+   rather than the columns to nest
+ - `group_split()` : similar to `base::split()` but the grouping is subject to the data mask
+ - `group_keys()` : retrieves a tibble with one row per group and one column per grouping variable
+ - `group_rows()` : retrieves a list of 1-based integer vectors, each vector represents the indices
+   of the group in the grouped data frame
+
+The primary use case for these functions is with already grouped data frames, that may directly 
+or indirectly originate from `group_by()`.
+
+
+```r
+data <- iris %>% 
+  group_by(Species) %>% 
+  filter(Sepal.Length > mean(Sepal.Length))
+
+group_nest(data)
+#> # A tibble: 3 x 2
+#>   Species    data             
+#>   <fct>      <list>           
+#> 1 setosa     <tibble [22 × 5]>
+#> 2 versicolor <tibble [24 × 5]>
+#> 3 virginica  <tibble [22 × 5]>
+group_split(data)
+#> [[1]]
+#> # A tibble: 22 x 5
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>  
+#> 1          5.1         3.5          1.4         0.2 setosa 
+#> 2          5.4         3.9          1.7         0.4 setosa 
+#> 3          5.4         3.7          1.5         0.2 setosa 
+#> 4          5.8         4            1.2         0.2 setosa 
+#> # … with 18 more rows
+#> 
+#> [[2]]
+#> # A tibble: 24 x 5
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species   
+#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>     
+#> 1          7           3.2          4.7         1.4 versicolor
+#> 2          6.4         3.2          4.5         1.5 versicolor
+#> 3          6.9         3.1          4.9         1.5 versicolor
+#> 4          6.5         2.8          4.6         1.5 versicolor
+#> # … with 20 more rows
+#> 
+#> [[3]]
+#> # A tibble: 22 x 5
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species  
+#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>    
+#> 1          7.1         3            5.9         2.1 virginica
+#> 2          7.6         3            6.6         2.1 virginica
+#> 3          7.3         2.9          6.3         1.8 virginica
+#> 4          6.7         2.5          5.8         1.8 virginica
+#> # … with 18 more rows
+group_keys(data)
+#> # A tibble: 3 x 1
+#>   Species   
+#>   <fct>     
+#> 1 setosa    
+#> 2 versicolor
+#> 3 virginica
+group_rows(data)
+#> [[1]]
+#>  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22
+#> 
+#> [[2]]
+#>  [1] 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45
+#> [24] 46
+#> 
+#> [[3]]
+#>  [1] 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68
+```
+
+Alternatively, these functions may be used on an ungrouped data frame, together with a 
+grouping specification that is subject to the data mask. In that case, the grouping is 
+implicitly performed by `group_by()`: 
+
+
+```r
+iris %>% 
+  group_nest(Species)
+#> # A tibble: 3 x 2
+#>   Species    data             
+#>   <fct>      <list>           
+#> 1 setosa     <tibble [50 × 5]>
+#> 2 versicolor <tibble [50 × 5]>
+#> 3 virginica  <tibble [50 × 5]>
+
+iris %>% 
+  group_split(Species)
+#> [[1]]
+#> # A tibble: 50 x 5
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>  
+#> 1          5.1         3.5          1.4         0.2 setosa 
+#> 2          4.9         3            1.4         0.2 setosa 
+#> 3          4.7         3.2          1.3         0.2 setosa 
+#> 4          4.6         3.1          1.5         0.2 setosa 
+#> # … with 46 more rows
+#> 
+#> [[2]]
+#> # A tibble: 50 x 5
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species   
+#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>     
+#> 1          7           3.2          4.7         1.4 versicolor
+#> 2          6.4         3.2          4.5         1.5 versicolor
+#> 3          6.9         3.1          4.9         1.5 versicolor
+#> 4          5.5         2.3          4           1.3 versicolor
+#> # … with 46 more rows
+#> 
+#> [[3]]
+#> # A tibble: 50 x 5
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species  
+#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>    
+#> 1          6.3         3.3          6           2.5 virginica
+#> 2          5.8         2.7          5.1         1.9 virginica
+#> 3          7.1         3            5.9         2.1 virginica
+#> 4          6.3         2.9          5.6         1.8 virginica
+#> # … with 46 more rows
+
+iris %>% 
+  group_keys(Species)
+#> # A tibble: 3 x 1
+#>   Species   
+#>   <fct>     
+#> 1 setosa    
+#> 2 versicolor
+#> 3 virginica
+```
+
+These functions are related to each other in how they handle and organize the
+grouping information and who/what is responsible for maintaining the relation between the 
+data and the groups.  
+
+ - A grouped data frame, as generated by `group_by()` stores the grouping information 
+   as an attribute of the data frame, dplyr verbs use that information to maintain 
+   the relationship
+  
+ - When using `group_nest()` the data is structured as a data frame that has a list column
+   to hold the non grouping columns. The result of `group_nest()` is not a grouped data frame, 
+   therefore the structure of the data frame maintains the relationship. 
+   
+ - When using `group_split()` the data is split into a list, and each element of the list
+   contains a tibble with the rows of the associated group. The user is responsible to 
+   maintain the relationship, and may benefit from the assistance of the `group_keys()` 
+   function, especially in the presence of empty groups. 
+
+## group_map
+
+The new `group_map()` function provides a purrr style function that can be used to 
+iterate on grouped tibbles. Each conceptual group of the data frame is exposed to the 
+function with two pieces of information: 
+ 
+ - The subset of the data for the group, exposed as `.x`. 
+ - The key, a tibble with exactly one row and columns for each grouping variable, 
+   exposed as `.y`
+
+
+```r
+group_by(mtcars, cyl) %>%
+  group_map(~ head(.x, 2L))
+#> # A tibble: 6 x 11
+#>     mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+#>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+#> 1  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1
+#> 2  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
+#> 3  21       6  160    110  3.9   2.62  16.5     0     1     4     4
+#> 4  21       6  160    110  3.9   2.88  17.0     0     1     4     4
+#> # … with 2 more rows
+
+mtcars %>%
+  group_by(cyl) %>%
+  group_map(~ mutate(.y, mod = list(lm(mpg ~ disp, data = .x))))
+#> # A tibble: 3 x 2
+#>     cyl mod     
+#>   <dbl> <list>  
+#> 1     4 <S3: lm>
+#> 2     6 <S3: lm>
+#> 3     8 <S3: lm>
+```
+
 # Changes in filter and slice
 
 Besides changes described previously related to preservation of the grouping structure, 
@@ -450,95 +634,6 @@ When there is no match, the list column is a 0-row tibble with the same column n
  - `semi_join()` is a `nest_join()` plus a `filter()` where you check that every element of data has at least one row. 
  - `anti_join()` is a `nest_join()` plus a `filter()` where you check every element has zero rows.
 
-# nest_by
-
-With the new grouping algorithm, dplyr gains the `nest_by()` function, and 
-associated `nest_by_at()` and `nest_by_if()` column wise variants. `nest_by()` is 
-similar to `tidyr::nest()` but focuses on the columns that define the grouping
-rather than the columns that are nested. 
-
-
-```r
-iris %>% 
-  nest_by(Species)
-#> # A tibble: 3 x 2
-#>   Species    data             
-#>   <fct>      <list>           
-#> 1 setosa     <tibble [50 × 4]>
-#> 2 versicolor <tibble [50 × 4]>
-#> 3 virginica  <tibble [50 × 4]>
-```
-
-# split_by
-
-The new function `split_by()` and its column wise variants `split_by_at()` and `split_by_if()`
-implements a tidy version of `split()`. We anticipate that `split_by()` + `purrr::map()` will 
-replace the `do()` questioning idiom. 
-
-
-```r
-mtcars %>% 
-  split_by(cyl) %>% 
-  purrr::map(~lm(mpg ~ disp, data = .))
-#> [[1]]
-#> 
-#> Call:
-#> lm(formula = mpg ~ disp, data = .)
-#> 
-#> Coefficients:
-#> (Intercept)         disp  
-#>     40.8720      -0.1351  
-#> 
-#> 
-#> [[2]]
-#> 
-#> Call:
-#> lm(formula = mpg ~ disp, data = .)
-#> 
-#> Coefficients:
-#> (Intercept)         disp  
-#>   19.081987     0.003605  
-#> 
-#> 
-#> [[3]]
-#> 
-#> Call:
-#> lm(formula = mpg ~ disp, data = .)
-#> 
-#> Coefficients:
-#> (Intercept)         disp  
-#>    22.03280     -0.01963
-```
-
-For convenience, dplyr also now has a `split()` method for grouped tibbles. 
-
-
-```r
-iris %>% 
-  filter(Species == "setosa") %>% 
-  group_by(Species) %>% 
-  split()
-#> [[1]]
-#> # A tibble: 50 x 5
-#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
-#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>  
-#> 1          5.1         3.5          1.4         0.2 setosa 
-#> 2          4.9         3            1.4         0.2 setosa 
-#> 3          4.7         3.2          1.3         0.2 setosa 
-#> 4          4.6         3.1          1.5         0.2 setosa 
-#> # … with 46 more rows
-#> 
-#> [[2]]
-#> # A tibble: 0 x 5
-#> # … with 5 variables: Sepal.Length <dbl>, Sepal.Width <dbl>,
-#> #   Petal.Length <dbl>, Petal.Width <dbl>, Species <fct>
-#> 
-#> [[3]]
-#> # A tibble: 0 x 5
-#> # … with 5 variables: Sepal.Length <dbl>, Sepal.Width <dbl>,
-#> #   Petal.Length <dbl>, Petal.Width <dbl>, Species <fct>
-```
-
 # Scoped variants
 
 The scoped (or colwise) verbs are the set of verbs with `_at`, `_if` and `_all` suffixes. 
@@ -669,53 +764,4 @@ mtcars %>%
 #> 3  22.8     4   108    93  3.85  2.32  18.6     1     1     4 -0.545
 #> 4  21.4     6   258   110  3.08  3.22  19.4     1     0     3 -2.43 
 #> # … with 28 more rows
-```
-
-
-# Tidy grouping structure
-
-Previous versions of `dplyr` used a messy set of attributes in grouped
-tibbles to keep track of the groups and their indices. This has been 
-re-organized into a tibble that can be accessed with the new 
-`group_data()` function. 
-
-
-```r
-iris %>% 
-  group_by(Species) %>% 
-  group_data()
-#> # A tibble: 3 x 2
-#>   Species    .rows     
-#>   <fct>      <list>    
-#> 1 setosa     <int [50]>
-#> 2 versicolor <int [50]>
-#> 3 virginica  <int [50]>
-```
-
-The first columns of that tibble describe the groups in terms of the 
-grouping variables, and the last column (always called `.rows`)
-is a list of integer vectors identifying the (one-based) indices of 
-each group. 
-
-The related function `group_rows()` gives just that last column. 
-
-
-```r
-iris %>% 
-  group_by(Species) %>% 
-  group_rows()
-#> [[1]]
-#>  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
-#> [24] 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46
-#> [47] 47 48 49 50
-#> 
-#> [[2]]
-#>  [1]  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67
-#> [18]  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84
-#> [35]  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100
-#> 
-#> [[3]]
-#>  [1] 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117
-#> [18] 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134
-#> [35] 135 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150
 ```
