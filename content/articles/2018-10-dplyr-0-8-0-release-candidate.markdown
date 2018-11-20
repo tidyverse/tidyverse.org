@@ -48,7 +48,9 @@ The algorithm behind `group_by()` has been redesigned to better respect factor l
 a group is created for each level of the factor, even if there is no data. This 
 differs from previous versions of dplyr where groups were only created to 
 match the observed data. This closes the epic issue 
-[341](https://github.com/tidyverse/dplyr/issues/341) that dates back to 2014. 
+[341](https://github.com/tidyverse/dplyr/issues/341) that dates back to 2014, and has generated 
+a lot of press and frustration, see [Zero Counts in dplyr](https://kieranhealy.org/blog/archives/2018/11/19/zero-counts-in-dplyr/)
+for a recent walkthrough of the issue. 
 
 Let's illustrate the new algorithm with the [count()](https://dplyr.tidyverse.org/reference/tally.html) 
 function:
@@ -73,6 +75,7 @@ df
 df %>% 
   count(f1)
 #> # A tibble: 3 x 2
+#> # Groups:   [1]
 #>   f1        n
 #>   <fct> <int>
 #> 1 a         3
@@ -91,6 +94,7 @@ Groups are still made to match the data on other types of columns:
 df %>% 
   count(x)
 #> # A tibble: 2 x 2
+#> # Groups:   [1]
 #>       x     n
 #>   <dbl> <int>
 #> 1     1     3
@@ -105,6 +109,7 @@ by `f1` and `f2` we get 9 groups,
 df %>% 
   count(f1, f2)
 #> # A tibble: 9 x 3
+#> # Groups:   [1]
 #>   f1    f2        n
 #>   <fct> <fct> <int>
 #> 1 a     d         2
@@ -123,6 +128,7 @@ to one group per level, but non factors only create groups based on observed dat
 df %>% 
   count(f1, x)
 #> # A tibble: 3 x 3
+#> # Groups:   [1]
 #>   f1        x     n
 #>   <fct> <dbl> <int>
 #> 1 a         1     3
@@ -144,6 +150,7 @@ consequently has no values for the vector `x`. In that case, `group_by()` uses
 df %>% 
   count(x, f1)
 #> # A tibble: 6 x 3
+#> # Groups:   [1]
 #>       x f1        n
 #>   <dbl> <fct> <int>
 #> 1     1 a         3
@@ -416,24 +423,26 @@ function with two pieces of information:
 ```r
 group_by(mtcars, cyl) %>%
   group_map(~ head(.x, 2L))
-#> # A tibble: 6 x 11
-#>     mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
-#>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
-#> 1  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1
-#> 2  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
-#> 3  21       6  160    110  3.9   2.62  16.5     0     1     4     4
-#> 4  21       6  160    110  3.9   2.88  17.0     0     1     4     4
+#> # A tibble: 6 x 12
+#> # Groups:   cyl [3]
+#>     cyl   mpg  cyl1  disp    hp  drat    wt  qsec    vs    am  gear  carb
+#> * <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+#> 1     4  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1
+#> 2     4  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
+#> 3     6  21       6  160    110  3.9   2.62  16.5     0     1     4     4
+#> 4     6  21       6  160    110  3.9   2.88  17.0     0     1     4     4
 #> # … with 2 more rows
 
 mtcars %>%
   group_by(cyl) %>%
   group_map(~ mutate(.y, mod = list(lm(mpg ~ disp, data = .x))))
-#> # A tibble: 3 x 2
-#>     cyl mod     
-#>   <dbl> <list>  
-#> 1     4 <S3: lm>
-#> 2     6 <S3: lm>
-#> 3     8 <S3: lm>
+#> # A tibble: 3 x 3
+#> # Groups:   cyl [3]
+#>     cyl  cyl1 mod     
+#> * <dbl> <dbl> <list>  
+#> 1     4     4 <S3: lm>
+#> 2     6     6 <S3: lm>
+#> 3     8     8 <S3: lm>
 ```
 
 # Changes in filter and slice
