@@ -38,21 +38,22 @@ For the full list of changes, features, and bug fixes, please see the [release n
 
 ## Construction and validation
 
-Most end users will likely use the `tibble()` function to construct tibbles.
+End users should use the `tibble()` function to construct tibbles.
 It checks the input for consistency and makes sure that the returned tibble is valid.
-In a package, to quicky construct a tibble from a list if you are very sure that your input is well-formed (i.e., a list of vectors of equal length), you can use `new_tibble()`.
-This function also supports the construction of subclasses of tibble through the `subclass()` argument.
 
-The `new_tibble()` function now more closely follow the advice in [adv-r](https://adv-r.hadley.nz/s3.html#s3-classes).
+Package developers, however, can also consider the low-level `new_tibble()` constructor. Use `new_tibble()` to quickly construct a tibble from a list if you are very sure that the input is well-formed (i.e., a list of vectors of equal length).
+This function also supports the construction of subclasses of tibble through the `subclass` argument.
+
+In the development version of tibble, the `new_tibble()` constructor is a more faithful implementation of the [design advice for S3 classes given in Advanced R](https://adv-r.hadley.nz/s3.html#s3-classes).
 Specifically:
 
 - `new_tibble()` is very fast again and does very little checking itself.
-- The new `validate_tibble()` is responsible for validating the structure of a tibble.
+- The new `validate_tibble()` function is responsible for validating the structure of a tibble.
 
 This means that the `nrow` argument to `new_tibble()` is now mandatory.
 We are aware that this might be the single most disruptive change, but we think that any guesswork here would be detrimental to stability (especially in corner cases) and that this particular problem is very easy to fix.
-The `nrow` argument already existed in _tibble_ 1.4.2, so that code that uses it should work in both the released and the upcoming versions of _tibble_.
-Please be aware that `nrow` must be passed as named argument, because it comes after the ellipsis `...` in the signature.
+The `nrow` argument already existed in tibble 1.4.2, so code that uses it requires no change and should continue to work.
+Please be aware that `nrow` must be passed as a named argument, because it comes after the ellipsis `...` in the signature. Here are common patterns for setting the `nrow` argument:
 
 ```{r error = TRUE}
 x <- data.frame(a = 1)

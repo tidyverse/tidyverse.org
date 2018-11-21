@@ -27,20 +27,20 @@ We notified the maintainers of affected packages and aim for a CRAN release befo
 </div>
 <div id="construction-and-validation" class="section level2">
 <h2>Construction and validation</h2>
-<p>Most end users will likely use the <code>tibble()</code> function to construct tibbles.
-It checks the input for consistency and makes sure that the returned tibble is valid.
-In a package, to quicky construct a tibble from a list if you are very sure that your input is well-formed (i.e., a list of vectors of equal length), you can use <code>new_tibble()</code>.
-This function also supports the construction of subclasses of tibble through the <code>subclass()</code> argument.</p>
-<p>The <code>new_tibble()</code> function now more closely follow the advice in <a href="https://adv-r.hadley.nz/s3.html#s3-classes">adv-r</a>.
+<p>End users should use the <code>tibble()</code> function to construct tibbles.
+It checks the input for consistency and makes sure that the returned tibble is valid.</p>
+<p>Package developers, however, can also consider the low-level <code>new_tibble()</code> constructor. Use <code>new_tibble()</code> to quickly construct a tibble from a list if you are very sure that the input is well-formed (i.e., a list of vectors of equal length).
+This function also supports the construction of subclasses of tibble through the <code>subclass</code> argument.</p>
+<p>In the development version of tibble, the <code>new_tibble()</code> constructor is a more faithful implementation of the <a href="https://adv-r.hadley.nz/s3.html#s3-classes">design advice for S3 classes given in Advanced R</a>.
 Specifically:</p>
 <ul>
 <li><code>new_tibble()</code> is very fast again and does very little checking itself.</li>
-<li>The new <code>validate_tibble()</code> is responsible for validating the structure of a tibble.</li>
+<li>The new <code>validate_tibble()</code> function is responsible for validating the structure of a tibble.</li>
 </ul>
 <p>This means that the <code>nrow</code> argument to <code>new_tibble()</code> is now mandatory.
 We are aware that this might be the single most disruptive change, but we think that any guesswork here would be detrimental to stability (especially in corner cases) and that this particular problem is very easy to fix.
-The <code>nrow</code> argument already existed in <em>tibble</em> 1.4.2, so that code that uses it should work in both the released and the upcoming versions of <em>tibble</em>.
-Please be aware that <code>nrow</code> must be passed as named argument, because it comes after the ellipsis <code>...</code> in the signature.</p>
+The <code>nrow</code> argument already existed in tibble 1.4.2, so code that uses it requires no change and should continue to work.
+Please be aware that <code>nrow</code> must be passed as a named argument, because it comes after the ellipsis <code>...</code> in the signature. Here are common patterns for setting the <code>nrow</code> argument:</p>
 <pre class="r"><code>x &lt;- data.frame(a = 1)
 
 # Old:
