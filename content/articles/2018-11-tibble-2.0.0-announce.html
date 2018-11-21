@@ -1,0 +1,210 @@
+---
+title: Announcing tibble 2.0.0
+slug: tibble-2.0.0-announce
+description: >
+    Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! The upcoming 2.0.0 release adds a slew of features but also changes some internals, which in some cases might require adaptation. This blog post describes some of the stumbling blocks we've encountered when trying to adapt other packages to the dev version of tibble.
+date: 2018-11-21
+author: Kirill Müller, Jenny Bryan
+photo:
+  url: https://unsplash.com/photos/yYawh30qf28
+  author: Gabriel Porras
+categories: [package]
+---
+
+
+
+<p>Version 2.0.0 of the <em>tibble</em> package is almost ready for release.
+Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the development version with:</p>
+<pre class="r"><code>remotes::install_github(&quot;tidyverse/tibble&quot;)</code></pre>
+<p>We announce this release before actually submitting to CRAN, because some changes require attention from authors of packages that import or otherwise depend on <em>tibble</em>.
+We would like to use this opportunity to gather feedback and perhaps rollback or soften some of the most disruptive changes.
+This blog post is mostly interesting to package developers, new features and a higher-level overview will be presented in a separate blog post.</p>
+<p>We tested ~3000 CRAN and Bioconductor packages that depend directly or indirectly on <em>tibble</em> with <code>R CMD check</code>, and compared check results for the CRAN version with our results.
+We notified the maintainers of the packages, and aim for a CRAN release before Christmas, just in time for <a href="https://www.rstudio.com/conference/">rstudio::conf</a>.</p>
+<p>In the following we showcase the changes that affected many of the now failing packages that we analyzed, and suggest solutions.
+For the full list of changes, features and bug fixes, please see the <a href="https://github.com/tidyverse/tibble/tree/master/NEWS.md">release notes</a> for a complete list.</p>
+<div id="construction-and-validation" class="section level2">
+<h2>Construction and validation</h2>
+<p>The <code>new_tibble()</code> function now more closely follow the advice in <a href="https://adv-r.hadley.nz/s3.html#s3-classes">adv-r</a>.
+Specifically:</p>
+<ul>
+<li><code>new_tibble()</code> is very fast again and does very little checking itself,</li>
+<li>The new <code>validate_tibble()</code> is responsible for validating the structure of a tibble.</li>
+</ul>
+<p>This means that the <code>nrow</code> argument to <code>new_tibble()</code> is now mandatory.
+We are aware that this might be the single most disruptive change, but we think that any guesswork here would be detrimental to stability (especially in corner cases) and that this particular problem is very easy to fix.
+The <code>nrow</code> argument already existed in <em>tibble</em> 1.4.2, so that code that uses it should work in both the released and the upcoming versions of <em>tibble</em>.
+Please be aware that <code>nrow</code> must be passed as named argument, because it comes after the ellipsis <code>...</code> in the signature.</p>
+<pre class="r"><code>x &lt;- data.frame(a = 1)
+
+# Old:
+new_tibble(x)
+#&gt; Error: Must pass a scalar integer as `nrow` argument to `new_tibble()`.
+
+# New:
+new_tibble(x, nrow = nrow(x)) # if x is a data frame
+#&gt; # A tibble: 1 x 1
+#&gt;       a
+#&gt;   &lt;dbl&gt;
+#&gt; 1     1
+
+nrow_x &lt;- NROW(x[[1]]) # if x has at least one column
+# nrow_x &lt;- ... # if the number of rows is given elsewhere
+new_tibble(x, nrow = nrow_x)
+#&gt; # A tibble: 1 x 1
+#&gt;       a
+#&gt;   &lt;dbl&gt;
+#&gt; 1     1</code></pre>
+</div>
+<div id="coercion-and-name-repair" class="section level2">
+<h2>Coercion and name repair</h2>
+<p>There are some rare legitimate scenarios involving tibbles with empty or duplicate column names.
+For instance, after importing data from a foreign format, only inspection of the data might reveal if the column is useful in the first place.
+In the vast majority of cases, empty and duplicate names should be avoided, ideally the names should be accessible in R without using backticks.
+The <code>as_tibble()</code> method and the <code>tibble()</code> constructor now supports a new <code>.name_repair</code> argument that covers most use cases:</p>
+<ul>
+<li><code>&quot;minimal&quot;</code>: No name repair or checks, beyond basic existence.</li>
+<li><code>&quot;unique&quot;</code>: Make sure names are unique and not empty.</li>
+<li><code>&quot;check_unique&quot;</code>: (default value), no name repair, but check they are <code>unique</code>.</li>
+<li><code>&quot;universal&quot;</code>: Make the names <code>unique</code> and syntactic.</li>
+<li>a function: apply custom name repair (e.g., <code>.name_repair = make.names</code> or <code>.name_repair = ~make.names(., unique = TRUE)</code> for names in the style of base R).</li>
+</ul>
+<p>Name repair is applied always, even when coercing from a matrix or a tibble.
+It is now harder (though not impossible) to construct a tibble with empty or duplicate column names.
+See <code>?repair_names</code> for details on the new name repair algorithms.</p>
+<pre class="r"><code>m &lt;- cov(unname(iris[-5]))
+
+# Old:
+df &lt;- as_tibble(m)
+#&gt; Error: Columns 1, 2, 3, 4 must be named.
+#&gt; Use .name_repair to specify repair.
+colnames(df) &lt;- letters[1:4]
+#&gt; Error in `colnames&lt;-`(`*tmp*`, value = c(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;)): attempt to set &#39;colnames&#39; on an object with less than two dimensions
+
+# New (preferred):
+colnames(m) &lt;- letters[1:4]
+df &lt;- as_tibble(m)
+
+# New (alternative):
+df &lt;- as_tibble(m, .name_repair = &quot;minimal&quot;)
+colnames(df) &lt;- letters[1:4]</code></pre>
+<p>The <code>validate</code> argument is deprecated and gives a message.
+If your code must support <em>tibble</em> &lt; 2.0.0, please use the new code only if <code>packageVersion(&quot;tibble&quot;) &gt;= &quot;2.0.0&quot;</code> .</p>
+<pre class="r"><code>m &lt;- cov(unname(iris[-5]))
+df &lt;- new_tibble(list(a = 5, a = 6), nrow = 1)
+
+# Old:
+as_tibble(m, validate = TRUE)
+#&gt; The `validate` argument to `as_tibble()` is deprecated. Please use `.name_repair` to control column names.
+#&gt; Error: Columns 1, 2, 3, 4 must be named.
+#&gt; Use .name_repair to specify repair.
+as_tibble(df, validate = FALSE)
+#&gt; The `validate` argument to `as_tibble()` is deprecated. Please use `.name_repair` to control column names.
+#&gt; # A tibble: 1 x 2
+#&gt;       a     a
+#&gt;   &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1     5     6
+
+# New:
+as_tibble(m, .name_repair = &quot;unique&quot;)
+#&gt; New names:
+#&gt; * `` -&gt; `..1`
+#&gt; * `` -&gt; `..2`
+#&gt; * `` -&gt; `..3`
+#&gt; * `` -&gt; `..4`
+#&gt; # A tibble: 4 x 4
+#&gt;       ..1     ..2    ..3    ..4
+#&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+#&gt; 1  0.686  -0.0424  1.27   0.516
+#&gt; 2 -0.0424  0.190  -0.330 -0.122
+#&gt; 3  1.27   -0.330   3.12   1.30 
+#&gt; 4  0.516  -0.122   1.30   0.581
+as_tibble(df, .name_repair = &quot;minimal&quot;)
+#&gt; # A tibble: 1 x 2
+#&gt;       a     a
+#&gt;   &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1     5     6</code></pre>
+<p>The existing <code>tidy_names()</code> and <code>set_tidy_names()</code> functions are soft-deprecated but still available unchanged.
+New code should use <code>.name_repair</code>.</p>
+<pre class="r"><code>df &lt;- new_tibble(list(a = 5, a = 6), nrow = 1)
+
+# Old:
+tidy_names(names(df))
+#&gt; New names:
+#&gt; a -&gt; a..1
+#&gt; a -&gt; a..2
+#&gt; [1] &quot;a..1&quot; &quot;a..2&quot;
+set_tidy_names(df)
+#&gt; New names:
+#&gt; a -&gt; a..1
+#&gt; a -&gt; a..2
+#&gt; # A tibble: 1 x 2
+#&gt;    a..1  a..2
+#&gt;   &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1     5     6
+
+# New:
+names(as_tibble(
+  rlang::rep_named(names(df), list(NA)),
+  .name_repair = &quot;universal&quot;
+))
+#&gt; New names:
+#&gt; * a -&gt; a..1
+#&gt; * a -&gt; a..2
+#&gt; [1] &quot;a..1&quot; &quot;a..2&quot;
+as_tibble(df, .name_repair = &quot;universal&quot;)
+#&gt; New names:
+#&gt; * a -&gt; a..1
+#&gt; * a -&gt; a..2
+#&gt; # A tibble: 1 x 2
+#&gt;    a..1  a..2
+#&gt;   &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1     5     6</code></pre>
+<p>Assigning invalid names via <code>names&lt;-()</code> seems like a bad idea in general, and now warns once per session.
+If you must shut off the warning you still can.</p>
+<pre class="r"><code>df &lt;- tibble(a = 1)
+
+# Old:
+names(df) &lt;- NA
+
+# New:
+attr(df, &quot;names&quot;) &lt;- NA</code></pre>
+<p>Coercing a vector to a tibble is no longer supported and emits a warning once per session.
+It is unclear if the result should be a one-column or a one-row tibble.</p>
+<pre class="r"><code>x &lt;- 1:5
+# Old:
+as_tibble(x)
+#&gt; Warning: Calling `as_tibble()` on a vector is discouraged, because the
+#&gt; behavior is likely to change in the future. Use `enframe(name = NULL)`
+#&gt; instead.
+#&gt; # A tibble: 5 x 1
+#&gt;   value
+#&gt;   &lt;int&gt;
+#&gt; 1     1
+#&gt; 2     2
+#&gt; 3     3
+#&gt; 4     4
+#&gt; 5     5
+
+# New (&gt;= 2.0.0):
+enframe(x, name = NULL)
+#&gt; # A tibble: 5 x 1
+#&gt;   value
+#&gt;   &lt;int&gt;
+#&gt; 1     1
+#&gt; 2     2
+#&gt; 3     3
+#&gt; 4     4
+#&gt; 5     5
+
+# New (legacy):
+tibble(value = x)
+#&gt; # A tibble: 5 x 1
+#&gt;   value
+#&gt;   &lt;int&gt;
+#&gt; 1     1
+#&gt; 2     2
+#&gt; 3     3
+#&gt; 4     4
+#&gt; 5     5</code></pre>
+</div>
