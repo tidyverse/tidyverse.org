@@ -21,11 +21,11 @@ Version 2.0.0 of the _tibble_ package is almost ready for release.
 Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the development version with:
 
 ```r
-remotes::install_github("tidyverse/tibble")
+devtools::install_github("tidyverse/tibble")
 ```
 
 We announce this release before actually submitting to CRAN, because some changes require attention from authors of packages that import or otherwise depend on _tibble_.
-We would like to use this opportunity to gather feedback and perhaps rollback or soften some of the most disruptive changes.
+We would like to use this opportunity to gather feedback about the most disruptive changes.
 This blog post is mostly interesting to package developers, new features and a higher-level overview will be presented in a separate blog post.
 
 We tested ~3000 CRAN and Bioconductor packages that depend directly or indirectly on _tibble_ with `R CMD check`, and compared check results for the CRAN version with our results.
@@ -36,6 +36,11 @@ For the full list of changes, features and bug fixes, please see the [release no
 
 
 ## Construction and validation
+
+Most end users will likely use the `tibble()` function to construct tibbles.
+It checks the input for consistency and makes sure that the returned tibble is valid.
+In a package, to quicky construct a tibble from a list if you are very sure that your input is well-formed (i.e., a list of vectors of equal length), you can use `new_tibble()`.
+This function also supports the construction of subclasses of tibble through the `subclass()` argument.
 
 The `new_tibble()` function now more closely follow the advice in [adv-r](https://adv-r.hadley.nz/s3.html#s3-classes).
 Specifically:
@@ -65,8 +70,11 @@ new_tibble(x, nrow = nrow_x)
 ## Coercion and name repair
 
 There are some rare legitimate scenarios involving tibbles with empty or duplicate column names.
-For instance, after importing data from a foreign format, only inspection of the data might reveal if the column is useful in the first place.
+For instance, after importing data from a foreign format, only inspection of the data might reveal if the column is useful in the first place, or the column names contain data that is about to be converted to a column with `gather()`.
 In the vast majority of cases, empty and duplicate names should be avoided, ideally the names should be accessible in R without using backticks.
+
+In _tibble_ 1.4.2, `as_tibble()` had a `validate` argument (with inconsistent default values, and not available for all methods), and there was no way to construct a tibble with duplicate column names through `tibble()`.
+The upcoming release aims at improving consistency.
 The `as_tibble()` method and the `tibble()` constructor now supports a new `.name_repair` argument that covers most use cases:
 
 - `"minimal"`: No name repair or checks, beyond basic existence.
@@ -76,7 +84,7 @@ The `as_tibble()` method and the `tibble()` constructor now supports a new `.nam
 - a function: apply custom name repair (e.g., `.name_repair = make.names` or `.name_repair = ~make.names(., unique = TRUE)` for names in the style of base R).
 
 Name repair is applied always, even when coercing from a matrix or a tibble.
-It is now harder (though not impossible) to construct a tibble with empty or duplicate column names.
+It is now harder (though always possible with `.name_repair = "minimal"`) to construct a tibble with empty or duplicate column names.
 See `?repair_names` for details on the new name repair algorithms.
 
 ```{r error = TRUE}
@@ -130,16 +138,11 @@ as_tibble(df, .name_repair = "universal")
 ```
 
 Assigning invalid names via `names<-()` seems like a bad idea in general, and now warns once per session.
-If you must shut off the warning you still can.
 
 ```r
 df <- tibble(a = 1)
 
-# Old:
 names(df) <- NA
-
-# New:
-attr(df, "names") <- NA
 ```
 
 Coercing a vector to a tibble is no longer supported and emits a warning once per session.
