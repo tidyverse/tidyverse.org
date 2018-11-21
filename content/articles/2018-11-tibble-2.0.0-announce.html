@@ -15,9 +15,9 @@ categories: [package]
 
 <p>Version 2.0.0 of the <em>tibble</em> package is almost ready for release.
 Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the development version with:</p>
-<pre class="r"><code>remotes::install_github(&quot;tidyverse/tibble&quot;)</code></pre>
+<pre class="r"><code>devtools::install_github(&quot;tidyverse/tibble&quot;)</code></pre>
 <p>We announce this release before actually submitting to CRAN, because some changes require attention from authors of packages that import or otherwise depend on <em>tibble</em>.
-We would like to use this opportunity to gather feedback and perhaps rollback or soften some of the most disruptive changes.
+We would like to use this opportunity to gather feedback about the most disruptive changes.
 This blog post is mostly interesting to package developers, new features and a higher-level overview will be presented in a separate blog post.</p>
 <p>We tested ~3000 CRAN and Bioconductor packages that depend directly or indirectly on <em>tibble</em> with <code>R CMD check</code>, and compared check results for the CRAN version with our results.
 We notified the maintainers of the packages, and aim for a CRAN release before Christmas, just in time for <a href="https://www.rstudio.com/conference/">rstudio::conf</a>.</p>
@@ -25,10 +25,14 @@ We notified the maintainers of the packages, and aim for a CRAN release before C
 For the full list of changes, features and bug fixes, please see the <a href="https://github.com/tidyverse/tibble/tree/master/NEWS.md">release notes</a> for a complete list.</p>
 <div id="construction-and-validation" class="section level2">
 <h2>Construction and validation</h2>
+<p>Most end users will likely use the <code>tibble()</code> function to construct tibbles.
+It checks the input for consistency and makes sure that the returned tibble is valid.
+In a package, to quicky construct a tibble from a list if you are very sure that your input is well-formed (i.e., a list of vectors of equal length), you can use <code>new_tibble()</code>.
+This function also supports the construction of subclasses of tibble through the <code>subclass()</code> argument.</p>
 <p>The <code>new_tibble()</code> function now more closely follow the advice in <a href="https://adv-r.hadley.nz/s3.html#s3-classes">adv-r</a>.
 Specifically:</p>
 <ul>
-<li><code>new_tibble()</code> is very fast again and does very little checking itself,</li>
+<li><code>new_tibble()</code> is very fast again and does very little checking itself.</li>
 <li>The new <code>validate_tibble()</code> is responsible for validating the structure of a tibble.</li>
 </ul>
 <p>This means that the <code>nrow</code> argument to <code>new_tibble()</code> is now mandatory.
@@ -59,8 +63,10 @@ new_tibble(x, nrow = nrow_x)
 <div id="coercion-and-name-repair" class="section level2">
 <h2>Coercion and name repair</h2>
 <p>There are some rare legitimate scenarios involving tibbles with empty or duplicate column names.
-For instance, after importing data from a foreign format, only inspection of the data might reveal if the column is useful in the first place.
-In the vast majority of cases, empty and duplicate names should be avoided, ideally the names should be accessible in R without using backticks.
+For instance, after importing data from a foreign format, only inspection of the data might reveal if the column is useful in the first place, or the column names contain data that is about to be converted to a column with <code>gather()</code>.
+In the vast majority of cases, empty and duplicate names should be avoided, ideally the names should be accessible in R without using backticks.</p>
+<p>In <em>tibble</em> 1.4.2, <code>as_tibble()</code> had a <code>validate</code> argument (with inconsistent default values, and not available for all methods), and there was no way to construct a tibble with duplicate column names through <code>tibble()</code>.
+The upcoming release aims at improving consistency.
 The <code>as_tibble()</code> method and the <code>tibble()</code> constructor now supports a new <code>.name_repair</code> argument that covers most use cases:</p>
 <ul>
 <li><code>&quot;minimal&quot;</code>: No name repair or checks, beyond basic existence.</li>
@@ -70,7 +76,7 @@ The <code>as_tibble()</code> method and the <code>tibble()</code> constructor no
 <li>a function: apply custom name repair (e.g., <code>.name_repair = make.names</code> or <code>.name_repair = ~make.names(., unique = TRUE)</code> for names in the style of base R).</li>
 </ul>
 <p>Name repair is applied always, even when coercing from a matrix or a tibble.
-It is now harder (though not impossible) to construct a tibble with empty or duplicate column names.
+It is now harder (though always possible with <code>.name_repair = &quot;minimal&quot;</code>) to construct a tibble with empty or duplicate column names.
 See <code>?repair_names</code> for details on the new name repair algorithms.</p>
 <pre class="r"><code>m &lt;- cov(unname(iris[-5]))
 
@@ -160,51 +166,40 @@ as_tibble(df, .name_repair = &quot;universal&quot;)
 #&gt;    a..1  a..2
 #&gt;   &lt;dbl&gt; &lt;dbl&gt;
 #&gt; 1     5     6</code></pre>
-<p>Assigning invalid names via <code>names&lt;-()</code> seems like a bad idea in general, and now warns once per session.
-If you must shut off the warning you still can.</p>
+<p>Assigning invalid names via <code>names&lt;-()</code> seems like a bad idea in general, and now warns once per session.</p>
 <pre class="r"><code>df &lt;- tibble(a = 1)
 
-# Old:
-names(df) &lt;- NA
-
-# New:
-attr(df, &quot;names&quot;) &lt;- NA</code></pre>
+names(df) &lt;- NA</code></pre>
 <p>Coercing a vector to a tibble is no longer supported and emits a warning once per session.
 It is unclear if the result should be a one-column or a one-row tibble.</p>
-<pre class="r"><code>x &lt;- 1:5
+<pre class="r"><code>x &lt;- 1:3
 # Old:
 as_tibble(x)
 #&gt; Warning: Calling `as_tibble()` on a vector is discouraged, because the
 #&gt; behavior is likely to change in the future. Use `enframe(name = NULL)`
 #&gt; instead.
-#&gt; # A tibble: 5 x 1
+#&gt; # A tibble: 3 x 1
 #&gt;   value
 #&gt;   &lt;int&gt;
 #&gt; 1     1
 #&gt; 2     2
 #&gt; 3     3
-#&gt; 4     4
-#&gt; 5     5
 
 # New (&gt;= 2.0.0):
 enframe(x, name = NULL)
-#&gt; # A tibble: 5 x 1
+#&gt; # A tibble: 3 x 1
 #&gt;   value
 #&gt;   &lt;int&gt;
 #&gt; 1     1
 #&gt; 2     2
 #&gt; 3     3
-#&gt; 4     4
-#&gt; 5     5
 
 # New (legacy):
 tibble(value = x)
-#&gt; # A tibble: 5 x 1
+#&gt; # A tibble: 3 x 1
 #&gt;   value
 #&gt;   &lt;int&gt;
 #&gt; 1     1
 #&gt; 2     2
-#&gt; 3     3
-#&gt; 4     4
-#&gt; 5     5</code></pre>
+#&gt; 3     3</code></pre>
 </div>
