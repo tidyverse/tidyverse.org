@@ -2,7 +2,7 @@
 title: "Coming soon: tibble 2.0.0"
 slug: tibble-2.0.0-pre-announce
 description: >
-    Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! The upcoming 2.0.0 release of the tibble package adds a slew of features but also changes some internals. This blog post describes the main changes relevant to package developers who depend on tibble.
+    The upcoming tibble 2.0.0 release has internal changes relevant to package developers who depend on tibble.
 date: 2018-11-21
 author: Kirill Müller, Jenny Bryan
 photo:
@@ -15,13 +15,16 @@ categories: [package]
 
 <p>Version 2.0.0 of the <a href="https://tibble.tidyverse.org">tibble package</a> is almost ready for release. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the development version with:</p>
 <pre class="r"><code>devtools::install_github(&quot;tidyverse/tibble&quot;)</code></pre>
-<p>We announce this release before actually submitting to CRAN, because some changes require attention from authors of packages that import or otherwise depend on <em>tibble</em>.
-We would like to use this opportunity to gather feedback about the most disruptive changes.
-This blog post is mostly interesting to package developers, new features and a higher-level overview will be presented in a separate blog post.</p>
-<p>We tested ~3000 CRAN and Bioconductor packages that depend directly or indirectly on <em>tibble</em> with <code>R CMD check</code>, and compared check results for the CRAN version with our results.
-We notified the maintainers of the packages, and aim for a CRAN release before Christmas, just in time for <a href="https://www.rstudio.com/conference/">rstudio::conf</a>.</p>
-<p>In the following we showcase the changes that affected many of the now failing packages that we analyzed, and suggest solutions.
-For the full list of changes, features and bug fixes, please see the <a href="https://github.com/tidyverse/tibble/tree/master/NEWS.md">release notes</a> for a complete list.</p>
+<p>We’re making a pre-release announcement, because some changes require the attention of maintainers of packages that import or otherwise depend on tibble.
+This post describes how to adapt to the next version of tibble and is also an invitation for maintainers to provide feedback before v2.0.0 is finalized and submitted to CRAN.
+This blog post is aimed at package developers and those who maintain “production” scripts or apps. A high-level overview of new user-facing features will come in a separate blog post.</p>
+<div id="reverse-dependency-checks" class="section level2">
+<h2>Reverse dependency checks</h2>
+<p>We ran <code>R CMD check</code> for over 3000 CRAN and Bioconductor packages that depend directly or indirectly on the tibble package and compared results obtained with the CRAN versus development version of tibble.
+We notified the maintainers of affected packages and aim for a CRAN release before Christmas, just in time for <a href="https://www.rstudio.com/conference/">rstudio::conf</a>.</p>
+<p>We made pull requests to implement the necessary changes in several of the most heavily downloaded packages. Based on this experience, this post highlights the problems downstream maintainers are most likely to see and how to solve them.</p>
+<p>For the full list of changes, features, and bug fixes, please see the <a href="https://github.com/tidyverse/tibble/tree/master/NEWS.md">release notes</a>.</p>
+</div>
 <div id="construction-and-validation" class="section level2">
 <h2>Construction and validation</h2>
 <p>Most end users will likely use the <code>tibble()</code> function to construct tibbles.
