@@ -97,7 +97,7 @@ as_tibble(m)
 
 If possible, we recommend applying your "good" column names prior to calling `as_tibble()`. This creates code that works with tibble 1.4.2 and the development version, which is very appealing. For good examples, see these pull requests to [drake](https://github.com/ropensci/drake/pull/586), [prophet](https://github.com/facebook/prophet/pull/739), and [broom](https://github.com/tidymodels/broom/pull/534).
 
-It is also possible to use the new `.name_repair` argument in `tibble()` or `as_tibble()` (more below) to explicitly declare your intention around column names. This is a less appealing solution, because such code will be sensitive to the tibble version.
+It is also possible to use the new `.name_repair` argument in `tibble()` and `as_tibble()` (more below) to explicitly declare your intention around column names. This code would require `packageVersion("tibble") >= "2.0.0"`:
 
 ```{r}
 # Alternative: use new `.name_repair` argument to permit dysfunctional names
@@ -121,7 +121,7 @@ The `tibble()` constructor and the `as_tibble()` generic now support a new `.nam
 - `"universal"`: Make the names `unique` and syntactic.
 - a function: apply custom name repair (e.g., `.name_repair = make.names` or `.name_repair = ~make.names(., unique = TRUE)` for names in the style of base R).
 
-See ``?`name-repair``` for more details.
+See `` ?`name-repair` `` for more details.
 
 Packages that are in the business of making tibbles may even want to expose the `.name_repair` argument and pass it through to tibble. For example, this is the approach planned for [readxl](https://readxl.tidyverse.org), which reads rectangular data out of Excel workbooks.
 
@@ -145,14 +145,14 @@ as_tibble(df, validate = TRUE)
 as_tibble(df, validate = FALSE)
 ```
 
-`validate = TRUE` is now the default behaviour, i.e. `.name_repair = "check_unique`. You can remove simply `validate = TRUE`:
+The default behaviour (`.name_repair = "check_unique`) implements `validate = TRUE`. So you can simply remove `validate = TRUE`:
 
 ```{r}
 as_tibble(m)
 as_tibble(df)
 ```
 
-Alternatives to `validate = FALSE`, if you know that `packageVersion("tibble") >= "2.0.0"`:
+Here are alternatives to `validate = FALSE`, if you know that `packageVersion("tibble") >= "2.0.0"`:
 
 ```{r}
 # permit non-unique names
@@ -190,7 +190,7 @@ names(df) <- NA
 ```
 
 Coercing a vector to a tibble is no longer supported and emits a warning once per session.
-It is unclear if the result should be a one-column or a one-row tibble.
+It's not clear if the result should be a tibble with one row or one column. We plan to revisit this in a future version, with an unambiguous interface.
 
 ```{r}
 x <- 1:3
