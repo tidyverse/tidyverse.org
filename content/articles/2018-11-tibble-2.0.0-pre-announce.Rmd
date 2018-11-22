@@ -52,7 +52,7 @@ Specifically:
 
 This means that the `nrow` argument to `new_tibble()` is now mandatory.
 We are aware that this might be the single most disruptive change, but we think that any guesswork here would be detrimental to stability (especially in corner cases) and that this particular problem is very easy to fix.
-The `nrow` argument already existed in tibble 1.4.2, so code that uses it requires no change and should continue to work.
+The `nrow` argument already existed in tibble v1.4.2, so code that uses it requires no change and should continue to work.
 If you need to add `nrow` arguments to `new_tibble()` calls, you can do so independently of the tibble v2.0.0 release.
 Please be aware that `nrow` must be passed as a named argument, because it comes after the ellipsis `...` in the signature. Here are common patterns for setting the `nrow` argument:
 
@@ -97,7 +97,7 @@ as_tibble(m)
 
 ```
 
-If possible, we recommend applying your "good" column names prior to calling `as_tibble()`. This creates code that works with tibble 1.4.2 and the development version, which is very appealing. For good examples, see these pull requests to [drake](https://github.com/ropensci/drake/pull/586), [prophet](https://github.com/facebook/prophet/pull/739), and [broom](https://github.com/tidymodels/broom/pull/536).
+If possible, we recommend applying your "good" column names prior to calling `as_tibble()`. This creates code that works with tibble v1.4.2 and the development version, which is very appealing. For good examples, see these pull requests to [drake](https://github.com/ropensci/drake/pull/586), [prophet](https://github.com/facebook/prophet/pull/739), and [broom](https://github.com/tidymodels/broom/pull/536).
 
 It is also possible to use the new `.name_repair` argument in `tibble()` and `as_tibble()` (more below) to explicitly declare your intention around column names. This code would require `packageVersion("tibble") >= "2.0.0"`:
 
@@ -129,7 +129,7 @@ Packages that are in the business of making tibbles may even want to expose the 
 
 ## Deprecation of `validate` in `as_tibble()`
 
-In tibble 1.4.2, `as_tibble()` has a `validate` argument, but its default behaviour value was inconsistent across different methods and there was no equivalent argument for `tibble()`. The `validate` argument is now soft-deprecated and its use will trigger a message (we intend to make this "once per session"). The `validate` argument will eventually be removed.
+In tibble v1.4.2, `as_tibble()` has a `validate` argument, but its default behaviour value was inconsistent across different methods and there was no equivalent argument for `tibble()`. The `validate` argument is now soft-deprecated and its use will trigger a message (we intend to make this "once per session"). The `validate` argument will eventually be removed.
 
 Here's what `validate` does in the development version of tibble:
 
