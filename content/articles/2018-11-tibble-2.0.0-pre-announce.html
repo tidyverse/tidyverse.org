@@ -47,7 +47,10 @@ x &lt;- data.frame(a = 1)
 
 # Code that lacks `nrow` fails
 new_tibble(x)
-#&gt; Error: Must pass a scalar integer as `nrow` argument to `new_tibble()`.
+#&gt; # A tibble: 1 x 1
+#&gt;       a
+#&gt;   &lt;dbl&gt;
+#&gt; 1     1
 
 # Fix by specifying `nrow`
 new_tibble(x, nrow = nrow(x)) # if x is a data frame
@@ -81,10 +84,7 @@ new_tibble(x, nrow = nrow_x)
 # 1. make tibble
 # 2. apply nice names
 x &lt;- as_tibble(m)
-#&gt; Error: Columns 1, 2, 3, 4 must be named.
-#&gt; Use .name_repair to specify repair.
 colnames(x) &lt;- letters[1:4]
-#&gt; Error in names(x) &lt;- value: &#39;names&#39; attribute [4] must be the same length as the vector [1]
 
 # better approach that works with tibble v1.4.2 AND dev tibble:
 # 1. apply nice names
@@ -98,13 +98,13 @@ as_tibble(m)
 #&gt; 2 -0.0424  0.190  -0.330 -0.122
 #&gt; 3  1.27   -0.330   3.12   1.30 
 #&gt; 4  0.516  -0.122   1.30   0.581</code></pre>
-<p>If possible, we recommend applying your “good” column names prior to calling <code>as_tibble()</code>. This creates code that works with tibble 1.4.2 and the development version, which is very appealing. For good examples, see these pull requests to <a href="https://github.com/ropensci/drake/pull/586">drake</a>, <a href="https://github.com/facebook/prophet/pull/739">prophet</a>, and <a href="https://github.com/tidymodels/broom/pull/534">broom</a>.</p>
+<p>If possible, we recommend applying your “good” column names prior to calling <code>as_tibble()</code>. This creates code that works with tibble 1.4.2 and the development version, which is very appealing. For good examples, see these pull requests to <a href="https://github.com/ropensci/drake/pull/586">drake</a>, <a href="https://github.com/facebook/prophet/pull/739">prophet</a>, and <a href="https://github.com/tidymodels/broom/pull/536">broom</a>.</p>
 <p>It is also possible to use the new <code>.name_repair</code> argument in <code>tibble()</code> and <code>as_tibble()</code> (more below) to explicitly declare your intention around column names. This code would require <code>packageVersion(&quot;tibble&quot;) &gt;= &quot;2.0.0&quot;</code>:</p>
 <pre class="r"><code># Alternative: use new `.name_repair` argument to permit dysfunctional names
 m &lt;- cov(unname(iris[-5]))
 as_tibble(m, .name_repair = &quot;minimal&quot;)
 #&gt; # A tibble: 4 x 4
-#&gt;        ``      ``     ``     ``
+#&gt;        V1      V2     V3     V4
 #&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
 #&gt; 1  0.686  -0.0424  1.27   0.516
 #&gt; 2 -0.0424  0.190  -0.330 -0.122
@@ -114,13 +114,8 @@ as_tibble(m, .name_repair = &quot;minimal&quot;)
 # Alternative: use new `.name_repair` argument to fix dysfunctional names
 m &lt;- cov(unname(iris[-5]))
 as_tibble(m, .name_repair = &quot;unique&quot;)
-#&gt; New names:
-#&gt; * `` -&gt; `..1`
-#&gt; * `` -&gt; `..2`
-#&gt; * `` -&gt; `..3`
-#&gt; * `` -&gt; `..4`
 #&gt; # A tibble: 4 x 4
-#&gt;       ..1     ..2    ..3    ..4
+#&gt;        V1      V2     V3     V4
 #&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
 #&gt; 1  0.686  -0.0424  1.27   0.516
 #&gt; 2 -0.0424  0.190  -0.330 -0.122
@@ -148,30 +143,38 @@ df &lt;- new_tibble(list(a = 5, a = 6), nrow = 1)
 
 # errors, as it should, because columns are unnamed ... but also messages
 as_tibble(m, validate = TRUE)
-#&gt; The `validate` argument to `as_tibble()` is deprecated. Please use `.name_repair` to control column names.
-#&gt; Error: Columns 1, 2, 3, 4 must be named.
-#&gt; Use .name_repair to specify repair.
+#&gt; # A tibble: 4 x 4
+#&gt;        V1      V2     V3     V4
+#&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+#&gt; 1  0.686  -0.0424  1.27   0.516
+#&gt; 2 -0.0424  0.190  -0.330 -0.122
+#&gt; 3  1.27   -0.330   3.12   1.30 
+#&gt; 4  0.516  -0.122   1.30   0.581
 
 # errors, as it should, because names are duplicated ... but also messages
 as_tibble(df, validate = TRUE)
-#&gt; The `validate` argument to `as_tibble()` is deprecated. Please use `.name_repair` to control column names.
-#&gt; Error: Column name `a` must not be duplicated.
-#&gt; Use .name_repair to specify repair.
+#&gt; Error: Column `a` must have a unique name
 
 # no error ... but still messages
 as_tibble(df, validate = FALSE)
-#&gt; The `validate` argument to `as_tibble()` is deprecated. Please use `.name_repair` to control column names.
 #&gt; # A tibble: 1 x 2
 #&gt;       a     a
 #&gt;   &lt;dbl&gt; &lt;dbl&gt;
 #&gt; 1     5     6</code></pre>
 <p>The default behaviour (<code>.name_repair = &quot;check_unique</code>) implements <code>validate = TRUE</code>. So you can simply remove <code>validate = TRUE</code>:</p>
 <pre class="r"><code>as_tibble(m)
-#&gt; Error: Columns 1, 2, 3, 4 must be named.
-#&gt; Use .name_repair to specify repair.
+#&gt; # A tibble: 4 x 4
+#&gt;        V1      V2     V3     V4
+#&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+#&gt; 1  0.686  -0.0424  1.27   0.516
+#&gt; 2 -0.0424  0.190  -0.330 -0.122
+#&gt; 3  1.27   -0.330   3.12   1.30 
+#&gt; 4  0.516  -0.122   1.30   0.581
 as_tibble(df)
-#&gt; Error: Column name `a` must not be duplicated.
-#&gt; Use .name_repair to specify repair.</code></pre>
+#&gt; # A tibble: 1 x 2
+#&gt;       a     a
+#&gt;   &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1     5     6</code></pre>
 <p>Here are alternatives to <code>validate = FALSE</code>, if you know that <code>packageVersion(&quot;tibble&quot;) &gt;= &quot;2.0.0&quot;</code>:</p>
 <pre class="r"><code># permit non-unique names
 as_tibble(df, .name_repair = &quot;minimal&quot;)
@@ -182,13 +185,8 @@ as_tibble(df, .name_repair = &quot;minimal&quot;)
 
 # authorize creation of unique names
 as_tibble(m, .name_repair = &quot;unique&quot;)
-#&gt; New names:
-#&gt; * `` -&gt; `..1`
-#&gt; * `` -&gt; `..2`
-#&gt; * `` -&gt; `..3`
-#&gt; * `` -&gt; `..4`
 #&gt; # A tibble: 4 x 4
-#&gt;       ..1     ..2    ..3    ..4
+#&gt;        V1      V2     V3     V4
 #&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
 #&gt; 1  0.686  -0.0424  1.27   0.516
 #&gt; 2 -0.0424  0.190  -0.330 -0.122
@@ -203,13 +201,13 @@ as_tibble(m, .name_repair = &quot;unique&quot;)
 # these functions are soft-deprecated
 tidy_names(names(df))
 #&gt; New names:
-#&gt; * a -&gt; a..1
-#&gt; * a -&gt; a..2
+#&gt; a -&gt; a..1
+#&gt; a -&gt; a..2
 #&gt; [1] &quot;a..1&quot; &quot;a..2&quot;
 set_tidy_names(df)
 #&gt; New names:
-#&gt; * a -&gt; a..1
-#&gt; * a -&gt; a..2
+#&gt; a -&gt; a..1
+#&gt; a -&gt; a..2
 #&gt; # A tibble: 1 x 2
 #&gt;    a..1  a..2
 #&gt;   &lt;dbl&gt; &lt;dbl&gt;
@@ -217,11 +215,8 @@ set_tidy_names(df)
 
 # achieve same via `.name_repair`
 as_tibble(df, .name_repair = &quot;universal&quot;)
-#&gt; New names:
-#&gt; * a -&gt; a..1
-#&gt; * a -&gt; a..2
 #&gt; # A tibble: 1 x 2
-#&gt;    a..1  a..2
+#&gt;       a     a
 #&gt;   &lt;dbl&gt; &lt;dbl&gt;
 #&gt; 1     5     6</code></pre>
 <p>tibble’s name repair strategies are currently only exposed in <code>tibble()</code> and <code>as_tibble()</code>, not (yet?) as utility functions that operate on a vector of names.</p>
@@ -231,17 +226,12 @@ as_tibble(df, .name_repair = &quot;universal&quot;)
 <p>Intentionally assigning invalid names to a tibble via <code>names&lt;-()</code> is generally a bad idea and this now warns (once per session).</p>
 <pre class="r"><code>df &lt;- tibble(a = 1)
 
-names(df) &lt;- NA
-#&gt; Warning: Column 1 must be named.
-#&gt; Warning: Must use a character vector as names.</code></pre>
+names(df) &lt;- NA</code></pre>
 <p>Coercing a vector to a tibble is no longer supported and emits a warning once per session.
 It’s not clear if the result should be a tibble with one row or one column. We plan to revisit this in a future version, with an unambiguous interface.</p>
 <pre class="r"><code>x &lt;- 1:3
 # Old:
 as_tibble(x)
-#&gt; Warning: Calling `as_tibble()` on a vector is discouraged, because the
-#&gt; behavior is likely to change in the future. Use `enframe(name = NULL)`
-#&gt; instead.
 #&gt; # A tibble: 3 x 1
 #&gt;   value
 #&gt;   &lt;int&gt;
@@ -251,12 +241,12 @@ as_tibble(x)
 
 # New (&gt;= 2.0.0):
 enframe(x, name = NULL)
-#&gt; # A tibble: 3 x 1
-#&gt;   value
-#&gt;   &lt;int&gt;
-#&gt; 1     1
-#&gt; 2     2
-#&gt; 3     3
+#&gt; # A tibble: 3 x 2
+#&gt;   value    NA
+#&gt;   &lt;int&gt; &lt;int&gt;
+#&gt; 1     1     1
+#&gt; 2     2     2
+#&gt; 3     3     3
 
 # New (legacy):
 tibble(value = x)
