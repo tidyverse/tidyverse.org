@@ -72,13 +72,48 @@ new_tibble(x, nrow = nrow_x)
 
 ## Coercion and name repair
 
-There are some rare legitimate scenarios involving tibbles with empty or duplicate column names.
-For instance, after importing data from a foreign format, only inspection of the data might reveal if the column is useful in the first place, or the column names contain data that is about to be converted to a column with `gather()`.
-In the vast majority of cases, empty and duplicate names should be avoided, ideally the names should be accessible in R without using backticks.
+The tibble mentality has always been that the user is responsible for managing column names, i.e. names are not automatically munged. This remains true, but the development version of tibble is stricter about names and offers more support for name repair.
 
-In _tibble_ 1.4.2, `as_tibble()` had a `validate` argument (with inconsistent default values, and not available for all methods), and there was no way to construct a tibble with duplicate column names through `tibble()`.
-The upcoming release aims at improving consistency.
-The `as_tibble()` method and the `tibble()` constructor now supports a new `.name_repair` argument that covers most use cases:
+In the development version of tibble, by default, column names must exist and be unique. Some packages use `as_tibble()` internally to coerce a dysfunctionally-named object to a tibble and *then* apply proper column names. Here's a typical error and solution:
+
+```{r error = TRUE}
+library(tibble)
+
+(m <- cov(unname(iris[-5])))
+
+# problematic approach:
+# 1. make tibble
+# 2. apply nice names
+x <- as_tibble(m)
+colnames(x) <- letters[1:4]
+
+# better approach that works with tibble v1.4.2 AND dev tibble:
+# 1. apply nice names
+# 2. make tibble
+colnames(m) <- letters[1:4]
+as_tibble(m)
+
+```
+
+If possible, we recommend applying your "good" column names prior to calling `as_tibble()`. This creates code that works with tibble 1.4.2 and the development version, which is very appealing. For good examples, see these pull requests to [drake](https://github.com/ropensci/drake/pull/586), [prophet](https://github.com/facebook/prophet/pull/739), and [broom](https://github.com/tidymodels/broom/pull/534).
+
+It is also possible to use the new `.name_repair` argument in `tibble()` or `as_tibble()` (more below) to explicitly declare your intention around column names. This is a less appealing solution, because such code will be sensitive to the tibble version.
+
+```{r}
+# Alternative: use new `.name_repair` argument to permit dysfunctional names
+m <- cov(unname(iris[-5]))
+as_tibble(m, .name_repair = "minimal")
+
+# Alternative: use new `.name_repair` argument to fix dysfunctional names
+m <- cov(unname(iris[-5]))
+as_tibble(m, .name_repair = "unique")
+```
+
+What is the motivation for this increased attention to column names? The tibble package is offering stronger encouragement for names where each column can be identified by name and, preferably, without having to resort to backticks. Column names that don't meet these requirements are still allowed, but the user needs to permit them explicitly.
+
+After all, there are scenarios where problematic names should be tolerated. For example, after importing data, the user might need to inspect the data in order to determine which columns to keep. Or perhaps the column names contain data that is about to be converted to a proper variable with `gather()`.
+
+The `tibble()` constructor and the `as_tibble()` generic now support a new `.name_repair` argument that covers most use cases:
 
 - `"minimal"`: No name repair or checks, beyond basic existence.
 - `"unique"`: Make sure names are unique and not empty.
@@ -86,61 +121,67 @@ The `as_tibble()` method and the `tibble()` constructor now supports a new `.nam
 - `"universal"`: Make the names `unique` and syntactic.
 - a function: apply custom name repair (e.g., `.name_repair = make.names` or `.name_repair = ~make.names(., unique = TRUE)` for names in the style of base R).
 
-Name repair is applied always, even when coercing from a matrix or a tibble.
-It is now harder (though always possible with `.name_repair = "minimal"`) to construct a tibble with empty or duplicate column names.
-See `?repair_names` for details on the new name repair algorithms.
+See ``?`name-repair``` for more details.
 
-```{r error = TRUE}
-m <- cov(unname(iris[-5]))
+Packages that are in the business of making tibbles may even want to expose the `.name_repair` argument and pass it through to tibble. For example, this is the approach planned for [readxl](https://readxl.tidyverse.org), which reads rectangular data out of Excel workbooks.
 
-# Old:
-df <- as_tibble(m)
-colnames(df) <- letters[1:4]
+## Deprecation of `validate` in `as_tibble()`
 
-# New (preferred):
-colnames(m) <- letters[1:4]
-df <- as_tibble(m)
+In tibble 1.4.2, `as_tibble()` has a `validate` argument, but its default behaviour value was inconsistent across different methods and there was no equivalent argument for `tibble()`. The `validate` argument is now soft-deprecated and its use will trigger a message (we intend to make this "once per session"). The `validate` argument will eventually be removed.
 
-# New (alternative):
-df <- as_tibble(m, .name_repair = "minimal")
-colnames(df) <- letters[1:4]
-```
-
-The `validate` argument is deprecated and gives a message.
-If your code must support _tibble_ < 2.0.0, please use the new code only if `packageVersion("tibble") >= "2.0.0"` .
+Here's what `validate` does in the development version of tibble:
 
 ```{r error = TRUE}
 m <- cov(unname(iris[-5]))
 df <- new_tibble(list(a = 5, a = 6), nrow = 1)
 
-# Old:
+# errors, as it should, because columns are unnamed ... but also messages
 as_tibble(m, validate = TRUE)
-as_tibble(df, validate = FALSE)
 
-# New:
-as_tibble(m, .name_repair = "unique")
-as_tibble(df, .name_repair = "minimal")
+# errors, as it should, because names are duplicated ... but also messages
+as_tibble(df, validate = TRUE)
+
+# no error ... but still messages
+as_tibble(df, validate = FALSE)
 ```
 
-The existing `tidy_names()` and `set_tidy_names()` functions are soft-deprecated but still available unchanged.
-New code should use `.name_repair`.
+`validate = TRUE` is now the default behaviour, i.e. `.name_repair = "check_unique`. You can remove simply `validate = TRUE`:
+
+```{r}
+as_tibble(m)
+as_tibble(df)
+```
+
+Alternatives to `validate = FALSE`, if you know that `packageVersion("tibble") >= "2.0.0"`:
+
+```{r}
+# permit non-unique names
+as_tibble(df, .name_repair = "minimal")
+
+# authorize creation of unique names
+as_tibble(m, .name_repair = "unique")
+```
+
+## Deprecation of `tidy_names()` and `set_tidy_names()`
+
+The existing `tidy_names()` and `set_tidy_names()` functions are soft-deprecated, but remain available, unchanged. In the future, they could go away or take on a new meaning, i.e. implement a different algorithm for name repair. New code should use `.name_repair` instead.
 
 ```{r}
 df <- new_tibble(list(a = 5, a = 6), nrow = 1)
 
-# Old:
+# these functions are soft-deprecated
 tidy_names(names(df))
 set_tidy_names(df)
 
-# New:
-names(as_tibble(
-  rlang::rep_named(names(df), list(NA)),
-  .name_repair = "universal"
-))
+# achieve same via `.name_repair`
 as_tibble(df, .name_repair = "universal")
 ```
 
-Assigning invalid names via `names<-()` seems like a bad idea in general, and now warns once per session.
+tibble's name repair strategies are currently only exposed in `tibble()` and `as_tibble()`, not (yet?) as utility functions that operate on a vector of names.
+
+## Other changes
+
+Intentionally assigning invalid names to a tibble via `names<-()` is generally a bad idea and this now warns (once per session).
 
 ```{r}
 df <- tibble(a = 1)

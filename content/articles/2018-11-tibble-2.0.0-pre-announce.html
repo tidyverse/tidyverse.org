@@ -66,12 +66,73 @@ new_tibble(x, nrow = nrow_x)
 </div>
 <div id="coercion-and-name-repair" class="section level2">
 <h2>Coercion and name repair</h2>
-<p>There are some rare legitimate scenarios involving tibbles with empty or duplicate column names.
-For instance, after importing data from a foreign format, only inspection of the data might reveal if the column is useful in the first place, or the column names contain data that is about to be converted to a column with <code>gather()</code>.
-In the vast majority of cases, empty and duplicate names should be avoided, ideally the names should be accessible in R without using backticks.</p>
-<p>In <em>tibble</em> 1.4.2, <code>as_tibble()</code> had a <code>validate</code> argument (with inconsistent default values, and not available for all methods), and there was no way to construct a tibble with duplicate column names through <code>tibble()</code>.
-The upcoming release aims at improving consistency.
-The <code>as_tibble()</code> method and the <code>tibble()</code> constructor now supports a new <code>.name_repair</code> argument that covers most use cases:</p>
+<p>The tibble mentality has always been that the user is responsible for managing column names, i.e. names are not automatically munged. This remains true, but the development version of tibble is stricter about names and offers more support for name repair.</p>
+<p>In the development version of tibble, by default, column names must exist and be unique. Some packages use <code>as_tibble()</code> internally to coerce a dysfunctionally-named object to a tibble and <em>then</em> apply proper column names. Here’s a typical error and solution:</p>
+<pre class="r"><code>library(tibble)
+
+(m &lt;- cov(unname(iris[-5])))
+#&gt;            [,1]       [,2]       [,3]       [,4]
+#&gt; [1,]  0.6856935 -0.0424340  1.2743154  0.5162707
+#&gt; [2,] -0.0424340  0.1899794 -0.3296564 -0.1216394
+#&gt; [3,]  1.2743154 -0.3296564  3.1162779  1.2956094
+#&gt; [4,]  0.5162707 -0.1216394  1.2956094  0.5810063
+
+# problematic approach:
+# 1. make tibble
+# 2. apply nice names
+x &lt;- as_tibble(m)
+#&gt; Error: Columns 1, 2, 3, 4 must be named.
+#&gt; Use .name_repair to specify repair.
+colnames(x) &lt;- letters[1:4]
+#&gt; Error in names(x) &lt;- value: &#39;names&#39; attribute [4] must be the same length as the vector [1]
+
+# better approach that works with tibble v1.4.2 AND dev tibble:
+# 1. apply nice names
+# 2. make tibble
+colnames(m) &lt;- letters[1:4]
+as_tibble(m)
+#&gt; # A tibble: 4 x 4
+#&gt;         a       b      c      d
+#&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+#&gt; 1  0.686  -0.0424  1.27   0.516
+#&gt; 2 -0.0424  0.190  -0.330 -0.122
+#&gt; 3  1.27   -0.330   3.12   1.30 
+#&gt; 4  0.516  -0.122   1.30   0.581
+
+# Alternative: use new `.name_repair` argument to permit dysfunctional names
+m &lt;- cov(unname(iris[-5]))
+as_tibble(m, .name_repair = &quot;minimal&quot;)
+#&gt; # A tibble: 4 x 4
+#&gt;        ``      ``     ``     ``
+#&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+#&gt; 1  0.686  -0.0424  1.27   0.516
+#&gt; 2 -0.0424  0.190  -0.330 -0.122
+#&gt; 3  1.27   -0.330   3.12   1.30 
+#&gt; 4  0.516  -0.122   1.30   0.581
+
+# Alternative: use new `.name_repair` argument to fix dysfunctional names
+m &lt;- cov(unname(iris[-5]))
+as_tibble(m, .name_repair = &quot;unique&quot;)
+#&gt; New names:
+#&gt; * `` -&gt; `..1`
+#&gt; * `` -&gt; `..2`
+#&gt; * `` -&gt; `..3`
+#&gt; * `` -&gt; `..4`
+#&gt; # A tibble: 4 x 4
+#&gt;       ..1     ..2    ..3    ..4
+#&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+#&gt; 1  0.686  -0.0424  1.27   0.516
+#&gt; 2 -0.0424  0.190  -0.330 -0.122
+#&gt; 3  1.27   -0.330   3.12   1.30 
+#&gt; 4  0.516  -0.122   1.30   0.581</code></pre>
+<p>There are two possible solutions:</p>
+<ul>
+<li>Apply good names to the object before calling <code>as_tibble()</code>. This creates code that works with tibble 1.4.2 and the development version, which is very appealing. For good examples, see these pull requests to <a href="https://github.com/ropensci/drake/pull/586">drake</a>, <a href="https://github.com/facebook/prophet/pull/739">prophet</a>, and <a href="https://github.com/tidymodels/broom/pull/534">broom</a>.</li>
+<li>Use the new <code>.name_repair</code> argument in <code>tibble()</code> or <code>as_tibble()</code> to explicitly declare your intention around column names. This is a less appealing solution, because such code will be sensitive to the tibble version.</li>
+</ul>
+<p>What is the motivation for this increased attention to column names? The tibble package is offering stronger encouragement for names where each column can be identified by name and, preferably, without having to resort to backticks. Column names that don’t meet these requirements are still allowed, but the user needs to permit them explicitly.</p>
+<p>After all, there are scenarios where problematic names should be tolerated. For example, after importing data, the user might need to inspect the data in order to determine which columns to keep. Or perhaps the column names contain data that is about to be converted to a proper variable with <code>gather()</code>.</p>
+<p>The <code>tibble()</code> constructor and the <code>as_tibble()</code> generic now support a new <code>.name_repair</code> argument that covers most use cases:</p>
 <ul>
 <li><code>&quot;minimal&quot;</code>: No name repair or checks, beyond basic existence.</li>
 <li><code>&quot;unique&quot;</code>: Make sure names are unique and not empty.</li>
@@ -79,25 +140,12 @@ The <code>as_tibble()</code> method and the <code>tibble()</code> constructor no
 <li><code>&quot;universal&quot;</code>: Make the names <code>unique</code> and syntactic.</li>
 <li>a function: apply custom name repair (e.g., <code>.name_repair = make.names</code> or <code>.name_repair = ~make.names(., unique = TRUE)</code> for names in the style of base R).</li>
 </ul>
+<p>Packages that are in the business of making tibbles may even want to expose the <code>.name_repair</code> argument and pass it through. For example, this is the approach planned for <a href="https://readxl.tidyverse.org">readxl</a>, which reads rectangular data out of Excel workbooks.</p>
+<p>In <em>tibble</em> 1.4.2, <code>as_tibble()</code> had a <code>validate</code> argument (with inconsistent default values, and not available for all methods), and there was no way to construct a tibble with duplicate column names through <code>tibble()</code>.
+The upcoming release aims at improving consistency.</p>
 <p>Name repair is applied always, even when coercing from a matrix or a tibble.
 It is now harder (though always possible with <code>.name_repair = &quot;minimal&quot;</code>) to construct a tibble with empty or duplicate column names.
 See <code>?repair_names</code> for details on the new name repair algorithms.</p>
-<pre class="r"><code>m &lt;- cov(unname(iris[-5]))
-
-# Old:
-df &lt;- as_tibble(m)
-#&gt; Error: Columns 1, 2, 3, 4 must be named.
-#&gt; Use .name_repair to specify repair.
-colnames(df) &lt;- letters[1:4]
-#&gt; Error in `colnames&lt;-`(`*tmp*`, value = c(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;)): attempt to set &#39;colnames&#39; on an object with less than two dimensions
-
-# New (preferred):
-colnames(m) &lt;- letters[1:4]
-df &lt;- as_tibble(m)
-
-# New (alternative):
-df &lt;- as_tibble(m, .name_repair = &quot;minimal&quot;)
-colnames(df) &lt;- letters[1:4]</code></pre>
 <p>The <code>validate</code> argument is deprecated and gives a message.
 If your code must support <em>tibble</em> &lt; 2.0.0, please use the new code only if <code>packageVersion(&quot;tibble&quot;) &gt;= &quot;2.0.0&quot;</code> .</p>
 <pre class="r"><code>m &lt;- cov(unname(iris[-5]))
