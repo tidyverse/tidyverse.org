@@ -13,29 +13,29 @@ categories: [package]
 
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", error = TRUE)
 ```
 
 Version 2.0.0 of the [tibble package](https://tibble.tidyverse.org) is almost ready for release. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the development version with:
 
-```r
+```{r eval = FALSE}
 devtools::install_github("tidyverse/tibble")
 ```
 
 We're making a pre-release announcement, because some changes require the attention of maintainers of packages that import or otherwise depend on tibble.
-This post describes how to adapt to the next version of tibble and is also an invitation for maintainers to provide feedback before v2.0.0 is finalized and submitted to CRAN.
+This post describes how to adapt to the next version of tibble and is also an invitation for maintainers to provide feedback before v2.0.0 is finalized and submitted to CRAN (TODO: WHERE? HOW?).
 This blog post is aimed at package developers and those who maintain "production" scripts or apps. A high-level overview of new user-facing features will come in a separate blog post.
 
 ## Reverse dependency checks
 
 We ran `R CMD check` for over 3000 CRAN and Bioconductor packages that depend directly or indirectly on the tibble package and compared results obtained with the CRAN versus development version of tibble.
-We notified the maintainers of affected packages and aim for a CRAN release before Christmas, just in time for [rstudio::conf](https://www.rstudio.com/conference/).
+We notified the maintainers of TODO: FILL IN A NUMBER? affected packages and aim for a CRAN release before Christmas, so the dust has settled in time for [rstudio::conf](https://www.rstudio.com/conference/).
 
-We made pull requests to implement the necessary changes in several of the most heavily downloaded packages. Based on this experience, this post highlights the problems downstream maintainers are most likely to see and how to solve them.
+We made pull requests to implement the necessary changes in several of the most heavily downloaded packages. Based on this experience, this post highlights the problems downstream maintainers are most likely to see and how to solve them. Most fixes should be quite simple.
 
 For the full list of changes, features, and bug fixes, please see the [release notes](https://github.com/tidyverse/tibble/tree/master/NEWS.md).
 
-## Construction and validation
+## Tibble construction and validation
 
 End users should use the `tibble()` function to construct tibbles.
 It checks the input for consistency and makes sure that the returned tibble is valid.
@@ -54,15 +54,15 @@ We are aware that this might be the single most disruptive change, but we think 
 The `nrow` argument already existed in tibble 1.4.2, so code that uses it requires no change and should continue to work.
 Please be aware that `nrow` must be passed as a named argument, because it comes after the ellipsis `...` in the signature. Here are common patterns for setting the `nrow` argument:
 
-```{r error = TRUE}
+```{r}
 library(tibble)
 
 x <- data.frame(a = 1)
 
-# Old:
+# Code that lacks `nrow` fails
 new_tibble(x)
 
-# New:
+# Fix by specifying `nrow`
 new_tibble(x, nrow = nrow(x)) # if x is a data frame
 
 nrow_x <- NROW(x[[1]]) # if x has at least one column
@@ -76,7 +76,7 @@ The tibble mentality has always been that the user is responsible for managing c
 
 In the development version of tibble, by default, column names must exist and be unique. Some packages use `as_tibble()` internally to coerce a dysfunctionally-named object to a tibble and *then* apply proper column names. Here's a typical error and solution:
 
-```{r error = TRUE}
+```{r}
 library(tibble)
 
 (m <- cov(unname(iris[-5])))
@@ -131,7 +131,7 @@ In tibble 1.4.2, `as_tibble()` has a `validate` argument, but its default behavi
 
 Here's what `validate` does in the development version of tibble:
 
-```{r error = TRUE}
+```{r}
 m <- cov(unname(iris[-5]))
 df <- new_tibble(list(a = 5, a = 6), nrow = 1)
 
