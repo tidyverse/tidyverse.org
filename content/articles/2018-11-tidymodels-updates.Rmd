@@ -1,0 +1,89 @@
+---
+title: tidymodels Pacakge News
+date: 2018-11-28
+slug: tidymodels
+author: Max Kuhn, Davis Vaughan, Alex Hayes
+categories: [package]
+description: >
+    A variety of updated for tidymodels packages
+photo:
+  url: https://unsplash.com/photos/ahB6ZhxHRtk
+  author: rawpixel
+---
+
+```{r setup, include = FALSE}
+library("tidymodels")
+
+set.seed(5283)
+
+options(digits = 3)
+knitr::opts_chunk$set(
+  collapse = FALSE, comment = "#>",
+  fig.width = 7,
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  out.width = "700px"
+)
+```
+
+
+Along with the release of [`parsnip`](https://tidymodels.github.io/parsnip/) and [`probably`](https://tidymodels.github.io/probably/) there are a new versions of many `tidymodels` packages: `recipes`, `yardstick`, `embed`, `tidyposterior`, and `tidymodels`. 
+
+We made the conscious choice to add all of the breaking changes now instead of spreading them out over a few versions. The biggest changes are in `yardstick` and `recipes` and these are described below.
+
+One change across all of these packages: `broom` is no longer used to obtain the `tidy` S3 methods. Instead, the [`generics` package](https://www.tidyverse.org/articles/2018/11/generics-0.0.1/) is imported so that we might reduce dependencies. 
+
+
+## `yardstick`
+
+
+
+
+## `recipes`
+
+One big change was to make the argument names more consistent with the tidyverse standards and to also make them consistent with `dials` and other packages. For example, `step_pca` now has an argument `num_comp` that replaces the previous `num` argument. This will pay off later when we enable the detection of tuning parameters and the automatic determination of grid values or parameter ranges. The biggest name change is in `bake`; `newdata` is now `new_data`. For the time being, a warnig will be issued when `newdata` is used but that won't last past the next version. The list of name changes are detailed [here](https://tidymodels.github.io/recipes/news/index.html). 
+
+In recipes, variables can have different roles (e.g. "predictor" or "outcome"). Beyond those set by the package, roles are largely user specified and can be pretty much anything. Previously, only a single role was allowed. The new version of recipes expands the number of roles per column. This now means that `add_role` will _append_ roles and the new function `update_role` will reset them. It also changes how the `summary` results for a recipe are returned since there can now be multiple rows per column variable. 
+
+A feature that we will be working on in the _next_ version is to be able to reference (and use) previous steps. For example, if you center some variables, you might want to uncenter them at a later step. For this future feature, this version of `recipes` mandates an ID field for each step. The ID can be anything, but the current convention is to use the step name followed by random digits (e.g. `center_irqtH`). 
+
+Another change that was made was to default the `prep` option `retain` to `TRUE`. I (and others) found that this was always something that is done since it allows the `juice` function to get the processed training set at no extra cost. The down-side is that, if the training set is large, you carry a large copy of the data inside of the recipe. When the `verbose` option is turned on, a message is printed that "The retained training set is ~ 20.0 Mb  in memory." This size estimate is approximate since the base R `object.size` is used and that function does not count objects in any environments that are carried along.
+
+A big new feature in this version of `recipes` is the addition of `dplyr`-related steps: `step_arrange`, `step_filter`, `step_mutate`, `step_sample`, and `step_slice`. The follow their `dplyr` analogs. `step_sample` covers both `dplyr::sample_n` and `dplyr::sample_frac`. Other new steps include:
+
+* `step_integer` converts data to ordered integers similar to [`LabelEncoder`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html)
+
+* `step_geodist` can be used to calculate the distance between geocodes and a single reference location.
+
+* `step_nnmf` computes the non-negative matrix factorization components for non-negative data. 
+
+List columns are also supported in `recipes` now. `summary.recipe` now shows `type` column values as "list" and these can be selected using `has_type("list")`. When printing the recipe, a row is labeled as missing when its entire list element is missing (e.g. `is.na(list[[i]])` is `TRUE`). If the list element has some non-missing values, it is not counted as missing. 
+
+Finally, a number of steps check for duplicate names and will throw an error during `prep` if this occurs. This behavior may slightly change in the future due to changes in the `tibble` package related to unique names should be when creating data frames. 
+
+There are also bug fixes and other small changes that can be found in the [News file](https://tidymodels.github.io/recipes/news/index.html). 
+
+
+## `rsample`
+
+A function `initial_time_split` was added. It can be used to create _ordered_ initial splits and would be appropriate for time series data. 
+
+Also, the `recipes`-related `prepper` function was moved to the `recipes` package. This makes the `rsample` install footprint much smaller. 
+
+Finally, `rsplit` objects have a better representation inside of tibbles when the sample sizes are large. 
+
+## `embed`
+
+The tensorflow `step_embed` function can now handle callbacks to `keras`. This enables a few different features, including stopping when a convergence criterion is met.  
+
+
+## `broom`
+
+
+## `tidyposterior`
+
+
+
+## `tidymodels`
+
+We added [`parsnip`](https://tidymodels.github.io/parsnip/) and [`dials`](https://tidymodels.github.io/dials/) to the core set of packages and bumped all packages up to their current versions. 
