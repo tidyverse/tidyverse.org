@@ -28,20 +28,20 @@ We will notify the maintainers of all affected packages (regardless of the check
 </div>
 <div id="tibble-construction-and-validation" class="section level2">
 <h2>Tibble construction and validation</h2>
-<p>End users should use the <code>tibble()</code> function to construct tibbles.
+<p>End users should use the <a href="https://tibble.tidyverse.org/dev/reference/tibble.html"><code>tibble()</code></a> function to construct tibbles.
 It checks the input for consistency and makes sure that the returned tibble is valid.</p>
-<p>Package developers, however, can also consider the low-level <code>new_tibble()</code> constructor. Use <code>new_tibble()</code> to quickly construct a tibble from a list if you are very sure that the input is well-formed (i.e., a list of vectors of equal length).
+<p>Package developers, however, can also consider the low-level <a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html"><code>new_tibble()</code></a> constructor. Use <a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html"><code>new_tibble()</code></a> to quickly construct a tibble from a list if you are very sure that the input is well-formed (i.e., a list of vectors of equal length).
 This function also supports the construction of subclasses of tibble through the <code>class</code> argument.</p>
-<p>In the development version of tibble, the <code>new_tibble()</code> constructor is a more faithful implementation of the <a href="https://adv-r.hadley.nz/s3.html#s3-classes">design advice for S3 classes given in Advanced R</a>.
+<p>In the development version of tibble, the <a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html"><code>new_tibble()</code></a> constructor is a more faithful implementation of the <a href="https://adv-r.hadley.nz/s3.html#s3-classes">design advice for S3 classes given in Advanced R</a>.
 Specifically:</p>
 <ul>
-<li><code>new_tibble()</code> is very fast and does very little checking itself.</li>
-<li>The new <code>validate_tibble()</code> function is responsible for validating the structure of a tibble.</li>
+<li><a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html"><code>new_tibble()</code></a> is very fast and does very little checking itself.</li>
+<li>The new <a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html"><code>validate_tibble()</code></a> function is responsible for validating the structure of a tibble.</li>
 </ul>
-<p>This means that the <code>nrow</code> argument to <code>new_tibble()</code> is now mandatory.
+<p>This means that the <code>nrow</code> argument to <a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html"><code>new_tibble()</code></a> is now mandatory.
 We are aware that this might be the single most disruptive change, but we think that any guesswork here would be detrimental to stability (especially in corner cases) and that this particular problem is very easy to fix.
 The <code>nrow</code> argument already existed in tibble v1.4.2, so code that uses it requires no change and should continue to work.
-If you need to add <code>nrow</code> arguments to <code>new_tibble()</code> calls, you can do so independently of the tibble v2.0.0 release.
+If you need to add <code>nrow</code> arguments to <a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html"><code>new_tibble()</code></a> calls, you can do so independently of the tibble v2.0.0 release.
 Please be aware that <code>nrow</code> must be passed as a named argument, because it comes after the ellipsis <code>...</code> in the signature. Here are common patterns for setting the <code>nrow</code> argument:</p>
 <pre class="r"><code>library(tibble)
 
@@ -69,7 +69,7 @@ new_tibble(x, nrow = nrow_x)
 <div id="coercion-and-name-repair" class="section level2">
 <h2>Coercion and name repair</h2>
 <p>The tibble mentality has always been that the user is responsible for managing column names, i.e. names are not automatically munged. This remains true, but the development version of tibble is stricter about names and offers more support for name repair.</p>
-<p>In the development version of tibble, by default, column names must exist and be unique. Some packages use <code>as_tibble()</code> internally to coerce a dysfunctionally-named object to a tibble and <em>then</em> apply proper column names. Here’s a typical error and solution:</p>
+<p>In the development version of tibble, by default, column names must exist and be unique. Some packages use <a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html"><code>as_tibble()</code></a> internally to coerce a dysfunctionally-named object to a tibble and <em>then</em> apply proper column names. Here’s a typical error and solution:</p>
 <pre class="r"><code>library(tibble)
 
 (m &lt;- cov(unname(iris[-5])))
@@ -100,8 +100,8 @@ as_tibble(m)
 #&gt; 2 -0.0424  0.190  -0.330 -0.122
 #&gt; 3  1.27   -0.330   3.12   1.30 
 #&gt; 4  0.516  -0.122   1.30   0.581</code></pre>
-<p>If possible, we recommend applying your “good” column names prior to calling <code>as_tibble()</code>. This creates code that works with tibble v1.4.2 and the development version, which is very appealing. For good examples, see these pull requests to <a href="https://github.com/ropensci/drake/pull/586">drake</a>, <a href="https://github.com/facebook/prophet/pull/739">prophet</a>, and <a href="https://github.com/tidymodels/broom/pull/536">broom</a>.</p>
-<p>It is also possible to use the new <code>.name_repair</code> argument in <code>tibble()</code> and <code>as_tibble()</code> (more below) to explicitly declare your intention around column names. This code would require <code>packageVersion(&quot;tibble&quot;) &gt;= &quot;2.0.0&quot;</code>:</p>
+<p>If possible, we recommend applying your “good” column names prior to calling <a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html"><code>as_tibble()</code></a>. This creates code that works with tibble v1.4.2 and the development version, which is very appealing. For good examples, see these pull requests to <a href="https://github.com/ropensci/drake/pull/586">drake</a>, <a href="https://github.com/facebook/prophet/pull/739">prophet</a>, and <a href="https://github.com/tidymodels/broom/pull/536">broom</a>.</p>
+<p>It is also possible to use the new <code>.name_repair</code> argument in <a href="https://tibble.tidyverse.org/dev/reference/tibble.html"><code>tibble()</code></a> and <a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html"><code>as_tibble()</code></a> (more below) to explicitly declare your intention around column names. This code would require <code>packageVersion(&quot;tibble&quot;) &gt;= &quot;2.0.0&quot;</code>:</p>
 <pre class="r"><code># Alternative: use new `.name_repair` argument to permit dysfunctional names
 m &lt;- cov(unname(iris[-5]))
 as_tibble(m, .name_repair = &quot;minimal&quot;)
@@ -129,8 +129,8 @@ as_tibble(m, .name_repair = &quot;unique&quot;)
 #&gt; 3  1.27   -0.330   3.12   1.30 
 #&gt; 4  0.516  -0.122   1.30   0.581</code></pre>
 <p>What is the motivation for this increased attention to column names? The tibble package is offering stronger encouragement for names where each column can be identified by name and, preferably, without having to resort to backticks. Column names that don’t meet these requirements are still allowed, but the user needs to permit them explicitly.</p>
-<p>After all, there are scenarios where problematic names should be tolerated. For example, after importing data, the user might need to inspect the data in order to determine which columns to keep. Or perhaps the column names contain data that is about to be converted to a proper variable with <code>gather()</code>.</p>
-<p>The <code>tibble()</code> constructor and the <code>as_tibble()</code> generic now support a new <code>.name_repair</code> argument that covers most use cases:</p>
+<p>After all, there are scenarios where problematic names should be tolerated. For example, after importing data, the user might need to inspect the data in order to determine which columns to keep. Or perhaps the column names contain data that is about to be converted to a proper variable with <a href="https://tidyr.tidyverse.org/reference/gather.html"><code>gather()</code></a>.</p>
+<p>The <a href="https://tibble.tidyverse.org/dev/reference/tibble.html"><code>tibble()</code></a> constructor and the <a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html"><code>as_tibble()</code></a> generic now support a new <code>.name_repair</code> argument that covers most use cases:</p>
 <ul>
 <li><code>&quot;minimal&quot;</code>: No name repair or checks, beyond basic existence.</li>
 <li><code>&quot;unique&quot;</code>: Make sure names are unique and not empty.</li>
@@ -139,12 +139,12 @@ as_tibble(m, .name_repair = &quot;unique&quot;)
 <li>a function: apply custom name repair (e.g., <code>.name_repair = make.names</code> or <code>.name_repair = ~make.names(., unique = TRUE)</code> for names in the style of base R).</li>
 </ul>
 <p>See <code>?`name-repair`</code> for more details.</p>
-<p>Packages that are in the business of making tibbles may even want to expose the <code>.name_repair</code> argument and pass it through to <code>tibble()</code> or <code>as_tibble()</code>.
+<p>Packages that are in the business of making tibbles may even want to expose the <code>.name_repair</code> argument and pass it through to <a href="https://tibble.tidyverse.org/dev/reference/tibble.html"><code>tibble()</code></a> or <a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html"><code>as_tibble()</code></a>.
 For example, this is the approach planned for <a href="https://readxl.tidyverse.org">readxl</a>, which reads rectangular data out of Excel workbooks.</p>
 </div>
 <div id="deprecation-of-validate-in-as_tibble" class="section level2">
-<h2>Deprecation of <code>validate</code> in <code>as_tibble()</code></h2>
-<p>In tibble v1.4.2, <code>as_tibble()</code> has a <code>validate</code> argument, but its default behaviour value was inconsistent across different methods and there was no equivalent argument for <code>tibble()</code>. The <code>validate</code> argument is now soft-deprecated and its use will trigger a message, once per session. The <code>validate</code> argument will eventually be removed, but for now it can be used jointly with the new <code>.name_repair</code> argument (without even triggering a message). This is possible, because fortunately the <code>.name_repair</code> argument to <code>as_tibble()</code> is ignored in tibble v1.4.2.</p>
+<h2>Deprecation of <code>validate</code> in <a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html"><code>as_tibble()</code></a></h2>
+<p>In tibble v1.4.2, <a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html"><code>as_tibble()</code></a> has a <code>validate</code> argument, but its default behaviour value was inconsistent across different methods and there was no equivalent argument for <a href="https://tibble.tidyverse.org/dev/reference/tibble.html"><code>tibble()</code></a>. The <code>validate</code> argument is now soft-deprecated and its use will trigger a message, once per session. The <code>validate</code> argument will eventually be removed, but for now it can be used jointly with the new <code>.name_repair</code> argument (without even triggering a message). This is possible, because fortunately the <code>.name_repair</code> argument to <a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html"><code>as_tibble()</code></a> is ignored in tibble v1.4.2.</p>
 <p>Here’s what <code>validate</code> does in the development version of tibble for tibbles, data frames, and matrices, along with suggested alternatives.</p>
 <div id="tibbles-and-data-frames" class="section level3">
 <h3>Tibbles and data frames</h3>
@@ -247,7 +247,7 @@ as_tibble(df, .name_repair = &quot;universal&quot;)
 #&gt;    a..1  a..2
 #&gt;   &lt;dbl&gt; &lt;dbl&gt;
 #&gt; 1     5     6</code></pre>
-<p>tibble’s name repair strategies are currently only exposed in <code>tibble()</code> and <code>as_tibble()</code>, not (yet?) as utility functions that operate on a vector of names.</p>
+<p>tibble’s name repair strategies are currently only exposed in <a href="https://tibble.tidyverse.org/dev/reference/tibble.html"><code>tibble()</code></a> and <a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html"><code>as_tibble()</code></a>, not (yet?) as utility functions that operate on a vector of names.</p>
 </div>
 <div id="other-changes" class="section level2">
 <h2>Other changes</h2>

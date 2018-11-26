@@ -38,22 +38,22 @@ For the full list of changes, features, and bug fixes, please see the [release n
 
 ## Tibble construction and validation
 
-End users should use the `tibble()` function to construct tibbles.
+End users should use the [`tibble()`](https://tibble.tidyverse.org/dev/reference/tibble.html) function to construct tibbles.
 It checks the input for consistency and makes sure that the returned tibble is valid.
 
-Package developers, however, can also consider the low-level `new_tibble()` constructor. Use `new_tibble()` to quickly construct a tibble from a list if you are very sure that the input is well-formed (i.e., a list of vectors of equal length).
+Package developers, however, can also consider the low-level [`new_tibble()`](https://tibble.tidyverse.org/dev/reference/new_tibble.html) constructor. Use [`new_tibble()`](https://tibble.tidyverse.org/dev/reference/new_tibble.html) to quickly construct a tibble from a list if you are very sure that the input is well-formed (i.e., a list of vectors of equal length).
 This function also supports the construction of subclasses of tibble through the `class` argument.
 
-In the development version of tibble, the `new_tibble()` constructor is a more faithful implementation of the [design advice for S3 classes given in Advanced R](https://adv-r.hadley.nz/s3.html#s3-classes).
+In the development version of tibble, the [`new_tibble()`](https://tibble.tidyverse.org/dev/reference/new_tibble.html) constructor is a more faithful implementation of the [design advice for S3 classes given in Advanced R](https://adv-r.hadley.nz/s3.html#s3-classes).
 Specifically:
 
-- `new_tibble()` is very fast and does very little checking itself.
-- The new `validate_tibble()` function is responsible for validating the structure of a tibble.
+- [`new_tibble()`](https://tibble.tidyverse.org/dev/reference/new_tibble.html) is very fast and does very little checking itself.
+- The new [`validate_tibble()`](https://tibble.tidyverse.org/dev/reference/new_tibble.html) function is responsible for validating the structure of a tibble.
 
-This means that the `nrow` argument to `new_tibble()` is now mandatory.
+This means that the `nrow` argument to [`new_tibble()`](https://tibble.tidyverse.org/dev/reference/new_tibble.html) is now mandatory.
 We are aware that this might be the single most disruptive change, but we think that any guesswork here would be detrimental to stability (especially in corner cases) and that this particular problem is very easy to fix.
 The `nrow` argument already existed in tibble v1.4.2, so code that uses it requires no change and should continue to work.
-If you need to add `nrow` arguments to `new_tibble()` calls, you can do so independently of the tibble v2.0.0 release.
+If you need to add `nrow` arguments to [`new_tibble()`](https://tibble.tidyverse.org/dev/reference/new_tibble.html) calls, you can do so independently of the tibble v2.0.0 release.
 Please be aware that `nrow` must be passed as a named argument, because it comes after the ellipsis `...` in the signature. Here are common patterns for setting the `nrow` argument:
 
 ```{r}
@@ -76,7 +76,7 @@ new_tibble(x, nrow = nrow_x)
 
 The tibble mentality has always been that the user is responsible for managing column names, i.e. names are not automatically munged. This remains true, but the development version of tibble is stricter about names and offers more support for name repair.
 
-In the development version of tibble, by default, column names must exist and be unique. Some packages use `as_tibble()` internally to coerce a dysfunctionally-named object to a tibble and *then* apply proper column names. Here's a typical error and solution:
+In the development version of tibble, by default, column names must exist and be unique. Some packages use [`as_tibble()`](https://tibble.tidyverse.org/dev/reference/as_tibble.html) internally to coerce a dysfunctionally-named object to a tibble and *then* apply proper column names. Here's a typical error and solution:
 
 ```{r}
 library(tibble)
@@ -97,9 +97,9 @@ as_tibble(m)
 
 ```
 
-If possible, we recommend applying your "good" column names prior to calling `as_tibble()`. This creates code that works with tibble v1.4.2 and the development version, which is very appealing. For good examples, see these pull requests to [drake](https://github.com/ropensci/drake/pull/586), [prophet](https://github.com/facebook/prophet/pull/739), and [broom](https://github.com/tidymodels/broom/pull/536).
+If possible, we recommend applying your "good" column names prior to calling [`as_tibble()`](https://tibble.tidyverse.org/dev/reference/as_tibble.html). This creates code that works with tibble v1.4.2 and the development version, which is very appealing. For good examples, see these pull requests to [drake](https://github.com/ropensci/drake/pull/586), [prophet](https://github.com/facebook/prophet/pull/739), and [broom](https://github.com/tidymodels/broom/pull/536).
 
-It is also possible to use the new `.name_repair` argument in `tibble()` and `as_tibble()` (more below) to explicitly declare your intention around column names. This code would require `packageVersion("tibble") >= "2.0.0"`:
+It is also possible to use the new `.name_repair` argument in [`tibble()`](https://tibble.tidyverse.org/dev/reference/tibble.html) and [`as_tibble()`](https://tibble.tidyverse.org/dev/reference/as_tibble.html) (more below) to explicitly declare your intention around column names. This code would require `packageVersion("tibble") >= "2.0.0"`:
 
 ```{r}
 # Alternative: use new `.name_repair` argument to permit dysfunctional names
@@ -113,9 +113,9 @@ as_tibble(m, .name_repair = "unique")
 
 What is the motivation for this increased attention to column names? The tibble package is offering stronger encouragement for names where each column can be identified by name and, preferably, without having to resort to backticks. Column names that don't meet these requirements are still allowed, but the user needs to permit them explicitly.
 
-After all, there are scenarios where problematic names should be tolerated. For example, after importing data, the user might need to inspect the data in order to determine which columns to keep. Or perhaps the column names contain data that is about to be converted to a proper variable with `gather()`.
+After all, there are scenarios where problematic names should be tolerated. For example, after importing data, the user might need to inspect the data in order to determine which columns to keep. Or perhaps the column names contain data that is about to be converted to a proper variable with [`gather()`](https://tidyr.tidyverse.org/reference/gather.html).
 
-The `tibble()` constructor and the `as_tibble()` generic now support a new `.name_repair` argument that covers most use cases:
+The [`tibble()`](https://tibble.tidyverse.org/dev/reference/tibble.html) constructor and the [`as_tibble()`](https://tibble.tidyverse.org/dev/reference/as_tibble.html) generic now support a new `.name_repair` argument that covers most use cases:
 
 - `"minimal"`: No name repair or checks, beyond basic existence.
 - `"unique"`: Make sure names are unique and not empty.
@@ -125,12 +125,12 @@ The `tibble()` constructor and the `as_tibble()` generic now support a new `.nam
 
 See `` ?`name-repair` `` for more details.
 
-Packages that are in the business of making tibbles may even want to expose the `.name_repair` argument and pass it through to `tibble()` or `as_tibble()`.
+Packages that are in the business of making tibbles may even want to expose the `.name_repair` argument and pass it through to [`tibble()`](https://tibble.tidyverse.org/dev/reference/tibble.html) or [`as_tibble()`](https://tibble.tidyverse.org/dev/reference/as_tibble.html).
 For example, this is the approach planned for [readxl](https://readxl.tidyverse.org), which reads rectangular data out of Excel workbooks.
 
-## Deprecation of `validate` in `as_tibble()`
+## Deprecation of `validate` in [`as_tibble()`](https://tibble.tidyverse.org/dev/reference/as_tibble.html)
 
-In tibble v1.4.2, `as_tibble()` has a `validate` argument, but its default behaviour value was inconsistent across different methods and there was no equivalent argument for `tibble()`. The `validate` argument is now soft-deprecated and its use will trigger a message, once per session. The `validate` argument will eventually be removed, but for now it can be used jointly with the new `.name_repair` argument (without even triggering a message). This is possible, because fortunately the `.name_repair` argument to `as_tibble()` is ignored in tibble v1.4.2.
+In tibble v1.4.2, [`as_tibble()`](https://tibble.tidyverse.org/dev/reference/as_tibble.html) has a `validate` argument, but its default behaviour value was inconsistent across different methods and there was no equivalent argument for [`tibble()`](https://tibble.tidyverse.org/dev/reference/tibble.html). The `validate` argument is now soft-deprecated and its use will trigger a message, once per session. The `validate` argument will eventually be removed, but for now it can be used jointly with the new `.name_repair` argument (without even triggering a message). This is possible, because fortunately the `.name_repair` argument to [`as_tibble()`](https://tibble.tidyverse.org/dev/reference/as_tibble.html) is ignored in tibble v1.4.2.
 
 Here's what `validate` does in the development version of tibble for tibbles, data frames, and matrices, along with suggested alternatives.
 
@@ -195,7 +195,7 @@ set_tidy_names(df)
 as_tibble(df, .name_repair = "universal")
 ```
 
-tibble's name repair strategies are currently only exposed in `tibble()` and `as_tibble()`, not (yet?) as utility functions that operate on a vector of names.
+tibble's name repair strategies are currently only exposed in [`tibble()`](https://tibble.tidyverse.org/dev/reference/tibble.html) and [`as_tibble()`](https://tibble.tidyverse.org/dev/reference/as_tibble.html), not (yet?) as utility functions that operate on a vector of names.
 
 ## Other changes
 
