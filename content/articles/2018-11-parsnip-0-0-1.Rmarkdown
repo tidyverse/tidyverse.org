@@ -1,6 +1,6 @@
 ---
 title: parsnip
-date: 2018-11-20
+date: 2018-11-27
 slug: parsnip-0-0-1
 author: Max Kuhn
 categories: [package]
@@ -111,11 +111,7 @@ car_model <- linear_reg()
 car_model
 ```
 
-That's pretty underwhelming because we haven't given it any details yet. `parsnip` offers a variety of methods to fit this general model. We will use ordinary least squares, but could also use penalized least squares too (via the lasso, ridge regression, Bayesian estimation, dropout, etc).
-
-AH: Unclear to me what it means to fit a penalized linear model via dropout. maybe clarify this is casting the problem as a neural net.
-
-We differentiate these cases by the ***computational engines***, which is a combination of the estimation type, such as least squares, and the _implemention_. The latter could be an R package or some other computing platform like Spark or Tensorflow. 
+That's pretty underwhelming because we haven't given it any details yet. `parsnip` offers a variety of methods to fit this general model. We will use ordinary least squares, but could also use penalized least squares too (via the lasso, ridge regression, Bayesian estimation, dropout, etc). We differentiate these cases by the ***computational engines***, which is a combination of the estimation type, such as least squares, and the _implemention_. The latter could be an R package or some other computing platform like Spark or Tensorflow. 
 
 To start simple, let's use `lm`:
 
@@ -127,8 +123,6 @@ lm_car_model
 ```
 
 There are no additional arguments that we should specify here, so let's jump to fitting the actual model. Our two choices at this point are whether to use `fit()` or `fit_xy()`. `fit()` takes a formula, while `fit_xy()` takes objects for the predictors and outcome(s). Recall that `glm` and `lm` only allow for formulas, while `glmnet` only takes a matrix of predictors and an outcome. `parsnip` allows for either so that you can avoid having to think about what the underlying model function requires. To demonstrate, let's make a simple model:
-
-AH: perhaps comment on whether `fit_xy` needs matrices, or if it can also deal with data.frame/tibble
 
 ```{r lm-fits}
 lm_fit <-
@@ -160,7 +154,7 @@ To fit this model, `parsnip` calls `stan_glm()` from the [`rstanarm`](http://mc-
 ```{r lm-stan-spec-args}
 stan_car_model <- 
   car_model %>%
-  set_engine("stan", iter = 5000, prior_intercept = rstanarm::cauchy(0,10), seed = 2347)
+  set_engine("stan", iter = 5000, prior_intercept = rstanarm::cauchy(0, 10), seed = 2347)
 stan_car_model
 ```
 
@@ -218,7 +212,6 @@ glmnet(x = x_mat, y = car_train$mpg, alpha = 0, lambda = 0.1)
 
 `alpha = 0` tells `glmnet` to only use an L2 penalty (as opposed to L1  and L2). 
 
-AH: the "possible syntax here make it unclear to me whether or not this actually works"
 
 For `keras`, [possible syntax](https://keras.rstudio.com/articles/tutorial_basic_regression.html) could be:
 

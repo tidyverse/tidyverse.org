@@ -1,6 +1,6 @@
 ---
 title: parsnip
-date: 2018-11-20
+date: 2018-11-27
 slug: parsnip-0-0-1
 author: Max Kuhn
 categories: [package]
@@ -68,27 +68,27 @@ library(tidymodels)
 ```
 
 ```
-#> ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────────────────── tidymodels 0.0.1 ──
+#> ── Attaching packages ─────────────────────────────────────────────────────────────────── tidymodels 0.0.1 ──
 ```
 
 ```
-#> ✔ ggplot2   3.1.0           ✔ recipes   0.1.4 
-#> ✔ tibble    1.4.99.9005     ✔ broom     0.5.0      
-#> ✔ purrr     0.2.5           ✔ yardstick 0.0.2      
-#> ✔ dplyr     0.7.8           ✔ infer     0.3.1      
-#> ✔ rsample   0.0.2
+#> ✔ ggplot2   3.1.0     ✔ recipes   0.1.4
+#> ✔ tibble    1.4.2     ✔ broom     0.5.0
+#> ✔ purrr     0.2.5     ✔ yardstick 0.0.2
+#> ✔ dplyr     0.7.8     ✔ infer     0.3.1
+#> ✔ rsample   0.0.3
 ```
 
 ```
-#> ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────── tidymodels_conflicts() ──
+#> ── Conflicts ────────────────────────────────────────────────────────────────────── tidymodels_conflicts() ──
 #> ✖ purrr::accumulate()      masks foreach::accumulate()
 #> ✖ rsample::fill()          masks tidyr::fill()
 #> ✖ dplyr::filter()          masks stats::filter()
 #> ✖ yardstick::get_weights() masks keras::get_weights()
 #> ✖ dplyr::lag()             masks stats::lag()
-#> ✖ recipes::prepper()       masks rsample::prepper()
+#> ✖ rsample::populate()      masks Rcpp::populate()
 #> ✖ recipes::step()          masks stats::step()
-#> ✖ yardstick::tidy()        masks recipes::tidy(), broom::tidy()
+#> ✖ yardstick::tidy()        masks broom::tidy(), recipes::tidy(), rsample::tidy()
 #> ✖ purrr::when()            masks foreach::when()
 ```
 
@@ -201,7 +201,7 @@ To fit this model, `parsnip` calls `stan_glm()` from the [`rstanarm`](http://mc-
 ```r
 stan_car_model <- 
   car_model %>%
-  set_engine("stan", iter = 5000, prior_intercept = rstanarm::cauchy(0,10), seed = 2347)
+  set_engine("stan", iter = 5000, prior_intercept = rstanarm::cauchy(0, 10), seed = 2347)
 stan_car_model
 ```
 
@@ -252,14 +252,18 @@ stan_fit
 #> am           2.3    2.7  
 #> gear        -0.4    2.1  
 #> carb         0.6    1.4  
-#> sigma        3.1    0.6  
+#> 
+#> Auxiliary parameter(s):
+#>       Median MAD_SD
+#> sigma 3.1    0.6   
 #> 
 #> Sample avg. posterior predictive distribution of y:
 #>          Median MAD_SD
 #> mean_PPD 20.6    0.9  
 #> 
 #> ------
-#> For info on the priors used see help('prior_summary.stanreg').
+#> * For help interpreting the printed output see ?print.stanreg
+#> * For info on the priors used see ?prior_summary.stanreg
 ```
 
 That was easy. 
@@ -367,6 +371,7 @@ glmnet(x = x_mat, y = car_train$mpg, alpha = 0, lambda = 0.1)
 
 `alpha = 0` tells `glmnet` to only use an L2 penalty (as opposed to L1  and L2). 
 
+
 For `keras`, [possible syntax](https://keras.rstudio.com/articles/tutorial_basic_regression.html) could be:
 
 
@@ -472,7 +477,7 @@ Other packages, such as [`caret`](https://topepo.github.io/caret/) and `mlr`, he
 
 The [`tidymodels` package collection](https://github.com/tidymodels), which includes `parsnip`, has other packages for many of these tasks, and they are designed to work together. We are working towards higher-level APIs that can replicate and extend what the current model packages can do. 
 
-For example, `fit()` and `fit_xy()` do not involve recipes. It might seem natural to include a recipe interface like `caret` does (and, originally, it did). The reason that recipes are excluded from fitting `parsnip` objects is that you probably want to process the recipe _once_ and use it across different models. To include it would link that specific recipe to _each_ fitted model object. 
+For example, `fit()` and `fit_xy()` do not involve recipes. It might seem natural to include a recipe interface like `caret` does (and, originally, `parsnip` did). The reason that recipes are excluded from fitting `parsnip` objects is that you probably want to process the recipe _once_ and use it across different models. To include it would link that specific recipe to _each_ fitted model object. 
 
 As an alternative, we are working on a different object type that is similar to existing pipelines where a set of modeling activities can be woven together to represent the entire **modeling process**. To get an idea of the activities that we have in store for tidy modeling, look [here](https://github.com/orgs/tidymodels/projects).  
 
