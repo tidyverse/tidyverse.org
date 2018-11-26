@@ -17,7 +17,7 @@ categories: [package]
 <pre class="r"><code>devtools::install_github(&quot;tidyverse/tibble&quot;)</code></pre>
 <p>We’re making a pre-release announcement, because some changes require the attention of maintainers of packages that import or otherwise depend on tibble.
 This post describes how to adapt to the next version of tibble and is also an invitation for maintainers to provide feedback before v2.0.0 is finalized and submitted to CRAN.
-The easiest way to get in touch is to file an issue at <a href="https://github.com/tidyverse/tibble/issues" class="uri">https://github.com/tidyverse/tibble/issues</a> (or to comment to an existing one).
+The easiest way to get in touch is to file an issue at <a href="https://github.com/tidyverse/tibble/issues" class="uri">https://github.com/tidyverse/tibble/issues</a> (or to comment on an existing one).
 This blog post is aimed at package developers and those who maintain “production” scripts or apps. A high-level overview of new user-facing features will come in a separate blog post.</p>
 <div id="reverse-dependency-checks" class="section level2">
 <h2>Reverse dependency checks</h2>
@@ -35,7 +35,7 @@ This function also supports the construction of subclasses of tibble through the
 <p>In the development version of tibble, the <code>new_tibble()</code> constructor is a more faithful implementation of the <a href="https://adv-r.hadley.nz/s3.html#s3-classes">design advice for S3 classes given in Advanced R</a>.
 Specifically:</p>
 <ul>
-<li><code>new_tibble()</code> is very fast again and does very little checking itself.</li>
+<li><code>new_tibble()</code> is very fast and does very little checking itself.</li>
 <li>The new <code>validate_tibble()</code> function is responsible for validating the structure of a tibble.</li>
 </ul>
 <p>This means that the <code>nrow</code> argument to <code>new_tibble()</code> is now mandatory.
@@ -139,7 +139,8 @@ as_tibble(m, .name_repair = &quot;unique&quot;)
 <li>a function: apply custom name repair (e.g., <code>.name_repair = make.names</code> or <code>.name_repair = ~make.names(., unique = TRUE)</code> for names in the style of base R).</li>
 </ul>
 <p>See <code>?`name-repair`</code> for more details.</p>
-<p>Packages that are in the business of making tibbles may even want to expose the <code>.name_repair</code> argument and pass it through to tibble. For example, this is the approach planned for <a href="https://readxl.tidyverse.org">readxl</a>, which reads rectangular data out of Excel workbooks.</p>
+<p>Packages that are in the business of making tibbles may even want to expose the <code>.name_repair</code> argument and pass it through to <code>tibble()</code> or <code>as_tibble()</code>.
+For example, this is the approach planned for <a href="https://readxl.tidyverse.org">readxl</a>, which reads rectangular data out of Excel workbooks.</p>
 </div>
 <div id="deprecation-of-validate-in-as_tibble" class="section level2">
 <h2>Deprecation of <code>validate</code> in <code>as_tibble()</code></h2>
@@ -149,8 +150,8 @@ as_tibble(m, .name_repair = &quot;unique&quot;)
 <h3>Tibbles and data frames</h3>
 <p>The default was <code>validate = FALSE</code> for tibbles and <code>validate = TRUE</code> for data frames.
 Code that worked before for tibbles can now throw unexpected errors if the resulting tibble has problematic names.
-Use the default instead of <code>validate = TRUE</code>, and <code>.name_repair = &quot;minimal&quot;</code> in addition to <code>validate = FALSE</code>.
-If your code targets tibble &gt;= v2.0.0, you can remove the <code>validate</code> argument.</p>
+To avoid warnings with tibble v2.0.0, use the default instead of <code>validate = TRUE</code>, and <code>.name_repair = &quot;minimal&quot;</code> in addition to <code>validate = FALSE</code>.
+If your code targets tibble &gt;= v2.0.0 exclusively, you can remove the <code>validate</code> argument.</p>
 <pre class="r"><code>df &lt;- new_tibble(list(a = 5, a = 6), nrow = 1)
 
 # errors, as it should, because names are duplicated ... but also messages
@@ -194,8 +195,8 @@ as_tibble(df, validate = FALSE, .name_repair = &quot;minimal&quot;)
 </div>
 <div id="matrices-and-other-objects" class="section level3">
 <h3>Matrices and other objects</h3>
-<p>The <code>validate</code> argument was silently ignored in v1.4.2, now triggers a message.
-Remove the <code>validate</code> argument, or add a consistent <code>.name_repair</code> argument.
+<p>The <code>validate</code> argument now triggers a message, it was silently ignored in v1.4.2.
+For compatibility with v2.0.0, remove the <code>validate</code> argument, or add a consistent <code>.name_repair</code> argument.
 If you need anything other than <code>&quot;minimal&quot;</code> or <code>&quot;check_unique&quot;</code> and need to keep the <code>validate</code> argument, rename the columns beforehand.</p>
 <pre class="r"><code>m &lt;- cov(iris[-5])
 # Assign colnames() if necessary

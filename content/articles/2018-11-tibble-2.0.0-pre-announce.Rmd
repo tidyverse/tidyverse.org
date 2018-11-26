@@ -24,7 +24,7 @@ devtools::install_github("tidyverse/tibble")
 
 We're making a pre-release announcement, because some changes require the attention of maintainers of packages that import or otherwise depend on tibble.
 This post describes how to adapt to the next version of tibble and is also an invitation for maintainers to provide feedback before v2.0.0 is finalized and submitted to CRAN.
-The easiest way to get in touch is to file an issue at https://github.com/tidyverse/tibble/issues (or to comment to an existing one).
+The easiest way to get in touch is to file an issue at https://github.com/tidyverse/tibble/issues (or to comment on an existing one).
 This blog post is aimed at package developers and those who maintain "production" scripts or apps. A high-level overview of new user-facing features will come in a separate blog post.
 
 ## Reverse dependency checks
@@ -47,7 +47,7 @@ This function also supports the construction of subclasses of tibble through the
 In the development version of tibble, the `new_tibble()` constructor is a more faithful implementation of the [design advice for S3 classes given in Advanced R](https://adv-r.hadley.nz/s3.html#s3-classes).
 Specifically:
 
-- `new_tibble()` is very fast again and does very little checking itself.
+- `new_tibble()` is very fast and does very little checking itself.
 - The new `validate_tibble()` function is responsible for validating the structure of a tibble.
 
 This means that the `nrow` argument to `new_tibble()` is now mandatory.
@@ -125,7 +125,8 @@ The `tibble()` constructor and the `as_tibble()` generic now support a new `.nam
 
 See `` ?`name-repair` `` for more details.
 
-Packages that are in the business of making tibbles may even want to expose the `.name_repair` argument and pass it through to tibble. For example, this is the approach planned for [readxl](https://readxl.tidyverse.org), which reads rectangular data out of Excel workbooks.
+Packages that are in the business of making tibbles may even want to expose the `.name_repair` argument and pass it through to `tibble()` or `as_tibble()`.
+For example, this is the approach planned for [readxl](https://readxl.tidyverse.org), which reads rectangular data out of Excel workbooks.
 
 ## Deprecation of `validate` in `as_tibble()`
 
@@ -137,8 +138,8 @@ Here's what `validate` does in the development version of tibble for tibbles, da
 
 The default was `validate = FALSE` for tibbles and `validate = TRUE` for data frames.
 Code that worked before for tibbles can now throw unexpected errors if the resulting tibble has problematic names.
-Use the default instead of `validate = TRUE`, and `.name_repair = "minimal"` in addition to `validate = FALSE`.
-If your code targets tibble >= v2.0.0, you can remove the `validate` argument.
+To avoid warnings with tibble v2.0.0, use the default instead of `validate = TRUE`, and `.name_repair = "minimal"` in addition to `validate = FALSE`.
+If your code targets tibble >= v2.0.0 exclusively, you can remove the `validate` argument.
 
 ```{r}
 df <- new_tibble(list(a = 5, a = 6), nrow = 1)
@@ -167,8 +168,8 @@ as_tibble(df, validate = FALSE, .name_repair = "minimal")
 
 ### Matrices and other objects
 
-The `validate` argument was silently ignored in v1.4.2, now triggers a message.
-Remove the `validate` argument, or add a consistent `.name_repair` argument.
+The `validate` argument now triggers a message, it was silently ignored in v1.4.2.
+For compatibility with v2.0.0, remove the `validate` argument, or add a consistent `.name_repair` argument.
 If you need anything other than `"minimal"` or `"check_unique"` and need to keep the `validate` argument, rename the columns beforehand.
 
 ```{r}
