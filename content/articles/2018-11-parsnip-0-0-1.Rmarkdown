@@ -111,7 +111,11 @@ car_model <- linear_reg()
 car_model
 ```
 
-That's pretty underwhelming because we haven't given it any details yet. `parsnip` offers a variety of methods to fit this general model. We will use ordinary least squares, but could also use penalized least squares too (via the lasso, ridge regression, Bayesian estimation, dropout, etc). We differentiate these cases by the ***computational engines***, which is a combination of the estimation type, such as least squares, and the _implemention_. The latter could be an R package or some other computing platform like Spark or Tensorflow. 
+That's pretty underwhelming because we haven't given it any details yet. `parsnip` offers a variety of methods to fit this general model. We will use ordinary least squares, but could also use penalized least squares too (via the lasso, ridge regression, Bayesian estimation, dropout, etc).
+
+AH: Unclear to me what it means to fit a penalized linear model via dropout. maybe clarify this is casting the problem as a neural net.
+
+We differentiate these cases by the ***computational engines***, which is a combination of the estimation type, such as least squares, and the _implemention_. The latter could be an R package or some other computing platform like Spark or Tensorflow. 
 
 To start simple, let's use `lm`:
 
@@ -123,6 +127,8 @@ lm_car_model
 ```
 
 There are no additional arguments that we should specify here, so let's jump to fitting the actual model. Our two choices at this point are whether to use `fit()` or `fit_xy()`. `fit()` takes a formula, while `fit_xy()` takes objects for the predictors and outcome(s). Recall that `glm` and `lm` only allow for formulas, while `glmnet` only takes a matrix of predictors and an outcome. `parsnip` allows for either so that you can avoid having to think about what the underlying model function requires. To demonstrate, let's make a simple model:
+
+AH: perhaps comment on whether `fit_xy` needs matrices, or if it can also deal with data.frame/tibble
 
 ```{r lm-fits}
 lm_fit <-
@@ -212,6 +218,8 @@ glmnet(x = x_mat, y = car_train$mpg, alpha = 0, lambda = 0.1)
 
 `alpha = 0` tells `glmnet` to only use an L2 penalty (as opposed to L1  and L2). 
 
+AH: the "possible syntax here make it unclear to me whether or not this actually works"
+
 For `keras`, [possible syntax](https://keras.rstudio.com/articles/tutorial_basic_regression.html) could be:
 
 ```{r keras-code, eval = FALSE}
@@ -278,7 +286,7 @@ Other packages, such as [`caret`](https://topepo.github.io/caret/) and `mlr`, he
 
 The [`tidymodels` package collection](https://github.com/tidymodels), which includes `parsnip`, has other packages for many of these tasks, and they are designed to work together. We are working towards higher-level APIs that can replicate and extend what the current model packages can do. 
 
-For example, `fit()` and `fit_xy()` do not involve recipes. It might seem natural to include a recipe interface like `caret` does (and, originally, it did). The reason that recipes are excluded from fitting `parsnip` objects is that you probably want to process the recipe _once_ and use it across different models. To include it would link that specific recipe to _each_ fitted model object. 
+For example, `fit()` and `fit_xy()` do not involve recipes. It might seem natural to include a recipe interface like `caret` does (and, originally, `parsnip` did). The reason that recipes are excluded from fitting `parsnip` objects is that you probably want to process the recipe _once_ and use it across different models. To include it would link that specific recipe to _each_ fitted model object. 
 
 As an alternative, we are working on a different object type that is similar to existing pipelines where a set of modeling activities can be woven together to represent the entire **modeling process**. To get an idea of the activities that we have in store for tidy modeling, look [here](https://github.com/orgs/tidymodels/projects).  
 
