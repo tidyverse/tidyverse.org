@@ -1,7 +1,7 @@
 ---
 title: tidymodels package updates
-date: 2018-11-29
-slug: tidymodels-update-dec-18
+date: 2018-11-28
+slug: tidymodels-update-nov-18
 author: Max Kuhn, Davis Vaughan, Alex Hayes
 categories: [package]
 description: >
