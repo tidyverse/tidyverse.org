@@ -1,6 +1,6 @@
 ---
 title: parsnip
-date: 2018-11-27
+date: 2018-11-28
 slug: parsnip-0-0-1
 author: Max Kuhn
 categories: [package]
@@ -19,14 +19,14 @@ This is the first of several blog posts that discuss the package. More informati
 
 # The Problem
 
-The interface problem is something that I've talked about for some time. I'll use logistic regression to demonstrate the issue here. Many of us are familiar with the standard `glm` syntax for fitting models^[This syntax predates R and was formally described in the 1992 book _Statistical Models in S_. It's older than [_debian_](https://www.debian.org/doc/manuals/project-history/ch-intro.en.html#s1.1).]. It uses the formula method and, to fit a logistic model, the `family = binomial` argument is required. Suppose that we want to apply some regularization to the model. A popular choice is the `glmnet` package, but its interface is very different from `glm`:
+The interface problem is something that I've talked about for some time. I'll use logistic regression to demonstrate the issue here. Many of us are familiar with the standard `glm` syntax for fitting models^[This syntax predates R and was formally described in the 1992 book _Statistical Models in S_. It's older than [_debian_](https://www.debian.org/doc/manuals/project-history/ch-intro.en.html#s1.1).]. It uses the formula method and, to fit a logistic model, the `family = binomial` argument is required. Suppose that we want to apply some regularization to the model. A popular choice is the [`glmnet`](https://cran.r-project.org/package=glmnet) package, but its interface is very different from `glm`:
 
 * It does not use the formula method and expects the predictors in a matrix (so dummy variables must be pre-computed).
 * Nonstandard `family` objects are used. The argument is `family = "binomial"`. 
 
 While each of these is not a significant issue, these types of inconsistencies are common across R packages. The only way to avoid them is to only use a single package. 
 
-There is a larger issue when you want to fit the same model via `tensorflow`'s `keras` interface. `keras` has a beautiful approach to sequentially assembling deep learning models, but it has very little resemblance to the traditional approaches. Creating a simple logistic model requires the user to learn and use drastically different syntax. 
+There is a larger issue when you want to fit the same model via `tensorflow`'s [`keras`](https://keras.rstudio.com/) interface. `keras` has a beautiful approach to sequentially assembling deep learning models, but it has very little resemblance to the traditional approaches. Creating a simple logistic model requires the user to learn and use drastically different syntax. 
 
 There is also inconsistency in how different packages return predictions. _Most_ R packages use the `predict()` function to make predictions on new data. If we want to get class probabilities for our logistic regression model, using `predict(obj, newdata, type = "response")` will return a vector of probabilities for the second level of our factor. However, this convention can be wildly inconsistent across R packages. Examples are:
 
