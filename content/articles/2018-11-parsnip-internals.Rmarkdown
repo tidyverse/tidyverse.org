@@ -9,7 +9,7 @@ photo:
   author: Sharon McCutcheon
   url: https://unsplash.com/photos/wRoyrBjSBzM
 slug: parsnip-internals
-categories: package
+categories: [package]
 ---
 
 
