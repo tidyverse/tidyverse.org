@@ -15,11 +15,11 @@ categories: [package]
 
 
 
-[`parsnip`](https://tidymodels.github.io/parsnip/) was recently accepted to CRAN. Our [first blog post](https://www.tidyverse.org/articles/2018/11/parsnip-0-0-1/) was a top-level introduction. Here, we will goin into the design of some of the internals. If you end up looking at the package sources, there are going to be times that you question our sanity. This post is intended to go over some design decisions and provide some context. 
+[`parsnip`](https://tidymodels.github.io/parsnip/) was recently accepted to CRAN. Our [first blog post](https://www.tidyverse.org/articles/2018/11/parsnip-0-0-1/) was a top-level introduction. Here, we will go into the design of some of the internals. If you end up looking at the package sources, there are going to be times that you question our sanity. This post is intended to go over some design decisions and provide some context. 
 
-# My first solution: `caret`
+# My first solution: caret
 
-Having developed [`caret`](https://topepo.github.io/caret/) in early 2005, I was not prepared for what it would be like to maintain a package that wrapped more than 200 models. What `caret` does is to create code modules that define the different aspects of modeling, such as model fitting, prediction, and so on. These code modules are contained in lists, one per specific model. For example, here is one of the simplest lists for [`MASS::lda`](https://www.rdocumentation.org/packages/MASS/versions/7.3-51.1/topics/lda) (slightly abbreviated):
+Having developed [`caret`](https://topepo.github.io/caret/) in early 2005, I was not prepared for what it would be like to maintain a package that wrapped more than 200 models. What `caret` does is create code modules that define the different aspects of modeling, such as model fitting, prediction, and so on. These code modules are contained in lists, one per specific model. For example, here is one of the simplest lists for [`MASS::lda`](https://www.rdocumentation.org/packages/MASS/versions/7.3-51.1/topics/lda) (slightly abbreviated):
 
 
 ```r
@@ -46,14 +46,14 @@ Some notes:
  6. ✖ The system in `caret` rigidly defines what parameters can be tuned. It is a bit of a walled garden in this respect. 
  7. ✔ Code like `MASS::lda` is exposed if it is contained in a package's `R` directory. Because of this, there was a large number of package dependencies in early versions. `caret` was almost intolerable when it came time for CRAN to check the package. One way that I fixed this was to compile these code modules in an R list object and treat that as _data_ in the package. In this way, the package R files do not contain much specific model code and, many formal dependencies are avoided. 
  8. ✔ The ellipses (`...`) are heavily utilized here. This makes passing other arguments to the underlying fitting function trivial. This is probably still my favorite thing about the S language. 
- 8. ✖ In some cases, `caret` needs to intercept an object that might be in the ellipses in order to  modify the value. For example, the main tuning parameters for [`rpart`](https://www.rdocumentation.org/packages/rpart/versions/4.1-13/topics/rpart) models are in [`rpart.control`](https://www.rdocumentation.org/packages/rpart/versions/4.1-13/topics/rpart.control). If a user passes in an argument by the name of `control`, it will need to be captured and the appropriate arguments (like `cp`, `maxdepth`, or `minsplit`) are modified without changing the other arguments. That's not hard to do but it eliminates the nice parts that you get by using the ellipses. In the end, `do.call("rpart", args)` is used to fit the model. The downside of this is that the _data_ objects are embedded in `args` and, as an unhappy side-effect, the _data set gets embedded in `rpart`'s call object_. That's really bad. 
+ 8. ✖ In some cases, `caret` needs to intercept an object that might be in the ellipses in order to  modify the value. For example, the main tuning parameters for [`rpart`](https://www.rdocumentation.org/packages/rpart/versions/4.1-13/topics/rpart) models are in [`rpart.control`](https://www.rdocumentation.org/packages/rpart/versions/4.1-13/topics/rpart.control). If a user passes in an argument by the name of `control`, it will need to be captured and the appropriate arguments (like `cp`, `maxdepth`, or `minsplit`) are modified without changing the other arguments. That's not hard to do but it eliminates the benefits you get by using the ellipses. In the end, `do.call("rpart", args)` is used to fit the model. The downside of this is that the _data_ objects are embedded in `args` and, as an unhappy side-effect, the _data set gets embedded in `rpart`'s call object_. That's really bad. 
 
 When I began at RStudio, I had already been thinking about a different and, hopefully more elegant, way to do this for `tidymodels`. 
 
 
 # A focus on calls and quosures
 
-When `parsnip` fits a model, it constructs a call object that will be evaluated to create the model fit object (`rlang::call2` is excellent). For example, if we were doing this "by-hand" for something simple like `glm`, an initial function using `rlang` could be:
+When `parsnip` fits a model, it constructs a call object that will be evaluated to create the model fit object (`rlang::call2()` is excellent). For example, if we were doing this "by-hand" for something simple like `glm`, an initial function using `rlang` could be:
 
 
 ```r
@@ -89,7 +89,7 @@ glm_fit(family = stats::binomial)
 #> stats::glm(formula = ~, data = ~, family = ~stats::binomial)
 ```
 
-When these are printed, the tilde indicates which values are  _quosures_. A quosure is a combination of an `rlang` expression and a reference to the environment in which it originated. Since it is an expression, the value has not yet been evaluated inside of `glm_fit`. For this reason, when we pass `family = stats::binomial`, the object [`stats::binomial`](https://www.rdocumentation.org/packages/stats/versions/3.5.1/topics/family) is _not_ evaluated. If it were, the value of that object would be embedded into the call (type `unclass(binomial())` at an R prompt to see what this looks like). 
+When these are printed, the tilde indicates which values are  _quosures_. A quosure is a combination of an `rlang` expression and a reference to the environment in which it originated. Since it is an expression, the value has not yet been evaluated inside of `glm_fit()`. For this reason, when we pass `family = stats::binomial`, the object [`stats::binomial`](https://www.rdocumentation.org/packages/stats/versions/3.5.1/topics/family) is _not_ evaluated. If it were, the value of that object would be embedded into the call (type `unclass(binomial())` at an R prompt to see what this looks like). 
 
 Here's a better example:
 
@@ -102,7 +102,7 @@ glm_fit(mpg ~ ., data = mtcars, x = FALSE)
 #> stats::glm(formula = ~(mpg ~ .), data = ~mtcars, x = ~FALSE)
 ```
 
-The [`eval_tidy`](https://www.rdocumentation.org/packages/rlang/versions/0.2.2/topics/eval_tidy_) function can evaluate the arguments is the quosures when the call itself is evaluated. We get our model object as expected:
+[`eval_tidy()`](https://www.rdocumentation.org/packages/rlang/versions/0.2.2/topics/eval_tidy_) can evaluate the quosure arguments when the call itself is evaluated. We get our model object as expected:
 
 
 ```r
@@ -131,7 +131,7 @@ For `parsnip`, there are utility functions that create the call and others to ev
 glm_data <- list(func = "glm", package = "stats", required_args = c("formula", "data"))
 ```
 
-All of the other arguments are assembled from the model specification object or extra arguments for [`set_engine`](https://tidymodels.github.io/parsnip/reference/set_engine.html) and [`fit`](https://tidymodels.github.io/parsnip/reference/fit.html). This allows for a fairly compact representation of the information for the fitting module. Also, it does not expose the code in a way that requires a package dependency and doesn't contaminate the model call with actual object values. The same strategy can be used to produce predictions and other quantities. 
+All of the other arguments are assembled from the model specification object or extra arguments provided to [`set_engine()`](https://tidymodels.github.io/parsnip/reference/set_engine.html) and [`fit()`](https://tidymodels.github.io/parsnip/reference/fit.html). This allows for a fairly compact representation of the information for the fitting module. Also, it does not expose the code in a way that requires a package dependency and doesn't contaminate the model call with actual object values. The same strategy can be used to produce predictions and other quantities. 
 
 There are some other niceties too. If a package, like [`glmnet`](https://cran.r-project.org/package=glmnet) has a non-formula interface and requires the predictors to be in a matrix, that fitting function can just insert `x = as.matrix(x)` into the `glmnet` call instead of doing the matrix conversion prior to the model fit. 
 
@@ -139,7 +139,7 @@ Unsurprisingly, most model are more complex than our `glm` example. There are so
 
 Also, some prediction methods give back results that require post-processing. For example, class probability predictions for a multiclass `xgboost` model come back as _a vector_. For example, if you were to predict four samples of iris data, you would get a 12 element vector back that requires you to reshape the results into the appropriate 4x3 data frame. `parsnip` handles these by having slots for pre-processing the data and/or post-processing the raw prediction results. More information can be found on the [vignette for creating a model object](https://tidymodels.github.io/parsnip/articles/articles/Scratch.html). 
 
-Also, a lot of the package code revolves around getting the arguments right. There are some defaults arguments set by the package, such as `family = binomial` for logistic regression. These defaults can be overwritten but may also depend on the mode of the model (e.g. regression, classification, etc.). There are some arguments that you must _protect_ in case the user tries to modify it (e.g. `data`). Finally, the main arguments to `parsnip` model functions are standardized and need to eventually be converted back to their engine-specific names.  
+Also, a lot of the package code revolves around getting the arguments right. There are some default arguments set by the package, such as `family = binomial` for logistic regression. These defaults can be overwritten but may also depend on the mode of the model (e.g. regression, classification, etc.). There are also some arguments that `parsnp` _protects_ in case the user tries to modify them (e.g. `data`). Finally, the main arguments to `parsnip` model functions are standardized and need to eventually be converted back to their engine-specific names.
 
 
 # The down-side to using calls
@@ -218,9 +218,9 @@ One other downside is related to the _data_ used in the call. In the random fore
 
 This could happen for a few reasons. For example, if you are using a `recipe` that has a filter based on reducing correlation, the number of predictors may not be known until the recipe is prepped (and the number may vary inside of resampling). A more common example is related to dummy variables. If I use `fit_xy` instead of `fit` in the code above, the `Species` predictor in the iris data is expanded from one column into two dummy variable columns just prior to the model fit. This could affect the value of `mtry`. 
 
-There are a few ways to get around this. The first (and worst) is to use the data in an expression. Since `mtry` isn't evaluated until the model fit, you could try to use `mtry = floor(sqrt(ncol(data)))`. That's very brittle for a few different reasons. For one, _you_ may use the interface `fit(formula, data)` but the underlying model may be `model(x, y)` and the `data` object doesn't exist when the model call is evaluated. 
+There are a few ways to get around this. The first (and worst) is to use the data in an expression. Since `mtry` isn't evaluated until the model fit, you could try to use `mtry = floor(sqrt(ncol(data)))`. That's very brittle for a few different reasons. For one, _you_ may use the `parsnip` interface `fit(formula, data)`, but the underlying model may be `model_fn(x, y)` and the `data` object doesn't exist when the model call is evaluated. 
 
-For this reason, we added [data descriptors](https://tidymodels.github.io/parsnip/reference/descriptors.html) to `parsnip`. These are small functions that only work when the model is being fit and they capture relevant aspects of the data at that time. For example, the function `.obs()` can be used in an argument value to reference the number of rows in the data. To illustrate, the argument `min_n` for random forest model corresponds to how many data points are required to make further splits. For regression models, this defaults to 5 when using [`ranger`](https://cran.r-project.org/package=ranger). Suppose you want this to be one tenth of the data but at least 8. If your data are being resampled, you might not know the training set size. You could use: 
+For this reason, we added [data descriptors](https://tidymodels.github.io/parsnip/reference/descriptors.html) to `parsnip`. These are small functions that only work when the model is being fit, and they capture relevant aspects of the data at that time. For example, the function `.obs()` can be used in an argument value to reference the number of rows in the data. To illustrate, the argument `min_n` for a random forest model corresponds to how many data points are required to make further splits. For regression models, this defaults to 5 when using [`ranger`](https://cran.r-project.org/package=ranger). Suppose you want this to be one tenth of the data but at least 8. If your data are being resampled, you might not know the training set size. You could use: 
 
 
 ```r
@@ -277,15 +277,15 @@ The different descriptors should enable a wide variety of values for tuning para
 
 In many cases, the model specification arguments (e.g. `mtry` or `min_n`) and engine arguments are simple objects or scalar values. It makes sense to quote `data`, `x` or `y` but why not just evaluate the other arguments as usual? 
 
-There are a few use reasons. First, there are some arguments whose evaluation should be deferred. For example, `stan` and `ranger` models have their own random seed arguments. To enable reproducibility, `parsnip` gives these function default values of `seed = sample.int(10^5, 1)`. If this argument were unquoted, the the seed value would be fixed when the package were compiled. There are solutions for this simple example though.
+There are a few reasons. First, there are some arguments whose evaluation should be deferred. For example, `stan` and `ranger` models have their own random seed arguments. To enable reproducibility, `parsnip` gives these function default values of `seed = sample.int(10^5, 1)`. If this argument were unquoted, then the seed value would be fixed when the package was compiled. There are solutions for this simple example though.
 
-As seen above for data descriptors, there is the need to wait for some argument values to be evaluated at the same time that the call is evaluated. Originally, `parsnip` immediately evaluated almost all of the arguments and our advice was to have users quote special arguments using `rlang::expr`. The feedback on this aspect of `parsnip` was uniformity unfavorable since it would require many casual users to learn `rlang` and metaprogramming techniques. For this reason, we moved the metaprogramming parts within the function to accomplish the same goals but without the user requiring to understand the technical minutiae. When a user uses an argument like `min_n = max(8, floor(.obs()/10))`, the use of quosures is hidden from view and it looks like they are using an ordinary function called `.obs()`. 
+As seen above for data descriptors, there is the need to wait for some argument values to be evaluated at the same time that the call is evaluated. Originally, `parsnip` immediately evaluated almost all of the arguments and our advice was to have users quote special arguments using `rlang::expr()`. The feedback on this aspect of `parsnip` was uniformity unfavorable since it would require many casual users to learn `rlang` and metaprogramming techniques. For this reason, we moved the metaprogramming parts within the function to accomplish the same goals, but without the user being required to understand the technical minutiae. When a user uses an argument like `min_n = max(8, floor(.obs()/10))`, the use of quosures is hidden from view, and it looks like they are using an ordinary function called `.obs()`. 
 
 One final reason to leave arguments unevaluated in the model specification is related to _future plans_. As previously mentioned, `caret` rigidly defined which model parameters were available for performance tuning. The approach taken by `parsnip` is very much the opposite. We want to enable users to tune any aspect of the model that they see fit, including some of the engine specific parameters. 
 
-For example, when fitting a Bayesian regression model, a user might want to tune over how diffuse the prior distribution should be and so on. Rather than formally defining every possible tunable parameter, `parsnip` allows the user to have a _placeholder_ for parameters in the model specification that declares "I want to change this parameter but I don't know what the exact value should be."
+For example, when fitting a Bayesian regression model, a user might want to tune over how diffuse the prior distribution should be and so on. Rather than formally defining every possible tunable parameter, `parsnip` allows the user to have a _placeholder_ for parameters in the model specification that declares, "I want to change this parameter, but I don't know what the exact value should be."
 
-To do this, a special function called `varying()` is used. A model cannot be fit if it has any varying parameters but future packages will be able to detect any of these parameter and construct tuning grids accordingly. The parameter values can be changed to specific candidate values and these are then tested to see which value is the most appropriate. The code to do this in not ready at this point and will be part of another package. However, we can demonstrate how this happens inside of `parsnip`: 
+To do this, a special function called `varying()` is used. A model cannot be fit if it has any varying parameters but future packages will be able to detect any of these parameters and construct tuning grids accordingly. The parameter values can be changed to specific candidate values, and these are then tested to see which value is the most appropriate. The code to do this is not ready at this point and will be part of another package. However, we can demonstrate how this happens inside of `parsnip`: 
 
 
 ```r
@@ -348,11 +348,11 @@ varying_args(nnet_spec)
 #> 7 callbacks    TRUE    nnet_spec model_spec
 ```
 
-In the `keras` example, the argument names in `nnet_spec` names match up with objects in the [`dials`](https://tidymodels.github.io/dials/) package and it will be possible to automatically create tuning grids for all of the parameters. 
+In the `keras` example, the argument names in `nnet_spec` names match up with objects in the [`dials`](https://tidymodels.github.io/dials/) package, and it will be possible to automatically create tuning grids for all of the parameters. 
 
 By avoiding evaluation in the model specification, we are enabling some interesting upcoming features. 
 
-Also, this feature can also be used with recipes and other future packages:
+Also, this feature can be used with recipes and other future packages:
 
 
 ```r
@@ -386,5 +386,6 @@ varying_args(ames_recipe)
 #>  9 degree    FALSE   step_bs    step 
 #> 10 options   FALSE   step_bs    step
 ```
+
 This will enable joint optimization of parameters associated with pre-processing, model fitting, and post-processing activities.  
 
