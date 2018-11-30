@@ -1,6 +1,6 @@
 ---
 title: "How parsnip works"
-author: Max Kuhn, Davis Vaughan
+author: Max Kuhn, Davis Vaughan, Alex Hayes
 date: '2018-12-10'
 output: pdf_document
 description: |
