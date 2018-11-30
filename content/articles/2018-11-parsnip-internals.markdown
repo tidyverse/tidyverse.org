@@ -124,7 +124,7 @@ glm_fit(mpg ~ ., data = mtcars, x = FALSE, evaluate = TRUE)
 #> Residual Deviance: 147 	AIC: 164
 ```
 
-For `parsnip`, there are utility functions that create the call and others to evaluate it. This means that the only model-related information needed to by the package to define the general `glm` fitting function would be:
+For `parsnip`, there are utility functions that create the call and others to evaluate it. This means that the only model-related information needed by the package to define the general `glm` fitting function would be:
 
 
 ```r
@@ -220,7 +220,7 @@ This could happen for a few reasons. For example, if you are using a `recipe` th
 
 There are a few ways to get around this. The first (and worst) is to use the data in an expression. Since `mtry` isn't evaluated until the model fit, you could try to use `mtry = floor(sqrt(ncol(data)))`. That's very brittle for a few different reasons. For one, _you_ may use the interface `fit(formula, data)` but the underlying model may be `model(x, y)` and the `data` object doesn't exist when the model call is evaluated. 
 
-For this reason, we added [data descriptors](https://tidymodels.github.io/parsnip/reference/descriptors.html) to `parsnip`. This are small functions that only work when the model is being fit and they capture relavant aspects of the data at that time. For example, the function `.obs()` can be used in an argument value to reference the number of rows in the data. To illustrate, the argument `min_n` for random forest model corresponds to how many data points are required to make further splits. For regression models, this defaults to 5 when using [`ranger`](https://cran.r-project.org/package=ranger). Suppose you want this to be one tenth of the data but at least 8. If your data are being resampled, you might not know the training set size. You could use: 
+For this reason, we added [data descriptors](https://tidymodels.github.io/parsnip/reference/descriptors.html) to `parsnip`. These are small functions that only work when the model is being fit and they capture relevant aspects of the data at that time. For example, the function `.obs()` can be used in an argument value to reference the number of rows in the data. To illustrate, the argument `min_n` for random forest model corresponds to how many data points are required to make further splits. For regression models, this defaults to 5 when using [`ranger`](https://cran.r-project.org/package=ranger). Suppose you want this to be one tenth of the data but at least 8. If your data are being resampled, you might not know the training set size. You could use: 
 
 
 ```r
