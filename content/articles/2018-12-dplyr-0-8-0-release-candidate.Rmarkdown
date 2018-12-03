@@ -1,0 +1,503 @@
+---
+title: dplyr 0.8.0 release candidate
+author: Romain François
+date: '2018-12-03'
+slug: dplyr-0-8-0-release-candidate
+description: > 
+  What you need to know about upcoming changes in dplyr 0.8.0.
+categories:
+  - package
+tags:
+  - dplyr
+  - tidyverse
+photo:
+  url: https://unsplash.com/photos/kU-WKSyTcp4
+  author: Pau Casals
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = T, comment = "#>")
+options(tibble.print_min = 4L, tibble.print_max = 4L)
+library(dplyr)
+library(glue)
+
+link <- function(fun, pkg = "dplyr", alias = fun) {
+  f <- if (pkg == "dplyr") fun else glue("{pkg}::{fun}")
+  glue("[`{f}()`](https://{pkg}.tidyverse.org/reference/{alias}.html)")  
+}
+
+issue <- function(n, pkg = "dplyr", org = "tidyverse") {
+  glue("[{n}](https://github.com/{org}/{pkg}/issues/{n})")  
+}
+```
+
+A new release of dplyr (0.8.0) is on the horizon, roughly planned for early January 2019. 
+
+Since it is a major release with some potential
+disruption, we'd love for the community to try it out, give us some feedback, 
+and [report issues](https://github.com/tidyverse/dplyr/issues)
+before we submit to CRAN. This version represents about nine months of development, making dplyr more
+respectful of factors, and less surprising in its evaluation of expressions. 
+
+In this post, we'll highlight the major changes. Please see the 
+[NEWS](https://github.com/tidyverse/dplyr/blob/master/NEWS.md) for a more 
+detailed description of changes. Our formalised process for this release is captured 
+in [this issue](https://github.com/tidyverse/dplyr/issues/3931).
+
+```{r, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("tidyverse/dplyr")
+```
+
+If needed, you can restore the [release version](https://CRAN.R-project.org/package=dplyr) by installing from CRAN:
+
+```{r, eval = FALSE}
+install.packages("dplyr")
+```
+
+# New grouping algorithm
+
+## Group creation
+
+The algorithm behind `r link("group_by")` has been redesigned to better respect factor levels, 
+so that a group is created for each level of the factor, even if there is no data. This 
+differs from previous versions of dplyr where groups were only created to 
+match the observed data. This closes the epic issue `r issue(341)`, which dates back to 2014, and has generated 
+a lot of press and frustration, see [Zero Counts in dplyr](https://kieranhealy.org/blog/archives/2018/11/19/zero-counts-in-dplyr/)
+for a recent walkthrough of the issue. 
+
+Let's illustrate the new algorithm with the `r link("count")` function:
+
+```{r}
+df <- tibble(
+  f1 = factor(c("a", "a", "a", "b", "b"), levels = c("a", "b", "c")), 
+  f2 = factor(c("d", "e", "d", "e", "f"), levels = c("d", "e", "f")), 
+  x  = c(1, 1, 1, 2, 2), 
+  y  = 1:5
+)
+df
+df %>% 
+  count(f1)
+```
+
+Where previous versions of `dplyr` would have created only two groups (for levels `a` and `b`), 
+it now creates one group per level, and the group related to the level `c` just happens to be 
+empty. 
+
+Groups are still made to match the data on other types of columns:
+
+```{r}
+df %>% 
+  count(x)
+```
+
+Expansion of groups for factors happens at each step of the grouping, so if we group
+by `f1` and `f2` we get 9 groups, 
+
+```{r}
+df %>% 
+  count(f1, f2)
+```
+
+When factors and non factors are involved in the grouping, the number of 
+groups depends on the order. At each level of grouping, factors are always expanded
+to one group per level, but non factors only create groups based on observed data. 
+
+```{r}
+df %>% 
+  count(f1, x)
+```
+
+In this example, we group by `f1` then `x`. At the first layer, grouping on `f1` creates
+two groups. Each of these grouops is then subdivided based on the values of the second 
+variable `x`. Since `x` is always 1 when `f1` is `a` the group is not 
+further divided. 
+
+The last group, associated with the level `c` of the factor `f1` is empty, and 
+consequently has no values for the vector `x`. In that case, `r link("group_by")` uses 
+`NA`. 
+
+```{r}
+df %>% 
+  count(x, f1)
+```
+
+When we group by `x` then `f1` we initially split the data according to `x` which 
+gives 2 groups. Each of these two groups is then further divided in 3 groups, 
+i.e. one for each level of `f1`. 
+
+## Group preservation
+
+The grouping structure is more coherently preserved by dplyr verbs. 
+
+```{r}
+df %>% 
+  group_by(x, f1) %>% 
+  summarise(y = mean(y))
+```
+
+The expression `mean(y)` is evaluated for the empty groups as well, and gives 
+consistent results with : 
+
+```{r}
+mean(numeric())
+```
+
+In particular the result of `r link("filter")` preserves the grouping structure of the input 
+data frame. 
+
+```{r}
+df %>% 
+  group_by(x, f1) %>% 
+  filter(y < 4)
+```
+
+The resulting tibble after the `r link("filter")` call has six groups, the same 
+exact groups that were made by `r link("group_by")`. Previous versions of dplyr
+would perform an implicit `group_by()` after the filtering, potentially losing
+groups. 
+
+Because this is potentially disruptive, `r link("filter")` has gained a `.preserve` argument, 
+when `.preserve` is `FALSE` the data is first filtered and then regrouped:
+
+```{r}
+df %>% 
+  group_by(x, f1) %>% 
+  filter(y < 5, .preserve = FALSE)
+```
+
+Note however, that even `.preserve = FALSE` respects the factors that are used as 
+grouping variables, in particular `filter( , .preserve = FALSE)` is not a way to 
+discard empty groups. The [forcats](https://forcats.tidyverse.org) `r emo::ji("package")` may help: 
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  filter(stringr::str_detect(Species, "^v")) %>% 
+  ungroup() %>% 
+  group_by(Species = forcats::fct_drop(Species))
+```
+
+## New grouping fuctions
+
+The grouping family is extended with new functions:
+
+ - `r link("group_nest")` : similar to `r link("nest", pkg = "tidyr")` but focusing on the grouping columns
+   rather than the columns to nest
+ - `r link("group_split")` : similar to `base::split()` but the grouping is subject to the data mask
+ - `r link("group_keys")` : retrieves a tibble with one row per group and one column per grouping variable
+ - `r link("group_rows")` : retrieves a list of 1-based integer vectors, each vector represents the indices
+   of the group in the grouped data frame
+
+The primary use case for these functions is with already grouped data frames, that may directly 
+or indirectly originate from `r link("group_by")`.
+
+```{r}
+data <- iris %>% 
+  group_by(Species) %>% 
+  filter(Sepal.Length > mean(Sepal.Length))
+
+data %>% 
+  group_nest()
+data %>% 
+  group_split()
+data %>% 
+  group_keys()
+data %>% 
+  group_rows()
+```
+
+Alternatively, these functions may be used on an ungrouped data frame, together with a 
+grouping specification that is subject to the data mask. In that case, the grouping is 
+implicitly performed by `r link("group_by")`: 
+
+```{r}
+iris %>% 
+  group_nest(Species)
+
+iris %>% 
+  group_split(Species)
+
+iris %>% 
+  group_keys(Species)
+```
+
+These functions are related to each other in how they handle and organize the
+grouping information and who/what is responsible for maintaining the relation between the 
+data and the groups.  
+
+ - A grouped data frame, as generated by `r link("group_by")` stores the grouping information 
+   as an attribute of the data frame, dplyr verbs use that information to maintain 
+   the relationship
+  
+ - When using `r link("group_nest")` the data is structured as a data frame that has a list column
+   to hold the non grouping columns. The result of `r link("group_nest")` is not a grouped data frame, 
+   therefore the structure of the data frame maintains the relationship. 
+   
+ - When using `r link("group_split")` the data is split into a list, and each element of the list
+   contains a tibble with the rows of the associated group. The user is responsible to 
+   maintain the relationship, and may benefit from the assistance of the `r link("group_keys")` 
+   function, especially in the presence of empty groups. 
+
+## Iterate on grouped tibbles by group
+
+The new `r link("group_map")` function provides a purrr style function that can be used to 
+iterate on grouped tibbles. Each conceptual group of the data frame is exposed to the 
+function with two pieces of information: 
+ 
+ - The subset of the data for the group, exposed as `.x`. 
+ - The key, a tibble with exactly one row and columns for each grouping variable, 
+   exposed as `.y`
+
+```{r}
+mtcars %>% 
+  group_by(cyl) %>%
+  group_map(~ head(.x, 2L))
+
+mtcars %>%
+  group_by(cyl) %>%
+  group_map(~ tibble(mod = list(lm(mpg ~ disp, data = .x))))
+```
+
+The lambda function must return a data frame. `r link("group_map")` row binds the data 
+frames, recycles the grouping columns and structures the result as a grouped tibble. 
+
+# Changes in filter and slice
+
+Besides changes described previously related to preservation of the grouping structure, 
+`r link("filter")` and `r link("slice")` now reorganize the data by groups for performance reasons: 
+
+```{r}
+tibble(
+  x = c(1, 2, 1, 2, 1), 
+  y = c(1, 2, 3, 4, 5)
+) %>% 
+  group_by(x) %>% 
+  filter(y < 5)
+```
+
+# Redesigned hybrid evaluation
+
+## What's hybrid evaluation again ?
+
+Hybrid evaluation is used in `r link("summarise")` and `r link("mutate")` to replace 
+potential expensive R operations by native C++ code that is group aware. 
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  summarise(Petal.Length = mean(Petal.Length))
+```
+
+In the example, the `base::mean()` function is never called because the 
+hybrid alternative can directly calculate the mean for each group. Hybrid 
+evaluation typically gives better performance because it needs fewer memory
+allocations. 
+
+In this example, a standard evaluation path would need to: 
+ - create subsets of the `Petal.Length` column for each group
+ - call the `base::mean()` function on each subset, which would also 
+   imply a cost for S3 dispatching to the right method
+ - collect all results in a new vector
+ 
+In constrast, hybrid evaluation can directly allocate the final 
+vector, and calculate all 3 means without having to allocate the subsets. 
+
+## Flaws in previous version
+
+Previous versions of hybrid evaluation relied on folding to 
+replace part of the expression by their hybrid result. For example, 
+there are hybrid versions of `sum()` and `n()`, so previous 
+versions attempted to use them for:
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  summarise(Petal.Length = sum(Petal.Length) / n())
+```
+
+The gain of replacing parts of the expression with the result of the
+hybrid versions was minimal, and the we had to rely on 
+brittle heuristics to try to respect standard R evaluation semantics. 
+
+## New implementation
+
+The new hybrid system is stricter and falls back to standard R evaluation 
+when the expression is not entirely recognized. 
+
+The `r link("hybrid_call")` function (subject to change) can be used to test if an expression
+would be handled by hybrid or standard evaluation: 
+
+```{r}
+iris %>% hybrid_call(mean(Sepal.Length))
+iris %>% hybrid_call(sum(Sepal.Length) / n())
+iris %>% hybrid_call(+mean(Sepal.Length))
+```
+
+Hybrid is very picky about what it can handle, for example `TRUE` and `FALSE` 
+are fine for `na.rm=` because they are reserved words that can't be replaced, but 
+`T`, `F` or any expression that would resolve to a scalar logical are not: 
+
+```{r}
+iris %>% hybrid_call(mean(Sepal.Length, na.rm = TRUE))
+iris %>% hybrid_call(mean(Sepal.Length, na.rm = T))
+iris %>% hybrid_call(mean(Sepal.Length, na.rm = 1 == 1))
+```
+
+The first step of the new hybrid system consists of studying the 
+expression and compare it to known expression patterns. If we find an exact
+match, then we have all the information we need, and R is never called 
+to materialize the result. 
+
+When there is no match, the expression gets evaluated for each group using R standard 
+evaluation rules in the data mask: a special environment that makes the 
+columns available and uses contextual information for functions such as `r link("n")`
+and `r link("row_number")`. 
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  summarise(Petal.Length = sum(Petal.Length) / n())
+```
+
+# Performance
+
+When `r link("summarise")` or `r link("mutate")`  use expressions that cannot be handled by
+hybrid evaluation, they call back to R from the C++ internals for each group. 
+
+This is an expensive operation because the expressions have to be evaluated 
+with extra care. Traditionally it meant wrapping the expression in an R `tryCatch()` 
+before evaluating, but R 3.5.0 has added unwind protection which we [exposed to 
+Rcpp](https://github.com/RcppCore/Rcpp/pull/873). Consequently, the cost of evaluating an R expression carefully is lower 
+than before. 
+
+We ran a benchmark calculating the means of 10,000 small groups with the 
+release version of dplyr and this release candidate with and without 
+using the unwind protect feature. 
+
+Just using the `mean()` function would not illustrate the feature, because dplyr would
+use hybrid evaluation and never use callbacks to R. So instead we defined a `mean_` 
+function that has the same body as `base::mean()`. We also compare this to 
+the expression `sum(x) / n()` because it woudld have been handled by 
+partial hybrid evaluation in previous versions. 
+
+![](/articles/2018-12-dplyr-0-8-0_files/timings_summarise_mean.jpeg)
+
+This is not a comprehensive benchmark analysis, but on this small example we can read: 
+
+  - unwind protection has no impact when using the hybrid evaluation, this is not a surprise
+    because the hybrid path does not call back to R. 
+  - hybrid evaluation performs better on the release candidate. This is a direct consequence of
+    the redesign of hybrid evaluation. 
+  - unwind protection gives a performance boost `mean_()`. Please note that the 
+    x axis is on a log scale. 
+  - unwind protection more than compensates for no longer using partial hybrid evaluation. 
+  
+# nest_join
+
+The `r link("nest_join")` function is the newest addition to the join family. 
+
+```{r}
+band_members %>% 
+  nest_join(band_instruments)
+```
+
+A nest join of `x` and `y` returns all rows and all columns from `x`, plus an additional column 
+that contains a list of tibbles. Each tibble contains all the rows from `y` that match that row of `x`. 
+When there is no match, the list column is a 0-row tibble with the same column names and types as `y`.
+
+`r link("nest_join")` is the most fundamental join since you can recreate the other joins from it: 
+ 
+  - `r link("inner_join")` is a `r link("nest_join")` plus an `r link("unnest", pkg = "tidyr")`
+  - `r link("left_join")` is a  `r link("nest_join")` plus an `r link("unnest", pkg = "tidyr")` with `drop=TRUE`
+  - `r link("semi_join")` is a `r link("nest_join")` plus a `r link("filter")` where you check that every element of data has at least one row. 
+  - `r link("anti_join")` is a `r link("nest_join")` plus a `r link("filter")` where you check every element has zero rows.
+
+# Scoped variants
+
+The scoped (or colwise) verbs are the set of verbs with `_at`, `_if` and `_all` suffixes. 
+These verbs apply a certain behaviour (for instance, a mutating or summarising operation) to a given 
+selection of columns. This release of dplyr improves the consistency of the syntax and the behaviour with grouped tibbles.
+
+
+## A purrr-like syntax for passing functions
+
+In dplyr 0.8.0, we have implemented support for functions and purrr-style lambda functions:
+
+```{r}
+iris <- as_tibble(iris) # For concise print method
+
+mutate_if(iris, is.numeric, ~ . - mean(.))
+```
+
+And lists of functions and purrr-style lambda functions:
+
+```{r}
+fns <- list(
+  centered = mean,                # Function object
+  scaled = ~ . - mean(.) / sd(.)  # Purrr-style lambda
+)
+mutate_if(iris, is.numeric, fns)
+```
+
+This is now the preferred syntax for passing functions to the scoped verbs because it is simpler and consistent with purrr. 
+Counting from dplyr 0.8.0, the hybrid evaluator recognises and inlines these lambdas, so that native implementation of 
+common algorithms will kick in just as it did with expressions passed with `funs()`. 
+Consequently, we are soft-deprecating `funs()`: it will continue to work without any warnings for now, 
+but will eventually start issuing warnings.
+
+## Behaviour with grouped tibbles
+
+We have reviewed the documentation of all scoped variants to make clear how the scoped operations 
+are applied to grouped tibbles. For most of the scoped verbs, the operations also apply on 
+the grouping variables when they are part of the selection. This includes:
+
+* `r link("arrange_all")`, `r link("arrange_at")`, and `r link("arrange_if")`
+* `r link("distinct_all")`, `r link("distinct_at")`, and `r link("distinct_if")`
+* `r link("filter_all")`, `r link("filter_at")`, and `r link("filter_if")`
+* `r link("group_by_all")`, `r link("group_by_at")`, and `r link("group_by_if")`
+* `r link("select_all")`, `r link("select_at")`, and `r link("select_if")`
+
+This is not the case for summarising and mutating variants where operations are *not* applied on grouping variables. 
+The behaviour depends on whether the selection is **implicit** (`all` and `if` selections) or **explicit** (`at` selections). 
+Grouping variables covered by explicit selections (with `r link("summarise_at")`, `r link("mutate_at")`, and `r link("transmute_at")` are always an error.
+For implicit selections, the grouping variables are always ignored. In this case, the level of verbosity depends on the kind of operation:
+
+* Summarising operations (`r link("summarise_all")` and `r link("summarise_if")`
+  ignore grouping variables silently because it is obvious that
+  operations are not applied on grouping variables.
+
+* On the other hand, it isn't as obvious in the case of mutating operations (`r link("mutate_all")`, `r link("mutate_if")`, `r link("transmute_all")`, and `r link("transmute_if")`). 
+ For this reason, they issue a message indicating which grouping variables are ignored.
+
+In order to make it easier to explicitly remove the grouping columns from an `_at` selection, we have introduced a 
+new selection helper `r link("group_cols")`. Just like `r link("last_col")` matches the last column of a tibble, 
+`r link("group_cols")` matches all grouping columns:
+
+```{r}
+mtcars %>%
+  group_by(cyl) %>%
+  select(group_cols())
+```
+
+This new helper is mostly intended for selection in scoped variants:
+
+```{r, error = TRUE}
+mtcars %>%
+  group_by(cyl) %>%
+  mutate_at(
+    vars(starts_with("c")),
+    ~ . - mean(.)
+  )
+```
+
+It makes it easy to remove explicitly the grouping variables:
+
+```{r}
+mtcars %>%
+  group_by(cyl) %>%
+  mutate_at(
+    vars(starts_with("c"), -group_cols()),
+    ~ . - mean(.)
+  )
+```
