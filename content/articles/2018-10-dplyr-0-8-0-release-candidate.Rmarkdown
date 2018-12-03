@@ -228,7 +228,7 @@ data and the groups.
    maintain the relationship, and may benefit from the assistance of the `group_keys()` 
    function, especially in the presence of empty groups. 
 
-## group_map
+## Iterate on grouped tibbles by group
 
 The new `group_map()` function provides a purrr style function that can be used to 
 iterate on grouped tibbles. Each conceptual group of the data frame is exposed to the 
@@ -239,13 +239,16 @@ function with two pieces of information:
    exposed as `.y`
 
 ```{r}
-group_by(mtcars, cyl) %>%
+mtcars %>% 
+  group_by(cyl) %>%
   group_map(~ head(.x, 2L))
 
 mtcars %>%
   group_by(cyl) %>%
-  group_map(~ mutate(.y, mod = list(lm(mpg ~ disp, data = .x))))
+  group_map(~ tibble(mod = list(lm(mpg ~ disp, data = .x))))
 ```
+
+The lambda function must return a data frame.
 
 # Changes in filter and slice
 

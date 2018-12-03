@@ -283,9 +283,9 @@ group_nest(data)
 #> # A tibble: 3 x 2
 #>   Species    data             
 #>   <fct>      <list>           
-#> 1 setosa     <tibble [22 × 5]>
-#> 2 versicolor <tibble [24 × 5]>
-#> 3 virginica  <tibble [22 × 5]>
+#> 1 setosa     <tibble [22 × 4]>
+#> 2 versicolor <tibble [24 × 4]>
+#> 3 virginica  <tibble [22 × 4]>
 group_split(data)
 #> [[1]]
 #> # A tibble: 22 x 5
@@ -346,9 +346,9 @@ iris %>%
 #> # A tibble: 3 x 2
 #>   Species    data             
 #>   <fct>      <list>           
-#> 1 setosa     <tibble [50 × 5]>
-#> 2 versicolor <tibble [50 × 5]>
-#> 3 virginica  <tibble [50 × 5]>
+#> 1 setosa     <tibble [50 × 4]>
+#> 2 versicolor <tibble [50 × 4]>
+#> 3 virginica  <tibble [50 × 4]>
 
 iris %>% 
   group_split(Species)
@@ -409,7 +409,7 @@ data and the groups.
    maintain the relationship, and may benefit from the assistance of the `group_keys()` 
    function, especially in the presence of empty groups. 
 
-## group_map
+## Iterate on grouped tibbles by group
 
 The new `group_map()` function provides a purrr style function that can be used to 
 iterate on grouped tibbles. Each conceptual group of the data frame is exposed to the 
@@ -421,29 +421,32 @@ function with two pieces of information:
 
 
 ```r
-group_by(mtcars, cyl) %>%
+mtcars %>% 
+  group_by(cyl) %>%
   group_map(~ head(.x, 2L))
-#> # A tibble: 6 x 12
+#> # A tibble: 6 x 11
 #> # Groups:   cyl [3]
-#>     cyl   mpg  cyl1  disp    hp  drat    wt  qsec    vs    am  gear  carb
-#> * <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
-#> 1     4  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1
-#> 2     4  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
-#> 3     6  21       6  160    110  3.9   2.62  16.5     0     1     4     4
-#> 4     6  21       6  160    110  3.9   2.88  17.0     0     1     4     4
+#>     cyl   mpg  disp    hp  drat    wt  qsec    vs    am  gear  carb
+#> * <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+#> 1     4  22.8  108     93  3.85  2.32  18.6     1     1     4     1
+#> 2     4  24.4  147.    62  3.69  3.19  20       1     0     4     2
+#> 3     6  21    160    110  3.9   2.62  16.5     0     1     4     4
+#> 4     6  21    160    110  3.9   2.88  17.0     0     1     4     4
 #> # … with 2 more rows
 
 mtcars %>%
   group_by(cyl) %>%
-  group_map(~ mutate(.y, mod = list(lm(mpg ~ disp, data = .x))))
-#> # A tibble: 3 x 3
+  group_map(~ tibble(mod = list(lm(mpg ~ disp, data = .x))))
+#> # A tibble: 3 x 2
 #> # Groups:   cyl [3]
-#>     cyl  cyl1 mod     
-#> * <dbl> <dbl> <list>  
-#> 1     4     4 <S3: lm>
-#> 2     6     6 <S3: lm>
-#> 3     8     8 <S3: lm>
+#>     cyl mod     
+#> * <dbl> <list>  
+#> 1     4 <S3: lm>
+#> 2     6 <S3: lm>
+#> 3     8 <S3: lm>
 ```
+
+The lambda function must return a data frame.
 
 # Changes in filter and slice
 
