@@ -493,7 +493,7 @@ iris %>%
 
 In the example, the `base::mean()` function is never called because the 
 hybrid alternative can directly calculate the mean for each group. Hybrid 
-evaluation typically gives better performance because it needs less memory
+evaluation typically gives better performance because it needs fewer memory
 allocations. 
 
 In this example, a standard evaluation path would need to: 
