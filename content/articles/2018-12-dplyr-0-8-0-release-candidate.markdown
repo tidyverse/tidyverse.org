@@ -4,7 +4,7 @@ author: Romain François
 date: '2018-12-03'
 slug: dplyr-0-8-0-release-candidate
 description: > 
-  What you need to know about upcoming changes for dplyr 0.8.0.
+  What you need to know about upcoming changes in dplyr 0.8.0.
 categories:
   - package
 tags:
@@ -46,7 +46,7 @@ install.packages("dplyr")
 ## Group creation
 
 The algorithm behind [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) has been redesigned to better respect factor levels, 
-a group is created for each level of the factor, even if there is no data. This 
+so that a group is created for each level of the factor, even if there is no data. This 
 differs from previous versions of dplyr where groups were only created to 
 match the observed data. This closes the epic issue [341](https://github.com/tidyverse/dplyr/issues/341) that dates back to 2014, and has generated 
 a lot of press and frustration, see [Zero Counts in dplyr](https://kieranhealy.org/blog/archives/2018/11/19/zero-counts-in-dplyr/)
@@ -184,7 +184,7 @@ df %>%
 ```
 
 The expression `mean(y)` is evaluated for the empty groups as well, and gives 
-coherent results with : 
+consistent results with : 
 
 
 ```r
@@ -215,8 +215,7 @@ would perform an implicit `group_by()` after the filtering, potentially losing
 groups. 
 
 Because this is potentially disruptive, [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) has gained a `.preserve` argument, 
-when `.preserve` is `FALSE` the data is first filtered and then implicitely 
-grouped by:
+when `.preserve` is `FALSE` the data is first filtered and then regrouped:
 
 
 ```r
@@ -235,7 +234,7 @@ df %>%
 
 Note however, that even `.preserve = FALSE` respects the factors that are used as 
 grouping variables, in particular `filter( , .preserve = FALSE)` is not a way to 
-discard empty groups. The forcats 📦 may help: 
+discard empty groups. The [forcats](https://forcats.tidyverse.org) 📦 may help: 
 
 
 ```r
@@ -502,7 +501,7 @@ In this example, a standard evaluation path would need to:
 In constrast, hybrid evaluation can directly allocate the final 
 vector, and calculate all 3 means without having to allocate the subsets. 
 
-## Flaws in previous hybrid
+## Flaws in previous version
 
 Previous versions of hybrid evaluation relied on folding to 
 replace part of the expression by their hybrid result. For example, 
