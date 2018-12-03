@@ -274,14 +274,16 @@ data <- iris %>%
   group_by(Species) %>% 
   filter(Sepal.Length > mean(Sepal.Length))
 
-group_nest(data)
+data %>% 
+  group_nest()
 #> # A tibble: 3 x 2
 #>   Species    data             
 #>   <fct>      <list>           
 #> 1 setosa     <tibble [22 × 4]>
 #> 2 versicolor <tibble [24 × 4]>
 #> 3 virginica  <tibble [22 × 4]>
-group_split(data)
+data %>% 
+  group_split()
 #> [[1]]
 #> # A tibble: 22 x 5
 #>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
@@ -311,14 +313,16 @@ group_split(data)
 #> 3          7.3         2.9          6.3         1.8 virginica
 #> 4          6.7         2.5          5.8         1.8 virginica
 #> # … with 18 more rows
-group_keys(data)
+data %>% 
+  group_keys()
 #> # A tibble: 3 x 1
 #>   Species   
 #>   <fct>     
 #> 1 setosa    
 #> 2 versicolor
 #> 3 virginica
-group_rows(data)
+data %>% 
+  group_rows()
 #> [[1]]
 #>  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22
 #> 
@@ -609,7 +613,7 @@ function that has the same body as `base::mean()`, we also compare this to
 the expression `sum(x) / n()` because it woudld have been handled by 
 partial hybrid evaluation in previous versions. 
 
-![](/articles/2018-10-dplyr-0-8-0_files/timings_summarise_mean.jpeg)
+![](/articles/2018-12-dplyr-0-8-0_files/timings_summarise_mean.jpeg)
 
 This is not a comprehensive benchmark analysis, but on this small example we can read: 
 
