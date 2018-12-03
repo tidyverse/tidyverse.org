@@ -17,7 +17,9 @@ photo:
 
 
 
-A new release of dplyr (0.8.0) is on the horizon, and since it is a major release with some potential
+A new release of dplyr (0.8.0) is on the horizon, roughly planned for early January 2019. 
+
+Since it is a major release with some potential
 disruption, we'd love for the community to try it out, give us some feedback 
 and [report issues](https://github.com/tidyverse/dplyr/issues)
 before we submit to CRAN. This version represents about nine months of development, making dplyr more
@@ -26,7 +28,7 @@ respectful of factors and less surprising in its evaluation of expressions.
 In this post, we'll highlight the major changes, please see the 
 [NEWS](https://github.com/tidyverse/dplyr/blob/master/NEWS.md) for a more 
 detailed description of changes. Our formalised process for this release is captured 
-in [this issue](https://github.com/tidyverse/dplyr/issues/3931)
+in [this issue](https://github.com/tidyverse/dplyr/issues/3931).
 
 
 ```r
