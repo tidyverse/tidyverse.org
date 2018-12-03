@@ -360,12 +360,12 @@ When `r link("summarise")` or `r link("mutate")`  use expressions that cannot be
 hybrid evaluation, they call back to R from the C++ internals for each group. 
 
 This is an expensive operation because the expressions have to be evaluated 
-with extra care, traditionally it meant wrapping the expression in an R `tryCatch()` 
+with extra care. Traditionally it meant wrapping the expression in an R `tryCatch()` 
 before evaluating, but R 3.5.0 has added unwind protection and we exposed that to 
 Rcpp. Consequently, the cost of evaluating an R expression carefully is lower 
 than before. 
 
-We ran a benchmark of calculating the means of 10 000 small groups with the 
+We ran a benchmark calculating the means of 10,000 small groups with the 
 release version of dplyr and this release candidate with and without 
 using the unwind protect feature. 
 
@@ -437,7 +437,7 @@ mutate_if(iris, is.numeric, fns)
 This is now the preferred syntax for passing functions to the scoped verbs because it is simpler and consistent with purrr. 
 Counting from dplyr 0.8.0, the hybrid evaluator recognises and inlines these lambdas, so that native implementation of 
 common algorithms will kick in just as it did with expressions passed with `funs()`. 
-Consequently, we are soft-deprecating `funs()`. They will continue to work without any warnings for now, 
+Consequently, we are soft-deprecating `funs()`: it will continue to work without any warnings for now, 
 but will eventually start issuing warnings.
 
 ## Behaviour with grouped tibbles
