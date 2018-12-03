@@ -20,12 +20,12 @@ photo:
 A new release of dplyr (0.8.0) is on the horizon, roughly planned for early January 2019. 
 
 Since it is a major release with some potential
-disruption, we'd love for the community to try it out, give us some feedback 
+disruption, we'd love for the community to try it out, give us some feedback, 
 and [report issues](https://github.com/tidyverse/dplyr/issues)
 before we submit to CRAN. This version represents about nine months of development, making dplyr more
-respectful of factors and less surprising in its evaluation of expressions. 
+respectful of factors, and less surprising in its evaluation of expressions. 
 
-In this post, we'll highlight the major changes, please see the 
+In this post, we'll highlight the major changes. Please see the 
 [NEWS](https://github.com/tidyverse/dplyr/blob/master/NEWS.md) for a more 
 detailed description of changes. Our formalised process for this release is captured 
 in [this issue](https://github.com/tidyverse/dplyr/issues/3931).
@@ -36,7 +36,7 @@ in [this issue](https://github.com/tidyverse/dplyr/issues/3931).
 devtools::install_github("tidyverse/dplyr")
 ```
 
-If needed, you can restore the release version by installing from CRAN:
+If needed, you can restore the [release version](https://CRAN.R-project.org/package=dplyr) by installing from CRAN:
 
 
 ```r
@@ -50,7 +50,7 @@ install.packages("dplyr")
 The algorithm behind [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) has been redesigned to better respect factor levels, 
 so that a group is created for each level of the factor, even if there is no data. This 
 differs from previous versions of dplyr where groups were only created to 
-match the observed data. This closes the epic issue [341](https://github.com/tidyverse/dplyr/issues/341) that dates back to 2014, and has generated 
+match the observed data. This closes the epic issue [341](https://github.com/tidyverse/dplyr/issues/341), which dates back to 2014, and has generated 
 a lot of press and frustration, see [Zero Counts in dplyr](https://kieranhealy.org/blog/archives/2018/11/19/zero-counts-in-dplyr/)
 for a recent walkthrough of the issue. 
 
@@ -601,8 +601,8 @@ hybrid evaluation, they call back to R from the C++ internals for each group.
 
 This is an expensive operation because the expressions have to be evaluated 
 with extra care. Traditionally it meant wrapping the expression in an R `tryCatch()` 
-before evaluating, but R 3.5.0 has added unwind protection and we exposed that to 
-Rcpp. Consequently, the cost of evaluating an R expression carefully is lower 
+before evaluating, but R 3.5.0 has added unwind protection which we [exposed to 
+Rcpp](https://github.com/RcppCore/Rcpp/pull/873). Consequently, the cost of evaluating an R expression carefully is lower 
 than before. 
 
 We ran a benchmark calculating the means of 10,000 small groups with the 
@@ -610,8 +610,8 @@ release version of dplyr and this release candidate with and without
 using the unwind protect feature. 
 
 Just using the `mean()` function would not illustrate the feature, because dplyr would
-use hybrid evaluation and never use callbacks to R, so instead we defined a `mean_` 
-function that has the same body as `base::mean()`, we also compare this to 
+use hybrid evaluation and never use callbacks to R. So instead we defined a `mean_` 
+function that has the same body as `base::mean()`. We also compare this to 
 the expression `sum(x) / n()` because it woudld have been handled by 
 partial hybrid evaluation in previous versions. 
 
@@ -713,7 +713,7 @@ but will eventually start issuing warnings.
 ## Behaviour with grouped tibbles
 
 We have reviewed the documentation of all scoped variants to make clear how the scoped operations 
-are applied to grouped tibbles. For most of the scoped verbs, the operation also apply on 
+are applied to grouped tibbles. For most of the scoped verbs, the operations also apply on 
 the grouping variables when they are part of the selection. This includes:
 
 * [`arrange_all()`](https://dplyr.tidyverse.org/reference/arrange_all.html), [`arrange_at()`](https://dplyr.tidyverse.org/reference/arrange_at.html), and [`arrange_if()`](https://dplyr.tidyverse.org/reference/arrange_if.html)
@@ -731,7 +731,7 @@ For implicit selections, the grouping variables are always ignored. In this case
   ignore grouping variables silently because it is obvious that
   operations are not applied on grouping variables.
 
-* On the other hand it isn't as obvious in the case of mutating operations ([`mutate_all()`](https://dplyr.tidyverse.org/reference/mutate_all.html), [`mutate_if()`](https://dplyr.tidyverse.org/reference/mutate_if.html), [`transmute_all()`](https://dplyr.tidyverse.org/reference/transmute_all.html), and [`transmute_if()`](https://dplyr.tidyverse.org/reference/transmute_if.html)). 
+* On the other hand, it isn't as obvious in the case of mutating operations ([`mutate_all()`](https://dplyr.tidyverse.org/reference/mutate_all.html), [`mutate_if()`](https://dplyr.tidyverse.org/reference/mutate_if.html), [`transmute_all()`](https://dplyr.tidyverse.org/reference/transmute_all.html), and [`transmute_if()`](https://dplyr.tidyverse.org/reference/transmute_if.html)). 
  For this reason, they issue a message indicating which grouping variables are ignored.
 
 In order to make it easier to explicitly remove the grouping columns from an `_at` selection, we have introduced a 
