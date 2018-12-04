@@ -76,7 +76,6 @@ df
 df %>% 
   count(f1)
 #> # A tibble: 3 x 2
-#> # Groups:   [1]
 #>   f1        n
 #>   <fct> <int>
 #> 1 a         3
@@ -95,7 +94,6 @@ Groups are still made to match the data on other types of columns:
 df %>% 
   count(x)
 #> # A tibble: 2 x 2
-#> # Groups:   [1]
 #>       x     n
 #>   <dbl> <int>
 #> 1     1     3
@@ -110,7 +108,6 @@ by `f1` and `f2` we get 9 groups,
 df %>% 
   count(f1, f2)
 #> # A tibble: 9 x 3
-#> # Groups:   [1]
 #>   f1    f2        n
 #>   <fct> <fct> <int>
 #> 1 a     d         2
@@ -129,7 +126,6 @@ to one group per level, but non factors only create groups based on observed dat
 df %>% 
   count(f1, x)
 #> # A tibble: 3 x 3
-#> # Groups:   [1]
 #>   f1        x     n
 #>   <fct> <dbl> <int>
 #> 1 a         1     3
@@ -138,7 +134,7 @@ df %>%
 ```
 
 In this example, we group by `f1` then `x`. At the first layer, grouping on `f1` creates
-two groups. Each of these grouops is then subdivided based on the values of the second 
+three groups. Each of these groups is then subdivided based on the values of the second 
 variable `x`. Since `x` is always 1 when `f1` is `a` the group is not 
 further divided. 
 
@@ -151,7 +147,6 @@ consequently has no values for the vector `x`. In that case, [`group_by()`](http
 df %>% 
   count(x, f1)
 #> # A tibble: 6 x 3
-#> # Groups:   [1]
 #>       x f1        n
 #>   <dbl> <fct> <int>
 #> 1     1 a         3
