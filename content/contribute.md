@@ -10,7 +10,7 @@ The easiest way to help out is to answer questions. You won't know the answer to
 
 Many people asking for help, don't know about reprexes. A little education, and some help crafting a [reprex](/help#reprex) can go a long way. You might not answer the question, but you'll help someone answer it more easily. 
 
-If you're interested in answering questions, two good places to start are the tidyverse tags on [Twitter](https://twitter.com/search?q=%23tidyverse) and [Stack Overflow](https://stackoverflow.com/questions/tagged/tidyverse?sort=newest). Just remember that while you might have seen the problem a hundred times before, it's new to the person asking it. Be patient, polite, and empathic.
+If you're interested in answering questions, some good places to start are the [RStudio community site](https://community.rstudio.com/), or the tidyverse tags on [Twitter](https://twitter.com/search?q=%23tidyverse) and [Stack Overflow](https://stackoverflow.com/questions/tagged/tidyverse?sort=newest). Just remember that while you might have seen the problem a hundred times before, it's new to the person asking it. Be patient, polite, and empathic.
 
 ## File issues {#issues}
 
