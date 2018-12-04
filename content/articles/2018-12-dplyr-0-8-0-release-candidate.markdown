@@ -72,7 +72,7 @@ df
 #> 2 a     e         1     2
 #> 3 a     d         1     3
 #> 4 b     e         2     4
-#> # … with 1 more row
+#> 5 b     f         2     5
 df %>% 
   count(f1)
 #> # A tibble: 3 x 2
@@ -114,7 +114,11 @@ df %>%
 #> 2 a     e         1
 #> 3 a     f         0
 #> 4 b     d         0
-#> # … with 5 more rows
+#> 5 b     e         1
+#> 6 b     f         1
+#> 7 c     d         0
+#> 8 c     e         0
+#> 9 c     f         0
 ```
 
 When factors and non factors are involved in the grouping, the number of 
@@ -153,7 +157,8 @@ df %>%
 #> 2     1 b         0
 #> 3     1 c         0
 #> 4     2 a         0
-#> # … with 2 more rows
+#> 5     2 b         2
+#> 6     2 c         0
 ```
 
 When we group by `x` then `f1` we initially split the data according to `x` which 
@@ -173,11 +178,12 @@ df %>%
 #> # Groups:   x [2]
 #>       x f1        y
 #>   <dbl> <fct> <dbl>
-#> 1     1 a         2
-#> 2     1 b       NaN
-#> 3     1 c       NaN
-#> 4     2 a       NaN
-#> # … with 2 more rows
+#> 1     1 a       2  
+#> 2     1 b     NaN  
+#> 3     1 c     NaN  
+#> 4     2 a     NaN  
+#> 5     2 b       4.5
+#> 6     2 c     NaN
 ```
 
 The expression `mean(y)` is evaluated for the empty groups as well, and gives 
@@ -242,13 +248,19 @@ iris %>%
   group_by(Species = forcats::fct_drop(Species))
 #> # A tibble: 100 x 5
 #> # Groups:   Species [2]
-#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species   
-#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>     
-#> 1          7           3.2          4.7         1.4 versicolor
-#> 2          6.4         3.2          4.5         1.5 versicolor
-#> 3          6.9         3.1          4.9         1.5 versicolor
-#> 4          5.5         2.3          4           1.3 versicolor
-#> # … with 96 more rows
+#>    Sepal.Length Sepal.Width Petal.Length Petal.Width Species   
+#>           <dbl>       <dbl>        <dbl>       <dbl> <fct>     
+#>  1          7           3.2          4.7         1.4 versicolor
+#>  2          6.4         3.2          4.5         1.5 versicolor
+#>  3          6.9         3.1          4.9         1.5 versicolor
+#>  4          5.5         2.3          4           1.3 versicolor
+#>  5          6.5         2.8          4.6         1.5 versicolor
+#>  6          5.7         2.8          4.5         1.3 versicolor
+#>  7          6.3         3.3          4.7         1.6 versicolor
+#>  8          4.9         2.4          3.3         1   versicolor
+#>  9          6.6         2.9          4.6         1.3 versicolor
+#> 10          5.2         2.7          3.9         1.4 versicolor
+#> # … with 90 more rows
 ```
 
 ## New grouping fuctions
@@ -283,33 +295,51 @@ data %>%
   group_split()
 #> [[1]]
 #> # A tibble: 22 x 5
-#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
-#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>  
-#> 1          5.1         3.5          1.4         0.2 setosa 
-#> 2          5.4         3.9          1.7         0.4 setosa 
-#> 3          5.4         3.7          1.5         0.2 setosa 
-#> 4          5.8         4            1.2         0.2 setosa 
-#> # … with 18 more rows
+#>    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>           <dbl>       <dbl>        <dbl>       <dbl> <fct>  
+#>  1          5.1         3.5          1.4         0.2 setosa 
+#>  2          5.4         3.9          1.7         0.4 setosa 
+#>  3          5.4         3.7          1.5         0.2 setosa 
+#>  4          5.8         4            1.2         0.2 setosa 
+#>  5          5.7         4.4          1.5         0.4 setosa 
+#>  6          5.4         3.9          1.3         0.4 setosa 
+#>  7          5.1         3.5          1.4         0.3 setosa 
+#>  8          5.7         3.8          1.7         0.3 setosa 
+#>  9          5.1         3.8          1.5         0.3 setosa 
+#> 10          5.4         3.4          1.7         0.2 setosa 
+#> # … with 12 more rows
 #> 
 #> [[2]]
 #> # A tibble: 24 x 5
-#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species   
-#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>     
-#> 1          7           3.2          4.7         1.4 versicolor
-#> 2          6.4         3.2          4.5         1.5 versicolor
-#> 3          6.9         3.1          4.9         1.5 versicolor
-#> 4          6.5         2.8          4.6         1.5 versicolor
-#> # … with 20 more rows
+#>    Sepal.Length Sepal.Width Petal.Length Petal.Width Species   
+#>           <dbl>       <dbl>        <dbl>       <dbl> <fct>     
+#>  1          7           3.2          4.7         1.4 versicolor
+#>  2          6.4         3.2          4.5         1.5 versicolor
+#>  3          6.9         3.1          4.9         1.5 versicolor
+#>  4          6.5         2.8          4.6         1.5 versicolor
+#>  5          6.3         3.3          4.7         1.6 versicolor
+#>  6          6.6         2.9          4.6         1.3 versicolor
+#>  7          6           2.2          4           1   versicolor
+#>  8          6.1         2.9          4.7         1.4 versicolor
+#>  9          6.7         3.1          4.4         1.4 versicolor
+#> 10          6.2         2.2          4.5         1.5 versicolor
+#> # … with 14 more rows
 #> 
 #> [[3]]
 #> # A tibble: 22 x 5
-#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species  
-#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>    
-#> 1          7.1         3            5.9         2.1 virginica
-#> 2          7.6         3            6.6         2.1 virginica
-#> 3          7.3         2.9          6.3         1.8 virginica
-#> 4          6.7         2.5          5.8         1.8 virginica
-#> # … with 18 more rows
+#>    Sepal.Length Sepal.Width Petal.Length Petal.Width Species  
+#>           <dbl>       <dbl>        <dbl>       <dbl> <fct>    
+#>  1          7.1         3            5.9         2.1 virginica
+#>  2          7.6         3            6.6         2.1 virginica
+#>  3          7.3         2.9          6.3         1.8 virginica
+#>  4          6.7         2.5          5.8         1.8 virginica
+#>  5          7.2         3.6          6.1         2.5 virginica
+#>  6          6.8         3            5.5         2.1 virginica
+#>  7          7.7         3.8          6.7         2.2 virginica
+#>  8          7.7         2.6          6.9         2.3 virginica
+#>  9          6.9         3.2          5.7         2.3 virginica
+#> 10          7.7         2.8          6.7         2   virginica
+#> # … with 12 more rows
 data %>% 
   group_keys()
 #> # A tibble: 3 x 1
@@ -350,33 +380,51 @@ iris %>%
   group_split(Species)
 #> [[1]]
 #> # A tibble: 50 x 5
-#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
-#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>  
-#> 1          5.1         3.5          1.4         0.2 setosa 
-#> 2          4.9         3            1.4         0.2 setosa 
-#> 3          4.7         3.2          1.3         0.2 setosa 
-#> 4          4.6         3.1          1.5         0.2 setosa 
-#> # … with 46 more rows
+#>    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>           <dbl>       <dbl>        <dbl>       <dbl> <fct>  
+#>  1          5.1         3.5          1.4         0.2 setosa 
+#>  2          4.9         3            1.4         0.2 setosa 
+#>  3          4.7         3.2          1.3         0.2 setosa 
+#>  4          4.6         3.1          1.5         0.2 setosa 
+#>  5          5           3.6          1.4         0.2 setosa 
+#>  6          5.4         3.9          1.7         0.4 setosa 
+#>  7          4.6         3.4          1.4         0.3 setosa 
+#>  8          5           3.4          1.5         0.2 setosa 
+#>  9          4.4         2.9          1.4         0.2 setosa 
+#> 10          4.9         3.1          1.5         0.1 setosa 
+#> # … with 40 more rows
 #> 
 #> [[2]]
 #> # A tibble: 50 x 5
-#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species   
-#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>     
-#> 1          7           3.2          4.7         1.4 versicolor
-#> 2          6.4         3.2          4.5         1.5 versicolor
-#> 3          6.9         3.1          4.9         1.5 versicolor
-#> 4          5.5         2.3          4           1.3 versicolor
-#> # … with 46 more rows
+#>    Sepal.Length Sepal.Width Petal.Length Petal.Width Species   
+#>           <dbl>       <dbl>        <dbl>       <dbl> <fct>     
+#>  1          7           3.2          4.7         1.4 versicolor
+#>  2          6.4         3.2          4.5         1.5 versicolor
+#>  3          6.9         3.1          4.9         1.5 versicolor
+#>  4          5.5         2.3          4           1.3 versicolor
+#>  5          6.5         2.8          4.6         1.5 versicolor
+#>  6          5.7         2.8          4.5         1.3 versicolor
+#>  7          6.3         3.3          4.7         1.6 versicolor
+#>  8          4.9         2.4          3.3         1   versicolor
+#>  9          6.6         2.9          4.6         1.3 versicolor
+#> 10          5.2         2.7          3.9         1.4 versicolor
+#> # … with 40 more rows
 #> 
 #> [[3]]
 #> # A tibble: 50 x 5
-#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species  
-#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>    
-#> 1          6.3         3.3          6           2.5 virginica
-#> 2          5.8         2.7          5.1         1.9 virginica
-#> 3          7.1         3            5.9         2.1 virginica
-#> 4          6.3         2.9          5.6         1.8 virginica
-#> # … with 46 more rows
+#>    Sepal.Length Sepal.Width Petal.Length Petal.Width Species  
+#>           <dbl>       <dbl>        <dbl>       <dbl> <fct>    
+#>  1          6.3         3.3          6           2.5 virginica
+#>  2          5.8         2.7          5.1         1.9 virginica
+#>  3          7.1         3            5.9         2.1 virginica
+#>  4          6.3         2.9          5.6         1.8 virginica
+#>  5          6.5         3            5.8         2.2 virginica
+#>  6          7.6         3            6.6         2.1 virginica
+#>  7          4.9         2.5          4.5         1.7 virginica
+#>  8          7.3         2.9          6.3         1.8 virginica
+#>  9          6.7         2.5          5.8         1.8 virginica
+#> 10          7.2         3.6          6.1         2.5 virginica
+#> # … with 40 more rows
 
 iris %>% 
   group_keys(Species)
@@ -428,7 +476,8 @@ mtcars %>%
 #> 2     4  24.4  147.    62  3.69  3.19  20       1     0     4     2
 #> 3     6  21    160    110  3.9   2.62  16.5     0     1     4     4
 #> 4     6  21    160    110  3.9   2.88  17.0     0     1     4     4
-#> # … with 2 more rows
+#> 5     8  18.7  360    175  3.15  3.44  17.0     0     0     3     2
+#> 6     8  14.3  360    245  3.21  3.57  15.8     0     0     3     4
 
 mtcars %>%
   group_by(cyl) %>%
@@ -667,13 +716,19 @@ iris <- as_tibble(iris) # For concise print method
 
 mutate_if(iris, is.numeric, ~ . - mean(.))
 #> # A tibble: 150 x 5
-#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
-#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>  
-#> 1       -0.743      0.443         -2.36      -0.999 setosa 
-#> 2       -0.943     -0.0573        -2.36      -0.999 setosa 
-#> 3       -1.14       0.143         -2.46      -0.999 setosa 
-#> 4       -1.24       0.0427        -2.26      -0.999 setosa 
-#> # … with 146 more rows
+#>    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>           <dbl>       <dbl>        <dbl>       <dbl> <fct>  
+#>  1       -0.743      0.443         -2.36      -0.999 setosa 
+#>  2       -0.943     -0.0573        -2.36      -0.999 setosa 
+#>  3       -1.14       0.143         -2.46      -0.999 setosa 
+#>  4       -1.24       0.0427        -2.26      -0.999 setosa 
+#>  5       -0.843      0.543         -2.36      -0.999 setosa 
+#>  6       -0.443      0.843         -2.06      -0.799 setosa 
+#>  7       -1.24       0.343         -2.36      -0.899 setosa 
+#>  8       -0.843      0.343         -2.26      -0.999 setosa 
+#>  9       -1.44      -0.157         -2.36      -0.999 setosa 
+#> 10       -0.943      0.0427        -2.26      -1.10  setosa 
+#> # … with 140 more rows
 ```
 
 And lists of functions and purrr-style lambda functions:
@@ -686,13 +741,19 @@ fns <- list(
 )
 mutate_if(iris, is.numeric, fns)
 #> # A tibble: 150 x 13
-#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
-#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>  
-#> 1          5.1         3.5          1.4         0.2 setosa 
-#> 2          4.9         3            1.4         0.2 setosa 
-#> 3          4.7         3.2          1.3         0.2 setosa 
-#> 4          4.6         3.1          1.5         0.2 setosa 
-#> # … with 146 more rows, and 8 more variables: Sepal.Length_centered <dbl>,
+#>    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>           <dbl>       <dbl>        <dbl>       <dbl> <fct>  
+#>  1          5.1         3.5          1.4         0.2 setosa 
+#>  2          4.9         3            1.4         0.2 setosa 
+#>  3          4.7         3.2          1.3         0.2 setosa 
+#>  4          4.6         3.1          1.5         0.2 setosa 
+#>  5          5           3.6          1.4         0.2 setosa 
+#>  6          5.4         3.9          1.7         0.4 setosa 
+#>  7          4.6         3.4          1.4         0.3 setosa 
+#>  8          5           3.4          1.5         0.2 setosa 
+#>  9          4.4         2.9          1.4         0.2 setosa 
+#> 10          4.9         3.1          1.5         0.1 setosa 
+#> # … with 140 more rows, and 8 more variables: Sepal.Length_centered <dbl>,
 #> #   Sepal.Width_centered <dbl>, Petal.Length_centered <dbl>,
 #> #   Petal.Width_centered <dbl>, Sepal.Length_scaled <dbl>,
 #> #   Sepal.Width_scaled <dbl>, Petal.Length_scaled <dbl>,
@@ -740,13 +801,19 @@ mtcars %>%
   select(group_cols())
 #> # A tibble: 32 x 1
 #> # Groups:   cyl [3]
-#>     cyl
-#> * <dbl>
-#> 1     6
-#> 2     6
-#> 3     4
-#> 4     6
-#> # … with 28 more rows
+#>      cyl
+#>  * <dbl>
+#>  1     6
+#>  2     6
+#>  3     4
+#>  4     6
+#>  5     8
+#>  6     6
+#>  7     8
+#>  8     4
+#>  9     4
+#> 10     6
+#> # … with 22 more rows
 ```
 
 This new helper is mostly intended for selection in scoped variants:
@@ -774,11 +841,17 @@ mtcars %>%
   )
 #> # A tibble: 32 x 11
 #> # Groups:   cyl [3]
-#>     mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear   carb
-#>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl>
-#> 1  21       6   160   110  3.9   2.62  16.5     0     1     4  0.571
-#> 2  21       6   160   110  3.9   2.88  17.0     0     1     4  0.571
-#> 3  22.8     4   108    93  3.85  2.32  18.6     1     1     4 -0.545
-#> 4  21.4     6   258   110  3.08  3.22  19.4     1     0     3 -2.43 
-#> # … with 28 more rows
+#>      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear   carb
+#>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl>
+#>  1  21       6  160    110  3.9   2.62  16.5     0     1     4  0.571
+#>  2  21       6  160    110  3.9   2.88  17.0     0     1     4  0.571
+#>  3  22.8     4  108     93  3.85  2.32  18.6     1     1     4 -0.545
+#>  4  21.4     6  258    110  3.08  3.22  19.4     1     0     3 -2.43 
+#>  5  18.7     8  360    175  3.15  3.44  17.0     0     0     3 -1.5  
+#>  6  18.1     6  225    105  2.76  3.46  20.2     1     0     3 -2.43 
+#>  7  14.3     8  360    245  3.21  3.57  15.8     0     0     3  0.5  
+#>  8  24.4     4  147.    62  3.69  3.19  20       1     0     4  0.455
+#>  9  22.8     4  141.    95  3.92  3.15  22.9     1     0     4  0.455
+#> 10  19.2     6  168.   123  3.92  3.44  18.3     1     0     4  0.571
+#> # … with 22 more rows
 ```
