@@ -14,7 +14,7 @@ photo:
 
 *Hadley Wickham, Mara Averick, Jenny Bryan, Gábor Csárdi, Romain François, Alex Hayes, Lionel Henry, Jim Hester, Max Kuhn, Thomas Lin Pedersen, Davis Vaughan*
 
-We added significant roster depth this year, with Davis Vaughan, Thomas Lin Pedersen, Alex Hayes, and Romain François all joining the squad.
+We added significant roster depth this year, with [Davis Vaughan](https://twitter.com/dvaughan32/), [Thomas Lin Pedersen](https://twitter.com/thomasp85/), [Alex Hayes](https://twitter.com/alexpghayes), and [Romain François](https://twitter.com/romain_francois/) all joining the squad.
 
 ## By the numbers
 
@@ -42,4 +42,4 @@ Among the [tidyverse development principles](https://principles.tidyverse.org) i
 
 ## Tidyverse dev day
 
-We hope that our first [**tidyverse developer day**](https://www.tidyverse.org/articles/2018/11/tidyverse-developer-day-2019/) (held after rstudio::conf) will help us continue to nurture regular contributors of all skill levels. We have 100 developers (50 general admission + 50 URM) signed!
+We hope that our first [**tidyverse developer day**](https://www.tidyverse.org/articles/2018/11/tidyverse-developer-day-2019/) (held after rstudio::conf) will help us continue to nurture regular contributors of all skill levels. We have 100 developers (50 general admission + 50 URM) signed up!
