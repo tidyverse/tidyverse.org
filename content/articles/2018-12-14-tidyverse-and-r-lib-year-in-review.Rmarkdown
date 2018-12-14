@@ -12,13 +12,13 @@ photo:
   author: Aperture Vintage
 ---
 
-*Hadley Wickham, Mara Averick, Jenny Bryan, Gábor Csárdi, Romain François, Alex Hayes, Lionel Henry, Jim Hester, Max Kuhn, Thomas Lin Pedersen, Davis Vaughan*
+It's been a banner year for the tidyverse and r-lib teams, and, as we close out 2018, we wanted to take a look back at some of our achievements.
 
 We added significant roster depth this year, with [Davis Vaughan](https://twitter.com/dvaughan32/), [Thomas Lin Pedersen](https://twitter.com/thomasp85/), [Alex Hayes](https://twitter.com/alexpghayes), and [Romain François](https://twitter.com/romain_francois/) all joining the squad.
 
 ## By the numbers
 
-* **22** new packages on CRAN
+* **22** new packages on CRAN ([vctrs](https://github.com/r-lib/vctrs), [parsnip](https://github.com/tidymodels/parsnip), [lobstr](https://github.com/r-lib/lobstr), [sloop](https://github.com/r-lib/sloop), [err](https://github.com/r-lib/err), [generics](https://github.com/r-lib/generics), [carrier](https://github.com/r-lib/carrier), [xopen](https://github.com/r-lib/xopen), [embed](https://github.com/tidymodels/embed), [dials](https://github.com/tidymodels/dials), [tidymodels](https://github.com/tidymodels/tidymodels), [ps](https://github.com/r-lib/ps), [pkgload](https://github.com/r-lib/pkgload), [pkgbuild](https://github.com/r-lib/pkgbuild), [conflicted](https://github.com/r-lib/conflicted), [bench](https://github.com/r-lib/bench), [pkgdown](https://github.com/r-lib/pkgdown), [conf](https://github.com/r-lib/conf), [filelock](https://github.com/r-lib/filelock), [showimage](https://github.com/r-lib/showimage), [fs](https://github.com/r-lib/fs), and [infer](https://github.com/tidymodels/infer).)
 
 * **54** packages with *major* releases
 
