@@ -14,7 +14,7 @@ photo:
 
 It's been a banner year for the tidyverse and r-lib teams, and, as we close out 2018, we wanted to take a look back at some of our achievements.
 
-We added significant roster depth this year, with [Davis Vaughan](https://twitter.com/dvaughan32/), [Thomas Lin Pedersen](https://twitter.com/thomasp85/), [Alex Hayes](https://twitter.com/alexpghayes), and [Romain François](https://twitter.com/romain_francois/) all joining the squad.
+We added significant roster depth this year, with [Davis Vaughan](https://twitter.com/dvaughan32/), [Thomas Lin Pedersen](https://twitter.com/thomasp85/), and [Romain François](https://twitter.com/romain_francois/) all joining the squad.
 
 ## By the numbers
 
@@ -28,13 +28,15 @@ We added significant roster depth this year, with [Davis Vaughan](https://twitte
 
 * **42** articles on [tidyverse.org](https://www.tidyverse.org/articles/)
 
+## Major accomplishments
+
 After 6 years of development, [**pkgdown**](https://www.tidyverse.org/articles/2018/05/pkgdown-1-0-0/) had its initial release on CRAN. pkgdown is designed to make it quick and easy to build a website for your package, and has already been used to make sites for over 2500 packages. 
 
 Several major tidyverse package releases have centered on the implementation of [**tidy evaluation**](https://tidyeval.tidyverse.org/). Notable among these was the 3.0.0 release of [**ggplot2**](https://www.tidyverse.org/articles/2018/07/ggplot2-3-0-0/), which has more than 2000 reverse dependencies. We continue to improve our tools for and skills with releases with large numbers of reverse dependencies.
 
 [**devtools 2.0.0**](https://www.tidyverse.org/articles/2018/10/devtools-2-0-0/) split the functionality in devtools into a number of smaller packages which are simpler to develop, and also easier for other packages to depend on. Though devtools will remain the primary package with which developers interact, the functionality will come from its component packages (in what we’re calling a [conscious uncoupling](https://github.com/r-lib/devtools#conscious-uncoupling)).
 
-The [**tidymodels**](https://github.com/tidymodels) collection is the home of several new modelling packages, which follow opinionated but reasonable [model implementation practices](https://tidymodels.github.io/model-implementation-principles/). This includes the [**parsnip**](https://tidymodels.github.io/parsnip/) package, which standardizes the interface for fitting models as well as their return values — separating model *specification* from model *implementation* ([more detail here](https://deploy-preview-236--tidyverse-org.netlify.com/articles/2018/11/parsnip-0-0-1/)). In effect, when using parsnip, you don’t have to remember each interface and its unique set of argument names to easily move between R packages.
+The [**tidymodels**](https://github.com/tidymodels) collection is the home of several new modelling packages, which follow opinionated but reasonable [model implementation practices](https://tidymodels.github.io/model-implementation-principles/). This includes the [**parsnip**](https://tidymodels.github.io/parsnip/) package, which standardizes the interface for fitting models as well as their return values — separating model *specification* from model *implementation* ([more detail here](https://www.tidyverse.org/articles/2018/11/parsnip-0-0-1/). In effect, when using parsnip, you don’t have to remember each interface and its unique set of argument names to easily move between R packages.
 
 ## Consistency
 
@@ -42,4 +44,4 @@ Among the [tidyverse development principles](https://principles.tidyverse.org) i
 
 ## Tidyverse dev day
 
-We hope that our first [**tidyverse developer day**](https://www.tidyverse.org/articles/2018/11/tidyverse-developer-day-2019/) (held after rstudio::conf) will help us continue to nurture regular contributors of all skill levels. We have 100 developers (50 general admission + 50 URM) signed up!
+We hope that our first [**tidyverse developer day**](https://www.tidyverse.org/articles/2018/11/tidyverse-developer-day-2019/) (held after rstudio::conf) will help us continue to nurture regular contributors of all skill levels. We have 100 developers (50 general admission + 50 URM) signed up to participate, and we're looking forward to a fun and productive day!
