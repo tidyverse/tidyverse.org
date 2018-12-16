@@ -102,7 +102,7 @@ start <- tibble::tribble(
   "chuffed", "very",
   "happy", c("so", "very", "exceedingly"),
   "thrilled", character(),
-  "deligthed", character(),
+  "delighted", character(),
   "tickled pink", character(),
 )
 
