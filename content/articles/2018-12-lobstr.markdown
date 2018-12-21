@@ -1,7 +1,7 @@
 ---
 title: 'lobstr 1.0.0'
 author: Mara Averick
-date: '2018-12-12'
+date: '2018-12-21'
 slug: lobstr
 description: > 
   lobstr is now on CRAN. lobstr provides tools that allow you to dig into the detail of an object.
@@ -49,11 +49,11 @@ f <- function(x) g(x)
 g <- function(x) h(x)
 h <- function(x) x
 f(cst())
-#> █
-#> ├─global::f(cst())
-#> │ └─global::g(x)
-#> │   └─global::h(x)
-#> └─lobstr::cst()
+#>     █
+#>  1. ├─global::f(cst())
+#>  2. │ └─global::g(x)
+#>  3. │   └─global::h(x)
+#>  4. └─lobstr::cst()
 ```
 
 Learn more about this in [The call stack](https://adv-r.hadley.nz/environments.html#call-stack).
@@ -66,14 +66,14 @@ Learn more about this in [The call stack](https://adv-r.hadley.nz/environments.h
 ```r
 x <- 1:100
 ref(x)
-#> [1:0x7f96f5c0c5f8] <int>
+#> [1:0x7fb19c66bbc8] <int>
 
 y <- list(x, x, x)
 ref(y)
-#> █ [1:0x7f96f463cfd8] <list> 
-#> ├─[2:0x7f96f5c0c5f8] <int> 
-#> ├─[2:0x7f96f5c0c5f8] 
-#> └─[2:0x7f96f5c0c5f8]
+#> █ [1:0x7fb19d0d5a28] <list> 
+#> ├─[2:0x7fb19c66bbc8] <int> 
+#> ├─[2:0x7fb19c66bbc8] 
+#> └─[2:0x7fb19c66bbc8]
 ```
 
 
@@ -87,9 +87,9 @@ x <- 1:10
 y <- x
 
 obj_addr(x)
-#> [1] "0x7f96f5ad3f98"
+#> [1] "0x7fb19c7aeeb0"
 obj_addr(y)
-#> [1] "0x7f96f5ad3f98"
+#> [1] "0x7fb19c7aeeb0"
 ```
 
 [`obj_size()`](https://lobstr.r-lib.org/reference/obj_size.html) computes the size of an object or set of objects. It is different to `object.size()` in three ways. It:
