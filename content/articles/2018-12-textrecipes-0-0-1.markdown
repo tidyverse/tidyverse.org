@@ -1,7 +1,7 @@
 ---
 title: 'textrecipes 0.0.1'
 author: Emil Hvitfeldt
-date: '2018-12-20'
+date: '2018-12-26'
 slug: textrecipes-0-0-1
 description: >
     textrecipes 0.0.1 is now on CRAN!
