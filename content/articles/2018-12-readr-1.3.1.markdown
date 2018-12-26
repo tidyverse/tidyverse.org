@@ -71,25 +71,50 @@ Now both commented lines and completely blank lines are skipped by default.
 file <-
 "# A file with comments
 
-first,last
+first_name,last_name
 Mary,Sue
 John,Doe
 "
 
 read_csv(file, comment = "#")
 #> # A tibble: 2 x 2
-#>   first last 
-#>   <chr> <chr>
-#> 1 Mary  Sue  
-#> 2 John  Doe
+#>   first_name last_name
+#>   <chr>      <chr>    
+#> 1 Mary       Sue      
+#> 2 John       Doe
 ```
 
-However both commented and blank lines are counted in the `skip` parameter. So
-to skip the header line in this example I would need to use `skip = 3`.
+Some useful properties about `skip`.
+
+ - It is a _lower_ bound on the number of lines that will actually be skipped.
+   e.g. both of the following examples result in identical output.
 
 
 ```r
-read_csv(file, skip = 3, col_names = FALSE, comment = "#")
+read_csv(file, skip = 1)
+#> # A tibble: 2 x 2
+#>   first_name last_name
+#>   <chr>      <chr>    
+#> 1 Mary       Sue      
+#> 2 John       Doe
+read_csv(file, skip = 2)
+#> # A tibble: 2 x 2
+#>   first_name last_name
+#>   <chr>      <chr>    
+#> 1 Mary       Sue      
+#> 2 John       Doe
+```
+
+- `skip` is enforced without looking at the line contents, so both commented
+  and blank lines are counted.
+
+So if you wanted to skip all the way including the `first_name,last_name` line
+you would need to use `skip = 3`. N.B. the results are identical with and
+without `comment = "#"`.
+
+
+```r
+read_csv(file, skip = 3, col_names = FALSE)
 #> # A tibble: 2 x 2
 #>   X1    X2   
 #>   <chr> <chr>
@@ -104,7 +129,7 @@ columns are guessed as numeric. Because R uses 32 bit integers and 64 bit
 doubles all integers can be stored in doubles, guaranteeing no loss of
 information. This change was made to remove errors when numeric columns were
 incorrectly guessed as integers. If you know a certain column is an integer and
-would like to read them as such you can do so by specifying the column type
+would like to read it as such you can do so by specifying the column type
 explicitly with the `col_types` argument.
 
 
@@ -127,9 +152,9 @@ read_csv(file, col_type = c(b = "i"))
 ### tibble subclass
 
 readr now returns results with a `spec_tbl_df` subclass. This differs from a
-regular tibble only that the `spec` attribute (which holds the column
-specification) is lost as soon as the object is subset (and a normal `tbl_df`
-object is returned).
+regular tibble only in that the `spec` attribute (which holds the column
+specification) is lost as soon as the object is subset and a normal `tbl_df`
+object is returned.
 
 Historically `tbl_df`'s lost their attributes once they were subset. However
 recent versions of tibble retain the attributes when subsetting, so the
@@ -164,9 +189,8 @@ The most user visible change is coloration of the column specifications. The col
 
 ![Readr column specifications](/images/readr-1.3.1/readr-colors.png)
 
-By coloring the specifications we hope it will be more apparent when a column
-differs from the rest, which should make spotting when the guessed specification
-differs from what you expected.
+By coloring the specification, we hope to make it easier to spot when a column
+differs from the rest or when guessing leads to import with an unexpected type.
 
 The coloring can be disabled by setting `options(crayon.enabled = FALSE)`.
 
@@ -204,15 +228,17 @@ implementation of the `melt_*()` functions!
 
 ### Connection improvements
 
-In previous versions of readr the connections were read into an in-memory raw vector, then passed to the readr functions.
-This made reading connections from small to medium datasets fast, but also
-meant that the dataset had to fit into memory at least twice (once for the raw
-data, once for the parsed data). It also meant that reading could not begin
-until the full vector was read through the connection.
+In previous versions of readr the connections were read into an in-memory raw
+vector, then passed to the readr functions. This made reading connections for
+small to medium datasets fast, but also meant that the dataset had to fit into
+memory at least twice (once for the raw data, once for the parsed data). It
+also meant that reading could not begin until the full vector was read through
+the connection.
 
-We now write the connection to a temporary file (in the R temporary directory), than parse that temporary file.
-This means connections may take a little longer to be read, but also means they will no longer need to fit into memory.
-It also allows the use of the chunked readers to process the data in parts.
+We now write the connection to a temporary file (in the R temporary directory),
+than parse that temporary file. This means connections may take a little longer
+to be read, but also means they will no longer need to fit into memory. It also
+allows the use of the chunked readers to process the data in parts.
 
 Future improvements to readr would allow it to parse data from connections in a
 streaming fashion, which would avoid many of the drawbacks of either approach.
