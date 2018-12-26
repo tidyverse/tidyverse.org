@@ -1,7 +1,7 @@
 ---
 title: 'textrecipes 0.0.1'
 author: Emil Hvitfeldt
-date: '2018-12-20'
+date: '2018-12-26'
 slug: textrecipes-0-0-1
 description: >
     textrecipes 0.0.1 is now on CRAN!
@@ -44,9 +44,9 @@ rec_obj <- recipe(~ ., okc_text)
 
 rec_obj
 #> Data Recipe
-#> 
+#>
 #> Inputs:
-#> 
+#>
 #>       role #variables
 #>  predictor         10
 ```
@@ -60,14 +60,14 @@ rec_obj %>%
   step_tokenize(essay0) %>% # token argument defaults to "words"
   step_texthash(essay0)
 #> Data Recipe
-#> 
+#>
 #> Inputs:
-#> 
+#>
 #>       role #variables
 #>  predictor         10
-#> 
+#>
 #> Operations:
-#> 
+#>
 #> Tokenization for essay0
 #> Feature hashing with essay0
 
@@ -76,14 +76,14 @@ rec_obj %>%
   step_tokenize(essay0, token = "character") %>%
   step_tf(essay0)
 #> Data Recipe
-#> 
+#>
 #> Inputs:
-#> 
+#>
 #>       role #variables
 #>  predictor         10
-#> 
+#>
 #> Operations:
-#> 
+#>
 #> Tokenization for essay0
 #> Term frequency with essay0
 ```
@@ -98,14 +98,14 @@ rec_obj %>%
   step_tokenfilter(essay0, max_tokens = 100) %>%
   step_tf(essay0)
 #> Data Recipe
-#> 
+#>
 #> Inputs:
-#> 
+#>
 #>       role #variables
 #>  predictor         10
-#> 
+#>
 #> Operations:
-#> 
+#>
 #> Tokenization for essay0
 #> Stemming for essay0
 #> Text filtering for essay0
