@@ -15,6 +15,17 @@ photo:
   author: Pau Casals
 ---
 
+<style>
+.addendum {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 10px 10px 10px 50px;
+  border: 1px solid red;
+  font-size: 140%; 
+}
+</style>
+
+
 
 
 A new release of dplyr (0.8.0) is on the horizon, roughly planned for early January 2019. 
@@ -76,7 +87,6 @@ df
 df %>% 
   count(f1)
 #> # A tibble: 3 x 2
-#> # Groups:   [1]
 #>   f1        n
 #>   <fct> <int>
 #> 1 a         3
@@ -95,7 +105,6 @@ Groups are still made to match the data on other types of columns:
 df %>% 
   count(x)
 #> # A tibble: 2 x 2
-#> # Groups:   [1]
 #>       x     n
 #>   <dbl> <int>
 #> 1     1     3
@@ -110,7 +119,6 @@ by `f1` and `f2` we get 9 groups,
 df %>% 
   count(f1, f2)
 #> # A tibble: 9 x 3
-#> # Groups:   [1]
 #>   f1    f2        n
 #>   <fct> <fct> <int>
 #> 1 a     d         2
@@ -129,7 +137,6 @@ to one group per level, but non factors only create groups based on observed dat
 df %>% 
   count(f1, x)
 #> # A tibble: 3 x 3
-#> # Groups:   [1]
 #>   f1        x     n
 #>   <fct> <dbl> <int>
 #> 1 a         1     3
@@ -151,7 +158,6 @@ consequently has no values for the vector `x`. In that case, [`group_by()`](http
 df %>% 
   count(x, f1)
 #> # A tibble: 6 x 3
-#> # Groups:   [1]
 #>       x f1        n
 #>   <dbl> <fct> <int>
 #> 1     1 a         3
@@ -203,7 +209,7 @@ df %>%
   group_by(x, f1) %>% 
   filter(y < 4)
 #> # A tibble: 3 x 4
-#> # Groups:   x, f1 [6]
+#> # Groups:   x, f1 [3]
 #>   f1    f2        x     y
 #>   <fct> <fct> <dbl> <int>
 #> 1 a     d         1     1
@@ -234,6 +240,12 @@ df %>%
 #> 4 b     e         2     4
 ```
 
+<div class="addendum">
+  As opposed to what is described above, feedback from this post led us
+  to change the default value of `.preserve` to `FALSE` and update the 
+  algorithm to limit the cost of preserving. 
+</div>
+
 Note however, that even `.preserve = FALSE` respects the factors that are used as 
 grouping variables, in particular `filter( , .preserve = FALSE)` is not a way to 
 discard empty groups. The [forcats](https://forcats.tidyverse.org) 📦 may help: 
@@ -245,6 +257,29 @@ iris %>%
   filter(stringr::str_detect(Species, "^v")) %>% 
   ungroup() %>% 
   group_by(Species = forcats::fct_drop(Species))
+#> # A tibble: 100 x 5
+#> # Groups:   Species [2]
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species   
+#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>     
+#> 1          7           3.2          4.7         1.4 versicolor
+#> 2          6.4         3.2          4.5         1.5 versicolor
+#> 3          6.9         3.1          4.9         1.5 versicolor
+#> 4          5.5         2.3          4           1.3 versicolor
+#> # … with 96 more rows
+```
+
+<div class="addendum">
+  Furthermore, the `group_trim()` function has been added. `group_trim()` 
+  recalculates the grouping metadata after dropping unused levels for 
+  all grouping variables that are factors. 
+</div>
+
+
+```r
+iris %>% 
+  group_by(Species) %>% 
+  filter(stringr::str_detect(Species, "^v")) %>% 
+  group_trim()
 #> # A tibble: 100 x 5
 #> # Groups:   Species [2]
 #>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species   
@@ -450,6 +485,11 @@ mtcars %>%
 The lambda function must return a data frame. [`group_map()`](https://dplyr.tidyverse.org/reference/group_map.html) row binds the data 
 frames, recycles the grouping columns and structures the result as a grouped tibble. 
 
+<div class="addendum">
+  `group_walk()` can be used when iterating on the groups is only desired for side effects. 
+  `group_walk()` applies the formula to each group and then silently returns its input. 
+</div>
+
 # Changes in filter and slice
 
 Besides changes described previously related to preservation of the grouping structure, 
@@ -468,10 +508,15 @@ tibble(
 #>       x     y
 #>   <dbl> <dbl>
 #> 1     1     1
-#> 2     1     3
-#> 3     2     2
+#> 2     2     2
+#> 3     1     3
 #> 4     2     4
 ```
+
+<div class="addendum">
+  This has been reverted for `filter()` due to popular demand. Calling `filter()` 
+  on a grouped data frame leaves the rows in the original order. 
+</div>
 
 # Redesigned hybrid evaluation
 

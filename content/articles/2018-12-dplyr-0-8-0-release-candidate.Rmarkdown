@@ -15,6 +15,17 @@ photo:
   author: Pau Casals
 ---
 
+<style>
+.addendum {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 10px 10px 10px 50px;
+  border: 1px solid red;
+  font-size: 140%; 
+}
+</style>
+
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 options(tibble.print_min = 4L, tibble.print_max = 4L)
@@ -166,6 +177,12 @@ df %>%
   filter(y < 5, .preserve = FALSE)
 ```
 
+<div class="addendum">
+  As opposed to what is described above, feedback from this post led us
+  to change the default value of `.preserve` to `FALSE` and update the 
+  algorithm to limit the cost of preserving. 
+</div>
+
 Note however, that even `.preserve = FALSE` respects the factors that are used as 
 grouping variables, in particular `filter( , .preserve = FALSE)` is not a way to 
 discard empty groups. The [forcats](https://forcats.tidyverse.org) `r emo::ji("package")` may help: 
@@ -176,6 +193,19 @@ iris %>%
   filter(stringr::str_detect(Species, "^v")) %>% 
   ungroup() %>% 
   group_by(Species = forcats::fct_drop(Species))
+```
+
+<div class="addendum">
+  Furthermore, the `group_trim()` function has been added. `group_trim()` 
+  recalculates the grouping metadata after dropping unused levels for 
+  all grouping variables that are factors. 
+</div>
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  filter(stringr::str_detect(Species, "^v")) %>% 
+  group_trim()
 ```
 
 ## New grouping fuctions
@@ -262,6 +292,11 @@ mtcars %>%
 The lambda function must return a data frame. `r link("group_map")` row binds the data 
 frames, recycles the grouping columns and structures the result as a grouped tibble. 
 
+<div class="addendum">
+  `group_walk()` can be used when iterating on the groups is only desired for side effects. 
+  `group_walk()` applies the formula to each group and then silently returns its input. 
+</div>
+
 # Changes in filter and slice
 
 Besides changes described previously related to preservation of the grouping structure, 
@@ -275,6 +310,11 @@ tibble(
   group_by(x) %>% 
   filter(y < 5)
 ```
+
+<div class="addendum">
+  This has been reverted for `filter()` due to popular demand. Calling `filter()` 
+  on a grouped data frame leaves the rows in the original order. 
+</div>
 
 # Redesigned hybrid evaluation
 
