@@ -21,7 +21,7 @@ blockquote {
   margin-bottom: 20px;
   padding: 10px;
   border: 2px solid red;
-  background: pale grey;
+  background: rgb(248, 248, 248);
   font-size: 130%; 
 }
 </style>
