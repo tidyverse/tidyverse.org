@@ -1,0 +1,61 @@
+---
+title: 'haven 2.0.0'
+author: Mara Averick
+date: '2019-01-02'
+slug: haven-2-0-0
+description: > 
+  haven 2.0.0 is now on CRAN.
+categories:
+  - package
+photo:
+  url: https://unsplash.com/photos/D5OzyJ71mLI
+  author: Robert Wiedemann
+---
+
+```{r setup, include = FALSE}
+library(haven)
+knitr::opts_chunk$set(
+  collapse = TRUE, 
+  comment = "#>", 
+  fig.width = 7, 
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  out.width = "700px"
+)
+```
+
+We're pleased to announce that [haven 2.0.0](https://haven.tidyverse.org/) is now on CRAN. haven enables R to read and write various data formats used by other statistical packages by wrapping the [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](http://www.evanmiller.org/). As always, you can find a detailed account of all the changes in this release in the [Changelog](https://haven.tidyverse.org/news/index.html#haven-2-0-0).
+
+## Breaking changes
+
+The biggest change is that [`labelled()`](https://haven.tidyverse.org/reference/labelled.html) and [`labelled_spss()`](https://haven.tidyverse.org/reference/labelled_spss.html) now produce objects with class "haven_labelled" and "haven_labelled_spss". This resolves a [problematic clash](https://github.com/tidyverse/haven/issues/329) with the labelled class defined by [Frank Harrell](http://www.fharrell.com/)'s [Hmisc](https://cran.r-project.org/web/packages/Hmisc/index.html) package. 
+
+Given Hmisc has been around much longer than haven (Hmisc's oldest source [archive on CRAN](https://cran.r-project.org/src/contrib/Archive/Hmisc/) is from 2003), it makes sense that haven should be the one to make the change. This will require some changes to packages that use haven, but shouldn’t affect user code.
+
+```{r}
+x1 <- haven::labelled(c(1, 1, 2), c(Grunt = 1, Sgt = 2),
+                      label = "Army status")
+
+class(x1)
+```
+
+```{r}
+x2 <- haven::labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf),
+                           label = "Quality rating")
+
+class(x2)
+```
+
+## Minor improvements
+
+`labelled()` and `labelled_spss()` now support adding the label attribute to the resulting object (as seen in the code above). The label is a short, human-readable description of the object, and is now also used when printing, and can be easily removed using the new [`zap_label()`](https://haven.tidyverse.org/reference/zap_label.html) function.
+
+```{r}
+x1
+
+zap_labels(x1)
+```
+
+## Acknowledgements
+
+A special thanks to [Karl Ove Hufthammer](https://github.com/huftis) for implementing `zap_label()`, as well as to the 30 others who contributed to this release: [&#x0040;ajdamico](https://github.com/ajdamico), [&#x0040;alexeyknorre](https://github.com/alexeyknorre), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;beckerbenj](https://github.com/beckerbenj), [&#x0040;caayala](https://github.com/caayala), [&#x0040;Crismoc](https://github.com/Crismoc), [&#x0040;dar143](https://github.com/dar143), [&#x0040;davidc92](https://github.com/davidc92), [&#x0040;elbersb](https://github.com/elbersb), [&#x0040;gergness](https://github.com/gergness), [&#x0040;hadley](https://github.com/hadley), [&#x0040;helge-baumann](https://github.com/helge-baumann), [&#x0040;HughParsonage](https://github.com/HughParsonage), [&#x0040;iadli100](https://github.com/iadli100), [&#x0040;JanMarvin](https://github.com/JanMarvin), [&#x0040;jeffeaton](https://github.com/jeffeaton), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;jmetzel](https://github.com/jmetzel), [&#x0040;larmarange](https://github.com/larmarange), [&#x0040;lemzwerg](https://github.com/lemzwerg), [&#x0040;Majid-Eismann](https://github.com/Majid-Eismann), [&#x0040;nealrichardson](https://github.com/nealrichardson), [&#x0040;oscardssmith](https://github.com/oscardssmith), [&#x0040;philstraforelli](https://github.com/philstraforelli), [&#x0040;reyntjesr](https://github.com/reyntjesr), [&#x0040;rubenarslan](https://github.com/rubenarslan), [&#x0040;sjkiss](https://github.com/sjkiss), [&#x0040;visseho](https://github.com/visseho), [&#x0040;zkamvar](https://github.com/zkamvar), and [&#x0040;zross](https://github.com/zross).
