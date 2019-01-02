@@ -23,6 +23,7 @@ blockquote {
   background: rgb(248, 248, 248);
   font-size: 100%;
   font-style: inherit;
+  font-weight: inherit;
 }
 </style>
 
