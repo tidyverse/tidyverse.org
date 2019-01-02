@@ -29,11 +29,11 @@ blockquote {
 
 
 
-> This post, published in early december and promoted on twitter 
+> This post, published in early December 2018 and promoted on Twitter 
 > generated valuable discussions that led us to reconsider some
 > design choices for `dplyr` 0.8.0
 
-> We've left the original post unchanged and added addenda when 
+> We've left the original post unchanged, with addenda when 
 > changes have been made. 
 
 A new release of dplyr (0.8.0) is on the horizon, roughly planned for early January 2019. 
@@ -249,7 +249,7 @@ df %>%
 ```
 
 >  As opposed to what is described above, feedback from this post led us
->  to change the default value of `.preserve` to `FALSE` and update the 
+>  to change the default value of `.preserve` to `FALSE`, and update the 
 >  algorithm to limit the cost of preserving. 
 
 Note however, that even `.preserve = FALSE` respects the factors that are used as 
@@ -490,7 +490,7 @@ The lambda function must return a data frame. [`group_map()`](https://dplyr.tidy
 frames, recycles the grouping columns and structures the result as a grouped tibble. 
 
 >  `group_walk()` can be used when iterating on the groups is only desired for side effects. 
->  `group_walk()` applies the formula to each group and then silently returns its input. 
+>  It applies the formula to each group, and then silently returns its input. 
 
 # Changes in filter and slice
 
