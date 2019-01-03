@@ -37,7 +37,8 @@ blockquote {
 > We've left the original post unchanged, with addenda when 
 > changes have been made. 
 
-A new release of dplyr (0.8.0) is on the horizon, roughly planned for early January 2019. 
+A new release of dplyr (0.8.0) is on the horizon, ~~roughly planned for early January~~ planned
+for February 1st. 
 
 Since it is a major release with some potential
 disruption, we'd love for the community to try it out, give us some feedback, 
@@ -53,7 +54,7 @@ in [this issue](https://github.com/tidyverse/dplyr/issues/3931).
 
 ```r
 # install.packages("devtools")
-devtools::install_github("tidyverse/dplyr")
+devtools::install_github("tidyverse/dplyr@rc_0.8.0")
 ```
 
 If needed, you can restore the [release version](https://CRAN.R-project.org/package=dplyr) by installing from CRAN:
