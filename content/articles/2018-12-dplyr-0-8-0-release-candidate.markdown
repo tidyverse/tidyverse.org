@@ -15,9 +15,30 @@ photo:
   author: Pau Casals
 ---
 
+<style>
+blockquote {
+  margin: 10px 0px 10px 0px;
+  padding: 10px 10px 0px 10px;
+  border: 2px solid red;
+  background: rgb(248, 248, 248);
+  font-size: 100%;
+  font-style: inherit;
+  font-weight: inherit;
+}
+</style>
 
 
-A new release of dplyr (0.8.0) is on the horizon, roughly planned for early January 2019. 
+
+
+> This post, published in early December 2018 and promoted on Twitter 
+> generated valuable discussions that led us to reconsider some
+> design choices for `dplyr` 0.8.0
+
+> We've left the original post unchanged, with addenda when 
+> changes have been made. 
+
+A new release of dplyr (0.8.0) is on the horizon, ~~roughly planned for early January~~ planned
+for February 1st. 
 
 Since it is a major release with some potential
 disruption, we'd love for the community to try it out, give us some feedback, 
@@ -33,7 +54,7 @@ in [this issue](https://github.com/tidyverse/dplyr/issues/3931).
 
 ```r
 # install.packages("devtools")
-devtools::install_github("tidyverse/dplyr")
+devtools::install_github("tidyverse/dplyr@rc_0.8.0")
 ```
 
 If needed, you can restore the [release version](https://CRAN.R-project.org/package=dplyr) by installing from CRAN:
@@ -204,7 +225,7 @@ df %>%
   group_by(x, f1) %>% 
   filter(y < 4)
 #> # A tibble: 3 x 4
-#> # Groups:   x, f1 [6]
+#> # Groups:   x, f1 [3]
 #>   f1    f2        x     y
 #>   <fct> <fct> <dbl> <int>
 #> 1 a     d         1     1
@@ -235,6 +256,10 @@ df %>%
 #> 4 b     e         2     4
 ```
 
+>  As opposed to what is described above, feedback from this post led us
+>  to change the default value of `.preserve` to `FALSE`, and update the 
+>  algorithm to limit the cost of preserving. 
+
 Note however, that even `.preserve = FALSE` respects the factors that are used as 
 grouping variables, in particular `filter( , .preserve = FALSE)` is not a way to 
 discard empty groups. The [forcats](https://forcats.tidyverse.org) 📦 may help: 
@@ -261,6 +286,27 @@ iris %>%
 #>  9          6.6         2.9          4.6         1.3 versicolor
 #> 10          5.2         2.7          3.9         1.4 versicolor
 #> # … with 90 more rows
+```
+
+>  Furthermore, the `group_trim()` function has been added. `group_trim()` 
+>  recalculates the grouping metadata after dropping unused levels for 
+>  all grouping variables that are factors. 
+
+
+```r
+iris %>% 
+  group_by(Species) %>% 
+  filter(stringr::str_detect(Species, "^v")) %>% 
+  group_trim()
+#> # A tibble: 100 x 5
+#> # Groups:   Species [2]
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species   
+#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>     
+#> 1          7           3.2          4.7         1.4 versicolor
+#> 2          6.4         3.2          4.5         1.5 versicolor
+#> 3          6.9         3.1          4.9         1.5 versicolor
+#> 4          5.5         2.3          4           1.3 versicolor
+#> # … with 96 more rows
 ```
 
 ## New grouping fuctions
@@ -494,6 +540,9 @@ mtcars %>%
 The lambda function must return a data frame. [`group_map()`](https://dplyr.tidyverse.org/reference/group_map.html) row binds the data 
 frames, recycles the grouping columns and structures the result as a grouped tibble. 
 
+>  `group_walk()` can be used when iterating on the groups is only desired for side effects. 
+>  It applies the formula to each group, and then silently returns its input. 
+
 # Changes in filter and slice
 
 Besides changes described previously related to preservation of the grouping structure, 
@@ -512,10 +561,13 @@ tibble(
 #>       x     y
 #>   <dbl> <dbl>
 #> 1     1     1
-#> 2     1     3
-#> 3     2     2
+#> 2     2     2
+#> 3     1     3
 #> 4     2     4
 ```
+
+>  This has been reverted for `filter()` due to popular demand. Calling `filter()` 
+>  on a grouped data frame leaves the rows in the original order. 
 
 # Redesigned hybrid evaluation
 
