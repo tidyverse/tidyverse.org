@@ -15,6 +15,10 @@ categories: [package]
 ```{r setup, include = FALSE}
 library(tidyverse)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", error = TRUE)
+options(rlang_trace_top_env = .GlobalEnv)
+
+options(crayon.enabled = TRUE)
+fansi::set_knit_hooks(knitr::knit_hooks, which = c("output", "error"))
 ```
 
 I'm pleased to announce that version 2.0.0 of the *tibble* package is on CRAN now. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the latest version with:
@@ -104,13 +108,13 @@ It takes the following values:
 
 ```{r repair-names}
 ## by default, duplicate names are not allowed
-tibble(. = 1, . = 2)
+tibble(` ` = 1, ` ` = 2)
 ## you can authorize duplicate names
-tibble(. = 1, . = 2, .name_repair = "minimal")
+tibble(` ` = 1, ` ` = 2, .name_repair = "minimal")
 ## or request that the names be made unique
-tibble(. = 1, . = 2, .name_repair = "unique")
+tibble(` ` = 1, ` ` = 2, .name_repair = "unique")
 ## or or universal
-tibble(. = 1, . = 2, .name_repair = "universal")
+tibble(` ` = 1, ` ` = 2, .name_repair = "universal")
 ```
 
 Row name handling is stricter.
