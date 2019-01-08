@@ -23,15 +23,17 @@ install.packages("tibble")
 This release required a bit of preparation, including a [pre-release blog post](https://www.tidyverse.org/articles/2018/11/tibble-2.0.0-pre-announce/) that described the breaking changes, mostly in [`as_tibble()`](https://tibble.tidyverse.org/reference/as_tibble.html), [`new_tibble()`](https://tibble.tidyverse.org/reference/new_tibble.html), [`set_tidy_names()`](https://tibble.tidyverse.org/reference/set_tidy_names.html), [`tidy_names()`](https://tibble.tidyverse.org/reference/tidy_names.html), and `names<-()`.
 In this blog post, I focus on a few user- and programmer-related changes, and give an outlook over future development:
 
-- 2D columns, [`view()`](https://tibble.tidyverse.org/reference/view.html), nameless [`enframe()`](https://tibble.tidyverse.org/reference/enframe.html)
-- Robustness, lifecycle, name repair, row names, [`glimpse()`](https://tibble.tidyverse.org/reference/glimpse.html) for subclasses
-- _vctrs_, smaller footprint, decorations
+- [`view()`](https://tibble.tidyverse.org/reference/view.html), nameless [`enframe()`](https://tibble.tidyverse.org/reference/enframe.html), 2D columns
+- Lifecycle, robustness, name repair, row names, [`glimpse()`](https://tibble.tidyverse.org/reference/glimpse.html) for subclasses
+- _vctrs_, dependencies, decorations
 
 For a complete overview please see the [release notes](https://github.com/tidyverse/tibble/releases/tag/v2.0.0).
 
 Use the [issue tracker](https://github.com/tidyverse/tibble/issues) to submit bugs or suggest ideas, your contributions are always welcome.
 
 ## Changes that affect users
+
+### view
 
 The experimental [`view()`](https://tibble.tidyverse.org/reference/view.html) function forwards its input to `utils::View()` (only in interactive mode) and always returns its input invisibly, which is useful for pipe-based workflows.
 Currently it is unclear if this functionality should live in _tibble_ or elsewhere.
@@ -44,6 +46,8 @@ iris %>%
   view()
 ```
 
+
+### Nameless enframe
 
 The [`enframe()`](https://tibble.tidyverse.org/reference/enframe.html) function always has been a good way to convert a (named) vector to a two-column data frame.
 In this version, conversion to a one-column data frame is also supported by setting the `name` argument to `NULL`.
@@ -74,6 +78,9 @@ enframe(letters[1:3], name = NULL)
 #&gt; </span><span style='color: #BCBCBC;'>3</span><span> c
 </span></CODE></PRE>
 
+
+### 2D columns
+
 `tibble()` now supports columns that are matrices or data frames.
 These have always been supported in data frames and are used in some modelling functions.
 We are looking forward to supporting these and other exciting use cases, see also the [Matrix and data frame columns](https://adv-r.hadley.nz/vectors-chap.html#matrix-and-data-frame-columns) chapter of adv-r.
@@ -101,11 +108,18 @@ tibble(
 
 ## Changes that affect package developers
 
+### Lifecycle
+
+[![Life
+cycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/)
+
 All functions have been assigned a lifecycle.
 The _tibble_ package has now reached the "stable" lifecycle, functions in a different lifecycle stage are marked as such in their documentation.
 One example is the [`add_row()`](https://tibble.tidyverse.org/reference/add_row.html) function: it is unclear if it  should ensure that all columns have length one by wrapping in a list if necessary, and a better implementation is perhaps possible once _tibble_ uses the _vctrs_ package, see below.
 Therefore this function is marked "questioning".
 Learn more about lifecycle in the tidyverse at https://www.tidyverse.org/lifecycle/.
+
+### Robustness
 
 The new `.rows` argument to [`tibble()`](https://tibble.tidyverse.org/reference/tibble.html) and [`as_tibble()`](https://tibble.tidyverse.org/reference/as_tibble.html) allows specifying the expected number of rows explicitly, even if it's evident from the data.
 This supports writing even more defensive code.
@@ -190,6 +204,9 @@ validate_tibble(bad)
 #&gt; </span><span style='color: #555555;'> 2. </span><span>  └─tibble:::validate_nrow(names(x), col_lengths(x), NROW(x)) </span><span style='color: #555555;'>/home/kirill/git/R/tibble/R/new.R:98:2</span><span>
 </span></CODE></PRE>
 
+
+### Name repair
+
 Column name repair has more direct support, via the new `.name_repair` argument to [`tibble()`](https://tibble.tidyverse.org/reference/tibble.html) and [`as_tibble()`](https://tibble.tidyverse.org/reference/as_tibble.html).
 It takes the following values:
 
@@ -259,6 +276,8 @@ tibble(` ` = 1, ` ` = 2, .name_repair = "universal")
 #&gt; </span><span style='color: #BCBCBC;'>1</span><span>     1     2
 </span></CODE></PRE>
 
+### Row names
+
 Row name handling is stricter.
 Row names were never supported in [`tibble()`](https://tibble.tidyverse.org/reference/tibble.html) and [`new_tibble()`](https://tibble.tidyverse.org/reference/new_tibble.html), and are now stripped by default in [`as_tibble()`](https://tibble.tidyverse.org/reference/as_tibble.html).
 The `rownames` argument to [`as_tibble()`](https://tibble.tidyverse.org/reference/as_tibble.html) supports:
@@ -294,6 +313,9 @@ as_tibble(mtcars, rownames = "make_model")
 #&gt; </span><span style='color: #949494;'># … with 22 more rows, and 1 more variable: </span><span style='color: #949494;font-weight: bold;'>carb</span><span style='color: #949494;'> </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>
 </span></CODE></PRE>
 
+
+### glimpse for subclasses
+
 The [`glimpse()`](https://tibble.tidyverse.org/reference/glimpse.html) function shows information obtained from [`tbl_sum()`](https://tibble.tidyverse.org/reference/tbl_sum.html) in the header, e.g. grouping information for `grouped_df` from _dplyr_, or other information from packages that override the `tbl_df` class.
 
 
@@ -316,6 +338,8 @@ iris %>%
 
 ## Outlook
 
+### vctrs
+
 The plan is to [use _vctrs_](https://github.com/tidyverse/tibble/issues/521) in _tibble_ 2.1.0.
 This package is a solid foundation for handling coercion, concatenation and recycling in vectors of arbitrary type.
 The support provided by _vctrs_ will yield a better [`add_row()`](https://tibble.tidyverse.org/reference/add_row.html) implementation, in return name repair which is currently defined in _tibble_ should likely live in _vctrs_.
@@ -331,11 +355,16 @@ tools::package_dependencies("tibble", recursive = TRUE, which = "Imports")
 #> [11] "utf8"       "tools"
 ```
 
+### Dependencies
+
 Some of them, namely _fansi_ and _utf8_, are fairly heavy.
 [The plan](https://github.com/tidyverse/tibble/issues/475) is to make these packages, and _crayon_, a suggested package to _cli_, and provide fallback implementations there.
 When finished, taking a strong dependency on _tibble_ won't add too many new dependencies (again): _rlang_, _vctrs_ and _cli_ will be used by most of the tidyverse anyway, _pillar_ is the only truly new strong dependency.
 Packages that subclass `tbl_df` should import _tibble_ to make sure that the subsetting operator `[` always behaves the same.
 Constructing (subclasses of) tibbles should happen through [`new_tibble()`](https://tibble.tidyverse.org/reference/new_tibble.html) only.
+
+
+### Decorations
 
 Tibbles have a very opinionated way to print their data, not always in line with users' expectations, and sometimes clearly wrong (e.g. for numerical data where the absolute mean is much larger than the standard deviation).
 It seems difficult to devise a formatting that suits all needs, especially for numbers: how do we tell if a number represents money, or perhaps is a misspecified categorical variable or a UID?
