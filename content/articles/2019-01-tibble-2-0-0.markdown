@@ -132,11 +132,6 @@ tibble(a = 1, b = 2:3, .rows = 3)
 #> Error: Tibble columns must have consistent lengths, only values of length one are recycled:
 #> * Length 3: Requested with `.rows` argument
 #> * Length 2: Column `b`
-#> Backtrace:
-#>     █
-#>  1. └─tibble::tibble(a = 1, b = 2:3, .rows = 3)
-#>  2.   └─tibble:::lst_to_tibble(xlq$output, .rows, .name_repair, lengths = xlq$lengths) /home/kirill/git/R/tibble/R/tibble.R:135:2
-#>  3.     └─tibble:::recycle_columns(x, .rows, lengths) /home/kirill/git/R/tibble/R/as_tibble.R:128:2
 tibble(a = 1, .rows = 3)
 #> # A tibble: 3 x 1
 #>       a
@@ -163,10 +158,6 @@ validate_tibble(bad)
 #> Error: Tibble columns must have consistent lengths, only values of length one are recycled:
 #> * Length 3: Requested with `nrow` argument
 #> * Length 2: Column `a`
-#> Backtrace:
-#>     █
-#>  1. └─tibble::validate_tibble(bad)
-#>  2.   └─tibble:::validate_nrow(names(x), col_lengths(x), NROW(x)) /home/kirill/git/R/tibble/R/new.R:98:2
 ```
 
 
@@ -187,17 +178,6 @@ It takes the following values:
 tibble(` ` = 1, ` ` = 2)
 #> Error: Column name ` ` must not be duplicated.
 #> Use .name_repair to specify repair.
-#> Backtrace:
-#>     █
-#>  1. └─tibble::tibble(` ` = 1, ` ` = 2)
-#>  2.   └─tibble:::lst_to_tibble(xlq$output, .rows, .name_repair, lengths = xlq$lengths) /home/kirill/git/R/tibble/R/tibble.R:135:2
-#>  3.     └─tibble:::set_repaired_names(x, .name_repair) /home/kirill/git/R/tibble/R/as_tibble.R:125:2
-#>  4.       ├─rlang::set_names(x, repaired_names(names(x), .name_repair = .name_repair)) /home/kirill/git/R/tibble/R/repair-names.R:143:2
-#>  5.       │ └─rlang:::set_names_impl(x, x, nm, ...) /home/kirill/git/R/rlang/R/attr.R:163:2
-#>  6.       │   └─rlang::is_function(nm) /home/kirill/git/R/rlang/R/attr.R:170:2
-#>  7.       │     └─rlang::is_closure(x) /home/kirill/git/R/rlang/R/fn.R:296:2
-#>  8.       └─tibble:::repaired_names(names(x), .name_repair = .name_repair) /home/kirill/git/R/tibble/R/repair-names.R:143:2
-#>  9.         └─tibble:::check_unique(new_name) /home/kirill/git/R/tibble/R/repair-names.R:173:4
 ## you can authorize duplicate names
 tibble(` ` = 1, ` ` = 2, .name_repair = "minimal")
 #> # A tibble: 1 x 2
