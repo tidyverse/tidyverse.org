@@ -1,7 +1,7 @@
 ---
 title: 'rlang 0.3.1'
 author: Lionel Henry
-date: '2019-01-09'
+date: '2019-01-10'
 slug: rlang-0-3-1
 description: >
   rlang 0.3.1 is now on CRAN.
@@ -83,7 +83,19 @@ Notice how the numbering is not sequential? That's because `last_error()` displa
 last_trace()
 ```
 
-Note that this full backtrace is the equivalent of `base::traceback()`, only structured as a tree and presented in reverse order.
+Note that this full backtrace is the equivalent of `base::traceback()`, only structured as a tree, presented in reverse order, and with namespace prefixes. Here is the output of `traceback()` for comparison:
+
+```{output}
+#> 9: h()
+#> 8: evalq(h())
+#> 7: evalq(h()) at #1
+#> 6: g()
+#> 5: doTryCatch(return(expr), name, parentenv, handler)
+#> 4: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+#> 3: tryCatchList(expr, classes, parentenv, handlers)
+#> 2: tryCatch(g(), warning = identity) at #1
+#> 1: f()
+```
 
 
 ## Backtraces for base errors!
