@@ -174,15 +174,15 @@ The plan is to [use _vctrs_](https://github.com/tidyverse/tibble/issues/521) in 
 This package is a solid foundation for handling coercion, concatenation and recycling in vectors of arbitrary type.
 The support provided by _vctrs_ will yield a better [`add_row()`](https://tibble.tidyverse.org/reference/add_row.html) implementation, in return name repair which is currently defined in _tibble_ should likely live in _vctrs_.
 
+### Dependencies
+
 Currently, installing _tibble_ can bring in almost dozen other packages:
 
 ```{r deps}
 tools::package_dependencies("tibble", recursive = TRUE, which = "Imports")
 ```
 
-### Dependencies
-
-Some of them, namely _fansi_ and _utf8_, are fairly heavy.
+Some of them, namely _fansi_ and _utf8_, contain compiled code.
 [The plan](https://github.com/tidyverse/tibble/issues/475) is to make these packages, and _crayon_, a suggested package to _cli_, and provide fallback implementations there.
 When finished, taking a strong dependency on _tibble_ won't add too many new dependencies (again): _rlang_, _vctrs_ and _cli_ will be used by most of the tidyverse anyway, _pillar_ is the only truly new strong dependency.
 Packages that subclass `tbl_df` should import _tibble_ to make sure that the subsetting operator `[` always behaves the same.
