@@ -186,6 +186,12 @@ When we group by `x` then `f1` we initially split the data according to `x` whic
 gives 2 groups. Each of these two groups is then further divided in 3 groups, 
 i.e. one for each level of `f1`. 
 
+> We've added the possibility to drop the empty groups, and hence 
+> get the previous behaviour by using `group_by(.drop = TRUE)`. 
+>
+> This is not the default value, because we still strongly believe that 
+> all levels of factors should be represented in the grouping structure. 
+
 ## Group preservation
 
 The grouping structure is more coherently preserved by dplyr verbs. 
@@ -300,13 +306,19 @@ iris %>%
   group_trim()
 #> # A tibble: 100 x 5
 #> # Groups:   Species [2]
-#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species   
-#>          <dbl>       <dbl>        <dbl>       <dbl> <fct>     
-#> 1          7           3.2          4.7         1.4 versicolor
-#> 2          6.4         3.2          4.5         1.5 versicolor
-#> 3          6.9         3.1          4.9         1.5 versicolor
-#> 4          5.5         2.3          4           1.3 versicolor
-#> # … with 96 more rows
+#>    Sepal.Length Sepal.Width Petal.Length Petal.Width Species   
+#>           <dbl>       <dbl>        <dbl>       <dbl> <fct>     
+#>  1          7           3.2          4.7         1.4 versicolor
+#>  2          6.4         3.2          4.5         1.5 versicolor
+#>  3          6.9         3.1          4.9         1.5 versicolor
+#>  4          5.5         2.3          4           1.3 versicolor
+#>  5          6.5         2.8          4.6         1.5 versicolor
+#>  6          5.7         2.8          4.5         1.3 versicolor
+#>  7          6.3         3.3          4.7         1.6 versicolor
+#>  8          4.9         2.4          3.3         1   versicolor
+#>  9          6.6         2.9          4.6         1.3 versicolor
+#> 10          5.2         2.7          3.9         1.4 versicolor
+#> # … with 90 more rows
 ```
 
 ## New grouping fuctions
