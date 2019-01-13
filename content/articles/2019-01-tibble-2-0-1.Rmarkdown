@@ -25,7 +25,7 @@ old_hooks <- fansi::set_knit_hooks(
   knitr::knit_hooks,
   which = c("output", "error"),
   proc.fun = function(x, class) {
-    x <- strsplit(x, "\n", fixed = TRUE)[[1]]
+    x <- unlist(strsplit(x, "\n", fixed = TRUE))
     fansi::html_code_block(fansi::sgr_to_html(fansi::html_esc(x)), class = class)
   }
 )
