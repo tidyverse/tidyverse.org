@@ -195,23 +195,10 @@ Tibbles have a very opinionated way to print their data, not always in line with
 It seems difficult to devise a formatting that suits all needs, especially for numbers: how do we tell if a number represents money, or perhaps is a misspecified categorical variable or a UID?
 [Decorations](https://github.com/tidyverse/tibble/pull/411) are an idea that might help here.
 A decoration is applied only when printing a vector, which behaves identically to a bare vector otherwise.
-Decorations can be "learned" from the data (using heuristics), or specified directly after import or when creating column.
-Details are stored in attribues like `"class"`, and it will be important to make sure that these attributes survive common manipulations such as subsetting and basic _dplyr_ verbs, and perhaps some arithmetic transformations.
-This currently doesn't always hold, but with _vctrs_ support it will be much easier to achieve:
+Decorations can be "learned" from the data (using heuristics), or specified directly after import or when creating column,
+and stored in attribues like `"class"`.
+It will be important to make sure that these attributes survive subsetting and perhaps some arithmetic transformations, easiest to achieve with the help of _vctrs_.
 
-```{r decor}
-x <- structure(1:3, class = "decor", decor_attrs = 42)
-x
-
-tbl <- tibble(x)
-tbl[1:2, ]$x
-
-tbl %>% select(x) %>% pull()
-tbl %>% arrange(desc(x)) %>% pull()
-tbl %>% filter(x > 1) %>% pull()
-tbl %>% mutate(y = x + 1) %>% pull()
-tbl %>% summarize(mean(x)) %>% pull()
-```
 
 ## Acknowledgments
 
