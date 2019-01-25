@@ -1,0 +1,281 @@
+---
+title: 'purrr 0.3.0'
+author: Lionel Henry
+date: '2019-01-25'
+slug: purrr-0-3-0
+description: >
+  purrr 0.3.0 is now on CRAN.
+categories:
+  - package
+photo:
+  url: https://unsplash.com/photos/NodtnCsLdTE
+  author: Mikhail Vasilyev
+---
+
+
+
+<p>We’re excited to announce the release of purrr 0.3.0! This release polishes the consistency of the interface, introduces new <code>pluck()</code>-based functions, many improvements to mappers, and a set of tools to limit the rate at which a function is called. Find a detailed account of the changes in the <a href="https://github.com/tidyverse/purrr/blob/master/NEWS.md#purrr-030">NEWS</a> file.</p>
+<div id="pluck-assignment" class="section level2">
+<h2>Pluck assignment</h2>
+<p>The new functions <code>pluck&lt;-</code>, <code>assign_in()</code> and <code>modify_in()</code> are assignment variants of <code>pluck()</code>. Let’s create a nested data structure:</p>
+<pre class="r"><code>x &lt;- list(foo = list(1, 2), bar = list(3, 4))
+str(x)
+#&gt; List of 2
+#&gt;  $ foo:List of 2
+#&gt;   ..$ : num 1
+#&gt;   ..$ : num 2
+#&gt;  $ bar:List of 2
+#&gt;   ..$ : num 3
+#&gt;   ..$ : num 4</code></pre>
+<p>This sort of repeated structures is the kind of data where <code>pluck()</code> shines:</p>
+<pre class="r"><code>pluck(x, &quot;foo&quot;, 2)
+#&gt; [1] 2
+
+pluck(x, &quot;bar&quot;, 1)
+#&gt; [1] 3</code></pre>
+<p>You can now use the same syntax to modify the data:</p>
+<pre class="r"><code>pluck(x, &quot;foo&quot;, 2) &lt;- 100
+str(x)
+#&gt; List of 2
+#&gt;  $ foo:List of 2
+#&gt;   ..$ : num 1
+#&gt;   ..$ : num 100
+#&gt;  $ bar:List of 2
+#&gt;   ..$ : num 3
+#&gt;   ..$ : num 4</code></pre>
+<p><code>pluck&lt;-</code> also has a functional form that won’t modify objects in your environment, but instead returns the modified data:</p>
+<pre class="r"><code>out &lt;- assign_in(x, list(&quot;foo&quot;, 2), 2000)
+
+# The object is still the same as before
+str(x)
+#&gt; List of 2
+#&gt;  $ foo:List of 2
+#&gt;   ..$ : num 1
+#&gt;   ..$ : num 100
+#&gt;  $ bar:List of 2
+#&gt;   ..$ : num 3
+#&gt;   ..$ : num 4
+
+# The modified data is in `out`
+str(out)
+#&gt; List of 2
+#&gt;  $ foo:List of 2
+#&gt;   ..$ : num 1
+#&gt;   ..$ : num 2000
+#&gt;  $ bar:List of 2
+#&gt;   ..$ : num 3
+#&gt;   ..$ : num 4</code></pre>
+<p>Finally, <code>modify_in()</code> is a variant of <code>modify()</code> that only changes the pluck location with the result of applying a function:</p>
+<pre class="r"><code>out &lt;- modify_in(x, list(&quot;foo&quot;, 2), as.character)
+str(out)
+#&gt; List of 2
+#&gt;  $ foo:List of 2
+#&gt;   ..$ : num 1
+#&gt;   ..$ : chr &quot;100&quot;
+#&gt;  $ bar:List of 2
+#&gt;   ..$ : num 3
+#&gt;   ..$ : num 4</code></pre>
+<p>assign_in() and modify_in()</p>
+</div>
+<div id="early-termination-of-reduction" class="section level2">
+<h2>Early termination of reduction</h2>
+<p><code>reduce()</code> and <code>accumulate()</code> now support early termination of the reduction. To halt the computation, just return the last value wrapped in a <code>done()</code> box:</p>
+<pre class="r"><code># This computes the total sum of the input vector
+reduce(1:100, ~ .x + .y)
+#&gt; [1] 5050
+
+# This stops as soon as the sum is greater than 50
+reduce(1:100, ~ if (.x &gt; 50) done(.x) else .x + .y)
+#&gt; [1] 55</code></pre>
+<p>This feature takes inspiration from the <a href="https://clojuredocs.org/clojure.core/reduced">Clojure</a> language.</p>
+</div>
+<div id="rates" class="section level2">
+<h2>Rates</h2>
+<p>Thanks to Richie Cotton (<span class="citation">@richierocks</span>) and Ian Lyttle (<span class="citation">@ijlyttle</span>), purrr gains a function operator to make a function call itself repeatedly when an error occurs.</p>
+<pre class="r"><code>counter &lt;- 0
+
+f &lt;- function(...) {
+  if (counter &lt; 2) {
+    counter &lt;&lt;- counter + 1
+    stop(&quot;tilt!&quot;)
+  }
+  &quot;result&quot;
+}
+
+f()
+#&gt; Error in f(): tilt!</code></pre>
+<p>If the function is wrapped with <code>insistently()</code>, it will try a few times before giving up:</p>
+<pre class="r"><code># Reset counter
+counter &lt;- 0
+
+f2 &lt;- insistently(f)
+f2()
+#&gt; [1] &quot;result&quot;</code></pre>
+<p>Another rate limiting function is <code>slowly()</code>. While <code>insistently()</code> loops by itself, <code>slowly()</code> is designed to be used in your own loops, for instance in a map iteration:</p>
+<pre class="r"><code>f &lt;- function(...) print(Sys.time())
+
+walk(1:3, f)
+#&gt; [1] &quot;2019-01-25 21:44:36 CET&quot;
+#&gt; [1] &quot;2019-01-25 21:44:36 CET&quot;
+#&gt; [1] &quot;2019-01-25 21:44:36 CET&quot;
+
+walk(1:3, slowly(f))
+#&gt; [1] &quot;2019-01-25 21:44:36 CET&quot;
+#&gt; [1] &quot;2019-01-25 21:44:37 CET&quot;
+#&gt; [1] &quot;2019-01-25 21:44:38 CET&quot;</code></pre>
+<p><code>slowly()</code> uses a constant rate by default while <code>insistently()</code> uses a backoff rate. The rate limiting can be configured with optional jitter via <code>rate_backoff()</code> and <code>rate_delay()</code>, which implement exponential backoff rate and constant rate respectively.</p>
+<pre class="r"><code>walk(1:3, slowly(f, rate_backoff(max_times = Inf)))
+#&gt; [1] &quot;2019-01-25 21:44:38 CET&quot;
+#&gt; [1] &quot;2019-01-25 21:44:39 CET&quot;
+#&gt; [1] &quot;2019-01-25 21:44:41 CET&quot;</code></pre>
+</div>
+<div id="map_if-or-else" class="section level2">
+<h2><code>map_if()</code>… or else?</h2>
+<p>If you like using <code>map_if()</code>, perhaps you’ll find the new <code>.else</code> argument useful. <code>.else</code> is a function applied to elements for which the predicate is <code>FALSE</code>:</p>
+<pre class="r"><code>map_if(iris, is.numeric, mean, .else = nlevels)
+#&gt; $Sepal.Length
+#&gt; [1] 5.843333
+#&gt; 
+#&gt; $Sepal.Width
+#&gt; [1] 3.057333
+#&gt; 
+#&gt; $Petal.Length
+#&gt; [1] 3.758
+#&gt; 
+#&gt; $Petal.Width
+#&gt; [1] 1.199333
+#&gt; 
+#&gt; $Species
+#&gt; [1] 3</code></pre>
+</div>
+<div id="strictness" class="section level2">
+<h2>Strictness</h2>
+<div id="stricter-predicate-checking" class="section level3">
+<h3>Stricter predicate checking</h3>
+<p>purrr now checks the results of your predicate functions, which must now consistently return <code>TRUE</code> or <code>FALSE</code>. We no longer offer support for <code>NA</code> or for boolish numeric values (R normally interprets 0 as <code>FALSE</code> and all other values as <code>TRUE</code>). The purpose of this change is to detect errors earlier with a more relevant error messages.</p>
+<pre class="r"><code>keep(c(1, NA, 3), ~ . %% 2 == 0)
+#&gt; Error: Predicate functions must return a single `TRUE` or `FALSE`, not a missing value</code></pre>
+</div>
+<div id="stricter-pluck" class="section level3">
+<h3>Stricter pluck()</h3>
+<p>Thanks to Daniel Barnett (<span class="citation">@daniel-barnett</span> on Github), <code>pluck()</code> now has a stricter cousin <code>chuck()</code>. Whereas <code>pluck()</code> is very permissive regarding non-existing locations and returns <code>NULL</code> in these cases, <code>chuck()</code> fails consistently with informative messages:</p>
+<pre class="r"><code>pluck(list(1), &quot;foo&quot;)
+#&gt; NULL
+
+chuck(list(1), &quot;foo&quot;)
+#&gt; Error: Index 1 is attempting to pluck from an unnamed vector using a string name</code></pre>
+</div>
+</div>
+<div id="new-map_at-features" class="section level2">
+<h2>New <code>map_at()</code> features</h2>
+<p>Colin Fay (<span class="citation">@ColinFay</span>) has added support for tidyselect expressions to <code>map_at()</code> and other <code>_at</code> mappers. This brings the interface of these functions closer to scoped functions from the dplyr package, such as <code>dplyr::mutate_at()</code>. Note that <code>vars()</code> is currently not reexported from purrr, so you need to use <code>dplyr::vars()</code> or <code>ggplot2::vars()</code> for the time being.</p>
+<pre class="r"><code>suppressMessages(library(&quot;dplyr&quot;))
+
+x &lt;- list(
+  foo = 1:5,
+  bar = 6:10,
+  baz = 11:15
+)
+
+map_at(x, vars(starts_with(&quot;b&quot;)), mean)
+#&gt; $foo
+#&gt; [1] 1 2 3 4 5
+#&gt; 
+#&gt; $bar
+#&gt; [1] 8
+#&gt; 
+#&gt; $baz
+#&gt; [1] 13</code></pre>
+<p><code>map_at()</code> now also supports negative selections:</p>
+<pre class="r"><code>map_at(x, -2, `*`, 1000)
+#&gt; $foo
+#&gt; [1] 1000 2000 3000 4000 5000
+#&gt; 
+#&gt; $bar
+#&gt; [1]  6  7  8  9 10
+#&gt; 
+#&gt; $baz
+#&gt; [1] 11000 12000 13000 14000 15000</code></pre>
+</div>
+<div id="consistency-of-behaviour" class="section level2">
+<h2>Consistency of behaviour</h2>
+<p>A lot of effort went towards more consistent behaviour in purrr. An important improvement is that <code>modify()</code> is now a wrapper around <code>[[&lt;-</code> rather than <code>[&lt;-</code>. This should make it directly compatible with a larger set of vector classes.</p>
+<p>Thanks to the work of Mikko Marttila (<span class="citation">@mikmart</span>), <code>pmap()</code> and <code>pwalk()</code> do a better job of preserving S3 classes. <code>pluck()</code> also work better with S3 objects. In the next version of purrr, we plan to fix once and for all this sort of issues by integrating the vctrs package to deal with vector operations in a truly generic way.</p>
+<p>Other small improvements in consistency of behaviour are:</p>
+<ul>
+<li><code>modify_depth()</code> now operates at the atomic level as well.</li>
+<li><code>map()</code> and <code>modify()</code> now work with calls and pairlists.</li>
+</ul>
+</div>
+<div id="consistency-of-the-interface" class="section level2">
+<h2>Consistency of the interface</h2>
+<div id="direction-of-application" class="section level3">
+<h3>Direction of application</h3>
+<p>The direction of application is now specified the same way across purrr functions. <code>reduce()</code>, <code>compose()</code> and <code>detect()</code> now have a <code>.dir</code> parameter that can take the value <code>&quot;forward&quot;</code> or <code>&quot;backward&quot;</code>. This terminology should be less ambiguous than “left” and “right”:</p>
+<pre class="r"><code>reduce(1:4, `-`, .dir = &quot;backward&quot;)
+
+compose(foo, bar, .dir = &quot;forward&quot;)
+
+detect(1:5, ~ . %% 2 == 0, .dir = &quot;backward&quot;)</code></pre>
+<p>Note that the backward version of <code>reduce()</code> (called right-reduce in the literature) applies the reduced function in a slightly different way that is more consistent with how this operation</p>
+<p>Consequently, the <code>_right</code> variants such as <code>reduce_right()</code> have been soft-deprecated, as well as the <code>.right</code> argument of <code>detect()</code> and <code>detect_index()</code>.</p>
+</div>
+<div id="partial" class="section level3">
+<h3>partial()</h3>
+<p><code>partial()</code> has been rewritten to be a simple wrapper around <code>call_modify()</code> and <code>eval_tidy()</code> from the rlang package. Consequently, the <code>.env</code>, <code>.lazy</code> and <code>.first</code> arguments are soft-deprecated and replaced by a flexible syntax.</p>
+<p>To control the timing of evaluation, unquote the partialised arguments that should be evaluated only once when the function is created. The non-unquoted arguments are evaluated at each invokation of the function:</p>
+<pre class="r"><code>my_list &lt;- partial(list, lazy = rnorm(3), eager = !!rnorm(3))
+
+my_list()
+#&gt; $lazy
+#&gt; [1] -0.5907497  1.0383942  0.4738355
+#&gt; 
+#&gt; $eager
+#&gt; [1] -0.5494542 -0.9702186 -0.2799116
+
+my_list()
+#&gt; $lazy
+#&gt; [1]  0.3468383 -1.9637525  1.4941396
+#&gt; 
+#&gt; $eager
+#&gt; [1] -0.5494542 -0.9702186 -0.2799116</code></pre>
+<p>You can also control the position of the future arguments by passing an empty <code>... =</code> parameter. This syntax is powered by <code>rlang::call_modify()</code> to control where the position of dots in a function call:</p>
+<pre class="r"><code>my_list &lt;- partial(list, 1, ... = , 2)
+
+my_list()
+#&gt; [[1]]
+#&gt; [1] 1
+#&gt; 
+#&gt; [[2]]
+#&gt; [1] 2
+
+my_list(&quot;foo&quot;)
+#&gt; [[1]]
+#&gt; [1] 1
+#&gt; 
+#&gt; [[2]]
+#&gt; [1] &quot;foo&quot;
+#&gt; 
+#&gt; [[3]]
+#&gt; [1] 2</code></pre>
+</div>
+<div id="exec-replaces-invoke" class="section level3">
+<h3><code>exec()</code> replaces <code>invoke()</code></h3>
+<p>We are retiring <code>invoke()</code> and <code>invoke_map()</code> in favour of <code>exec()</code>. Retirement means that we’ll keep these functions indefinitely in the package, but we won’t add features or recommend using them.</p>
+<p>We are now favouring <code>exec()</code>, which uses the tidy dots syntax for passing lists of arguments:</p>
+<pre class="r"><code># Before:
+invoke(mean, list(na.rm = TRUE), x = 1:10)
+#&gt; [1] 5.5
+
+# After
+exec(mean, 1:10, !!!list(na.rm = TRUE))
+#&gt; [1] 5.5</code></pre>
+</div>
+<div id="filling-the-missing-parts" class="section level3">
+<h3>Filling the missing parts</h3>
+<ul>
+<li><p>purrr 0.3.0 introduces <code>accumulate2()</code>, <code>modify2()</code> and <code>imodify()</code> variants.</p></li>
+<li><p>By popular request, <code>at_depth()</code> is back as <code>map_depth()</code>. Unlike <code>modify_depth()</code> which preserves the class structure of the input tree, this variant only returns trees made of lists of lists, coercing vectors if needed.</p></li>
+</ul>
+</div>
+</div>

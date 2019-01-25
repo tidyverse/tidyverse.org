@@ -1,0 +1,266 @@
+---
+title: 'purrr 0.3.0'
+author: Lionel Henry
+date: '2019-01-25'
+slug: purrr-0-3-0
+description: >
+  purrr 0.3.0 is now on CRAN.
+categories:
+  - package
+photo:
+  url: https://unsplash.com/photos/NodtnCsLdTE
+  author: Mikhail Vasilyev
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  out.width = "700px"
+)
+
+library("purrr")
+```
+
+We're excited to announce the release of purrr 0.3.0! This release polishes the consistency of the interface, introduces new `pluck()`-based functions, many improvements to mappers, and a set of tools to limit the rate at which a function is called. Find a detailed account of the changes in the [NEWS](https://github.com/tidyverse/purrr/blob/master/NEWS.md#purrr-030) file.
+
+
+## Pluck assignment
+
+The new functions `pluck<-`, `assign_in()` and `modify_in()` are assignment variants of `pluck()`. Let's create a nested data structure:
+
+```{r}
+x <- list(foo = list(1, 2), bar = list(3, 4))
+str(x)
+```
+
+This sort of repeated structures is the kind of data where `pluck()` shines:
+
+```{r}
+pluck(x, "foo", 2)
+
+pluck(x, "bar", 1)
+```
+
+You can now use the same syntax to modify the data:
+
+```{r}
+pluck(x, "foo", 2) <- 100
+str(x)
+```
+
+`pluck<-` also has a functional form that won't modify objects in your environment, but instead returns the modified data:
+
+```{r}
+out <- assign_in(x, list("foo", 2), 2000)
+
+# The object is still the same as before
+str(x)
+
+# The modified data is in `out`
+str(out)
+```
+
+Finally, `modify_in()` is a variant of `modify()` that only changes the pluck location with the result of applying a function:
+
+```{r}
+out <- modify_in(x, list("foo", 2), as.character)
+str(out)
+```
+
+assign_in() and modify_in()
+
+
+## Early termination of reduction
+
+`reduce()` and `accumulate()` now support early termination of the reduction. To halt the computation, just return the last value wrapped in a `done()` box:
+
+```{r}
+# This computes the total sum of the input vector
+reduce(1:100, ~ .x + .y)
+
+# This stops as soon as the sum is greater than 50
+reduce(1:100, ~ if (.x > 50) done(.x) else .x + .y)
+```
+
+This feature takes inspiration from the [Clojure](https://clojuredocs.org/clojure.core/reduced) language.
+
+
+## Rates
+
+Thanks to Richie Cotton (@richierocks) and Ian Lyttle (@ijlyttle), purrr gains a function operator to make a function call itself repeatedly when an error occurs.
+
+```{r, error = TRUE}
+counter <- 0
+
+f <- function(...) {
+  if (counter < 2) {
+    counter <<- counter + 1
+    stop("tilt!")
+  }
+  "result"
+}
+
+f()
+```
+
+If the function is wrapped with `insistently()`, it will try a few times before giving up:
+
+```{r}
+# Reset counter
+counter <- 0
+
+f2 <- insistently(f)
+f2()
+```
+
+Another rate limiting function is `slowly()`. While `insistently()` loops by itself, `slowly()` is designed to be used in your own loops, for instance in a map iteration:
+
+```{r}
+f <- function(...) print(Sys.time())
+
+walk(1:3, f)
+
+walk(1:3, slowly(f))
+```
+
+`slowly()` uses a constant rate by default while `insistently()` uses a backoff rate. The rate limiting can be configured with optional jitter via `rate_backoff()` and `rate_delay()`, which implement exponential backoff rate and constant rate respectively.
+
+```{r}
+walk(1:3, slowly(f, rate_backoff(max_times = Inf)))
+```
+
+
+## `map_if()`... or else?
+
+If you like using `map_if()`, perhaps you'll find the new `.else` argument useful. `.else` is a function applied to elements for which the predicate is `FALSE`:
+
+```{r}
+map_if(iris, is.numeric, mean, .else = nlevels)
+```
+
+
+## Strictness
+
+### Stricter predicate checking
+
+purrr now checks the results of your predicate functions, which must now consistently return `TRUE` or `FALSE`. We no longer offer support for `NA` or for boolish numeric values (R normally interprets 0 as `FALSE` and all other values as `TRUE`). The purpose of this change is to detect errors earlier with a more relevant error messages.
+
+```{r, error = TRUE}
+keep(c(1, NA, 3), ~ . %% 2 == 0)
+```
+
+
+### Stricter pluck()
+
+Thanks to Daniel Barnett (@daniel-barnett on Github), `pluck()` now has a stricter cousin `chuck()`. Whereas `pluck()` is very permissive regarding non-existing locations and returns `NULL` in these cases, `chuck()` fails consistently with informative messages:
+
+```{r, error = TRUE}
+pluck(list(1), "foo")
+
+chuck(list(1), "foo")
+```
+
+
+## New `map_at()` features
+
+Colin Fay (@ColinFay) has added support for tidyselect expressions to `map_at()` and other `_at` mappers. This brings the interface of these functions closer to scoped functions from the dplyr package, such as `dplyr::mutate_at()`. Note that `vars()` is currently not reexported from purrr, so you need to use `dplyr::vars()` or `ggplot2::vars()` for the time being.
+
+```{r}
+suppressMessages(library("dplyr"))
+
+x <- list(
+  foo = 1:5,
+  bar = 6:10,
+  baz = 11:15
+)
+
+map_at(x, vars(starts_with("b")), mean)
+```
+
+`map_at()` now also supports negative selections:
+
+```{r}
+map_at(x, -2, `*`, 1000)
+```
+
+
+## Consistency of behaviour
+
+A lot of effort went towards more consistent behaviour in purrr. An important improvement is that `modify()` is now a wrapper around `[[<-` rather than `[<-`. This should make it directly compatible with a larger set of vector classes.
+
+Thanks to the work of Mikko Marttila (@mikmart), `pmap()` and `pwalk()` do a better job of preserving S3 classes. `pluck()` also work better with S3 objects. In the next version of purrr, we plan to fix once and for all this sort of issues by integrating the vctrs package to deal with vector operations in a truly generic way.
+
+Other small improvements in consistency of behaviour are:
+
+* `modify_depth()` now operates at the atomic level as well.
+* `map()` and `modify()` now work with calls and pairlists.
+
+
+## Consistency of the interface
+
+### Direction of application
+
+The direction of application is now specified the same way across purrr functions. `reduce()`, `compose()` and `detect()` now have a `.dir` parameter that can take the value `"forward"` or `"backward"`. This terminology should be less ambiguous than "left" and "right":
+
+```{r, eval = FALSE}
+reduce(1:4, `-`, .dir = "backward")
+
+compose(foo, bar, .dir = "forward")
+
+detect(1:5, ~ . %% 2 == 0, .dir = "backward")
+```
+
+Note that the backward version of `reduce()` (called right-reduce in the literature) applies the reduced function in a slightly different way that is more consistent with how this operation
+
+Consequently, the `_right` variants such as `reduce_right()` have been soft-deprecated, as well as the `.right` argument of `detect()` and `detect_index()`.
+
+
+### partial()
+
+`partial()` has been rewritten to be a simple wrapper around `call_modify()` and `eval_tidy()` from the rlang package. Consequently, the `.env`, `.lazy` and `.first` arguments are soft-deprecated and replaced by a flexible syntax.
+
+To control the timing of evaluation, unquote the partialised arguments that should be evaluated only once when the function is created. The non-unquoted arguments are evaluated at each invokation of the function:
+
+```{r}
+my_list <- partial(list, lazy = rnorm(3), eager = !!rnorm(3))
+
+my_list()
+
+my_list()
+```
+
+You can also control the position of the future arguments by passing an empty `... = ` parameter. This syntax is powered by `rlang::call_modify()` to control where the position of dots in a function call:
+
+```{r}
+my_list <- partial(list, 1, ... = , 2)
+
+my_list()
+
+my_list("foo")
+```
+
+
+### `exec()` replaces `invoke()`
+
+We are retiring `invoke()` and `invoke_map()` in favour of `exec()`. Retirement means that we'll keep these functions indefinitely in the package, but we won't add features or recommend using them.
+
+We are now favouring `exec()`, which uses the tidy dots syntax for passing lists of arguments:
+
+```{r}
+# Before:
+invoke(mean, list(na.rm = TRUE), x = 1:10)
+
+# After
+exec(mean, 1:10, !!!list(na.rm = TRUE))
+```
+
+
+### Filling the missing parts
+
+* purrr 0.3.0 introduces `accumulate2()`, `modify2()` and `imodify()` variants.
+
+* By popular request, `at_depth()` is back as `map_depth()`. Unlike `modify_depth()` which preserves the class structure of the input tree, this variant only returns trees made of lists of lists, coercing vectors if needed.
