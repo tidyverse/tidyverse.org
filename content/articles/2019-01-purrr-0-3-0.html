@@ -115,19 +115,19 @@ f2()
 <pre class="r"><code>f &lt;- function(...) print(Sys.time())
 
 walk(1:3, f)
-#&gt; [1] &quot;2019-01-25 21:44:36 CET&quot;
-#&gt; [1] &quot;2019-01-25 21:44:36 CET&quot;
-#&gt; [1] &quot;2019-01-25 21:44:36 CET&quot;
+#&gt; [1] &quot;2019-01-25 21:51:35 CET&quot;
+#&gt; [1] &quot;2019-01-25 21:51:35 CET&quot;
+#&gt; [1] &quot;2019-01-25 21:51:35 CET&quot;
 
 walk(1:3, slowly(f))
-#&gt; [1] &quot;2019-01-25 21:44:36 CET&quot;
-#&gt; [1] &quot;2019-01-25 21:44:37 CET&quot;
-#&gt; [1] &quot;2019-01-25 21:44:38 CET&quot;</code></pre>
+#&gt; [1] &quot;2019-01-25 21:51:35 CET&quot;
+#&gt; [1] &quot;2019-01-25 21:51:36 CET&quot;
+#&gt; [1] &quot;2019-01-25 21:51:37 CET&quot;</code></pre>
 <p><code>slowly()</code> uses a constant rate by default while <code>insistently()</code> uses a backoff rate. The rate limiting can be configured with optional jitter via <code>rate_backoff()</code> and <code>rate_delay()</code>, which implement exponential backoff rate and constant rate respectively.</p>
 <pre class="r"><code>walk(1:3, slowly(f, rate_backoff(max_times = Inf)))
-#&gt; [1] &quot;2019-01-25 21:44:38 CET&quot;
-#&gt; [1] &quot;2019-01-25 21:44:39 CET&quot;
-#&gt; [1] &quot;2019-01-25 21:44:41 CET&quot;</code></pre>
+#&gt; [1] &quot;2019-01-25 21:51:37 CET&quot;
+#&gt; [1] &quot;2019-01-25 21:51:38 CET&quot;
+#&gt; [1] &quot;2019-01-25 21:51:40 CET&quot;</code></pre>
 </div>
 <div id="map_if-or-else" class="section level2">
 <h2><code>map_if()</code>… or else?</h2>
@@ -228,17 +228,17 @@ detect(1:5, ~ . %% 2 == 0, .dir = &quot;backward&quot;)</code></pre>
 
 my_list()
 #&gt; $lazy
-#&gt; [1] -0.5907497  1.0383942  0.4738355
+#&gt; [1] -0.1664222  0.4806059  0.6180911
 #&gt; 
 #&gt; $eager
-#&gt; [1] -0.5494542 -0.9702186 -0.2799116
+#&gt; [1] -0.3960707 -0.3365854 -0.2512240
 
 my_list()
 #&gt; $lazy
-#&gt; [1]  0.3468383 -1.9637525  1.4941396
+#&gt; [1]  0.5549363 -0.6802942  0.3449655
 #&gt; 
 #&gt; $eager
-#&gt; [1] -0.5494542 -0.9702186 -0.2799116</code></pre>
+#&gt; [1] -0.3960707 -0.3365854 -0.2512240</code></pre>
 <p>You can also control the position of the future arguments by passing an empty <code>... =</code> parameter. This syntax is powered by <code>rlang::call_modify()</code> to control where the position of dots in a function call:</p>
 <pre class="r"><code>my_list &lt;- partial(list, 1, ... = , 2)
 
@@ -278,4 +278,9 @@ exec(mean, 1:10, !!!list(na.rm = TRUE))
 <li><p>By popular request, <code>at_depth()</code> is back as <code>map_depth()</code>. Unlike <code>modify_depth()</code> which preserves the class structure of the input tree, this variant only returns trees made of lists of lists, coercing vectors if needed.</p></li>
 </ul>
 </div>
+</div>
+<div id="thanks" class="section level2">
+<h2>Thanks!</h2>
+<p>Thanks to all the contributors for this release!</p>
+<p><a href="https://github.com/ArtemSokolov">＠ArtemSokolov</a>, <a href="https://github.com/batpigandme">＠batpigandme</a>, <a href="https://github.com/bbrewington">＠bbrewington</a>, <a href="https://github.com/billdenney">＠billdenney</a>, <a href="https://github.com/cderv">＠cderv</a>, <a href="https://github.com/cfhammill">＠cfhammill</a>, <a href="https://github.com/ColinFay">＠ColinFay</a>, <a href="https://github.com/dan-reznik">＠dan-reznik</a>, <a href="https://github.com/daniel-barnett">＠daniel-barnett</a>, <a href="https://github.com/danilinares">＠danilinares</a>, <a href="https://github.com/drtjc">＠drtjc</a>, <a href="https://github.com/egnha">＠egnha</a>, <a href="https://github.com/Eluvias">＠Eluvias</a>, <a href="https://github.com/flying-sheep">＠flying-sheep</a>, <a href="https://github.com/gergness">＠gergness</a>, <a href="https://github.com/gvwilson">＠gvwilson</a>, <a href="https://github.com/hadley">＠hadley</a>, <a href="https://github.com/hammer">＠hammer</a>, <a href="https://github.com/ijlyttle">＠ijlyttle</a>, <a href="https://github.com/ilarischeinin">＠ilarischeinin</a>, <a href="https://github.com/IndrajeetPatil">＠IndrajeetPatil</a>, <a href="https://github.com/ISPritchin">＠ISPritchin</a>, <a href="https://github.com/jameslairdsmith">＠jameslairdsmith</a>, <a href="https://github.com/jameslamb">＠jameslamb</a>, <a href="https://github.com/jrnold">＠jrnold</a>, <a href="https://github.com/kcf-jackson">＠kcf-jackson</a>, <a href="https://github.com/leungi">＠leungi</a>, <a href="https://github.com/lionel-">＠lionel-</a>, <a href="https://github.com/loladze">＠loladze</a>, <a href="https://github.com/maxheld83">＠maxheld83</a>, <a href="https://github.com/mikmart">＠mikmart</a>, <a href="https://github.com/MilesMcBain">＠MilesMcBain</a>, <a href="https://github.com/moodymudskipper">＠moodymudskipper</a>, <a href="https://github.com/mrstlee">＠mrstlee</a>, <a href="https://github.com/namelessjon">＠namelessjon</a>, <a href="https://github.com/r-cheologist">＠r-cheologist</a>, <a href="https://github.com/randomgambit">＠randomgambit</a>, <a href="https://github.com/rmflight">＠rmflight</a>, <a href="https://github.com/roumail">＠roumail</a>, <a href="https://github.com/Ryo-N7">＠Ryo-N7</a>, <a href="https://github.com/serina-robinson">＠serina-robinson</a>, <a href="https://github.com/skaltman">＠skaltman</a>, <a href="https://github.com/suraggupta">＠suraggupta</a>, <a href="https://github.com/thays42">＠thays42</a>, <a href="https://github.com/tyluRp">＠tyluRp</a>, <a href="https://github.com/tzakharko">＠tzakharko</a>, <a href="https://github.com/VincentGuyader">＠VincentGuyader</a>, <a href="https://github.com/wlandau">＠wlandau</a>, <a href="https://github.com/wmayner">＠wmayner</a>, <a href="https://github.com/yanxianl">＠yanxianl</a>, <a href="https://github.com/yutannihilation">＠yutannihilation</a>, and <a href="https://github.com/yysh12">＠yysh12</a></p>
 </div>
