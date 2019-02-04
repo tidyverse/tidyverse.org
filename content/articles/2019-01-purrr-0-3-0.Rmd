@@ -28,9 +28,14 @@ library("purrr")
 We're excited to announce the release of [purrr](https://purrr.tidyverse.org) 0.3.0! This release polishes the consistency of the interface, introduces new `pluck()`-based functions, many improvements to mappers, and a set of tools to limit the rate at which a function is called. Find a detailed account of the changes in the [NEWS](https://github.com/tidyverse/purrr/blob/master/NEWS.md#purrr-030) file.
 
 
-## Pluck assignment
+## New pluck variants
 
-`pluck()` implements a generalised form of `[[` that allow you to index deeply and flexibly into data structures. For instance, `pluck(x, "foo", 2)` is equivalent to `x[["foo"]][[2]]`. This release introduces the new functions `pluck<-`, `assign_in()` and `modify_in()` as assignment variants of `pluck()`.
+`pluck()` implements a generalised form of `[[` that allow you to index deeply and flexibly into data structures. For instance, `pluck(x, "foo", 2)` is equivalent to `x[["foo"]][[2]]`. purrr 0.3.0 introduces variants of `pluck()` to make it easier to work with deep data structures.
+
+
+### Pluck assignment
+
+This release introduces the new functions `pluck<-`, `assign_in()` and `modify_in()` as assignment variants of `pluck()`.
 
 To illustrate deep assignment, Let's create a nested data structure:
 
@@ -71,6 +76,26 @@ Finally, `modify_in()` is a variant of `modify()` that only changes the pluck lo
 ```{r}
 out <- modify_in(x, list("foo", 2), as.character)
 str(out)
+```
+
+
+### Stricter pluck()
+
+Thanks to Daniel Barnett (@daniel-barnett on Github), `pluck()` now has a stricter cousin `chuck()`. Whereas `pluck()` is very permissive regarding non-existing locations and returns `NULL` in these cases, `chuck()` fails consistently with informative messages:
+
+```{r, error = TRUE}
+pluck(list(1), "foo")
+
+chuck(list(1), "foo")
+```
+
+
+## Stricter predicate checking
+
+purrr now checks the results of your predicate functions, which must now consistently return `TRUE` or `FALSE`. We no longer offer support for `NA` or for boolish numeric values (R normally interprets 0 as `FALSE` and all other values as `TRUE`). The purpose of this change is to detect errors earlier with a more relevant error messages.
+
+```{r, error = TRUE}
+keep(c(1, NA, 3), ~ . %% 2 == 0)
 ```
 
 
@@ -140,28 +165,6 @@ If you like using `map_if()`, perhaps you'll find the new `.else` argument usefu
 
 ```{r}
 map_if(iris, is.numeric, mean, .else = nlevels)
-```
-
-
-## Strictness
-
-### Stricter predicate checking
-
-purrr now checks the results of your predicate functions, which must now consistently return `TRUE` or `FALSE`. We no longer offer support for `NA` or for boolish numeric values (R normally interprets 0 as `FALSE` and all other values as `TRUE`). The purpose of this change is to detect errors earlier with a more relevant error messages.
-
-```{r, error = TRUE}
-keep(c(1, NA, 3), ~ . %% 2 == 0)
-```
-
-
-### Stricter pluck()
-
-Thanks to Daniel Barnett (@daniel-barnett on Github), `pluck()` now has a stricter cousin `chuck()`. Whereas `pluck()` is very permissive regarding non-existing locations and returns `NULL` in these cases, `chuck()` fails consistently with informative messages:
-
-```{r, error = TRUE}
-pluck(list(1), "foo")
-
-chuck(list(1), "foo")
 ```
 
 
