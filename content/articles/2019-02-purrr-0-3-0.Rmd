@@ -32,7 +32,7 @@ We're excited to announce the release of [purrr](https://purrr.tidyverse.org) 0.
 install.packages("purrr")
 
 # Start working with purrr:
-library("purrr")
+library(purrr)
 ```
 
 In this release, `pluck()` gets a few new variants:
@@ -49,7 +49,21 @@ A new set of tools helps limiting the rate at which a function is called:
 
 * The `rate_delay()` and `rate_backoff()` helpers control the invokation rate of `slowly()` and `insistently()`.
 
-Finally, the consistency of the interface has been polished:
+The reduce and map functions gain a few improvements:
+
+* `map_if()` accepts an optional function with the `.else` parameter. This function is applied on elements for which the predicate is `FALSE`.
+
+* `map_at()` now accepts `vars()` selections. This lets you use selection helpers like `dplyr::starts_with()` to determine the elements of a list which should be mapped.
+
+* `reduce()` now support early termination of a computation. Just return a value wrapped in a `done()` to signal to `reduce()` that you're done.
+
+Besides these new functions and tools, purrr 0.3.0 is mostly a polishing release. We have improved the consistency of behaviour:
+
+* `modify()` is now a wrapper around `[[<-` instead of `[<-`. This makes it compatible with a larger variety of S3 vector classes.
+
+* Predicate functions (such that you would pass to `map_if()`) now must return a single `TRUE` or `FALSE`. Missing values and integers are no longer valid predicate outputs.
+
+Finally, we improved the consistency of the interface:
 
 * The direction of iteration/application is now consistently specified with a `.dir` argument.
 
@@ -62,14 +76,12 @@ Find a detailed account of the changes in the [NEWS](https://github.com/tidyvers
 
 ## New pluck variants
 
-`pluck()` implements a generalised form of `[[` that allow you to index deeply and flexibly into data structures. For instance, `pluck(x, "foo", 2)` is equivalent to `x[["foo"]][[2]]`. purrr 0.3.0 introduces variants of `pluck()` to make it easier to work with deep data structures.
+`pluck()` implements a generalised form of `[[` that allow you to index deeply and flexibly into data structures. For instance, `pluck(x, "foo", 2)` is equivalent to `x[["foo"]][[2]]`. You can also supply a default value in case the element does not exist. For instance, `pluck(x, "foo", 2, .default = NA)` is equivalent to `x[["foo"]][[2]]`, returning an `NA` if that element doesn't exist. purrr 0.3.0 introduces variants of `pluck()` to make it easier to work with deep data structures.
 
 
 ### Pluck assignment
 
-This release introduces the new functions `pluck<-`, `assign_in()` and `modify_in()` as assignment variants of `pluck()`.
-
-To illustrate deep assignment, Let's create a nested data structure:
+This release introduces the new functions `pluck<-`, `assign_in()` and `modify_in()` as assignment variants of `pluck()`. To illustrate deep assignment, Let's create a nested data structure:
 
 ```{r}
 x <- list(foo = list(1, 2), bar = list(3, 4))
@@ -113,37 +125,13 @@ str(out)
 
 ### Stricter pluck()
 
-Thanks to Daniel Barnett (@daniel-barnett on Github), `pluck()` now has a stricter cousin `chuck()`. Whereas `pluck()` is very permissive regarding non-existing locations and returns `NULL` in these cases, `chuck()` fails consistently with informative messages (i.e., it "chucks" an error message):
+Thanks to Daniel Barnett (@daniel-barnett on Github), `pluck()` now has a stricter cousin `chuck()`. Whereas `pluck()` is very permissive regarding non-existing locations and returns `NULL` in these cases, and `[[` inconsistently returns `NULL`, `NA`, or throws an error, `chuck()` fails consistently with informative messages (i.e., it "chucks" an error message):
 
 ```{r, error = TRUE}
 pluck(list(1), "foo")
 
 chuck(list(1), "foo")
 ```
-
-
-## Stricter predicate checking
-
-purrr now checks the results of your predicate functions, which must now consistently return `TRUE` or `FALSE`. We no longer offer support for `NA` or for boolish numeric values (R normally interprets 0 as `FALSE` and all other values as `TRUE`). The purpose of this change is to detect errors earlier with a more relevant error messages.
-
-```{r, error = TRUE}
-keep(c(1, NA, 3), ~ . %% 2 == 0)
-```
-
-
-## Early termination of reduction
-
-`reduce()` and `accumulate()` now support early termination of the reduction. To halt the computation, just return the last value wrapped in a `done()` box:
-
-```{r}
-# This computes the total sum of the input vector
-reduce(1:100, ~ .x + .y)
-
-# This stops as soon as the sum is greater than 50
-reduce(1:100, ~ if (.x > 50) done(.x) else .x + .y)
-```
-
-This feature takes inspiration from the [Clojure](https://clojuredocs.org/clojure.core/reduced) language.
 
 
 ## Rates
@@ -190,8 +178,9 @@ walk(1:3, slowly(f))
 walk(1:3, slowly(f, rate_backoff(max_times = Inf)))
 ```
 
+## Map and reduce improvements
 
-## `map_if()`... or else?
+### `map_if()`... or else?
 
 If you like using `map_if()`, perhaps you'll find the new `.else` argument useful. `.else` is a function applied to elements for which the predicate is `FALSE`:
 
@@ -200,7 +189,7 @@ map_if(iris, is.numeric, mean, .else = nlevels)
 ```
 
 
-## New `map_at()` features
+### New `map_at()` features
 
 Colin Fay (@ColinFay) has added support for tidyselect expressions to `map_at()` and other `_at` mappers. This brings the interface of these functions closer to scoped functions from the dplyr package, such as `dplyr::mutate_at()`. Note that `vars()` is currently not reexported from purrr, so you need to use `dplyr::vars()` or `ggplot2::vars()` for the time being.
 
@@ -223,21 +212,47 @@ map_at(x, -2, `*`, 1000)
 ```
 
 
-## Consistency of behaviour
+### Early termination of reduction
 
-A lot of effort went towards more consistent behaviour in purrr. An important improvement is that `modify()` is now a wrapper around `[[<-` rather than `[<-`. This should make it directly compatible with a larger set of vector classes.
+‘reduce()’ is an operation that combines the elements of a vector into a single value by calling a binary function repeatedly with the result so far and the next input of a vector. `reduce()` and its variant `accumulate()` now support early termination of the reduction. To halt the computation, just return the last value wrapped in a `done()` box:
+
+```{r}
+# This computes the total sum of the input vector
+reduce(1:100, ~ .x + .y)
+
+# This stops as soon as the sum is greater than 50
+reduce(1:100, ~ if (.x > 50) done(.x) else .x + .y)
+```
+
+This feature takes inspiration from the [Clojure](https://clojuredocs.org/clojure.core/reduced) language.
+
+
+## Consistency
+
+In this polishing release, a lot of effort went towards consistency of behaviour and of the interface.
+
+
+### Behaviour
+
+#### `modify()` now wraps `[[<-`
+
+An important improvement is that `modify()` is now a wrapper around `[[<-` rather than `[<-`. This should make it directly compatible with a larger set of vector classes.
 
 Thanks to the work of Mikko Marttila (@mikmart), `pmap()` and `pwalk()` do a better job of preserving S3 classes. `pluck()` also works better with S3 objects. In the next version of purrr, we plan to use the in-development vctrs package to provide more principled and predictable vector operations.
 
-Other small improvements in consistency of behaviour are:
 
-* `modify_depth()` now operates at the atomic level as well.
-* `map()` and `modify()` now work with calls and pairlists.
+#### Stricter predicate checking
+
+purrr now checks the results of your predicate functions, which must now consistently return `TRUE` or `FALSE`. We no longer offer support for `NA` or for boolish numeric values (R normally interprets 0 as `FALSE` and all other values as `TRUE`). The purpose of this change is to detect errors earlier with a more relevant error messages.
+
+```{r, error = TRUE}
+keep(c(1, NA, 3), ~ . %% 2 == 0)
+```
 
 
-## Consistency of the interface
+### Interface
 
-### Direction of application
+#### Direction of application
 
 The direction of application is now specified the same way across purrr functions. `reduce()`, `compose()` and `detect()` now have a `.dir` parameter that can take the value `"forward"` or `"backward"`. This terminology should be less ambiguous than "left" and "right":
 
@@ -254,7 +269,7 @@ Note that the backward version of `reduce()` (called right-reduce in the literat
 Following the introduction of the `.dir` parameters, the `_right` variants such as `reduce_right()` have been soft-deprecated, as well as the `.right` parameter of `detect()` and `detect_index()`.
 
 
-### partial()
+#### partial()
 
 `partial()` has been rewritten to be a simple wrapper around `call_modify()` and `eval_tidy()` from the rlang package. Consequently, the `.env`, `.lazy` and `.first` arguments are soft-deprecated and replaced by a flexible syntax.
 
@@ -279,7 +294,7 @@ my_list("foo")
 ```
 
 
-### `exec()` replaces `invoke()`
+#### `exec()` replaces `invoke()`
 
 We are retiring `invoke()` and `invoke_map()` in favour of `exec()`. Retirement means that we'll keep these functions indefinitely in the package, but we won't add features or recommend using them.
 
@@ -294,11 +309,11 @@ exec(mean, 1:10, !!!list(na.rm = TRUE))
 ```
 
 
-### Filling the missing parts
+#### Filling the missing parts
 
 * purrr 0.3.0 introduces `accumulate2()`, `modify2()` and `imodify()` variants.
 
-* By popular request, `at_depth()` is back as `map_depth()`. Unlike `modify_depth()` which preserves the class structure of the input tree, this variant only returns trees made of lists of lists, coercing vectors if needed.
+* By popular request, `at_depth()` is back as `map_depth()`. Unlike `modify_depth()` which preserves the class structure of the input tree, this variant only returns trees made of lists of lists (up to the given depth), coercing vectors if needed.
 
 
 ## Thanks!
