@@ -25,7 +25,39 @@ knitr::opts_chunk$set(
 library("purrr")
 ```
 
-We're excited to announce the release of [purrr](https://purrr.tidyverse.org) 0.3.0! This release polishes the consistency of the interface, introduces new `pluck()`-based functions, many improvements to mappers, and a set of tools to limit the rate at which a function is called. Find a detailed account of the changes in the [NEWS](https://github.com/tidyverse/purrr/blob/master/NEWS.md#purrr-030) file.
+We're excited to announce the release of [purrr](https://purrr.tidyverse.org) 0.3.0! purrr enhances R’s functional programming toolkit by providing a complete and consistent set of tools for working with functions and vectors.
+
+```{r, eval = FALSE}
+# Install the latest version with:
+install.packages("purrr")
+
+# Start working with purrr:
+library("purrr")
+```
+
+In this release, `pluck()` gets a few new variants:
+
+* `pluck<-`, `assign_in()` and `modify_in()` allow deep modifications of nested structures.
+
+* `chuck()` is a stricter variant of `pluck()` that consistently fails instead of returning `NULL` when the structure does not have the expected shape.
+
+A new set of tools helps limiting the rate at which a function is called:
+
+* `slowly()` forces a function to sleep between each invokation.
+
+* `insistently()` automatically invokes a function again on error until it succeeds, and sleeps between invokations.
+
+* The `rate_delay()` and `rate_backoff()` helpers control the invokation rate of `slowly()` and `insistently()`.
+
+Finally, the consistency of the interface has been polished:
+
+* The direction of iteration/application is now consistently specified with a `.dir` argument.
+
+* Many missing functions were added to fill the gaps: `accumulate2()`, `imodify()`, `map_depth()`, ...
+
+* `partial()` has a much improved and more flexible interface.
+
+Find a detailed account of the changes in the [NEWS](https://github.com/tidyverse/purrr/blob/master/NEWS.md#purrr-030) file.
 
 
 ## New pluck variants
