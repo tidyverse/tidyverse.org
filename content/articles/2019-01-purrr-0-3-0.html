@@ -14,10 +14,37 @@ photo:
 
 
 
-<p>We’re excited to announce the release of purrr 0.3.0! This release polishes the consistency of the interface, introduces new <code>pluck()</code>-based functions, many improvements to mappers, and a set of tools to limit the rate at which a function is called. Find a detailed account of the changes in the <a href="https://github.com/tidyverse/purrr/blob/master/NEWS.md#purrr-030">NEWS</a> file.</p>
-<div id="pluck-assignment" class="section level2">
-<h2>Pluck assignment</h2>
-<p>The new functions <code>pluck&lt;-</code>, <code>assign_in()</code> and <code>modify_in()</code> are assignment variants of <code>pluck()</code>. Let’s create a nested data structure:</p>
+<p>We’re excited to announce the release of <a href="https://purrr.tidyverse.org">purrr</a> 0.3.0! purrr enhances R’s functional programming toolkit by providing a complete and consistent set of tools for working with functions and vectors.</p>
+<pre class="r"><code># Install the latest version with:
+install.packages(&quot;purrr&quot;)
+
+# Start working with purrr:
+library(&quot;purrr&quot;)</code></pre>
+<p>In this release, <code>pluck()</code> gets a few new variants:</p>
+<ul>
+<li><p><code>pluck&lt;-</code>, <code>assign_in()</code> and <code>modify_in()</code> allow deep modifications of nested structures.</p></li>
+<li><p><code>chuck()</code> is a stricter variant of <code>pluck()</code> that consistently fails instead of returning <code>NULL</code> when the structure does not have the expected shape.</p></li>
+</ul>
+<p>A new set of tools helps limiting the rate at which a function is called:</p>
+<ul>
+<li><p><code>slowly()</code> forces a function to sleep between each invokation.</p></li>
+<li><p><code>insistently()</code> automatically invokes a function again on error until it succeeds, and sleeps between invokations.</p></li>
+<li><p>The <code>rate_delay()</code> and <code>rate_backoff()</code> helpers control the invokation rate of <code>slowly()</code> and <code>insistently()</code>.</p></li>
+</ul>
+<p>Finally, the consistency of the interface has been polished:</p>
+<ul>
+<li><p>The direction of iteration/application is now consistently specified with a <code>.dir</code> argument.</p></li>
+<li><p>Many missing functions were added to fill the gaps: <code>accumulate2()</code>, <code>imodify()</code>, <code>map_depth()</code>, …</p></li>
+<li><p><code>partial()</code> has a much improved and more flexible interface.</p></li>
+</ul>
+<p>Find a detailed account of the changes in the <a href="https://github.com/tidyverse/purrr/blob/master/NEWS.md#purrr-030">NEWS</a> file.</p>
+<div id="new-pluck-variants" class="section level2">
+<h2>New pluck variants</h2>
+<p><code>pluck()</code> implements a generalised form of <code>[[</code> that allow you to index deeply and flexibly into data structures. For instance, <code>pluck(x, &quot;foo&quot;, 2)</code> is equivalent to <code>x[[&quot;foo&quot;]][[2]]</code>. purrr 0.3.0 introduces variants of <code>pluck()</code> to make it easier to work with deep data structures.</p>
+<div id="pluck-assignment" class="section level3">
+<h3>Pluck assignment</h3>
+<p>This release introduces the new functions <code>pluck&lt;-</code>, <code>assign_in()</code> and <code>modify_in()</code> as assignment variants of <code>pluck()</code>.</p>
+<p>To illustrate deep assignment, Let’s create a nested data structure:</p>
 <pre class="r"><code>x &lt;- list(foo = list(1, 2), bar = list(3, 4))
 str(x)
 #&gt; List of 2
@@ -27,7 +54,7 @@ str(x)
 #&gt;  $ bar:List of 2
 #&gt;   ..$ : num 3
 #&gt;   ..$ : num 4</code></pre>
-<p>This sort of repeated structures is the kind of data where <code>pluck()</code> shines:</p>
+<p>This sort of repeated structure is the kind of data where <code>pluck()</code> shines:</p>
 <pre class="r"><code>pluck(x, &quot;foo&quot;, 2)
 #&gt; [1] 2
 
@@ -43,7 +70,7 @@ str(x)
 #&gt;  $ bar:List of 2
 #&gt;   ..$ : num 3
 #&gt;   ..$ : num 4</code></pre>
-<p><code>pluck&lt;-</code> also has a functional form that won’t modify objects in your environment, but instead returns the modified data:</p>
+<p><code>pluck&lt;-</code> also has a functional form that does not modify objects in your environment, but instead returns a modified copy:</p>
 <pre class="r"><code>out &lt;- assign_in(x, list(&quot;foo&quot;, 2), 2000)
 
 # The object is still the same as before
@@ -75,7 +102,22 @@ str(out)
 #&gt;  $ bar:List of 2
 #&gt;   ..$ : num 3
 #&gt;   ..$ : num 4</code></pre>
-<p>assign_in() and modify_in()</p>
+</div>
+<div id="stricter-pluck" class="section level3">
+<h3>Stricter pluck()</h3>
+<p>Thanks to Daniel Barnett (<span class="citation">@daniel-barnett</span> on Github), <code>pluck()</code> now has a stricter cousin <code>chuck()</code>. Whereas <code>pluck()</code> is very permissive regarding non-existing locations and returns <code>NULL</code> in these cases, <code>chuck()</code> fails consistently with informative messages (i.e., it “chucks” an error message):</p>
+<pre class="r"><code>pluck(list(1), &quot;foo&quot;)
+#&gt; NULL
+
+chuck(list(1), &quot;foo&quot;)
+#&gt; Error: Index 1 is attempting to pluck from an unnamed vector using a string name</code></pre>
+</div>
+</div>
+<div id="stricter-predicate-checking" class="section level2">
+<h2>Stricter predicate checking</h2>
+<p>purrr now checks the results of your predicate functions, which must now consistently return <code>TRUE</code> or <code>FALSE</code>. We no longer offer support for <code>NA</code> or for boolish numeric values (R normally interprets 0 as <code>FALSE</code> and all other values as <code>TRUE</code>). The purpose of this change is to detect errors earlier with a more relevant error messages.</p>
+<pre class="r"><code>keep(c(1, NA, 3), ~ . %% 2 == 0)
+#&gt; Error: Predicate functions must return a single `TRUE` or `FALSE`, not a missing value</code></pre>
 </div>
 <div id="early-termination-of-reduction" class="section level2">
 <h2>Early termination of reduction</h2>
@@ -115,19 +157,19 @@ f2()
 <pre class="r"><code>f &lt;- function(...) print(Sys.time())
 
 walk(1:3, f)
-#&gt; [1] &quot;2019-01-25 21:51:35 CET&quot;
-#&gt; [1] &quot;2019-01-25 21:51:35 CET&quot;
-#&gt; [1] &quot;2019-01-25 21:51:35 CET&quot;
+#&gt; [1] &quot;2019-02-04 14:37:44 CET&quot;
+#&gt; [1] &quot;2019-02-04 14:37:44 CET&quot;
+#&gt; [1] &quot;2019-02-04 14:37:44 CET&quot;
 
 walk(1:3, slowly(f))
-#&gt; [1] &quot;2019-01-25 21:51:35 CET&quot;
-#&gt; [1] &quot;2019-01-25 21:51:36 CET&quot;
-#&gt; [1] &quot;2019-01-25 21:51:37 CET&quot;</code></pre>
+#&gt; [1] &quot;2019-02-04 14:37:44 CET&quot;
+#&gt; [1] &quot;2019-02-04 14:37:45 CET&quot;
+#&gt; [1] &quot;2019-02-04 14:37:46 CET&quot;</code></pre>
 <p><code>slowly()</code> uses a constant rate by default while <code>insistently()</code> uses a backoff rate. The rate limiting can be configured with optional jitter via <code>rate_backoff()</code> and <code>rate_delay()</code>, which implement exponential backoff rate and constant rate respectively.</p>
 <pre class="r"><code>walk(1:3, slowly(f, rate_backoff(max_times = Inf)))
-#&gt; [1] &quot;2019-01-25 21:51:37 CET&quot;
-#&gt; [1] &quot;2019-01-25 21:51:38 CET&quot;
-#&gt; [1] &quot;2019-01-25 21:51:40 CET&quot;</code></pre>
+#&gt; [1] &quot;2019-02-04 14:37:46 CET&quot;
+#&gt; [1] &quot;2019-02-04 14:37:48 CET&quot;
+#&gt; [1] &quot;2019-02-04 14:37:51 CET&quot;</code></pre>
 </div>
 <div id="map_if-or-else" class="section level2">
 <h2><code>map_if()</code>… or else?</h2>
@@ -147,24 +189,6 @@ walk(1:3, slowly(f))
 #&gt; 
 #&gt; $Species
 #&gt; [1] 3</code></pre>
-</div>
-<div id="strictness" class="section level2">
-<h2>Strictness</h2>
-<div id="stricter-predicate-checking" class="section level3">
-<h3>Stricter predicate checking</h3>
-<p>purrr now checks the results of your predicate functions, which must now consistently return <code>TRUE</code> or <code>FALSE</code>. We no longer offer support for <code>NA</code> or for boolish numeric values (R normally interprets 0 as <code>FALSE</code> and all other values as <code>TRUE</code>). The purpose of this change is to detect errors earlier with a more relevant error messages.</p>
-<pre class="r"><code>keep(c(1, NA, 3), ~ . %% 2 == 0)
-#&gt; Error: Predicate functions must return a single `TRUE` or `FALSE`, not a missing value</code></pre>
-</div>
-<div id="stricter-pluck" class="section level3">
-<h3>Stricter pluck()</h3>
-<p>Thanks to Daniel Barnett (<span class="citation">@daniel-barnett</span> on Github), <code>pluck()</code> now has a stricter cousin <code>chuck()</code>. Whereas <code>pluck()</code> is very permissive regarding non-existing locations and returns <code>NULL</code> in these cases, <code>chuck()</code> fails consistently with informative messages:</p>
-<pre class="r"><code>pluck(list(1), &quot;foo&quot;)
-#&gt; NULL
-
-chuck(list(1), &quot;foo&quot;)
-#&gt; Error: Index 1 is attempting to pluck from an unnamed vector using a string name</code></pre>
-</div>
 </div>
 <div id="new-map_at-features" class="section level2">
 <h2>New <code>map_at()</code> features</h2>
@@ -200,7 +224,7 @@ map_at(x, vars(starts_with(&quot;b&quot;)), mean)
 <div id="consistency-of-behaviour" class="section level2">
 <h2>Consistency of behaviour</h2>
 <p>A lot of effort went towards more consistent behaviour in purrr. An important improvement is that <code>modify()</code> is now a wrapper around <code>[[&lt;-</code> rather than <code>[&lt;-</code>. This should make it directly compatible with a larger set of vector classes.</p>
-<p>Thanks to the work of Mikko Marttila (<span class="citation">@mikmart</span>), <code>pmap()</code> and <code>pwalk()</code> do a better job of preserving S3 classes. <code>pluck()</code> also work better with S3 objects. In the next version of purrr, we plan to fix once and for all this sort of issues by integrating the vctrs package to deal with vector operations in a truly generic way.</p>
+<p>Thanks to the work of Mikko Marttila (<span class="citation">@mikmart</span>), <code>pmap()</code> and <code>pwalk()</code> do a better job of preserving S3 classes. <code>pluck()</code> also works better with S3 objects. In the next version of purrr, we plan to use the in-development vctrs package to provide more principled and predictable vector operations.</p>
 <p>Other small improvements in consistency of behaviour are:</p>
 <ul>
 <li><code>modify_depth()</code> now operates at the atomic level as well.</li>
@@ -217,8 +241,8 @@ map_at(x, vars(starts_with(&quot;b&quot;)), mean)
 compose(foo, bar, .dir = &quot;forward&quot;)
 
 detect(1:5, ~ . %% 2 == 0, .dir = &quot;backward&quot;)</code></pre>
-<p>Note that the backward version of <code>reduce()</code> (called right-reduce in the literature) applies the reduced function in a slightly different way that is more consistent with how this operation</p>
-<p>Consequently, the <code>_right</code> variants such as <code>reduce_right()</code> have been soft-deprecated, as well as the <code>.right</code> argument of <code>detect()</code> and <code>detect_index()</code>.</p>
+<p>Note that the backward version of <code>reduce()</code> (called right-reduce in the literature) applies the reduced function in a slightly different way than <code>reduce_right()</code>. The new algorithm is more consistent with how this operation is usually defined in other languages.</p>
+<p>Following the introduction of the <code>.dir</code> parameters, the <code>_right</code> variants such as <code>reduce_right()</code> have been soft-deprecated, as well as the <code>.right</code> parameter of <code>detect()</code> and <code>detect_index()</code>.</p>
 </div>
 <div id="partial" class="section level3">
 <h3>partial()</h3>
@@ -228,17 +252,17 @@ detect(1:5, ~ . %% 2 == 0, .dir = &quot;backward&quot;)</code></pre>
 
 my_list()
 #&gt; $lazy
-#&gt; [1] -0.1664222  0.4806059  0.6180911
+#&gt; [1] -0.894913043 -0.817283311  0.001069994
 #&gt; 
 #&gt; $eager
-#&gt; [1] -0.3960707 -0.3365854 -0.2512240
+#&gt; [1] -0.9759021 -1.6981727  0.7397033
 
 my_list()
 #&gt; $lazy
-#&gt; [1]  0.5549363 -0.6802942  0.3449655
+#&gt; [1] -0.98520089  0.03741268 -1.27050458
 #&gt; 
 #&gt; $eager
-#&gt; [1] -0.3960707 -0.3365854 -0.2512240</code></pre>
+#&gt; [1] -0.9759021 -1.6981727  0.7397033</code></pre>
 <p>You can also control the position of the future arguments by passing an empty <code>... =</code> parameter. This syntax is powered by <code>rlang::call_modify()</code> to control where the position of dots in a function call:</p>
 <pre class="r"><code>my_list &lt;- partial(list, 1, ... = , 2)
 
