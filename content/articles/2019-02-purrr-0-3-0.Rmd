@@ -174,8 +174,12 @@ walk(1:3, slowly(f))
 
 `slowly()` uses a constant rate by default while `insistently()` uses a backoff rate. The rate limiting can be configured with optional jitter via `rate_backoff()` and `rate_delay()`, which implement exponential backoff rate and constant rate respectively.
 
+```{r, include = FALSE}
+set.seed(10)
+```
+
 ```{r}
-walk(1:3, slowly(f, rate_backoff(max_times = Inf)))
+walk(1:3, slowly(f, rate_backoff(2, max_times = Inf)))
 ```
 
 ## Map and reduce improvements
