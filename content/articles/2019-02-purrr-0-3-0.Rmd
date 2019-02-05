@@ -234,11 +234,11 @@ In this polishing release, a lot of effort went towards consistency of behaviour
 
 ### Behaviour
 
-#### `modify()` now wraps `[[<-`
+#### Better support for S3 vectors
 
-An important improvement is that `modify()` is now a wrapper around `[[<-` rather than `[<-`. This should make it directly compatible with a larger set of vector classes.
+We are working hard on improving support for S3 vectors in the tidyverse. As of this release, `modify()` is now a wrapper around `[[<-` instead of `[<-`. This should make it directly compatible with a larger set of vector classes. Thanks to the work of Mikko Marttila (@mikmart), `pmap()` and `pwalk()` also do a better job of preserving S3 classes. Finally, `pluck()` now properly calls the `[[` methods of S3 objects.
 
-Thanks to the work of Mikko Marttila (@mikmart), `pmap()` and `pwalk()` do a better job of preserving S3 classes. `pluck()` also works better with S3 objects. In the next version of purrr, we plan to use the in-development vctrs package to provide more principled and predictable vector operations.
+In the next version of purrr, we plan to use the in-development vctrs package to provide more principled and predictable vector operations. This should help us preserve the class and properties of S3 vectors like factors, dates, or your custom classes.
 
 
 #### Stricter predicate checking
