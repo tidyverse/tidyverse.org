@@ -19,20 +19,24 @@ knitr::opts_chunk$set(
 )
 ```
 
-We're delighted to announce that [bigrquery](https://bigrquery.r-dbi.org/) 1.1.0 is now on CRAN. bigrquery makes it easy to work with data stored in [Google BigQuery](https://developers.google.com/bigquery/), a hosted database for big data. This is a minor release, with some improved type support, and SQL translation. For a complete list of updates, please see the [Changelog](https://bigrquery.r-dbi.org/news/index.html).
+We're delighted to announce that [bigrquery](https://bigrquery.r-dbi.org/) 1.1.0 is now on CRAN. bigrquery makes it easy to work with data stored in [Google BigQuery](https://developers.google.com/bigquery/), a hosted database for big data. This is a minor release, with some improved type support, and SQL translation. For a complete list of updates, please see the [Changelog](https://bigrquery.r-dbi.org/news/index.html#bigrquery-1-1-0).
 
 ## Improved type support
 
-[`bq_table_download()`](https://bigrquery.r-dbi.org/reference/bq_table_download.html) and the [`DBI::dbConnect`](https://www.rdocumentation.org/packages/DBI/versions/0.5-1/topics/dbConnect) method now have a `bigint` argument, which governs how BigQuery integer columns are imported into R. As before, the default will be `bigint = "integer"`. However, you can now set `bigint = "integer64"` to import BigQuery integer columns as `bit64::integer64` columns in R. This allows for values outside the range of integer (`-2147483647` to `2147483647`).
+[`bq_table_download()`](https://bigrquery.r-dbi.org/reference/bq_table_download.html) and the [`DBI::dbConnect`](https://www.rdocumentation.org/packages/DBI/versions/0.5-1/topics/dbConnect) method now have a `bigint` argument, which governs how BigQuery integer columns are imported into R. As before, the default will be `bigint = "integer"`. However, you can now set `bigint = "integer64"` to import BigQuery integer columns as `bit64::integer64` columns in R. This allows for values outside the range of integer (`-2147483647` to `2147483647`). Thanks to [Rasmus Bååth](https://github.com/rasmusab) for implementing these changes.
 
 `bq_table_download()` now treats `NUMERIC` columns in the same way as `FLOAT` columns.
 
-`bq_table_upload()` now works with POSIXt/POSIXct variables. Unparseable date times return `NA`.
+`bq_table_upload()` now works with date-time (`POSIXct`) variables. Unparseable date times return `NA`.
 
 ## SQL translation
 
 * `as.character()` now translates to `SAFE_CAST(x AS STRING)`.  
 * `median()` now translates to `APPROX_QUANTILES(x, 2)[SAFE_ORDINAL(2)]`.  
+
+## Minor fixes
+
+* [`bq_job()`](https://bigrquery.r-dbi.org/reference/bq_refs.html) tracks location, so bigrquery now works painlessly with non-US/EU locations.
 
 ## Acknowledgements
 
