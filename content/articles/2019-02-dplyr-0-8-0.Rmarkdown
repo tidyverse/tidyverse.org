@@ -3,6 +3,8 @@ title: dplyr 0.8.0
 author: Romain François
 date: '2019-02-15'
 slug: dplyr-0-8-0
+description: >
+  dplyr 0.8.0 is now on CRAN.
 categories:
   - package
 tags:
@@ -44,22 +46,59 @@ existing `group_by()` with a set of *experimental* functions with a variety of
 perspectives on the notion of grouping. 
 
 We believe they offer new unique possibilities, but we welcome community feedback and use cases
-before we put a `r emo::ji("ring")` on them.
+before we put a `r emo::ji("ring")` on them. Let's illustrate them with a subset from the 
+well know `gapminder` data. 
+
+```{r}
+oceania <- gapminder::gapminder %>% 
+  filter(continent == "Oceania") %>% 
+  mutate(yr1952 = year - 1952) %>% 
+  select(-continent) %>% 
+  group_by(country)
+oceania
+```
 
   - [group_nest()](https://dplyr.tidyverse.org/reference/group_nest.html) is similar to 
-  `tidyr::nest()` but focuses on the variables to nest by instead of the nested columns. 
+  `tidyr::nest()` but focuses on the variables to *nest by* instead of the nested columns. 
+  
+```{r}
+oceania %>% 
+  group_nest()
+```
   
   - [group_split()](https://dplyr.tidyverse.org/reference/group_split.html) is a tidy version 
   of `base::split()`. In particular it respects a `group_by()`-like grouping specification, 
   and refuses to name its result. 
   
+```{r}
+oceania %>% 
+  group_split()
+```
+  
   - [group_map()](https://dplyr.tidyverse.org/reference/group_map.html) and [group_walk()](https://dplyr.tidyverse.org/reference/group_map.html) offer 
   a way to iterate on groups of a grouped data frame. 
+  
+```{r}
+oceania %>% 
+  mutate(yr1952 = year - 1952) %>% 
+  group_map(~broom::tidy(stats::lm(lifeExp ~ yr1952, data = .x)))
+```
   
   - [group_data()](https://dplyr.tidyverse.org/reference/group_data.html), [group_rows()](https://dplyr.tidyverse.org/reference/group_data.html), and 
   [group_keys()](https://dplyr.tidyverse.org/reference/group_split.html) expose the grouping information, that has 
   been restructured in a tibble. 
-  
+
+```{r}
+oceania %>% 
+  group_data()
+
+oceania %>% 
+  group_keys()
+
+oceania %>% 
+  group_rows()
+```
+ 
   - [group_trim()](https://dplyr.tidyverse.org/reference/group_trim.html) drops unused levels of factors that are used as grouping variables. 
 
   - [group_by()](https://dplyr.tidyverse.org/reference/group_by.html) gains a `.drop` argument
