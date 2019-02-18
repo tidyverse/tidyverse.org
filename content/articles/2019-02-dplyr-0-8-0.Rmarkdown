@@ -47,7 +47,7 @@ perspectives on the notion of grouping.
 
 We believe they offer new unique possibilities, but we welcome community feedback and use cases
 before we put a `r emo::ji("ring")` on them. Let's illustrate them with a subset from the 
-well know `gapminder` data. 
+well-known `gapminder` data. 
 
 ```{r}
 oceania <- gapminder::gapminder %>% 
@@ -59,7 +59,7 @@ oceania
 ```
 
   - [group_nest()](https://dplyr.tidyverse.org/reference/group_nest.html) is similar to 
-  `tidyr::nest()` but focuses on the variables to *nest by* instead of the nested columns. 
+  `tidyr::nest()`, but focuses on the variables to *nest by* instead of the nested columns. 
   
 ```{r}
 oceania %>% 
@@ -67,7 +67,7 @@ oceania %>%
 ```
   
   - [group_split()](https://dplyr.tidyverse.org/reference/group_split.html) is a tidy version 
-  of `base::split()`. In particular it respects a `group_by()`-like grouping specification, 
+  of `base::split()`. In particular, it respects a `group_by()`-like grouping specification, 
   and refuses to name its result. 
   
 ```{r}
@@ -100,22 +100,23 @@ oceania %>%
 ```
  
   - [group_by()](https://dplyr.tidyverse.org/reference/group_by.html) gains a `.drop` argument
-  which you can set to `FALSE` to respect empty groups associated with factors, more on this below. 
+  which you can set to `FALSE` to respect empty groups associated with factors (more on this below). 
 
 ## Give factors some love
 
 The internal grouping algorithm has been redesigned to make it possible to 
 better respect factor levels and empty groups. To limit the disruption, we have not made
-this the default behaviour, you have to set [group_by()](https://dplyr.tidyverse.org/reference/group_by.html)'s 
+this the default behaviour. To keep empty groups, 
+you have to set [group_by()](https://dplyr.tidyverse.org/reference/group_by.html)'s 
 `.drop` argument to `FALSE`. 
 
 This can make data manipulation more predictable and reliable, because when factors are 
 involved, the groups are based on the levels of the factors, rather than which levels 
 have data points. 
 
-Let's illustrate this with our favourite flowers, and a function `species_count()` that 
-counts the number of each specie after a `filter()`, and structures it as a tibble with one 
-column per specie. 
+Let's illustrate this with our favourite flowers `r emo::ji("flowers")`, 
+and a function, `species_count()`, that counts the number of each species after 
+a `filter()`, and structures it as a tibble with one column per species. 
 
 ```{r}
 species_count <- function(...) {
