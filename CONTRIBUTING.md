@@ -33,7 +33,6 @@ After the header, include our standard RMarkdown setup block:
 
 ````
 ```{r setup, include = FALSE}
-library(testthat)
 knitr::opts_chunk$set(
   collapse = TRUE, comment = "#>", 
   fig.width = 7, 
