@@ -43,7 +43,7 @@ knitr::opts_chunk$set(
 ```
 ````
 
-(Replace `testthat` here and below with your own package name.)
+The `library(PACKAGENAME)` call should be done explicitly in a visible code chunk.
 
 ### Photos
 
