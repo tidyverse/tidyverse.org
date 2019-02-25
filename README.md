@@ -1,3 +1,5 @@
+[![Netlify Status](https://api.netlify.com/api/v1/badges/90b72bec-4010-40b3-bce3-2d84c3fd417f/deploy-status)](https://app.netlify.com/sites/tidyverse-org/deploys)
+
 # tidyverse.org
 
 This repo is the source of <https://tidyverse.org>, and this readme tells you 
