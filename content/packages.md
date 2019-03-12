@@ -93,6 +93,8 @@ As well as [readr](https://readr.tidyverse.org), for reading flat files, the tid
 
 * [haven](https://haven.tidyverse.org) for SPSS, Stata, and SAS data.
 
+The [googledrive](https://googledrive.tidyverse.org/) package allows you to interact with files on Google Drive from R.
+
 There are a handful of other packages that are not in the tidyverse, but are tidyverse-adjacent. They are very useful for importing data from other sources:
 
 * [jsonlite](https://github.com/jeroen/jsonlite#jsonlite) for JSON.
