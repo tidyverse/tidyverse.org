@@ -1,0 +1,60 @@
+---
+title: tibble 2.1.0
+slug: tibble-2.1.0
+description: >
+    Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! This article describes and motivates the latest minor release.
+date: 2019-03-13
+author: Kirill Müller
+photo:
+  url: https://unsplash.com/photos/yaiy4mCbzw0
+  author: Ganapathy Kumar
+categories: [package]
+---
+
+
+
+
+<STYLE type='text/css' scoped>
+PRE.fansi SPAN {padding-top: .25em; padding-bottom: .25em};
+</STYLE>
+
+
+Version 2.1.0 of the *tibble* package is on CRAN now. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the latest version with:
+
+```r
+install.packages("tibble")
+```
+
+This release mostly focuses on the name repair introduced in *tibble* 2.0.1.
+Too late we realized that the implementation doesn't provide satisfactory results in an important setting: unique names for a tibble with empty column names.
+
+The initial implementation would turn these names into two dots and a number.
+These have a special meaning: they are reserved words, you can assign them a value but not query them.
+
+
+```r
+..2 <- 5
+..2
+#> Error in eval(expr, envir, enclos): ..2 used in an incorrect context, no ... to look in
+```
+
+The ability to query a value by name is very important in the tidy evaluation framework.
+Breaking this in a very common setting would cause pain to many users.
+That's why we now add yet another dot in this case.
+
+
+```r
+names(as_tibble(list(1, 2, 3), .name_repair = "unique"))
+#> New names:
+#> * `` -> ...1
+#> * `` -> ...2
+#> * `` -> ...3
+#> [1] "...1" "...2" "...3"
+```
+
+This might affect you if you use *readxl* or another package that uses the new name repair, and we're sorry for the disruption.
+We're confident that a bit of short-term pain now is better than the agony that would have come from the existent behavior.
+Also, name repair currently is in the "maturing" lifecycle, 
+Read more about name repair in the [tidyverse design principles](https://principles.tidyverse.org/names-attribute.html#the-names-attribute-of-an-object).
+
+![](/images/tibble-2.1.0/dots.jpg)
