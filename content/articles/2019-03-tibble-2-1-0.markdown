@@ -26,10 +26,9 @@ install.packages("tibble")
 ```
 
 This release mostly focuses on the name repair introduced in *tibble* 2.0.1.
-Too late we realized that the implementation doesn't provide satisfactory results in an important setting: unique names for a tibble with empty column names.
-
-The initial implementation would turn these names into two dots and a number.
-These have a special meaning: they are reserved words, you can assign them a value but not query them.
+We have specific regrets about one aspect of name repair and we think the pros of fixing it outweigh the cons.
+When a column name is completely absent, the numbered suffix we add becomes the entire name. Originally, we chose `..j` (two dots and a number), but that produces names that require special handling.
+Names of the form `..j` have a special meaning: they are reserved words, you can assign them a value but not query them.
 
 
 ```r
@@ -38,9 +37,19 @@ These have a special meaning: they are reserved words, you can assign them a val
 #> Error in eval(expr, envir, enclos): ..2 used in an incorrect context, no ... to look in
 ```
 
-The ability to query a value by name is very important in the tidy evaluation framework.
-Breaking this in a very common setting would cause pain to many users.
-That's why we now add yet another dot in this case.
+
+The ability to query a value by name is very important in the tidy evaluation framework:
+
+
+```r
+df <- tibble(`..1` = "not ok")
+with(df, `..1`)
+#> Error in eval(substitute(expr), data, enclos = parent.frame()): ..1 used in an incorrect context, no ... to look in
+dplyr::select(df, `..1`)
+#> Error in .f(.x[[i]], ...): ..1 used in an incorrect context, no ... to look in
+```
+
+Since name repair is often something that happens automatically, we think it's best to suffix with `...j` (three dots and a number) and leave people with names that are easier to work with.
 
 
 ```r
