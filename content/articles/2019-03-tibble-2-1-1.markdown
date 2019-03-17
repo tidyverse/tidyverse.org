@@ -53,13 +53,17 @@ Since name repair is often something that happens automatically, we think it's b
 
 
 ```r
-names(as_tibble(list(1, 2, 3), .name_repair = "unique"))
+as_tibble(list(1, 2, 3), .name_repair = "unique")
 #> New names:
 #> * `` -> ...1
 #> * `` -> ...2
 #> * `` -> ...3
-#> [1] "...1" "...2" "...3"
 ```
+
+<PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #949494;'># A tibble: 1 x 3</span>
+#&gt;    <span style='font-weight: bold;'>.​.​.1</span><span>  </span><span style='font-weight: bold;'>.​.​.2</span><span>  </span><span style='font-weight: bold;'>.​.​.3</span>
+#&gt;   <span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span>
+#&gt; <span style='color: #BCBCBC;'>1</span><span>     1     2     3</span></CODE></PRE>
 
 Existing names of the form `..j` (and also `...`) are repaired too:
 
@@ -72,7 +76,7 @@ tibble(... = "a", ..1 = "b", .name_repair = "unique")
 ```
 
 <PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #949494;'># A tibble: 1 x 2</span>
-#&gt;   <span style='font-weight: bold;'>...1</span><span>  </span><span style='font-weight: bold;'>...2</span><span> </span>
+#&gt;   <span style='font-weight: bold;'>.​.​.1</span><span>  </span><span style='font-weight: bold;'>.​.​.2</span><span> </span>
 #&gt;   <span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span>
 #&gt; <span style='color: #BCBCBC;'>1</span><span> a     b</span></CODE></PRE>
 
@@ -83,14 +87,14 @@ By extension, this means that names of this form are rejected unless you specify
 tibble(..1 = "a")
 ```
 
-<PRE class="fansi fansi-error"><CODE>#&gt; Error: Column 1 must not have names of the form ... or ..j.
+<PRE class="fansi fansi-error"><CODE>#&gt; Error: Column 1 must not have names of the form .​.​. or ..j.
 #&gt; Use .name_repair to specify repair.
 #&gt; Backtrace:
 #&gt; <span style='color: #555555;'>    </span><span>█</span>
 #&gt; <span style='color: #555555;'> 1. </span><span>└─tibble::tibble(..1 = "a")</span>
 #&gt; <span style='color: #555555;'> 2. </span><span>  └─tibble:::lst_to_tibble(xlq$output, .rows, .name_repair, lengths = xlq$lengths) </span><span style='color: #555555;'>/home/kirill/git/R/tibble/R/tibble.R:135:2</span>
 #&gt; <span style='color: #555555;'> 3. </span><span>    └─tibble:::set_repaired_names(x, .name_repair) </span><span style='color: #555555;'>/home/kirill/git/R/tibble/R/as_tibble.R:125:2</span>
-#&gt; <span style='color: #555555;'> 4. </span><span>      ├─[ rlang::set_names(...) ]</span><span style='color: #555555;'> with 3 more calls</span><span> </span><span style='color: #555555;'>/home/kirill/git/R/tibble/R/repair-names.R:149:2</span>
+#&gt; <span style='color: #555555;'> 4. </span><span>      ├─[ rlang::set_names(.​.​.) ]</span><span style='color: #555555;'> with 3 more calls</span><span> </span><span style='color: #555555;'>/home/kirill/git/R/tibble/R/repair-names.R:149:2</span>
 #&gt; <span style='color: #555555;'> 8. </span><span>      └─tibble:::repaired_names(names(x), .name_repair = .name_repair) </span><span style='color: #555555;'>/home/kirill/git/R/tibble/R/repair-names.R:149:2</span>
 #&gt; <span style='color: #555555;'> 9. </span><span>        └─tibble:::check_unique(new_name) </span><span style='color: #555555;'>/home/kirill/git/R/tibble/R/repair-names.R:179:4</span></CODE></PRE>
 

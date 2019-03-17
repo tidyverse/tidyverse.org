@@ -26,6 +26,7 @@ old_hooks <- fansi::set_knit_hooks(
   which = c("output", "error"),
   proc.fun = function(x, class) {
     x <- unlist(strsplit(x, "\n", fixed = TRUE))
+    x <- gsub("[.][.][.]", ".\u200b.\u200b.", x)
     fansi::html_code_block(fansi::sgr_to_html(fansi::html_esc(x)), class = class)
   }
 )
@@ -60,7 +61,7 @@ dplyr::select(df, `..1`)
 Since name repair is often something that happens automatically, we think it's best to suffix with `...j` (three dots and a number) and leave people with names that are easier to work with.
 
 ```{r repair}
-names(as_tibble(list(1, 2, 3), .name_repair = "unique"))
+as_tibble(list(1, 2, 3), .name_repair = "unique")
 ```
 
 Existing names of the form `..j` (and also `...`) are repaired too:
