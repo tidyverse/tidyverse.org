@@ -2,7 +2,7 @@
 title: tibble 2.1.1
 slug: tibble-2.1.1
 description: >
-    Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! This article describes and motivates the latest minor release.
+    tibble 2.1.1 is on CRAN now! This article describes and motivates the latest minor release of the tibble package.
 date: 2019-03-19
 author: Kirill Müller, Jenny Bryan
 photo:
@@ -26,9 +26,10 @@ install.packages("tibble")
 ```
 
 This release mostly focuses on the name repair introduced in *tibble* 2.0.1.
-We have specific regrets about one aspect of name repair and we think the pros of fixing it outweigh the cons.
-When a column name is completely absent, the numbered suffix we add becomes the entire name. Originally, we chose `..j` (two dots and a number), but that produces names that require special handling.
-Names of the form `..j` have a special meaning: they are reserved words, you can assign them a value but not query them.
+We have specific regrets about one aspect of name repair and we think the pros of fixing it outweigh the cons:
+When a column name is completely absent, the numbered suffix we add becomes the entire name.
+Originally, we chose `..j` (two dots and a number).
+However, that produces names that require special handling, because names of the form `..j` have a special meaning: they are reserved words, you can assign them a value but not query them.
 
 
 ```r
@@ -60,10 +61,10 @@ as_tibble(list(1, 2, 3), .name_repair = "unique")
 #> * `` -> ...3
 ```
 
-<PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #949494;'># A tibble: 1 x 3</span>
-#&gt;    <span style='font-weight: bold;'>.​.​.1</span><span>  </span><span style='font-weight: bold;'>.​.​.2</span><span>  </span><span style='font-weight: bold;'>.​.​.3</span>
-#&gt;   <span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span>
-#&gt; <span style='color: #BCBCBC;'>1</span><span>     1     2     3</span></CODE></PRE>
+<PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #555555;'># A tibble: 1 x 3</span>
+#&gt;    .​.​.1  .​.​.2  .​.​.3
+#&gt;   <span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span>
+#&gt; <span style='color: #555555;'>1</span><span>     1     2     3</span></CODE></PRE>
 
 Existing names of the form `..j` (and also `...`) are repaired too:
 
@@ -75,37 +76,25 @@ tibble(... = "a", ..1 = "b", .name_repair = "unique")
 #> * `..1` -> ...2
 ```
 
-<PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #949494;'># A tibble: 1 x 2</span>
-#&gt;   <span style='font-weight: bold;'>.​.​.1</span><span>  </span><span style='font-weight: bold;'>.​.​.2</span><span> </span>
-#&gt;   <span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span>
-#&gt; <span style='color: #BCBCBC;'>1</span><span> a     b</span></CODE></PRE>
+<PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #555555;'># A tibble: 1 x 2</span>
+#&gt;   .​.​.1  .​.​.2 
+#&gt;   <span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span>
+#&gt; <span style='color: #555555;'>1</span><span> a     b</span></CODE></PRE>
 
 By extension, this means that names of this form are rejected unless you specify a name repair strategy:
 
 
 ```r
 tibble(..1 = "a")
-```
-
-<PRE class="fansi fansi-error"><CODE>#&gt; Error: Column 1 must not have names of the form .​.​. or ..j.
-#&gt; Use .name_repair to specify repair.
-#&gt; Backtrace:
-#&gt; <span style='color: #555555;'>    </span><span>█</span>
-#&gt; <span style='color: #555555;'> 1. </span><span>└─tibble::tibble(..1 = "a")</span>
-#&gt; <span style='color: #555555;'> 2. </span><span>  └─tibble:::lst_to_tibble(xlq$output, .rows, .name_repair, lengths = xlq$lengths) </span><span style='color: #555555;'>/home/kirill/git/R/tibble/R/tibble.R:135:2</span>
-#&gt; <span style='color: #555555;'> 3. </span><span>    └─tibble:::set_repaired_names(x, .name_repair) </span><span style='color: #555555;'>/home/kirill/git/R/tibble/R/as_tibble.R:125:2</span>
-#&gt; <span style='color: #555555;'> 4. </span><span>      ├─[ rlang::set_names(.​.​.) ]</span><span style='color: #555555;'> with 3 more calls</span><span> </span><span style='color: #555555;'>/home/kirill/git/R/tibble/R/repair-names.R:149:2</span>
-#&gt; <span style='color: #555555;'> 8. </span><span>      └─tibble:::repaired_names(names(x), .name_repair = .name_repair) </span><span style='color: #555555;'>/home/kirill/git/R/tibble/R/repair-names.R:149:2</span>
-#&gt; <span style='color: #555555;'> 9. </span><span>        └─tibble:::check_unique(new_name) </span><span style='color: #555555;'>/home/kirill/git/R/tibble/R/repair-names.R:179:4</span></CODE></PRE>
-
-```r
+#> Error: Column 1 must not have names of the form ... or ..j.
+#> Use .name_repair to specify repair.
 tibble(..1 = "a", .name_repair = "minimal")
 ```
 
-<PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #949494;'># A tibble: 1 x 1</span>
-#&gt;   <span style='font-weight: bold;'>..1</span><span>  </span>
-#&gt;   <span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span>
-#&gt; <span style='color: #BCBCBC;'>1</span><span> a</span></CODE></PRE>
+<PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span>
+#&gt;   ..1  
+#&gt;   <span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span>
+#&gt; <span style='color: #555555;'>1</span><span> a</span></CODE></PRE>
 
 For consistency, three dots are used for all disambiguating suffixes, not only for empty names.
 

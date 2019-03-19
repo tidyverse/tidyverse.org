@@ -2,7 +2,7 @@
 title: tibble 2.1.1
 slug: tibble-2.1.1
 description: >
-    Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! This article describes and motivates the latest minor release.
+    tibble 2.1.1 is on CRAN now! This article describes and motivates the latest minor release of the tibble package.
 date: 2019-03-19
 author: Kirill Müller, Jenny Bryan
 photo:
@@ -15,7 +15,6 @@ categories: [package]
 ```{r setup, include = FALSE}
 library(tidyverse)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", error = TRUE)
-options(rlang_trace_top_env = .GlobalEnv)
 
 options(crayon.enabled = TRUE)
 ```
@@ -41,8 +40,9 @@ install.packages("tibble")
 
 This release mostly focuses on the name repair introduced in *tibble* 2.0.1.
 We have specific regrets about one aspect of name repair and we think the pros of fixing it outweigh the cons:
-When a column name is completely absent, the numbered suffix we add becomes the entire name. Originally, we chose `..j` (two dots and a number), but that produces names that require special handling.
-Names of the form `..j` have a special meaning: they are reserved words, you can assign them a value but not query them.
+When a column name is completely absent, the numbered suffix we add becomes the entire name.
+Originally, we chose `..j` (two dots and a number).
+However, that produces names that require special handling, because names of the form `..j` have a special meaning: they are reserved words, you can assign them a value but not query them.
 
 ```{r assign-dot-dot, error = TRUE}
 ..2 <- 5
@@ -72,7 +72,7 @@ tibble(... = "a", ..1 = "b", .name_repair = "unique")
 
 By extension, this means that names of this form are rejected unless you specify a name repair strategy:
 
-```{r repair-dots-minimal, error = TRUE}
+```{r repair-dots-minimal}
 tibble(..1 = "a")
 tibble(..1 = "a", .name_repair = "minimal")
 ```
