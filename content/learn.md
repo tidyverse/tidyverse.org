@@ -45,6 +45,11 @@ Take a look at [all tidyverse courses](https://www.datacamp.com/tidyverse-tutori
 
 * [Exploratory data analysis in R: case study](https://www.datacamp.com/courses/exploratory-data-analysis-in-r-case-study?tap_a=5644-dce66f&tap_s=213362-c9f98c) by David Robinson, hosted on DataCamp. This course brings ggplot2 and dplyr into action in an in-depth analysis of United Nations voting data. The course also introduces broom for tidying model output and the tidyr package for wrangling data into an explorable shape.
 
+## Quick Starter Guides
+
+* [Getting Started in R - Tidyverse Edition](https://github.com/saghirb/Getting-Started-in-R) by Saghir Bashir. A short introduction to R and the tidyverse. Great and quick way to learn some basics about the tidyverse.
+* [Tidyverse Case Study: Women in Parliament Data](https://github.com/saghirb/WiP-tidyverse) by Saghir Bashir. A short guide demonstrating dplyr, tidyr and ggplot2 packages using real-life data.
+
 ## Workshops
 
   * [Mastering the Tidyverse](https://www.jumpingrivers.com/courses/22_r-tidyverse) by Jumping Rivers. A one day crash course covering tidyverse fundamentals. The course is a mixture of lectures, short exercises and longer tutorial questions. During the day, we'll cover dplyr, tidy data, tibbles, dates/times and string manipulation.
