@@ -110,7 +110,7 @@ output to the check results, making check failures much easier to see.
 
 <p align="center">
 <a href="https://github.com/r-lib/rcmdcheck">
-<img src="https://raw.githubusercontent.com/r-lib/rcmdcheck/master/inst/rcmdcheck.gif" alt="rcmdcheck output" width="700">
+<img src="https://raw.githubusercontent.com/r-lib/rcmdcheck/e2be6b3111c56ac33a2fb89c773d96eafe6dfa22/tools/rcmdcheck.gif" alt="rcmdcheck output" width="700">
 </a>
 </p>
 
