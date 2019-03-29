@@ -12,16 +12,9 @@ photo:
   author: chuttersnap
 ---
 
-```{r setup, include = FALSE}
-library(ggplot2)
-library(tibble)
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
 
-We’re happy to announce the release of 
+
+We're thrilled to announce the release of 
 [ggplot2 3.1.0](https://ggplot2.tidyverse.org) on CRAN. ggplot2 is a system for 
 declaratively creating graphics, based on The Grammar of Graphics. You provide 
 the data, tell ggplot2 how to map variables to aesthetics, what graphical 
@@ -82,7 +75,10 @@ this (or, potentially, polygons within the holes and so on). There will not be
 performed any checks on the position of the subgroups, so it is the 
 responsibility of the user to make sure they are inside the outer ring.
 
-```{r}
+
+```r
+library(ggplot2)
+library(tibble)
 radians <- seq(0, 2 * pi, length.out = 101)[-1]
 circle <- tibble(
   x = c(cos(radians), cos(radians) * 0.5),
@@ -94,11 +90,14 @@ ggplot(circle) +
                fill = 'firebrick', colour = 'black')
 ```
 
+<img src="/articles/2019-03-ggplot2-3-2-0_files/figure-html/unnamed-chunk-1-1.png" width="700px" style="display: block; margin: auto;" />
+
 `geom_rug` has seen a range of improvements to give users more control over the
 appearance of the rug lines. Now, both the length, as well as whether to 
 position them inside or outside of the plot region can be controled:
 
-```{r}
+
+```r
 ggplot(mtcars, aes(x = wt, y = mpg)) +
   geom_point() + 
   geom_rug(sides = 'tr', length = unit(1, 'mm'), outside = TRUE) + 
@@ -106,11 +105,14 @@ ggplot(mtcars, aes(x = wt, y = mpg)) +
   coord_cartesian(clip = 'off')
 ```
 
+<img src="/articles/2019-03-ggplot2-3-2-0_files/figure-html/unnamed-chunk-2-1.png" width="700px" style="display: block; margin: auto;" />
+
 Aesthetics will now accept a function returning `NULL` and treat it as setting
 the aesthetic to `NULL`. This can make it easier to program with ggplot2 e.g. 
 by catching errors from non-existing variables:
 
-```{r}
+
+```r
 df <- data.frame(x = 1:10, y = 1:10)
 wrap <- function(...) tryCatch(..., error = function(e) NULL)
 
@@ -118,16 +120,21 @@ ggplot(df, aes(x, y, colour = wrap(no_such_column))) +
   geom_point()
 ```
 
+<img src="/articles/2019-03-ggplot2-3-2-0_files/figure-html/unnamed-chunk-3-1.png" width="700px" style="display: block; margin: auto;" />
+
 Lastly, the `stat_function()` gains the ability to accept purrr-style lambda 
 functions. The use of the formula notation for creating lambda functions has
 become widespread and it is only natural that ggplot2 accepts it as well:
 
-```{r}
+
+```r
 df <- data.frame(x = 1:10, y = (1:10)^2)
 ggplot(df, aes(x, y)) + 
   geom_point() +
   stat_function(fun = ~ .x^2)
 ```
+
+<img src="/articles/2019-03-ggplot2-3-2-0_files/figure-html/unnamed-chunk-4-1.png" width="700px" style="display: block; margin: auto;" />
 
 ## Minor fixes and improvements
 `coord_sf` now behaves as the other coords in relation to how it draws grid 
@@ -136,8 +143,11 @@ coordinate systems, and that it can be turned off through the theming system.
 You may see slight visual changes when using `geom_sf` as the default grid lines
 was slightly thicker in `coord_sf` before this change.
 
-```{r}
+
+```r
 library(sf) 
+#> Warning: package 'sf' was built under R version 3.5.2
+#> Linking to GEOS 3.6.1, GDAL 2.1.3, PROJ 4.9.3
 
 nc <- st_read(system.file("gpkg/nc.gpkg", package = "sf"), quiet = TRUE) 
 
@@ -145,6 +155,8 @@ ggplot(nc) +
   geom_sf(data = nc, aes(fill = AREA)) + 
   theme_void()
 ```
+
+<img src="/articles/2019-03-ggplot2-3-2-0_files/figure-html/unnamed-chunk-5-1.png" width="700px" style="display: block; margin: auto;" />
 
 The automatic naming of scales has been refined and no longer contains backticks
 when the scale name is based on a complex aesthetic expression (e.g. 
