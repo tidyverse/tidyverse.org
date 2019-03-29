@@ -29,7 +29,7 @@ users. For a full overview of the changes, please see the
 [release notes](https://ggplot2.tidyverse.org/news/index.html).
 
 This release also includes a range of contributions made during our tidyverse
-developer day in Austing, many from first-time contributers. We hope they've
+developer day in Austin, many from first-time contributors. We hope they've
 become inspired to continue taking part in the development.
 
 Lastly, this release also sees the entrance of Hiroaki Yutani into the core
@@ -46,10 +46,10 @@ also include changes in [gtable](https://gtable.r-lib.org),
 version of all of these packages to get the full benefit of the improvements.
 
 ### geom_sf
-While most changes are general, `geom_sf()` has recieved special attention, as 
+While most changes are general, `geom_sf()` has received special attention, as 
 it's performance have been less stellar compared to the rest of ggplot2. Most of
 this comes down to how `geom_sf()` converted its input to grobs, which was done
-row by row. This meant that plotting 10.000 `ST_POINT` objects woul create 
+row by row. This meant that plotting 10.000 `ST_POINT` objects would create 
 10.000 point grobs instead of a single grob containing 10.000 points. The same
 was true for all other data types. With the new release ggplot2 will try to 
 pack all object into a single grob, which is possible if all objects are of the
@@ -58,18 +58,18 @@ a single grob will only be possible when the next release of R is available, but
 all other types are otherwise supported. If the data contains a mix of types 
 ggplot2 will fall back to creating a grob per row, but this is a much less 
 frequent situation. The other big performance bottleneck in plotting sf data was
-the normalisation of the coordinates. As sf stores its data in nested lists the
-standard vectorisation in R doesn't apply, which led to much worse performance
-compared to normalising data stored on standard data.frame format. The new 
-release of sf includes optimised functions for these operations implemented in C
-so plotting performace has improved immensely.
+the normalization of the coordinates. As sf stores its data in nested lists the
+standard vectorization in R doesn't apply, which led to much worse performance
+compared to normalizing data stored on standard data.frame format. The new 
+release of sf includes optimized functions for these operations implemented in C
+so plotting performance has improved immensely.
 
 ## New features
 With this release, and pending the release of R 3.6.0, ggplot2 gains the ability
 to plot polygons with holes. Rather than providing a new geom, the functionality
 is build into `geom_polygon()` through a new `subgroup` aesthetic. Much as the
 `group` aesthetic separates polygons in the data, the `subgroup` aesthetic 
-separates parts of each polygon. The first occuring subgroup should always be 
+separates parts of each polygon. The first occurring subgroup should always be 
 the outer ring of the polygon and any subsequent subgroup will describe holes in
 this (or, potentially, polygons within the holes and so on). There will not be
 performed any checks on the position of the subgroups, so it is the 
@@ -94,7 +94,7 @@ ggplot(circle) +
 
 `geom_rug` has seen a range of improvements to give users more control over the
 appearance of the rug lines. Now, both the length, as well as whether to 
-position them inside or outside of the plot region can be controled:
+position them inside or outside of the plot region can be controlled:
 
 
 ```r
@@ -158,7 +158,7 @@ ggplot(nc) +
 
 <img src="/articles/2019-03-ggplot2-3-2-0_files/figure-html/unnamed-chunk-5-1.png" width="700px" style="display: block; margin: auto;" />
 
-The automatic naming of scales has been refined and no longer contains backticks
+The automatic naming of scales has been refined and no longer contains back-ticks
 when the scale name is based on a complex aesthetic expression (e.g. 
 `aes(x = a + b)`). Again, this may result in slight changes to the visual 
 appearance of plots, but only on a very superficial level.
