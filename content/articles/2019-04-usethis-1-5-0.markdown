@@ -128,17 +128,24 @@ A new experimental family of `pr_*()` functions makes GitHub pull requests (PR) 
 
 We've made usethis easier for others to wrap and extend:
 
-  * usethis is very chatty and this is now under the control of the option `usethis.quiet`. It's easier for a wrapper to muffle usethis's messaging or temporarily toggle it with functions like `withr::with_options()` or `withr::local_options()`.
+  * usethis is very chatty and this is now under the control of the option `usethis.quiet`. This makes it easier for a wrapper to muffle usethis's messaging or to temporarily toggle it with functions like `withr::with_options()` or `withr::local_options()`.
   * Project-related helpers `proj_path()`, `with_project()`, `local_project()`, and `proj_activate()` are exported.
   * File editing helpers `edit_file()`, `write_over()`, and `write_union()` are exported.
   * `use_template()` can use a template file stored in any package, not just usethis.
 
-We've also exported the `ui_*()` functions that implement usethis's messaging, conditions, and interactive menus. This is in response to repeated community requests. These functions benefit greatly from the [glue](https://glue.tidyverse.org) and [crayon](https://github.com/r-lib/crayon#readme) packages to provide nifty features like string interpolation and formatting:
+We've also exported the `ui_*()` functions that implement usethis's messaging, conditions, and interactive menus. This is in response to repeated community requests. These functions benefit greatly from the [glue](https://glue.tidyverse.org) and [crayon](https://github.com/r-lib/crayon#readme) packages to provide nifty features like string interpolation and formatting.
 
-  * block styles: `ui_line()`, `ui_done()`, `ui_todo()`, `ui_oops()`, `ui_info()`.
-  * conditions: `ui_stop()`, `ui_warn()`.
-  * questions: `ui_yeah()`, `ui_nope()`.
-  * inline styles: `ui_field()`, `ui_value()`, `ui_path()`, `ui_code()`.
+There are inline styles (`ui_field()`, `ui_value()`, `ui_path()`, `ui_code()`), which can be used within the block styles (`ui_line()`, `ui_done()`, `ui_todo()`, `ui_oops()`, `ui_info()`). Some example usage (flanking newlines added for readability):
+
+<p><img src="/images/usethis-1.5.0/ui-done-todo-oops-info.png"/></p>
+
+`ui_stop()` and `ui_warn()` raise the associated condition, but with the same features for the message:
+
+<p><img src="/images/usethis-1.5.0/ui-stop-warn.png"/></p>
+
+Finally, `ui_yeah()` and `ui_nope()` facilitate control flow based on user input:
+
+<p><img src="/images/usethis-1.5.0/ui-nope-yeah.png"/></p>
 
 These functions may ultimately move to a more appropriate home, so we can use them to create a more consistent UI across a broad set of tidyverse, r-lib, and tidymodels packages.
 
