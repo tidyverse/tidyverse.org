@@ -10,8 +10,6 @@ The best place to start learning the tidyverse is [R for Data Science](http://r4
 
 We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstudio.com/resources/cheatsheets/). These cheatsheets have been carefully designed to pack a lot of information into a small amount of space. You can keep them handy at your desk and quickly jog your memory when you get stuck. Most of the cheatsheets have been translated into multiple languages.
 
-(_Do you have a book you'd like to see listed here? Please submit a [pull request](https://github.com/tidyverse/tidyverse.org/edit/master/content/learn.md)!_)
-
 <h2 class='stopFloatBefore' id="books">Books</h2>
 
 * [ModernDive: An Introduction to Statistical and Data Sciences via R](http://moderndive.com/) by
