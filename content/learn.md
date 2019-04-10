@@ -2,6 +2,14 @@
 title: Learn the tidyverse
 ---
 
+<!----- CSS rules to get rid of CONTENTS header on this page only ---->
+<style type = "text/css">
+.hideOnMobile .sectionTitle {
+    display: none;
+}
+</style>
+
+<!----- Page content ---->
 <a href="http://amzn.to/2aHLAQ1"><img class="bookCover" style="width:200px" src="../images/cover.png" width="80" alt=""></a>
 
 <h2 class='noTrickPadding' id='r4ds'>R for data science</h2>
