@@ -30,12 +30,12 @@ community that `group_map()` was great, except it didn't do what they had expect
 Because the function was (and still is) marked as experimental, we allowed ourselves to 
 rectify the situation: 
 
- - The behaviour we previously had was renamed `group_modify()`.
- 
  - The name `group_map()` is now used for iterating on groups of grouped tibbles, 
-   making no assumptions about the return type of each operation and combining the results in 
-   a list. 
-   
+   characterised by `.x` and `.y` as before, but making no assumptions about the return 
+   type of each operation and combining the results in a *list*. We can see this as 
+   iterating, in the [purrr::map()](https://purrr.tidyverse.org/reference/map.html) 
+   sense on the groups. 
+
 
 ```r
 library(dplyr, warn.conflicts = FALSE)
@@ -55,7 +55,15 @@ iris %>%
 #> [[3]]
 #>   25%   50%   75% 
 #> 5.100 5.550 5.875
+```
 
+ - The behaviour we previously had was renamed `group_modify()` to loosely echo 
+   [purrr::modify()](https://purrr.tidyverse.org/reference/modify.html). In particular, 
+   `group_modify()` always returns a grouped tibble, which combines the tibbles returned
+   by evaluating each operation with a reconstructed grouping structure. 
+ 
+
+```r
 # to use group_modify() the lambda must return a data frame
 iris %>%
   group_by(Species) %>%
