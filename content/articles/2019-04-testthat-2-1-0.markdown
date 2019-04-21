@@ -15,7 +15,7 @@ photo:
 
 
 
-We're happy to announce the release of [testthat 2.1.0](http://testthat.r-lib.org) is now available on CRAN! Testthat makes it easy to turn your existing informal tests into formal automated tests that you can rerun quickly and easily. testthat is the most popular unit testing package for R, and is used by over 4000 CRAN and Bioconductor packages and by many more [Github packages](https://github.com/search?q=filename%3Atestthat.R). Learn more about unit testing at <http://r-pkgs.had.co.nz/tests.html>. 
+We're happy to announce that [testthat 2.1.0](http://testthat.r-lib.org) is now available on CRAN! Testthat makes it easy to turn your existing informal tests into formal automated tests that you can rerun quickly and easily. testthat is the most popular unit testing package for R, and is used by over 4,000 CRAN and Bioconductor packages. You can learn more about unit testing at <https://r-pkgs.org/tests.html>. 
 
 Install the latest version of testthat with:
 
@@ -24,23 +24,24 @@ Install the latest version of testthat with:
 install.packages("testthat")
 ```
 
-testthat 2.1.0 is contains a large number of minor improvements and bug fixes, as described in the [release notes](https://github.com/r-lib/testthat/releases/tag/v2.1.0). This blog post discusses two highlights:
+testthat 2.1.0 mostly contains a large number of minor improvements and bug fixes, as described in the [release notes](https://github.com/r-lib/testthat/releases/tag/v2.1.0). This blog post discusses the bigger improvements:
 
-* `context()` is now optional.
+* `context()`s are now optional.
 
-* Four new expectations: `expect_visible()`/`expect_invisible()`, 
-  `expect_mapequal()` and `expect_vector()`
+* Two new expectations: `expect_invisible()` and `expect_mapequal()`.
   
 ## `context()` is now optional
 
-The biggest change in this version is that `context()` is now optional, and we recommend that you no longer use it (and you may want to remove it from existing code). 
-A little too flexible - possible to have 0, 1, or more contexts in one file. But what do you actually call the context? It's a decision that you have to make with no clear guidance. Related to how do you divide your tests into multiple files?
+The biggest change in this version is that `context()` is now optional, and in fact we recommend that you no longer use it. `context()` made sense with the original design of testthat, which supported a very flexible mapping between your R code the corresponding tests. 
 
-Now we have clearer advice: you should organise the files in `tests/testthat` in the same way that you organise the files in `R/`, so that tests for code in `R/my-file.R` should live in `tests/testthat-my-file.R`. (This begs the question of how you should organise your your `R/` directory, which we don't have a good answer for either, but at least you only need to struggle to organise one directory now). With this convention, `context()` tends to end up duplicating the same infromation as the file name in another place, rendering it mostly pointless.
+Now, however, we have a stronger recommendation: organise the files in `tests/testthat` in the same way that you organise the files in `R/`, so that tests for code in `R/my-file.R` should live in `tests/testthat-my-file.R`. (This begs the question of how you should organise your your `R/` directory, which we don't have a good answer for yet, but at least you only need to struggle to organise one directory). With this convention, `context()` tends to end up duplicating the file name, causing needless hassle if you reorganise your code structure.
 
-This convention is connected to two other important functions:
+The convention that ever file in `R/` have a corresponding file in `tests/testthat` (and vice versa) is used by two other helpful functions:
 
-* `usethis::use_test()`: if you're use RStudio, this will automatically create an open a test file in the right location. (`usethis::use_test()` has already been designed with this in mind: once you have testthat 2.1.0, it will no longer autogenerate a `context()` at the top of the file.)
+* `usethis::use_test()`, which, if you're use RStudio, will automatically
+  creates and opens a test file corresponding to the R file in the right
+  location. (If you've written the test file first, you can instead use
+  `usethis::use_r()`)
 
 * `devtools::test_coverage_file()`: again, if you use RStudio, this will look 
   at the active file, run just the tests for that file, and report the coverage
@@ -54,12 +55,12 @@ This convention is connected to two other important functions:
 library(testthat)
 ```
 
-This version of testthat introduces four new expectations:
+This version of testthat introduces two important new expectations:
 
-*   New `expect_visible()` and `expect_invisible()` make it easier to check if
-    a function call returns its result visibly or invisibly. This is useful
-    if you are testing a function that is called primarily for its side-effects
-    which should (as a general rule) invisibly return its first argument.
+*   `expect_invisible()` makes it easier to check if a function returns its
+    results invisibly. This is useful if you are testing a function that is
+    called primarily for its side-effects which should (as a general rule)
+    invisibly return its first argument.
     
     
     ```r
@@ -73,8 +74,13 @@ This version of testthat introduces four new expectations:
     expect_equal(x, "Hadley")
     ```
     
+    For symmetry, `expect_visible()` is also available, but you would not
+    generally test for it, as visible return values are the default. 
+    Only use it if you find a bug related to visibilty and want to
+    programmatically verify that that it's fixed.
+    
 *   New `expect_mapequal(x, y)` checks that `x` and `y` have the same names,
-    and the same value associated with each name (i.e. they compare the values
+    and the same value associated with each name (i.e. it compares the values
     of the vector standardising the order of the names). 
     
     
@@ -90,6 +96,15 @@ This version of testthat introduces four new expectations:
     #> Component "a": Mean relative difference: 0.6666667
     expect_mapequal(list(a = 1, b = 2, c = 3), exp)
     #> Error: Names absent from `expected`: "c",
+    ```
+    
+    `expect_mapequal()` is related to `expect_setequal()`, which compares 
+    values, ignoring order and count:
+    
+    
+    ```r
+    expect_setequal(c("a", "b"), c("b", "a"))
+    expect_setequal(c("a", "b"), c("a", "a", "b"))
     ```
 
 ## Acknowledgements
