@@ -23,7 +23,11 @@ The tidyverse team will be on hand to help out and answer your questions.
 
 ## Tickets 🎫
 
-<!---- MGA: add once Hadley has link ---->
+Tickets are [**on sale
+now**!](https://www.eventbrite.com/e/tidyverse-developer-day-tickets-51757053741)
+
+Tickets cost &#x20ac;10; we're charging a small fee because space is limited. All fees
+will be donated to a non-profit (TBD).
 
 ## Code of conduct
 
