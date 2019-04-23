@@ -18,7 +18,7 @@ Our first [tidyverse developer day](https://www.tidyverse.org/articles/2018/11/t
  * 📍 **Where:** The same location as useR!, [the congress centre "Pierre Baudis"](https://www.centre-congres-toulouse.fr/fr).
  * 👥 **Who:** Anyone who would like to get better at contributing to the tidyverse! Everyone is welcome regardless of whether you've never done a PR before, or if you've already made your 10th package.
  * 💻 **What:** A day of learning and coding. We'll provide
-breakfast, lunch, snacks, and coffee; you'll bring your laptop and enthusiasm.
+lunch, snacks, and coffee; you'll bring your laptop and enthusiasm.
 The tidyverse team will be on hand to help out and answer your questions.
 
 ## Tickets 🎫
