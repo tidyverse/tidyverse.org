@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-We're stoked to announce the release of dbplyr 1.4.0, the database backend for dplyr that translates R code into SQL. dbplyr allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr turns it into SQL for you.
+We're stoked to announce the release of [dbplyr 1.4.0](https://dbplyr.tidyverse.org), the database backend for dplyr that translates R code into SQL. dbplyr allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr turns it into SQL for you.
 
 You can install the released version from CRAN:
 
@@ -30,7 +30,7 @@ You can install the released version from CRAN:
 install.packages("dbplyr")
 ```
 
-While there are a large number of small improvements and bug fixes (see the full full details in the [changelog](https://dbplyr.tidyverse.org/news/index.html)), the biggest improvements in this release are related to SQL generation. In this blog post, I'll show you how find out what dplyr is doing behind the scenes, discuss some major simplifications to the SQL that dbplyr generates, and then show off a few of the new function translations.
+While there are many small improvements and bug fixes (see the full full details in the [changelog](https://dbplyr.tidyverse.org/news/index.html)), the biggest improvements in this release are related to SQL generation. In this blog post, I'll show you how find out what dplyr is doing behind the scenes, discuss some major simplifications to the SQL that dbplyr generates, and then show off a few of the new function translations.
 
 To get started, I'll load dplyr and dbplyr:
 
@@ -41,7 +41,7 @@ library(dbplyr)
 
 ## SQL simulation
 
-This version of dbplyr substantially improves the tools that allow you to see what SQL dbplyr generates without needing to connect to a live database. You won't generally need these tools for real data, but they're very useful for blog posts (like this one!), for for generating reprexes (as discussed in the new [`vignette("reprex")`](https://dbplyr.tidyverse.org/articles/reprex.html)), and dbplyr's internal tests. 
+This version of dbplyr substantially improves the tools that allow you to see what SQL dbplyr generates without needing to connect to a live database. You won't generally need these tools for real data, but they're very useful for blog posts (like this one!), for generating reprexes (as discussed in the new [`vignette("reprex")`](https://dbplyr.tidyverse.org/articles/reprex.html)), and for dbplyr's internal tests. 
 
 The basic idea is that you can create a "lazy" frame:
 
@@ -85,7 +85,7 @@ When you don't specify a connection, dplyr uses its standard translation, which 
 Two improvements have considerably reduced the number of subqueries that dbplyr needs:
 
 *   Joins, semi joins, and set operations no longer add additional unneeded
-    subqueries and now generate the minimum set:
+    subqueries, and now generate the minimum set:
 
     ```{r}
     df1 <- lazy_frame(x = 1, y = 2, a = 2)
@@ -99,7 +99,7 @@ Two improvements have considerably reduced the number of subqueries that dbplyr 
     ```
 
 *   Many sequences of `mutate()`, `select()`, `rename()`, and `transmute()`
-    steps are be collapsed into a single query: 
+    steps are collapsed into a single query: 
 
     ```{r}
     df <- lazy_frame(x = 1, y = 2)
@@ -128,9 +128,9 @@ I touch on this advantage of dbplyr over SQL in a new vignette, [`vignette("sql"
 
 ## SQL translation
 
-As well as improving the translation of high-level dplyr functions, we've also considerably added to the set of low-level vector functions that dbplyr can translate. Firstly, [MySQL][mysql-window] (>= 8.0), [MariaDB][maria-window] (>= 10.2) and [SQLite][sqlite-window] (>3.25) support for [window functions](https://dbplyr.tidyverse.org/dev/articles/translation-function.html#window-functions). These allow you to use summary functions (like `mean()` or `sum()`) inside of `mutate()`, as well as unlocking useful function like `min_rank()`, `first()`, and `lead()`/`lag()`.
+As well as improving the translation of high-level dplyr functions, we've also considerably added to the set of low-level vector functions that dbplyr can translate. Firstly, [MySQL][mysql-window] (>= 8.0), [MariaDB][maria-window] (>= 10.2) and [SQLite][sqlite-window] (>3.25) gain support for [window functions](https://dbplyr.tidyverse.org/dev/articles/translation-function.html#window-functions). These allow you to use summary functions (like `mean()` or `sum()`) inside of `mutate()`, as well as unlocking useful function like `min_rank()`, `first()`, and `lead()`/`lag()`.
 
-Thanks to [Cole Arendt](http://github.com/colearendt), dbplyr now supports translations for a selection of useful functions from stringr (`str_c()`, `str_sub()`, `str_length()`, `str_to_upper()`, `str_to_lower()`, and `str_to_title()`.) and lubridate ( `today()`, `now()`, `year()`, `month()` (numeric value only), `day()`, `hour()`, `minute()`, `second()`) :
+Thanks to [Cole Arendt](http://github.com/colearendt), dbplyr now supports translations for a selection of useful functions from stringr (`str_c()`, `str_sub()`, `str_length()`, `str_to_upper()`, `str_to_lower()`, and `str_to_title()`), and lubridate ( `today()`, `now()`, `year()`, `month()` (numeric value only), `day()`, `hour()`, `minute()`, `second()`):
 
 ```{r}
 df <- lazy_frame(name = character(), birthday = character())
