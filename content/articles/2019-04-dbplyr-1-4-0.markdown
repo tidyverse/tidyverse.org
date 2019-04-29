@@ -1,12 +1,15 @@
 ---
 title: dbplyr 1.4.0
 author: Hadley Wickham
-date: '2019-04-20'
+date: '2019-04-30'
 slug: dbplyr-1-4-0
 categories:
   - package
 tags:
   - databases
+photo:
+  url: https://unsplash.com/photos/JuFcQxgCXwA
+  author: Samuel Zeller
 ---
 
 
@@ -32,7 +35,7 @@ library(dbplyr)
 
 ## SQL simulation
 
-This version of dbplyr substantially improves the tools that allow you to see what SQL dbplyr generates, without needing to connect to a real database. You won't generally need to use them for real data, but they're very useful for blog posts (like this one!), for for generating reprexes (as discussed in the new [`vignette("reprex")`](https://dbplyr.tidyverse.org/dev/articles/reprex.html)), and for internal tests. 
+This version of dbplyr substantially improves the tools that allow you to see what SQL dbplyr generates without needing to connect to a live database. You won't generally need these tools for real data, but they're very useful for blog posts (like this one!), for for generating reprexes (as discussed in the new [`vignette("reprex")`](https://dbplyr.tidyverse.org/articles/reprex.html)), and dbplyr's internal tests. 
 
 The basic idea is that you can create a "lazy" frame:
 
@@ -69,7 +72,7 @@ df1 %>%
 
 (This example also highlights another small improvement to dbplyr: it'll only warn you about missing values being automatically removed in the database once per session.)
 
-Importantly, `lazy_frame()` has a `con` argument that allows you to specify which database should be used for the translation. This makes it easier to see the differences in generation across databases:
+Importantly, `lazy_frame()` has a `con` argument that allows you to specify which database should be used for the translation. This makes it easier to see the differences in SQL generation between databases:
 
 
 ```r
@@ -235,6 +238,7 @@ lazy_frame(x = list()) %>%
 #> SELECT `x`, `x`.`y`.`z` AS `z`
 #> FROM `df`
 ```
+
 ## Acknowledgements
 
 As always, a big thank goes to the entire community who helped make this release of dbplyr a reality - I really appreciated all your bug reports, helpful comments, SQL suggestions, and pull requests!
