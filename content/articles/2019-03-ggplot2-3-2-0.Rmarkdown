@@ -37,7 +37,7 @@ A large part of this release relates to internal changes intended to speed up gg
 While most changes are general, `geom_sf()` has received special attention, as it's performance have been less stellar compared to the rest of ggplot2. Most of this comes down to how `geom_sf()` converted its input to grobs, which was done row by row. This meant that plotting 10.000 `ST_POINT` objects would create 10.000 point grobs instead of a single grob containing 10.000 points. The same was true for all other data types. With the new release ggplot2 will try to pack all object into a single grob, which is possible if all objects are of the same type (`MULTI*` types can be mixed with scalar types). Packing polygons into a single grob will only be possible when the next release of R is available, but all other types are otherwise supported. If the data contains a mix of types ggplot2 will fall back to creating a grob per row, but this is a much less frequent situation. The other big performance bottleneck in plotting sf data was the normalization of the coordinates. As sf stores its data in nested lists the standard vectorization in R doesn't apply, which led to much worse performance compared to normalizing data stored on standard data.frame format. The new release of sf includes optimized functions for these operations implemented in C so plotting performance has improved immensely.
 
 ## New features
-With this release, and pending the release of R 3.6.0, ggplot2 gains the ability to plot polygons with holes. Rather than providing a new geom, the functionality is build into `geom_polygon()` through a new `subgroup` aesthetic. Much as the `group` aesthetic separates polygons in the data, the `subgroup` aesthetic separates parts of each polygon. The first occurring subgroup should always be the outer ring of the polygon and any subsequent subgroup will describe holes in this (or, potentially, polygons within the holes and so on). There will not be performed any checks on the position of the subgroups, so it is the responsibility of the user to make sure they are inside the outer ring.
+With this release, ggplot2 gains the ability to plot polygons with holes (only in R 3.6 and later). Rather than providing a new geom, the functionality is build into `geom_polygon()` through a new `subgroup` aesthetic. Much as the `group` aesthetic separates polygons in the data, the `subgroup` aesthetic separates parts of each polygon. The first occurring subgroup should always be the outer ring of the polygon and any subsequent subgroup will describe holes in this (or, potentially, polygons within the holes and so on). There will not be performed any checks on the position of the subgroups, so it is the responsibility of the user to make sure they are inside the outer ring.
 
 ```{r, warning=FALSE}
 library(ggplot2)
@@ -54,6 +54,16 @@ ggplot(circle) +
     fill = "firebrick", 
     colour = "black"
   )
+```
+
+The other bigger new feature is the ability to modify the guide representation
+of a layer through a new `key_glyph` argument in all geoms. While the defaults
+are often fine, there are situations where a different look serves the 
+visualisation:
+
+```{r}
+ggplot(economics, aes(date, psavert, color = "savings rate")) + 
+  geom_line(key_glyph = "timeseries")
 ```
 
 `geom_rug` has seen a range of improvements to give users more control over the appearance of the rug lines. Now, both the length, as well as whether to position them inside or outside of the plot region can be controlled:
