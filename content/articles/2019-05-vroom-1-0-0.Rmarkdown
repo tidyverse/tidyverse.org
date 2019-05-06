@@ -174,7 +174,7 @@ directly to `vroom()`.
 ```{r}
 files <- fs::dir_ls(glob = "flights_*tsv")
 files
-vroom(files)
+data <- vroom(files)
 ```
 
 ## Reading and writing compressed files
@@ -189,7 +189,7 @@ vroom_write(flights, "flights.tsv.gz")
 fs::file_size(c("flights.tsv", "flights.tsv.gz"))
 
 # Read the file back in
-vroom("flights.tsv.gz")
+data <- vroom("flights.tsv.gz")
 ```
 
 # Reading remote files
@@ -198,7 +198,7 @@ vroom can also read files from the internet as well by passing the URL of the fi
 
 ```{r}
 file <- "https://raw.githubusercontent.com/r-lib/vroom/master/inst/extdata/mtcars.csv"
-vroom(file)
+data <- vroom(file)
 ```
 
 It can even read gzipped files from the internet (although currently not the other compressed formats).
@@ -211,7 +211,7 @@ This is useful for doing things like pre-filtering large inputs with command lin
 
 ```{r}
 # Return only flights on United Airlines
-vroom(pipe("grep -w UA flights.tsv"), col_names = names(flights))
+data <- vroom(pipe("grep -w UA flights.tsv"), col_names = names(flights))
 ```
 
 Or using multi-threaded compression programs like
@@ -234,24 +234,25 @@ The parameter uses the same interface as `dplyr::select()`, so you can do flexib
 
 - Select with the column names
 ```{r}
-vroom("flights.tsv", col_select = c(year, flight, tailnum))
+data <- vroom("flights.tsv", col_select = c(year, flight, tailnum))
 ```
 - Drop columns by name
 ```{r}
-vroom("flights.tsv", col_select = c(-dep_time, -air_time:-time_hour))
+data <- vroom("flights.tsv", col_select = c(-dep_time, -air_time:-time_hour))
 ```
 
 - Use numeric indices
 ```{r}
-vroom("flights.tsv", col_select = c(1, 3, 11))
+data <- vroom("flights.tsv", col_select = c(1, 3, 11))
 ```
 - Use the selection helpers
 ```{r}
-vroom("flights.tsv", col_select = ends_with("time"))
+data <- vroom("flights.tsv", col_select = ends_with("time"))
 ```
 - Or rename columns
 ```{r}
-vroom("flights.tsv", col_select = list(plane = tailnum, everything()))
+data <- vroom("flights.tsv", col_select = list(plane = tailnum, everything()))
+data
 ```
 
 ## Column types
@@ -279,19 +280,19 @@ If you only need to override a single column the most concise way is to use a na
 
 ```{r}
 # read the 'year' column as an integer
-vroom("flights.tsv", col_types = c(year = "i"))
+data <- vroom("flights.tsv", col_types = c(year = "i"))
 
 # also skip reading the 'time_hour' column
-vroom("flights.tsv", col_types = c(year = "i", time_hour = "_"))
+data <- vroom("flights.tsv", col_types = c(year = "i", time_hour = "_"))
 
 # also read the carrier as a factor
-vroom("flights.tsv", col_types = c(year = "i", time_hour = "_", carrier = "f"))
+data <- vroom("flights.tsv", col_types = c(year = "i", time_hour = "_", carrier = "f"))
 ```
 
 However you can also use the `col_*()` functions in a list.
 
 ```{r}
-vroom("flights.tsv",
+data <- vroom("flights.tsv",
   col_types = list(year = col_integer(), time_hour = col_skip(), carrier = col_factor())
 )
 ```
@@ -300,7 +301,7 @@ This is most useful when a column type needs additional information, such as
 for categorical data when you know all of the levels of a factor.
 
 ```{r}
-vroom("flights.tsv",
+data <- vroom("flights.tsv",
   col_types = list(dest = col_factor(levels = c("EWR", "JFK", "LGA")))
 )
 ```
