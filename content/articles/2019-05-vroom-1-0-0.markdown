@@ -1,0 +1,741 @@
+---
+title: vroom 1.0.0
+author: Jim Hester
+date: '2019-05-06'
+slug: vroom-1-0-0
+description: Introducing the vroom package, extremely fast data import in R.
+categories:
+  - package
+tags: [package, r-lib]
+photo:
+  url: https://www.pexels.com/photo/12801/
+  author: Chris Peeters
+---
+
+
+
+<html>
+<style>
+h2 code {
+    font-size: 1em;
+}
+</style>
+</html>
+
+I'm excited to announce that [vroom 1.0.0](http://vroom.r-lib.org) is now
+available on CRAN!
+
+vroom reads rectangular data, such as comma separated
+(csv), tab separated (tsv) or fixed width files (fwf) into R.
+
+It performs the
+same function as packages like [readr](http://readr.r-lib.org),
+[data.table](http://r-datatable.com) or the `read.csv()`
+function, but for many datasets vroom can read them much, much
+faster (hence the name).
+
+The main reason vroom can be faster is because character data is read from the
+file lazily; you only pay for the data you use. This lazy access is done
+automatically, so no changes to your R data manipulation code are needed.
+
+vroom also provides efficient multi-threaded writing that is multiple times
+faster on most inputs than the readr writer.
+
+Install vroom with:
+
+
+```r
+install.packages("vroom")
+```
+
+The best way to get acquainted with the package is the [getting
+started](http://vroom.r-lib.org/articles/vroom.html) vignette.
+
+## Reading delimited files
+
+Compared to readr, the first difference you may note is you use only one
+function to read the files, `vroom()`. This is because `vroom()` guesses the
+delimiter of the file automatically (based on the first few lines). This works
+well most of the time, but may fail to guess properly in some cases. The
+`delim` argument is used to specify the delimiter of the file explicitly.
+
+
+```r
+library(vroom)
+
+data <- vroom("flights.tsv")
+```
+
+<PRE class="fansi fansi-message"><CODE>#> <span style='font-weight: bold;'>Observations:</span><span> 336,776
+#> </span><span style='font-weight: bold;'>Variables:</span><span> 19
+#> </span><span style='color: #BB0000;'>chr</span><span>  [ 4]: carrier, tailnum, origin, dest
+#> </span><span style='color: #00BB00;'>dbl</span><span>  [14]: year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, sched_arr...
+#> </span><span style='color: #0000BB;'>dttm</span><span> [ 1]: time_hour
+#> 
+#> </span><span style='color: #555555;'>Call `spec()` for a copy-pastable column specification</span><span>
+#> </span><span style='color: #555555;'>Specify the column types with `col_types` to quiet this message</span><span>
+</span></CODE></PRE>
+
+The summary message after reading also differs from readr. We hope this output
+gives a more informative indication if the types of your columns are being guessed
+properly. However you can still retrieve and print the full column specification
+with `spec()`.
+
+
+```r
+spec(data)
+```
+
+<PRE class="fansi fansi-output"><CODE>#> cols(
+#>   year = <span style='color: #00BB00;'>col_double()</span><span>,
+#>   month = </span><span style='color: #00BB00;'>col_double()</span><span>,
+#>   day = </span><span style='color: #00BB00;'>col_double()</span><span>,
+#>   dep_time = </span><span style='color: #00BB00;'>col_double()</span><span>,
+#>   sched_dep_time = </span><span style='color: #00BB00;'>col_double()</span><span>,
+#>   dep_delay = </span><span style='color: #00BB00;'>col_double()</span><span>,
+#>   arr_time = </span><span style='color: #00BB00;'>col_double()</span><span>,
+#>   sched_arr_time = </span><span style='color: #00BB00;'>col_double()</span><span>,
+#>   arr_delay = </span><span style='color: #00BB00;'>col_double()</span><span>,
+#>   carrier = </span><span style='color: #BB0000;'>col_character()</span><span>,
+#>   flight = </span><span style='color: #00BB00;'>col_double()</span><span>,
+#>   tailnum = </span><span style='color: #BB0000;'>col_character()</span><span>,
+#>   origin = </span><span style='color: #BB0000;'>col_character()</span><span>,
+#>   dest = </span><span style='color: #BB0000;'>col_character()</span><span>,
+#>   air_time = </span><span style='color: #00BB00;'>col_double()</span><span>,
+#>   distance = </span><span style='color: #00BB00;'>col_double()</span><span>,
+#>   hour = </span><span style='color: #00BB00;'>col_double()</span><span>,
+#>   minute = </span><span style='color: #00BB00;'>col_double()</span><span>,
+#>   time_hour = </span><span style='color: #0000BB;'>col_datetime(format = "")</span><span>
+#> )
+</span></CODE></PRE>
+
+The message will be disabled if you supply a column specification to `col_types` when reading.
+
+
+```r
+s <- spec(data)
+
+data <- vroom("flights.tsv", col_types = s)
+```
+
+## Reading multiple files
+
+One feature new to vroom is built-in support for reading sets of files with the
+same columns into one table. Just pass the filenames to be read directly to
+vroom.
+
+
+```r
+# Split the flights data by carrier
+purrr::iwalk(
+  split(flights, flights$carrier),
+  ~ vroom::vroom_write(.x, glue::glue("flights_{.y}.tsv"), delim = "\t")
+)
+```
+
+Then we can efficiently read all of the files into one tibble by passing the filenames
+directly to `vroom()`.
+
+
+```r
+files <- fs::dir_ls(glob = "flights_*tsv")
+files
+#> flights_9E.tsv flights_AA.tsv flights_AS.tsv flights_B6.tsv flights_DL.tsv 
+#> flights_EV.tsv flights_F9.tsv flights_FL.tsv flights_HA.tsv flights_MQ.tsv 
+#> flights_OO.tsv flights_UA.tsv flights_US.tsv flights_VX.tsv flights_WN.tsv 
+#> flights_YV.tsv
+vroom(files)
+```
+
+<PRE class="fansi fansi-message"><CODE>#> <span style='font-weight: bold;'>Observations:</span><span> 336,776
+#> </span><span style='font-weight: bold;'>Variables:</span><span> 19
+#> </span><span style='color: #BB0000;'>chr</span><span>  [ 4]: carrier, tailnum, origin, dest
+#> </span><span style='color: #00BB00;'>dbl</span><span>  [14]: year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, sched_arr...
+#> </span><span style='color: #0000BB;'>dttm</span><span> [ 1]: time_hour
+#> 
+#> </span><span style='color: #555555;'>Call `spec()` for a copy-pastable column specification</span><span>
+#> </span><span style='color: #555555;'>Specify the column types with `col_types` to quiet this message</span><span>
+</span></CODE></PRE><PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 336,776 x 19</span><span>
+#>     year month   day dep_time sched_dep_time dep_delay arr_time
+#>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>          </span><span style='color: #555555;font-style: italic;'><dbl></span><span>     </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+#> </span><span style='color: #555555;'> 1</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      810            810         0     </span><span style='text-decoration: underline;'>1</span><span>048
+#> </span><span style='color: #555555;'> 2</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1     </span><span style='text-decoration: underline;'>1</span><span>451           </span><span style='text-decoration: underline;'>1</span><span>500        -</span><span style='color: #BB0000;'>9</span><span>     </span><span style='text-decoration: underline;'>1</span><span>634
+#> </span><span style='color: #555555;'> 3</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1     </span><span style='text-decoration: underline;'>1</span><span>452           </span><span style='text-decoration: underline;'>1</span><span>455        -</span><span style='color: #BB0000;'>3</span><span>     </span><span style='text-decoration: underline;'>1</span><span>637
+#> </span><span style='color: #555555;'> 4</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1     </span><span style='text-decoration: underline;'>1</span><span>454           </span><span style='text-decoration: underline;'>1</span><span>500        -</span><span style='color: #BB0000;'>6</span><span>     </span><span style='text-decoration: underline;'>1</span><span>635
+#> </span><span style='color: #555555;'> 5</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1     </span><span style='text-decoration: underline;'>1</span><span>507           </span><span style='text-decoration: underline;'>1</span><span>515        -</span><span style='color: #BB0000;'>8</span><span>     </span><span style='text-decoration: underline;'>1</span><span>651
+#> </span><span style='color: #555555;'> 6</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1     </span><span style='text-decoration: underline;'>1</span><span>530           </span><span style='text-decoration: underline;'>1</span><span>530         0     </span><span style='text-decoration: underline;'>1</span><span>650
+#> </span><span style='color: #555555;'> 7</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1     </span><span style='text-decoration: underline;'>1</span><span>546           </span><span style='text-decoration: underline;'>1</span><span>540         6     </span><span style='text-decoration: underline;'>1</span><span>753
+#> </span><span style='color: #555555;'> 8</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1     </span><span style='text-decoration: underline;'>1</span><span>550           </span><span style='text-decoration: underline;'>1</span><span>550         0     </span><span style='text-decoration: underline;'>1</span><span>844
+#> </span><span style='color: #555555;'> 9</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1     </span><span style='text-decoration: underline;'>1</span><span>552           </span><span style='text-decoration: underline;'>1</span><span>600        -</span><span style='color: #BB0000;'>8</span><span>     </span><span style='text-decoration: underline;'>1</span><span>749
+#> </span><span style='color: #555555;'>10</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1     </span><span style='text-decoration: underline;'>1</span><span>554           </span><span style='text-decoration: underline;'>1</span><span>600        -</span><span style='color: #BB0000;'>6</span><span>     </span><span style='text-decoration: underline;'>1</span><span>701
+#> </span><span style='color: #555555;'># … with 336,766 more rows, and 12 more variables: sched_arr_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   arr_delay </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, carrier </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, flight </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, tailnum </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>,
+#> #   origin </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, dest </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, air_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, distance </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, hour </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   minute </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, time_hour </span><span style='color: #555555;font-style: italic;'><dttm></span><span>
+</span></CODE></PRE>
+
+## Reading and writing compressed files
+
+Just like readr, vroom automatically reads and writes zip, gzip, bz2 and xz compressed
+files with the standard file extensions.
+
+
+```r
+vroom_write(flights, "flights.tsv.gz")
+
+# Check file sizes to show file is compressed
+fs::file_size(c("flights.tsv", "flights.tsv.gz"))
+#> 29.62M  7.87M
+
+# Read the file back in
+vroom("flights.tsv.gz")
+```
+
+<PRE class="fansi fansi-message"><CODE>#> <span style='font-weight: bold;'>Observations:</span><span> 336,776
+#> </span><span style='font-weight: bold;'>Variables:</span><span> 19
+#> </span><span style='color: #BB0000;'>chr</span><span>  [ 4]: carrier, tailnum, origin, dest
+#> </span><span style='color: #00BB00;'>dbl</span><span>  [14]: year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, sched_arr...
+#> </span><span style='color: #0000BB;'>dttm</span><span> [ 1]: time_hour
+#> 
+#> </span><span style='color: #555555;'>Call `spec()` for a copy-pastable column specification</span><span>
+#> </span><span style='color: #555555;'>Specify the column types with `col_types` to quiet this message</span><span>
+</span></CODE></PRE><PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 336,776 x 19</span><span>
+#>     year month   day dep_time sched_dep_time dep_delay arr_time
+#>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>          </span><span style='color: #555555;font-style: italic;'><dbl></span><span>     </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+#> </span><span style='color: #555555;'> 1</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      517            515         2      830
+#> </span><span style='color: #555555;'> 2</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      533            529         4      850
+#> </span><span style='color: #555555;'> 3</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      542            540         2      923
+#> </span><span style='color: #555555;'> 4</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      544            545        -</span><span style='color: #BB0000;'>1</span><span>     </span><span style='text-decoration: underline;'>1</span><span>004
+#> </span><span style='color: #555555;'> 5</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            600        -</span><span style='color: #BB0000;'>6</span><span>      812
+#> </span><span style='color: #555555;'> 6</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            558        -</span><span style='color: #BB0000;'>4</span><span>      740
+#> </span><span style='color: #555555;'> 7</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      555            600        -</span><span style='color: #BB0000;'>5</span><span>      913
+#> </span><span style='color: #555555;'> 8</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      709
+#> </span><span style='color: #555555;'> 9</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      838
+#> </span><span style='color: #555555;'>10</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      558            600        -</span><span style='color: #BB0000;'>2</span><span>      753
+#> </span><span style='color: #555555;'># … with 336,766 more rows, and 12 more variables: sched_arr_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   arr_delay </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, carrier </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, flight </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, tailnum </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>,
+#> #   origin </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, dest </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, air_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, distance </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, hour </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   minute </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, time_hour </span><span style='color: #555555;font-style: italic;'><dttm></span><span>
+</span></CODE></PRE>
+
+# Reading remote files
+
+vroom can also read files from the internet as well by passing the URL of the file to `vroom()`.
+
+
+```r
+file <- "https://raw.githubusercontent.com/r-lib/vroom/master/inst/extdata/mtcars.csv"
+vroom(file)
+```
+
+<PRE class="fansi fansi-message"><CODE>#> <span style='font-weight: bold;'>Observations:</span><span> 32
+#> </span><span style='font-weight: bold;'>Variables:</span><span> 12
+#> </span><span style='color: #BB0000;'>chr</span><span> [ 1]: model
+#> </span><span style='color: #00BB00;'>dbl</span><span> [11]: mpg, cyl, disp, hp, drat, wt, qsec, vs, am, gear, carb
+#> 
+#> </span><span style='color: #555555;'>Call `spec()` for a copy-pastable column specification</span><span>
+#> </span><span style='color: #555555;'>Specify the column types with `col_types` to quiet this message</span><span>
+</span></CODE></PRE><PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 32 x 12</span><span>
+#>    model    mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+#>    </span><span style='color: #555555;font-style: italic;'><chr></span><span>  </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+#> </span><span style='color: #555555;'> 1</span><span> Mazda…  21       6  160    110  3.9   2.62  16.5     0     1     4     4
+#> </span><span style='color: #555555;'> 2</span><span> Mazda…  21       6  160    110  3.9   2.88  17.0     0     1     4     4
+#> </span><span style='color: #555555;'> 3</span><span> Datsu…  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1
+#> </span><span style='color: #555555;'> 4</span><span> Horne…  21.4     6  258    110  3.08  3.22  19.4     1     0     3     1
+#> </span><span style='color: #555555;'> 5</span><span> Horne…  18.7     8  360    175  3.15  3.44  17.0     0     0     3     2
+#> </span><span style='color: #555555;'> 6</span><span> Valia…  18.1     6  225    105  2.76  3.46  20.2     1     0     3     1
+#> </span><span style='color: #555555;'> 7</span><span> Duste…  14.3     8  360    245  3.21  3.57  15.8     0     0     3     4
+#> </span><span style='color: #555555;'> 8</span><span> Merc …  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
+#> </span><span style='color: #555555;'> 9</span><span> Merc …  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2
+#> </span><span style='color: #555555;'>10</span><span> Merc …  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4
+#> </span><span style='color: #555555;'># … with 22 more rows</span><span>
+</span></CODE></PRE>
+
+It can even read gzipped files from the internet (although currently not the other compressed formats).
+
+## Reading and writing from pipe connections
+
+vroom provides efficient input and output from `pipe()` connections.
+
+This is useful for doing things like pre-filtering large inputs with command line tools like [grep](https://en.wikipedia.org/wiki/Grep).
+
+
+```r
+# Return only flights on United Airlines
+vroom(pipe("grep -w UA flights.tsv"), col_names = names(flights))
+```
+
+<PRE class="fansi fansi-message"><CODE>#> <span style='font-weight: bold;'>Observations:</span><span> 58,665
+#> </span><span style='font-weight: bold;'>Variables:</span><span> 19
+#> </span><span style='color: #BB0000;'>chr</span><span>  [ 4]: carrier, tailnum, origin, dest
+#> </span><span style='color: #00BB00;'>dbl</span><span>  [14]: year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, sched_arr...
+#> </span><span style='color: #0000BB;'>dttm</span><span> [ 1]: time_hour
+#> 
+#> </span><span style='color: #555555;'>Call `spec()` for a copy-pastable column specification</span><span>
+#> </span><span style='color: #555555;'>Specify the column types with `col_types` to quiet this message</span><span>
+</span></CODE></PRE><PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 58,665 x 19</span><span>
+#>     year month   day dep_time sched_dep_time dep_delay arr_time
+#>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>          </span><span style='color: #555555;font-style: italic;'><dbl></span><span>     </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+#> </span><span style='color: #555555;'> 1</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      517            515         2      830
+#> </span><span style='color: #555555;'> 2</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      533            529         4      850
+#> </span><span style='color: #555555;'> 3</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            558        -</span><span style='color: #BB0000;'>4</span><span>      740
+#> </span><span style='color: #555555;'> 4</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      558            600        -</span><span style='color: #BB0000;'>2</span><span>      924
+#> </span><span style='color: #555555;'> 5</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      558            600        -</span><span style='color: #BB0000;'>2</span><span>      923
+#> </span><span style='color: #555555;'> 6</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      559            600        -</span><span style='color: #BB0000;'>1</span><span>      854
+#> </span><span style='color: #555555;'> 7</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      607            607         0      858
+#> </span><span style='color: #555555;'> 8</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      611            600        11      945
+#> </span><span style='color: #555555;'> 9</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      623            627        -</span><span style='color: #BB0000;'>4</span><span>      933
+#> </span><span style='color: #555555;'>10</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      628            630        -</span><span style='color: #BB0000;'>2</span><span>     </span><span style='text-decoration: underline;'>1</span><span>016
+#> </span><span style='color: #555555;'># … with 58,655 more rows, and 12 more variables: sched_arr_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   arr_delay </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, carrier </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, flight </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, tailnum </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>,
+#> #   origin </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, dest </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, air_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, distance </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, hour </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   minute </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, time_hour </span><span style='color: #555555;font-style: italic;'><dttm></span><span>
+</span></CODE></PRE>
+
+Or using multi-threaded compression programs like
+[pigz](https://zlib.net/pigz/), which can greatly reduce the time to write compressed
+files.
+
+
+```r
+bench::workout({
+  vroom_write(flights, "flights.tsv.gz")
+  vroom_write(flights, pipe("pigz > flights.tsv.gz"))
+})
+```
+
+<PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 2 x 3</span><span>
+#>   exprs                                                process     real
+#>   </span><span style='color: #555555;font-style: italic;'><bch:expr></span><span>                                          </span><span style='color: #555555;font-style: italic;'><bch:tm></span><span> </span><span style='color: #555555;font-style: italic;'><bch:tm></span><span>
+#> </span><span style='color: #555555;'>1</span><span> vroom_write(flights, "flights.tsv.gz")                 3.52s     2.7s
+#> </span><span style='color: #555555;'>2</span><span> vroom_write(flights, pipe("pigz > flights.tsv.gz"))    1.52s  995.8ms
+</span></CODE></PRE>
+
+## Column selection
+
+`vroom` introduces a new argument `col_select` which makes selecting columns to
+keep (or omit) more straightforward.
+
+The parameter uses the same interface as `dplyr::select()`, so you can do flexible selection operations.
+
+- Select with the column names
+
+```r
+vroom("flights.tsv", col_select = c(year, flight, tailnum))
+```
+
+<PRE class="fansi fansi-message"><CODE>#> <span style='font-weight: bold;'>Observations:</span><span> 336,776
+#> </span><span style='font-weight: bold;'>Variables:</span><span> 3
+#> </span><span style='color: #BB0000;'>chr</span><span> [1]: tailnum
+#> </span><span style='color: #00BB00;'>dbl</span><span> [2]: year, flight
+#> 
+#> </span><span style='color: #555555;'>Call `spec()` for a copy-pastable column specification</span><span>
+#> </span><span style='color: #555555;'>Specify the column types with `col_types` to quiet this message</span><span>
+</span></CODE></PRE><PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 336,776 x 3</span><span>
+#>     year flight tailnum
+#>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>  </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><chr></span><span>  
+#> </span><span style='color: #555555;'> 1</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013   </span><span style='text-decoration: underline;'>1</span><span>545 N14228 
+#> </span><span style='color: #555555;'> 2</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013   </span><span style='text-decoration: underline;'>1</span><span>714 N24211 
+#> </span><span style='color: #555555;'> 3</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013   </span><span style='text-decoration: underline;'>1</span><span>141 N619AA 
+#> </span><span style='color: #555555;'> 4</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013    725 N804JB 
+#> </span><span style='color: #555555;'> 5</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013    461 N668DN 
+#> </span><span style='color: #555555;'> 6</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013   </span><span style='text-decoration: underline;'>1</span><span>696 N39463 
+#> </span><span style='color: #555555;'> 7</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013    507 N516JB 
+#> </span><span style='color: #555555;'> 8</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013   </span><span style='text-decoration: underline;'>5</span><span>708 N829AS 
+#> </span><span style='color: #555555;'> 9</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     79 N593JB 
+#> </span><span style='color: #555555;'>10</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013    301 N3ALAA 
+#> </span><span style='color: #555555;'># … with 336,766 more rows</span><span>
+</span></CODE></PRE>
+- Drop columns by name
+
+```r
+vroom("flights.tsv", col_select = c(-dep_time, -air_time:-time_hour))
+```
+
+<PRE class="fansi fansi-message"><CODE>#> <span style='font-weight: bold;'>Observations:</span><span> 336,776
+#> </span><span style='font-weight: bold;'>Variables:</span><span> 13
+#> </span><span style='color: #BB0000;'>chr</span><span> [4]: carrier, tailnum, origin, dest
+#> </span><span style='color: #00BB00;'>dbl</span><span> [9]: year, month, day, sched_dep_time, dep_delay, arr_time, sched_arr_time, arr...
+#> 
+#> </span><span style='color: #555555;'>Call `spec()` for a copy-pastable column specification</span><span>
+#> </span><span style='color: #555555;'>Specify the column types with `col_types` to quiet this message</span><span>
+</span></CODE></PRE><PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 336,776 x 13</span><span>
+#>     year month   day sched_dep_time dep_delay arr_time sched_arr_time
+#>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span>          </span><span style='color: #555555;font-style: italic;'><dbl></span><span>     </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>          </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+#> </span><span style='color: #555555;'> 1</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1            515         2      830            819
+#> </span><span style='color: #555555;'> 2</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1            529         4      850            830
+#> </span><span style='color: #555555;'> 3</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1            540         2      923            850
+#> </span><span style='color: #555555;'> 4</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1            545        -</span><span style='color: #BB0000;'>1</span><span>     </span><span style='text-decoration: underline;'>1</span><span>004           </span><span style='text-decoration: underline;'>1</span><span>022
+#> </span><span style='color: #555555;'> 5</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1            600        -</span><span style='color: #BB0000;'>6</span><span>      812            837
+#> </span><span style='color: #555555;'> 6</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1            558        -</span><span style='color: #BB0000;'>4</span><span>      740            728
+#> </span><span style='color: #555555;'> 7</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1            600        -</span><span style='color: #BB0000;'>5</span><span>      913            854
+#> </span><span style='color: #555555;'> 8</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1            600        -</span><span style='color: #BB0000;'>3</span><span>      709            723
+#> </span><span style='color: #555555;'> 9</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1            600        -</span><span style='color: #BB0000;'>3</span><span>      838            846
+#> </span><span style='color: #555555;'>10</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1            600        -</span><span style='color: #BB0000;'>2</span><span>      753            745
+#> </span><span style='color: #555555;'># … with 336,766 more rows, and 6 more variables: arr_delay </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   carrier </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, flight </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, tailnum </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, origin </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, dest </span><span style='color: #555555;font-style: italic;'><chr></span><span>
+</span></CODE></PRE>
+
+- Use numeric indices
+
+```r
+vroom("flights.tsv", col_select = c(1, 3, 11))
+```
+
+<PRE class="fansi fansi-message"><CODE>#> <span style='font-weight: bold;'>Observations:</span><span> 336,776
+#> </span><span style='font-weight: bold;'>Variables:</span><span> 3
+#> </span><span style='color: #00BB00;'>dbl</span><span> [3]: year, day, flight
+#> 
+#> </span><span style='color: #555555;'>Call `spec()` for a copy-pastable column specification</span><span>
+#> </span><span style='color: #555555;'>Specify the column types with `col_types` to quiet this message</span><span>
+</span></CODE></PRE><PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 336,776 x 3</span><span>
+#>     year   day flight
+#>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span>  </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+#> </span><span style='color: #555555;'> 1</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1   </span><span style='text-decoration: underline;'>1</span><span>545
+#> </span><span style='color: #555555;'> 2</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1   </span><span style='text-decoration: underline;'>1</span><span>714
+#> </span><span style='color: #555555;'> 3</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1   </span><span style='text-decoration: underline;'>1</span><span>141
+#> </span><span style='color: #555555;'> 4</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1    725
+#> </span><span style='color: #555555;'> 5</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1    461
+#> </span><span style='color: #555555;'> 6</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1   </span><span style='text-decoration: underline;'>1</span><span>696
+#> </span><span style='color: #555555;'> 7</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1    507
+#> </span><span style='color: #555555;'> 8</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1   </span><span style='text-decoration: underline;'>5</span><span>708
+#> </span><span style='color: #555555;'> 9</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     79
+#> </span><span style='color: #555555;'>10</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1    301
+#> </span><span style='color: #555555;'># … with 336,766 more rows</span><span>
+</span></CODE></PRE>
+- Use the selection helpers
+
+```r
+vroom("flights.tsv", col_select = ends_with("time"))
+```
+
+<PRE class="fansi fansi-message"><CODE>#> <span style='font-weight: bold;'>Observations:</span><span> 336,776
+#> </span><span style='font-weight: bold;'>Variables:</span><span> 5
+#> </span><span style='color: #00BB00;'>dbl</span><span> [5]: dep_time, sched_dep_time, arr_time, sched_arr_time, air_time
+#> 
+#> </span><span style='color: #555555;'>Call `spec()` for a copy-pastable column specification</span><span>
+#> </span><span style='color: #555555;'>Specify the column types with `col_types` to quiet this message</span><span>
+</span></CODE></PRE><PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 336,776 x 5</span><span>
+#>    dep_time sched_dep_time arr_time sched_arr_time air_time
+#>       </span><span style='color: #555555;font-style: italic;'><dbl></span><span>          </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>          </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+#> </span><span style='color: #555555;'> 1</span><span>      517            515      830            819      227
+#> </span><span style='color: #555555;'> 2</span><span>      533            529      850            830      227
+#> </span><span style='color: #555555;'> 3</span><span>      542            540      923            850      160
+#> </span><span style='color: #555555;'> 4</span><span>      544            545     </span><span style='text-decoration: underline;'>1</span><span>004           </span><span style='text-decoration: underline;'>1</span><span>022      183
+#> </span><span style='color: #555555;'> 5</span><span>      554            600      812            837      116
+#> </span><span style='color: #555555;'> 6</span><span>      554            558      740            728      150
+#> </span><span style='color: #555555;'> 7</span><span>      555            600      913            854      158
+#> </span><span style='color: #555555;'> 8</span><span>      557            600      709            723       53
+#> </span><span style='color: #555555;'> 9</span><span>      557            600      838            846      140
+#> </span><span style='color: #555555;'>10</span><span>      558            600      753            745      138
+#> </span><span style='color: #555555;'># … with 336,766 more rows</span><span>
+</span></CODE></PRE>
+- Or rename columns
+
+```r
+vroom("flights.tsv", col_select = list(plane = tailnum, everything()))
+```
+
+<PRE class="fansi fansi-message"><CODE>#> <span style='font-weight: bold;'>Observations:</span><span> 336,776
+#> </span><span style='font-weight: bold;'>Variables:</span><span> 19
+#> </span><span style='color: #BB0000;'>chr</span><span>  [ 4]: carrier, tailnum, origin, dest
+#> </span><span style='color: #00BB00;'>dbl</span><span>  [14]: year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, sched_arr...
+#> </span><span style='color: #0000BB;'>dttm</span><span> [ 1]: time_hour
+#> 
+#> </span><span style='color: #555555;'>Call `spec()` for a copy-pastable column specification</span><span>
+#> </span><span style='color: #555555;'>Specify the column types with `col_types` to quiet this message</span><span>
+</span></CODE></PRE><PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 336,776 x 19</span><span>
+#>    plane  year month   day dep_time sched_dep_time dep_delay arr_time
+#>    </span><span style='color: #555555;font-style: italic;'><chr></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>          </span><span style='color: #555555;font-style: italic;'><dbl></span><span>     </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+#> </span><span style='color: #555555;'> 1</span><span> N142…  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      517            515         2      830
+#> </span><span style='color: #555555;'> 2</span><span> N242…  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      533            529         4      850
+#> </span><span style='color: #555555;'> 3</span><span> N619…  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      542            540         2      923
+#> </span><span style='color: #555555;'> 4</span><span> N804…  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      544            545        -</span><span style='color: #BB0000;'>1</span><span>     </span><span style='text-decoration: underline;'>1</span><span>004
+#> </span><span style='color: #555555;'> 5</span><span> N668…  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            600        -</span><span style='color: #BB0000;'>6</span><span>      812
+#> </span><span style='color: #555555;'> 6</span><span> N394…  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            558        -</span><span style='color: #BB0000;'>4</span><span>      740
+#> </span><span style='color: #555555;'> 7</span><span> N516…  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      555            600        -</span><span style='color: #BB0000;'>5</span><span>      913
+#> </span><span style='color: #555555;'> 8</span><span> N829…  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      709
+#> </span><span style='color: #555555;'> 9</span><span> N593…  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      838
+#> </span><span style='color: #555555;'>10</span><span> N3AL…  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      558            600        -</span><span style='color: #BB0000;'>2</span><span>      753
+#> </span><span style='color: #555555;'># … with 336,766 more rows, and 11 more variables: sched_arr_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   arr_delay </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, carrier </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, flight </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, origin </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>,
+#> #   dest </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, air_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, distance </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, hour </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, minute </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   time_hour </span><span style='color: #555555;font-style: italic;'><dttm></span><span>
+</span></CODE></PRE>
+
+## Column types
+
+Like readr, vroom guesses the data types of columns as they are read, however sometimes it
+is necessary to change the type of one or more columns.
+
+The available specifications are: (with single letter abbreviations in quotes)
+
+* `col_logical()` 'l', containing only `T`, `F`, `TRUE`, `FALSE`, `1` or `0`.
+* `col_integer()` 'i', integer values.
+* `col_double()` 'd', floating point values.
+* `col_number()` [n], numbers containing the `grouping_mark`
+* `col_date(format = "")` [D]: with the locale's `date_format`.
+* `col_time(format = "")` [t]: with the locale's `time_format`.
+* `col_datetime(format = "")` [T]: ISO8601 date times.
+* `col_factor(levels, ordered)` 'f', a fixed set of values.
+* `col_character()` 'c', everything else.
+* `col_skip()` '_, -', don't import this column.
+* `col_guess()` '?', parse using the "best" type based on the input.
+
+You can tell vroom what columns to use with the `col_types()` argument in a number of ways.
+
+If you only need to override a single column the most concise way is to use a named vector.
+
+
+```r
+# read the 'year' column as an integer
+vroom("flights.tsv", col_types = c(year = "i"))
+```
+
+<PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 336,776 x 19</span><span>
+#>     year month   day dep_time sched_dep_time dep_delay arr_time
+#>    </span><span style='color: #555555;font-style: italic;'><int></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>          </span><span style='color: #555555;font-style: italic;'><dbl></span><span>     </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+#> </span><span style='color: #555555;'> 1</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      517            515         2      830
+#> </span><span style='color: #555555;'> 2</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      533            529         4      850
+#> </span><span style='color: #555555;'> 3</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      542            540         2      923
+#> </span><span style='color: #555555;'> 4</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      544            545        -</span><span style='color: #BB0000;'>1</span><span>     </span><span style='text-decoration: underline;'>1</span><span>004
+#> </span><span style='color: #555555;'> 5</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            600        -</span><span style='color: #BB0000;'>6</span><span>      812
+#> </span><span style='color: #555555;'> 6</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            558        -</span><span style='color: #BB0000;'>4</span><span>      740
+#> </span><span style='color: #555555;'> 7</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      555            600        -</span><span style='color: #BB0000;'>5</span><span>      913
+#> </span><span style='color: #555555;'> 8</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      709
+#> </span><span style='color: #555555;'> 9</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      838
+#> </span><span style='color: #555555;'>10</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      558            600        -</span><span style='color: #BB0000;'>2</span><span>      753
+#> </span><span style='color: #555555;'># … with 336,766 more rows, and 12 more variables: sched_arr_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   arr_delay </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, carrier </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, flight </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, tailnum </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>,
+#> #   origin </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, dest </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, air_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, distance </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, hour </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   minute </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, time_hour </span><span style='color: #555555;font-style: italic;'><dttm></span><span>
+</span></CODE></PRE>
+
+```r
+
+# also skip reading the 'time_hour' column
+vroom("flights.tsv", col_types = c(year = "i", time_hour = "_"))
+```
+
+<PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 336,776 x 18</span><span>
+#>     year month   day dep_time sched_dep_time dep_delay arr_time
+#>    </span><span style='color: #555555;font-style: italic;'><int></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>          </span><span style='color: #555555;font-style: italic;'><dbl></span><span>     </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+#> </span><span style='color: #555555;'> 1</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      517            515         2      830
+#> </span><span style='color: #555555;'> 2</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      533            529         4      850
+#> </span><span style='color: #555555;'> 3</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      542            540         2      923
+#> </span><span style='color: #555555;'> 4</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      544            545        -</span><span style='color: #BB0000;'>1</span><span>     </span><span style='text-decoration: underline;'>1</span><span>004
+#> </span><span style='color: #555555;'> 5</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            600        -</span><span style='color: #BB0000;'>6</span><span>      812
+#> </span><span style='color: #555555;'> 6</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            558        -</span><span style='color: #BB0000;'>4</span><span>      740
+#> </span><span style='color: #555555;'> 7</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      555            600        -</span><span style='color: #BB0000;'>5</span><span>      913
+#> </span><span style='color: #555555;'> 8</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      709
+#> </span><span style='color: #555555;'> 9</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      838
+#> </span><span style='color: #555555;'>10</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      558            600        -</span><span style='color: #BB0000;'>2</span><span>      753
+#> </span><span style='color: #555555;'># … with 336,766 more rows, and 11 more variables: sched_arr_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   arr_delay </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, carrier </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, flight </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, tailnum </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>,
+#> #   origin </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, dest </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, air_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, distance </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, hour </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   minute </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+</span></CODE></PRE>
+
+```r
+
+# also read the carrier as a factor
+vroom("flights.tsv", col_types = c(year = "i", time_hour = "_", carrier = "f"))
+```
+
+<PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 336,776 x 18</span><span>
+#>     year month   day dep_time sched_dep_time dep_delay arr_time
+#>    </span><span style='color: #555555;font-style: italic;'><int></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>          </span><span style='color: #555555;font-style: italic;'><dbl></span><span>     </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+#> </span><span style='color: #555555;'> 1</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      517            515         2      830
+#> </span><span style='color: #555555;'> 2</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      533            529         4      850
+#> </span><span style='color: #555555;'> 3</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      542            540         2      923
+#> </span><span style='color: #555555;'> 4</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      544            545        -</span><span style='color: #BB0000;'>1</span><span>     </span><span style='text-decoration: underline;'>1</span><span>004
+#> </span><span style='color: #555555;'> 5</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            600        -</span><span style='color: #BB0000;'>6</span><span>      812
+#> </span><span style='color: #555555;'> 6</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            558        -</span><span style='color: #BB0000;'>4</span><span>      740
+#> </span><span style='color: #555555;'> 7</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      555            600        -</span><span style='color: #BB0000;'>5</span><span>      913
+#> </span><span style='color: #555555;'> 8</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      709
+#> </span><span style='color: #555555;'> 9</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      838
+#> </span><span style='color: #555555;'>10</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      558            600        -</span><span style='color: #BB0000;'>2</span><span>      753
+#> </span><span style='color: #555555;'># … with 336,766 more rows, and 11 more variables: sched_arr_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   arr_delay </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, carrier </span><span style='color: #555555;font-style: italic;'><fct></span><span style='color: #555555;'>, flight </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, tailnum </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>,
+#> #   origin </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, dest </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, air_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, distance </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, hour </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   minute </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+</span></CODE></PRE>
+
+However you can also use the `col_*()` functions in a list.
+
+
+```r
+vroom("flights.tsv",
+  col_types = list(year = col_integer(), time_hour = col_skip(), carrier = col_factor())
+)
+```
+
+<PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 336,776 x 18</span><span>
+#>     year month   day dep_time sched_dep_time dep_delay arr_time
+#>    </span><span style='color: #555555;font-style: italic;'><int></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>          </span><span style='color: #555555;font-style: italic;'><dbl></span><span>     </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+#> </span><span style='color: #555555;'> 1</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      517            515         2      830
+#> </span><span style='color: #555555;'> 2</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      533            529         4      850
+#> </span><span style='color: #555555;'> 3</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      542            540         2      923
+#> </span><span style='color: #555555;'> 4</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      544            545        -</span><span style='color: #BB0000;'>1</span><span>     </span><span style='text-decoration: underline;'>1</span><span>004
+#> </span><span style='color: #555555;'> 5</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            600        -</span><span style='color: #BB0000;'>6</span><span>      812
+#> </span><span style='color: #555555;'> 6</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            558        -</span><span style='color: #BB0000;'>4</span><span>      740
+#> </span><span style='color: #555555;'> 7</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      555            600        -</span><span style='color: #BB0000;'>5</span><span>      913
+#> </span><span style='color: #555555;'> 8</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      709
+#> </span><span style='color: #555555;'> 9</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      838
+#> </span><span style='color: #555555;'>10</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      558            600        -</span><span style='color: #BB0000;'>2</span><span>      753
+#> </span><span style='color: #555555;'># … with 336,766 more rows, and 11 more variables: sched_arr_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   arr_delay </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, carrier </span><span style='color: #555555;font-style: italic;'><fct></span><span style='color: #555555;'>, flight </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, tailnum </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>,
+#> #   origin </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, dest </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, air_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, distance </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, hour </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   minute </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+</span></CODE></PRE>
+
+This is most useful when a column type needs additional information, such as
+for categorical data when you know all of the levels of a factor.
+
+
+```r
+vroom("flights.tsv",
+  col_types = list(dest = col_factor(levels = c("EWR", "JFK", "LGA")))
+)
+```
+
+<PRE class="fansi fansi-output"><CODE>#> <span style='color: #555555;'># A tibble: 336,776 x 19</span><span>
+#>     year month   day dep_time sched_dep_time dep_delay arr_time
+#>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span> </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>          </span><span style='color: #555555;font-style: italic;'><dbl></span><span>     </span><span style='color: #555555;font-style: italic;'><dbl></span><span>    </span><span style='color: #555555;font-style: italic;'><dbl></span><span>
+#> </span><span style='color: #555555;'> 1</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      517            515         2      830
+#> </span><span style='color: #555555;'> 2</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      533            529         4      850
+#> </span><span style='color: #555555;'> 3</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      542            540         2      923
+#> </span><span style='color: #555555;'> 4</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      544            545        -</span><span style='color: #BB0000;'>1</span><span>     </span><span style='text-decoration: underline;'>1</span><span>004
+#> </span><span style='color: #555555;'> 5</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            600        -</span><span style='color: #BB0000;'>6</span><span>      812
+#> </span><span style='color: #555555;'> 6</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      554            558        -</span><span style='color: #BB0000;'>4</span><span>      740
+#> </span><span style='color: #555555;'> 7</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      555            600        -</span><span style='color: #BB0000;'>5</span><span>      913
+#> </span><span style='color: #555555;'> 8</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      709
+#> </span><span style='color: #555555;'> 9</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      557            600        -</span><span style='color: #BB0000;'>3</span><span>      838
+#> </span><span style='color: #555555;'>10</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      558            600        -</span><span style='color: #BB0000;'>2</span><span>      753
+#> </span><span style='color: #555555;'># … with 336,766 more rows, and 12 more variables: sched_arr_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   arr_delay </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, carrier </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, flight </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, tailnum </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>,
+#> #   origin </span><span style='color: #555555;font-style: italic;'><chr></span><span style='color: #555555;'>, dest </span><span style='color: #555555;font-style: italic;'><fct></span><span style='color: #555555;'>, air_time </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, distance </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, hour </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>,
+#> #   minute </span><span style='color: #555555;font-style: italic;'><dbl></span><span style='color: #555555;'>, time_hour </span><span style='color: #555555;font-style: italic;'><dttm></span><span>
+</span></CODE></PRE>
+
+## Speed
+
+vroom is fast, but how fast?
+We benchmarked vroom using a real world dataset of taxi trip data, with
+14.7 million rows, 11 columns. It contains a mix of numeric and textual data and has a
+total file size of 1.55 GB.
+
+    #> Observations: 14,776,615
+    #> Variables: 11
+    #> $ medallion       <chr> "89D227B655E5C82AECF13C3F540D4CF4", "0BD7C8F5B...
+    #> $ hack_license    <chr> "BA96DE419E711691B9445D6A6307C170", "9FD8F69F0...
+    #> $ vendor_id       <chr> "CMT", "CMT", "CMT", "CMT", "CMT", "CMT", "CMT...
+    #> $ pickup_datetime <chr> "2013-01-01 15:11:48", "2013-01-06 00:18:35", ...
+    #> $ payment_type    <chr> "CSH", "CSH", "CSH", "CSH", "CSH", "CSH", "CSH...
+    #> $ fare_amount     <dbl> 6.5, 6.0, 5.5, 5.0, 9.5, 9.5, 6.0, 34.0, 5.5, ...
+    #> $ surcharge       <dbl> 0.0, 0.5, 1.0, 0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 0...
+    #> $ mta_tax         <dbl> 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0...
+    #> $ tip_amount      <int> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0...
+    #> $ tolls_amount    <dbl> 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.8, 0.0, 0...
+    #> $ total_amount    <dbl> 7.0, 7.0, 7.0, 6.0, 10.5, 10.0, 6.5, 39.3, 7.0...
+
+We performed a series of simple manipulations with each approach.
+
+  - Reading the data
+  - `print()`
+  - `head()`
+  - `tail()`
+  - Sampling 100 random rows
+  - Filtering for "UNK" payment, this is 6434 rows (0.0435% of total).
+  - Aggregation of mean fare amount per payment type.
+
+<style>
+td,th {
+  padding: 0.4em;
+}
+thead {
+border-top: 1px solid #aaa;
+border-bottom: 1px solid #aaa;
+}
+table {
+margin-left: auto;
+margin-right: auto;
+border-bottom: 1px solid #aaa;
+}
+</style>
+
+<img src="/articles/2019-05-vroom-1-0-0_files/figure-html/benchmark_plot-1.png" width="960" />
+
+|    package|     read| print| head| tail| sample| filter| aggregate|    total|
+|----------:|--------:|-----:|----:|----:|------:|------:|---------:|--------:|
+| read.delim| 1m 21.5s|   6ms|  1ms|  1ms|    1ms|  315ms|     764ms| 1m 22.6s|
+|      readr|    33.1s|  90ms|  1ms|  1ms|    2ms|  202ms|     825ms|    34.2s|
+| data.table|    15.7s|  13ms|  1ms|  1ms|    1ms|  129ms|     394ms|    16.3s|
+|      vroom|     3.6s|  86ms|  1ms|  1ms|    2ms|   1.4s|      1.9s|       7s|
+
+
+
+<br/>
+
+Some things to note in the results. The initial reading is much faster in vroom
+than any other method, and most of the manipulations, such as `print()`,
+`head()`, `tail()` and `sample()` are equally fast. However because the
+character data is read lazily operations such as `filter()` and `aggregrate()`
+which need character values require additional time.
+However this cost will only occur once, after the values have been read they
+will be stored in memory and additional accesses will be equivalent to other
+packages.
+
+For more details on how the benchmarks were performed and additional benchmarks
+with other types of data see the [benchmark
+vignette](http://vroom.r-lib.org/articles/benchmarks.html).
+
+## Feedback welcome!
+
+vroom is a new package and like any newborn may fall down a few times before
+learning to run. If you do run into a bug or think of a new feature that
+work well in vroom please [open an
+issue](https://github.com/r-lib/vroom/issues) so we can discuss it!
+
+## Acknowledgements
+
+Even though this is a new release, a number of people have been testing out
+pre-release versions on their datasets and opening issues, which has been a
+huge help in making the package more robust.
+
+A big thanks to [&#x0040;alex-gable](https://github.com/alex-gable),
+[&#x0040;andrie](https://github.com/andrie),
+[&#x0040;dan-reznik](https://github.com/dan-reznik),
+[&#x0040;Evgeniy-](https://github.com/Evgeniy-),
+[&#x0040;ginolhac](https://github.com/ginolhac),
+[&#x0040;ibarraespinosa](https://github.com/ibarraespinosa),
+[&#x0040;KasperSkytte](https://github.com/KasperSkytte),
+[&#x0040;ldecicco-USGS](https://github.com/ldecicco-USGS),
+[&#x0040;LuisQ95](https://github.com/LuisQ95),
+[&#x0040;matthieu-haudiquet](https://github.com/matthieu-haudiquet),
+[&#x0040;md0u80c9](https://github.com/md0u80c9),
+[&#x0040;mkiang](https://github.com/mkiang),
+[&#x0040;R3myG](https://github.com/R3myG),
+[&#x0040;randomgambit](https://github.com/randomgambit),
+[&#x0040;slowkow](https://github.com/slowkow),
+[&#x0040;telaroz](https://github.com/telaroz),
+[&#x0040;thierrygosselin](https://github.com/thierrygosselin), and
+[&#x0040;xiaodaigh](https://github.com/xiaodaigh)
+
+Also this package would not be possible without the following significant
+contributions to the R ecosystem.
+
+- [Gabe Becker](https://twitter.com/groundwalkergmb), [Luke
+  Tierney](https://stat.uiowa.edu/~luke/) and [Tomas
+  Kalibera](https://github.com/kalibera) for conceiving, implementing
+  and maintaining the [Altrep
+  framework](https://svn.r-project.org/R/branches/ALTREP/ALTREP.html) used extensively in vroom.
+- [Romain François](https://twitter.com/romain_francois), whose
+  [Altrepisode](https://purrple.cat/blog/2018/10/14/altrep-and-cpp/)
+  package and [related
+  blog-posts](https://purrple.cat/blog/2018/10/14/altrep-and-cpp/)
+  were a great guide for creating new Altrep objects in C++.
+- [Matt Dowle](https://twitter.com/mattdowle) and the rest of the
+  [Rdatatable](https://github.com/Rdatatable) team,
+  `data.table::fread()` is blazing fast and a great motivator to think about
+  how we could read delimited files faster\!
