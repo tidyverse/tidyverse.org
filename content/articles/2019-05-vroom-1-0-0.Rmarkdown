@@ -255,6 +255,21 @@ data <- vroom("flights.tsv", col_select = list(plane = tailnum, everything()))
 data
 ```
 
+## Name repair
+
+Often the names of columns in the original dataset are not ideal to work with.
+`vroom()` uses the same [.name_repair](https://www.tidyverse.org/articles/2019/01/tibble-2.0.1/#name-repair)
+argument as tibble, so you can use one of the default name repair strategies or
+provide a custom function. A great approach is to use the
+[janitor](http://sfirke.github.io/janitor/) `make_clean_names()` function as the input.
+
+```{r}
+vroom("flights.tsv", .name_repair = janitor::make_clean_names)
+
+vroom("flights.tsv", .name_repair = ~ janitor::make_clean_names(., case = "lower_camel"))
+```
+
+
 ## Column types
 
 Like readr, vroom guesses the data types of columns as they are read, however sometimes it
