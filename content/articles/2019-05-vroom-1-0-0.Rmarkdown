@@ -89,17 +89,17 @@ I'm excited to announce that [vroom 1.0.0](http://vroom.r-lib.org) is now
 available on CRAN!
 
 vroom reads rectangular data, such as comma separated
-(csv), tab separated (tsv) or fixed width files (fwf) into R. It performs the
-same function as packages like [readr](http://readr.r-lib.org),
-[data.table](http://r-datatable.com) or the `read.csv()` function, but for many
-datasets vroom can read them much, much faster (hence the name).
+(csv), tab separated (tsv) or fixed width files (fwf) into R. It performs
+similar roles to functions like [readr::read_csv()](http://readr.r-lib.org),
+[data.table::fread()](http://r-datatable.com) or `read.csv()`. But for many
+datasets `vroom::vroom()` can read them much, much faster (hence the name).
 
 The main reason vroom can be faster is because character data is read from the
 file lazily; you only pay for the data you use. This lazy access is done
-automatically, so no changes to your R data manipulation code are needed.
+automatically, so no changes to your R data-manipulation code are needed.
 
-vroom also provides efficient multi-threaded writing that is multiple times
-faster on most inputs than the readr writer.
+vroom also provides efficient, multi-threaded writing that is multiple times
+faster on most inputs than the `readr::write_*()` functions.
 
 Install vroom with:
 
@@ -121,11 +121,13 @@ some thought.
 ## Reading delimited files
 
 Compared to readr, the first difference you may note is you use only one
-function to read the files, `vroom()`. This is because `vroom()` guesses the
-delimiter of the file automatically based on the first few lines (this feature
-is inspired by a similar feature in `data.table::fread()`). This works well
-most of the time, but may fail to guess properly in some cases. The `delim`
-argument can be used to specify the delimiter of the file explicitly.
+function to read the files,
+[`vroom()`](http://vroom.r-lib.org/reference/vroom.html). This is because
+`vroom()` guesses the delimiter of the file automatically based on the first
+few lines (this feature is inspired by a similar feature in
+`data.table::fread()`). This works well most of the time, but may fail to guess
+properly in some cases. The `delim` argument can be used to specify the
+delimiter of the file explicitly.
 
 ```{r}
 library(vroom)
@@ -134,9 +136,9 @@ data <- vroom("flights.tsv")
 ```
 
 The summary message after reading also differs from readr. We hope this output
-gives a more informative indication if the types of your columns are being guessed
-properly. However you can still retrieve and print the full column specification
-with `spec()`.
+gives a more informative indication as to whether the types of your columns are
+being guessed properly. However you can still retrieve and print the full
+column specification with [`spec()`](http://vroom.r-lib.org/reference/spec.html).
 
 ```{r}
 spec(data)
@@ -154,7 +156,7 @@ data <- vroom("flights.tsv", col_types = s)
 
 One feature new to vroom is built-in support for reading sets of files with the
 same columns into one table. Just pass the filenames to be read directly to
-vroom. Imagine we have a directory of files containing the flights data, where
+`vroom()`. Imagine we have a directory of files containing the flights data, where
 each file corresponds to a single airline.
 
 ```{r, include = FALSE}
@@ -165,7 +167,7 @@ purrr::iwalk(
 )
 ```
 
-Then we can efficiently read all of the files into one tibble by passing a
+Then, we can efficiently read all of the files into one tibble by passing a
 vector of the filenames directly to `vroom()`.
 
 ```{r}
@@ -224,10 +226,10 @@ bench::workout({
 
 ## Column selection
 
-`vroom` introduces a new argument `col_select` which makes selecting columns to
+`vroom` introduces a new argument, `col_select`, which makes selecting columns to
 keep (or omit) more straightforward.
 
-The parameter uses the same interface as `dplyr::select()`, so you can do flexible selection operations.
+ `col_select` uses the same interface as `dplyr::select()`, so you can do flexible selection operations.
 
 - Select with the column names
 ```{r}
@@ -288,7 +290,7 @@ The available specifications are: (with single letter abbreviations in quotes)
 
 You can tell vroom what columns to use with the `col_types()` argument in a number of ways.
 
-If you only need to override a single column the most concise way is to use a named vector.
+If you only need to override a single column, the most concise way is to use a named vector.
 
 ```{r}
 # read the 'year' column as an integer
@@ -301,7 +303,7 @@ data <- vroom("flights.tsv", col_types = c(year = "i", time_hour = "_"))
 data <- vroom("flights.tsv", col_types = c(year = "i", time_hour = "_", carrier = "f"))
 ```
 
-However you can also use the `col_*()` functions in a list.
+However, you can also use the `col_*()` functions in a list.
 
 ```{r}
 data <- vroom("flights.tsv",
@@ -321,8 +323,8 @@ data <- vroom("flights.tsv",
 ## Speed
 
 vroom is fast, but how fast?
-We benchmarked vroom using a real world dataset of taxi trip data, with
-14.7 million rows, 11 columns. It contains a mix of numeric and text data and has a
+We benchmarked vroom using a real-world dataset of taxi-trip data, with
+14.7 million rows, 11 columns. It contains a mix of numeric and text data, and has a
 total file size of 1.55 GB.
 
     #> Observations: 14,776,615
@@ -389,10 +391,10 @@ unlink(c(files, "flights.tsv", "flights.tsv.gz"))
 Some things to note in the results. The initial reading is much faster in vroom
 than any other method, and most of the manipulations, such as `print()`,
 `head()`, `tail()` and `sample()` are equally fast, so fast they can't be seen
-in the plots. However because the character data is read lazily operations such
-as `filter` and `summarise` which need character values require additional
-time. However this cost will only occur once, after the values have been read
-they will be stored in memory and additional accesses will be equivalent to
+in the plots. However because the character data is read lazily, operations such
+as `filter` and `summarise`, which need character values, require additional
+time. However, this cost will only occur once. After the values have been read,
+they will be stored in memory, and subsequent accesses will be equivalent to
 other packages.
 
 For more details on how the benchmarks were performed and additional benchmarks
@@ -401,7 +403,7 @@ vignette](http://vroom.r-lib.org/articles/benchmarks.html).
 
 ## Feedback welcome!
 
-vroom is a new package and like any newborn may fall down a few times before
+vroom is a new package and, like any newborn, may fall down a few times before
 learning to run. If you do run into a bug or think of a new feature that
 work well in vroom please [open an
 issue](https://github.com/r-lib/vroom/issues) so we can discuss it!
