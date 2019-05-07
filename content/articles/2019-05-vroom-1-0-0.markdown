@@ -242,8 +242,8 @@ bench::workout({
 <PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span><span>
 #&gt;   exprs                                                process     real
 #&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                          </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span>
-#&gt; </span><span style='color: #555555;'>1</span><span> vroom_write(flights, "flights.tsv.gz")                 3.44s    2.58s
-#&gt; </span><span style='color: #555555;'>2</span><span> vroom_write(flights, pipe("pigz &gt; flights.tsv.gz"))    1.52s 963.08ms
+#&gt; </span><span style='color: #555555;'>1</span><span> vroom_write(flights, "flights.tsv.gz")                 3.56s    2.72s
+#&gt; </span><span style='color: #555555;'>2</span><span> vroom_write(flights, pipe("pigz &gt; flights.tsv.gz"))    1.59s    1.03s
 </span></CODE></PRE>
 
 ## Column selection
@@ -360,15 +360,7 @@ provide a custom function. A great approach is to use the
 vroom("flights.tsv", .name_repair = janitor::make_clean_names)
 ```
 
-<PRE class="fansi fansi-message"><CODE>#&gt; <span style='font-weight: bold;'>Observations:</span><span> 336,776
-#&gt; </span><span style='font-weight: bold;'>Variables:</span><span> 19
-#&gt; </span><span style='color: #BB0000;'>chr</span><span>  [ 4]: carrier, tailnum, origin, dest
-#&gt; </span><span style='color: #00BB00;'>dbl</span><span>  [14]: year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, sched_arr...
-#&gt; </span><span style='color: #0000BB;'>dttm</span><span> [ 1]: time_hour
-#&gt; 
-#&gt; </span><span style='color: #555555;'>Call `spec()` for a copy-pastable column specification</span><span>
-#&gt; </span><span style='color: #555555;'>Specify the column types with `col_types` to quiet this message</span><span>
-</span></CODE></PRE><PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #555555;'># A tibble: 336,776 x 19</span><span>
+<PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #555555;'># A tibble: 336,776 x 19</span><span>
 #&gt;     year month   day dep_time sched_dep_time dep_delay arr_time
 #&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>          </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
 #&gt; </span><span style='color: #555555;'> 1</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      517            515         2      830
@@ -392,15 +384,7 @@ vroom("flights.tsv", .name_repair = janitor::make_clean_names)
 vroom("flights.tsv", .name_repair = ~ janitor::make_clean_names(., case = "lower_camel"))
 ```
 
-<PRE class="fansi fansi-message"><CODE>#&gt; <span style='font-weight: bold;'>Observations:</span><span> 336,776
-#&gt; </span><span style='font-weight: bold;'>Variables:</span><span> 19
-#&gt; </span><span style='color: #BB0000;'>chr</span><span>  [ 4]: carrier, tailnum, origin, dest
-#&gt; </span><span style='color: #00BB00;'>dbl</span><span>  [14]: year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, sched_arr...
-#&gt; </span><span style='color: #0000BB;'>dttm</span><span> [ 1]: time_hour
-#&gt; 
-#&gt; </span><span style='color: #555555;'>Call `spec()` for a copy-pastable column specification</span><span>
-#&gt; </span><span style='color: #555555;'>Specify the column types with `col_types` to quiet this message</span><span>
-</span></CODE></PRE><PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #555555;'># A tibble: 336,776 x 19</span><span>
+<PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #555555;'># A tibble: 336,776 x 19</span><span>
 #&gt;     year month   day depTime schedDepTime depDelay arrTime schedArrTime
 #&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>        </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>        </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
 #&gt; </span><span style='color: #555555;'> 1</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1     517          515        2     830          819
