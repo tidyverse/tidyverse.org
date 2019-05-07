@@ -26,13 +26,10 @@ I'm excited to announce that [vroom 1.0.0](http://vroom.r-lib.org) is now
 available on CRAN!
 
 vroom reads rectangular data, such as comma separated
-(csv), tab separated (tsv) or fixed width files (fwf) into R.
-
-It performs the
+(csv), tab separated (tsv) or fixed width files (fwf) into R. It performs the
 same function as packages like [readr](http://readr.r-lib.org),
-[data.table](http://r-datatable.com) or the `read.csv()`
-function, but for many datasets vroom can read them much, much
-faster (hence the name).
+[data.table](http://r-datatable.com) or the `read.csv()` function, but for many
+datasets vroom can read them much, much faster (hence the name).
 
 The main reason vroom can be faster is because character data is read from the
 file lazily; you only pay for the data you use. This lazy access is done
@@ -51,13 +48,22 @@ install.packages("vroom")
 The best way to get acquainted with the package is the [getting
 started](http://vroom.r-lib.org/articles/vroom.html) vignette.
 
+## vroom vs readr
+
+What does the release of vroom mean for readr? For now we plan
+to let the two packages evolve separately, but likely we will unite the
+packages in the future. One disadvantage to vroom's lazy reading is certain
+data problems can't be reported up front, so how best to unify them requires
+some thought.
+
 ## Reading delimited files
 
 Compared to readr, the first difference you may note is you use only one
 function to read the files, `vroom()`. This is because `vroom()` guesses the
-delimiter of the file automatically (based on the first few lines). This works
-well most of the time, but may fail to guess properly in some cases. The
-`delim` argument is used to specify the delimiter of the file explicitly.
+delimiter of the file automatically based on the first few lines (this feature
+is inspired by a similar feature in `data.table::fread()`). This works well
+most of the time, but may fail to guess properly in some cases. The `delim`
+argument can be used to specify the delimiter of the file explicitly.
 
 
 ```r
@@ -118,19 +124,13 @@ data <- vroom("flights.tsv", col_types = s)
 
 One feature new to vroom is built-in support for reading sets of files with the
 same columns into one table. Just pass the filenames to be read directly to
-vroom.
+vroom. Imagine we have a directory of files containing the flights data, where
+each file corresponds to a single airline.
 
 
-```r
-# Split the flights data by carrier
-purrr::iwalk(
-  split(flights, flights$carrier),
-  ~ vroom::vroom_write(.x, glue::glue("flights_{.y}.tsv"), delim = "\t")
-)
-```
 
-Then we can efficiently read all of the files into one tibble by passing the filenames
-directly to `vroom()`.
+Then we can efficiently read all of the files into one tibble by passing a
+vector of the filenames directly to `vroom()`.
 
 
 ```r
@@ -228,8 +228,8 @@ bench::workout({
 #> # A tibble: 2 x 3
 #>   exprs                                                process     real
 #>   <bch:expr>                                          <bch:tm> <bch:tm>
-#> 1 vroom_write(flights, "flights.tsv.gz")                 3.45s    2.62s
-#> 2 vroom_write(flights, pipe("pigz > flights.tsv.gz"))    1.53s 956.15ms
+#> 1 vroom_write(flights, "flights.tsv.gz")                 3.41s    2.58s
+#> 2 vroom_write(flights, pipe("pigz > flights.tsv.gz"))    1.54s 996.06ms
 ```
 
 ## Column selection
@@ -251,6 +251,7 @@ data <- vroom("flights.tsv", col_select = c(year, flight, tailnum))
 #> Call `spec()` for a copy-pastable column specification
 #> Specify the column types with `col_types` to quiet this message
 ```
+
 - Drop columns by name
 
 ```r
@@ -264,17 +265,6 @@ data <- vroom("flights.tsv", col_select = c(-dep_time, -air_time:-time_hour))
 #> Specify the column types with `col_types` to quiet this message
 ```
 
-- Use numeric indices
-
-```r
-data <- vroom("flights.tsv", col_select = c(1, 3, 11))
-#> Observations: 336,776
-#> Variables: 3
-#> dbl [3]: year, day, flight
-#> 
-#> Call `spec()` for a copy-pastable column specification
-#> Specify the column types with `col_types` to quiet this message
-```
 - Use the selection helpers
 
 ```r
@@ -370,8 +360,11 @@ vroom("flights.tsv", .name_repair = ~ janitor::make_clean_names(., case = "lower
 
 ## Column types
 
-Like readr, vroom guesses the data types of columns as they are read, however sometimes it
-is necessary to change the type of one or more columns.
+Like readr, vroom guesses the data types of columns as they are read. readr
+simply used the first `n` rows of data, vroom uses an improved heuristic of
+looking at data throughout the file, which should improve guessing accuracy.
+However if the guessing fails it can be necessary to change the type of one or
+more columns.
 
 The available specifications are: (with single letter abbreviations in quotes)
 
@@ -426,7 +419,7 @@ data <- vroom("flights.tsv",
 
 vroom is fast, but how fast?
 We benchmarked vroom using a real world dataset of taxi trip data, with
-14.7 million rows, 11 columns. It contains a mix of numeric and textual data and has a
+14.7 million rows, 11 columns. It contains a mix of numeric and text data and has a
 total file size of 1.55 GB.
 
     #> Observations: 14,776,615
@@ -451,7 +444,7 @@ We performed a series of simple manipulations with each approach.
   - `tail()`
   - Sampling 100 random rows
   - Filtering for "UNK" payment, this is 6434 rows (0.0435% of total).
-  - Aggregation of mean fare amount per payment type.
+  - Summarizing the mean fare amount per payment type.
 
 <style>
 td,th {
@@ -470,7 +463,7 @@ border-bottom: 1px solid #aaa;
 
 <img src="/articles/2019-05-vroom-1-0-0_files/figure-html/benchmark_plot-1.png" width="960" />
 
-|    package|     read| print| head| tail| sample| filter| aggregate|    total|
+|    package|     read| print| head| tail| sample| filter| summarise|    total|
 |----------:|--------:|-----:|----:|----:|------:|------:|---------:|--------:|
 | read.delim| 1m 21.5s|   6ms|  1ms|  1ms|    1ms|  315ms|     764ms| 1m 22.6s|
 |      readr|    33.1s|  90ms|  1ms|  1ms|    2ms|  202ms|     825ms|    34.2s|
@@ -483,12 +476,12 @@ border-bottom: 1px solid #aaa;
 
 Some things to note in the results. The initial reading is much faster in vroom
 than any other method, and most of the manipulations, such as `print()`,
-`head()`, `tail()` and `sample()` are equally fast. However because the
-character data is read lazily operations such as `filter()` and `aggregrate()`
-which need character values require additional time.
-However this cost will only occur once, after the values have been read they
-will be stored in memory and additional accesses will be equivalent to other
-packages.
+`head()`, `tail()` and `sample()` are equally fast, so fast they can't be seen
+in the plots. However because the character data is read lazily operations such
+as `filter` and `summarise` which need character values require additional
+time. However this cost will only occur once, after the values have been read
+they will be stored in memory and additional accesses will be equivalent to
+other packages.
 
 For more details on how the benchmarks were performed and additional benchmarks
 with other types of data see the [benchmark
