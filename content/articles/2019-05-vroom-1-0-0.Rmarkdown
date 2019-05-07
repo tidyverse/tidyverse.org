@@ -15,16 +15,6 @@ photo:
 ```{r include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
-options(crayon.enabled = TRUE)
-
-old_hooks <- fansi::set_knit_hooks(
-  knitr::knit_hooks,
-  which = c("message", "output", "error"),
-  proc.fun = function(x, class) {
-    fansi::html_code_block(fansi::sgr_to_html(fansi::html_esc(x)), class = class)
-  }
-)
-
 library(vroom)
 library(nycflights13)
 vroom_write(flights, "flights.tsv")
