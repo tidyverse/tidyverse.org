@@ -23,39 +23,39 @@ knitr::opts_chunk$set(
 
 # It depends - A dialog about dependencies
 
-> This post paraphrases my [talk with the same name](https://resources.rstudio.com/rstudio-conf-2019/it-depends-a-dialog-about-dependencies) at RStudio::conf 2019.
+> This post paraphrases my [talk with the same name](https://resources.rstudio.com/rstudio-conf-2019/it-depends-a-dialog-about-dependencies) at rstudio::conf 2019.
 
-Software dependencies can often be a double edged sword.
+Software dependencies can often be a double-edged sword.
 
-On one hand they let you take advantage of others' work, giving your software
+On one hand, they let you take advantage of others' work, giving your software
 marvelous new features and reducing bugs.
 
-On the other hand they can change over time, causing your software to break
+On the other hand, they can change over time, causing your software to break
 unexpectedly and (potentially) increasing your maintenance burden. They can also
  take additional disk space and installation time.
 
 
 These downsides have led some to suggest a 'dependency zero' mindset.
 
-I feel this is a major mistake for most projects, and will instead increase
+We feel that this is a major mistake for most projects, and will instead increase
 maintenance, lower functionality and introduce additional bugs.
 
-## dependencies are not equal
+## Dependencies are not equal
 
 One issue with striving for minimal dependencies is it treats all dependencies
-as equivalent. However in reality this is far from the case. There are many
-axis upon which dependencies can differ, but some of the most important include
+as equivalent. However, in reality this is far from the case. There are many
+axes upon which dependencies can differ, but some of the most important include:
 
-1. The number of additional dependencies. For example the
+1. The number of additional dependencies. For example, the
    [rlang](https://github.com/r-lib/rlang) package has no dependencies apart
    from R; while the [CNVscope](https://cran.r-project.org/package=CNVScope)
-   has 125 user dependencies, on both CRAN and
+   has 125 user dependencies on both CRAN and
    Bioconductor.
 
 2. The time taken to compile the package from source. Packages containing R code
    generally install in roughly the same amount of time, but those that contain
    C, C++ or Fortran code can take very different amounts of time depending
-   on the complexity of the code. For example the
+   on the complexity of the code. For example, the
    [glue](https://cran.r-project.org/package=glue) package takes ~5 seconds to
    compile on CRAN's build machines, whereas the
    [readr](https://cran.r-project.org/package=readr) package takes ~500
@@ -69,9 +69,9 @@ axis upon which dependencies can differ, but some of the most important include
    [h2o](https://cran.r-project.org/package=h2o) package is 123 Mb, and the
    largest binary on Bioconductor is over 4 Gb!
 
-4. The system requirements required to build and use the package. Some packages
+4. The system requirements to build and use the package. Some packages
    require additional system dependencies in order to be used.
-   For instance the [rgdal](https://cran.r-project.org/package=rgdal) package
+   For instance, the [rgdal](https://cran.r-project.org/package=rgdal) package
    requires the GDAL and PROJ.4 dependencies, each of which in turn have
    additional system dependencies. Another example is
    [rJava](https://cran.r-project.org/package=rJava) which requires Java and
@@ -80,23 +80,23 @@ axis upon which dependencies can differ, but some of the most important include
    people](https://stackoverflow.com/questions/tagged/rjava).
 
 I hope the above examples illustrate that not all package dependencies are
-equivalent and we should not treat them as such by using a simple count of
+equal, and we should not treat them as such by using a simple count of
 dependencies as our metric.
 
-## prefer a balanced weight
+## Prefer a balanced weight
 
-Instead of striving for absolutely minimal dependencies I would instead suggest
-a more holistic, balanced and quantitative approach.
+Instead of striving for a minimal number of dependencies, I would instead suggest
+a more holistic, balanced, and quantitative approach.
 
 A holistic approach looks at the project as a whole and asks who is the primary
-audience? If the audience is other package authors than a leaner package with fewer
-dependencies may be more appropriate. If instead it is primarily data scientists or
-statisticians they will likely already have many popular dependencies installed and
+audience? If the audience is other package authors then a leaner package with fewer
+dependencies may be more appropriate. If, instead, it is primarily data scientists or
+statisticians, they will likely already have many popular dependencies installed and
 a more feature-full package is preferred.
 
 A balanced approach understands that adding (or removing) dependencies
-come with trade-offs. Adding a dependency gives you additional features,
-bug fixes, and real-world testing, at the costs of increased installation time,
+comes with trade-offs. Adding a dependency gives you additional features,
+bug fixes, and real-world testing at the costs of increased installation time,
 disk space and maintenance if the dependency has breaking changes.
 
 In contrast, removing a dependency lowers installation time, disk space and
@@ -109,28 +109,28 @@ dependencies gives you more power to reason about which dependencies would be
 most beneficial to remove (if any).
 
 How you weigh these costs and benefits varies by the skills and experience of
-the maintainer and should also vary by the goals of the project.
+the maintainer and the goals of the project.
 
-## beware illusionary superiority
+## Beware illusory superiority
 
 When making these decisions it is important to consider the
-psychological phenomenon of [Illusionary
+psychological phenomenon of [Illusory
 Superiority](https://en.wikipedia.org/wiki/Illusory_superiority). Illusory
 superiority is the idea that people (regardless of background) overestimate
 (sometimes greatly) their own abilities in a given field. No one is truly
 immune to this phenomenon, including the author of this post! This phenomenon
-will cause you to overestimate your ability to re-implement features and
+will cause you to overestimate your ability to re-implement features, and
 underestimate the introduction of new bugs.
 
-However even if you truly _are_ a more skilled programmer than the maintainer of
-a dependency I would still advise caution. The existing package has the
+However, even if you truly _are_ a more skilled programmer than the maintainer of
+a dependency, I would still advise caution. The existing package has the
 significant benefits of _time_ and _users_. Users who have undoubtedly uncovered
 numerous bugs using the package in the real world, which are now fixed.
 
 ## itdepends, a package to help with dependencies
 
 The [itdepends](https://github.com/jimhester/itdepends) package provides tools
-to assess usage, measure weights, visualize proportions and if needed, assist
+to assess usage, measure weights, visualize proportions and if needed, assist with the
 removal of dependencies.
 
 ## Assess usage with `itdepends::dep_usage()`
@@ -147,7 +147,7 @@ itdepends::dep_usage("~/p/tidyversedashboard") %>%
   count(pkg, sort = TRUE)
 ```
 
-- show the most often used _function_ from each package
+- show the most frequently used _function_ from each package
 
 ```{r}
 itdepends::dep_usage("~/p/tidyversedashboard") %>%
@@ -169,7 +169,7 @@ weights <- itdepends::dep_weight(c("dplyr", "data.table"))
 weights
 ```
 
-The measures break down into a few rough categories
+The measures break down into a few rough categories:
 
 - package and repository information (`package`, `funs`, `downloads`, `open_issues`, `last_updated`, `forks`, `stars`)
 - dependency information (`num_users`, `num_dev`, `user_deps`, `dev_deps`)
@@ -177,13 +177,13 @@ The measures break down into a few rough categories
 - time to compile dependencies, and the raw times (`install_self`, `install_user`, `install_dev`, `self_timings`, `user_timings`, `dev_timings`)
 - CRAN information (`downloads`, `first_release`, `last_release`, `total_releases`, `releases_last_52`)
 
-The total number of dependencies, binary sizes and installation times give you
+The total number of dependencies, binary sizes, and installation times give you
 a good idea the magnitude of the dependency load.
 
-Equally important however are the downloads, release information and open
+Equally important, however, are the downloads, release information and open
 issues, which tell you how long the package has existed, how many people are
 using it and how many open issues exist. Packages that have existed longer,
-with more users and fewer issues should be the most reliable.
+with more users and fewer issues should generally be more reliable.
 
 ## Visualize proportions with `itdepends::dep_plot()`
 
@@ -196,7 +196,7 @@ itdepends::dep_plot_time("dplyr")
 ```
 
 From the above plot we see that the installation time of dplyr for users is
-mostly due to compiling dplyr itself. However for development dependencies the
+mostly due to compiling dplyr itself. However, for development dependencies, the
 stringi and RSQLite packages also take significant time to install.
 
 
@@ -218,7 +218,7 @@ keep, what are the best practices for removing it?
 
 First and most importantly, write _tests_ for the existing
 behavior. This is an essential step which will greatly reduce the introduction
-of new bugs. Only once you have written the tests should start performing the
+of new bugs. Only once you have written the tests should you start performing the
 replacement.
 
 Then, use the `dep_locate()` function to find all the instances when you use
@@ -234,7 +234,7 @@ itdepends::dep_locate("purrr", path = "~/p/tidyversedashboard")
 
 In almost any area of life striving towards absolutes rarely provides the best
 outcome. Package dependencies are no exception. Keep the expected users of your
-package in mind and use the tools provided in itdepends to obtain data which
+package in mind, and use the tools provided in itdepends to obtain data which
 can help you assess the dependencies to remove (if any).
 
 And remember [Goodhart's Law](https://en.wikipedia.org/wiki/Goodhart%27s_law)
