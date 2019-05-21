@@ -14,8 +14,8 @@ photo:
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE, comment = "#>", 
-  fig.width = 7, 
+  collapse = TRUE, comment = "#>",
+  fig.width = 7,
   fig.align = 'center',
   fig.asp = 0.618, # 1 / phi
   out.width = "700px"
@@ -454,10 +454,25 @@ gradually. Exit handlers installed via `r_call_on_exit()` and
 We suggest that exit handlers are kept as simple and fast as possible.
 In particular, errors (and other early exits) triggered from exit handlers
 are not caught currently. If an exit handler exits early the others do not
-run. If this is an issue, you can wrap the exit handler in
-`R_ToplevelExec()`. But note that this solution is not ideal either
-because `R_ToplevelExec()` prevents R functions from handling the errors
-occurring from the handler.
+run. If this is an issue, you can wrap the exit handler in `R_tryCatch()`
+(available for R 3.4.0 and later). But in general the best error handlers
+do not call the R API at all.
+
+# What about C++?
+
+The resource cleanup problem is also present if you interface C++ code.
+While cleancall can be used with C++, it works best with C code,
+since it follows C idioms.
+
+Using external pointers and finalizers works for C++ as well, as does
+wrapping R API calls in `R_ExecWithCleanup()`.
+
+Alternatively, you can wrap your R API calls in `R_tryCatch()` (R 3.4.0
+and later), or use `R_UnwindProtect()` (R 3.5.0 and later).
+
+If your C++ code needs to support older R versions, that is more
+challenging, and one possibility is to call back to R and call `tryCatch()`
+there.
 
 # Summary
 
