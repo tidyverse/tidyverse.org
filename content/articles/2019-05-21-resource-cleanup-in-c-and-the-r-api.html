@@ -1,6 +1,6 @@
 ---
 title: Resource Cleanup in C and the R API
-date: '2019-04-08'
+date: '2019-05-21'
 slug: resource-cleanup-in-c-and-the-r-api
 author: Gábor Csárdi, Lionel Henry
 categories: [package, programming]
@@ -36,7 +36,7 @@ back to R:</p>
 <li>debugger exit,</li>
 <li>keyboard interruption.</li>
 </ul>
-<p>Resources that need to be released include</p>
+<p>Resources that need to be released include:</p>
 <ul>
 <li>memory areas,</li>
 <li>file handles,</li>
@@ -53,10 +53,10 @@ function, before returning.</p>
 </div>
 <div id="error" class="section level2">
 <h2>Error</h2>
-<p>Errors may happen two ways. They can be thrown directly by the
-function. E.g. a function that reads a file will throw an error it if
+<p>Errors may happen two ways. They can be thrown directly, or by the R API.
+A function that reads a file will throw an error it if
 fails to open the file for reading. These errors are easy to handle, we
-can simply release all resource before throwing the error.</p>
+can release all resources before throwing the error.</p>
 <p>Errors can also be thrown by the R API. The R C API functions do not
 return on error, instead they perform an error (a <code>longjmp</code> technically),
 that can be caught by R or (recently) C code. Releasing resources is
@@ -64,14 +64,14 @@ trickier in this case, as our C function never gets back the control after
 the failed R API call.</p>
 </div>
 <div id="warning-or-other-condition-caught-with-trycatch" class="section level2">
-<h2>Warning or other condition caught with tryCatch()</h2>
+<h2>Warning or other condition caught with <code>tryCatch()</code></h2>
 <p>Usually we assume that throwing a warning (or other non-error condition)
 does not cause an early exit, but this is not always the case. Warnings can
 be caught by an exiting <code>tryCatch()</code>.</p>
 </div>
 <div id="debugger-exit" class="section level2">
 <h2>Debugger exit</h2>
-<p>If the C function calls back to R, to evaluate R expressions, then
+<p>If the C function calls back to R to evaluate R expressions, then
 these might invoke the debugger, see <code>?debug</code> or <code>?trace</code>. The <code>Q</code> debugger
 command invokes the <code>abort</code> restart, to get back to the top-level prompt.
 In this case most functions on the (R and C) stack are removed at once.</p>
@@ -83,11 +83,11 @@ so during long computation or I/O. If the user initiates an interrupt via
 the keyboard or a signal, then <code>R_CheckUserInterrupt()</code> never returns, and
 the control goes back to top level.</p>
 <p>To illustrate the resource cleanup problem more, we’ll show some examples
-from base R and CRAN packages, that contain potential resource leaks.</p>
+from base R and CRAN packages that contain potential resource leaks.</p>
 </div>
 </div>
 <div id="example-1-download.filemethod-internal" class="section level1">
-<h1>Example 1: download.file(method = “internal”)</h1>
+<h1>Example 1: <code>download.file(method = &quot;internal&quot;)</code></h1>
 <p>The C implementation of <code>download.file()</code> opens a file for saving the
 downloaded data to, and it does not clean or even close this file on a
 keyboard interrupt. The file is opened here:
@@ -97,7 +97,7 @@ keyboard interrupt. The file is opened here:
     out = R_fopen(R_ExpandFileName(file), mode);
     [...]</code></pre>
 <p>We can easily show the problem in practice as well.
-First we create a handy function that interrupts the current process,
+First, we create a handy function that interrupts the current process
 one second after calling it. This allows us to simulate an interrupt from
 the keyboard. It starts a background process that will send an interrupt
 (SIGINT on Unix, CTRL+C on Windows) to our R process.</p>
@@ -146,7 +146,7 @@ released until the R session quits. On Windows this file is probably locked,
 and cannot be removed until R exits.</p>
 </div>
 <div id="example-2-download.filemethod-libcurl" class="section level1">
-<h1>Example 2: download.file(method = “libcurl”)</h1>
+<h1>Example 2: <code>download.file(method = &quot;libcurl&quot;)</code></h1>
 <p>There is a very similar bug in the implementation of the <code>download.file()</code>
 libcurl method, which opens an output file here:
 <a href="https://github.com/wch/r-source/blob/def075db88ae87104c38437a57e9327b078bb804/src/modules/internet/libcurl.c#L566" class="uri">https://github.com/wch/r-source/blob/def075db88ae87104c38437a57e9327b078bb804/src/modules/internet/libcurl.c#L566</a>
@@ -181,7 +181,7 @@ ps::ps_open_files(ps::ps_handle())
 #&gt; 8    17 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…</code></pre>
 </div>
 <div id="example-3-edit" class="section level1">
-<h1>Example 3: edit()</h1>
+<h1>Example 3: <code>edit()</code></h1>
 <p><code>edit()</code> invokes the text editor specified by the <code>editor</code> option, with the
 supplied object to be edited. <code>edit()</code> can also write the edited version
 to a file. It opens a file here to create its first version, before starting
@@ -274,7 +274,7 @@ garbage collection:</p>
   if (INTEGER(tag)[0] &gt;= 0) close(INTEGER(tag)[0]);
   if (INTEGER(tag)[1] &gt;= 0) close(INTEGER(tag)[1]);
 }</code></pre>
-<p>An external pointer can have a <em>tag</em>, which is an R object, that is kept
+<p>An external pointer can have a <em>tag</em>, which is an R object that is kept
 alive as long the pointer object itself is alive. In this case we can put
 the file descriptors in the tag, in an integer vector of length two.
 In more complicated cases the resources cannot easily be represented as
@@ -300,7 +300,7 @@ and the tag:</p>
 <pre class="c"><code>  UNPROTECT(2);
   return ScalarLogical(ret != 0);
 }</code></pre>
-<p>One potential problem with the external pointer fix, is that the resources
+<p>One potential problem with the external pointer fix is that the resources
 will only be cleaned up at the next garbage collection, and sometimes this
 is too late. For example, if an open file is locked by the operating system,
 then we won’t be able to remove that file, or its directory, until the
@@ -308,7 +308,7 @@ garbage collector runs and closes it. It is easier to program if
 resource cleanup is immediate, and luckily the other two fixes below are.</p>
 </div>
 <div id="fix-2-the-r_execwithcleanup-function" class="section level1">
-<h1>Fix 2: the R_ExecWithCleanup function</h1>
+<h1>Fix 2: the <code>R_ExecWithCleanup()</code> function</h1>
 <p><code>R_ExecWithCleanup()</code> is a function in the R API, that can add a cleanup
 function to a regular C function call. The cleanup function is always
 executed, even on early exit:</p>
@@ -415,10 +415,22 @@ gradually. Exit handlers installed via <code>r_call_on_exit()</code> and
 <p>We suggest that exit handlers are kept as simple and fast as possible.
 In particular, errors (and other early exits) triggered from exit handlers
 are not caught currently. If an exit handler exits early the others do not
-run. If this is an issue, you can wrap the exit handler in
-<code>R_ToplevelExec()</code>. But note that this solution is not ideal either
-because <code>R_ToplevelExec()</code> prevents R functions from handling the errors
-occurring from the handler.</p>
+run. If this is an issue, you can wrap the exit handler in <code>R_tryCatch()</code>
+(available for R 3.4.0 and later). But in general the best error handlers
+do not call the R API at all.</p>
+</div>
+<div id="what-about-c" class="section level1">
+<h1>What about C++?</h1>
+<p>The resource cleanup problem is also present if you interface C++ code.
+While <a href="https://github.com/r-lib/cleancall#readme">cleancall</a> can be used with C++, it works best with C code,
+since it follows C idioms.</p>
+<p>Using external pointers and finalizers works for C++ as well, as does
+wrapping R API calls in <code>R_ExecWithCleanup()</code>.</p>
+<p>Alternatively, you can wrap your R API calls in <code>R_tryCatch()</code> (R 3.4.0
+and later), or use <code>R_UnwindProtect()</code> (R 3.5.0 and later).</p>
+<p>If your C++ code needs to support older R versions, that is more
+challenging, and one possibility is to call back to R and call <code>tryCatch()</code>
+there.</p>
 </div>
 <div id="summary" class="section level1">
 <h1>Summary</h1>
