@@ -44,7 +44,7 @@ back to R:
 * debugger exit,
 * keyboard interruption.
 
-Resources that need to be released include
+Resources that need to be released include:
 
 * memory areas,
 * file handles,
@@ -61,10 +61,10 @@ function, before returning.
 
 ## Error
 
-Errors may happen two ways. They can be thrown directly by the
-function. E.g. a function that reads a file will throw an error it if
+Errors may happen two ways. They can be thrown directly, or by the R API.
+A function that reads a file will throw an error it if
 fails to open the file for reading. These errors are easy to handle, we
-can simply release all resource before throwing the error.
+can release all resources before throwing the error.
 
 Errors can also be thrown by the R API. The R C API functions do not
 return on error, instead they perform an error (a `longjmp` technically),
@@ -72,7 +72,7 @@ that can be caught by R or (recently) C code. Releasing resources is
 trickier in this case, as our C function never gets back the control after
 the failed R API call.
 
-## Warning or other condition caught with tryCatch()
+## Warning or other condition caught with `tryCatch()`
 
 Usually we assume that throwing a warning (or other non-error condition)
 does not cause an early exit, but this is not always the case. Warnings can
@@ -80,7 +80,7 @@ be caught by an exiting `tryCatch()`.
 
 ## Debugger exit
 
-If the C function calls back to R, to evaluate R expressions, then
+If the C function calls back to R to evaluate R expressions, then
 these might invoke the debugger, see `?debug` or `?trace`. The `Q` debugger
 command invokes the `abort` restart, to get back to the top-level prompt.
 In this case most functions on the (R and C) stack are removed at once.
@@ -93,9 +93,9 @@ the keyboard or a signal, then `R_CheckUserInterrupt()` never returns, and
 the control goes back to top level.
 
 To illustrate the resource cleanup problem more, we'll show some examples
-from base R and CRAN packages, that contain potential resource leaks.
+from base R and CRAN packages that contain potential resource leaks.
 
-# Example 1: download.file(method = "internal")
+# Example 1: `download.file(method = "internal")`
 
 The C implementation of `download.file()` opens a file for saving the
 downloaded data to, and it does not clean or even close this file on a
@@ -110,7 +110,7 @@ https://github.com/wch/r-source/blob/f3a67c36c5cf4c715dac374e33168cfc348106aa/sr
 ```
 
 We can easily show the problem in practice as well.
-First we create a handy function that interrupts the current process,
+First, we create a handy function that interrupts the current process
 one second after calling it. This allows us to simulate an interrupt from
 the keyboard. It starts a background process that will send an interrupt
 (SIGINT on Unix, CTRL+C on Windows) to our R process.
@@ -158,7 +158,7 @@ Because `download.file()` fails to clean up this file handle, it is not
 released until the R session quits. On Windows this file is probably locked,
 and cannot be removed until R exits.
 
-# Example 2: download.file(method = "libcurl")
+# Example 2: `download.file(method = "libcurl")`
 
 There is a very similar bug in the implementation of the `download.file()`
 libcurl method, which opens an output file here:
@@ -176,7 +176,7 @@ interrupt(
 ps::ps_open_files(ps::ps_handle())
 ```
 
-# Example 3: edit()
+# Example 3: `edit()`
 
 `edit()` invokes the text editor specified by the `editor` option, with the
 supplied object to be edited. `edit()` can also write the edited version
@@ -257,7 +257,7 @@ static void processx__wait_finalizer(SEXP xptr) {
 }
 ```
 
-An external pointer can have a _tag_, which is an R object, that is kept
+An external pointer can have a _tag_, which is an R object that is kept
 alive as long the pointer object itself is alive. In this case we can put
 the file descriptors in the tag, in an integer vector of length two.
 In more complicated cases the resources cannot easily be represented as
@@ -297,14 +297,14 @@ and the tag:
 }
 ```
 
-One potential problem with the external pointer fix, is that the resources
+One potential problem with the external pointer fix is that the resources
 will only be cleaned up at the next garbage collection, and sometimes this
 is too late. For example, if an open file is locked by the operating system,
 then we won't be able to remove that file, or its directory, until the
 garbage collector runs and closes it. It is easier to program if
 resource cleanup is immediate, and luckily the other two fixes below are.
 
-# Fix 2: the R_ExecWithCleanup function
+# Fix 2: the `R_ExecWithCleanup()` function
 
 `R_ExecWithCleanup()` is a function in the R API, that can add a cleanup
 function to a regular C function call. The cleanup function is always
@@ -461,7 +461,7 @@ do not call the R API at all.
 # What about C++?
 
 The resource cleanup problem is also present if you interface C++ code.
-While cleancall can be used with C++, it works best with C code,
+While [cleancall] can be used with C++, it works best with C code,
 since it follows C idioms.
 
 Using external pointers and finalizers works for C++ as well, as does
