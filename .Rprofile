@@ -1,6 +1,6 @@
 options(
   blogdown.author = "Hadley Wickham",
-  blogdown.rmd = TRUE,
+  blogdown.ext = ".Rmarkdown",
   blogdown.subdir = "articles"
 )
 
