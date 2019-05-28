@@ -141,16 +141,16 @@ used to do things like
 
 - show which packages you are using the most in a project
 
-```{r}
+```{r, message = FALSE}
 library(tidyverse)
-itdepends::dep_usage("~/p/tidyversedashboard") %>%
+itdepends::dep_usage_proj("~/p/tidyversedashboard") %>%
   count(pkg, sort = TRUE)
 ```
 
 - show the most frequently used _function_ from each package
 
 ```{r}
-itdepends::dep_usage("~/p/tidyversedashboard") %>%
+itdepends::dep_usage_proj("~/p/tidyversedashboard") %>%
   group_by(pkg) %>%
   count(fun) %>%
   top_n(1) %>%
@@ -164,7 +164,7 @@ itdepends::dep_usage("~/p/tidyversedashboard") %>%
 different metrics that can be used to compare them. Which metric might be the
 most important varies by person, so it is useful to look at the full spectrum.
 
-```{r}
+```{r, message = FALSE}
 weights <- itdepends::dep_weight(c("dplyr", "data.table"))
 weights
 ```
@@ -191,7 +191,7 @@ There are two functions to plot the relative weights of dependencies.
 
 1. `dep_plot_time()` plots the median compilation time on CRAN's servers.
 
-```{r}
+```{r, message = FALSE}
 itdepends::dep_plot_time("dplyr")
 ```
 
@@ -203,7 +203,7 @@ stringi and RSQLite packages also take significant time to install.
 2. `dep_plot_size()` plots the pre-compiled binary size, which is often the more
 useful measure, as most users install pre-compiled binaries.
 
-```{r}
+```{r, message = FALSE}
 itdepends::dep_plot_size("dplyr")
 ```
 
@@ -226,8 +226,12 @@ functions from a given dependency in your code base. If `dep_locate()` is run
 in RStudio the function will add source markers for all the locations, which
 can then be clicked individually to do the replacement.
 
-```{r}
+```{r, eval = FALSE}
 itdepends::dep_locate("purrr", path = "~/p/tidyversedashboard")
+```
+
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics("/images/itdepends/dep_locate.png")
 ```
 
 ## Be balanced and use data
@@ -238,4 +242,5 @@ package in mind, and use the tools provided in itdepends to obtain data which
 can help you assess the dependencies to remove (if any).
 
 And remember [Goodhart's Law](https://en.wikipedia.org/wiki/Goodhart%27s_law)
+
 > When a measure becomes a target, it ceases to be a good measure.
