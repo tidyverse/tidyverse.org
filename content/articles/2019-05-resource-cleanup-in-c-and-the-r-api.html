@@ -21,7 +21,7 @@ h1 code, h2 code {
 </style>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>We have juse released the <a href="https://github.com/r-lib/cleancall#readme">cleancall</a> package to CRAN. <a href="https://github.com/r-lib/cleancall#readme">cleancall</a> is a
+<p>We have just released the <a href="https://github.com/r-lib/cleancall#readme">cleancall</a> package to CRAN. <a href="https://github.com/r-lib/cleancall#readme">cleancall</a> is a
 new package that helps avoiding resource leaks in the C code of your
 R package. In this blog post, we show some example resource leaks from
 base R and R packages, and also show three different ways to fix them,
@@ -30,7 +30,7 @@ one of which uses the <a href="https://github.com/r-lib/cleancall#readme">cleanc
 <div id="the-problem" class="section level1">
 <h1>The problem</h1>
 <p>When writing C code in R packages, one non-trivial issue is to make
-sure that resources acquired by a C fucntion are correctly released
+sure that resources acquired by a C function are correctly released
 or wrapped before giving back control to R. The difficulties partially
 arise from the many ways a C function can terminate and transfer control
 back to R:</p>
@@ -124,11 +124,11 @@ run this code in your R session you’ll not see that file, but of course you
 may see others.</p>
 <pre class="r"><code>ps::ps_open_files(ps::ps_handle())
 #&gt; # A tibble: 4 x 2
-#&gt;      fd path                                               
-#&gt;   &lt;int&gt; &lt;chr&gt;                                              
-#&gt; 1     0 /dev/ttys021                                       
-#&gt; 2     1 /dev/ttys021                                       
-#&gt; 3     2 /dev/ttys021                                       
+#&gt;      fd path
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     0 /dev/ttys021
+#&gt; 2     1 /dev/ttys021
+#&gt; 3     2 /dev/ttys021
 #&gt; 4     7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R</code></pre>
 <p>Now we will start downloading a file, and while it is downloading, we’ll
 send an interrupt to our R process, causing an early exit.</p>
@@ -139,12 +139,12 @@ send an interrupt to our R process, causing an early exit.</p>
 <p>The list of open files will now include the one opened by <code>download.file()</code>:</p>
 <pre class="r"><code>ps::ps_open_files(ps::ps_handle())
 #&gt; # A tibble: 5 x 2
-#&gt;      fd path                                                               
-#&gt;   &lt;int&gt; &lt;chr&gt;                                                              
-#&gt; 1     0 /dev/ttys021                                                       
-#&gt; 2     1 /dev/ttys021                                                       
-#&gt; 3     2 /dev/ttys021                                                       
-#&gt; 4     7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R                
+#&gt;      fd path
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     0 /dev/ttys021
+#&gt; 2     1 /dev/ttys021
+#&gt; 3     2 /dev/ttys021
+#&gt; 4     7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R
 #&gt; 5     9 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…</code></pre>
 <p>Because <code>download.file()</code> fails to clean up this file handle, it is not
 released until the R session quits. On Windows this file is probably locked,
@@ -159,12 +159,12 @@ but it does not close it on error or interrupt. This method can download
 many files in parallel, in which case multiple file handles may be lost:</p>
 <pre class="r"><code>ps::ps_open_files(ps::ps_handle())
 #&gt; # A tibble: 5 x 2
-#&gt;      fd path                                                               
-#&gt;   &lt;int&gt; &lt;chr&gt;                                                              
-#&gt; 1     0 /dev/ttys021                                                       
-#&gt; 2     1 /dev/ttys021                                                       
-#&gt; 3     2 /dev/ttys021                                                       
-#&gt; 4     7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R                
+#&gt;      fd path
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     0 /dev/ttys021
+#&gt; 2     1 /dev/ttys021
+#&gt; 3     2 /dev/ttys021
+#&gt; 4     7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R
 #&gt; 5     9 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
 interrupt(
   download.file(
@@ -174,12 +174,12 @@ interrupt(
 #&gt; &lt;interrupt: &gt;
 ps::ps_open_files(ps::ps_handle())
 #&gt; # A tibble: 8 x 2
-#&gt;      fd path                                                               
-#&gt;   &lt;int&gt; &lt;chr&gt;                                                              
-#&gt; 1     0 /dev/ttys021                                                       
-#&gt; 2     1 /dev/ttys021                                                       
-#&gt; 3     2 /dev/ttys021                                                       
-#&gt; 4     7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R                
+#&gt;      fd path
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     0 /dev/ttys021
+#&gt; 2     1 /dev/ttys021
+#&gt; 3     2 /dev/ttys021
+#&gt; 4     7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R
 #&gt; 5     9 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
 #&gt; 6    15 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
 #&gt; 7    16 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
@@ -207,12 +207,12 @@ it calls <code>deparse1()</code> which is roughly equivalent to the R <code>depa
 function, and <code>deparse</code>()` fails on long vectors:</p>
 <pre class="r"><code>ps::ps_open_files(ps::ps_handle())
 #&gt; # A tibble: 8 x 2
-#&gt;      fd path                                                               
-#&gt;   &lt;int&gt; &lt;chr&gt;                                                              
-#&gt; 1     0 /dev/ttys021                                                       
-#&gt; 2     1 /dev/ttys021                                                       
-#&gt; 3     2 /dev/ttys021                                                       
-#&gt; 4     7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R                
+#&gt;      fd path
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     0 /dev/ttys021
+#&gt; 2     1 /dev/ttys021
+#&gt; 3     2 /dev/ttys021
+#&gt; 4     7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R
 #&gt; 5     9 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
 #&gt; 6    15 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
 #&gt; 7    16 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
@@ -221,12 +221,12 @@ edit(1:10e10, file = tempfile())
 #&gt; Error in edit.default(1:1e+11, file = tempfile()): long vectors not supported yet: ../../../../R-3.5.3/src/include/Rinlinedfuns.h:519
 ps::ps_open_files(ps::ps_handle())
 #&gt; # A tibble: 9 x 2
-#&gt;      fd path                                                               
-#&gt;   &lt;int&gt; &lt;chr&gt;                                                              
-#&gt; 1     0 /dev/ttys021                                                       
-#&gt; 2     1 /dev/ttys021                                                       
-#&gt; 3     2 /dev/ttys021                                                       
-#&gt; 4     7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R                
+#&gt;      fd path
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     0 /dev/ttys021
+#&gt; 2     1 /dev/ttys021
+#&gt; 3     2 /dev/ttys021
+#&gt; 4     7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R
 #&gt; 5     8 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
 #&gt; 6     9 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
 #&gt; 7    15 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
@@ -300,7 +300,7 @@ the external pointer.</p>
   }
   INTEGER(tag)[0] = handle-&gt;waitpipe[0];
   INTEGER(tag)[1] = handle-&gt;waitpipe[1];</code></pre>
-<p>At the end of the function, we need to unprocect the external pointer,
+<p>At the end of the function, we need to unprotect the external pointer,
 and the tag:</p>
 <pre class="c"><code>  UNPROTECT(2);
   return ScalarLogical(ret != 0);
