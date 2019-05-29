@@ -48,10 +48,10 @@ axes upon which dependencies can differ, but some of the most important include:
   [drat](https://github.com/eddelbuettel/drat) which require users to configure
   additional repositories before installation.
 
-2. The number of downstream dependencies. For example, the
-   [rlang](https://github.com/r-lib/rlang) package has no downstream
+2. The number of upstream dependencies. For example, the
+   [rlang](https://github.com/r-lib/rlang) package has no upstream
    dependencies apart from R; while the
-   [CNVscope](https://cran.r-project.org/package=CNVScope) package has 125 downstream
+   [CNVscope](https://cran.r-project.org/package=CNVScope) package has 125 upstream
    dependencies, on both CRAN and Bioconductor.
 
 3. Already fulfilled dependencies. If your package depends on dplyr then
