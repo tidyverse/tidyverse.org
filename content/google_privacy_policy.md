@@ -45,7 +45,7 @@ Overview of the scopes requested by various packages in the GARGLE_PROJECT and t
   * BigQuery and Google Cloud Platform (read/write): The bigrquery package lets you upload, query, and modify data stored in Google Bigquery, as well as retrieve metadata about projects, datasets, tables, and jobs.
   * Drive (read/write): The googledrive package allows you to manage your Drive files and therefore the default scopes include read/write access. The googledrive package makes it possible for you to get a token with more limited scope, e.g. read only.
   * Gmail (read/write): The gmailr package is primarily used to send mail and thus must have the abilty to compose and send mail.
-  * Sheets (read/write): The googledrive package allows you to manage your Sheets files and therefore the default scopes include read/write access. The googlesheets4 package makes it possible for you to get a token with more limited scope, e.g. read only.
+  * Sheets (read/write): The googlesheets4 package allows you to manage your spreadsheets and therefore the default scopes include read/write access. The googlesheets4 package makes it possible for you to get a token with more limited scope, e.g. read only.
 
 ### Sharing user data
 
