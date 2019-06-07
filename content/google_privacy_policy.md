@@ -42,13 +42,15 @@ These packages can help you get a token by guiding you through the OAuth flow in
 
 There are two ways to use these packages without authorizing the GARGLE_PROJECT: bring your own [service account token](https://developers.google.com/identity/protocols/OAuth2ServiceAccount) or configure the package to use an OAuth client of your choice.
 
-### Storing user data
-
-By default, your token is stored to a local file, such as `~/.R/gargle/gargle-oauth`. See the documentation for [`gargle::gargle_options()`](https://gargle.r-lib.org/reference/gargle_options.html) and [`gargle::credentials_user_oauth2()`](https://gargle.r-lib.org/reference/credentials_user_oauth2.html) for information on how to control the location of the token cache or suppress token caching, globally or at the individual token level. All user data is stored on your local machine. **Use caution when using these packages on a shared machine**.
-
 ### Sharing user data
 
 The packages only communicate with Google APIs. No user data is shared with the tidyverse maintainers, RStudio, or any other servers.
+
+### Storing user data
+
+These packages may store your credentials on your local machine, for later reuse by you. **Use caution when using these packages on a shared machine**.
+
+By default, an OAuth token is cached in a local file, such as `~/.R/gargle/gargle-oauth`. See the documentation for [`gargle::gargle_options()`](https://gargle.r-lib.org/reference/gargle_options.html) and [`gargle::credentials_user_oauth2()`](https://gargle.r-lib.org/reference/credentials_user_oauth2.html) for information on how to control the location of the token cache or suppress token caching, globally or at the individual token level. 
 
 # Policies for authors of packages or other applications
 
