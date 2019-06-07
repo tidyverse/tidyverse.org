@@ -26,7 +26,7 @@ All of these packages are governed by the common policies recorded here.
 TODO: once this is merged and has a stable URL, link back to it from all those package websites. For gmailr, we might need to switch to the README above and put the link there.
 
 Your use of Google APIs with these packages is subject to each API's respective
-`terms of service <https://developers.google.com/terms/>`.
+terms of service <https://developers.google.com/terms/>.
   
 # Privacy
 
@@ -54,6 +54,6 @@ The packages only communicate with Google APIs. No user data is shared with the 
 
 ### Policies for package authors
 
-Do not use an API key or client ID from the GARGLE_PROJECT in an external package or tool. Per the `Google User Data Policy
-<https://developers.google.com/terms/api-services-user-data-policy>`, your
+Do not use an API key or client ID from the GARGLE_PROJECT in an external package or tool. Per the Google User Data Policy
+<https://developers.google.com/terms/api-services-user-data-policy>, your
 application must accurately represent itself when authenticating to Google API services.
