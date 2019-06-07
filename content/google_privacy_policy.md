@@ -1,5 +1,5 @@
 ---
-title: Privacy policy for Google API wrappers
+title: Privacy policy for packages that access Google APIs
 ---
 
 <!--
