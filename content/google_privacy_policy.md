@@ -23,8 +23,6 @@ The tidyverse team maintains several packages that make it easier to work with G
   
 All of these packages are governed by the common policies recorded here.
 
-TODO: once this is merged and has a stable URL, link back to it from all those package websites. For gmailr, we might need to switch to the README above and put the link there.
-
 Your use of Google APIs with these packages is subject to each API's respective
 terms of service <https://developers.google.com/terms/>.
   
