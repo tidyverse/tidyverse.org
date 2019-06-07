@@ -10,16 +10,11 @@ https://pydata-google-auth.readthedocs.io/en/latest/privacy.html
 
 The tidyverse team maintains several packages that make it easier to work with Google APIs from R:
 
-  * gargle: <https://gargle.r-lib.org>
-    - Infrastructure package with general helpers for Google APIs, including auth
-  * bigrquery: <https://bigrquery.r-dbi.org>
-    - Works with the [BigQuery API](https://developers.google.com/bigquery/)
-  * googledrive: <https://googledrive.tidyverse.org>
-    - Allows user to manage their files on [Drive](https://developers.google.com/drive/)
-  * gmailr: <https://cran.r-project.org/package=gmailr>
-    - Allows user to work with [Gmail](https://developers.google.com/gmail/api/), including sending messages
-  * googlesheets4: <https://googlesheets4.tidyverse.org> *not released yet*
-    - Allows user to read and modify [Google Sheets](https://developers.google.com/sheets/api/)
+  * [gargle](https://gargle.r-lib.org) provides general R infrastructure for Google APIs, such as auth
+  * [bigrquery](https://bigrquery.r-dbi.org) wraps the [BigQuery API](https://developers.google.com/bigquery/)
+  * [googledrive](https://googledrive.tidyverse.org) wraps the [Drive API](https://developers.google.com/drive/)
+  * [gmailr](https://cran.r-project.org/package=gmailr) wraps the [Gmail API](https://developers.google.com/gmail/api/)
+  * [googlesheets4](https://googlesheets4.tidyverse.org) wraps the [Sheets API](https://developers.google.com/sheets/api/) *not released yet*
   
 All of these packages are governed by the common policies recorded here.
 
@@ -41,6 +36,16 @@ Each package includes functions that you can execute in order to read or modify 
 These packages can help you get a token by guiding you through the OAuth flow in the browser. There you must consent to allow the GARGLE_PROJECT to operate on your behalf. The OAuth consent screen will describe the scope of what is being authorized, e.g., it will name the target API(s) and whether you are authorizing "read only" or "read and write" access. Depending on the package, you may have the ability to control which scopes are associated with a token. If you only want to read your data, you may wish to specify a "read only" scope.
 
 There are two ways to use these packages without authorizing the GARGLE_PROJECT: bring your own [service account token](https://developers.google.com/identity/protocols/OAuth2ServiceAccount) or configure the package to use an OAuth client of your choice.
+
+### Scopes
+
+Overview of the scopes requested by various packages in the GARGLE_PROJECT and their rationale:
+
+  * `userinfo.email` (read only): All OAuth tokens obtained with the GARGLE_PROJECT request this scope so that cached tokens can be labelled with the associated Google user, allowing you to more easily access Google APIs with more than one identity. The GARGLE_PROJECT does NOT have access to and does NOT store your Google password.
+  * BigQuery and Google Cloud Platform (read/write): The bigrquery package lets you upload, query, and modify data stored in Google Bigquery, as well as retrieve metadata about projects, datasets, tables, and jobs.
+  * Drive (read/write): The googledrive package allows you to manage your Drive files and therefore the default scopes include read/write access. The googledrive package makes it possible for you to get a token with more limited scope, e.g. read only.
+  * Gmail (read/write): The gmailr package is primarily used to send mail and thus must have the abilty to compose and send mail.
+  * Sheets (read/write): The googledrive package allows you to manage your Sheets files and therefore the default scopes include read/write access. The googlesheets4 package makes it possible for you to get a token with more limited scope, e.g. read only.
 
 ### Sharing user data
 
