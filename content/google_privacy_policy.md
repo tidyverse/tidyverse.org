@@ -42,7 +42,7 @@ There are two ways to use these packages without authorizing the GARGLE_PROJECT:
 Overview of the scopes requested by various packages in the GARGLE_PROJECT and their rationale:
 
   * `userinfo.email` (read only): All OAuth tokens obtained with the GARGLE_PROJECT request this scope so that cached tokens can be labelled with the associated Google user, allowing you to more easily access Google APIs with more than one identity. The GARGLE_PROJECT does NOT have access to and does NOT store your Google password.
-  * BigQuery and Google Cloud Platform (read/write): The bigrquery package lets you upload, query, and modify data stored in Google Bigquery, as well as retrieve metadata about projects, datasets, tables, and jobs.
+  * BigQuery and Google Cloud Platform (read/write): The bigrquery package lets you upload, query, and modify data stored in Google BigQuery, as well as retrieve metadata about projects, datasets, tables, and jobs.
   * Drive (read/write): The googledrive package allows you to manage your Drive files and therefore the default scopes include read/write access. The googledrive package makes it possible for you to get a token with more limited scope, e.g. read only.
   * Gmail (read/write): The gmailr package is primarily used to send mail and thus must have the abilty to compose and send mail.
   * Sheets (read/write): The googlesheets4 package allows you to manage your spreadsheets and therefore the default scopes include read/write access. The googlesheets4 package makes it possible for you to get a token with more limited scope, e.g. read only.
