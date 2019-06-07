@@ -33,7 +33,7 @@ At no time does the GARGLE_PROJECT receive your data or the permission to access
 
 Each package includes functions that you can execute in order to read or modify your own data. This can only happen after you provide a token, which requires that you authenticate yourself as a specific Google user and authorize these actions. 
 
-These packages can help you get a token by guiding you through the OAuth flow in the browser. There you must consent to allow the GARGLE_PROJECT to operate on your behalf. The OAuth consent screen will describe the scope of what is being authorized, e.g., it will name the target API(s) and whether you are authorizing "read only" or "read and write" access. Depending on the package, you may have the ability to control which scopes are associated with a token. If you only want to read your data, you may wish to specify a "read only" scope.
+These packages can help you get a token by guiding you through the OAuth flow in the browser. There you must consent to allow the GARGLE_PROJECT to operate on your behalf. The OAuth consent screen will describe the scope of what is being authorized, e.g., it will name the target API(s) and whether you are authorizing "read only" or "read and write" access.
 
 There are two ways to use these packages without authorizing the GARGLE_PROJECT: bring your own [service account token](https://developers.google.com/identity/protocols/OAuth2ServiceAccount) or configure the package to use an OAuth client of your choice.
 
