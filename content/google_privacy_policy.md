@@ -16,7 +16,7 @@ The tidyverse team maintains several packages that make it easier to work with G
   * [gmailr](https://cran.r-project.org/package=gmailr) wraps the [Gmail API](https://developers.google.com/gmail/api/)
   * [googlesheets4](https://googlesheets4.tidyverse.org) wraps the [Sheets API](https://developers.google.com/sheets/api/) *not released yet*
   
-All of these packages are governed by the common policies recorded here.
+All of these packages are governed by common policies recorded here. These packages use resources that live in a Google Cloud Platform project named after the gargle package, referred to as the GARGLE_PROJECT below.
 
 Your use of Google APIs with these packages is subject to each API's respective
 terms of service <https://developers.google.com/terms/>.
