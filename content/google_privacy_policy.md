@@ -56,4 +56,4 @@ Do not use an API key or client ID from the GARGLE_PROJECT in an external packag
 <https://developers.google.com/terms/api-services-user-data-policy>, your
 application must accurately represent itself when authenticating to Google API services.
 
-If you use these packages inside another package or application that executes its own logic -- as opposed to code written by tidyverse maintainers or by the user -- you must communicate this clearly to the user. Do not use credentials from the GARGLE_PROJECT; instead, use credentials associated with your project or your user.
+If you use these packages inside another package or application that executes its own logic --- as opposed to code written by tidyverse maintainers or by the user --- you must communicate this clearly to the user. Do not use credentials from the GARGLE_PROJECT; instead, use credentials associated with your project or your user.
