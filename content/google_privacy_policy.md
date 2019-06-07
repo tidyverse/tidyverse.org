@@ -52,8 +52,10 @@ By default, your token is stored to a local file, such as `~/.R/gargle/gargle-oa
 
 The packages only communicate with Google APIs. No user data is shared with the tidyverse maintainers, RStudio, or any other servers.
 
-### Policies for package authors
+### Policies for authors of packages or other applications
 
 Do not use an API key or client ID from the GARGLE_PROJECT in an external package or tool. Per the Google User Data Policy
 <https://developers.google.com/terms/api-services-user-data-policy>, your
 application must accurately represent itself when authenticating to Google API services.
+
+If you use these packages inside another package or application that executes its own logic -- as opposed to code written by tidyverse maintainers or by the user -- you must communicate this clearly to the user. Do not use credentials from the GARGLE_PROJECT; instead, use credentials associated with your project or your user.
