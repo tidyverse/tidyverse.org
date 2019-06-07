@@ -11,9 +11,15 @@ https://pydata-google-auth.readthedocs.io/en/latest/privacy.html
 The tidyverse team maintains several packages that make it easier to work with Google APIs from R:
 
   * gargle: <https://gargle.r-lib.org>
+    - Infrastructure package with general helpers for Google APIs, including auth
   * bigrquery: <https://bigrquery.r-dbi.org>
+    - Works with the [BigQuery API](https://developers.google.com/bigquery/)
   * googledrive: <https://googledrive.tidyverse.org>
+    - Allows user to manage their files on [Drive](https://developers.google.com/drive/)
   * gmailr: <https://cran.r-project.org/package=gmailr>
+    - Allows user to work with [Gmail](https://developers.google.com/gmail/api/), including sending messages
+  * googlesheets4: <https://googlesheets4.tidyverse.org> *not released yet*
+    - Allows user to read and modify [Google Sheets](https://developers.google.com/sheets/api/)
   
 All of these packages are governed by the common policies recorded here.
 
@@ -32,9 +38,9 @@ These packages access Google resources from your local machine. Your machine com
 
 Each package includes functions that you can execute in order to read or modify your own data. This can only happen after you provide a token, which requires that you authenticate yourself as a specific Google user and authorize these actions. 
 
-If you do not provide your own service account token, these packages can guide you through the OAuth2 flow in the browser, where you must consent to allowing the GARGLE_PROJECT to operate on your behalf. These packages can also guide you through the OAuth process using an OAuth client that you provide, in which case your associated Google Cloud Project will be listed instead of the GARGLE_PROJECT.
+If you do not provide your own service account token, these packages can guide you through the OAuth flow in the browser, where you must consent to allowing the GARGLE_PROJECT to operate on your behalf. These packages can also guide you through the OAuth process using an OAuth client that you provide, in which case your associated Google Cloud Project will be listed instead of the GARGLE_PROJECT.
 
-The OAuth2 consent screen will describe the scope of what is being authorized, e.g., it will name the target API(s) and whether you authorizing "read only" or "read and write" access. Depending on the package, you may have the ability to control which scopes are associated with a token. If you only want to read your data, you may wish to specify a "read only" scope.
+The OAuth consent screen will describe the scope of what is being authorized, e.g., it will name the target API(s) and whether you authorizing "read only" or "read and write" access. Depending on the package, you may have the ability to control which scopes are associated with a token. If you only want to read your data, you may wish to specify a "read only" scope.
 
 At no time does the GARGLE_PROJECT receive your data or the permission to access your data. The GARGLE_PROJECT can only see information about aggregate usage of tokens associated with its OAuth client, such as which APIs and endpoints are being used. If you provide a service account token or obtain a token with your own OAuth client, your usage will not appear in the usage data that Google attributes to the GARGLE_PROJECT.
 
