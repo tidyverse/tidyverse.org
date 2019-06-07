@@ -49,13 +49,13 @@ Overview of the scopes requested by various packages in the GARGLE_PROJECT and t
 
 ### Sharing user data
 
-The packages only communicate with Google APIs. No user data is shared with the tidyverse maintainers, RStudio, or any other servers.
+The packages only communicate with Google APIs. No user data is shared with the owners of the GARGLE_PROJECT, the tidyverse package maintainers, RStudio, or any other servers.
 
 ### Storing user data
 
 These packages may store your credentials on your local machine, for later reuse by you. **Use caution when using these packages on a shared machine**.
 
-By default, an OAuth token is cached in a local file, such as `~/.R/gargle/gargle-oauth`. See the documentation for [`gargle::gargle_options()`](https://gargle.r-lib.org/reference/gargle_options.html) and [`gargle::credentials_user_oauth2()`](https://gargle.r-lib.org/reference/credentials_user_oauth2.html) for information on how to control the location of the token cache or suppress token caching, globally or at the individual token level. 
+By default, an OAuth token is cached in a local file, such as `~/.R/gargle/gargle-oauth`. See the documentation for [`gargle::gargle_options()`](https://gargle.r-lib.org/reference/gargle_options.html) and [`gargle::credentials_user_oauth2()`](https://gargle.r-lib.org/reference/credentials_user_oauth2.html) for information on how to control the location of the token cache or suppress token caching, globally or at the individual token level.
 
 # Policies for authors of packages or other applications
 
