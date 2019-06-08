@@ -20,7 +20,7 @@ The tidyverse team maintains several packages that make it easier to work with G
 All of these packages are governed by common policies recorded here. These packages use internal resources owned by the "Tidyverse API Packages" project on Google Cloud Platform. That is the name you will see in a consent screen.
 
 Your use of Google APIs with these packages is subject to each API's respective
-terms of service <https://developers.google.com/terms/>.
+terms of service. See <https://developers.google.com/terms/>.
   
 # Privacy
 
@@ -64,4 +64,4 @@ Do not use an API key or client ID from the Tidyverse API Packages in an externa
 <https://developers.google.com/terms/api-services-user-data-policy>, your
 application must accurately represent itself when authenticating to Google API services.
 
-If you use these packages inside another package or application that executes its own logic --- as opposed to code written by tidyverse maintainers or by the user --- you must communicate this clearly to the user. Do not use credentials from the Tidyverse API Packages; instead, use credentials associated with your project or your user.
+If you use these packages inside another package or application that executes its own logic --- as opposed to code in the Tidyverse API Packages or by the user --- you must communicate this clearly to the user. Do not use credentials from the Tidyverse API Packages; instead, use credentials associated with your project or your user.
