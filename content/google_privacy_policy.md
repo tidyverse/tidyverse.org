@@ -14,7 +14,7 @@ The tidyverse team maintains several packages that make it easier to work with G
   * [gargle](https://gargle.r-lib.org) provides general R infrastructure for Google APIs, such as auth
   * [bigrquery](https://bigrquery.r-dbi.org) wraps the [BigQuery API](https://developers.google.com/bigquery/)
   * [googledrive](https://googledrive.tidyverse.org) wraps the [Drive API](https://developers.google.com/drive/)
-  * [gmailr](https://cran.r-project.org/package=gmailr) wraps the [Gmail API](https://developers.google.com/gmail/api/)
+  * [gmailr](https://gmailr.r-lib.org) wraps the [Gmail API](https://developers.google.com/gmail/api/)
   * [googlesheets4](https://googlesheets4.tidyverse.org) wraps the [Sheets API](https://developers.google.com/sheets/api/) *not released yet*
   
 All of these packages are governed by common policies recorded here. These packages use internal resources owned by the "Tidyverse API Packages" project on Google Cloud Platform. That is the name you will see in a consent screen.
