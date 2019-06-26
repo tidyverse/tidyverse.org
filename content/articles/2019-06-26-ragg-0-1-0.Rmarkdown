@@ -10,8 +10,8 @@ categories:
 tags:
   - r-lib
 photo:
-  url: https://unsplash.com/photos/OttsVAS4a84
-  author: Colin Watts
+  url: https://unsplash.com/photos/sBkK2VWV8Kw
+  author: Gordon Williams
 ---
 
 ```{r setup, include = FALSE}
@@ -34,36 +34,21 @@ ragg is part of our broader effort to improve graphics performance and quality i
 - Performance improvements in [gtable](https://gtable.r-lib.com) 0.3.0
 
 ## The devices
-An R graphic device is an object that receives instructions from the graphic engine (such as draw a circle at this location) and translates that into some meaningful format for viewing, either in a file, on screen, or in some other form. ragg provides a set of raster devices, that is, devices that rasterize the instructions and writes it to some sort of raster output (e.g. a png file). This is opposed to vector devices such as `pdf()` and `svg()` that does not perform rasterization but writes the instructions directly into a vector graphics format.
+An R graphic device is an object that receives instructions from the graphic engine in R and translates that into some meaningful format for viewing. The graphic engine in R is the layer that sits between the graphic generating code in R and the devices, and is responsible for allowing the plethora of different output options from the same plot code. The output from a graphic device can either be a file, on screen, or in some other form. ragg provides a set of raster devices, that is, devices that rasterize the instructions and writes it to some sort of raster output (e.g. a png file). This is opposed to vector devices such as `pdf()` and `svg()` that does not perform rasterization but writes the instructions directly into a vector graphics format.
 
-ragg provides three different file outputs (png, tiff, and ppm), though it is
-important to note that everything, except for the serialization of the data into the file format, is equivalent. A case could be made for also including jpeg output, but this format is generally not useful for graphics as it introduces noticeable artifacts with line graphics.
+ragg provides three different file outputs (png, tiff, and ppm), though it is important to note that everything, except for the serialization of the data into the file format, is equivalent. A case could be made for also including jpeg output, but this format is generally not useful for graphics as it introduces noticeable artifacts with line graphics.
 
 Apart from the three file-based devices, ragg also provides a device that gives direct access to the raster buffer from R. This means that you can plot directly into a matrix of color values that you can then further process in R, should you wish.
 
 ## Features
-While the graphic engine in R allows devices to turn off some features, such as the ability to draw holed polygons or raster images (i.e. drawing a raster image into the device), all modern devices are feature complete and so is the ones provided by ragg. That being said, ragg provides some features that sets itself
-apart from the raster devices already included with R.
+There are 5 main areas where ragg sets itself apart from the graphic devices already available:
 
-#### Performance
-ragg is faster than cairo, the standard anti-aliased device in R. Tests show that it is about twice as fast to render a moderately complex ggplot. See the
+- **Performance:** ragg is faster than cairo, the standard anti-aliased device in R. Tests show that it is about twice as fast to render a moderately complex ggplot. See the
 [Performance](https://ragg.r-lib.org/articles/ragg_performance.html) vignette for more in-depth benchmarking.
-
-#### Anti-aliasing
-ragg is fully anti-aliased, as opposed to the cairo devices that only apply anti-aliasing to strokes and text (not fill). For a comparison of the look, see the [shape rendering](https://ragg.r-lib.org/articles/ragg_quality.html#shape-rendering) section of the Quality vignette for comparisons.
-
-#### Text rendering
-ragg provides high-quality rendering of rotated text, something that other raster devices struggle with. See the [text](https://ragg.r-lib.org/articles/ragg_quality.html#text) section of the Quality vignette for examples.
-
-#### Font access
-ragg has direct access to all your system fonts, without you having to do anything. All installed fonts on your system should be ready to use.
-
-#### System independent
-The rendering code in ragg is system independent and should be identical whether
-it has been rendered on Windows, macOS, or Linux. The only difference is this available fonts on the different systems.
-
-#### 16-bit support
-ragg has the possibility of writing 16-bit png and tiff files. As the color implementation is strictly 8-bit this does not have a huge impact, but could provide quality differences in certain situations (at the expense of larger files).
+- **Anti-aliasing:** ragg is fully anti-aliased, as opposed to the cairo devices that only apply anti-aliasing to strokes and text (not fill). For a comparison of the look, see the [shape rendering](https://ragg.r-lib.org/articles/ragg_quality.html#shape-rendering) section of the Quality vignette for comparisons.
+- **Text rendering:** ragg provides high-quality rendering of rotated text, something that other raster devices struggle with. See the [text](https://ragg.r-lib.org/articles/ragg_quality.html#text) section of the Quality vignette for examples.
+- **Font access:** ragg has direct access to all your system fonts, without you having to do anything. All installed fonts on your system should be ready to use.
+- **System independent:** The rendering code in ragg is system independent and should be identical whether it has been rendered on Windows, macOS, or Linux. The only difference is this available fonts on the different systems.
 
 ## Example
 The ragg devices are used just like any other device, by starting them, running your plotting code, and turning them off (code below add some complexity in order to embed the created file in the page):
@@ -84,22 +69,16 @@ invisible(dev.off())
 knitr::include_graphics(file)
 ```
 
-The use of the device that allows direct access from R is a little different. It returns a function when you open it and calling that function will return the current state of the device as a matrix of color values:
+ragg can also be used with `ggsave()` by passing the device in as an argument:
 
-```{r, message=FALSE}
-cap <- agg_capture()
-ggplot(mtcars, aes(mpg, disp)) + 
+```{r}
+file <- knitr::fig_path('.png')
+p <- ggplot(mpg, aes(displ, hwy)) + 
   geom_point()
-only_points <- cap()
 
-last_plot() + 
-  geom_smooth()
-with_fit <- cap()
+ggsave(file, p, device = agg_png, res = 300)
 
-invisible(dev.off())
-
-plot(as.raster(only_points))
-plot(as.raster(with_fit))
+knitr::include_graphics(file)
 ```
 
 ## Life cycle
