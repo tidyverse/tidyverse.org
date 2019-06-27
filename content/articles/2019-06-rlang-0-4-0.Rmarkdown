@@ -48,7 +48,7 @@ max_by <- function(data, var, by) {
 starwars %>% max_by(mass, by = gender)
 ```
 
-Technically, this is because data masked code needs to be _delayed_ and _transported_ to the data context. Behind the scene, dplyr verbs achieve this by capturing the blueprint of your code, and resuming its evaluation inside of the data mask. The example above fails because `group_by()` is capturing the wrong piece of blueprint. To solve this, tidy evaluation provides `enquo()` to delay a blueprint, and the surgery operator `!!` for modifying blueprints. The combination of using `enquo()` and `!!` is called the __quote-and-unquote__ pattern:
+Technically, this is because data-masked code needs to be _delayed_ and _transported_ to the data context. Behind the scenes, dplyr verbs achieve this by capturing the blueprint of your code, and resuming its evaluation inside of the data mask. The example above fails because `group_by()` is capturing the wrong piece of blueprint. To solve this, tidy evaluation provides `enquo()` to delay a blueprint, and the surgery operator `!!` for modifying blueprints. The combination of using `enquo()` and `!!` is called the __quote-and-unquote__ pattern:
 
 ```{r}
 max_by <- function(data, var, by) {
