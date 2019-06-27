@@ -26,7 +26,7 @@ library(dplyr)
 
 ## The good and bad of tidy evaluation
 
-Tidy eval powers packages like dplyr or tidyr. It makes it possible to manipulate data frame columns as if they were defined in the workspace:
+Tidy eval powers packages like dplyr and tidyr. It makes it possible to manipulate data frame columns as if they were defined in the workspace:
 
 
 ```r
@@ -48,7 +48,7 @@ starwars %>%
 #> 5 none                   140
 ```
 
-We call this syntax __data masking__. It is made possible by the R language and makes it easier to write and read code in interactive scripts. Unfortunately, it has the flip side of making it more difficult to reuse common patterns inside functions:
+We call this syntax __data masking__. It is made possible by the R language and makes it easier to write and read code in interactive scripts. Unfortunately, this makes it more complex to reuse common patterns inside of functions:
 
 
 ```r
@@ -62,7 +62,7 @@ starwars %>% max_by(mass, by = gender)
 #> Error: Column `by` is unknown
 ```
 
-Technically, this is because data masked code needs to be _delayed_ and _transported_ to the data context. Behind the scene, dplyr verbs achieve this by capturing the blueprint of your code, and resuming its evaluation inside of the data mask. The example above fails because `group_by()` is capturing the wrong piece of blueprint. To solve this, tidy evaluation provides `enquo()` to delay a blueprint, and the surgery operator `!!` for modifying blueprints. The combination of using `enquo()` and `!!` is called the __quote-and-unquote__ pattern:
+Technically, this is because data-masked code needs to be _delayed_ and _transported_ to the data context. Behind the scenes, dplyr verbs achieve this by capturing the blueprint of your code, and resuming its evaluation inside of the data mask. The example above fails because `group_by()` is capturing the wrong piece of blueprint. To solve this, tidy evaluation provides `enquo()` to delay a blueprint, and the surgery operator `!!` for modifying blueprints. The combination of using `enquo()` and `!!` is called the __quote-and-unquote__ pattern:
 
 
 ```r
@@ -83,12 +83,12 @@ starwars %>% max_by(mass, by = gender)
 #> 5 none              140
 ```
 
-We have come to realise that this pattern is difficult to teach and to learn because it involves a new, unfamiliar syntax, and because it introduces two new programming concepts (quote and unquote) that are difficult to understand intuitively. This complexity is not really justified because this pattern is overly flexible for basic programming needs.
+We have come to realise that this pattern is difficult to teach and to learn because it involves a new, unfamiliar syntax, and because it introduces two new programming concepts (quote and unquote) that are hard to understand intuitively. This complexity is not really justified because this pattern is overly flexible for basic programming needs.
 
 
 ## A simpler interpolation pattern with `{{`
 
-rlang 0.4.0 provides a new operator `{{` which abstracts quote-and-unquote into a single __interpolation__ step. The curly-curly operator should be straightforward to use. When you create a function around a tidyverse pipeline, wrap the function arguments containing data frame variables inside `{{`:
+rlang 0.4.0 provides a new operator, `{{` (read: curly curly), which abstracts quote-and-unquote into a single __interpolation__ step. The curly-curly operator should be straightforward to use. When you create a function around a tidyverse pipeline, wrap the function arguments containing data frame variables inside `{{`:
 
 
 ```r
@@ -115,7 +115,7 @@ starwars %>% max_by(height, by = gender)
 #> 5 none              200
 ```
 
-This syntax should be reminiscent of string interpolation in the glue package by Jim Hester:
+This syntax should be reminiscent of string interpolation in the [glue](https://glue.tidyverse.org/) package by Jim Hester:
 
 
 ```r
@@ -129,7 +129,7 @@ glue::glue("Did you just say {var}?")
 
 There are a few existing patterns that aren't emphasised enough in the existing documentation. We are changing our teaching strategy to focus on these simpler patterns.
 
-* If you would like to pass multiple arguments to a data masking verb, just pass `...` directly:
+* If you would like to pass multiple arguments to a data-masking verb, pass `...` directly:
 
   
   ```r
@@ -178,6 +178,9 @@ There are a few existing patterns that aren't emphasised enough in the existing 
   ```
 
   The `.` pronoun from magrittr is not appropriate here because it represents the whole data frame, whereas `.data` represents the subset for the current group.
+
+
+To learn more about the different ways of programming around tidyverse pipelines, we recommend reading the [new programming vignette in ggplot2](https://ggplot2.tidyverse.org/dev/articles/ggplot2-in-packages.html#using-aes-and-vars-in-a-package-function), written by [Dewey Dunnington](https://github.com/paleolimbot) who is currently interning at RStudio.
 
 
 ## Thanks!
