@@ -40,7 +40,7 @@ starwars %>%
   summarise(mass_maximum = max(mass, na.rm = TRUE))
 ```
 
-We call this syntax __data masking__. It is made possible by the R language and makes it easier to write and read code in interactive scripts. Unfortunately, this makes it more complex to reuse common patterns inside of functions:
+We call this syntax __data masking__. It is made possible by the R language and makes it easier to write and read code in interactive scripts. Unfortunately, this makes it more complex to reuse common patterns inside functions:
 
 ```{r, error = TRUE}
 max_by <- function(data, var, by) {
@@ -52,7 +52,7 @@ max_by <- function(data, var, by) {
 starwars %>% max_by(mass, by = gender)
 ```
 
-Technically, this is because data-masked code needs to be _delayed_ and _transported_ to the data context. Behind the scenes, dplyr verbs achieve this by capturing the blueprint of your code, and resuming its evaluation inside of the data mask. The example above fails because `group_by()` is capturing the wrong piece of blueprint. To solve this, tidy evaluation provides `enquo()` to delay a blueprint, and the surgery operator `!!` for modifying blueprints. The combination of using `enquo()` and `!!` is called the __quote-and-unquote__ pattern:
+Technically, this is because data-masked code needs to be _delayed_ and _transported_ to the data context. Behind the scenes, dplyr verbs achieve this by capturing the blueprint of your code, and resuming its evaluation inside the data mask. The example above fails because `group_by()` is capturing the wrong piece of blueprint. To solve this, tidy evaluation provides `enquo()` to delay the interpretation of code and capture its blueprint, and the surgery operator `!!` for modifying blueprints. The combination of using `enquo()` and `!!` is called the __quote-and-unquote__ pattern:
 
 ```{r}
 max_by <- function(data, var, by) {
@@ -69,7 +69,7 @@ We have come to realise that this pattern is difficult to teach and to learn bec
 
 ## A simpler interpolation pattern with `{{`
 
-rlang 0.4.0 provides a new operator, `{{` (read: curly curly), which abstracts quote-and-unquote into a single __interpolation__ step. The curly-curly operator should be straightforward to use. When you create a function around a tidyverse pipeline, wrap the function arguments containing data frame variables inside `{{`:
+rlang 0.4.0 provides a new operator, `{{` (read: curly curly), which abstracts quote-and-unquote into a single __interpolation__ step. The curly-curly operator should be straightforward to use. When you create a function around a tidyverse pipeline, wrap the function arguments containing data frame variables with `{{`:
 
 ```{r}
 max_by <- function(data, var, by) {
@@ -107,6 +107,7 @@ There are a few existing patterns that aren't emphasised enough in the existing 
   starwars %>%
     summarise_by(
       average = mean(height, na.rm = TRUE),
+      maximum = max(height, na.rm = TRUE),
       by = gender
     )
   ```
