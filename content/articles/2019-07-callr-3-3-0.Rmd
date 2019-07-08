@@ -27,21 +27,21 @@ if (knitr::opts_knit$get("rmarkdown.pandoc.to") == "html") {
 }
 ```
 
-We have just updated the callr package to version 3.3.0 on CRAN.
+We have just updated the [callr](https://callr.r-lib.org/) package to version 3.3.0 on CRAN.
 The biggest change in this release is better support for debugging the
 background process. See the full
 [changelog here](https://callr.r-lib.org/news/index.html).
 
-callr helps running R code in a separate R process, synchronously or
+callr helps with running R code in a separate R process, synchronously or
 asynchronously. With synchronous execution the main R process waits until
-the separate R subprocess finishes, see `callr::r()`. Asynchronous execution
-uses [processx](https://processx.r-lib.org/) processes, see `callr::r_bg()`
-and `callr::r_process` for one-off and `callr::r_session` for persistent
+the separate R subprocess finishes, see [`callr::r()`](https://callr.r-lib.org/reference/r.html). Asynchronous execution
+uses [processx](https://processx.r-lib.org/) processes, see [`callr::r_bg()`](https://callr.r-lib.org/reference/r_bg.html)
+and [`callr::r_process()`](https://callr.r-lib.org/reference/r_process.html) for one-off and [`callr::r_session()`](https://callr.r-lib.org/reference/r_session.html) for persistent
 background R processes.
 
 ## callr error objects
 
-Debugging code running in a background process can be notoriously difficult.
+Debugging code running in a background process is notoriously difficult.
 Most of the time you cannot use an interactive debugger, and often even
 print-debugging, i.e. inserting `print()` and `cat()` calls into the
 code that runs in the background, can be non-trivial.
@@ -49,12 +49,12 @@ code that runs in the background, can be non-trivial.
 The new 3.3.0 version of callr aims to help with this, by creating better
 error messages and error traces for errors originating from the background
 process. In particular, callr now always throws error objects that
-contain
+contain:
 
 * the exit status of the R process, if the process terminated,
 * the full error object thrown in the subprocess,
 * the call that generated the error,
-* the process id of the subprocess and
+* the process id of the subprocess, and
 * the full stack trace in the subprocess.
 
 Here is an example for a trivial error that shows how to extract this
@@ -86,7 +86,7 @@ that generated the error, and ``err$parent$`_pid` `` is the process id
 of the subprocess.
 
 
-The stack strace of the error in subprocess can be printed via
+The stack trace of the error in subprocess can be printed via
 `err$parent$trace`. By default the trace omits the boilerplate frames
 added by callr, these are usually not very useful for the user.
 Nevertheless they are still included in `err$parent$trace$calls`.
@@ -96,7 +96,7 @@ err$parent$trace
 ```
 
 The trace starts with the anonymous function that we passed to `callr::r()`,
-and it is annotated by package names and source references, if they are
+and it is annotated with package names and source references, if they are
 available.
 
 ## The last error
@@ -108,7 +108,7 @@ hoping that it would produce the same error.
 
 For a better workflow, whenever a callr error is uncaught, callr
 assigns it to the `.Last.error` variable, that can be inspected.
-Of course another callr error will overwrite `.Last.error`, it works very
+Of course, a subsequent callr error will overwrite `.Last.error`, it works very
 much like `.Last.value`, but for errors. Here is the same code as above
 but without the `tryCatch()`:
 
