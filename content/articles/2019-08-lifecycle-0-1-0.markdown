@@ -39,26 +39,40 @@ library(lifecycle)
 
 ## Lifecycle stages
 
-The  stages for functions and arguments are modelled after the [lifecycle stages for packages](https://www.tidyverse.org/lifecycle/).
+The stages for functions and arguments are modelled after the [lifecycle stages for packages](https://www.tidyverse.org/lifecycle/).  There are 4 __development__ stages. Then, if the decision of discontinuing a feature has been made, it goes through 3 __deprecation__ stages.
+
+### Development stages
+
+![](/images/lifecycle/lifecycle-experimental.svg)<!-- -->
+
+This is a new feature that is in the very early stage of development. It is exported so users can start to use it and report feedback, but its interface and/or behaviour is likely to change in the future. It is generally best to avoid depending on experimental features.
+
+![](/images/lifecycle/lifecycle-maturing.svg)<!-- -->
+
+The interface and behaviour of a maturing feature has been roughed out, but finer details are likely to change. It still needs more feedback to find the optimal API.
+
+![](/images/lifecycle/lifecycle-stable.svg)<!-- -->
+
+A feature is considered stable when the author is happy with its interface and behaviour. Major changes are unlikely, and breaking changes will occur gradually, through a deprecation process.
+
+![](/images/lifecycle/lifecycle-questioning.svg)<!-- -->
+
+The author is no longer convinced that the feature is the optimal approach. However, there are no recommended alternatives yet.
 
 
-There are 4 __development__ stages.
+### Deprecation stages
 
-1. <img src="https://raw.githubusercontent.com/r-lib/lifecycle/master/man/figures/lifecycle-experimental.svg" alt = "Experimental" style="vertical-align:middle" /> This is a new feature that is in the very early stage of development. It is exported so users can start to use it and report feedback, but its interface and/or behaviour is likely to change in the future. It is generally best to avoid depending on experimental features.
+![](/images/lifecycle/lifecycle-soft-deprecated.svg)<!-- -->
 
-1. <img src="https://raw.githubusercontent.com/r-lib/lifecycle/master/man/figures/lifecycle-maturing.svg" alt = "Maturing" style="vertical-align:middle" /> The interface and behaviour of a maturing feature has been roughed out, but finer details are likely to change. It still needs more feedback to find the optimal API.
+The author is no longer happy with a feature because they consider it sub-optimal compared to some other approach, or simply because they no longer have the time to maintain it. A soft-deprecated feature can still be used without hassle, but users should consider switching to an alternative approach.
 
-1. <img src="https://raw.githubusercontent.com/r-lib/lifecycle/master/man/figures/lifecycle-stable.svg" alt = "Stable" style="vertical-align:middle" /> A feature is considered stable when the author is happy with its interface and behaviour. Major changes are unlikely, and breaking changes will occur gradually, through a deprecation process.
+![](/images/lifecycle/lifecycle-deprecated.svg)<!-- -->
 
-1. <img src="https://raw.githubusercontent.com/r-lib/lifecycle/master/man/figures/lifecycle-questioning.svg" alt = "Questioning" style="vertical-align:middle" /> The author is no longer convinced that the feature is the optimal approach. However, there are no recommended alternatives yet.
+The feature is likely to be discontinued in the next major release. Users should switch to an alternative approach as soon as possible.
 
-Once the decision of discontinuing a feature has been made, it goes through 3 __deprecation__ stages.
+![](/images/lifecycle/lifecycle-defunct.svg)<!-- -->
 
-1. <img src="https://raw.githubusercontent.com/r-lib/lifecycle/master/man/figures/lifecycle-soft-deprecated.svg" alt = "Soft deprecated" style="vertical-align:middle" /> The author is no longer happy with a feature because they consider it sub-optimal compared to some other approach, or simply because they no longer have the time to maintain it. A soft-deprecated feature can still be used without hassle, but users should consider switching to an alternative approach.
-
-1. <img src="https://raw.githubusercontent.com/r-lib/lifecycle/master/man/figures/lifecycle-deprecated.svg" alt = "Deprecated" style="vertical-align:middle" /> The feature is likely to be discontinued in the next major release. Users should switch to an alternative approach as soon as possible.
-
-1. <img src="https://raw.githubusercontent.com/r-lib/lifecycle/master/man/figures/lifecycle-defunct.svg" alt = "Defunct" style="vertical-align:middle" /> The feature can no longer be used. A defunct function is still exported, and a defunct argument is still part of the signature. This way an informative error can be thrown.
+The feature can no longer be used. A defunct function is still exported, and a defunct argument is still part of the signature. This way an informative error can be thrown.
 
 You can insert the lifecycle badges anywhere in your documentation. First import the badges in your package:
 
