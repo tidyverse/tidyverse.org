@@ -41,11 +41,11 @@ starwars %>%
 #> # A tibble: 5 x 2
 #>   gender        mass_maximum
 #>   <chr>                <dbl>
-#> 1 <NA>                    75
-#> 2 female                  75
-#> 3 hermaphrodite         1358
-#> 4 male                   159
-#> 5 none                   140
+#> 1 female                  75
+#> 2 hermaphrodite         1358
+#> 3 male                   159
+#> 4 none                   140
+#> 5 <NA>                    75
 ```
 
 We call this syntax __data masking__. This feature is unique to the R language and greatly streamlines the writing and reading of code in interactive scripts. Unfortunately, it also makes it more complex to reuse common patterns inside functions:
@@ -76,11 +76,11 @@ starwars %>% max_by(mass, by = gender)
 #> # A tibble: 5 x 2
 #>   gender        maximum
 #>   <chr>           <dbl>
-#> 1 <NA>               75
-#> 2 female             75
-#> 3 hermaphrodite    1358
-#> 4 male              159
-#> 5 none              140
+#> 1 female             75
+#> 2 hermaphrodite    1358
+#> 3 male              159
+#> 4 none              140
+#> 5 <NA>               75
 ```
 
 We have come to realise that this pattern is difficult to teach and to learn because it involves a new, unfamiliar syntax, and because it introduces two new programming concepts (quote and unquote) that are hard to understand intuitively. This complexity is not really justified because this pattern is overly flexible for basic programming needs.
@@ -108,11 +108,11 @@ starwars %>% max_by(height, by = gender)
 #> # A tibble: 5 x 2
 #>   gender        maximum
 #>   <chr>           <int>
-#> 1 <NA>              167
-#> 2 female            213
-#> 3 hermaphrodite     175
-#> 4 male              264
-#> 5 none              200
+#> 1 female            213
+#> 2 hermaphrodite     175
+#> 3 male              264
+#> 4 none              200
+#> 5 <NA>              167
 ```
 
 This syntax should be reminiscent of string interpolation in the [glue](https://glue.tidyverse.org/) package by Jim Hester:
@@ -148,11 +148,11 @@ There are a few existing patterns that aren't emphasised enough in the existing 
   #> # A tibble: 5 x 3
   #>   gender        average maximum
   #>   <chr>           <dbl>   <int>
-  #> 1 <NA>             120      167
-  #> 2 female           165.     213
-  #> 3 hermaphrodite    175      175
-  #> 4 male             179.     264
-  #> 5 none             200      200
+  #> 1 female           165.     213
+  #> 2 hermaphrodite    175      175
+  #> 3 male             179.     264
+  #> 4 none             200      200
+  #> 5 <NA>             120      167
   ```
 
   You only need quote-and-unquote (with the plural variants `enquos()` and `!!!`) when you need to modify the inputs or their names in some way.
@@ -171,11 +171,11 @@ There are a few existing patterns that aren't emphasised enough in the existing 
   #> # A tibble: 5 x 2
   #>   gender        maximum
   #>   <chr>           <int>
-  #> 1 <NA>              167
-  #> 2 female            213
-  #> 3 hermaphrodite     175
-  #> 4 male              264
-  #> 5 none              200
+  #> 1 female            213
+  #> 2 hermaphrodite     175
+  #> 3 male              264
+  #> 4 none              200
+  #> 5 <NA>              167
   ```
 
   The `.` pronoun from magrittr is not appropriate here because it represents the whole data frame, whereas `.data` represents the subset for the current group.
