@@ -26,7 +26,7 @@ use to run R code asynchronously. I set out to build a task queue, which
 runs tasks in subprocesses, concurrently, in mere 100 lines of R code.</p>
 <p>Here is a short teaser for how the queue will work. <code>task_q$new()</code> creates
 a new R6 object, which represents the queue. Its <code>push()</code> method adds a
-task, which is a function and its arguments, similarly to <code>callr::r()</code>.
+task, which is a function and its arguments, similar to <code>callr::r()</code>.
 The <code>pop()</code> method gets the results of the first task that has finished.
 <code>pop()</code> has a timeout argument, which lets you wait for a task to finish,
 if all pushed tasks are still running. It returns <code>NULL</code> if no task has
@@ -44,7 +44,7 @@ wait a bit, at least one task should be done in less than half a second,
 but usually not the second one yet:</p>
 <pre class="r"><code>sec &lt;- as.difftime(1, units = &quot;secs&quot;)
 q$pop(sec * 1/2)$result
-#&gt; [1] 87093
+#&gt; [1] 6351
 q$pop()
 #&gt; NULL</code></pre>
 <p>The <code>poll()</code> method checks for finished tasks without removing their
@@ -54,8 +54,8 @@ tasks that are done.</p>
 <pre class="r"><code>q$poll(Inf)
 #&gt; [1] &quot;.2&quot;
 q$pop()$result
-#&gt; [1] 87094</code></pre>
-<p>If the queue is empty, i.e. not tasks are running and no tasks are waiting,
+#&gt; [1] 6352</code></pre>
+<p>If the queue is empty, i.e. no tasks are running and no tasks are waiting,
 then <code>pop()</code> always returns <code>NULL</code>, immediately, because there is nothing
 to wait for:</p>
 <pre class="r"><code>q$pop()
@@ -177,7 +177,7 @@ be <code>&quot;.1&quot;</code>, <code>&quot;.2&quot;</code>, etc.</p>
   )</code></pre>
 <p>The <code>initialize()</code> method will just defer the work to a private method and
 return the object itself. Returning <code>self</code> is usually good practice and
-allows method chaining, although most <code>task_q</code> method do not return <code>self</code>,
+allows method chaining, although most <code>task_q</code> methods do not return <code>self</code>,
 limiting this considerably.</p>
 <pre class="r"><code>    initialize = function(concurrency = 4L) {
       private$start_workers(concurrency)
@@ -351,7 +351,7 @@ unit conversions.</p>
         }
       })
     }</code></pre>
-<p><code>schedule()</code>’s job is to perform the <em>ready</em> to <em>done</em>` and the
+<p><code>schedule()</code>’s job is to perform the <em>ready</em> to <em>done</em> and the
 <em>waiting</em> to <em>running</em> state transitions. The first involves reading
 out the results of the <em>ready</em> tasks and the second involves starting
 new computation on the workers.</p>
@@ -412,14 +412,14 @@ tasks to the queue, the workers were still starting up (i.e. the idle tasks
 are <em>running</em>), so <code>push()</code> could not start any real tasks. Never mind, as
 soon as you try to <code>pop()</code> or <code>poll()</code>, they’ll start running:</p>
 <pre class="r"><code>q$poll(sec)
-#&gt; [1] &quot;.2&quot;
+#&gt; [1] &quot;.3&quot;
 q$list_tasks()</code></pre>
 <PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #555555;'># A tibble: 14 x 7</span><span>
 #&gt;    id      idle  state   fun    args             worker     result    
 #&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;lgl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span>           </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span>    
 #&gt; </span><span style='color: #555555;'> 1</span><span> .1      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
-#&gt; </span><span style='color: #555555;'> 2</span><span> .2      FALSE done    </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;cllr_ss_&gt;</span><span>
-#&gt; </span><span style='color: #555555;'> 3</span><span> .3      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'> 2</span><span> .2      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'> 3</span><span> .3      FALSE done    </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;cllr_ss_&gt;</span><span>
 #&gt; </span><span style='color: #555555;'> 4</span><span> .4      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
 #&gt; </span><span style='color: #555555;'> 5</span><span> .5      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
 #&gt; </span><span style='color: #555555;'> 6</span><span> .6      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
@@ -436,14 +436,14 @@ q$list_tasks()</code></pre>
   task_result &lt;- q$pop(Inf)
   print(task_result$result)
 }
-#&gt; [1] &quot;2 done&quot;
-#&gt; [1] &quot;3 done&quot;
-#&gt; [1] &quot;5 done&quot;
 #&gt; [1] &quot;1 done&quot;
+#&gt; [1] &quot;3 done&quot;
 #&gt; [1] &quot;4 done&quot;
+#&gt; [1] &quot;5 done&quot;
+#&gt; [1] &quot;2 done&quot;
 #&gt; [1] &quot;6 done&quot;
-#&gt; [1] &quot;8 done&quot;
 #&gt; [1] &quot;7 done&quot;
+#&gt; [1] &quot;8 done&quot;
 #&gt; [1] &quot;9 done&quot;
 #&gt; [1] &quot;10 done&quot;</code></pre>
 <p><code>pop()</code> just returns whatever <code>r_session$read()</code> returns. Here is the last
@@ -453,7 +453,7 @@ result from the loop:</p>
 #&gt; [1] 200
 #&gt; 
 #&gt; $message
-#&gt; [1] &quot;done file1542b2208c2ba&quot;
+#&gt; [1] &quot;done file18c53c2b03d9&quot;
 #&gt; 
 #&gt; $result
 #&gt; [1] &quot;10 done&quot;
