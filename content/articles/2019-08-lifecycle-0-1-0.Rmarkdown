@@ -48,7 +48,11 @@ The main goal of lifecycle is to streamline how the evolution of your exported A
 
 * Providing a set of functions to signal deprecation warnings with increasing levels of non-invasive verbosity.
 
-We have started using these tools and conventions in r-lib and tidyverse packages a few months ago. We now make them available for all package developers.
+We have started using these tools and conventions in r-lib and tidyverse packages a few months ago. We now make them available for all package developers. Install the package from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("lifecycle")
+```
 
 In this post, we'll briefly present the lifecycle workflow. Read the [Get started](http://lifecycle.r-lib.org/articles/lifecycle.html) vignette for a more complete description. Normally you'd call lifecycle functions with the namespace prefix, but for the purposes of illustrating the package we're attaching the package with `library()`:
 
@@ -108,6 +112,9 @@ knitr::include_graphics("/images/lifecycle/lifecycle-defunct.svg")
 
 The feature can no longer be used. A defunct function is still exported, and a defunct argument is still part of the signature. This way an informative error can be thrown.
 
+
+### Adding lifecycle badges in documentation
+
 You can insert the lifecycle badges anywhere in your documentation. First import the badges in your package:
 
 ```{r, eval = FALSE}
@@ -123,9 +130,39 @@ Then use the Rd macro `\lifecycle{stage}`:
 #' \lifecycle{soft-deprecated}
 ```
 
-A good place to include the lifecycle badge of a function is at the top of the `@description` block. To document an argument, the badge can be inserted in the argument description.
+You typically don't need to advertise the status of a function if it is the same as the package as a whole. For instance, if your package is [maturing](https://www.tidyverse.org/lifecycle/#maturing), only signal functions in the experimental, stable, questioning stages, or deprecated stages. A good place to include the lifecycle badge of a function is at the top of the `@description` block. If the function is deprecated, we recommend marking it as internal so it no longer appear in the help index:
 
-Note that you typically don't need to advertise the status if it is the same as the package as a whole. For instance, if your package is [maturing](https://www.tidyverse.org/lifecycle/#maturing), only signal functions in the experimental, stable, questioning stages, or deprecated stages.
+```{r, eval = FALSE}
+#' Recoup some local heads outside the sent staged changes
+#'
+#' @description
+#'
+#' \lifecycle{soft-deprecated}
+#'
+#' `git_recoup_head()` recoups any non-indexed downstream heads before a
+#' few relinked local archives.
+#'
+#' @keywords internal
+```
+
+The lifecycle stage of your function is now clearly indicated in its documentation topic:
+
+```{r echo = FALSE}
+knitr::include_graphics("/images/lifecycle/recoup-deprecated.png")
+```
+
+To document the lifecycle stage of an argument, insert the badge in the argument description:
+
+```{r, eval = FALSE}
+#' @param indict_branch \lifecycle{deprecated}
+#'
+#'   If `FALSE`, `git_blend_tag()` parses references from
+#'   the filter-branched upstream.
+```
+
+```{r, echo = FALSE}
+knitr::include_graphics("/images/lifecycle/indict-deprecated.png")
+```
 
 
 ### Verbosity of deprecation
