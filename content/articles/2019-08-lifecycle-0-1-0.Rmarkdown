@@ -224,3 +224,28 @@ There are two levels of verbosity for deprecated functions, depending on the lif
     ```{r}
     deprecate_warn("0.4.0", "mypkg::bar(old = )", "mypkg::bar(new = )")
     ```
+
+
+### Deprecation of arguments
+
+Deprecating arguments requires a little more work than deprecating functions because you need to make sure the function still interprets the argument correctly when it is supplied by the user. To help with this, lifecycle provides the `deprecated()` sentinel. All it does is return the missing argument, so you can test whether the argument was supplied explicitly with `rlang::is_missing()` (note that `base::missing()` doesn't work here because it doesn't support complex expressions). If you find the argument non-missing, signal the deprecation warning and handle the user input for compatibility:
+
+```{r}
+git_recoup_head <- function(unwind_head = TRUE, indict_branch = deprecated()) {
+  if (!rlang::is_missing(indict_branch)) {
+    # Signal deprecation
+    lifecycle::deprecate_warn(
+      when = "1.0.0",
+      what = "git_recoup_head(indict_branch = )",
+      with = "git_recoup_head(unwind_head = )"
+    )
+
+    # Compatibility
+    unwind_head <- indict_branch
+  }
+
+  ...
+
+  message("Recouped head of git repo")
+}
+```
