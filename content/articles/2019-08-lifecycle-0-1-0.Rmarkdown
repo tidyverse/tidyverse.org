@@ -48,16 +48,10 @@ The main goal of lifecycle is to provide a standard for communicating the evolut
 
 * Providing a set of functions to signal deprecation warnings with increasing levels of non-invasive verbosity.
 
-We started using these tools and conventions in r-lib and tidyverse packages a few months ago. We now make them available for all package developers. Install the package from CRAN with:
+We started using these tools and conventions in r-lib and tidyverse packages a few months ago. We now make them available for all package developers. In this post, we'll briefly present the lifecycle workflow. Read the [Get started](http://lifecycle.r-lib.org/articles/lifecycle.html) vignette for a more complete description. Install the package from CRAN with:
 
 ```{r, eval = FALSE}
 install.packages("lifecycle")
-```
-
-In this post, we'll briefly present the lifecycle workflow. Read the [Get started](http://lifecycle.r-lib.org/articles/lifecycle.html) vignette for a more complete description. Normally you'd call lifecycle functions with the namespace prefix, but for the purposes of illustrating the package we're attaching the package with `library()`:
-
-```{r, message = FALSE}
-library(lifecycle)
 ```
 
 
@@ -180,26 +174,26 @@ There are two levels of verbosity for deprecated functions, depending on the lif
     options(lifecycle_verbosity = "warning")
     ```
     ```{r}
-    deprecate_soft("0.5.0", "mypkg::foo()")
+    lifecycle::deprecate_soft("0.5.0", "mypkg::foo()")
     ```
     ```{r, include = FALSE}
     options(lifecycle_verbosity = "default")
     ```
 
     ```{r}
-    deprecate_warn("0.4.0", "mypkg::bar()")
+    lifecycle::deprecate_warn("0.4.0", "mypkg::bar()")
     ```
 
     You can optionally provide a replacement which will be mentioned in the warning message:
 
     ```{r}
-    deprecate_warn("0.4.0", "mypkg::bar()", "otherpkg::quux()")
+    lifecycle::deprecate_warn("0.4.0", "mypkg::bar()", "otherpkg::quux()")
     ```
 
 *   When a function is ready to be effectively discontinued, use `defunct_stop()`:
 
     ```{r, error = TRUE}
-    deprecate_stop("0.4.0", "mypkg::bar()")
+    lifecycle::deprecate_stop("0.4.0", "mypkg::bar()")
     ```
 
 *   To control the verbosity of deprecation, use the global option `lifecycle_verbosity`. It can be set to `"quiet"`, `"default"`, `"warning"`, or `"error"`:
@@ -207,7 +201,7 @@ There are two levels of verbosity for deprecated functions, depending on the lif
     ```{r, error = TRUE}
     options(lifecycle_verbosity = "error")
 
-    deprecate_soft("0.5.0", "mypkg::foo()")
+    lifecycle::deprecate_soft("0.5.0", "mypkg::foo()")
     ```
 
     ```{r, include = FALSE}
@@ -220,13 +214,13 @@ There are two levels of verbosity for deprecated functions, depending on the lif
 
     ```{r}
     details <- "Why this is discontinued"
-    deprecate_warn("0.4.0", "mypkg::bar()", details = details)
+    lifecycle::deprecate_warn("0.4.0", "mypkg::bar()", details = details)
     ```
 
 *   Finally, signal deprecated arguments with the following syntax:
 
     ```{r}
-    deprecate_warn("0.4.0", "mypkg::bar(old = )", "mypkg::bar(new = )")
+    lifecycle::deprecate_warn("0.4.0", "mypkg::bar(old = )", "mypkg::bar(new = )")
     ```
 
 

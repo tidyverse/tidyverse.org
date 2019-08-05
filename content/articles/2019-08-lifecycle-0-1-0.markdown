@@ -17,7 +17,7 @@ photo:
 
 
 
-It is with unmeasured exhilaration that we announce the release of [lifecycle 0.1.0](https://lifecycle.r-lib.org) on CRAN. lifecycle is a toolkit for managing the life cycle of your exported functions with shared conventions, documentation badges, and non-invasive deprecation warnings.
+It is with unmeasured exhilaration that we announce the release of [lifecycle 0.1.0](https://lifecycle.r-lib.org) on CRAN. lifecycle is a toolkit for managing the lifecycle of your exported functions with shared conventions, documentation badges, and non-invasive deprecation warnings.
 
 The main goal of lifecycle is to streamline how the evolution of your exported API is communicated to your users. It achieves this by:
 
@@ -27,19 +27,13 @@ The main goal of lifecycle is to streamline how the evolution of your exported A
 
 * Providing a set of functions to signal deprecation warnings with increasing levels of non-invasive verbosity.
 
-We started using these tools and conventions in r-lib and tidyverse packages a few months ago. We now make them available for all package developers. Install the package from CRAN with:
+We started using these tools and conventions in r-lib and tidyverse packages a few months ago. We now make them available for all package developers. In this post, we'll briefly present the lifecycle workflow. Read the [Get started](http://lifecycle.r-lib.org/articles/lifecycle.html) vignette for a more complete description. Install the package from CRAN with:
 
 
 ```r
 install.packages("lifecycle")
 ```
 
-In this post, we'll briefly present the lifecycle workflow. Read the [Get started](http://lifecycle.r-lib.org/articles/lifecycle.html) vignette for a more complete description. Normally you'd call lifecycle functions with the namespace prefix, but for the purposes of illustrating the package we're attaching the package with `library()`:
-
-
-```r
-library(lifecycle)
-```
 
 
 ## Lifecycle stages
@@ -136,7 +130,7 @@ To document the lifecycle stage of an argument, insert the badge in the argument
 
 ### Verbosity of deprecation
 
-As is conventional in R, usage of deprecated functions is signalled with warnings. However, lifecycle tries to warn in a non-invasive way. When a deprecated function is called multiple times, only the first time causes a warning. The function then works silently for the rest of the session.
+As is convention in R, usage of deprecated functions is signalled with warnings. However, lifecycle tries to warn in a non-invasive way. When a deprecated function is called multiple times, only the first time causes a warning. The function then works silently for the rest of the session.
 
 There are two levels of verbosity for deprecated functions, depending on the lifecycle stage. For soft-deprecated features, the verbosity level is minimal. No warning is issued unless the function is called directly from the global environment or from unit tests. This is a way of starting to raise awareness about the deprecation of this function without affecting indirect users.
 
@@ -145,7 +139,7 @@ There are two levels of verbosity for deprecated functions, depending on the lif
     
     
     ```r
-    deprecate_soft("0.5.0", "mypkg::foo()")
+    lifecycle::deprecate_soft("0.5.0", "mypkg::foo()")
     ```
     
     <div class = "output"><pre class="knitr r">#&gt; Warning: `foo()` is deprecated as of mypkg 0.5.0.
@@ -154,7 +148,7 @@ There are two levels of verbosity for deprecated functions, depending on the lif
 
     
     ```r
-    deprecate_warn("0.4.0", "mypkg::bar()")
+    lifecycle::deprecate_warn("0.4.0", "mypkg::bar()")
     ```
     
     <div class = "output"><pre class="knitr r">#&gt; Warning: `bar()` is deprecated as of mypkg 0.4.0.
@@ -166,7 +160,7 @@ There are two levels of verbosity for deprecated functions, depending on the lif
 
     
     ```r
-    deprecate_warn("0.4.0", "mypkg::bar()", "otherpkg::quux()")
+    lifecycle::deprecate_warn("0.4.0", "mypkg::bar()", "otherpkg::quux()")
     ```
     
     <div class = "output"><pre class="knitr r">#&gt; Warning: `bar()` is deprecated as of mypkg 0.4.0.
@@ -179,7 +173,7 @@ There are two levels of verbosity for deprecated functions, depending on the lif
 
     
     ```r
-    deprecate_stop("0.4.0", "mypkg::bar()")
+    lifecycle::deprecate_stop("0.4.0", "mypkg::bar()")
     ```
     
     <div class = "output"><pre class="knitr r">#&gt; Error: `bar()` is deprecated as of mypkg 0.4.0.
@@ -191,7 +185,7 @@ There are two levels of verbosity for deprecated functions, depending on the lif
     ```r
     options(lifecycle_verbosity = "error")
     
-    deprecate_soft("0.5.0", "mypkg::foo()")
+    lifecycle::deprecate_soft("0.5.0", "mypkg::foo()")
     ```
     
     <div class = "output"><pre class="knitr r">#&gt; Error: `foo()` is deprecated as of mypkg 0.5.0.
@@ -206,7 +200,7 @@ There are two levels of verbosity for deprecated functions, depending on the lif
     
     ```r
     details <- "Why this is discontinued"
-    deprecate_warn("0.4.0", "mypkg::bar()", details = details)
+    lifecycle::deprecate_warn("0.4.0", "mypkg::bar()", details = details)
     ```
     
     <div class = "output"><pre class="knitr r">#&gt; Warning: `bar()` is deprecated as of mypkg 0.4.0.
@@ -219,7 +213,7 @@ There are two levels of verbosity for deprecated functions, depending on the lif
 
     
     ```r
-    deprecate_warn("0.4.0", "mypkg::bar(old = )", "mypkg::bar(new = )")
+    lifecycle::deprecate_warn("0.4.0", "mypkg::bar(old = )", "mypkg::bar(new = )")
     ```
     
     <div class = "output"><pre class="knitr r">#&gt; Warning: The `old` argument of `bar()` is deprecated as of mypkg 0.4.0.
