@@ -40,7 +40,7 @@ options(crayon.enabled = TRUE)
 
 It is with unmeasured exhilaration that we announce the release of [lifecycle 0.1.0](https://lifecycle.r-lib.org) on CRAN. lifecycle is a toolkit for managing the lifecycle of your exported functions with shared conventions, documentation badges, and non-invasive deprecation warnings.
 
-The main goal of lifecycle is to streamline how the evolution of your exported API is communicated to your users. It achieves this by:
+The main goal of lifecycle is to provide a standard for communicating the evolution of your exported API to your users. It achieves this by:
 
 * Defining a set of stages that a function or argument can be in.
 
@@ -63,7 +63,7 @@ library(lifecycle)
 
 ## Lifecycle stages
 
-The stages for functions and arguments are modelled after the [lifecycle stages for packages](https://www.tidyverse.org/lifecycle/).  There are 4 __development__ stages. Then, if the decision of discontinuing a feature has been made, it goes through 3 __deprecation__ stages.
+The stages for functions and arguments are modelled after the [lifecycle stages for packages](https://www.tidyverse.org/lifecycle/).  There are four __development__ stages and three __deprecation__ stages.
 
 ### Development stages
 
@@ -71,7 +71,7 @@ The stages for functions and arguments are modelled after the [lifecycle stages 
 knitr::include_graphics("/images/lifecycle/lifecycle-experimental.svg")
 ```
 
-An __experimental__ feature is in the very early stage of development. It is exported so users can start to use it and report feedback, but its interface and/or behaviour is likely to change in the future. It is generally best to avoid depending on experimental features.
+An __experimental__ feature is in the very early stage of development. It is exported so users can start to use it and report feedback, but its interface and/or behaviour is likely to change in the future. It is generally best to avoid depending on experimental features in packages or production code.
 
 ```{r echo = FALSE}
 knitr::include_graphics("/images/lifecycle/lifecycle-maturing.svg")
@@ -169,9 +169,9 @@ knitr::include_graphics("/images/lifecycle/indict-deprecated.png")
 
 ### Verbosity of deprecation
 
-As is convention in R, usage of deprecated functions is signalled with warnings. However, lifecycle tries to warn in a non-invasive way. When a deprecated function is called multiple times, only the first time causes a warning. The function then works silently for the rest of the session.
+Deprecated functions use warnings to signal that you need to update your code. lifecycle tries to do this in a non-invasive way, as too many warnings are almost as annoying as an error. To avoid overwhelming you with warnings, lifecycle only warns the first time a deprecated function is used.
 
-There are two levels of verbosity for deprecated functions, depending on the lifecycle stage. For soft-deprecated features, the verbosity level is minimal. No warning is issued unless the function is called directly from the global environment or from unit tests. This is a way of starting to raise awareness about the deprecation of this function without affecting indirect users.
+There are two levels of verbosity for deprecated functions, depending on the lifecycle stage. For soft-deprecated features, the verbosity level is minimal. No warning is issued unless the function is called directly from the global environment or from unit tests. This encourages package developers to update their code while minimally affecting people doing data analysis.
 
 *   To signal (soft-)deprecation warnings, use `deprecate_soft()` and `deprecate_warn()`:
 
