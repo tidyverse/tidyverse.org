@@ -213,20 +213,6 @@ There are two levels of verbosity for deprecated functions, depending on the lif
     lifecycle::deprecate_stop("0.4.0", "mypkg::bar()")
     ```
 
-*   To control the verbosity of deprecation, use the global option `lifecycle_verbosity`. It can be set to `"quiet"`, `"default"`, `"warning"`, or `"error"`:
-
-    ```{r, error = TRUE}
-    options(lifecycle_verbosity = "error")
-
-    lifecycle::deprecate_soft("0.5.0", "mypkg::foo()")
-    ```
-
-    ```{r, include = FALSE}
-    options(lifecycle_verbosity = "default")
-    ```
-
-    Setting the verbosity to `"warn"` forces warnings to occur each time the function is called, it is no longer shown once per session.
-
 *   Provide additional details about the deprecation with the `details` argument:
 
     ```{r}
@@ -264,3 +250,60 @@ git_recoup_head <- function(unwind_head = TRUE, indict_branch = deprecated()) {
   message("Recouped head of git repo")
 }
 ```
+
+
+### Finding and fixing deprecated functions
+
+If you see sporadic deprecation warnings, it can be difficult to exactly pinpoint their precise locations. The lifecycle package provides a few tools to help detecting the usage sites of deprecated features.
+
+Say we have a function that calls a second function, possibly from another package, which relies on deprecated features:
+
+```{r}
+myfunction <- function() otherfunction()
+
+feature1 <- function() lifecycle::deprecate_soft("0.1.0", "foo::feature1()")
+feature2 <- function() lifecycle::deprecate_soft("0.1.0", "foo::feature2()")
+otherfunction <- function() invisible(list(feature1(), feature2()))
+
+myfunction()
+```
+
+The first step to find out where the warnings are coming from is to make the warnings systematic. The verbosity of warnings is easily controlled with the global option `lifecycle_verbosity`. It can be set to `"quiet"`, `"default"`, `"warning"`, or `"error"`:
+
+```{r, error = TRUE}
+options(lifecycle_verbosity = "error")
+myfunction()
+```
+
+When verbosity is set to `"warning"`, the deprecation warnings are no longer signalled once-per-session but everytime the deprecated feature is used:
+
+```{r, error = TRUE}
+options(lifecycle_verbosity = "warning")
+myfunction()
+```
+
+Now call `lifecycle::last_warnings()` to get a list of all warnings signalled during the last command. Each warning is displayed with a simplified backtrace, a summary of the state of R when the warning was triggered:
+
+```{r, results = "hide"}
+lifecycle::last_warnings()
+```
+
+```{r, echo = FALSE}
+warnings <- list(structure(list(message = "`feature1()` is deprecated as of foo 0.1.0.\n\033[90mThis warning is displayed once per session.\033[39m\n\033[90mCall `lifecycle::last_warnings()` to see where this warning was generated.\033[39m", 
+    trace = structure(list(calls = alist(global::myfunction(), 
+        global::otherfunction(), global::feature1(), lifecycle::deprecate_soft("0.1.0", 
+            "foo::feature1()")), parents = 0:3, envs = list("0x7fa6798b5bc8", 
+        "0x7fa6798b5ca8", "0x7fa6798b1fc8", "0x7fa6788c22e0"), 
+        indices = 1:4), class = "rlang_trace")), class = c("lifecycle_warning_deprecated", 
+"warning", "condition")), structure(list(message = "`feature2()` is deprecated as of foo 0.1.0.\n\033[90mThis warning is displayed once per session.\033[39m\n\033[90mCall `lifecycle::last_warnings()` to see where this warning was generated.\033[39m", 
+    trace = structure(list(calls = alist(global::myfunction(), 
+        global::otherfunction(), global::feature2(), lifecycle::deprecate_soft("0.1.0", 
+            "foo::feature2()")), parents = 0:3, envs = list("0x7fa6798b5bc8", 
+        "0x7fa6798b5ca8", "0x7fa676c35628", "0x7fa676c37b68"), 
+        indices = 1:4), class = "rlang_trace")), class = c("lifecycle_warning_deprecated", 
+"warning", "condition")))
+
+warnings
+```
+
+If you find that the warning originates from a different package, please contact the maintainer to let them know they should update their functions so their package doesn't break in the future.

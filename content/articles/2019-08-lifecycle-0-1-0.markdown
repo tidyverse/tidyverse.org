@@ -193,22 +193,6 @@ There are two levels of verbosity for deprecated functions, depending on the lif
     <div class = "output"><pre class="knitr r">#&gt; Error: `bar()` is deprecated as of mypkg 0.4.0.
     </pre></div>
 
-*   To control the verbosity of deprecation, use the global option `lifecycle_verbosity`. It can be set to `"quiet"`, `"default"`, `"warning"`, or `"error"`:
-
-    
-    ```r
-    options(lifecycle_verbosity = "error")
-    
-    lifecycle::deprecate_soft("0.5.0", "mypkg::foo()")
-    ```
-    
-    <div class = "output"><pre class="knitr r">#&gt; Error: `foo()` is deprecated as of mypkg 0.5.0.
-    </pre></div>
-
-    
-
-    Setting the verbosity to `"warn"` forces warnings to occur each time the function is called, it is no longer shown once per session.
-
 *   Provide additional details about the deprecation with the `details` argument:
 
     
@@ -261,3 +245,86 @@ git_recoup_head <- function(unwind_head = TRUE, indict_branch = deprecated()) {
   message("Recouped head of git repo")
 }
 ```
+
+
+### Finding and fixing deprecated functions
+
+If you see sporadic deprecation warnings, it can be difficult to exactly pinpoint their precise locations. The lifecycle package provides a few tools to help detecting the usage sites of deprecated features.
+
+Say we have a function that calls a second function, possibly from another package, which relies on deprecated features:
+
+
+```r
+myfunction <- function() otherfunction()
+
+feature1 <- function() lifecycle::deprecate_soft("0.1.0", "foo::feature1()")
+feature2 <- function() lifecycle::deprecate_soft("0.1.0", "foo::feature2()")
+otherfunction <- function() invisible(list(feature1(), feature2()))
+
+myfunction()
+```
+
+<div class = "output"><pre class="knitr r">#&gt; Warning: `feature1()` is deprecated as of foo 0.1.0.
+#&gt; <span style='color: #555555;'>This warning is displayed once per session.</span><span>
+#&gt; </span><span style='color: #555555;'>Call `lifecycle::last_warnings()` to see where this warning was generated.</span><span>
+</span></pre></div>
+<div class = "output"><pre class="knitr r">#&gt; Warning: `feature2()` is deprecated as of foo 0.1.0.
+#&gt; <span style='color: #555555;'>This warning is displayed once per session.</span><span>
+#&gt; </span><span style='color: #555555;'>Call `lifecycle::last_warnings()` to see where this warning was generated.</span><span>
+</span></pre></div>
+
+The first step to find out where the warnings are coming from is to make the warnings systematic. The verbosity of warnings is easily controlled with the global option `lifecycle_verbosity`. It can be set to `"quiet"`, `"default"`, `"warning"`, or `"error"`:
+
+
+```r
+options(lifecycle_verbosity = "error")
+myfunction()
+```
+
+<div class = "output"><pre class="knitr r">#&gt; Error: `feature1()` is deprecated as of foo 0.1.0.
+</pre></div>
+
+When verbosity is set to `"warning"`, the deprecation warnings are no longer signalled once-per-session but everytime the deprecated feature is used:
+
+
+```r
+options(lifecycle_verbosity = "warning")
+myfunction()
+```
+
+<div class = "output"><pre class="knitr r">#&gt; Warning: `feature1()` is deprecated as of foo 0.1.0.
+</pre></div>
+<div class = "output"><pre class="knitr r">#&gt; Warning: `feature2()` is deprecated as of foo 0.1.0.
+</pre></div>
+
+Now call `lifecycle::last_warnings()` to get a list of all warnings signalled during the last command. Each warning is displayed with a simplified backtrace, a summary of the state of R when the warning was triggered:
+
+
+```r
+lifecycle::last_warnings()
+```
+
+<div class = "output"><pre class="knitr r">#&gt; [[1]]
+#&gt; <span style='font-weight: bold;'>&lt;deprecated&gt;</span><span>
+#&gt; message: </span><span style='font-style: italic;'>`feature1()` is deprecated as of foo 0.1.0.
+#&gt; </span><span style='color: #555555;font-style: italic;'>This warning is displayed once per session.</span><span style='font-style: italic;'>
+#&gt; </span><span style='color: #555555;font-style: italic;'>Call `lifecycle::last_warnings()` to see where this warning was generated.</span><span>
+#&gt; backtrace:
+#&gt; </span><span style='color: #555555;'> 1. </span><span style='color: #BB0000;'>global::myfunction()</span><span>
+#&gt; </span><span style='color: #555555;'> 2. </span><span style='color: #BB0000;'>global::otherfunction()</span><span>
+#&gt; </span><span style='color: #555555;'> 3. </span><span style='color: #BB0000;'>global::feature1()</span><span>
+#&gt; </span><span style='color: #555555;'> 4. </span><span style='color: #BB0000;'>lifecycle::deprecate_soft("0.1.0", "foo::feature1()")</span><span>
+#&gt; 
+#&gt; [[2]]
+#&gt; </span><span style='font-weight: bold;'>&lt;deprecated&gt;</span><span>
+#&gt; message: </span><span style='font-style: italic;'>`feature2()` is deprecated as of foo 0.1.0.
+#&gt; </span><span style='color: #555555;font-style: italic;'>This warning is displayed once per session.</span><span style='font-style: italic;'>
+#&gt; </span><span style='color: #555555;font-style: italic;'>Call `lifecycle::last_warnings()` to see where this warning was generated.</span><span>
+#&gt; backtrace:
+#&gt; </span><span style='color: #555555;'> 1. </span><span style='color: #BB0000;'>global::myfunction()</span><span>
+#&gt; </span><span style='color: #555555;'> 2. </span><span style='color: #BB0000;'>global::otherfunction()</span><span>
+#&gt; </span><span style='color: #555555;'> 3. </span><span style='color: #BB0000;'>global::feature2()</span><span>
+#&gt; </span><span style='color: #555555;'> 4. </span><span style='color: #BB0000;'>lifecycle::deprecate_soft("0.1.0", "foo::feature2()")</span><span>
+</span></pre></div>
+
+If you find that the warning originates from a different package, please contact the maintainer to let them know they should update their functions so their package doesn't break in the future.
