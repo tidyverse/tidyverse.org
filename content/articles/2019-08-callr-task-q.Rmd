@@ -8,7 +8,7 @@ description: >
   100 lines of R code.
 categories:
 - programming
-- parallelism
+- deep-dive
 photo:
   url: https://unsplash.com/photos/cDwZ40Lj9eo
   author: Davide Ragusa
@@ -58,12 +58,11 @@ q$pop()
 This `pop()` call returned `NULL`, as none of the tasks are done yet.
 Even though running `Sys.getpid()` is fast, the worker processes also need
 200-500 ms time start up, when the queue is created. If you are willing to
-wait a bit, at least one task should be done in less than half a second,
-but usually not the second one yet:
+wait a bit, at least one task should be done in less than half a second
+(500 ms), but usually not the second one yet:
 
 ```{r}
-sec <- as.difftime(1, units = "secs")
-q$pop(sec * 1/2)$result
+q$pop(500)$result
 q$pop()
 ```
 
@@ -94,7 +93,7 @@ methods like above, and some other query methods:
 task_q <- R6::R6Class(
   "task_q",
   public = list(
-    initialize      = function(concurrency = 4L) { },
+    initialize      = function(num_workers = 4L) { },
     get_num_waiting = function() { },
     get_num_running = function() { },
     get_num_done    = function() { },
@@ -128,17 +127,19 @@ that are done. `pop()` returns the result of the oldest task that is done.
 Before writing the methods, I'll design the data structure that will
 store all information about the tasks and the worker processes. The
 standard data structure for a list of records is a data frame in R.
-Perhaps for many the first choice would be to keep a data frame for the
-tasks, and another one for the workers, assign ids to both tasks and
-processes and reference tasks by their ids in the worker data frame
-(i.e. which task is this worker running?) and vice-versa.
+
+A logical choice would be to have two data frames, one for the
+tasks, and another one for the workers. Then we could assign unique
+identifiers to both tasks and processes and cross-reference them in the
+two data frames, to mark which task a worker is running, and which worker
+a task is running on.
 
 I'll go a step further here, and store both the tasks and the workers
 _in the same_ data frame. This will simplify the implementation
 considerably. The queue will create a dummy _idle_ task for each worker.
-The worker will (pretend to) run this task if there are no other, real
-tasks waiting. The task list will always contain at least as many tasks
-as the number of workers in the queue.
+Each worker will (pretend to) run its dummy task if there are no other,
+real tasks waiting in the queue. So the task list will always contain at
+least as many tasks as the number of workers in the queue.
 
 An example for a task data frame:
 
@@ -219,14 +220,11 @@ be `".1"`, `".2"`, etc.
   )
 ```
 
-The `initialize()` method will just defer the work to a private method and
-return the object itself. Returning `self` is usually good practice and
-allows method chaining, although most `task_q` methods do not return `self`,
-limiting this considerably.
+The `initialize()` method will just defer the work to a private method.
 
 ```r
-    initialize = function(concurrency = 4L) {
-      private$start_workers(concurrency)
+    initialize = function(num_workers = 4L) {
+      private$start_workers(num_workers)
       invisible(self)
     }
 ```
@@ -235,12 +233,12 @@ The private `start_workers()` method that actually starts the
 workers and creates the `tasks` data frame:
 
 ```r
-    start_workers = function(concurrency) {
+    start_workers = function(num_workers) {
       private$tasks <- tibble::tibble(
         id = character(), idle = logical(),
-        state = c("waiting", "running", "ready", "done")[NULL],
+        state = c("waiting", "running", "ready", "done")[0],
         fun = list(), args = list(), worker = list(), result = list())
-      for (i in seq_len(concurrency)) {
+      for (i in seq_len(num_workers)) {
         rs <- callr::r_session$new(wait = FALSE)
         private$tasks <- tibble::add_row(private$tasks,
           id = paste0(".idle-", i), idle = TRUE, state = "running",
@@ -251,7 +249,7 @@ workers and creates the `tasks` data frame:
 ```
 
 The starting values of the empty task data frame are mostly straightforward.
-If you are wondering about the indexing with `NULL` here, it is a simple
+If you are wondering about the indexing with zero here, it is a simple
 way to list all possible task states in the code, in one place, as a note
 for the code reader.
 
@@ -343,8 +341,7 @@ but this is hopefully easier to understand first:
 
 ```r
     poll = function(timeout = 0) {
-      as_ms <- function(x)
-        if (x==Inf) -1 else as.integer(as.double(x, "secs") * 1000)
+      as_ms <- function(x) if (x == Inf) -1L else as.integer(x)
       topoll <- which(private$tasks$state == "running")
       conns <- lapply(
         private$tasks$worker[topoll],
@@ -391,8 +388,7 @@ expires or a task is _done_. The final `poll()` looks like this:
 ```r
     poll = function(timeout = 0) {
       limit <- Sys.time() + timeout
-      as_ms <- function(x)
-        if (x==Inf) -1 else as.integer(as.double(x, "secs") * 1000)
+      as_ms <- function(x) if (x == Inf) -1L else as.integer(x)
       repeat{
         topoll <- which(private$tasks$state == "running")
         conns <- lapply(
@@ -408,10 +404,6 @@ expires or a task is _done_. The final `poll()` looks like this:
       ret
     }
 ```
-
-Unfortunately `processx::poll()` expects the timeout as an integer in
-milliseconds, not as a `difftime` object, hence the somewhat tedious time
-unit conversions.
 
 Only the private `schedule()` method is missing now:
 
@@ -492,7 +484,7 @@ are _running_), so `push()` could not start any real tasks. Never mind, as
 soon as you try to `pop()` or `poll()`, they'll start running:
 
 ```{r}
-q$poll(sec)
+q$poll(1000L)
 q$list_tasks()
 ```
 
@@ -571,8 +563,8 @@ robust and flexible.
    unlucky, you might lose all worker processes. This is a very hard issue
    to solve, the relatively new `suspendInterrupts()` function probably
    helps a lot.
-4. It would be great to be able to change the `concurrency` level of the
-   queue dynamically, i.e. add and remove worker processes.
+4. It would be great to be able to change the number of worker tasks of
+   the queue dynamically, i.e. add and remove worker processes.
 5. The whole queue could be implemented in a background process, so that
    the scheduler runs concurrently with the main R process. This is far
    from being trivial, especially if one wants to avoid copying data

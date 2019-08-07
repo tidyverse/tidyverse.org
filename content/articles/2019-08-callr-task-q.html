@@ -8,7 +8,7 @@ description: >
   100 lines of R code.
 categories:
 - programming
-- parallelism
+- deep-dive
 photo:
   url: https://unsplash.com/photos/cDwZ40Lj9eo
   author: Davide Ragusa
@@ -40,11 +40,10 @@ q$pop()
 <p>This <code>pop()</code> call returned <code>NULL</code>, as none of the tasks are done yet.
 Even though running <code>Sys.getpid()</code> is fast, the worker processes also need
 200-500 ms time start up, when the queue is created. If you are willing to
-wait a bit, at least one task should be done in less than half a second,
-but usually not the second one yet:</p>
-<pre class="r"><code>sec &lt;- as.difftime(1, units = &quot;secs&quot;)
-q$pop(sec * 1/2)$result
-#&gt; [1] 3246
+wait a bit, at least one task should be done in less than half a second
+(500 ms), but usually not the second one yet:</p>
+<pre class="r"><code>q$pop(500)$result
+#&gt; [1] 3869
 q$pop()
 #&gt; NULL</code></pre>
 <p>The <code>poll()</code> method checks for finished tasks without removing their
@@ -54,7 +53,7 @@ tasks that are done.</p>
 <pre class="r"><code>q$poll(Inf)
 #&gt; [1] &quot;.2&quot;
 q$pop()$result
-#&gt; [1] 3247</code></pre>
+#&gt; [1] 3870</code></pre>
 <p>If the queue is empty, i.e. no tasks are running and no tasks are waiting,
 then <code>pop()</code> always returns <code>NULL</code>, immediately, because there is nothing
 to wait for:</p>
@@ -68,7 +67,7 @@ methods like above, and some other query methods:</p>
 <pre class="r"><code>task_q &lt;- R6::R6Class(
   &quot;task_q&quot;,
   public = list(
-    initialize      = function(concurrency = 4L) { },
+    initialize      = function(num_workers = 4L) { },
     get_num_waiting = function() { },
     get_num_running = function() { },
     get_num_done    = function() { },
@@ -96,17 +95,18 @@ that are done. <code>pop()</code> returns the result of the oldest task that is 
 <h2>Data structure</h2>
 <p>Before writing the methods, I’ll design the data structure that will
 store all information about the tasks and the worker processes. The
-standard data structure for a list of records is a data frame in R.
-Perhaps for many the first choice would be to keep a data frame for the
-tasks, and another one for the workers, assign ids to both tasks and
-processes and reference tasks by their ids in the worker data frame
-(i.e. which task is this worker running?) and vice-versa.</p>
+standard data structure for a list of records is a data frame in R.</p>
+<p>A logical choice would be to have two data frames, one for the
+tasks, and another one for the workers. Then we could assign unique
+identifiers to both tasks and processes and cross-reference them in the
+two data frames, to mark which task a worker is running, and which worker
+a task is running on.</p>
 <p>I’ll go a step further here, and store both the tasks and the workers
 <em>in the same</em> data frame. This will simplify the implementation
 considerably. The queue will create a dummy <em>idle</em> task for each worker.
-The worker will (pretend to) run this task if there are no other, real
-tasks waiting. The task list will always contain at least as many tasks
-as the number of workers in the queue.</p>
+Each worker will (pretend to) run its dummy task if there are no other,
+real tasks waiting in the queue. So the task list will always contain at
+least as many tasks as the number of workers in the queue.</p>
 <p>An example for a task data frame:</p>
 <pre class="r"><code>q$list_tasks()
 #&gt; # A tibble: 9 x 7
@@ -175,22 +175,19 @@ be <code>&quot;.1&quot;</code>, <code>&quot;.2&quot;</code>, etc.</p>
       paste0(&quot;.&quot;, id)
     }
   )</code></pre>
-<p>The <code>initialize()</code> method will just defer the work to a private method and
-return the object itself. Returning <code>self</code> is usually good practice and
-allows method chaining, although most <code>task_q</code> methods do not return <code>self</code>,
-limiting this considerably.</p>
-<pre class="r"><code>    initialize = function(concurrency = 4L) {
-      private$start_workers(concurrency)
+<p>The <code>initialize()</code> method will just defer the work to a private method.</p>
+<pre class="r"><code>    initialize = function(num_workers = 4L) {
+      private$start_workers(num_workers)
       invisible(self)
     }</code></pre>
 <p>The private <code>start_workers()</code> method that actually starts the
 workers and creates the <code>tasks</code> data frame:</p>
-<pre class="r"><code>    start_workers = function(concurrency) {
+<pre class="r"><code>    start_workers = function(num_workers) {
       private$tasks &lt;- tibble::tibble(
         id = character(), idle = logical(),
-        state = c(&quot;waiting&quot;, &quot;running&quot;, &quot;ready&quot;, &quot;done&quot;)[NULL],
+        state = c(&quot;waiting&quot;, &quot;running&quot;, &quot;ready&quot;, &quot;done&quot;)[0],
         fun = list(), args = list(), worker = list(), result = list())
-      for (i in seq_len(concurrency)) {
+      for (i in seq_len(num_workers)) {
         rs &lt;- callr::r_session$new(wait = FALSE)
         private$tasks &lt;- tibble::add_row(private$tasks,
           id = paste0(&quot;.idle-&quot;, i), idle = TRUE, state = &quot;running&quot;,
@@ -199,7 +196,7 @@ workers and creates the <code>tasks</code> data frame:</p>
       }
     }</code></pre>
 <p>The starting values of the empty task data frame are mostly straightforward.
-If you are wondering about the indexing with <code>NULL</code> here, it is a simple
+If you are wondering about the indexing with zero here, it is a simple
 way to list all possible task states in the code, in one place, as a note
 for the code reader.</p>
 <p><code>callr::r_session$new()</code> starts a background R process. The <code>wait = FALSE</code>
@@ -269,8 +266,7 @@ change if <code>poll()</code> is not called.</p>
 <p>I start with an initial version of <code>poll()</code>, which will need changes later,
 but this is hopefully easier to understand first:</p>
 <pre class="r"><code>    poll = function(timeout = 0) {
-      as_ms &lt;- function(x)
-        if (x==Inf) -1 else as.integer(as.double(x, &quot;secs&quot;) * 1000)
+      as_ms &lt;- function(x) if (x == Inf) -1L else as.integer(x)
       topoll &lt;- which(private$tasks$state == &quot;running&quot;)
       conns &lt;- lapply(
         private$tasks$worker[topoll],
@@ -310,8 +306,7 @@ keep calling <code>processx::poll()</code> until either the timeout
 expires or a task is <em>done</em>. The final <code>poll()</code> looks like this:</p>
 <pre class="r"><code>    poll = function(timeout = 0) {
       limit &lt;- Sys.time() + timeout
-      as_ms &lt;- function(x)
-        if (x==Inf) -1 else as.integer(as.double(x, &quot;secs&quot;) * 1000)
+      as_ms &lt;- function(x) if (x == Inf) -1L else as.integer(x)
       repeat{
         topoll &lt;- which(private$tasks$state == &quot;running&quot;)
         conns &lt;- lapply(
@@ -326,9 +321,6 @@ expires or a task is <em>done</em>. The final <code>poll()</code> looks like thi
       }
       ret
     }</code></pre>
-<p>Unfortunately <code>processx::poll()</code> expects the timeout as an integer in
-milliseconds, not as a <code>difftime</code> object, hence the somewhat tedious time
-unit conversions.</p>
 <p>Only the private <code>schedule()</code> method is missing now:</p>
 <pre class="r"><code>    schedule = function() {
       ready &lt;- which(private$tasks$state == &quot;ready&quot;)
@@ -411,7 +403,7 @@ change its state when you <code>push()</code>, <code>pop()</code> or <code>poll(
 tasks to the queue, the workers were still starting up (i.e. the idle tasks
 are <em>running</em>), so <code>push()</code> could not start any real tasks. Never mind, as
 soon as you try to <code>pop()</code> or <code>poll()</code>, they’ll start running:</p>
-<pre class="r"><code>q$poll(sec)
+<pre class="r"><code>q$poll(1000L)
 #&gt; [1] &quot;.1&quot;
 q$list_tasks()</code></pre>
 <PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #555555;'># A tibble: 14 x 7</span><span>
@@ -437,8 +429,8 @@ q$list_tasks()</code></pre>
   print(task_result$result)
 }
 #&gt; [1] &quot;1 done&quot;
-#&gt; [1] &quot;2 done&quot;
 #&gt; [1] &quot;3 done&quot;
+#&gt; [1] &quot;2 done&quot;
 #&gt; [1] &quot;4 done&quot;
 #&gt; [1] &quot;5 done&quot;
 #&gt; [1] &quot;6 done&quot;
@@ -453,7 +445,7 @@ result from the loop:</p>
 #&gt; [1] 200
 #&gt; 
 #&gt; $message
-#&gt; [1] &quot;done fileca37671f032&quot;
+#&gt; [1] &quot;done filef135116d8f&quot;
 #&gt; 
 #&gt; $result
 #&gt; [1] &quot;10 done&quot;
@@ -537,8 +529,8 @@ consistent state. E.g. if <code>schedule()</code> is interrupted and you are
 unlucky, you might lose all worker processes. This is a very hard issue
 to solve, the relatively new <code>suspendInterrupts()</code> function probably
 helps a lot.</li>
-<li>It would be great to be able to change the <code>concurrency</code> level of the
-queue dynamically, i.e. add and remove worker processes.</li>
+<li>It would be great to be able to change the number of worker tasks of
+the queue dynamically, i.e. add and remove worker processes.</li>
 <li>The whole queue could be implemented in a background process, so that
 the scheduler runs concurrently with the main R process. This is far
 from being trivial, especially if one wants to avoid copying data
@@ -576,8 +568,7 @@ from being trivial, especially if one wants to avoid copying data
 
     poll = function(timeout = 0) {
       limit &lt;- Sys.time() + timeout
-      as_ms &lt;- function(x)
-        if (x==Inf) -1 else as.integer(as.double(x, &quot;secs&quot;) * 1000)
+      as_ms &lt;- function(x) if (x == Inf) -1L else as.integer(x)
       repeat{
         topoll &lt;- which(private$tasks$state == &quot;running&quot;)
         conns &lt;- lapply(
