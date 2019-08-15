@@ -17,7 +17,7 @@ The tidyverse team maintains several packages that make it easier to work with G
   * [gmailr](https://gmailr.r-lib.org) wraps the [Gmail API](https://developers.google.com/gmail/api/)
   * [googlesheets4](https://googlesheets4.tidyverse.org) wraps the [Sheets API](https://developers.google.com/sheets/api/) *not released yet*
   
-All of these packages are governed by common policies recorded here. These packages use internal resources owned by the "Tidyverse API Packages" project on Google Cloud Platform. That is the name you will see in a consent screen.
+All of these packages are governed by common policies recorded here. These packages use internal resources owned by the "Tidyverse API Packages" project on Google Cloud Platform. That is the name you will see in a consent screen. *Exception: gmailr does NOT use any resources owned by Tidyverse API Packages, due to [special requirements around Gmail and its scopes](https://developers.google.com/terms/api-services-user-data-policy#additional-requirements-for-specific-api-scopes). You MUST provide your own OAuth client to gmailr, whereas that is possible, but not mandatory, for the other packages listed here.*
 
 Your use of Google APIs with these packages is subject to each API's respective
 terms of service. See <https://developers.google.com/terms/>.
