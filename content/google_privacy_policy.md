@@ -45,7 +45,7 @@ Overview of the scopes requested by various Tidyverse API Packages and their rat
   * `userinfo.email` (read only): All OAuth tokens obtained with the Tidyverse API Packages request this scope so that cached tokens can be labelled with the associated Google user, allowing you to more easily access Google APIs with more than one identity. The Tidyverse API Packages do NOT have access to and do NOT store your Google password.
   * BigQuery and Google Cloud Platform (read/write): The bigrquery package lets you upload, query, and modify data stored in Google BigQuery, as well as retrieve metadata about projects, datasets, tables, and jobs.
   * Drive (read/write): The googledrive package allows you to manage your Drive files and therefore the default scopes include read/write access. The googledrive package makes it possible for you to get a token with more limited scope, e.g. read only.
-  * Gmail (read/write): The gmailr package is primarily used to send mail and thus must have the ability to compose and send mail.
+  * Gmail (read/write):  The gmailr package allows you to fully manage your Gmail account and therefore the default scope grants that ability. The gmailr package makes it possible for you to get a token with more limited scope, e.g. read or compose only.
   * Sheets (read/write): The googlesheets4 package allows you to manage your spreadsheets and therefore the default scopes include read/write access. The googlesheets4 package makes it possible for you to get a token with more limited scope, e.g. read only.
 
 ### Sharing user data
