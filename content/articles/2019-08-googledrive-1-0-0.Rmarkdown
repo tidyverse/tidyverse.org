@@ -4,7 +4,7 @@ slug: googledrive-1-0-0
 author: Jenny Bryan
 description: >
   googledrive v1.0.0 is on CRAN.
-date: '2019-08-21'
+date: '2019-08-20'
 categories: [package]
 tags:
   - googledrive

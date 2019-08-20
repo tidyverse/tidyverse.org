@@ -4,7 +4,7 @@ slug: gargle-hello-world
 author: Jenny Bryan
 description: >
   gargle is now on CRAN.
-date: '2019-08-21'
+date: '2019-08-20'
 categories: [package]
 tags:
   - gargle
