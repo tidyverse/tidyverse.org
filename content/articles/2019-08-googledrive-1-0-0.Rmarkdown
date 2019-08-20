@@ -38,17 +38,19 @@ There is also new functionality that makes it less likely you'll create multiple
 
 ## Auth from gargle
 
-googledrive's auth functionality now comes from the [gargle package](https://gargle.r-lib.org), which provides R infrastructure to work with Google APIs, in general. We've just blogged about gargle's initial release, so check out that post for more details.
+googledrive's auth functionality now comes from the [gargle package](https://gargle.r-lib.org), which provides R infrastructure to work with Google APIs, in general. We've just [blogged about gargle's initial release](https://www.tidyverse.org/articles/2019/08/gargle-hello-world/), so check out that post for more details.
 
 We're adopting gargle for auth in several other packages, such as [bigrquery](https://bigrquery.r-dbi.org) (>= v1.2.0), [gmailr](https://gmailr.r-lib.org)  (>= v1.0.0 *coming soon to CRAN*), and [googlesheets4](https://googlesheets4.tidyverse.org) (currently GitHub-only, successor of googlesheets). This makes new token flows available in these packages, such as [Application Default Credentials](https://www.jhanley.com/google-cloud-application-default-credentials/), and makes auth less idiosyncratic.
 
 ### Auth changes the typical user will notice
 
-Even if you've always let googledrive guide you through auth, here is one change you will notice:
+If you've always let googledrive guide you through auth, here is the one change you will notice:
 
-> OAuth2 tokens are now cached at the user level, by default, instead of in `.httr-oauth` in the current project. We recommend that you delete any vestigial `.httr-oauth` files lying around your googledrive projects and re-authorize googledrive, i.e. get a new token, stored in the new way.
+> OAuth2 tokens are now cached at the user level, by default, instead of in `.httr-oauth` in the current project. We will ask if it's OK to create a new folder to hold your OAuth tokens. We recommend that you delete any vestigial `.httr-oauth` files lying around your googledrive projects and re-authorize googledrive, i.e. get a new token, stored in the new way.
 
-The new strategy makes it harder to accidentally push your tokens to the cloud, easier to use multiple Google identities, and easier to share tokens across projects and packages. Overall, googledrive has gotten more careful about getting your permission to use a cached token. See the gargle vignette [Non-interactive auth](https://gargle.r-lib.org/articles/non-interactive-auth.html) to learn how to prevent attempts to interact with you, especially the section ["I just want my `.Rmd` to render"](https://gargle.r-lib.org/articles/non-interactive-auth.html#i-just-want-my--rmd-to-render).
+The new strategy makes it harder to accidentally push your tokens to the cloud, easier to use multiple Google identities, and easier to share tokens across projects and packages.
+
+sOverall, googledrive has gotten more careful about getting your permission to use a cached token. See the gargle vignette [Non-interactive auth](https://gargle.r-lib.org/articles/non-interactive-auth.html) to learn how to prevent attempts to interact with you, especially the section ["I just want my `.Rmd` to render"](https://gargle.r-lib.org/articles/non-interactive-auth.html#i-just-want-my--rmd-to-render).
 
 googledrive also uses a new OAuth "app", owned by a verified Google Cloud Project entitled "Tidyverse API Packages", which is the project name you will see on the OAuth consent screen. See our new [Privacy Policy](https://www.tidyverse.org/google_privacy_policy/) for details.
 
@@ -64,8 +66,6 @@ knitr::include_graphics("/images/googledrive/je-suis-unique.png")
 
 googledrive v1.0.0 offers some new ways to prevent writing more than one file to the same filepath.
 
-### `overwrite = NA / TRUE / FALSE`
-
 All functions that create a new item or rename/move an existing item have gained an `overwrite` argument:
 
   - `drive_create()` *this function is new in v1.0.0*
@@ -76,8 +76,6 @@ All functions that create a new item or rename/move an existing item have gained
   - `drive_upload()`
 
 The default of `overwrite = NA` corresponds to the existing behaviour, which does not consider pre-existing files at all. `overwrite = TRUE` requests to move a pre-existing file at the target filepath to the trash, prior to creating the new item. If 2 or more files are found, an error is thrown, because it's not clear which one(s) to trash. `overwrite = FALSE` means the new item will only be created if there is no pre-existing file at that filepath. Existence checks based on filepath (or name) can be expensive. This is why the default is `overwrite = NA`, in addition to backwards compatibility.
-
-### `drive_put()`
 
 `drive_put()` is a new convenience wrapper that figures out whether to call `drive_upload()` or `drive_update()`.
 
