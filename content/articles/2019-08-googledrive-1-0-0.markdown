@@ -49,7 +49,7 @@ If you've always let googledrive guide you through auth, here is the one change 
 
 The new strategy makes it harder to accidentally push your tokens to the cloud, easier to use multiple Google identities, and easier to share tokens across projects and packages.
 
-sOverall, googledrive has gotten more careful about getting your permission to use a cached token. See the gargle vignette [Non-interactive auth](https://gargle.r-lib.org/articles/non-interactive-auth.html) to learn how to prevent attempts to interact with you, especially the section ["I just want my `.Rmd` to render"](https://gargle.r-lib.org/articles/non-interactive-auth.html#i-just-want-my--rmd-to-render).
+Overall, googledrive has gotten more careful about getting your permission to use a cached token. See the gargle vignette [Non-interactive auth](https://gargle.r-lib.org/articles/non-interactive-auth.html) to learn how to prevent attempts to interact with you, especially the section ["I just want my `.Rmd` to render"](https://gargle.r-lib.org/articles/non-interactive-auth.html#i-just-want-my--rmd-to-render).
 
 googledrive also uses a new OAuth "app", owned by a verified Google Cloud Project entitled "Tidyverse API Packages", which is the project name you will see on the OAuth consent screen. See our new [Privacy Policy](https://www.tidyverse.org/google_privacy_policy/) for details.
 
