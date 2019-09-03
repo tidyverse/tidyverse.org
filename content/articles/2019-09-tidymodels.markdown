@@ -18,7 +18,7 @@ We've sent a few packages to CRAN recently. Here's a recap of the changes (and s
  
 ### Breaking Changes
 
- * Since 2018, a warning has been issued when the wrong argument was used in `bake(recipe, newdata)`. The depredation period is over and `new_data` is officially required.  
+ * Since 2018, a warning has been issued when the wrong argument was used in `bake(recipe, newdata)`. The deprecation period is over and `new_data` is officially required.  
  * Previously, if [`step_other()`](https://tidymodels.github.io/recipes/reference/step_other.html) did _not_ collapse any levels, it would still add an "other" level to the factor. This would lump new factor levels into "other" when data were baked (as  [`step_novel()`](https://tidymodels.github.io/recipes/reference/step_novel.html) does). This no longer occurs since it was inconsistent with `?step_other`, which said that: "If no pooling is done the data are unmodified".
  
 ### New Operations:
