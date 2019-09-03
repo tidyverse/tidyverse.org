@@ -1,9 +1,9 @@
 ---
 title: tidymodels updates
-slug: tidymodels-2019-07
+slug: tidymodels-2019-09
 author: Max Kuhn, Edgar Ruiz, and Davis Vaughan 
 description: The latest updates to the tidymodels packages
-date: '2019-07-17'
+date: '2019-09-03'
 categories: [package]
 tags:
   - tidymodels
@@ -15,7 +15,7 @@ photo:
 We've sent a few packages to CRAN recently. Here's a recap of the changes (and some notes at the bottom): 
 
 ## recipes 0.1.6
-
+ 
 ### Breaking Changes
 
  * Since 2018, a warning has been issued when the wrong argument was used in `bake(recipe, newdata)`. The depredation period is over and `new_data` is officially required.  
