@@ -89,7 +89,7 @@ Unplanned release based on CRAN requirements for Solaris.
 
 * `correlate()`'s interface for databases was improved. It now only calculates unique pairs, and simplifies the formula that ultimately runs in-database. We also re-added the vignette to the package, which is also available in site as an [article](https://tidymodels.github.io/corrr/articles/databases.html)
 
-## tidypredict 0.4.2
+## tidypredict 0.4.3
 
 ### New models
 
@@ -116,6 +116,22 @@ The package's [official website](https://tidymodels.github.io/tidypredict/index.
   * An article per each supported model, they are found under Model List
   * A how to guide to save and reload models, [link here](https://tidymodels.github.io/tidypredict/articles/save.html) 
   * How to integrate non-R models to `tidypredict`, [link here](https://tidymodels.github.io/tidypredict/articles/non-r.html) 
+
+## yardstick 0.0.4
+
+### New Metrics
+
+Two new metrics have been added to yardstick:
+
+* [`iic()`](https://tidymodels.github.io/yardstick/reference/iic.html) is a numeric metric for computing the index of ideality of correlation. It is a potential alternative to the traditional correlation coefficient, and has been used in QSAR models ([#115](https://github.com/tidymodels/yardstick/issues/87)).
+* [`average_precision()`](https://tidymodels.github.io/yardstick/reference/average_precision.html) is a probability metric that can be used as an alternative to `pr_auc()`. It has the benefit of avoiding any issues of ambiguity in the edge case where `recall == 0` and the current number of false positives is `0`.
+
+### Improvements
+
+* `pr_curve()` (and by extension `pr_auc()`) have been greatly improved to better handle edge cases when duplicate class probability values are present. Additionally, the first precision value in the curve is now a `1`, rather than an `NA`, which results in a more practical curve, and generates a more correct AUC value ([#93](https://github.com/tidymodels/yardstick/issues/93)).
+* Each metric function now has a `direction` attribute, which specifies the direction required for optimization, either minimization or maximization.
+* Documentation for class probability metrics has been improved with more informative examples ([#100](https://github.com/tidymodels/yardstick/issues/100)).
+* `mn_log_loss()` now uses the min/max rule before computing the log of the estimated probabilities to avoid problematic undefined log values ([#103](https://github.com/tidymodels/yardstick/issues/103)).
 
 ## Upcoming Changes and Directions
 
