@@ -77,12 +77,12 @@ library(dplyr)
 
 ## Pivoting
 
-New [`pivot_longer()`](https://tidyr.tidyverse.org/dev/reference/pivot_longer.html) and [`pivot_wider()`](https://tidyr.tidyverse.org/dev/reference/pivot_wider.html) provide modern alternatives to `spread()` and `gather()`. They have been carefully redesigned to be easier to learn and remember, and include many new features. `spread()` and `gather()` won't go away, but they've been marked as retired which means that they're no longer under active development.
+New [`pivot_longer()`](https://tidyr.tidyverse.org/dev/reference/pivot_longer.html) and [`pivot_wider()`](https://tidyr.tidyverse.org/dev/reference/pivot_wider.html) provide modern alternatives to `spread()` and `gather()`. They have been carefully redesigned to be easier to learn and remember, and include many new features. `spread()` and `gather()` won't go away, but they've been retired which means that they're no longer under active development.
 
 The best place to learn about `pivot_longer()` and `pivot_wider()` is [`vignette("pivot")`](https://tidyr.tidyverse.org/dev/articles/pivot.html), or by watching my presentation to the [Vienna R users group](https://www.youtube.com/watch?v=D48JHU4llkk). Here I'll quickly show off a few of the coolest new features:
 
 *   `pivot_longer()` can now separate column names into multiple variables in 
-    single step. For example, take the `who` dataset which has column names
+    a single step. For example, take the `who` dataset which has column names
     that look like `new_{diagonsis}_{gender}{age}`:
     
     ```{r}
@@ -157,15 +157,16 @@ Learn the full details and see many more examples in [`vignette("pivot")`](http:
 
 ## Rectangling
 
-Rectangling is the art and craft of taking a deeply nested list (often sourced from wild caught JSON or XML) and taming it into a tidy data set of rows and columns. There are four new functions in tidyr 1.0.0 that make rectangling much easier:
+Rectangling is the art and craft of taking a deeply nested list (often sourced from wild caught JSON or XML) and taming it into a tidy data set of rows and columns. tidyr 1.0.0 provides four new functions to aid rectangling:
 
 * `unnest_longer()` takes each element of a list-column and makes a new row.
 * `unnest_wider()` takes each element of a list-column and makes a new column.
-* `unnest_auto()` guesses whether you want `unnest_longer()` or `unnest_wider()`.
+* `unnest_auto()` uses some heuristics to guess whether you want 
+  `unnest_longer()` or `unnest_wider()`.
 * `hoist()` is similar to `unnest_wider()` but only plucks out selected
   components, and can reach down multiple levels.
 
-For example, take this small sample of `repurrrsive::got_chars`. It contains data about three Game of Thrones characters:
+To see them in action, take this small sample of `repurrrsive::got_chars`. It contains data about three characters from the Game of Thrones:
 
 ```{r}
 characters <- list(
@@ -200,7 +201,7 @@ got %>%
   unnest_wider(character)
 ```
 
-Then `unnest_longer()` to turn each alias into its own row:
+Followed by `unnest_longer()` to turn each alias into its own row:
 
 ```{r}
 got %>% 
@@ -216,7 +217,7 @@ got %>%
   unnest_auto(aliases)
 ```
 
-Alternatively, you can use `hoist()` to reach deeply into a data structure and just put out the pieces you need:
+Alternatively, you can use `hoist()` to reach deeply into a data structure and put out just the pieces you need:
 
 ```{r}
 got %>% hoist(character, 
@@ -240,9 +241,21 @@ Learn more in [`vignette("rectangle")`](http://tidyr.tidyverse.org/dev/articles/
 
 ## Nesting
 
-`nest()` and `unnest()` have been updated with new interfaces that are more closely aligned to evolving tidyverse conventions. The biggest change is to their operation with multiple columns: `df %>% unnest(x, y, z)` becomes `df %>% unnest(c(x, y, z))` and `df %>% nest(x, y, z)` becomes `df %>% nest(data = c(x, y, z))`
-  
-I have done my best to ensure that common uses of `nest()` and `unnest()` will continue to work, generating an informative warning telling you precisely how you need to update your code. Please [file an issue](https://github.com/tidyverse/tidyr/issues/new) if I've missed an important use case.
+`nest()` and `unnest()` have been updated with new interfaces that are more closely aligned to evolving tidyverse conventions. The biggest change is to their operation with multiple columns: 
+
+```{R, eval = FALSE}
+# old
+df %>% nest(x, y, z)
+# new
+df %>% nest(data = c(x, y, z))
+
+# old
+df %>% unnest(x, y, z)
+# new
+df %>% unnest(c(x, y, z))
+```
+
+I've done my best to ensure that common uses of `nest()` and `unnest()` will continue to work, generating an informative warning telling you precisely how you need to update your code. Please [file an issue](https://github.com/tidyverse/tidyr/issues/new) if I've missed an important use case.
 
 Behind the scenes, I discovered that nesting (and unnesting) can be decomposed into the combination of two simpler operations:
 
@@ -254,7 +267,7 @@ Behind the scenes, I discovered that nesting (and unnesting) can be decomposed i
 <p><img src="/images/tidyr-1-0-0/nest-pack-chop.png" width="480" height="352" /></p>
 
 
-This is primarily of theoretical interest, but it considerably simplified implementation, and you may occassionally find the underlying functions useful when working with exotic data structures.
+This is primarily of theoretical interest, but it considerably simplified the implementation of `nest()`, and you may occassionally find the underlying functions useful when working with exotic data structures.
 
 ## `expand_grid()`
 
@@ -268,14 +281,14 @@ expand_grid(
 )
 ```
 
-Compared to existing base function `expand.grid()`, `expand_grid()`:
+Compared to the existing base function `expand.grid()`, `expand_grid()`:
 
-* Varies the first element slowest (not fastest).
+* Varies the first element most slowly (not most quickly).
 * Never converts strings to factors and doesn't add any additional attributes.
 * Returns a tibble, not a data frame.
-* Can expand any generalised vector, including data frames.
+* Can expand data frames.
 
-The last feature is quite powerful:
+The last feature is quite powerful, as it allows you to generate partial grids:
 
 ```{r}
 students <- tribble(
@@ -288,7 +301,7 @@ students <- tribble(
 expand_grid(students, semester = 1:2)
 ```
 
-This is made possible because underneath the covers tidyr now uses [vctrs](https://vctrs.r-lib.org). vctrs is primarily of interest to package developers but I wanted to talk about it briefly here because I've been having a lot of fun working with it. It's hard to concisely describe what vctrs is, but one part of it is carefully defining what a "vector" is, and provding a set of useful functions that work on all types of vctrs with zero special cases. It turns out that thinking of a data frame as a vector of rows (as opposed to a vector of columns like R usually does) is a suprisingly useful generalisation, and something you can expect to see in more places in the tidyverse in the future. 
+This is made possible by the [vctrs](https://vctrs.r-lib.org) package. vctrs is primarily of interest to package developers but I wanted to talk about it briefly here because I've been having a lot of fun working with it. It's hard to concisely describe what vctrs is, but one part of it is carefully defining what a "vector" is, and provding a set of useful functions that work on all types of vctrs without any special cases. One interesting finding is that thinking of a data frame as a vector of _rows_ (not columns, as R usually does) is suprisingly useful, and something you can expect to see in more places in the tidyverse in the future. 
 
 Note that when data frame inputs are unnamed they're automatically unpacked into individual columns in the output. If you want to produce a single data frame column, name that output:
 
