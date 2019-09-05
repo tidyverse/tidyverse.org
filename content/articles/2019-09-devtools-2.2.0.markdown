@@ -19,7 +19,7 @@ devtools makes package development easier by providing R functions that
 simplify and expedite common tasks. [R Packages] is a book based around this
 workflow.
 
-Apart from the new features mentined below this release also contains a number
+Apart from the new features mentioned below this release also contains a number
 of smaller changes and bug fixes. As always a complete list of all the changes
 is available in the package
 [Changelog](https://devtools.r-lib.org/news/index.html).
