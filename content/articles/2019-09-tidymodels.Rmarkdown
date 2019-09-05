@@ -19,7 +19,7 @@ We've sent a few packages to CRAN recently. Here's a recap of the changes (and s
 ### Breaking Changes
 
  * Since 2018, a warning has been issued when the wrong argument was used in `bake(recipe, newdata)`. The deprecation period is over and `new_data` is officially required.  
- * Previously, if [`step_other()`](https://tidymodels.github.io/recipes/reference/step_other.html) did _not_ collapse any levels, it would still add an "other" level to the factor. This would lump new factor levels into "other" when data were baked (as  [`step_novel()`](https://tidymodels.github.io/recipes/reference/step_novel.html) does). This no longer occurs since it was inconsistent with `?step_other`, which said that: "If no pooling is done the data are unmodified".
+ * Previously, if [`step_other()`](https://tidymodels.github.io/recipes/reference/step_other.html) did _not_ collapse any levels, it would still add an "other" level to the factor. This would lump new factor levels into "other" when data were baked (as  [`step_novel()`](https://tidymodels.github.io/recipes/reference/step_novel.html) does). This no longer occurs, since it was inconsistent with `?step_other`, which said that: "If no pooling is done the data are unmodified".
  
 ### New Operations:
 
@@ -28,7 +28,7 @@ We've sent a few packages to CRAN recently. Here's a recap of the changes (and s
  
 ### Other Changes:
 
-* If `threshold` argument of [`step_other()`](https://tidymodels.github.io/recipes/reference/step_other.html) is greater than one then it specifies the minimum sample size before the levels of the factor are collapsed into the "other" category. [#289](https://github.com/tidymodels/recipes/issues/289)
+* If the `threshold` argument of [`step_other()`](https://tidymodels.github.io/recipes/reference/step_other.html) is greater than one, it specifies the minimum sample size before the levels of the factor are collapsed into the "other" category. [#289](https://github.com/tidymodels/recipes/issues/289)
 *  [`step_knnimpute()`](https://tidymodels.github.io/recipes/reference/step_knnimpute.html) can now pass two options to the underlying knn code, including the number of threads ([#323](https://github.com/tidymodels/recipes/issues/323)). 
 * Due to changes by CRAN,  [`step_nnmf()`](https://tidymodels.github.io/recipes/reference/step_nnmf.html) only works on versions of R >= 3.6.0 due to dependency issues. 
 *  [`step_dummy()`](https://tidymodels.github.io/recipes/reference/step_dummy.html) and [`step_other()`](https://tidymodels.github.io/recipes/reference/step_other.html) are now tolerant to cases where that step's selectors do not capture any columns. In this case, no modifications to the data are made. ([#290](https://github.com/tidymodels/recipes/issues/290), [#348](https://github.com/tidymodels/recipes/issues/348))
@@ -41,7 +41,7 @@ We've sent a few packages to CRAN recently. Here's a recap of the changes (and s
 Two new steps were added:
 
  * [`step_umap()`](https://tidymodels.github.io/embed/reference/step_umap.html) was added for both supervised and unsupervised encodings. 
- * [`step_woe()`](https://tidymodels.github.io/embed/reference/step_woe.html) created weight of evidence encodings. Thanks to Athos Petri Damiani for this. 
+ * [`step_woe()`](https://tidymodels.github.io/embed/reference/step_woe.html) creates weight of evidence encodings. Thanks to Athos Petri Damiani for this. 
 
 ## rsample 0.0.5
 
@@ -56,13 +56,13 @@ Unplanned release based on CRAN requirements for Solaris.
 
 ### Breaking Changes
 
- * The method that `parsnip` stores the model information has changed. Any custom models from previous versions will need to use the new method for registering models. The methods are detailed in `?get_model_env` and the [package vignette for adding models](https://tidymodels.github.io/parsnip/articles/articles/Scratch.html).
+ * The method that `parsnip` uses to store the model information has changed. Any custom models from previous versions will need to use the new method for registering models. The methods are detailed in `?get_model_env` and the [package vignette for adding models](https://tidymodels.github.io/parsnip/articles/articles/Scratch.html).
 
  * The mode needs to be declared for models that can be used for more than one mode prior to fitting and/or translation. 
 
  * For `surv_reg()`, the engine that uses the `survival` package is now called `survival` instead of `survreg`.  
 
- * For `glmnet` models, the full regularization path is always fit regardless of the value given to `penalty`. Previously, the model was fit with passing `penalty` to `glmnet`'s `lambda` argument and the model could only make predictions at those specific values. [(#195)](https://github.com/tidymodels/parsnip/issues/195)
+ * For `glmnet` models, the full regularization path is always fit regardless of the value given to `penalty`. Previously, the model was fit by passing `penalty` to `glmnet`'s `lambda` argument, and the model could only make predictions at those specific values. [(#195)](https://github.com/tidymodels/parsnip/issues/195)
 
 ### New Features
 
@@ -87,7 +87,7 @@ Unplanned release based on CRAN requirements for Solaris.
 
 ### Improvements
 
-* `correlate()`'s interface for databases was improved. It now only calculates unique pairs, and simplifies the formula that ultimately runs in-database. We also re-added the vignette to the package, which is also available in site as an [article](https://tidymodels.github.io/corrr/articles/databases.html)
+* `correlate()`'s interface for databases was improved. It now only calculates unique pairs, and simplifies the formula that ultimately runs in-database. We also re-added the vignette to the package, which is also available on the site as an [article](https://tidymodels.github.io/corrr/articles/databases.html)
 
 ## tidypredict 0.4.3
 
@@ -128,7 +128,7 @@ Two new metrics have been added to yardstick:
 
 ### Improvements
 
-* `pr_curve()` (and by extension `pr_auc()`) have been greatly improved to better handle edge cases when duplicate class probability values are present. Additionally, the first precision value in the curve is now a `1`, rather than an `NA`, which results in a more practical curve, and generates a more correct AUC value ([#93](https://github.com/tidymodels/yardstick/issues/93)).
+* `pr_curve()` (and by extension `pr_auc()`) has been greatly improved to better handle edge cases when duplicate class probability values are present. Additionally, the first precision value in the curve is now a `1`, rather than an `NA`, which results in a more practical curve, and generates a more correct AUC value ([#93](https://github.com/tidymodels/yardstick/issues/93)).
 * Each metric function now has a `direction` attribute, which specifies the direction required for optimization, either minimization or maximization.
 * Documentation for class probability metrics has been improved with more informative examples ([#100](https://github.com/tidymodels/yardstick/issues/100)).
 * `mn_log_loss()` now uses the min/max rule before computing the log of the estimated probabilities to avoid problematic undefined log values ([#103](https://github.com/tidymodels/yardstick/issues/103)).
