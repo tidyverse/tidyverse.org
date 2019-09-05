@@ -3,7 +3,7 @@ title: tidymodels updates
 slug: tidymodels-2019-09
 author: Max Kuhn, Edgar Ruiz, and Davis Vaughan 
 description: The latest updates to the tidymodels packages
-date: '2019-09-03'
+date: '2019-09-05'
 categories: [package]
 tags:
   - tidymodels
@@ -32,7 +32,7 @@ We've sent a few packages to CRAN recently. Here's a recap of the changes (and s
 *  [`step_knnimpute()`](https://tidymodels.github.io/recipes/reference/step_knnimpute.html) can now pass two options to the underlying knn code, including the number of threads ([#323](https://github.com/tidymodels/recipes/issues/323)). 
 * Due to changes by CRAN,  [`step_nnmf()`](https://tidymodels.github.io/recipes/reference/step_nnmf.html) only works on versions of R >= 3.6.0 due to dependency issues. 
 *  [`step_dummy()`](https://tidymodels.github.io/recipes/reference/step_dummy.html) and [`step_other()`](https://tidymodels.github.io/recipes/reference/step_other.html) are now tolerant to cases where that step's selectors do not capture any columns. In this case, no modifications to the data are made. ([#290](https://github.com/tidymodels/recipes/issues/290), [#348](https://github.com/tidymodels/recipes/issues/348))
-*  [`step_dummy()`](https://tidymodels.github.io/recipes/reference/step_dummy.html) can now retain the original columns that are used to make the dummy variables. ([#328](https://github.com/tidymodels/recipes/issues/328)) 
+*  [`step_dummy()`](https://tidymodels.github.io/recipes/reference/step_dummy.html) can now retain the original columns that are used to make the dummy variables by setting `preserve = TRUE`. ([#328](https://github.com/tidymodels/recipes/issues/328)) 
 *  [`step_other()`](https://tidymodels.github.io/recipes/reference/step_other.html)'s print method only reports the variables with collapsed levels (as opposed to any column that was _tested_ to see if it needed collapsing). ([#338](https://github.com/tidymodels/recipes/issues/338)) 
 *  [`step_pca()`](https://tidymodels.github.io/recipes/reference/step_pca.html),  [`step_kpca()`](https://tidymodels.github.io/recipes/reference/step_kpca.html),  [`step_ica()`](https://tidymodels.github.io/recipes/reference/step_ica.html),  [`step_nnmf()`](https://tidymodels.github.io/recipes/reference/step_nnmf.html),  [`step_pls()`](https://tidymodels.github.io/recipes/reference/step_pls.html), and  [`step_isomap()`](https://tidymodels.github.io/recipes/reference/step_isomap.html) now accept zero components. In this case, the original data are returned. Please use this with great care. 
  
