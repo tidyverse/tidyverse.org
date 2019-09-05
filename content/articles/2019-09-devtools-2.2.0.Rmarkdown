@@ -50,7 +50,7 @@ if needed.
 
 ### ellipsis
 
-The [ellipsis package](https://github.com/r-lib/ellipsis) provides a function
+The [ellipsis package](http://ellipsis.r-lib.org/) provides a function
 `check_dots_used()` which ensures that all arguments specified in `...` have
 been used. Devtools uses `...` to pass arguments down to base R functions such
 as `install.packages()`. If the arguments are invalid, such as mis-typing a
