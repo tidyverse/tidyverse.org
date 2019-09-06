@@ -16,8 +16,10 @@ photo:
 [devtools] 2.2.0 is now on CRAN!
 
 devtools makes package development easier by providing R functions that
-simplify and expedite common tasks. [R Packages] is a book based around this
-workflow.
+simplify and expedite common tasks. R Packages is a book based around this
+workflow, which you can read online for free ([1st
+edition](http://r-pkgs.had.co.nz/), in-progress [2nd
+edition](https://r-pkgs.org/)).
 
 Apart from the new features mentioned below this release also contains a number
 of smaller changes and bug fixes. As always a complete list of all the changes
