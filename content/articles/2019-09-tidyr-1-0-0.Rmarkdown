@@ -37,9 +37,8 @@ This blog post summarises the four major changes to the package:
 
 * New `pivot_longer()` and `pivot_wider()` supercede `spread()` and `gather()`. 
   The new functions are substantially more powerful, thanks to ideas from the 
-  data.table and cdata packages, and I'm confident that you'll find them easier 
-  to use and remember than their predecessors thanks to careful consideration 
-  of their interfaces.
+  [data.table](https://CRAN.R-project.org/package=data.table) and [cdata](https://CRAN.R-project.org/package=cdata) packages, and I'm confident that you'll find them easier 
+  to use and remember than their predecessors. 
   
 * New functions for **rectangling**, converting deeply nested lists into tidy
   data frames: `unnest_auto()`, `unnest_longer()`, `unnest_wider()`, and
@@ -50,9 +49,9 @@ This blog post summarises the four major changes to the package:
   can be broken down into two simpler steps, called `pack()` and `chop()`.
   
 * New `expand_grid()`, a variant of `base::expand.grid()`. This is a useful 
-  function to know about, but also serves as a good reason to talk about the 
+  function to know about, but also serves as a good reason to discuss the 
   important role that [vctrs](http://vctrs.r-lib.org/) plays behind the scenes. 
-  You shouldn't ever _have_ to leave about vctrs, but it brings improvements to 
+  You shouldn't ever _have_ to learn about vctrs, but it brings improvements to 
   consistency and performance. 
 
 As well as implementing the new features, I've spent considerable time on the documentation, including four major new vignettes:
@@ -65,7 +64,7 @@ As well as implementing the new features, I've spent considerable time on the do
 
 * [`vignette("in-packages")`](https://tidyr.tidyverse.org/dev/articles/in-packages.html)
   provides best practices for using tidyr inside
-  another package, and provides detailed advice on working with multiple 
+  another package, and detailed advice on working with multiple 
   versions of tidyr if an interface change has affected your package.
 
 You can see a complete list of all the other minor bug fixes and improvements in the [release notes](https://tidyr.tidyverse.org/dev/news/index.html#tidyr-1-0-0).
@@ -83,7 +82,7 @@ The best place to learn about `pivot_longer()` and `pivot_wider()` is [`vignette
 
 *   `pivot_longer()` can now separate column names into multiple variables in 
     a single step. For example, take the `who` dataset which has column names
-    that look like `new_{diagonsis}_{gender}{age}`:
+    that look like `new_{diagnosis}_{gender}{age}`:
     
     ```{r}
     names(who)
@@ -135,7 +134,7 @@ The best place to learn about `pivot_longer()` and `pivot_wider()` is [`vignette
     
     This is a designed experiment with nine replicates for every combination of
     `wool` (`A` and `B`) and `tension` (`L`, `M`, `H`). If we attempt to pivot 
-    the levels of `wool` into the columns we get a warning and the output
+    the levels of `wool` into the columns, we get a warning and the output
     contains list-columns:
     
     ```{r}
@@ -157,7 +156,7 @@ Learn the full details and see many more examples in [`vignette("pivot")`](http:
 
 ## Rectangling
 
-Rectangling is the art and craft of taking a deeply nested list (often sourced from wild caught JSON or XML) and taming it into a tidy data set of rows and columns. tidyr 1.0.0 provides four new functions to aid rectangling:
+Rectangling is the art and craft of taking a deeply nested list (often sourced from wild-caught JSON or XML) and taming it into a tidy data set of rows and columns. tidyr 1.0.0 provides four new functions to aid rectangling:
 
 * `unnest_longer()` takes each element of a list-column and makes a new row.
 * `unnest_wider()` takes each element of a list-column and makes a new column.
@@ -166,7 +165,7 @@ Rectangling is the art and craft of taking a deeply nested list (often sourced f
 * `hoist()` is similar to `unnest_wider()` but only plucks out selected
   components, and can reach down multiple levels.
 
-To see them in action, take this small sample of `repurrrsive::got_chars`. It contains data about three characters from the Game of Thrones:
+To see them in action, take this small sample from `repurrrsive::got_chars`. It contains data about three characters from the Game of Thrones:
 
 ```{r}
 characters <- list(
@@ -259,15 +258,15 @@ I've done my best to ensure that common uses of `nest()` and `unnest()` will con
 
 Behind the scenes, I discovered that nesting (and unnesting) can be decomposed into the combination of two simpler operations:
 
-* `pack()` and `unpack()` pack and unpack multiple columns into a single data 
-  frame columns. 
+* `pack()` and `unpack()` multiple columns into and out of a data 
+  frame column. 
   
 * `chop()` and `unchop()` chop up rows into sets of list-columns. 
 
 <p><img src="/images/tidyr-1-0-0/nest-pack-chop.png" width="480" height="352" /></p>
 
 
-This is primarily of theoretical interest, but it considerably simplified the implementation of `nest()`, and you may occassionally find the underlying functions useful when working with exotic data structures.
+This is primarily of internal interest, but it considerably simplifies the implementation of `nest()`, and you may occasionally find the underlying functions useful when working with exotic data structures.
 
 ## `expand_grid()`
 
@@ -301,9 +300,9 @@ students <- tribble(
 expand_grid(students, semester = 1:2)
 ```
 
-This is made possible by the [vctrs](https://vctrs.r-lib.org) package. vctrs is primarily of interest to package developers but I wanted to talk about it briefly here because I've been having a lot of fun working with it. It's hard to concisely describe what vctrs is, but one part of it is carefully defining what a "vector" is, and provding a set of useful functions that work on all types of vctrs without any special cases. One interesting finding is that thinking of a data frame as a vector of _rows_ (not columns, as R usually does) is suprisingly useful, and something you can expect to see in more places in the tidyverse in the future. 
+This is made possible by the [vctrs](https://vctrs.r-lib.org) package. vctrs is primarily of interest to package developers but I want to talk about it briefly here because I've been having a lot of fun working with it. It's hard to concisely describe vctrs, but one aspect is carefully defining what a "vector" is, and providing a set of useful functions that work on all types of vctrs, without any special cases. One interesting finding is that thinking of a data frame as a vector of _rows_ (not columns, as R usually does) is suprisingly useful, and something you can expect to see in more places in the tidyverse in the future. 
 
-Note that when data frame inputs are unnamed they're automatically unpacked into individual columns in the output. If you want to produce a single data frame column, name that output:
+Note that when data frame inputs are unnamed, they're automatically unpacked into individual columns in the output. If you want to produce a single data frame column, name that output:
 
 ```{r}
 expand_grid(student = students, semester = 1:2)
