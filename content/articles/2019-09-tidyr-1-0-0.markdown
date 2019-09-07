@@ -27,24 +27,26 @@ As you might guess from the version number, this is a major release, and the 1.0
 
 This blog post summarises the four major changes to the package:
 
-* New `pivot_longer()` and `pivot_wider()` supercede `spread()` and `gather()`. 
-  The new functions are substantially more powerful, thanks to ideas from the 
-  data.table and cdata packages, and I'm confident that you'll find them easier 
-  to use and remember than their predecessors thanks to careful consideration 
-  of their interfaces.
+* New `pivot_longer()` and `pivot_wider()` provide improved tools for reshaping,
+  superceding `spread()` and `gather()`. The new functions are substantially 
+  more powerful, thanks to ideas from the 
+  [data.table](https://CRAN.R-project.org/package=data.table) and
+  [cdata](https://CRAN.R-project.org/package=cdata) packages, and I'm 
+  confident that you'll find them easier to use and remember than their 
+  predecessors. 
   
-* New functions for **rectangling**, converting deeply nested lists into tidy
-  data frames: `unnest_auto()`, `unnest_longer()`, `unnest_wider()`, and
-  `hoist()`.
+* New `unnest_auto()`, `unnest_longer()`, `unnest_wider()`, and `hoist()` 
+  provide new tools for rectangling, converting deeply nested lists into tidy
+  data frames.
   
-* Interface changes to `nest()` and `unnest()` to match an emerging consensus
-  for interface design across the tidyverse. I've also discovered that nesting
-  can be broken down into two simpler steps, called `pack()` and `chop()`.
+* `nest()` and `unnest()` have been changed to match an emerging principle for 
+  the design of  `...` interfaces. Four new functions (`pack()`/`unpack()`, and
+  `chop()`/`unchop()`) reveal two simpler steps that underlying nesting.
   
 * New `expand_grid()`, a variant of `base::expand.grid()`. This is a useful 
-  function to know about, but also serves as a good reason to talk about the 
+  function to know about, but also serves as a good reason to discuss the 
   important role that [vctrs](http://vctrs.r-lib.org/) plays behind the scenes. 
-  You shouldn't ever _have_ to leave about vctrs, but it brings improvements to 
+  You shouldn't ever _have_ to learn about vctrs, but it brings improvements to 
   consistency and performance. 
 
 As well as implementing the new features, I've spent considerable time on the documentation, including four major new vignettes:
@@ -57,10 +59,10 @@ As well as implementing the new features, I've spent considerable time on the do
 
 * [`vignette("in-packages")`](https://tidyr.tidyverse.org/dev/articles/in-packages.html)
   provides best practices for using tidyr inside
-  another package, and provides detailed advice on working with multiple 
+  another package, and detailed advice on working with multiple 
   versions of tidyr if an interface change has affected your package.
 
-You can see a complete list of all the other minor bug fixes and improvements in the [release notes](https://tidyr.tidyverse.org/dev/news/index.html#tidyr-1-0-0).
+You can see a list of all the other minor bug fixes and improvements in the [release notes](https://tidyr.tidyverse.org/dev/news/index.html#tidyr-1-0-0).
 
 
 ```r
@@ -76,7 +78,7 @@ The best place to learn about `pivot_longer()` and `pivot_wider()` is [`vignette
 
 *   `pivot_longer()` can now separate column names into multiple variables in 
     a single step. For example, take the `who` dataset which has column names
-    that look like `new_{diagonsis}_{gender}{age}`:
+    that look like `new_{diagnosis}_{gender}{age}`:
     
     
     ```r
@@ -98,9 +100,10 @@ The best place to learn about `pivot_longer()` and `pivot_wider()` is [`vignette
     #> [57] "newrel_f3544" "newrel_f4554" "newrel_f5564" "newrel_f65"
     ```
     
-    You can now tease apart the variable names in a single step by supplying
-    a vector of variable names to `names_to` and a regular expression to
-    `names_pattern` (simpler cases might only need `names_sep`):
+    You can now tease apart the variable names in a single step 
+    (i.e. without [`separate()`](https://tidyr.tidyverse.org/reference/separate.html)))
+    by supplying a vector of variable names to `names_to` and a regular 
+    expression to `names_pattern` (simpler cases might only need `names_sep`):
 
     
     ```r
@@ -108,18 +111,19 @@ The best place to learn about `pivot_longer()` and `pivot_wider()` is [`vignette
       cols = new_sp_m014:newrel_f65,
       names_to = c("diagnosis", "gender", "age"), 
       names_pattern = "new_?(.*)_(.)(.*)",
-      values_to = "count"
+      values_to = "count",
+      values_drop_na = TRUE
     )
-    #> # A tibble: 405,440 x 8
+    #> # A tibble: 76,046 x 8
     #>   country     iso2  iso3   year diagnosis gender age   count
     #>   <chr>       <chr> <chr> <int> <chr>     <chr>  <chr> <int>
-    #> 1 Afghanistan AF    AFG    1980 sp        m      014      NA
-    #> 2 Afghanistan AF    AFG    1980 sp        m      1524     NA
-    #> 3 Afghanistan AF    AFG    1980 sp        m      2534     NA
-    #> 4 Afghanistan AF    AFG    1980 sp        m      3544     NA
-    #> 5 Afghanistan AF    AFG    1980 sp        m      4554     NA
-    #> 6 Afghanistan AF    AFG    1980 sp        m      5564     NA
-    #> # … with 4.054e+05 more rows
+    #> 1 Afghanistan AF    AFG    1997 sp        m      014       0
+    #> 2 Afghanistan AF    AFG    1997 sp        m      1524     10
+    #> 3 Afghanistan AF    AFG    1997 sp        m      2534      6
+    #> 4 Afghanistan AF    AFG    1997 sp        m      3544      3
+    #> 5 Afghanistan AF    AFG    1997 sp        m      4554      5
+    #> 6 Afghanistan AF    AFG    1997 sp        m      5564      2
+    #> # … with 7.604e+04 more rows
     ```
 
 *   `pivot_longer()` can now work with rows that contain multiple observations
@@ -185,7 +189,7 @@ The best place to learn about `pivot_longer()` and `pivot_wider()` is [`vignette
     
     This is a designed experiment with nine replicates for every combination of
     `wool` (`A` and `B`) and `tension` (`L`, `M`, `H`). If we attempt to pivot 
-    the levels of `wool` into the columns we get a warning and the output
+    the levels of `wool` into the columns, we get a warning and the output
     contains list-columns:
     
     
@@ -225,7 +229,7 @@ Learn the full details and see many more examples in [`vignette("pivot")`](http:
 
 ## Rectangling
 
-Rectangling is the art and craft of taking a deeply nested list (often sourced from wild caught JSON or XML) and taming it into a tidy data set of rows and columns. tidyr 1.0.0 provides four new functions to aid rectangling:
+Rectangling is the art and craft of taking a deeply nested list (often sourced from wild-caught JSON or XML) and taming it into a tidy data set of rows and columns. tidyr 1.0.0 provides four new functions to aid rectangling:
 
 * `unnest_longer()` takes each element of a list-column and makes a new row.
 * `unnest_wider()` takes each element of a list-column and makes a new column.
@@ -234,7 +238,7 @@ Rectangling is the art and craft of taking a deeply nested list (often sourced f
 * `hoist()` is similar to `unnest_wider()` but only plucks out selected
   components, and can reach down multiple levels.
 
-To see them in action, take this small sample of `repurrrsive::got_chars`. It contains data about three characters from the Game of Thrones:
+To see them in action, take this small sample from `repurrrsive::got_chars`. It contains data about three characters from the Game of Thrones:
 
 
 ```r
@@ -300,7 +304,7 @@ got %>%
 #> 4 Tyrion Lannister The Imp            TRUE 
 #> 5 Tyrion Lannister Halfman            TRUE 
 #> 6 Tyrion Lannister Giant of Lannister TRUE 
-#> # … with 1 more row
+#> 7 Arys Oakheart    <NA>               FALSE
 ```
 
 Even more conveniently, you can use `unnest_auto()` to guess which direction a list column should be unnested in. Here it yields the same results as above, and the messages tell you why:
@@ -331,7 +335,7 @@ got %>% hoist(character,
 #> 3 Arys Oakheart    <NA>            FALSE <named list [0]>
 ```
 
-This replaces our previous recommendation to use `dplyr::mutate()` and `purrr::map()` together:
+This syntax provides a more approachable alternative to using `purrr::map()` inside `dplyr::mutate()`, as we'd previously recommended:
 
 
 ```r
@@ -361,19 +365,19 @@ df %>% unnest(x, y, z)
 df %>% unnest(c(x, y, z))
 ```
 
-I've done my best to ensure that common uses of `nest()` and `unnest()` will continue to work, generating an informative warning telling you precisely how you need to update your code. Please [file an issue](https://github.com/tidyverse/tidyr/issues/new) if I've missed an important use case.
+I've done my best to ensure that common uses of `nest()` and `unnest()` will continue to work, generating an informative warning telling you precisely how you need to update your code. If this doesn't work, you can use `nest_legacy()` or `unnest_legacy()` to access the previous interfaces; see [`vignette("in-packages")`](https://tidyr.tidyverse.org/dev/articles/in-packages.html#tidyr-v0-8-3---v1-0-0) for more advice on managing this transition.
 
 Behind the scenes, I discovered that nesting (and unnesting) can be decomposed into the combination of two simpler operations:
 
-* `pack()` and `unpack()` pack and unpack multiple columns into a single data 
-  frame columns. 
+* `pack()` and `unpack()` multiple columns into and out of a data 
+  frame column. 
   
-* `chop()` and `unchop()` chop up rows into sets of list-columns. 
+* `chop()` and `unchop()` chop up rows into and out of list-columns. It's 
+  a bit like an explicit form of `dplyr::group_by()`.
 
 <p><img src="/images/tidyr-1-0-0/nest-pack-chop.png" width="480" height="352" /></p>
 
-
-This is primarily of theoretical interest, but it considerably simplified the implementation of `nest()`, and you may occassionally find the underlying functions useful when working with exotic data structures.
+This is primarily of internal interest, but it considerably simplifies the implementation of `nest()`, and you may occasionally find the underlying functions useful when working with exotic data structures.
 
 ## `expand_grid()`
 
@@ -426,12 +430,13 @@ expand_grid(students, semester = 1:2)
 #> 4 A      Mary           2
 #> 5 A      Susan          1
 #> 6 A      Susan          2
-#> # … with 2 more rows
+#> 7 B      John           1
+#> 8 B      John           2
 ```
 
-This is made possible by the [vctrs](https://vctrs.r-lib.org) package. vctrs is primarily of interest to package developers but I wanted to talk about it briefly here because I've been having a lot of fun working with it. It's hard to concisely describe what vctrs is, but one part of it is carefully defining what a "vector" is, and provding a set of useful functions that work on all types of vctrs without any special cases. One interesting finding is that thinking of a data frame as a vector of _rows_ (not columns, as R usually does) is suprisingly useful, and something you can expect to see in more places in the tidyverse in the future. 
+This is made possible by the [vctrs](https://vctrs.r-lib.org) package. vctrs is primarily of interest to package developers but I want to talk about it briefly here because I've been having a lot of fun working with it. It's hard to concisely describe vctrs, but one aspect is carefully defining what a "vector" is, and providing a set of useful functions that work on all types of vctrs, without any special cases. One interesting finding is that thinking of a data frame as a vector of _rows_ (not columns, as R usually does) is suprisingly useful, and something you can expect to see in more places in the tidyverse in the future. 
 
-Note that when data frame inputs are unnamed they're automatically unpacked into individual columns in the output. If you want to produce a single data frame column, name that output:
+Note that when data frame inputs are unnamed, they're automatically unpacked into individual columns in the output. If you want to produce a single data frame column, name that output:
 
 
 ```r
@@ -445,7 +450,8 @@ expand_grid(student = students, semester = 1:2)
 #> 4 A              Mary            2
 #> 5 A              Susan           1
 #> 6 A              Susan           2
-#> # … with 2 more rows
+#> 7 B              John            1
+#> 8 B              John            2
 ```
 
 Data frame columns aren't particularly useful yet, but they provide powerful building blocks for future extensions. For example, we expect a future version of dplyr will support data frame columns as a way for `mutate()` and `summarise()` to create multiple new columns from a single function call.

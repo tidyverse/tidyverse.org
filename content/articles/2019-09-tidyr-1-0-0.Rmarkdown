@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 )
 options(
   tibble.print_min = 6, 
-  tibble.print_max = 6
+  tibble.print_max = 8
 )
 ```
 
@@ -35,18 +35,21 @@ As you might guess from the version number, this is a major release, and the 1.0
 
 This blog post summarises the four major changes to the package:
 
-* New `pivot_longer()` and `pivot_wider()` supercede `spread()` and `gather()`. 
-  The new functions are substantially more powerful, thanks to ideas from the 
-  [data.table](https://CRAN.R-project.org/package=data.table) and [cdata](https://CRAN.R-project.org/package=cdata) packages, and I'm confident that you'll find them easier 
-  to use and remember than their predecessors. 
+* New `pivot_longer()` and `pivot_wider()` provide improved tools for reshaping,
+  superceding `spread()` and `gather()`. The new functions are substantially 
+  more powerful, thanks to ideas from the 
+  [data.table](https://CRAN.R-project.org/package=data.table) and
+  [cdata](https://CRAN.R-project.org/package=cdata) packages, and I'm 
+  confident that you'll find them easier to use and remember than their 
+  predecessors. 
   
-* New functions for **rectangling**, converting deeply nested lists into tidy
-  data frames: `unnest_auto()`, `unnest_longer()`, `unnest_wider()`, and
-  `hoist()`.
+* New `unnest_auto()`, `unnest_longer()`, `unnest_wider()`, and `hoist()` 
+  provide new tools for rectangling, converting deeply nested lists into tidy
+  data frames.
   
-* Interface changes to `nest()` and `unnest()` to match an emerging consensus
-  for interface design across the tidyverse. I've also discovered that nesting
-  can be broken down into two simpler steps, called `pack()` and `chop()`.
+* `nest()` and `unnest()` have been changed to match an emerging principle for 
+  the design of  `...` interfaces. Four new functions (`pack()`/`unpack()`, and
+  `chop()`/`unchop()`) reveal two simpler steps that underlying nesting.
   
 * New `expand_grid()`, a variant of `base::expand.grid()`. This is a useful 
   function to know about, but also serves as a good reason to discuss the 
@@ -67,7 +70,7 @@ As well as implementing the new features, I've spent considerable time on the do
   another package, and detailed advice on working with multiple 
   versions of tidyr if an interface change has affected your package.
 
-You can see a complete list of all the other minor bug fixes and improvements in the [release notes](https://tidyr.tidyverse.org/dev/news/index.html#tidyr-1-0-0).
+You can see a list of all the other minor bug fixes and improvements in the [release notes](https://tidyr.tidyverse.org/dev/news/index.html#tidyr-1-0-0).
 
 ```{r setup, message = FALSE}
 library(tidyr)
@@ -88,16 +91,18 @@ The best place to learn about `pivot_longer()` and `pivot_wider()` is [`vignette
     names(who)
     ```
     
-    You can now tease apart the variable names in a single step by supplying
-    a vector of variable names to `names_to` and a regular expression to
-    `names_pattern` (simpler cases might only need `names_sep`):
+    You can now tease apart the variable names in a single step 
+    (i.e. without [`separate()`](https://tidyr.tidyverse.org/reference/separate.html)))
+    by supplying a vector of variable names to `names_to` and a regular 
+    expression to `names_pattern` (simpler cases might only need `names_sep`):
 
     ```{r}
     who %>% pivot_longer(
       cols = new_sp_m014:newrel_f65,
       names_to = c("diagnosis", "gender", "age"), 
       names_pattern = "new_?(.*)_(.)(.*)",
-      values_to = "count"
+      values_to = "count",
+      values_drop_na = TRUE
     )
     ```
 
@@ -226,7 +231,7 @@ got %>% hoist(character,
 )
 ```
 
-This replaces our previous recommendation to use `dplyr::mutate()` and `purrr::map()` together:
+This syntax provides a more approachable alternative to using `purrr::map()` inside `dplyr::mutate()`, as we'd previously recommended:
 
 ```{r, results = FALSE}
 got %>% mutate(
@@ -254,17 +259,17 @@ df %>% unnest(x, y, z)
 df %>% unnest(c(x, y, z))
 ```
 
-I've done my best to ensure that common uses of `nest()` and `unnest()` will continue to work, generating an informative warning telling you precisely how you need to update your code. Please [file an issue](https://github.com/tidyverse/tidyr/issues/new) if I've missed an important use case.
+I've done my best to ensure that common uses of `nest()` and `unnest()` will continue to work, generating an informative warning telling you precisely how you need to update your code. If this doesn't work, you can use `nest_legacy()` or `unnest_legacy()` to access the previous interfaces; see [`vignette("in-packages")`](https://tidyr.tidyverse.org/dev/articles/in-packages.html#tidyr-v0-8-3---v1-0-0) for more advice on managing this transition.
 
 Behind the scenes, I discovered that nesting (and unnesting) can be decomposed into the combination of two simpler operations:
 
 * `pack()` and `unpack()` multiple columns into and out of a data 
   frame column. 
   
-* `chop()` and `unchop()` chop up rows into sets of list-columns. 
+* `chop()` and `unchop()` chop up rows into and out of list-columns. It's 
+  a bit like an explicit form of `dplyr::group_by()`.
 
 <p><img src="/images/tidyr-1-0-0/nest-pack-chop.png" width="480" height="352" /></p>
-
 
 This is primarily of internal interest, but it considerably simplifies the implementation of `nest()`, and you may occasionally find the underlying functions useful when working with exotic data structures.
 
