@@ -2,7 +2,7 @@
 title: Multi Process Task Queue in 100 Lines of R Code
 slug: callr-task-q
 author: Gábor Csárdi
-date: '2019-08-03'
+date: '2019-09-09'
 description: >
   We use `callr::r_session` to implement a worker pool and task queue in
   100 lines of R code.
@@ -43,7 +43,7 @@ Even though running <code>Sys.getpid()</code> is fast, the worker processes also
 wait a bit, at least one task should be done in less than half a second
 (500 ms), but usually not the second one yet:</p>
 <pre class="r"><code>q$pop(500)$result
-#&gt; [1] 3869
+#&gt; [1] 18383
 q$pop()
 #&gt; NULL</code></pre>
 <p>The <code>poll()</code> method checks for finished tasks without removing their
@@ -53,7 +53,7 @@ tasks that are done.</p>
 <pre class="r"><code>q$poll(Inf)
 #&gt; [1] &quot;.2&quot;
 q$pop()$result
-#&gt; [1] 3870</code></pre>
+#&gt; [1] 18385</code></pre>
 <p>If the queue is empty, i.e. no tasks are running and no tasks are waiting,
 then <code>pop()</code> always returns <code>NULL</code>, immediately, because there is nothing
 to wait for:</p>
@@ -404,13 +404,13 @@ tasks to the queue, the workers were still starting up (i.e. the idle tasks
 are <em>running</em>), so <code>push()</code> could not start any real tasks. Never mind, as
 soon as you try to <code>pop()</code> or <code>poll()</code>, they’ll start running:</p>
 <pre class="r"><code>q$poll(1000L)
-#&gt; [1] &quot;.1&quot;
+#&gt; [1] &quot;.2&quot;
 q$list_tasks()</code></pre>
 <PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #555555;'># A tibble: 14 x 7</span><span>
 #&gt;    id      idle  state   fun    args             worker     result    
 #&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;lgl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span>           </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span>    
-#&gt; </span><span style='color: #555555;'> 1</span><span> .1      FALSE done    </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;cllr_ss_&gt;</span><span>
-#&gt; </span><span style='color: #555555;'> 2</span><span> .2      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'> 1</span><span> .1      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'> 2</span><span> .2      FALSE done    </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;cllr_ss_&gt;</span><span>
 #&gt; </span><span style='color: #555555;'> 3</span><span> .3      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
 #&gt; </span><span style='color: #555555;'> 4</span><span> .4      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
 #&gt; </span><span style='color: #555555;'> 5</span><span> .5      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
@@ -429,11 +429,11 @@ q$list_tasks()</code></pre>
   print(task_result$result)
 }
 #&gt; [1] &quot;1 done&quot;
-#&gt; [1] &quot;3 done&quot;
 #&gt; [1] &quot;2 done&quot;
+#&gt; [1] &quot;3 done&quot;
 #&gt; [1] &quot;4 done&quot;
-#&gt; [1] &quot;5 done&quot;
 #&gt; [1] &quot;6 done&quot;
+#&gt; [1] &quot;5 done&quot;
 #&gt; [1] &quot;7 done&quot;
 #&gt; [1] &quot;8 done&quot;
 #&gt; [1] &quot;9 done&quot;
@@ -445,7 +445,7 @@ result from the loop:</p>
 #&gt; [1] 200
 #&gt; 
 #&gt; $message
-#&gt; [1] &quot;done filef135116d8f&quot;
+#&gt; [1] &quot;done file47c57a1f62b5&quot;
 #&gt; 
 #&gt; $result
 #&gt; [1] &quot;10 done&quot;
