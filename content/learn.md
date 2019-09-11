@@ -20,7 +20,7 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
 
 <h2 class='stopFloatBefore' id="books">Books</h2>
 
-* [Statistical Inference via Data Science: A moderndive into R and the tidyverse](https://www.moderndive.com/) by
+* [Statistical Inference via Data Science: A ModernDive into R and the tidyverse](https://www.moderndive.com/) by
   Chester Ismay and Albert Y. Kim. "Help! I’m new to R and RStudio and I need to learn them! What do I do?" If you're asking yourself this, this book is for you.
 
 * [ggplot2: elegant graphics for data science](http://amzn.to/2tYdTqd) by 
