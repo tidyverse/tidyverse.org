@@ -71,7 +71,7 @@ As well as implementing the new features, I've spent considerable time on the do
   another package, and detailed advice on working with multiple 
   versions of tidyr if an interface change has affected your package.
 
-You can see a list of all the other minor bug fixes and improvements in the [release notes](https://tidyr.tidyverse.org/dev/news/index.html#tidyr-1-0-0).
+You can see a list of all the other minor bug fixes and improvements in the [release notes](https://tidyr.tidyverse.org/dev/news/index.html#tidyr-1-0-0). I strongly recommend reading the complete release notes if you're a package developer.
 
 ```{r setup, message = FALSE}
 library(tidyr)
@@ -308,13 +308,13 @@ expand_grid(students, semester = 1:2)
 
 This is made possible by the [vctrs](https://vctrs.r-lib.org) package. vctrs is primarily of interest to package developers but I want to talk about it briefly here because I've been having a lot of fun working with it. It's hard to concisely describe vctrs, but one aspect is carefully defining what a "vector" is, and providing a set of useful functions that work on all types of vctrs, without any special cases. One interesting finding is that thinking of a data frame as a vector of _rows_ (not columns, as R usually does) is suprisingly useful, and something you can expect to see in more places in the tidyverse in the future. 
 
-Note that when data frame inputs are unnamed, they're automatically unpacked into individual columns in the output. If you want to produce a single data frame column, name that output:
+Note that when data frame inputs are unnamed, they're automatically unpacked into individual columns in the output. It's also possible to create a column that is itself a data frame, a **df-column**, if you name it:
 
 ```{r}
 expand_grid(student = students, semester = 1:2)
 ```
 
-Data frame columns aren't particularly useful yet, but they provide powerful building blocks for future extensions. For example, we expect a future version of dplyr will support data frame columns as a way for `mutate()` and `summarise()` to create multiple new columns from a single function call.
+Df-columns aren't particularly useful yet, but they provide powerful building blocks for future extensions. For example, we expect a future version of dplyr will support df-columns as a way for `mutate()` and `summarise()` to create multiple new columns from a single function call.
 
 ## Thanks
 
