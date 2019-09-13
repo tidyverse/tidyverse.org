@@ -1,6 +1,6 @@
 ---
 title: 'Tidy dev day take two: Toulouse'
-author: Mara Averick, and Hadley Wickham
+author: Mara Averick and Hadley Wickham
 description: >
   Reflections on tidyverse dev day at useR! 2019.
 date: '2019-09-06'
