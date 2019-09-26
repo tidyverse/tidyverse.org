@@ -1,7 +1,7 @@
 ---
-title: devtools 2.2.0
-date: 2019-09-06
-slug: devtools-2-2-0
+title: devtools 2.2.1
+date: 2019-09-26
+slug: devtools-2-2-1
 author: Jim Hester
 categories: [package]
 description: >
@@ -13,7 +13,7 @@ photo:
 
 ## Introduction
 
-[devtools] 2.2.0 is now on CRAN!
+[devtools] 2.2.1 is now on CRAN!
 
 devtools makes package development easier by providing R functions that
 simplify and expedite common tasks. R Packages is a book based around this
@@ -47,7 +47,7 @@ provides a series of checks that you have the latest versions of R, RStudio,
 RTools and package dependencies, along with instructions on how to update them
 if needed.
 
-![dev_sitrep() output](/images/devtools-2.2.0/sitrep.png)
+![dev_sitrep() output](/images/devtools-2.2.1/sitrep.png)
 
 
 ### ellipsis
@@ -60,6 +60,21 @@ argument name they would often be silently ignored rather than throwing an
 error. Using ellipsis instead causes a full error to occur in these cases,
 catching many more bugs when they happen. `check_dots_used()` is now used for
 any devtools function taking `...`.
+
+devtools 2.2.1 introduces a new option `devtools.ellipsis_action` to control
+the behavior of ellipsis in devtools. Because there are some cases, like when a
+given package is already installed, that devtools does not actually use any of
+the arguments in `...`.
+
+`devtools.ellipsis_action` takes one of the following arguments
+  - `rlang::abort` - to emit an error if arguments are unused
+  - `rlang::warn` - to emit a warning if arguments are unused
+  - `rlang::inform` - to emit a message if arguments are unused
+  - `rlang::signal` - to emit a message if arguments are unused
+
+Using `rlang::signal` will produce no output unless the custom condition is
+caught, so it is the best way to retain backwards compatibility with devtools
+behavior prior to 2.2.0.
 
 ## Acknowledgements
 
