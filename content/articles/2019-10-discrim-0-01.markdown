@@ -1,0 +1,268 @@
+---
+title: discrim 0.0.1
+date: 2019-10-01
+slug: discrim-0-0-1
+author: Max Kuhn
+categories: [package]
+description: >
+    discrim 0.0.1 is on CRAN. 
+photo:
+  url: https://unsplash.com/photos/4op9_2Bt2Eg
+  author: Teo Duldulao
+---
+
+
+
+The new package `discrim` contains `parsnip` bindings for additional classification models, including:
+
+ * Linear discriminant analysis (LDA, simple and L2 regularized)
+ * Regularized discriminant analysis (RDA, via [Friedman (1989)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22Regularized+Discriminant+Analysis%22&btnG=))
+ * [Flexible discriminant analysis](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22Flexible+discriminant+analysis%22&btnG=) (FDA) using [MARS features](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22multivariate+adaptive+regression+splines%22&btnG=)
+ * Naive Bayes models 
+
+The package can also be used as a template for adding new models to `tidymodels` without having to directly involve `parsnip`. 
+
+As an example, the `rsample` package contains a data set with two factors and two classes: 
+
+
+```r
+library(tidymodels)
+#> Registered S3 method overwritten by 'xts':
+#>   method     from
+#>   as.zoo.xts zoo
+#> ── Attaching packages ──────────────────────────────────────────────────── tidymodels 0.0.3 ──
+#> ✔ broom     0.5.2          ✔ purrr     0.3.2     
+#> ✔ dials     0.0.3          ✔ recipes   0.1.7     
+#> ✔ dplyr     0.8.3          ✔ rsample   0.0.5     
+#> ✔ infer     0.5.0          ✔ tibble    2.1.3     
+#> ✔ parsnip   0.0.3.9001     ✔ yardstick 0.0.4
+#> ── Conflicts ─────────────────────────────────────────────────────── tidymodels_conflicts() ──
+#> ✖ purrr::discard() masks scales::discard()
+#> ✖ dplyr::filter()  masks stats::filter()
+#> ✖ dplyr::lag()     masks stats::lag()
+#> ✖ dials::margin()  masks ggplot2::margin()
+#> ✖ dials::offset()  masks stats::offset()
+#> ✖ recipes::step()  masks stats::step()
+library(tune)
+library(discrim)
+library(earth)
+
+data("two_class_dat", package = "rsample")
+two_class_dat
+#> # A tibble: 791 x 3
+#>        A     B Class 
+#>    <dbl> <dbl> <fct> 
+#>  1  2.07 1.63  Class1
+#>  2  2.02 1.04  Class1
+#>  3  1.69 1.37  Class2
+#>  4  3.43 1.98  Class2
+#>  5  2.88 1.98  Class1
+#>  6  3.31 2.41  Class2
+#>  7  2.50 1.56  Class2
+#>  8  1.98 1.55  Class2
+#>  9  2.88 0.580 Class1
+#> 10  3.74 2.74  Class2
+#> # … with 781 more rows
+
+ggplot(two_class_dat, aes(x = A, y = B)) + 
+  geom_point(aes(col = Class), alpha = .3) + 
+  coord_equal() + 
+  theme(legend.position = "top")
+```
+
+<img src="/articles/2019-10-discrim-0-01_files/figure-html/startup-1.png" width="700px" style="display: block; margin: auto;" />
+
+How would a flexible discriminant model do here? We'll split the data then fit the model:
+
+
+```r
+set.seed(115)
+data_split <- initial_split(two_class_dat, prop = 2/3)
+data_tr <- training(data_split)
+data_te <- testing(data_split)
+
+fda_mod <- discrim_flexible() %>% set_engine("earth")
+
+fda_fit <- 
+  fda_mod %>% 
+  fit(Class ~ A + B, data = data_tr)
+
+fda_fit 
+#> parsnip model object
+#> 
+#> Call:
+#> mda::fda(formula = formula, data = data, method = earth::earth)
+#> 
+#> Dimension: 1 
+#> 
+#> Percent Between-Group Variance Explained:
+#>  v1 
+#> 100 
+#> 
+#> Training Misclassification Error: 0.17235 ( N = 528 )
+```
+
+Since no parameters to the model were specified, the MARS algorithm follows its own internal method for optimizing the number of features to use in the model. The results is
+
+
+```r
+summary(fda_fit$fit$fit)
+#> Call: earth(x=x, y=Theta, weights=weights)
+#> 
+#>               coefficients
+#> (Intercept)     -0.7646571
+#> h(A-1.98478)    -0.5640059
+#> h(B-0.776701)    1.2971994
+#> h(B-2.70621)    -1.0075626
+#> 
+#> Selected 4 of 13 terms, and 2 of 2 predictors
+#> Termination condition: Reached nk 21
+#> Importance: B, A
+#> Number of terms at each degree of interaction: 1 3 (additive model)
+#> GCV 0.5549545    RSS 285.2981    GRSq 0.4471456    RSq 0.4596627
+```
+
+
+The classification boundary, overlaid on the test set:
+
+
+```r
+pred_grid <- 
+  expand.grid(A = seq(-.1, 4, length = 100), B = seq(0, 4, length = 100))
+
+pred_grid <- 
+  bind_cols(
+    pred_grid,
+    predict(fda_fit, pred_grid, type = "prob") %>% 
+      select(.pred_Class1) %>% 
+      setNames("fda_pred")
+  )
+
+p <-
+  ggplot(data_te, aes(x = A, y = B)) + 
+  geom_point(aes(col = Class), alpha = .3) + 
+  coord_equal() + 
+  theme(legend.position = "top")
+
+p + 
+  geom_contour(data = pred_grid, aes(z = fda_pred), breaks = .5, col = "black")
+```
+
+<img src="/articles/2019-10-discrim-0-01_files/figure-html/grid-1-1.png" width="700px" style="display: block; margin: auto;" />
+
+That seems pretty reasonable. 
+
+These models also work with the [`tune` package](https://github.com/tidymodels/tune). To demonstrate, a regularized discriminant analysis^[Despite the name, this type of regularization is different from the more commonly used lasso (L<sub>1</sub>) or ridge (L<sub>2</sub>) regression methods. Here, the covariance matrix of the predictors is regularized in different ways as described [here](https://rdrr.io/cran/klaR/man/rda.html). ] model will be fit to the data and optimized using a simple grid search. First, we mark the parameters for tuning:
+
+
+```r
+rda_mod <- 
+  discrim_regularized(frac_common_cov = tune(), frac_identity = tune()) %>% 
+  set_engine("rda")
+```
+
+In order to tune the model, we require a grid of candidate values along with a resampling specification. We'll also setup a `yardstick` object to measure the area under the ROC curve for each candidate model:
+
+
+```r
+set.seed(20014)
+folds <- vfold_cv(data_tr, repeats = 5)
+
+candidates <- 
+  rda_mod %>% 
+  param_set() %>% 
+  grid_max_entropy(size = 30)
+
+roc_values <- metric_set(roc_auc)
+```
+
+Now we can tune the model:
+
+
+```r
+rda_res <-
+  tune_grid(Class ~ A + B,
+            rda_mod,
+            rs = folds,
+            grid = candidates,
+            perf = roc_values)
+```
+
+The resampling estimates for a few the top few models as:
+
+
+```r
+auc_values <- summarize(rda_res) %>% arrange(desc(mean)) 
+auc_values %>% slice(1:5)
+#> # A tibble: 5 x 7
+#>   frac_common_cov frac_identity .metric .estimator  mean     n std_err
+#>             <dbl>         <dbl> <chr>   <chr>      <dbl> <int>   <dbl>
+#> 1          0.328         0.0182 roc_auc binary     0.885    50 0.00570
+#> 2          0.0527        0.0607 roc_auc binary     0.884    50 0.00564
+#> 3          0.739         0.0184 roc_auc binary     0.883    50 0.00572
+#> 4          0.453         0.0670 roc_auc binary     0.882    50 0.00565
+#> 5          0.545         0.115  roc_auc binary     0.880    50 0.00565
+```
+
+Let's plot the resampling results:
+
+
+```r
+ggplot(auc_values, aes(x = frac_common_cov, y = frac_identity, size = mean)) + 
+  geom_point(alpha = .5) + 
+  coord_equal()
+```
+
+<img src="/articles/2019-10-discrim-0-01_files/figure-html/grid-res-1.png" width="700px" style="display: block; margin: auto;" />
+
+From this, the `frac_common_cov` parameter, which modulates between estimating a single covariance matrix or one for each class, doesn't appear to matter much for these data. The `frac_identity` clearly is better with smaller values. This indicates that the covariance matrix should _not_ be shrunken towards a simple identity matrix (i.e. uncorrelated predictors). 
+
+Remaking the `parsnip` model object with the best parameter combination of `frac_common_cov` = 0.328 and `frac_identity` = 0.018. The `merge` function can be used to insert these values into our original `parsnip` object:
+
+
+```r
+final_param <- 
+  auc_values %>% 
+  slice(1) %>% 
+  select(frac_common_cov, frac_identity)
+
+rda_mod <- 
+  rda_mod %>% 
+  merge(final_param) %>% 
+  pull(x) %>% 
+  pluck(1)
+
+rda_mod
+#> Regularized Discriminant Model Specification (classification)
+#> 
+#> Main Arguments:
+#>   frac_common_cov = 0.327805979410186
+#>   frac_identity = 0.0182212700601667
+#> 
+#> Computational engine: rda
+
+rda_fit <- 
+  rda_mod %>% 
+  fit(Class ~ A + B, data = data_tr)
+```
+
+To show the class boundary:
+
+
+```r
+pred_grid <- 
+  bind_cols(
+    pred_grid,
+    predict(rda_fit, pred_grid, type = "prob") %>% 
+      select(.pred_Class1) %>% 
+      setNames("rda_pred")
+  )
+
+p + 
+  geom_contour(data = pred_grid, aes(z = fda_pred), breaks = .5, col = "black", 
+               alpha = .5, lty = 2) + 
+  geom_contour(data = pred_grid, aes(z = rda_pred), breaks = .5, col = "black")
+```
+
+<img src="/articles/2019-10-discrim-0-01_files/figure-html/rda-boundary-1.png" width="700px" style="display: block; margin: auto;" />
+
