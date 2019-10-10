@@ -5,7 +5,7 @@ slug: discrim-0-0-1
 author: Max Kuhn
 categories: [package]
 description: >
-    discrim 0.0.1 is on CRAN. 
+    The first version of discrim (0.0.1) is on CRAN. 
 photo:
   url: https://unsplash.com/photos/4op9_2Bt2Eg
   author: Teo Duldulao
@@ -102,7 +102,7 @@ fda_fit
 #> Training Misclassification Error: 0.17235 ( N = 528 )
 ```
 
-Since no parameters to the model were specified, the MARS algorithm follows its own internal method for optimizing the number of features to use in the model. The results is
+Since no model tuning parameters were specified, the MARS algorithm follows its own internal method for optimizing the number of features that are included in the model. The results is
 
 
 ```r
@@ -123,7 +123,7 @@ summary(fda_fit$fit$fit)
 ```
 
 
-The classification boundary, overlaid on the test set:
+The classification boundary, overlaid on the test set, shows segmented lines:
 
 
 ```r
@@ -150,15 +150,15 @@ p +
 
 <img src="/articles/2019-10-discrim-0-01_files/figure-html/grid-1-1.png" width="700px" style="display: block; margin: auto;" />
 
-That seems pretty reasonable. 
+This boundary seems pretty reasonable. 
 
-These models also work with the [`tune` package](https://github.com/tidymodels/tune). To demonstrate, a regularized discriminant analysis^[Despite the name, this type of regularization is different from the more commonly used lasso (L<sub>1</sub>) or ridge (L<sub>2</sub>) regression methods. Here, the covariance matrix of the predictors is regularized in different ways as described [here](https://rdrr.io/cran/klaR/man/rda.html). ] model will be fit to the data and optimized using a simple grid search. First, we mark the parameters for tuning:
+These models also work with the new [`tune` package](https://github.com/tidymodels/tune). To demonstrate, a regularized discriminant analysis model^[Despite the name, this type of regularization is different from the more commonly used lasso ($L_1$) or ridge ($L_2$) regression methods. Here, the _covariance matrix_ of the predictors is regularized in different ways as described [here](https://rdrr.io/cran/klaR/man/rda.html).] will be fit to the data and optimized using a simple grid search. First, we mark the parameters for tuning:
 
 
 ```r
 rda_mod <- 
   discrim_regularized(frac_common_cov = tune(), frac_identity = tune()) %>% 
-  set_engine("rda")
+  set_engine("klaR")
 ```
 
 In order to tune the model, we require a grid of candidate values along with a resampling specification. We'll also setup a `yardstick` object to measure the area under the ROC curve for each candidate model:
@@ -168,6 +168,7 @@ In order to tune the model, we require a grid of candidate values along with a r
 set.seed(20014)
 folds <- vfold_cv(data_tr, repeats = 5)
 
+# Use a space-filling design with 30 candidate models
 candidates <- 
   rda_mod %>% 
   param_set() %>% 
@@ -188,7 +189,7 @@ rda_res <-
             perf = roc_values)
 ```
 
-The resampling estimates for a few the top few models as:
+The resampling estimates rank the models (starting with the best) as:
 
 
 ```r
@@ -215,9 +216,9 @@ ggplot(auc_values, aes(x = frac_common_cov, y = frac_identity, size = mean)) +
 
 <img src="/articles/2019-10-discrim-0-01_files/figure-html/grid-res-1.png" width="700px" style="display: block; margin: auto;" />
 
-From this, the `frac_common_cov` parameter, which modulates between estimating a single covariance matrix or one for each class, doesn't appear to matter much for these data. The `frac_identity` clearly is better with smaller values. This indicates that the covariance matrix should _not_ be shrunken towards a simple identity matrix (i.e. uncorrelated predictors). 
+The `frac_common_cov` parameter modulates between estimating a single covariance matrix (i.e. LDA) and one for each class (QDA). This doesn't appear to matter much for these data. The `frac_identity` clearly is better with smaller values. This indicates that the covariance matrix should _not_ be shrunken towards a simple identity matrix (i.e. uncorrelated predictors). 
 
-Remaking the `parsnip` model object with the best parameter combination of `frac_common_cov` = 0.328 and `frac_identity` = 0.018. The `merge` function can be used to insert these values into our original `parsnip` object:
+The `parsnip` model object can be updated with the best parameter combination (`frac_common_cov` = 0.328 and `frac_identity` = 0.018). The `merge` function can be used to insert these values into our original `parsnip` object:
 
 
 ```r
@@ -239,7 +240,7 @@ rda_mod
 #>   frac_common_cov = 0.327805979410186
 #>   frac_identity = 0.0182212700601667
 #> 
-#> Computational engine: rda
+#> Computational engine: klaR
 
 rda_fit <- 
   rda_mod %>% 
