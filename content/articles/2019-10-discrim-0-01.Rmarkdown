@@ -19,6 +19,7 @@ knitr::opts_chunk$set(
   fig.asp = 0.618, # 1 / phi
   out.width = "700px"
 )
+options(digits = 3)
 library(earth)
 library(ggplot2)
 theme_set(theme_bw())
@@ -33,7 +34,7 @@ The new package `discrim` contains `parsnip` bindings for additional classificat
 
 The package can also be used as a template for adding new models to `tidymodels` without having to directly involve `parsnip`. 
 
-As an example, the `rsample` package contains a data set with two factors and two classes: 
+As an example, the package contains a simulated data set with two factors and two classes: 
 
 ```{r startup}
 library(tidymodels)
@@ -41,11 +42,11 @@ library(tune)
 library(discrim)
 library(earth)
 
-data("two_class_dat", package = "rsample")
-two_class_dat
+data("parabolic", package = "rsample")
+parabolic
 
-ggplot(two_class_dat, aes(x = A, y = B)) + 
-  geom_point(aes(col = Class), alpha = .3) + 
+ggplot(parabolic, aes(x = X1, y = X2)) + 
+  geom_point(aes(col = class), alpha = .3) + 
   coord_equal() + 
   theme(legend.position = "top")
 ```
@@ -54,7 +55,7 @@ How would a flexible discriminant model do here? We'll split the data then fit t
 
 ```{r fda-1}
 set.seed(115)
-data_split <- initial_split(two_class_dat, prop = 2/3)
+data_split <- initial_split(parabolic, prop = 2/3)
 data_tr <- training(data_split)
 data_te <- testing(data_split)
 
@@ -62,7 +63,7 @@ fda_mod <- discrim_flexible() %>% set_engine("earth")
 
 fda_fit <- 
   fda_mod %>% 
-  fit(Class ~ A + B, data = data_tr)
+  fit(class ~ X1 + X2, data = data_tr)
 
 fda_fit 
 ```
@@ -74,11 +75,11 @@ summary(fda_fit$fit$fit)
 ```
 
 
-The classification boundary, overlaid on the test set, shows segmented lines:
+The classification boundary, overlaid on the test set, shows a series of segmented lines:
 
 ```{r grid-1}
 pred_grid <- 
-  expand.grid(A = seq(-.1, 4, length = 100), B = seq(0, 4, length = 100))
+  expand.grid(X1 = seq(-5, 5, length = 100), X2 = seq(-5, 5, length = 100))
 
 pred_grid <- 
   bind_cols(
@@ -89,8 +90,8 @@ pred_grid <-
   )
 
 p <-
-  ggplot(data_te, aes(x = A, y = B)) + 
-  geom_point(aes(col = Class), alpha = .3) + 
+  ggplot(data_te, aes(x = X1, y = X2)) + 
+  geom_point(aes(col = class), alpha = .3) + 
   coord_equal() + 
   theme(legend.position = "top")
 
@@ -127,7 +128,7 @@ Now we can tune the model:
 
 ```{r rda-tune}
 rda_res <-
-  tune_grid(Class ~ A + B,
+  tune_grid(class ~ X1 + X2,
             rda_mod,
             rs = folds,
             grid = candidates,
@@ -149,9 +150,9 @@ ggplot(auc_values, aes(x = frac_common_cov, y = frac_identity, size = mean)) +
   coord_equal()
 ```
 
-The `frac_common_cov` parameter modulates between estimating a single covariance matrix (i.e. LDA) and one for each class (QDA). This doesn't appear to matter much for these data. The `frac_identity` clearly is better with smaller values. This indicates that the covariance matrix should _not_ be shrunken towards a simple identity matrix (i.e. uncorrelated predictors). 
+There is a wide range of parameter combinations associated with good performance here. The poor results are mostly when the model tries to enforce a mostly LDA covariance matrix (`frac_common_cov` > 0.9) along with `frac_identity` <= 0.6. The latter parameter tries to shrink the covariance matrix towards one where the parameters are considered to be nearly independent. 
 
-The `parsnip` model object can be updated with the best parameter combination (`frac_common_cov` = `r auc_values %>% slice(1) %>% pull(frac_common_cov) %>% round(3)` and `frac_identity` = `r auc_values %>% slice(1) %>% pull(frac_identity) %>% round(3)`). The `merge` function can be used to insert these values into our original `parsnip` object:
+The `parsnip` model object can be updated with the best parameter combination (`frac_common_cov` = `r auc_values %>% slice(1) %>% pull(frac_common_cov) %>% round(3)` and `frac_identity` = `r auc_values %>% slice(1) %>% pull(frac_identity) %>% round(3)`).  These parameter values result in a model close to a pure QDA model. The `merge` function can be used to insert these values into our original `parsnip` object:
 
 ```{r final-mod}
 final_param <- 
@@ -169,7 +170,7 @@ rda_mod
 
 rda_fit <- 
   rda_mod %>% 
-  fit(Class ~ A + B, data = data_tr)
+  fit(class ~ X1 + X2, data = data_tr)
 ```
 
 To show the class boundary:
@@ -189,3 +190,16 @@ p +
   geom_contour(data = pred_grid, aes(z = rda_pred), breaks = .5, col = "black")
 ```
 
+This is pretty close to the true simulated boundary, which is parabolic in nature. 
+
+The test sets results are:
+
+```{r test-set}
+probs_te <- 
+  predict(rda_fit, data_te, type = "prob") %>% 
+  bind_cols(data_te %>% select(class))
+probs_te
+
+roc_auc(probs_te, class, .pred_Class1)
+```
+Pretty good!
