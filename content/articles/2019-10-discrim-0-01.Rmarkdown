@@ -1,6 +1,6 @@
 ---
 title: discrim 0.0.1
-date: 2019-10-01
+date: 2019-11-01
 slug: discrim-0-0-1
 author: Max Kuhn
 categories: [package]
@@ -21,6 +21,7 @@ knitr::opts_chunk$set(
 )
 options(digits = 3)
 library(earth)
+library(klaR)
 library(ggplot2)
 theme_set(theme_bw())
 ```
@@ -68,7 +69,7 @@ fda_fit <-
 fda_fit 
 ```
 
-Since no model tuning parameters were specified, the MARS algorithm follows its own internal method for optimizing the number of features that are included in the model. The results is
+Since no model tuning parameters were specified, the MARS algorithm follows its own internal method for optimizing the number of features that are included in the model. The underlying MARS model is
 
 ```{r mars}
 summary(fda_fit$fit$fit)
@@ -138,7 +139,7 @@ rda_res <-
 The resampling estimates rank the models (starting with the best) as:
 
 ```{r best}
-auc_values <- summarize(rda_res) %>% arrange(desc(mean)) 
+auc_values <- estimate(rda_res) %>% arrange(desc(mean)) 
 auc_values %>% slice(1:5)
 ```
 
