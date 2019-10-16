@@ -1,6 +1,6 @@
 ---
 title: discrim 0.0.1
-date: 2019-11-01
+date: 2019-10-16
 slug: discrim-0-0-1
 author: Max Kuhn
 categories: [package]
@@ -38,8 +38,8 @@ The package can also be used as a template for adding new models to `tidymodels`
 As an example, the package contains a simulated data set with two factors and two classes: 
 
 ```{r startup}
-library(tidymodels)
-library(tune)
+library(tidyverse)
+library(rsample)
 library(discrim)
 library(earth)
 
@@ -102,7 +102,18 @@ p +
 
 This boundary seems pretty reasonable. 
 
-These models also work with the new [`tune` package](https://github.com/tidymodels/tune). To demonstrate, a regularized discriminant analysis model^[Despite the name, this type of regularization is different from the more commonly used lasso ($L_1$) or ridge ($L_2$) regression methods. Here, the _covariance matrix_ of the predictors is regularized in different ways as described [here](https://rdrr.io/cran/klaR/man/rda.html).] will be fit to the data and optimized using a simple grid search. First, we mark the parameters for tuning:
+These models also work with the new [`tune` package](https://github.com/tidymodels/tune). To demonstrate, a regularized discriminant analysis model^[Despite the name, this type of regularization is different from the more commonly used lasso ($L_1$) or ridge ($L_2$) regression methods. Here, the _covariance matrix_ of the predictors is regularized in different ways as described [here](https://rdrr.io/cran/klaR/man/rda.html).] will be fit to the data and optimized using a simple grid search. 
+
+We'll use the devel version of dials:
+
+```{r tm-load}
+# devtools::install_github("tidymodels/tune")
+# We use the devel version of several tidymodels packages:
+library(tidymodels)
+library(tune)
+```
+
+First, we mark the parameters for tuning:
 
 ```{r rda}
 rda_mod <- 
@@ -112,7 +123,7 @@ rda_mod <-
 
 In order to tune the model, we require a grid of candidate values along with a resampling specification. We'll also setup a `yardstick` object to measure the area under the ROC curve for each candidate model:
 
-```{r rda-stuff}
+```{r rda-stuff, warning = FALSE}
 set.seed(20014)
 folds <- vfold_cv(data_tr, repeats = 5)
 
@@ -130,7 +141,7 @@ Now we can tune the model:
 ```{r rda-tune}
 rda_res <-
   tune_grid(class ~ X1 + X2,
-            rda_mod,
+            model = rda_mod,
             rs = folds,
             grid = candidates,
             perf = roc_values)
