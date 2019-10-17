@@ -1,0 +1,217 @@
+---
+title: discrim 0.0.1
+date: 2019-10-17
+slug: discrim-0-0-1
+author: Max Kuhn
+categories: [package]
+description: >
+    The first version of discrim (0.0.1) is on CRAN. 
+photo:
+  url: https://unsplash.com/photos/4op9_2Bt2Eg
+  author: Teo Duldulao
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>", 
+  fig.width = 7, 
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  out.width = "700px"
+)
+options(digits = 3)
+library(earth)
+library(klaR)
+library(ggplot2)
+theme_set(theme_bw())
+```
+
+The new package [`discrim`](https://tidymodels.github.io/discrim/) contains `parsnip` bindings for additional classification models, including:
+
+ * Linear discriminant analysis (LDA, simple and L2 regularized)
+ * Regularized discriminant analysis (RDA, via [Friedman (1989)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22Regularized+Discriminant+Analysis%22&btnG=))
+ * [Flexible discriminant analysis](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22Flexible+discriminant+analysis%22&btnG=) (FDA) using [MARS features](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22multivariate+adaptive+regression+splines%22&btnG=)
+ * Naive Bayes models 
+
+The package can also be used as a template for adding new models to `tidymodels` without having to directly involve `parsnip`. 
+
+As an example, the package contains a simulated data set with two factors and two classes: 
+
+```{r startup}
+library(tidyverse)
+library(rsample)
+library(discrim)
+library(earth)
+
+data("parabolic", package = "rsample")
+parabolic
+
+ggplot(parabolic, aes(x = X1, y = X2)) + 
+  geom_point(aes(col = class), alpha = .3) + 
+  coord_equal() + 
+  theme(legend.position = "top")
+```
+
+How would a flexible discriminant model do here? We'll split the data then fit the model:
+
+```{r fda-1}
+set.seed(115)
+data_split <- initial_split(parabolic, prop = 2/3)
+data_tr <- training(data_split)
+data_te <- testing(data_split)
+
+fda_mod <- discrim_flexible() %>% set_engine("earth")
+
+fda_fit <- 
+  fda_mod %>% 
+  fit(class ~ X1 + X2, data = data_tr)
+
+fda_fit 
+```
+
+Since no model tuning parameters were specified, the MARS algorithm follows its own internal method for optimizing the number of features that are included in the model. The underlying MARS model is:
+
+```{r mars}
+summary(fda_fit$fit$fit)
+```
+
+
+The classification boundary, overlaid on the test set, shows a series of segmented lines:
+
+```{r grid-1}
+pred_grid <- 
+  expand.grid(X1 = seq(-5, 5, length = 100), X2 = seq(-5, 5, length = 100))
+
+pred_grid <- 
+  bind_cols(
+    pred_grid,
+    predict(fda_fit, pred_grid, type = "prob") %>% 
+      select(.pred_Class1) %>% 
+      setNames("fda_pred")
+  )
+
+p <-
+  ggplot(data_te, aes(x = X1, y = X2)) + 
+  geom_point(aes(col = class), alpha = .3) + 
+  coord_equal() + 
+  theme(legend.position = "top")
+
+p + 
+  geom_contour(data = pred_grid, aes(z = fda_pred), breaks = .5, col = "black")
+```
+
+This boundary seems pretty reasonable. 
+
+These models also work with the new [`tune` package](https://github.com/tidymodels/tune). To demonstrate, a regularized discriminant analysis model^[Despite the name, this type of regularization is different from the more commonly used lasso ($L_1$) or ridge ($L_2$) regression methods. Here, the _covariance matrix_ of the predictors is regularized in different ways as described [here](https://rdrr.io/cran/klaR/man/rda.html).] will be fit to the data and optimized using a simple grid search. 
+
+We'll use the devel version of dials:
+
+```{r tm-load}
+# devtools::install_github("tidymodels/tune")
+# We use the devel version of several tidymodels packages:
+library(tidymodels)
+library(tune)
+```
+
+First, we mark the parameters for tuning:
+
+```{r rda}
+rda_mod <- 
+  discrim_regularized(frac_common_cov = tune(), frac_identity = tune()) %>% 
+  set_engine("klaR")
+```
+
+In order to tune the model, we require a grid of candidate values along with a resampling specification. We'll also setup a `yardstick` object to measure the area under the ROC curve for each candidate model:
+
+```{r rda-stuff, warning = FALSE}
+set.seed(20014)
+folds <- vfold_cv(data_tr, repeats = 5)
+
+# Use a space-filling design with 30 candidate models
+candidates <- 
+  rda_mod %>% 
+  param_set() %>% 
+  grid_max_entropy(size = 30)
+
+roc_values <- metric_set(roc_auc)
+```
+
+Now we can tune the model:
+
+```{r rda-tune}
+rda_res <-
+  tune_grid(class ~ X1 + X2,
+            model = rda_mod,
+            rs = folds,
+            grid = candidates,
+            perf = roc_values)
+```
+
+The resampling estimates rank the models (starting with the best) as:
+
+```{r best}
+auc_values <- estimate(rda_res) %>% arrange(desc(mean)) 
+auc_values %>% slice(1:5)
+```
+
+Let's plot the resampling results:
+
+```{r grid-res}
+ggplot(auc_values, aes(x = frac_common_cov, y = frac_identity, size = mean)) + 
+  geom_point(alpha = .5) + 
+  coord_equal()
+```
+
+There is a wide range of parameter combinations associated with good performance here. The poor results occur mostly when the model tries to enforce a mostly LDA covariance matrix (`frac_common_cov` > 0.9) along with `frac_identity` <= 0.6. The latter parameter tries to shrink the covariance matrix towards one where the parameters are considered to be nearly independent. 
+
+The `parsnip` model object can be updated with the best parameter combination (`frac_common_cov` = `r auc_values %>% slice(1) %>% pull(frac_common_cov) %>% round(3)` and `frac_identity` = `r auc_values %>% slice(1) %>% pull(frac_identity) %>% round(3)`).  These parameter values result in a model close to a pure QDA model. The `merge()` function can be used to insert these values into our original `parsnip` object:
+
+```{r final-mod}
+final_param <- 
+  auc_values %>% 
+  slice(1) %>% 
+  select(frac_common_cov, frac_identity)
+
+rda_mod <- 
+  rda_mod %>% 
+  merge(final_param) %>% 
+  pull(x) %>% 
+  pluck(1)
+
+rda_mod
+
+rda_fit <- 
+  rda_mod %>% 
+  fit(class ~ X1 + X2, data = data_tr)
+```
+
+To show the class boundary:
+
+```{r rda-boundary}
+pred_grid <- 
+  bind_cols(
+    pred_grid,
+    predict(rda_fit, pred_grid, type = "prob") %>% 
+      select(.pred_Class1) %>% 
+      setNames("rda_pred")
+  )
+
+p + 
+  geom_contour(data = pred_grid, aes(z = fda_pred), breaks = .5, col = "black", 
+               alpha = .5, lty = 2) + 
+  geom_contour(data = pred_grid, aes(z = rda_pred), breaks = .5, col = "black")
+```
+
+This is pretty close to the true simulated boundary, which is parabolic in nature. 
+
+The test sets results are:
+
+```{r test-set}
+probs_te <- 
+  predict(rda_fit, data_te, type = "prob") %>% 
+  bind_cols(data_te %>% select(class))
+probs_te
+
+roc_auc(probs_te, class, .pred_Class1)
+```
+Pretty good!
