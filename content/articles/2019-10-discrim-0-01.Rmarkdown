@@ -1,6 +1,6 @@
 ---
 title: discrim 0.0.1
-date: 2019-10-16
+date: 2019-10-17
 slug: discrim-0-0-1
 author: Max Kuhn
 categories: [package]
@@ -26,7 +26,7 @@ library(ggplot2)
 theme_set(theme_bw())
 ```
 
-The new package `discrim` contains `parsnip` bindings for additional classification models, including:
+The new package [`discrim`](https://tidymodels.github.io/discrim/) contains `parsnip` bindings for additional classification models, including:
 
  * Linear discriminant analysis (LDA, simple and L2 regularized)
  * Regularized discriminant analysis (RDA, via [Friedman (1989)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22Regularized+Discriminant+Analysis%22&btnG=))
@@ -69,7 +69,7 @@ fda_fit <-
 fda_fit 
 ```
 
-Since no model tuning parameters were specified, the MARS algorithm follows its own internal method for optimizing the number of features that are included in the model. The underlying MARS model is
+Since no model tuning parameters were specified, the MARS algorithm follows its own internal method for optimizing the number of features that are included in the model. The underlying MARS model is:
 
 ```{r mars}
 summary(fda_fit$fit$fit)
@@ -162,9 +162,9 @@ ggplot(auc_values, aes(x = frac_common_cov, y = frac_identity, size = mean)) +
   coord_equal()
 ```
 
-There is a wide range of parameter combinations associated with good performance here. The poor results are mostly when the model tries to enforce a mostly LDA covariance matrix (`frac_common_cov` > 0.9) along with `frac_identity` <= 0.6. The latter parameter tries to shrink the covariance matrix towards one where the parameters are considered to be nearly independent. 
+There is a wide range of parameter combinations associated with good performance here. The poor results occur mostly when the model tries to enforce a mostly LDA covariance matrix (`frac_common_cov` > 0.9) along with `frac_identity` <= 0.6. The latter parameter tries to shrink the covariance matrix towards one where the parameters are considered to be nearly independent. 
 
-The `parsnip` model object can be updated with the best parameter combination (`frac_common_cov` = `r auc_values %>% slice(1) %>% pull(frac_common_cov) %>% round(3)` and `frac_identity` = `r auc_values %>% slice(1) %>% pull(frac_identity) %>% round(3)`).  These parameter values result in a model close to a pure QDA model. The `merge` function can be used to insert these values into our original `parsnip` object:
+The `parsnip` model object can be updated with the best parameter combination (`frac_common_cov` = `r auc_values %>% slice(1) %>% pull(frac_common_cov) %>% round(3)` and `frac_identity` = `r auc_values %>% slice(1) %>% pull(frac_identity) %>% round(3)`).  These parameter values result in a model close to a pure QDA model. The `merge()` function can be used to insert these values into our original `parsnip` object:
 
 ```{r final-mod}
 final_param <- 
