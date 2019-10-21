@@ -10,7 +10,7 @@ title: Learn the tidyverse
 </style>
 
 <!----- Page content ---->
-<a href="http://amzn.to/2aHLAQ1"><img class="bookCover" style="width:200px" src="../images/cover.png" width="80" alt=""></a>
+<a href="http://amzn.to/2aHLAQ1"><img class="bookCover" src="../images/cover.png" alt=""></a>
 
 <h2 class='noTrickPadding' id='r4ds'>R for data science</h2>
 
