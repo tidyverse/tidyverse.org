@@ -2,16 +2,24 @@
 <!-- this sequence takes the author field and smartly deals with it! -->
 {{ $taxo := "author" }}
 {{ with .Param $taxo }}
-{{ range $index, $val := . }}
-    {{- $profile_page := site.GetPage (printf "/%s/%s" $taxo (. | urlize)) -}}
-    {{- $name := $profile_page.Params.name | default ($val | markdownify) -}}
-    {{- if gt $index 0 }}, {{ end -}}
-    <span>
+
+  {{ if reflect.IsSlice . }}
+    {{ range $index, $val := . }}
+      {{- $profile_page := site.GetPage (printf "/%s/%s" $taxo (. | urlize)) -}}
+      {{- $name := $profile_page.Params.name | default ($val | markdownify) -}}
+      {{- if gt $index 0 }}, {{ end -}}
+      <span>
       {{- if and $profile_page $profile_page.Params.team -}}
         <a href="{{$profile_page.RelPermalink}}">{{$name}}</a>
       {{- else -}}
         {{$name}}
       {{- end -}}
-    </span>
+      </span>
     {{- end -}}
+  {{ end }}
+
+  {{ if not (reflect.IsSlice .) }}
+    {{- $.Params.author }}
+  {{ end }}
+
 {{ end }}
