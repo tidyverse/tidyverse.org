@@ -1,0 +1,117 @@
+---
+title: dplyr 0.8.2
+slug: dplyr-0-8-2
+author: Romain François
+description: >
+  dplyr 0.8.2 is now on CRAN.
+date: '2019-06-29'
+categories: [package]
+tags:
+  - dplyr
+photo:
+  url: https://unsplash.com/photos/xFTNsGW1isI
+  author: Joanna Kosinska
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.width = 7,
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  out.width = "700px"
+)
+# options(crayon.enabled = TRUE)
+```
+
+## Introduction
+
+We're delighted to announce the release of dplyr 0.8.2 on CRAN `r emo::ji("watermelon")` !
+
+This is a minor maintenance release in the `0.8.*` series, addressing a collection of 
+issues since the [0.8.1](https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/) and 
+[0.8.0](https://www.tidyverse.org/articles/2019/02/dplyr-0-8-0/) versions.
+
+## top_n() and top_frac()
+
+[top_n()](https://dplyr.tidyverse.org/reference/top_n.html) has been around for a long time in 
+[dplyr](https://dplyr.tidyverse.org/index.html), as a convenient wrapper around 
+[filter()](https://dplyr.tidyverse.org/articles/dplyr.html?q=filter)
+and [min_rank()](https://dplyr.tidyverse.org/reference/ranking.html), 
+to select top (or bottom) entries in each group of a tibble. 
+
+In this release, [top_n()](https://dplyr.tidyverse.org/reference/top_n.html) is no longer 
+limited to a constant number of entries per group, its `n` argument is now quoted
+to be evaluated later in the context of the group. 
+
+Here are the top half countries, i.e. `n() / 2`, in terms of life expectancy in 2007. 
+
+```{r}
+library(dplyr)
+gapminder::gapminder %>% 
+  filter(year == 2007) %>% 
+  group_by(continent) %>% 
+  top_n(n() / 2, lifeExp)
+```
+
+[top_frac()](https://dplyr.tidyverse.org/reference/top_n.html) is new convenience shortcut for 
+the top n percent, i.e. 
+
+```{r}
+gapminder::gapminder %>% 
+  filter(year == 2007) %>% 
+  group_by(continent) %>% 
+  top_frac(0.5, lifeExp)
+```
+
+## tbl_vars() and group_cols()
+
+[tbl_vars()](https://dplyr.tidyverse.org/reference/tbl_vars.html) now returns a `dplyr_sel_vars` 
+object that keeps track of the grouping variables. This information powers 
+[group_cols()](https://dplyr.tidyverse.org/reference/group_cols.html), which can now be used
+in every function that uses tidy selection of columns. 
+
+Functions in the tidyverse and beyond may start to use the 
+[tbl_vars()](https://dplyr.tidyverse.org/reference/tbl_vars.html)/[group_cols()](https://dplyr.tidyverse.org/reference/group_cols.html) duo, 
+starting from [tidyr](https://tidyr.tidyverse.org) and this [pull request](https://github.com/tidyverse/tidyr/pull/668)
+
+```{r}
+# pak::pkg_install("tidyverse/tidyr#668")
+
+iris %>%
+  group_by(Species) %>% 
+  tidyr::gather("flower_att", "measurement", -group_cols())
+```
+
+## group_split(), group_map(), group_modify()
+
+[group_split()](https://dplyr.tidyverse.org/reference/group_split.html) always keeps 
+a `ptype` attribute to track the prototype of the splits. 
+
+```{r}
+mtcars %>%
+  group_by(cyl) %>%
+  filter(hp < 0) %>% 
+  group_split()
+```
+
+[group_map()](https://dplyr.tidyverse.org/reference/group_map.html) and [group_modify()](https://dplyr.tidyverse.org/reference/group_map.html) 
+benefit from this in the edge case where there are no groups. 
+
+```{r}
+mtcars %>%
+  group_by(cyl) %>%
+  filter(hp < 0) %>% 
+  group_map(~.x)
+
+mtcars %>%
+  group_by(cyl) %>%
+  filter(hp < 0) %>% 
+  group_modify(~.x)
+```
+
+## Thanks
+
+Thanks to all contributors for this release.
+
+[&#x0040;abirasathiy](https://github.com/abirasathiy), [&#x0040;ajkroeg](https://github.com/ajkroeg), [&#x0040;alejandroschuler](https://github.com/alejandroschuler), [&#x0040;anuj2054](https://github.com/anuj2054), [&#x0040;arider2](https://github.com/arider2), [&#x0040;arielfuentes](https://github.com/arielfuentes), [&#x0040;artidata](https://github.com/artidata), [&#x0040;BenPVD](https://github.com/BenPVD), [&#x0040;bkmontgom](https://github.com/bkmontgom), [&#x0040;brodieG](https://github.com/brodieG), [&#x0040;cderv](https://github.com/cderv), [&#x0040;clanker](https://github.com/clanker), [&#x0040;clemenshug](https://github.com/clemenshug), [&#x0040;CSheehan1](https://github.com/CSheehan1), [&#x0040;danielecook](https://github.com/danielecook), [&#x0040;dannyparsons](https://github.com/dannyparsons), [&#x0040;daskandalis](https://github.com/daskandalis), [&#x0040;davidbaniadam](https://github.com/davidbaniadam), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;deliciouslytyped](https://github.com/deliciouslytyped), [&#x0040;earowang](https://github.com/earowang), [&#x0040;fkatharina](https://github.com/fkatharina), [&#x0040;hadley](https://github.com/hadley), [&#x0040;Hardervidertsie](https://github.com/Hardervidertsie), [&#x0040;iago-pssjd](https://github.com/iago-pssjd), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;jackdolgin](https://github.com/jackdolgin), [&#x0040;jangorecki](https://github.com/jangorecki), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;jjesusfilho](https://github.com/jjesusfilho), [&#x0040;jonjhitchcock](https://github.com/jonjhitchcock), [&#x0040;jxu](https://github.com/jxu), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;laresbernardo](https://github.com/laresbernardo), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;LukeGoodsell](https://github.com/LukeGoodsell), [&#x0040;madmark81](https://github.com/madmark81), [&#x0040;MarkusBerroth](https://github.com/MarkusBerroth), [&#x0040;matheus-donato](https://github.com/matheus-donato), [&#x0040;mattfidler](https://github.com/mattfidler), [&#x0040;MatthieuStigler](https://github.com/MatthieuStigler), [&#x0040;md0u80c9](https://github.com/md0u80c9), [&#x0040;michaelhogersosis](https://github.com/michaelhogersosis), [&#x0040;MikeJohnPage](https://github.com/MikeJohnPage), [&#x0040;MJL9588](https://github.com/MJL9588), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;mwillumz](https://github.com/mwillumz), [&#x0040;Nelson-Gon](https://github.com/Nelson-Gon), [&#x0040;qdread](https://github.com/qdread), [&#x0040;randomgambit](https://github.com/randomgambit), [&#x0040;rcorty](https://github.com/rcorty), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;romatik](https://github.com/romatik), [&#x0040;spressi](https://github.com/spressi), [&#x0040;sstoeckl](https://github.com/sstoeckl), [&#x0040;stephLH](https://github.com/stephLH), [&#x0040;urskalbitzer](https://github.com/urskalbitzer), [&#x0040;vpanfilov](https://github.com/vpanfilov), and [&#x0040;ZahraEconomist](https://github.com/ZahraEconomist).

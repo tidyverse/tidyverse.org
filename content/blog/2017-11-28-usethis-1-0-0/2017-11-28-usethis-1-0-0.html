@@ -1,0 +1,112 @@
+---
+title: usethis 1.0.0 (and 1.1.0)
+author: Hadley Wickham
+date: '2017-11-28'
+slug: usethis-1.0.0
+categories:
+  - package
+photo:
+  url: https://unsplash.com/photos/IClZBVw5W5A
+  author: Todd Quackenbush
+---
+
+
+
+<p>We’re pleased to announce the release of <a href="https://github.com/r-lib/usethis/releases/tag/v1.0.0">usethis 1.0.0</a> on CRAN (now <a href="https://github.com/r-lib/usethis/releases/tag/v1.1.0">1.1.0</a>, following some small improvements discovered after release). usethis is designed to smooth package-development workflows by automating everything that can be automated. Many of the functions were previously part of devtools, but have been extracted out in their own package to give them more room to grow.</p>
+<pre class="r"><code>install.packages(&quot;usethis&quot;)</code></pre>
+<div id="r-packages" class="section level2">
+<h2>R packages</h2>
+<p>Get started by loading usethis and running <code>create_package()</code>. For this blog post, I’m going to create a package in a temporary directory, but normally you’d create it somewhere safe!</p>
+<pre class="r"><code>library(usethis)
+
+# Create a new package -------------------------------------------------
+tmp &lt;- file.path(tempdir(), &quot;mypkg&quot;)
+create_package(tmp)
+#&gt; Changing active project to mypkg
+#&gt; ✔ Creating &#39;R/&#39;
+#&gt; ✔ Creating &#39;man/&#39;
+#&gt; ✔ Writing &#39;DESCRIPTION&#39;
+#&gt; ✔ Writing &#39;NAMESPACE&#39;</code></pre>
+<p>If you’re using RStudio, this will automatically open a new RStudio session. Generally, usethis is tightly integrated with RStudio but should work with other editors too. The fallbacks for non-RStudio editors aren’t as well tested, so please <a href="https://github.com/r-lib/usethis/issues">let us know</a> if you encounter problems.</p>
+<p>(If you find yourself using usethis a lot and don’t want to load it everytime, run <code>use_usethis()</code> and follow the instructions.)</p>
+<p>Notice that the output includes “Changing active project to mypkg”. usethis has the concept of an “active project” which is where all usethis functions will have effect. It is usually the working directory, but is changed automatically by the <code>create_</code> functions, and can be changed manually with <code>proj_set()</code>.</p>
+<p>If you don’t want a package, use <code>create_project()</code> to create a minimal <a href="https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects">RStudio project</a>. usethis is gradually evolving towards supporting more general R “projects” but this is still a work in progress. Please <a href="https://github.com/r-lib/usethis/issues">let us know</a> if you have ideas or discover a problem!</p>
+<div id="code-and-tests" class="section level3">
+<h3>Code and tests</h3>
+<p><code>use_r()</code> will create/edit a script file in <code>R/</code>:</p>
+<pre class="r"><code>use_r(&quot;foo&quot;)
+#&gt; ● Edit &#39;R/foo.R&#39;</code></pre>
+<p><code>use_test(&quot;foo&quot;)</code> will set up all the infrastructure you need for <a href="http://r-pkgs.had.co.nz/tests.html">unit testing</a>, and create/edit a test file in <code>tests/teststhat/</code>:</p>
+<pre class="r"><code>use_test(&quot;foo&quot;)
+#&gt; ✔ Adding &#39;testthat&#39; to Suggests field in DESCRIPTION
+#&gt; ✔ Creating &#39;tests/testthat/&#39;
+#&gt; ✔ Writing &#39;tests/testthat.R&#39;
+#&gt; ✔ Writing &#39;tests/testthat/test-foo.R&#39;
+#&gt; ● Edit &#39;tests/testthat/test-foo.R&#39;</code></pre>
+<p>We recommend that you have paired test and source files. If you use RStudio, you can use <code>use_test()</code> to create/edit the test file corresponding to the open source file, and <code>use_r()</code> to create/edit to the source file corresponding to the open test file.</p>
+</div>
+<div id="dependencies" class="section level3">
+<h3>Dependencies</h3>
+<p>To declare that your project has some dependencies, use <code>use_package()</code>:</p>
+<pre class="r"><code>use_package(&quot;ggplot2&quot;)
+#&gt; ✔ Adding &#39;ggplot2&#39; to Imports field in DESCRIPTION
+#&gt; ● Refer to functions with `ggplot2::fun()`
+use_package(&quot;dplyr&quot;)
+#&gt; ✔ Adding &#39;dplyr&#39; to Imports field in DESCRIPTION
+#&gt; ● Refer to functions with `dplyr::fun()`</code></pre>
+<p>Or if you want a dependency on a development version of a package, use <code>use_dev_package()</code>.</p>
+</div>
+<div id="documentation" class="section level3">
+<h3>Documentation</h3>
+<p>Take advantage of these helpers to document your package:</p>
+<ul>
+<li><p><code>use_roxygen_md()</code> sets up <a href="http://r-pkgs.had.co.nz/man.html">roxygen2</a> and enables markdown mode so you can use markdown in your roxygen2 comment blocks.</p></li>
+<li><p><code>use_package_doc()</code> creates a skeleton documentation file for the complete package, taking the advantage of the latest roxygen2 features to minimise duplication between the <code>DESCRIPTION</code> and the documentation.</p></li>
+<li><p><code>use_readme_rmd()</code> creates a <a href="http://r-pkgs.had.co.nz/release.html#important-files"><code>README.Rmd</code></a>: use this to describe what your package does and why people should care about it.</p></li>
+<li><p><code>use_news_md()</code> creates a basic <code>NEWS.md</code> for you to record changes.</p></li>
+<li><p><code>use_vignette(&quot;vignette-name&quot;)</code> sets you up for success by configuring <code>DESCRIPTION</code> and creating a <code>.Rmd</code> template in <code>vignettes/</code></p></li>
+</ul>
+</div>
+<div id="sharing" class="section level3">
+<h3>Sharing</h3>
+<p>If you want to share your code with others, it’s good practice to make the licensing clear. usethis provides helpers for the four most common open source licenses:</p>
+<ul>
+<li><a href="https://choosealicense.com/licenses/mit"><code>use_mit_license()</code></a></li>
+<li><a href="https://choosealicense.com/licenses/apache-2.0/"><code>use_apl2_license()</code></a></li>
+<li><a href="https://choosealicense.com/licenses/gpl-3.0/"><code>use_gpl3_license()</code></a></li>
+<li><a href="https://creativecommons.org/publicdomain/zero/1.0/"><code>use_cc0_license()</code></a></li>
+</ul>
+<p>These set the <code>License</code> field in the <code>DESCRIPTION</code> and include the license text in <code>LICENSE.md</code>, which is then added to <code>.Rbuildignore</code>. This allows you to follow licensing best practices while adhering to CRAN’s requirements.</p>
+<p>For this package, I’ll use an MIT license which is simple and permissive:</p>
+<pre class="r"><code>use_mit_license(&quot;Hadley Wickham&quot;)
+#&gt; ✔ Setting License field in DESCRIPTION to &#39;MIT + file LICENSE&#39;
+#&gt; ✔ Writing &#39;LICENSE.md&#39;
+#&gt; ✔ Adding &#39;^LICENSE\\.md$&#39; to &#39;.Rbuildignore&#39;
+#&gt; ✔ Writing &#39;LICENSE&#39;</code></pre>
+<p>It’s also easy to activate git:</p>
+<pre class="r"><code>use_git()
+#&gt; ✔ Initialising Git repo
+#&gt; ✔ Adding &#39;.Rhistory&#39;, &#39;.RData&#39;, &#39;.Rproj.user&#39; to &#39;./.gitignore&#39;
+#&gt; ✔ Adding files and committing</code></pre>
+<p>And publish to GitHub (I’m not going to run this code here!)</p>
+<pre class="r"><code>use_github()</code></pre>
+<p>(For this to work, you’ll need to set a <code>GITHUB_PAT</code> environment variable in your <code>~/.Renviron</code>. Follow <a href="http://happygitwithr.com/github-pat.html#step-by-step">Jenny Bryan’s instructions</a>, and use <code>edit_r_environ()</code> to easily access the right file for editing)</p>
+</div>
+</div>
+<div id="browsing" class="section level2">
+<h2>Browsing</h2>
+<p>You can also use usethis to easily create and/or edit important configuration files:</p>
+<ul>
+<li><p>R: <code>edit_r_profile()</code> (R code run on start up), <code>edit_r_environ()</code> (environment variables), and <code>edit_r_makevars()</code> (default configuration for compiled code).</p></li>
+<li><p>Git: <code>edit_git_config()</code> and <code>edit_git_ignore()</code>.</p></li>
+<li><p>RStudio: <code>edit_rstudio_snippets(type)</code> (edit language specific <a href="https://support.rstudio.com/hc/en-us/articles/204463668-Code-Snippets">snippets</a>).</p></li>
+</ul>
+<p>Most functions have a <code>scope</code> argument which can be either “user” or “project”. This lets you control the scope of your changes: either to the current project, or for all projects for the current user (the default).</p>
+<p>Another set of functions lets you quickly jump to important websites:</p>
+<ul>
+<li>CRAN: <code>browse_cran()</code></li>
+<li>GitHub: <code>browse_github()</code>, <code>browse_github_issues()</code>, <code>browse_github_pulls()</code></li>
+<li>Travis <code>browse_travis()</code></li>
+</ul>
+<p>These functions take a package name as the first argument; if not supplied they’ll use the current project.</p>
+</div>

@@ -1,0 +1,239 @@
+---
+title: purrr 0.2.3
+slug: purrr-0.2.3
+description: >
+  A new version of purrr is on CRAN! It features a new family of
+  generic mappers, a tool for tidy plucking of deep data structures,
+  and many other features and fixes.
+author: Lionel Henry
+date: 2017-08-15
+photo:
+  url: https://unsplash.com/photos/TAN1KpDS7Rg
+  author: Erika Lanpher
+categories: [package]
+---
+
+```{r setup, include = FALSE}
+library("purrr")
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+We are pleased to announce that purrr 0.2.3 is now on CRAN! Despite
+the small increment in the version number (our mistake, it should have
+been 0.3.0), this is a rather major release that includes many new
+features and bug fixes.
+
+Install the latest version of purrr with:
+
+```{r, eval = FALSE}
+install.packages("purrr")
+```
+
+You can read about the complete set of changes
+at <https://github.com/tidyverse/purrr/releases/tag/v0.2.3>. In this
+blog post, I will present the highlights of this version which are a
+family of generic mappers, a new `pluck()` function for accessing deep
+elements in a readable way, and a few nifty features and improvements.
+
+
+### Generic mapping
+
+The new `modify` family of functions introduces genericity to mapping.
+This means it is now easier to map functions over vector-like S3
+objects. The reason is twofold:
+
+* `map()` and friends apply functions on the elements of the
+  underlying data structure but that is not always appropriate. An
+  object sometimes contains metadata. A user of such a class probably
+  wants to map over the *elements* of the data of interest rather than
+  over the metadata fields.
+
+* `map()` is type-stable and always returns a list. If you're mapping
+  over an object, chances are you want a similar object back.
+
+`modify()` and its variants solve both these problems via S3
+dispatch. For instance, let's try a conditional map over a data
+frame. Since `map_if()` is type-stable, it returns a list and we lose
+the data frame information:
+
+```{r}
+iris %>% map_if(is.factor, as.character) %>% str()
+```
+
+On the other hand, `modify_if()` is generic and returns a data frame:
+
+```{r}
+iris %>% modify_if(is.factor, as.character) %>% str()
+```
+
+The flip side of genericity is that the vectors returned by the mapped
+function should obey the constraints of the container type. For
+instance, data frames require vectors of equal size and it wouldn't be
+appropriate to use `modify()` on a function that returns vectors of
+variable sizes. In this case you should use `map()`:
+
+```{r}
+map(mtcars, unique) %>% str()
+```
+
+As a developer there are two ways to make your class compatible with
+`modify()` . The easiest is to implement a method for the
+subset-assign operator `[<-` which should be sufficient in most
+cases. Alternatively you can implement methods for the `modify`
+functions themselves as they are all generics.
+
+
+### pluck() for deep subsetting
+
+The plucking mechanism used for indexing into data structures with
+`map()` has been extracted into the function `pluck()`. Plucking is
+often more readable when extracting an element buried in a deep data
+structure. Compare this base R code which reads non-linearly:
+
+```{r, eval = FALSE}
+accessor(x[[1]])$foo
+```
+
+To the equivalent pluck:
+
+```{r, eval = FALSE}
+x %>% pluck(1, accessor, "foo")
+```
+
+The new function `attr_getter()` generates attribute accessors that
+can be used in `pluck()`:
+
+```{r}
+dfs <- list(iris, mtcars)
+dfs %>% pluck(2, attr_getter("row.names"))
+```
+
+Or in mapped indexing:
+
+```{r}
+x <- list(
+  list(vec = letters, df = mtcars),
+  list(vec = LETTERS, df = iris)
+)
+x %>% map(list("df", attr_getter("row.names")))
+x %>% map(list("df", colnames))
+```
+
+
+### set_names() is much more flexible
+
+`set_names()` (now reexported from the rlang package) has become much
+more flexible. It now takes `...` arguments and concatenates them into
+one vector of names. This saves a bit of typing as you don't have to
+concatenate explicitly with `c()`. The code also looks a bit leaner:
+
+```{r}
+x <- letters[1:3] %>% set_names("foo", "bar", "baz")
+x
+```
+
+In addition `set_names()` now accepts functions as its first
+argument. The function is applied to existing names. Let's transform
+the names of our new vector to uppercase with `base::toupper()`:
+
+```{r}
+x %>% set_names(toupper)
+```
+
+When you supply a function, the `...` arguments are forwarded to the
+function which is often handy. Here we might want to pass further
+arguments to `base::paste()`:
+
+```{r}
+x %>% set_names(paste, "suffix", sep = "_")
+```
+
+
+### Reducing with a three-argument function
+
+`reduce2()` makes it possible to reduce with a three-argument reducing
+function. `reduce2()` takes two vectors `.x` and `.y`, the first of
+which is reduced in the usual manner. The accumulated value is passed
+to the reducing function as first argument while the next value is
+passed as second argument. `.y` on the other hand is mapped, not
+reduced. At each reducing round, the next value of `.y` is passed to
+the reducing function as third argument.
+
+In the following example we have a binary paster that takes `sep` as
+third argument. With the ordinary `reduce()` we are stuck with a
+single separator during the whole reduction:
+
+```{r}
+paste2 <- function(x, y, sep) paste(x, y, sep = sep)
+x <- letters[1:4]
+reduce(x, paste2, sep = ".")
+```
+
+If we want to vary the separator for each value of the input vector,
+`reduce2()` allows us to pass a second vector containing specific
+separators. This auxiliary vector should have one fewer elements than
+the reduced vector:
+
+```{r}
+seps <- c("-", ".", "_")
+reduce2(x, seps, paste2)
+```
+
+
+### Variadic lambda-formulas
+
+You can now refer to arguments by position in lambda-formulas. The
+`..1` symbol refers to the first argument, `..2` to the second and so
+on. This makes it easier to use functions like `pmap()` with the
+formula shortcut:
+
+```{r}
+pmap_chr(mtcars, ~paste(..2, ..4, sep = " - "))
+```
+
+
+
+### API changes
+
+purrr no longer depends on lazyeval or Rcpp (or dplyr, as of the
+previous version). This makes the dependency graph of the tidyverse
+simpler, and makes purrr more suitable as a dependency of lower-level
+packages.
+
+A number of functions have been renamed or deprecated:
+
+* `is_numeric()` and `is_scalar_numeric()` are deprecated because they
+  don't test for what you might expect at first sight.
+
+* `as_function()` is now `as_mapper()` because it is a tranformation
+  that makes sense primarily for mapping functions, not in general.
+  The rlang package has an `as_function()` coercer that is smaller in
+  scope.
+
+* The data frame suffix `_df` has been (soft) deprecated in favour of
+  `_dfr` to more clearly indicate that it's a row-bind. All variants
+  now also have a `_dfc` for column binding. They currently don't
+  handle functions returning vectors because of a bug, but they will
+  in the next minor version of purrr.
+
+* `cross_n()` has been renamed to `cross()`. The `_n` suffix was
+  removed for consistency with `pmap()` (originally called `map_n()`
+  at the start of the project) and `transpose()` (originally called
+  `zip_n()`). Similarly, `cross_d()` has been renamed to `cross_df()`
+  for consistency with `map_df()`.
+
+* `contains()` has been renamed to `has_element()` to avoid conflicts
+  with dplyr.
+
+* `at_depth()` has been renamed to `modify_depth()`.
+
+
+Finally, these functions have been removed from the package:
+
+* The previously deprecated functions `flatmap()`, `map3()`,
+  `map_n()`, `walk3()`, `walk_n()`, `zip2()`, `zip3()`, `zip_n()` have
+  been removed.
+
+* `order_by()`, `sort_by()` and `split_by()` have been removed.
+  `order_by()` conflicted with `dplyr::order_by()` and the complete
+  family doesn't feel that useful. Use tibbles instead.

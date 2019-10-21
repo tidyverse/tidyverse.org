@@ -1,0 +1,125 @@
+---
+title: usethis 1.3.0
+slug: usethis-1-3-0
+description: >
+  usethis 1.3.0 is now on CRAN.
+author: Jenny Bryan
+date: 2018-02-25
+categories:
+  - package
+tags: []
+photo:
+  url: https://pixabay.com/en/tools-vintage-woodworking-saw-1209764/
+  author: unknown
+---
+
+```{r setup, include = FALSE}
+library(usethis)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+We are pleased to announce that [usethis](http://usethis.r-lib.org) 1.3.0 is now available on CRAN. usethis automates many common setup tasks for R projects, especially, but not only, for R packages. You can learn more about it at <http://usethis.r-lib.org>. Install it with:
+
+```{r, eval = FALSE}
+install.packages("usethis")
+```
+
+usethis is part of the refactoring of the [devtools](https://github.com/r-lib/devtools#readme) package. We realize we need to say more about that process, so stay tuned for a dedicated post in the near future. Short version: devtools is here to stay, but it's being separated into more manageable pieces under the hood.
+
+usethis was first released in late 2017 at version 1.0.0 ([blog post](https://www.tidyverse.org/articles/2017/11/usethis-1.0.0/)). Here we highlight notable developments since then. For the full details, see the [release notes](https://github.com/r-lib/usethis/releases/tag/v1.3.0).
+
+## Website, including setup advice
+
+usethis now has a basic website, <http://usethis.r-lib.org>. It includes a [setup article](http://usethis.r-lib.org/articles/articles/usethis-setup.html), with a "to do"  list of tasks that are especially rewarding for R developers who use usethis and devtools.
+
+In particular, usethis can help with the Git and GitHub side of your R projects, if you do the necessary software installation and configuration. usethis even offers several functions to help with this: [configuration functions](http://usethis.r-lib.org/reference/index.html#section-configuration).
+
+## Secondary value of usethis
+
+Working on this usethis release made me reflect on what it is good for. I think of it as a "jig", in the woodworking sense (quoting [Wikipedia](https://en.wikipedia.org/wiki/Jig_(tool)):
+
+> [Jigs are made] to increase productivity through consistency, to do repetitive activities or to do a job more precisely.
+
+An R package is set of files with a very specific structure and the definitive document is [Writing R Extensions](https://cran.r-project.org/doc/manuals/r-release/R-exts.html) (WRE). A great many of these conventions are fairly simple and rote, yet don't come up often enough for you to remember all the details. Examples include how to embed data in a package (see [`use_data()`](http://usethis.r-lib.org/reference/use_data.html)) or how to set up a vignette (see [`use_vignette()`](http://usethis.r-lib.org/reference/use_vignette.html)).
+
+usethis provides a useful complement to WRE. Each function adds one specific piece of infrastructure to a package or project. Importantly, it documents this not (only) in prose, but also in executable R code. The implementation as discrete R functions allows us to make specific bits of documentation readily available, through the normal R help mechanism. If you use version control, the diff right after executing one of these functions also makes it clear what has been added or modified. Even if you don't use the usethis functions all the time, they provide a handy reference and learning tool.
+
+## Git and GitHub
+
+usethis has gained new functions to help with Git/GitHub and some existing functions are now more powerful.
+
+[`use_git_config()`](http://usethis.r-lib.org/reference/use_git_config.html) allows you to set (or view) `user.name` and `user.email` from within R, at either the user or project level (global or local, in Git-speak).
+
+``` r
+use_git_config(user.name = "Jane Doe", user.email = "jane@example.com")
+#> ✔ Writing to user git config file
+#> $user.name
+#> [1] "Jane Doe"
+#> 
+#> $user.email
+#> [1] "jane@example.com"
+```
+
+[`browse_github_pat()`](http://usethis.r-lib.org/reference/browse_github_pat.html) takes you to a pre-filled web form to generate a GitHub personal access token (PAT). You are instructed how to store this as an environment variable, which usethis can then use downstream to, e.g., create new GitHub repositories on your behalf.
+
+[`create_from_github()`](http://usethis.r-lib.org/reference/create_from_github.html) is not new, but is newly capable of both the ["clone"](https://help.github.com/articles/cloning-a-repository/) or ["fork and clone"](https://help.github.com/articles/fork-a-repo/) workflows, with either the https or ssh protocols. It gains optional arguments for direct provision of the PAT, Git credentials, and GitHub host. usethis can now facilitate all the major workflows:
+
+  * GitHub first, local project/repo last: [`create_from_github()`](http://usethis.r-lib.org/reference/create_from_github.html) does this, with and without forking. In the case of a fork, both the `origin` and `upstream` remotes are configured, so you are ready to stay in sync with the upstream repo.
+  * Local project/repo first, GitHub last: [`use_github()`](http://usethis.r-lib.org/reference/use_github.html) does this.
+
+## Distribution of course materials
+
+Many courses and workshops kick-off with the participants downloading a set of files from the instructor, such as slides or code examples. We have found this to be a reliable source of aggravation, due to the diversity of the learners' file system knowledge and habits. You cannot assume that everyone will quickly download an entire set of files, and only those files, to a well-named folder, that they can find in their file browser. [`use_course()`](http://usethis.r-lib.org/reference/use_course.html) is a targeted solution to this problem, when time is of the essence.
+
+[`use_course()`](http://usethis.r-lib.org/reference/use_course.html) accepts a link and interactively obtains user's permission to download a ZIP archive and unpack it to a deliberately named folder on user's desktop. If an RStudio Project file is found, the new Project is launched and, otherwise, the folder is opened in the file manager, e.g. Finder or File Explorer.
+
+Here's an example where the bit.ly shortlink points to the usethis source on GitHub.
+
+``` r
+usethis::use_course("bit.ly/usethis-shortlink-example")
+#> ✔ Downloading ZIP file to '/Users/jenny/Desktop/r-lib-usethis-v1.2.0-93-g7d1c255.zip'
+#> ✔ Unpacking ZIP file into '/Users/jenny/Desktop/r-lib-usethis-7d1c255/' (272 files extracted)
+```
+
+## Community-specific conventions
+
+The development conventions for [tidyverse packages](https://www.tidyverse.org/packages/) are gradually being codified into a set of [`use_tidy_*()`](http://usethis.r-lib.org/reference/tidyverse.html) helper functions. Some of these functions are directly useful to other developers, such as `use_tidy_ci()`, whereas others draw on templates very specific to the [tidyverse organization](https://github.com/tidyverse/), such as `use_tidy_support()`.
+
+   * `use_tidy_style()` is a new function that uses the [styler package](http://styler.r-lib.org) to restyle code according to the [tidyverse style guide](http://style.tidyverse.org). It's an example of a function that is generally useful.
+   * `use_tidy_github()` is a new function that adds several standard files, such as contribution guidelines and an issue template, to make a project [more transparent to outside contributors](https://help.github.com/articles/helping-people-contribute-to-your-project/). These files include hyperlinks that are specific to the tidyverse, so other developers will need to edit the resulting files to reflect their project's context.
+
+The community has contributed new [badging functions](http://usethis.r-lib.org/reference/badges.html), such as `use_bioc_badge()` for the build status of BioConductor packages and `use_binder_badge()` for [binder](https://mybinder.org) projects. The tidyverse team is starting to use `use_lifecycle_badge()` to indicate the [developmental stage](https://www.tidyverse.org/lifecycle/) of a package.
+
+## Acknowledgements
+
+A special salute to Maelle Salmon for encouraging the [setup article](http://usethis.r-lib.org/articles/articles/usethis-setup.html), Ian Lyttle for regularly sharing his Windows pain, Carl Boettiger for exploring every possible GitHub scenario, Stefan Widgren for his stewardship of [git2r](https://github.com/ropensci/git2r), Jared Lander for commiseration re: workshops, and Jeroen Ooms for the clever pre-filled webform for GitHub PATs.
+
+A big thanks goes out to the 53 users who contributed issues and pull requests since usethis became a separate package:
+[\@adomingues](https://github.com/adomingues), [\@alexholcombe](https://github.com/alexholcombe), [\@batpigandme](https://github.com/batpigandme), [\@benmarwick](https://github.com/benmarwick), [\@bhaskarvk](https://github.com/bhaskarvk), [\@cboettig](https://github.com/cboettig), [\@colearendt](https://github.com/colearendt), [\@CorradoLanera](https://github.com/CorradoLanera), [\@dchiu911](https://github.com/dchiu911), [\@dhimmel](https://github.com/dhimmel), [\@dougmet](https://github.com/dougmet), [\@dpastoor](https://github.com/dpastoor), [\@eheinzen](https://github.com/eheinzen), [\@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [\@gaborcsardi](https://github.com/gaborcsardi), [\@gvegayon](https://github.com/gvegayon), [\@hadley](https://github.com/hadley), [\@ijlyttle](https://github.com/ijlyttle), [\@jasonserviss](https://github.com/jasonserviss), [\@jdblischak](https://github.com/jdblischak), [\@jennybc](https://github.com/jennybc), [\@jeroen](https://github.com/jeroen), [\@jimhester](https://github.com/jimhester), [\@jjchern](https://github.com/jjchern), [\@jonocarroll](https://github.com/jonocarroll), [\@jrosen48](https://github.com/jrosen48), [\@jsta](https://github.com/jsta), [\@katrinleinweber](https://github.com/katrinleinweber), [\@kevinushey](https://github.com/kevinushey), [\@krlmlr](https://github.com/krlmlr), [\@lindbrook](https://github.com/lindbrook), [\@LiNk-NY](https://github.com/LiNk-NY), [\@lionel-](https://github.com/lionel-), [\@llrs](https://github.com/llrs), [\@lorenzwalthert](https://github.com/lorenzwalthert), [\@maelle](https://github.com/maelle), [\@malcolmbarrett](https://github.com/malcolmbarrett), [\@martinjhnhadley](https://github.com/martinjhnhadley), [\@maurolepore](https://github.com/maurolepore), [\@mixtrak](https://github.com/mixtrak), [\@muschellij2](https://github.com/muschellij2), [\@nbenn](https://github.com/nbenn), [\@PeteHaitch](https://github.com/PeteHaitch), [\@r-pkgs-bot](https://github.com/r-pkgs-bot), [\@rdrivers](https://github.com/rdrivers), [\@richierocks](https://github.com/richierocks), [\@s-fleck](https://github.com/s-fleck), [\@seankross](https://github.com/seankross), [\@tjmahr](https://github.com/tjmahr), [\@topepo](https://github.com/topepo), [\@uribo](https://github.com/uribo), [\@vnijs](https://github.com/vnijs), and [\@webbedfeet](https://github.com/webbedfeet).
+
+```{r, include = FALSE, eval = FALSE}
+x <- gh::gh(
+  "/repos/r-lib/usethis/issues",
+# initial usethis post did not include this section, let's get 'em now  
+#  since = "2017-11-21",
+  state = "all",
+  .limit = Inf
+)
+users <- sort(unique(purrr::map_chr(x, c("user", "login"))))
+length(users)
+clipr::write_clip(glue::collapse(glue::glue("[\\@{users}](https://github.com/{users})"), ", ", last = ", and "))
+```
+
+```{r, include = FALSE, eval = FALSE}
+library(magick)
+img <- image_read("fodder/tools-1209764_1920.jpg")
+img %>% 
+  image_crop("1280x1280+300+0") %>% 
+  image_scale("300x300") %>% 
+  image_write("content/articles/usethis-1-3-0-sq.jpg")
+img %>% 
+  image_crop("1920x440+0+600") %>% 
+  image_scale("1000x200") %>% 
+  image_write("content/articles/usethis-1-3-0-wd.jpg")
+```
+

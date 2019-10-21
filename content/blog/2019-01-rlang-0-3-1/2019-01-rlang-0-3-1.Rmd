@@ -1,0 +1,126 @@
+---
+title: 'rlang 0.3.1'
+author: Lionel Henry
+date: '2019-01-10'
+slug: rlang-0-3-1
+description: >
+  rlang 0.3.1 is now on CRAN.
+categories:
+  - package
+photo:
+  url: https://unsplash.com/photos/FhdN5QVrBfY
+  author: Eberhard Grossgasteiger
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  out.width = "700px"
+)
+
+library("rlang")
+
+options(
+  rlang_interactive = TRUE,
+  rlang_trace_top_env = current_env()
+)
+```
+
+```{r crayon, include = FALSE}
+colourise_chunk <- function(x, options) {
+  x <- pkgdown:::escape_html(x)
+  sprintf(
+    '<div class = "output"><pre class="knitr %s">%s</pre></div>\n',
+    tolower(options$engine),
+    fansi::sgr_to_html(x)
+  )
+}
+knitr::knit_hooks$set(
+  output = colourise_chunk,
+  message = colourise_chunk,
+  warning = colourise_chunk,
+  error = colourise_chunk
+)
+
+options(crayon.enabled = TRUE)
+```
+
+```{r knitr-entrace, include = FALSE}
+knitr::opts_chunk$set(
+  calling.handlers = list(error = rlang::entrace)
+)
+```
+
+
+The patch release 0.3.1 of rlang is now on CRAN! This release polishes the rlang backtraces introduced in 0.3.0. See the [NEWS](https://rlang.r-lib.org/news/index.html#rlang-0-3-1) for the complete set of changes. The main feature is `rlang::entrace()`, that you can set as a global error handler to get rlang backtraces for _all_ errors.
+
+
+## Numbered backtraces
+
+Since rlang 0.3.0, errors thrown with `abort()` embed a backtrace that can be consulted by calling `last_error()`. We have improved the appearance of the backtraces by numbering its components. Let's trigger an error within a complicated call stack:
+
+```{r, error = TRUE}
+f <- function() tryCatch(g(), warning = identity) # Try g()
+g <- function() evalq(h())                        # Eval h()
+h <- function() abort("Oh no!")                   # And fail!
+
+f()
+```
+
+The simplified backtrace shown on error is now numbered:
+
+```{r}
+last_error()
+```
+
+Notice how the numbering is not sequential? That's because `last_error()` displays a simplified backtrace by default, that only includes the calls that are most likely to help you figure out a problem. Call the new function `last_trace()` to get the full picture:
+
+```{r}
+last_trace()
+```
+
+Note that this full backtrace is the equivalent of `base::traceback()`, only structured as a tree, presented in reverse order, and with namespace prefixes. Here is the output of `traceback()` for comparison:
+
+```{output}
+#> 9: h()
+#> 8: evalq(h())
+#> 7: evalq(h()) at #1
+#> 6: g()
+#> 5: doTryCatch(return(expr), name, parentenv, handler)
+#> 4: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+#> 3: tryCatchList(expr, classes, parentenv, handlers)
+#> 2: tryCatch(g(), warning = identity) at #1
+#> 1: f()
+```
+
+
+## Backtraces for base errors!
+
+These backtraces are normally only recorded for errors thrown with `abort()`. This leaves out errors thrown with `stop()`, errors thrown from native C code, and warnings converted to errors. Starting from this release, insert this snippet in your RProfile to enable backtraces for all errors:
+
+```{r}
+if (requireNamespace("rlang", quietly = TRUE)) {
+  options(error = rlang::entrace)
+}
+```
+
+With this in place, any unhandled error will record an rlang backtrace automatically:
+
+```{r, error = TRUE}
+h <- function() stop("stop!")
+f()
+```
+
+The backtrace can be consulted in the ordinary way:
+
+
+```{r}
+last_error()
+last_trace()
+```
+
+Both the entracing of base errors and the simplification of backtraces are experimental, but they should already work well enough to be useful in your day-to-day work. We'd love to hear about your feedback!
