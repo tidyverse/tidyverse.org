@@ -1,0 +1,86 @@
+{{ define "main" }}
+
+<!-- page -->
+<div id="homeContent" class="pushFooter">
+
+<!-- band_one.md populates this section -->
+{{ with .Site.GetPage "/home/band_one.md" }}
+  <div class="band first">
+    <div class="bandContent">
+
+<!-- hexes on the left -->
+      <div class="hexBadges">
+        {{ $col0 := .Params.col0 }}
+        {{ with $col0 }}
+        {{ with .row1 }}<a href="https://{{ . }}{{ $.Site.Params.hex_base_url }}"><img src="https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/{{ . }}.png" alt="{{ . }} hex sticker" class="r1 c0"></a>{{ end }}
+        {{ with .row2 }}<a href="https://{{ . }}{{ $.Site.Params.hex_base_url }}"><img src="https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/{{ . }}.png" alt="{{ . }} hex sticker" class="r2 c0"></a>{{ end }}
+        {{ with .row3 }}<a href="https://{{ . }}{{ $.Site.Params.hex_base_url }}"><img src="https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/{{ . }}.png" alt="{{ . }} hex sticker" class="r3 c0"></a>{{ end }}
+        {{ end }}
+        {{ $col2 := .Params.col2 }}
+        {{ with $col2 }}
+        {{ with .row2 }}<a href="https://{{ . }}{{ $.Site.Params.hex_base_url }}"><img src="https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/{{ . }}.png" alt="{{ . }} hex sticker" class="r2 c2"></a>{{ end }}
+        {{ with .row3 }}<a href="https://{{ . }}{{ $.Site.Params.hex_base_url }}"><img src="https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/{{ . }}.png" alt="{{ . }} hex sticker" class="r3 c2"></a>{{ end }}
+        {{ with .row4 }}<a href="https://{{ . }}{{ $.Site.Params.hex_base_url }}"><img src="https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/{{ . }}.png" alt="{{ . }} hex sticker" class="r4 c2" /></a>{{ end }}
+        {{ end }}
+      </div>
+
+<!-- text on the right -->
+      <div class="blurb">
+        <div class="tagline">
+          {{ .Title }}
+          </div>
+        <div>
+          {{ .Content | markdownify }}
+        </div>
+      </div>
+
+    </div> <!-- bandContent -->
+  </div>  <!-- band -->
+{{ end }}
+
+<!-- band_two.md populates this section -->
+{{ with .Site.GetPage "/home/band_two.md" }}
+
+  <div class="band second">
+    <div class="bandContent">
+      <div class="blurb">
+        <div class="tagline">
+          {{ .Title }}
+        </div>
+        <div>
+          {{ .Content | markdownify }}
+        </div>
+        <a href="http://amzn.to/2aHLAQ1"><img class="bookCover" src="images/cover.png" alt=""></a>
+      </div>
+      <div class="blurb">
+        <div class="tagline small"></div>
+        {{ partial "events_sticky" . }}
+      </div>
+    </div> <!-- bandContent -->
+  </div> <!-- band -->
+
+{{ end }}
+
+<!-- band_three.md populates this section -->
+
+{{ with .Site.GetPage "/home/band_three.md" }}
+
+  <div class="band third">
+    <div class="bandContent">
+      <div class="hideOnMobile"><img class="bee1" src="images/bee1.jpg" alt=""></div>
+      <div class="blurb">
+        <div class="tagline">
+          {{ .Title }}
+          </div>
+        <div>
+          {{.Content | markdownify }}
+        </div>
+      </div>
+    </div> <!-- bandContent -->
+  </div> <!-- band -->
+</div> <!-- homeContent -->
+{{ end }}
+
+{{ end }}
+
+
