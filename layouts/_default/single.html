@@ -1,5 +1,8 @@
 {{ partial "header.html" . }}
 
+{{ $page := . }}
+{{ $banner := ($page.Resources.ByType "image").GetMatch "*wd.jpg*" }}
+
 <div class="band padForHeader pushFooter">
   <div class="bandContent">
     <div class="full splitColumns withMobileMargins">
@@ -10,7 +13,7 @@
       {{ $slug := .Param "slug" }}
       {{ with $.Params.photo }}
       <div class="article-header">
-        <div class="photo" style="background-image: url('../../../{{ $slug }}/{{ $slug }}-wd.jpg');"></div>
+        {{ with $banner }}<div class="photo" style="background-image: url('{{ .RelPermalink }}');">{{ end }}</div>
         <div class="photoCredit">Photo by <a href="{{ .url }}">{{ .author }}</a></div>
       </div>
       {{ end }}
