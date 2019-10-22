@@ -17,19 +17,20 @@
       </div>
       {{ end }}
 
-      {{ if eq .Section "articles" }}
+      {{ if or (eq .Section "articles") (eq .Section "blog") }}
       <span class="article-date"><i class="fas fa-calendar-day"></i>&nbsp;&nbsp;{{ .Date.Format "2006/01/02" }}</span>
       {{ end }}
+      
+      {{ $show_authors := $.Site.Params.authors.show_single | default true }}
+      {{ if and $show_authors (or (eq .Section "articles") (eq .Section "blog")) }}
+        <p>
+        <i class="fas fa-user-circle fa-fw"></i>
+        {{ partial "pretty_author_names" . }}
+      {{ end }}
+        </p>
 
       <div class="article-content">
       {{ .Content }}
-
-      {{ $show_authors := $.Site.Params.authors.show_single | default true }}
-      {{ if and ($show_authors) (eq .Section "articles") }}
-        <hr>
-        <strong>By:</strong>
-        {{ partial "pretty_author_names" . }}
-      {{ end }}
       </div>
 
 
