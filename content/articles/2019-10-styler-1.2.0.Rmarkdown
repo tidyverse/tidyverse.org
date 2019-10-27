@@ -1,0 +1,190 @@
+---
+title: "styler 1.2.0"
+author: "Lorenz Walthert"
+date: '2019-10-30'
+description: |
+  Since the initial CRAN submission almost two years ago, many bugs were fixed
+  and new features added, including alignment detection, improved handling of 
+  `{{` and `tryCatch()` expressions and more.
+photo:
+  author: Heng Films
+  url: https://unsplash.com/photos/mpdIPhYqZ4Y
+slug: styler-1.2.0
+categories: package
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set("eval" = FALSE)
+```
+
+The initial version of styler was released on CRAN in December 2017. Since then,
+five new versions were released and styler was improved substantially, but many
+improvements only cover special cases or even edge cases. These are all
+contained in the [change log](https://styler.r-lib.org/news/index.html). Here,
+we want to focus on a few changes up to version 1.2.0 that we believe are most
+relevant to most users. You can install the latest stable version from CRAN with
+`install.packages("styler")`.
+
+# Alignment detection
+
+styler can finally detect aligned code and keep it aligned! The following code
+for example won't be modified by styler:
+
+```{r}
+call(
+  some_arg = 123,
+  more     = "x"
+)
+```
+
+Although quite intuitive, you may need to tweak your aligned code a bit to match
+styler's definition of aligned code. Otherwise, the code will get reformatted
+anyway. Check out the
+[vignette](https://styler.r-lib.org/articles/detect-alignment.html) that
+describes the conditions in both technical and non-technical terms. Note that it
+currently only works for *function calls*, so styler will not treat the below as
+aligned
+
+```{r}
+x  <- 2
+x2 <- f(x)
+
+```
+
+and turn it into
+
+```{r}
+x <- 2
+x2 <- f(x)
+
+```
+
+unless you also use `strict = FALSE`.^[E.g. `styler::style_text(..., strict =
+FALSE)`, but note that this has also other effects on styling that you might not
+want.]
+
+# rlang's `{{`
+
+In [rlang 0.4.0](https://www.tidyverse.org/articles/2019/06/rlang-0-4-0/) a new
+interpolation operator was introduced: `{{` (read curly curly). Because `styler
+< 1.2.0` does understand it as regular curly braces, you ended up with
+
+```{r}
+call({
+  {
+    x
+  }
+})
+```
+
+when styled `call({{x}})`, which is non-sense. Now styler yields `call({{ x
+}})`.
+
+# Addin
+
+The *Style active file* Addin now remembers the cursor position and the details
+of styling can be specified. For example, if you always only want to style
+spaces with the Addin, put this in your `.Rprofile`:^[E.g. via
+`usethis::usethis::edit_r_profile()`, making sure you use the right value for
+the `scope` argument]
+
+```{r}
+options(
+  styler.addins_style_transformer = "styler::tidyverse_style(scope = 'spaces')"
+)
+```
+
+You can also set the value of this option interactively with the *set style*
+Addin (not persistent over sessions). For details, see `help("styler_addins")`.
+
+The customization of the styling does not affect the command-line API
+(`styler::style_text()` and friends). We are not sure how users could best
+customize styling, but you can track progress on that in
+[r-lib/styler#319](https://github.com/r-lib/styler/issues/319).
+
+Remember that you can also set the environment variable `save_after_styling` to
+`TRUE` if you are tired of saving the file after styling it with the Addin.
+
+# `tryCatch()` and friends
+
+`tryCatch()` expressions often look like this:
+
+```{r}
+tryCatch(
+  {
+    exp(x)
+  },
+  error = function(x) x
+)
+```
+
+Prior to version 1.2.0, styler would return this odd formatting:
+
+```{r}
+tryCatch({
+  exp(x)
+},
+error = function(x) x
+)
+```
+
+Now, the line is broken before the opening curly brace in function calls, except
+if there is only one brace expression and it's the last in the function call.
+The typical use case is `testthat::test_that(...)`, i.e. the following code
+won't be modified:
+
+```{r}
+test_that("some condition holds", {
+  some_code()
+})
+```
+
+# Other changes
+
+Some other changes are:
+
+* styler > 1.0.0 depends on tibble >= 1.4.2 and runs 2x as fast as initially.
+
+* styler >= 1.0.2 can style roxygen code examples in the source code of
+  packages.
+
+* styler >= 1.0.2 can style `.Rnw` files.
+
+* The print method for the output of `style_text()` now returns
+  syntax-highlighted code by default, controllable via the option
+  `styler.colored_print.vertical`.
+
+# Adaption of styler
+
+We'd like to highlight that styler integrates with various other tools you might
+be using:
+
+- As a git pre-commit hook. Two standard calls from the R console, and you are
+  all set. We are convinced that this is the preferred way of using styler to
+  ensure all your files are consistently formatted. Check out the [online
+  documentation](https://lorenzwalthert.github.io/precommit/) of the R package
+  `precommit` that implements many other useful hooks.
+
+- `usethis::use_tidy_style()` styles your project according to the tidyverse
+  style guide.
+
+- `knitr::knitr()` and friends recognize the R code chunk option `tidy =
+  "styler"` for `.Rnw` and `.Rmd` files to pretty-print code.
+
+- `reprex::reprex(..., style = TRUE)` to prettify reprex code before printing.
+  To permanently use `style = TRUE` without specifying it every time, you can
+  add the following line to your `.Rprofile` (e.g. via
+  `usethis::edit_r_profile()`): `options(reprex.styler = TRUE)`.
+
+- There are plugins for
+  [Emacs](https://github.com/lassik/emacs-format-all-the-code) and
+  [VIM](https://github.com/w0rp/ale/pull/2401#issuecomment-485942966).
+
+# Outlook
+
+We have some cool new features in the pipeline such as
+[cachging](https://github.com/r-lib/styler/pull/538) for faster styling or 
+[make styler ignoring some lines](https://github.com/r-lib/styler/pull/560), 
+which you can try out installing from the respective branches. We want to thank 
+all contributors for their support over the last two years.
+
