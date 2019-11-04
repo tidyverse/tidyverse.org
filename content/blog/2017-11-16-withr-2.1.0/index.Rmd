@@ -1,0 +1,248 @@
+---
+title: withr 2.1.0
+date: '2017-11-16'
+slug: withr-2.1.0
+author: Jim Hester
+categories: [package]
+description: >
+  withr 2.1.0 is now available on CRAN.
+photo:
+  url: https://unsplash.com/photos/V1YEEItoOTE
+  author: Suganth
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  comment = "#>",
+  collapse = TRUE
+)
+library(withr)
+```
+
+[withr 2.1.0](http://withr.r-lib.org/news/index.html) is now available on CRAN!
+[withr](http://withr.r-lib.org) makes working with global state in R safer and
+less error prone. It has only base package dependencies so is easily included
+in packages.
+
+Install the latest version with:
+```{r, eval = FALSE}
+install.packages("withr")
+```
+
+# Whither withr?
+
+Many functions in R modify global state in some fashion. Some common examples
+are `par()` for graphics parameters, `dir()` to change the current directory
+and `options()` to set a global option. Using these functions is handy
+when using R interactively, because you can set them early in your
+experimentation and they will remain set for the duration of the session.
+However this makes programming with these settings difficult, because they make
+your function impure by modifying a global state. Therefore you should always
+strive to reset the previous state when the function exits.
+
+One common idiom for dealing with this problem is to save the current state,
+make your change, then restore the previous state.
+
+```{r}
+par("col" = "black")
+my_plot <- function(new) {
+  old <- par(col = "red", pch = 19)
+  plot(mtcars$hp, mtcars$wt)
+  par(old)
+}
+my_plot()
+par("col")
+```
+
+However this approach can fail if there's an error before you are able to reset
+the options.
+
+```{r, error = TRUE}
+par("col" = "black")
+my_plot <- function(new) {
+  old <- par(col = "red", pch = 19)
+  plot(mtcars$hpp, mtcars$wt)
+  par(old)
+}
+my_plot()
+par("col")
+```
+
+Using the base function `on.exit()` is a robust solution to this problem.
+`on.exit()` will run the code when the function is exited, regardless
+of whether it exits normally or with an error.
+
+```{r, error = TRUE}
+par("col" = "black")
+my_plot <- function(new) {
+  old <- par(col = "red", pch = 19)
+  on.exit(par(old))
+  plot(mtcars$hpp, mtcars$wt)
+}
+my_plot()
+par("col")
+
+options(test = 1)
+{
+  print(getOption("test"))
+  on.exit(options(test = 2))
+}
+getOption("test")
+```
+
+However this solution is somewhat cumbersome to work with. You
+need to remember to use an `on.exit()` call after each stateful call. In
+addition by default each `on.exit()` action will overwrite any previous
+`on.exit()` action in the same function unless you use the `add = TRUE` option.
+`add = TRUE` also adds additional code to the _end_ of existing code, which
+means the code is not run in the [Last-In,
+First-Out](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting) order you
+would generally prefer. It is also not possible to have this cleanup code
+performed before the function has finished.
+
+[withr](http://withr.r-lib.org) is a solution to these issues. It defines a
+[large set of
+functions](http://withr.r-lib.org/#withr---run-code-with-modified-state) for
+dealing with global settings in R, such as `with_par()`. These functions set one of
+the global settings for the duration of a block of code, then automatically
+reset it after the block is completed.
+
+```{r}
+par("col" = "black")
+my_plot <- function(new) {
+  with_par(list(col = "red", pch = 19),
+    plot(mtcars$hp, mtcars$wt)
+  )
+  par("col")
+}
+my_plot()
+par("col")
+```
+
+In addition to the `with_*` functions there are `local_*` variants whose effects
+last until the end of the function they are included in. These work similar to
+`on.exit()`, but you can set the options in one call rather than two.
+
+```{r}
+par("col" = "black")
+my_plot <- function(new) {
+  local_par(list(col = "red", pch = 19))
+  plot(mtcars$hp, mtcars$wt)
+}
+my_plot()
+par("col")
+```
+
+# New features
+
+Here are some highlights of new functions for v2.1.0.
+
+## Graphics devices
+
+There are now a comprehensive set of functions to deal with R's builtin
+[graphics devices](http://withr.r-lib.org/reference/devices.html).
+
+These functions open a new graphics device, run some code, then automatically
+close the device.
+
+```{r}
+path <- file.path(Sys.glob("*withr*_files/figure-html"), "test.png")
+with_png(path, width = 400, height = 300, {
+  plot(mtcars$hp, mtcars$mpg)
+})
+```
+
+![](`r path`)
+
+Thanks to [Richard Cotton's](https://github.com/richierocks) great [pull
+request](https://github.com/r-lib/withr/pull/37) for this feature!
+
+## Connections
+
+There are two new functions for cleaning up connections in R.
+`with_connection()` allows you to automatically close R's file connections.
+Here we create a writable file connection, write some lines to it with
+`with_connection()`, then open a read-only connection and read the file using
+`local_connection()`.
+
+```{r}
+with_connection(list(con = file("temp", "w")), {
+  writeLines(c("foo", "bar"), con)
+})
+read_temp <- function() {
+  con <- local_connection(file("temp", "r"))
+  readLines(con)
+}
+read_temp()
+```
+```{r, echo = FALSE}
+unlink("temp")
+```
+
+`with_db_connection()` provides [DBI](http://rstats-db.github.io/DBI)
+connections to databases which automatically call
+`DBI::dbDisconnect()`. Here we create a new [SQLite](https://www.sqlite.org/)
+database, connect to it with `with_db_connection()`, and write a new table to
+it. We then create another connection with `local_db_connection()` and read
+from the table.
+
+```{r}
+db <- tempfile()
+with_db_connection(
+  list(con = DBI::dbConnect(RSQLite::SQLite(), db)), {
+    DBI::dbWriteTable(con, "mtcars", mtcars)
+})
+
+head_db_table <- function(...) {
+  con <- local_db_connection(DBI::dbConnect(RSQLite::SQLite(), db))
+  head(DBI::dbReadTable(con, "mtcars"), ...)
+}
+head_db_table()
+unlink(db)
+```
+
+## Packages
+
+`with_package()` allows you to temporarily attach a package.
+
+```{r}
+with_package("lattice", {
+  xyplot(y ~ x, data.frame(x = -2:2, y = dnorm(-2:2)))
+})
+```
+
+## Tempfiles
+
+`with_tempfile()` handy for creating a new temporary files that are removed,
+often useful when writing tests.
+
+```{r}
+with_tempfile("file1", {
+  print(file1)
+  writeLines("foo", file1)
+  readLines(file1)
+})
+```
+
+## Other changes
+
+There are many other bug fixes and other minor improvements in this release.
+You can see a complete list in the [release
+notes](https://github.com/r-lib/withr/releases/tag/v2.1.0).
+
+A big thanks goes to all the community members who contributed code and opened
+issues since the last release!
+
+```{r, eval = FALSE, include = FALSE}
+x <- gh::gh("/repos/:owner/:repo/issues", owner = "r-lib", repo = "withr", since = "2017-06-16", state = "all")
+users <- unique(purrr::map_chr(x, c("user", "login")))
+clipr::write_clip(glue::collapse(glue::glue("[\\@{users}](https://github.com/{users})"), ", ", last = ", and "))
+```
+
+[\@QuLogic](https://github.com/QuLogic),
+[\@krlmlr](https://github.com/krlmlr),
+[\@hadley](https://github.com/hadley),
+[\@wlandau-lilly](https://github.com/wlandau-lilly),
+[\@jimhester](https://github.com/jimhester),
+[\@kevinushey](https://github.com/kevinushey),
+and [\@richierocks](https://github.com/richierocks)

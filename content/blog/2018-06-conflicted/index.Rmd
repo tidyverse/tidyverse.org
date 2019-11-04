@@ -1,0 +1,86 @@
+---
+title: "conflicted: a new approach to resolving ambiguity"
+author: Hadley Wickham
+date: '2018-06-02'
+slug: conflicted
+categories:
+  - package
+photo:
+  url: https://unsplash.com/photos/M03OCZvYSxY
+  author: Vincent van Zalinge
+tags: []
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+
+We're stoked to announce the initial release of the [conflicted](https://github.com/r-lib/conflicted#conflicted) package. The goal of conflicted is to provide an alternative way of resolving conflicts caused by ambiguous function names. R handles ambiguity by reporting conflicts when you load a package, but otherwise lets the most recently loaded package win. This can make it hard to detect conflicts, because it's easy to miss the messages since you often load packages at the top of the script, and you don't see a problem until much later. conflicted takes a different approach to resolving ambiguity, instead making every conflict an error and forcing you to explicitly choose which function to use.
+
+Install conflicted by running:
+
+```{r, eval = FALSE}
+install.packages("conflicted")
+```
+
+## How do I use it?
+
+conflicted does not export any functions. To use it, you just need to load it:
+
+```{r, error = TRUE}
+library(conflicted)
+library(dplyr)
+
+filter(mtcars, am & cyl == 8)
+```
+
+To resolve conflicts, remove the ambiguity by using `::` (i.e. `dplyr::filter()` or `base::filter()`). To resolve conflicts for your entire session, use `<-`:
+
+```{r}
+filter <- dplyr::filter
+filter(mtcars, am & cyl == 8)
+```
+
+If you want to make this behaviour the default, you can load conflicted in your `~/.Rprofile` (the easiest way to find and edit this file is with `usethis::edit_r_profile()`):
+
+```{r}
+if (interactive()) {
+  require(conflicted)
+}
+```
+
+## How does it work?
+
+Loading conflicted creates a new "conflicted" environment that is attached just after the global environment. This environment contains an active binding for any object that is exported by multiple packages; the active binding will throw an error message describing how to disambiguate the name.
+
+The conflicted environment also contains bindings for `library()` and `require()`, which  suppress the default conflict reporting (i.e. `warn.conflicts = FALSE`) and ensure that the conflicted environment is updated with any new conflicts. Because they occur in the search path before the base package, they will be called instead of `base::library()` and `base::require()`.   
+
+## What does the future hold?
+
+In my use of conflicted, I have noticed two main pain points:
+
+* When creating the dplyr package I made what I now believe to be a mistake
+  and I gave two functions the same name as existing base R functions: 
+  `filter()` and `lag()` (I did this because I thought those functions were
+  rarely used, but they're actually important to some communities). However,
+  it's frustrating to have do `filter <- dplyr::filter()` everytime you
+  load dplyr, so I need to figure out someway to allow you to globally 
+  prefer either `dplyr::filter()` or `base::filter()`. It's possible 
+  `library(tidyverse)` could do this for you, but I'm not sure if that's too
+  aggressive or not.
+
+* When we move a function to a different package, we usually leave a function 
+  behind that tells you the new location. Ideally, this sort of function would
+  never trigger a conflict so there's no additional hassle if you have both
+  new and old packages loaded. (Currently the biggest hassle is usethis and
+  devtools since so many usethis functions originally lived in devtools). I 
+  think the right way to handle this is to set an attribute on deprecated 
+  functions so that conflicted knows to ignore them.
+  
+My goal is to figure out how to eliminate these pain points before the next release.
+  
+## Acknowledgements 
+
+Thanks to [\@krlmlr](https://github.com/krlmlr) for the basic idea. This code was previously part of the experimental [strict](https://github.com/hadley/strict) package, but I decided improved conflict resolution is useful by itself and worth its own package.
+

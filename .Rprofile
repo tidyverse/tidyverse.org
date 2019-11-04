@@ -1,7 +1,7 @@
 options(
-  blogdown.author = "Hadley Wickham",
   blogdown.ext = ".Rmarkdown",
-  blogdown.subdir = "articles"
+  blogdown.subdir = "blog",
+  blogdown.new_bundle = TRUE
 )
 
 rprofile <- Sys.getenv("R_PROFILE_USER", "~/.Rprofile")

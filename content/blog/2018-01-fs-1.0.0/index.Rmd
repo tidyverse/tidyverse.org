@@ -1,0 +1,193 @@
+---
+title: fs 1.0.0
+date: '2018-01-22'
+slug: fs-1.0.0
+author: Jim Hester
+categories: [package]
+description: >
+  fs 1.0.0 is now available on CRAN. fs provides a cross-platform, uniform
+  interface to file system operations.
+photo:
+  url: https://unsplash.com/photos/8EzNkvLQosk
+  author: Maarten van den Heuvel
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  comment = "#>",
+  collapse = TRUE
+)
+knitr::opts_knit$set(
+  root.dir = system.file(package = "fs"))
+library(fs)
+```
+
+[fs 1.0.0][fs] is now available on CRAN!
+[fs] provides a cross-platform, uniform interface to file system operations.
+[fs] uses [libuv](http://docs.libuv.org/en/v1.x/fs.html) under the hood, which
+gives a rock solid cross-platform interface to the filesystem.
+
+
+Install the latest version with:
+``` r
+install.packages("fs")
+```
+
+### Comparison vs base equivalents
+
+**fs** functions smooth over some of the idiosyncrasies of file handling with
+base R functions:
+
+* Vectorization. All **fs** functions are vectorized, accepting multiple paths
+  as input. Base functions are inconsistently vectorized.
+
+* Predictable return values that always convey a path. All **fs** functions
+  return a character vector of paths, a named integer or a logical vector, where
+  the names give the paths. Base return values are more varied: they are often
+  logical or contain error codes which require downstream processing.
+
+* Explicit failure. If **fs** operations fail, they throw an error. Base
+  functions tend to generate a warning and a system dependent error code. This
+  makes it easy to miss a failure.
+
+* UTF-8 all the things! **fs** functions always convert input paths to UTF-8 and
+  return results as UTF-8. This gives you path encoding consistency across OSes.
+  Base functions rely on the native system encoding.
+
+* Naming convention. **fs** functions use a consistent naming convention.
+  Because base R's functions were gradually added over time there are a number
+  of different conventions used (e.g. `path.expand()` vs `normalizePath()`;
+  `Sys.chmod()` vs `file.access()`).
+
+### Tidy paths
+
+**fs** functions always return 'tidy' paths. Tidy paths
+
+  - always expand `~`
+  - use `/` to delimit directories
+  - never have multiple `/` or trailing `/`
+
+Tidy paths are also coloured (if your terminal supports it) based on the
+file permissions and file type. This colouring can be customised or extended by
+setting the `LS_COLORS` environment variable, in the same output format as [GNU
+dircolors](http://www.bigsoft.co.uk/blog/index.php/2008/04/11/configuring-ls_colors).
+
+![](/images/fs-1.0.0/colour.png)
+
+### Usage
+
+**fs** functions are divided into four main categories:
+
+  * `path_` for manipulating paths
+  * `file_` for files
+  * `dir_` for directories
+  * `link_` for links
+
+Directories and links are special types of files, so `file_` functions
+will generally also work when applied to a directory or link.
+
+```{r}
+library(fs)
+
+# list files in the current directory
+dir_ls()
+
+# create a new directory
+tmp <- dir_create(file_temp())
+tmp
+
+# create new files in that directory
+file_create(path(tmp, "my-file.txt"))
+dir_ls(tmp)
+
+# remove files from the directory
+file_delete(path(tmp, "my-file.txt"))
+dir_ls(tmp)
+
+# remove the directory
+dir_delete(tmp)
+```
+
+**fs** is designed to work well with the pipe, though because it is a
+minimal-dependency infrastructure package it doesn't provide the pipe itself.
+You will need to attach [magrittr](http://magrittr.tidyverse.org) or similar.
+
+```{r}
+library(magrittr)
+
+paths <- file_temp() %>%
+  dir_create() %>%
+  path(letters[1:5]) %>%
+  file_create()
+paths
+
+paths %>% file_delete()
+```
+
+**fs** functions also work well in conjunction with other
+[tidyverse](https://www.tidyverse.org/) packages, like
+[dplyr](http://dplyr.tidyverse.org) and [purrr](http://purrr.tidyverse.org).
+
+Some examples...
+
+```{r}
+suppressMessages(
+  library(tidyverse))
+```
+
+Filter files by type, permission, size and 15 other attributes.
+
+```{r}
+dir_info(recursive = TRUE) %>%
+  filter(type == "file", permissions == "u+r", size > "10KB") %>%
+  arrange(desc(size)) %>%
+  select(path, permissions, size, modification_time)
+```
+
+Tabulate and display folder size.
+
+```{r}
+dir_info(recursive = TRUE) %>%
+  group_by(directory = path_dir(path)) %>%
+  tally(wt = size, sort = TRUE)
+```
+
+Read a collection of files into one data frame.
+
+`dir_ls()` returns a named vector, so it can be used directly with
+`purrr::map_df(.id)`.
+
+```{r}
+# Create separate files for each species
+iris %>%
+  split(.$Species) %>%
+  map(select, -Species) %>%
+  iwalk(~ write_tsv(.x, paste0(.y, ".tsv")))
+
+# Show the files
+iris_files <- dir_ls(glob = "*.tsv")
+iris_files
+
+# Read the data into a single table, including the filenames
+iris_files %>%
+  map_df(read_tsv, .id = "file", col_types = cols(), n_max = 2)
+
+file_delete(iris_files)
+```
+
+### Feedback wanted!
+
+We hope **fs** is a useful tool for both analysis scripts and packages.
+Please open [GitHub issues](https://github.com/r-lib/fs) for any feature requests or bugs.
+
+In particular, we have found non-ASCII filenames in non-English locales on
+Windows to be especially tricky to reproduce and handle correctly. There is
+already [one
+fix](https://github.com/r-lib/fs/commit/b0b7a88de708300fd48273b0824e9bb265a0ee7b)
+for this issue since **fs** was submitted to CRAN. Additional Feedback from
+users is greatly appreciated!
+
+Learn more about **fs** at
+  - http://fs.r-lib.org
+
+[fs]: http://fs.r-lib.org

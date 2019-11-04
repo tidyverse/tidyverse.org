@@ -1,0 +1,160 @@
+---
+title: callr 3.3.0
+slug: callr-3.3.0
+author: Gábor Csárdi
+date: '2019-07-08'
+description: >
+  callr 3.3.0 is now on CRAN
+categories:
+- package
+photo:
+  url: https://pixabay.com/photos/venus-flytrap-carnivorous-plant-1531345
+  author: MonikaP
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>"
+)
+```
+
+```{r, comment="", results="asis", echo = FALSE}
+if (knitr::opts_knit$get("rmarkdown.pandoc.to") == "html") {
+  old.hooks <- fansi::set_knit_hooks(knitr::knit_hooks)
+  options(crayon.enabled = TRUE)
+  options(crayon.colors = 256)
+  invisible(crayon::num_colors(forget = TRUE))
+}
+```
+
+We have just updated the [callr](https://callr.r-lib.org/) package to version 3.3.0 on CRAN.
+The biggest change in this release is better support for debugging the
+background process. See the full
+[changelog here](https://callr.r-lib.org/news/index.html).
+
+callr helps with running R code in a separate R process, synchronously or
+asynchronously. With synchronous execution the main R process waits until
+the separate R subprocess finishes, see [`callr::r()`](https://callr.r-lib.org/reference/r.html). Asynchronous execution
+uses [processx](https://processx.r-lib.org/) processes, see [`callr::r_bg()`](https://callr.r-lib.org/reference/r_bg.html)
+and [`callr::r_process()`](https://callr.r-lib.org/reference/r_process.html) for one-off and [`callr::r_session()`](https://callr.r-lib.org/reference/r_session.html) for persistent
+background R processes.
+
+## callr error objects
+
+Debugging code running in a background process is notoriously difficult.
+Most of the time you cannot use an interactive debugger, and often even
+print-debugging, i.e. inserting `print()` and `cat()` calls into the
+code that runs in the background, can be non-trivial.
+
+The new 3.3.0 version of callr aims to help with this, by creating better
+error messages and error traces for errors originating from the background
+process. In particular, callr now always throws error objects that
+contain:
+
+* the exit status of the R process, if the process terminated,
+* the full error object thrown in the subprocess,
+* the call that generated the error,
+* the process id of the subprocess, and
+* the full stack trace in the subprocess.
+
+Here is an example for a trivial error that shows how to extract this
+information if the error was caught in the main process:
+
+```{r}
+err <- tryCatch(
+  callr::r(function() library(Callr)),
+  error = function(e) e)
+err
+```
+
+The error objects has two parts. The first is the error object thrown in
+the main process, and the second is the error object from the the
+subprocess. We can extract more information from `err`:
+
+```{r}
+err$status
+err$parent
+err$parent$call
+err$parent$`_pid`
+```
+
+`err$status` is the exit status of the subprocess. This is not present
+for persistent background processes, i.e. the ones created by `r_session`,
+because these do not exit on error, but continue running. `err$parent` is
+the error object, thrown in the subprocess. `err$parent$call` is the call
+that generated the error, and ``err$parent$`_pid` `` is the process id
+of the subprocess.
+
+
+The stack trace of the error in subprocess can be printed via
+`err$parent$trace`. By default the trace omits the boilerplate frames
+added by callr, these are usually not very useful for the user.
+Nevertheless they are still included in `err$parent$trace$calls`.
+
+```{r}
+err$parent$trace
+```
+
+The trace starts with the anonymous function that we passed to `callr::r()`,
+and it is annotated with package names and source references, if they are
+available.
+
+## The last error
+
+Often, the error object is uncaught, i.e. we don't `tryCatch()` the error
+in the main R process. Then the error message is printed, but the actual
+error object is lost, and you need to re-run the code in a `tryCatch()`,
+hoping that it would produce the same error.
+
+For a better workflow, whenever a callr error is uncaught, callr
+assigns it to the `.Last.error` variable, that can be inspected.
+Of course, a subsequent callr error will overwrite `.Last.error`, it works very
+much like `.Last.value`, but for errors. Here is the same code as above
+but without the `tryCatch()`:
+
+```{r include = FALSE}
+options(rlib_error_always_trace = TRUE)
+```
+
+```{r error = TRUE}
+callr::r(function() library(Callr))
+```
+
+```{r}
+.Last.error
+.Last.error$parent$call
+```
+
+```{r include = FALSE}
+options(rlib_error_always_trace = FALSE)
+```
+
+## The last error trace
+
+If the error is uncaught, then callr adds a trace to the error object of
+the main process as well. The trace will have two parts in this case.
+callr also sets the `.Last.error.trace` variable for convenience, this is
+easier to type than `.Last.error$trace`.
+
+```{r include = FALSE}
+# Remove most of the artificial knitr frames from the trace
+local({
+  tr <- .Last.error.trace
+  rcall <- which(vapply(
+    tr$calls,
+    function(x) length(x) >= 1 && identical(x[[1]], quote(callr::r)),
+    logical(1)))
+  tr$ignore <- c(tr$ignore, list(c(1L, rcall - 1L)))
+  print(rcall)
+  env <- as.environment("org:r-lib")
+  assign(".Last.error.trace", tr, envir = env)
+})
+```
+
+```{r}
+.Last.error.trace
+```
+
+The top part of the trace contains the frames in the main process, and the
+bottom part contains the frames in the subprocess, starting with the
+anonymous function.

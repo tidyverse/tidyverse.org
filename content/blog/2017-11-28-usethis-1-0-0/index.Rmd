@@ -1,0 +1,144 @@
+---
+title: usethis 1.0.0 (and 1.1.0)
+author: Hadley Wickham
+date: '2017-11-28'
+slug: usethis-1.0.0
+categories:
+  - package
+photo:
+  url: https://unsplash.com/photos/IClZBVw5W5A
+  author: Todd Quackenbush
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+We're pleased to announce the release of [usethis 1.0.0](https://github.com/r-lib/usethis/releases/tag/v1.0.0) 
+on CRAN (now [1.1.0](https://github.com/r-lib/usethis/releases/tag/v1.1.0), following some small improvements discovered after release). usethis is designed to smooth package-development workflows by automating everything that can be automated. Many of the functions were previously part of devtools, but have been extracted out in their own package to give them more room to grow.
+
+```{r, eval = FALSE}
+install.packages("usethis")
+```
+
+## R packages
+
+Get started by loading usethis and running `create_package()`. For this blog post, I'm going to create a package in a temporary directory, but normally you'd create it somewhere safe!
+
+```{r}
+library(usethis)
+
+# Create a new package -------------------------------------------------
+tmp <- file.path(tempdir(), "mypkg")
+create_package(tmp)
+```
+
+If you're using RStudio, this will automatically open a new RStudio session. Generally, usethis is tightly integrated with RStudio but should work with other editors too. The fallbacks for non-RStudio editors aren't as well tested, so please [let us know](https://github.com/r-lib/usethis/issues) if you encounter problems.
+
+(If you find yourself using usethis a lot and don't want to load it everytime, run `use_usethis()` and follow the instructions.)
+
+Notice that the output includes "Changing active project to mypkg". usethis has the concept of an "active project" which is where all usethis functions will have effect. It is usually the working directory, but is changed automatically by the `create_`  functions, and can be changed manually with `proj_set()`.
+
+If you don't want a package, use `create_project()` to create a minimal [RStudio project](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects). usethis is gradually evolving towards supporting more general R "projects" but this is still a work in progress. Please [let us know](https://github.com/r-lib/usethis/issues) if you have ideas or discover a problem!
+
+### Code and tests
+
+`use_r()` will create/edit a script file in `R/`:
+
+```{r}
+use_r("foo")
+```
+
+`use_test("foo")` will set up all the infrastructure you need for [unit testing](http://r-pkgs.had.co.nz/tests.html), and create/edit a test file in `tests/teststhat/`:
+
+```{r}
+use_test("foo")
+```
+
+We recommend that you have paired test and source files. If you use RStudio, you can use `use_test()` to create/edit the test file corresponding to the open source file, and `use_r()` to create/edit to the source file corresponding to the open test file. 
+
+### Dependencies
+
+To declare that your project has some dependencies, use `use_package()`:
+
+```{r}
+use_package("ggplot2")
+use_package("dplyr")
+```
+
+Or if you want a dependency on a development version of a package, use `use_dev_package()`.
+
+### Documentation
+
+Take advantage of these helpers to document your package:
+
+* `use_roxygen_md()` sets up [roxygen2](http://r-pkgs.had.co.nz/man.html) and
+  enables markdown mode so you can use markdown in your roxygen2 comment blocks.
+
+* `use_package_doc()` creates a skeleton documentation file for the complete
+  package, taking the advantage of the latest roxygen2 features to minimise
+  duplication between the `DESCRIPTION` and the documentation.
+  
+* `use_readme_rmd()` creates a
+  [`README.Rmd`](http://r-pkgs.had.co.nz/release.html#important-files): 
+  use this to describe what your package does and why people should care about 
+  it.
+  
+* `use_news_md()` creates a basic `NEWS.md` for you to record changes.
+
+* `use_vignette("vignette-name")` sets you up for success by configuring
+  `DESCRIPTION` and creating a `.Rmd` template in `vignettes/`
+
+### Sharing 
+
+If you want to share your code with others, it's good practice to make the licensing clear. usethis provides helpers for the four most common open source licenses:
+
+* [`use_mit_license()`](https://choosealicense.com/licenses/mit)
+* [`use_apl2_license()`](https://choosealicense.com/licenses/apache-2.0/)
+* [`use_gpl3_license()`](https://choosealicense.com/licenses/gpl-3.0/)
+* [`use_cc0_license()`](https://creativecommons.org/publicdomain/zero/1.0/)
+
+These set the `License` field in the `DESCRIPTION` and include the license text in  `LICENSE.md`, which is then added to `.Rbuildignore`. This allows you to follow licensing best practices while adhering to CRAN's requirements.
+
+For this package, I'll use an MIT license which is simple and permissive:
+
+```{r}
+use_mit_license("Hadley Wickham")
+```
+
+It's also easy to activate git:
+
+```{r}
+use_git()
+```
+
+And publish to GitHub (I'm not going to run this code here!)
+
+```{r, eval = FALSE}
+use_github()
+```
+
+(For this to work, you'll need to set a `GITHUB_PAT` environment variable in your `~/.Renviron`. Follow [Jenny Bryan's instructions](http://happygitwithr.com/github-pat.html#step-by-step), and use `edit_r_environ()` to easily access the right file for editing)
+
+## Browsing
+
+You can also use usethis to easily create and/or edit important configuration files:
+
+* R: `edit_r_profile()` (R code run on start up), 
+  `edit_r_environ()` (environment variables), and 
+  `edit_r_makevars()` (default configuration for compiled code).
+
+* Git: `edit_git_config()` and `edit_git_ignore()`.
+
+* RStudio: `edit_rstudio_snippets(type)` (edit language specific 
+  [snippets](https://support.rstudio.com/hc/en-us/articles/204463668-Code-Snippets)).
+
+Most functions have a `scope` argument which can be either "user" or "project". This lets you control the scope of your changes: either to the current project, or for all projects for the current user (the default).
+
+Another set of functions lets you quickly jump to important websites:
+
+* CRAN: `browse_cran()`
+* GitHub: `browse_github()`, `browse_github_issues()`, `browse_github_pulls()`
+* Travis `browse_travis()`
+
+These functions take a package name as the first argument; if not supplied they'll use the current project.

@@ -1,0 +1,126 @@
+---
+title: tibble 1.4.1
+slug: tibble-1-4-1
+description: >
+    Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! This article showcases the changes in the most recent version.
+date: 2018-01-03
+author: Kirill Müller, Hadley Wickham
+photo:
+  url: https://unsplash.com/photos/cFeRWofFkw8
+  author: Patrick Schneider
+categories: [package]
+---
+
+
+
+<p>We’re excited to announce version 1.4.1 of the <em>tibble</em> package. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the latest version with:</p>
+<pre class="r"><code>install.packages(&quot;tibble&quot;)</code></pre>
+<p>This release contains the following major changes:</p>
+<ul>
+<li>Colored terminal output</li>
+<li>Compatibility fixes for code that expects data frames</li>
+<li>Improved <code>add_column()</code></li>
+</ul>
+<p>There are many other small improvements and bug fixes: please see the <a href="https://github.com/tidyverse/tibble/releases/tag/v1.4.1">release notes</a> for a complete list.</p>
+<p>Thanks to <a href="https://github.com/LaDilettante">Anh Le</a> for the <code>add_cases()</code> alias, to <a href="https://github.com/DavisVaughan">Davis Vaughan</a> for improving <code>add_column()</code>, to <a href="https://github.com/patperry">Patrick O. Perry</a> for converting C++ code to C, and to all the other contributors. Use the <a href="https://github.com/tidyverse/tibble/issues">issue tracker</a> to submit bugs or suggest ideas, your contributions are always welcome.</p>
+<div id="colored-terminal-output" class="section level2">
+<h2>Colored terminal output</h2>
+<p>The most important change of this release is the use of color and other markup for the output in the terminal:</p>
+<div class="figure">
+<img src="/images/tibble-1-4-1/screenshot.png" />
+
+</div>
+<ul>
+<li><p>Numeric columns have two displays. If there is room, the full number is displayed, making it easy to compare order of magnitude. Digits after the first three are dimmed to emphasise the important components. Negative numbers are shown in red. The display switches to scientific format if there is not enough room.</p></li>
+<li><p>Missing values get a yellow background. This makes it easier to distinguish the string <code>&quot;NA&quot;</code> from a missing value.</p></li>
+<li><p>Long character values and factors are abbreviated in order to fit more columns on screen.</p></li>
+</ul>
+<p>The highlighting is implemented by the new <em>pillar</em> package, which also offers extension points for packages such as <em>hms</em> that provide custom data types. See the <a href="https://cran.r-project.org/web/packages/tibble/vignettes/extending.html">Extending tibble</a> vignette for details. We’re still figuring out how to use colour most effectively, so expect this to change in minor ways in the in future. If you have feedback, please let us know by <a href="https://github.com/r-lib/pillar/issues">filing an issue</a> in the <em>pillar</em> package.</p>
+</div>
+<div id="compatibility-fixes" class="section level2">
+<h2>Compatibility fixes</h2>
+<p>Subsetting with logical or character indexes is now supported, just like with regular data frames:</p>
+<pre class="r"><code>tbl &lt;- tibble(a = 1:3, b = letters[1:3])
+tbl
+#&gt; # A tibble: 3 x 2
+#&gt;       a b    
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     1 a    
+#&gt; 2     2 b    
+#&gt; 3     3 c
+tbl[c(TRUE, FALSE, TRUE), ]
+#&gt; # A tibble: 2 x 2
+#&gt;       a b    
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     1 a    
+#&gt; 2     3 c
+tbl[c(&quot;2&quot;, &quot;odd-row-name&quot;), ]
+#&gt; # A tibble: 2 x 2
+#&gt;       a b    
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     2 b    
+#&gt; 2    NA &lt;NA&gt;</code></pre>
+<p>Passing <code>drop = TRUE</code> is now supported and gives the same result as for regular data frames:</p>
+<pre class="r"><code>tbl[1, 2, drop = TRUE]
+#&gt; [1] &quot;a&quot;
+tbl[1, drop = TRUE]
+#&gt; Warning: drop ignored
+#&gt; # A tibble: 3 x 1
+#&gt;       a
+#&gt;   &lt;int&gt;
+#&gt; 1     1
+#&gt; 2     2
+#&gt; 3     3</code></pre>
+<p>Both changes make it easier to use tibbles with code that is designed to work with data frames.</p>
+</div>
+<div id="improved-addition-of-columns" class="section level2">
+<h2>Improved addition of columns</h2>
+<p>The <code>add_column()</code> functions now keeps all attributes of the original tibble, this is important for packages that extend tibbles such as <a href="https://r-spatial.github.io/sf/">sf</a> or <a href="https://business-science.github.io/tibbletime/">tibbletime</a>.</p>
+<pre class="r"><code>library(tibbletime)
+#&gt; 
+#&gt; Attaching package: &#39;tibbletime&#39;
+#&gt; The following object is masked from &#39;package:stats&#39;:
+#&gt; 
+#&gt;     filter
+tbl_with_date &lt;- 
+  tibble(a = 1:3, date = Sys.Date() + a) %&gt;%
+  tbl_time(date)
+
+add_column(tbl_with_date, b = letters[1:3])
+#&gt; # A time tibble: 3 x 3
+#&gt; # Index: date
+#&gt;       a date       b    
+#&gt; * &lt;int&gt; &lt;date&gt;     &lt;chr&gt;
+#&gt; 1     1 2018-01-04 a    
+#&gt; 2     2 2018-01-05 b    
+#&gt; 3     3 2018-01-06 c</code></pre>
+</div>
+<div id="trailing-comma" class="section level2">
+<h2>Trailing comma</h2>
+<p>You can now add a trailing comma in function calls with an <code>...</code> argument:</p>
+<pre class="r"><code>tibble(
+  a = 1:3,
+  b = letters[1:3],
+)
+#&gt; # A tibble: 3 x 2
+#&gt;       a b    
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     1 a    
+#&gt; 2     2 b    
+#&gt; 3     3 c
+add_column(
+  tbl,
+  c = LETTERS[1:3],
+)
+#&gt; # A tibble: 3 x 3
+#&gt;       a b     c    
+#&gt;   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;
+#&gt; 1     1 a     A    
+#&gt; 2     2 b     B    
+#&gt; 3     3 c     C</code></pre>
+<p>This simplifies extending or adapting the code later, because you don’t need to remember to add or remove the trailing comma of the last function argument. (This functionality is available for all packages that support tidy evaluation, <em>rlang</em> &gt;= 0.1.6 is required.)</p>
+</div>
+<div id="acknowledgments" class="section level2">
+<h2>Acknowledgments</h2>
+<p>We received issues, pull requests, and comments from 109 people since tibble 1.2.0. Thanks to everyone: <a href="https://github.com/aalexandersson">@aalexandersson</a>, <a href="https://github.com/adnbps">@adnbps</a>, <a href="https://github.com/AkhilNairAmey">@AkhilNairAmey</a>, <a href="https://github.com/alexhallam">@alexhallam</a>, <a href="https://github.com/alibat">@alibat</a>, <a href="https://github.com/amjiuzi">@amjiuzi</a>, <a href="https://github.com/AndreMikulec">@AndreMikulec</a>, <a href="https://github.com/andrewjpfeiffer">@andrewjpfeiffer</a>, <a href="https://github.com/ashiklom">@ashiklom</a>, <a href="https://github.com/atribe">@atribe</a>, <a href="https://github.com/bapfeld">@bapfeld</a>, <a href="https://github.com/barnettjacob">@barnettjacob</a>, <a href="https://github.com/behrman">@behrman</a>, <a href="https://github.com/BillDunlap">@BillDunlap</a>, <a href="https://github.com/BruceZhaoR">@BruceZhaoR</a>, <a href="https://github.com/cassiusoat">@cassiusoat</a>, <a href="https://github.com/cboettig">@cboettig</a>, <a href="https://github.com/cderv">@cderv</a>, <a href="https://github.com/ckluss">@ckluss</a>, <a href="https://github.com/ClaytonJY">@ClaytonJY</a>, <a href="https://github.com/colearendt">@colearendt</a>, <a href="https://github.com/csgillespie">@csgillespie</a>, <a href="https://github.com/dalejbarr">@dalejbarr</a>, <a href="https://github.com/dan87134">@dan87134</a>, <a href="https://github.com/DavisVaughan">@DavisVaughan</a>, <a href="https://github.com/ddiez">@ddiez</a>, <a href="https://github.com/dhicks">@dhicks</a>, <a href="https://github.com/dlpd">@dlpd</a>, <a href="https://github.com/drewgendreau">@drewgendreau</a>, <a href="https://github.com/drolejoel">@drolejoel</a>, <a href="https://github.com/echasnovski">@echasnovski</a>, <a href="https://github.com/edzer">@edzer</a>, <a href="https://github.com/ElsLommelen">@ElsLommelen</a>, <a href="https://github.com/etiennebr">@etiennebr</a>, <a href="https://github.com/FabianRoger">@FabianRoger</a>, <a href="https://github.com/garrettgman">@garrettgman</a>, <a href="https://github.com/gavinsimpson">@gavinsimpson</a>, <a href="https://github.com/geotheory">@geotheory</a>, <a href="https://github.com/ginolhac">@ginolhac</a>, <a href="https://github.com/hadley">@hadley</a>, <a href="https://github.com/happyshows">@happyshows</a>, <a href="https://github.com/heavywatal">@heavywatal</a>, <a href="https://github.com/helix123">@helix123</a>, <a href="https://github.com/holstius">@holstius</a>, <a href="https://github.com/huftis">@huftis</a>, <a href="https://github.com/ianmcook">@ianmcook</a>, <a href="https://github.com/imanuelcostigan">@imanuelcostigan</a>, <a href="https://github.com/janschulz">@janschulz</a>, <a href="https://github.com/javierluraschi">@javierluraschi</a>, <a href="https://github.com/jennybc">@jennybc</a>, <a href="https://github.com/jimhester">@jimhester</a>, <a href="https://github.com/joelgombin">@joelgombin</a>, <a href="https://github.com/jonathan-g">@jonathan-g</a>, <a href="https://github.com/kendonB">@kendonB</a>, <a href="https://github.com/kevinushey">@kevinushey</a>, <a href="https://github.com/khughitt">@khughitt</a>, <a href="https://github.com/kismsu">@kismsu</a>, <a href="https://github.com/krlmlr">@krlmlr</a>, <a href="https://github.com/kwstat">@kwstat</a>, <a href="https://github.com/LaDilettante">@LaDilettante</a>, <a href="https://github.com/lcolladotor">@lcolladotor</a>, <a href="https://github.com/lionel-">@lionel-</a>, <a href="https://github.com/lpmarco">@lpmarco</a>, <a href="https://github.com/m-sostero">@m-sostero</a>, <a href="https://github.com/MarcusWalz">@MarcusWalz</a>, <a href="https://github.com/matteodefelice">@matteodefelice</a>, <a href="https://github.com/mattfidler">@mattfidler</a>, <a href="https://github.com/mgirlich">@mgirlich</a>, <a href="https://github.com/michaellevy">@michaellevy</a>, <a href="https://github.com/MikeBadescu">@MikeBadescu</a>, <a href="https://github.com/mkearney">@mkearney</a>, <a href="https://github.com/mmuurr">@mmuurr</a>, <a href="https://github.com/Monduiz">@Monduiz</a>, <a href="https://github.com/mubeenarasack">@mubeenarasack</a>, <a href="https://github.com/mundl">@mundl</a>, <a href="https://github.com/nbenn">@nbenn</a>, <a href="https://github.com/ncarchedi">@ncarchedi</a>, <a href="https://github.com/NikNakk">@NikNakk</a>, <a href="https://github.com/noamross">@noamross</a>, <a href="https://github.com/ntguardian">@ntguardian</a>, <a href="https://github.com/p0bs">@p0bs</a>, <a href="https://github.com/patperry">@patperry</a>, <a href="https://github.com/pgensler">@pgensler</a>, <a href="https://github.com/phalexo">@phalexo</a>, <a href="https://github.com/pssguy">@pssguy</a>, <a href="https://github.com/r2evans">@r2evans</a>, <a href="https://github.com/rentrop">@rentrop</a>, <a href="https://github.com/richierocks">@richierocks</a>, <a href="https://github.com/Rongpeng">@Rongpeng</a>, <a href="https://github.com/s-fleck">@s-fleck</a>, <a href="https://github.com/sainathadapa">@sainathadapa</a>, <a href="https://github.com/sebschub">@sebschub</a>, <a href="https://github.com/sibojan">@sibojan</a>, <a href="https://github.com/slonik-az">@slonik-az</a>, <a href="https://github.com/sskim47">@sskim47</a>, <a href="https://github.com/t-kalinowski">@t-kalinowski</a>, <a href="https://github.com/thercast">@thercast</a>, <a href="https://github.com/thornend">@thornend</a>, <a href="https://github.com/tjmahr">@tjmahr</a>, <a href="https://github.com/trinker">@trinker</a>, <a href="https://github.com/vnijs">@vnijs</a>, <a href="https://github.com/vspinu">@vspinu</a>, <a href="https://github.com/vvrably">@vvrably</a>, <a href="https://github.com/wibom">@wibom</a>, <a href="https://github.com/wpetry">@wpetry</a>, <a href="https://github.com/yeedle">@yeedle</a>, <a href="https://github.com/yihui">@yihui</a>, <a href="https://github.com/yutannihilation">@yutannihilation</a>, and <a href="https://github.com/Zedseayou">@Zedseayou</a>.</p>
+</div>

@@ -1,0 +1,207 @@
+---
+title: 'readr 1.3.1'
+slug: readr-1-3-1
+description: >
+  readr 1.3.1 is now on CRAN.
+date: '2018-12-27'
+author: Jim Hester
+photo:
+  url: https://unsplash.com/photos/XOW1WqrWNKg
+  author: Anastasia Zhenina
+categories:
+  - package
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+[readr](http://readr.tidyverse.org) 1.3.1 is now available on CRAN! Learn more
+about readr at <https://readr.tidyverse.org>. Detailed notes are always in the
+[change log](https://readr.tidyverse.org/news/index.html#readr-1-3-1).
+
+The readr package makes it easy to get rectangular data out of comma separated
+(csv), tab separated (tsv) or fixed width files (fwf) and into R. It
+is designed to flexibly parse many types of data found in the wild, while still
+cleanly failing when data unexpectedly changes. If you are new to readr, the
+best place to start is the [data import
+chapter](https://r4ds.had.co.nz/data-import.html) in R for data science.
+
+The easiest way to install the latest version from CRAN is to install the whole tidyverse.
+
+```{r eval = FALSE}
+install.packages("tidyverse")
+```
+
+Alternatively, install just readr from CRAN:
+
+```{r eval = FALSE}
+install.packages("readr")
+```
+
+readr is part of the core tidyverse, so load it with:
+
+```{r}
+library(tidyverse)
+```
+
+There have been three releases of readr recently, this post will highlight the
+most significant changes across all three releases.
+
+## Breaking Changes
+
+### Blank line skipping
+
+The logic for blank line skipping has been overhauled, which should make it
+easier to predict and more robust.
+
+Now both commented lines and completely blank lines are skipped by default.
+
+```{r}
+file <-
+"# A file with comments
+
+first_name,last_name
+Mary,Sue
+John,Doe
+"
+
+read_csv(file, comment = "#")
+```
+
+Some useful properties about `skip`.
+
+ - It is a _lower_ bound on the number of lines that will actually be skipped.
+   e.g. both of the following examples result in identical output.
+
+```{r}
+read_csv(file, skip = 1)
+read_csv(file, skip = 2)
+```
+
+- `skip` is enforced without looking at the line contents, so both commented
+  and blank lines are counted.
+
+So if you wanted to skip all the way including the `first_name,last_name` line
+you would need to use `skip = 3`. N.B. the results are identical with and
+without `comment = "#"`.
+
+```{r}
+read_csv(file, skip = 3, col_names = FALSE)
+```
+
+### Integer column guessing
+
+readr functions no longer guess columns are of type integer, instead these
+columns are guessed as numeric. Because R uses 32 bit integers and 64 bit
+doubles all integers can be stored in doubles, guaranteeing no loss of
+information. This change was made to remove errors when numeric columns were
+incorrectly guessed as integers. If you know a certain column is an integer and
+would like to read it as such you can do so by specifying the column type
+explicitly with the `col_types` argument.
+
+```{r}
+file <-
+"a,b
+1,3
+2,4
+"
+
+read_csv(file, col_type = c(b = "i"))
+```
+
+
+### tibble subclass
+
+readr now returns results with a `spec_tbl_df` subclass. This differs from a
+regular tibble only in that the `spec` attribute (which holds the column
+specification) is lost as soon as the object is subset and a normal `tbl_df`
+object is returned.
+
+Historically `tbl_df`'s lost their attributes once they were subset. However
+recent versions of tibble retain the attributes when subsetting, so the
+`spec_tbl_df` subclass is needed to retain the previous behavior.
+
+This should only break compatibility if you are explicitly checking the class
+of the returned object. A way to get backwards compatible behavior is to
+call subset with no arguments on your object, e.g. `x[]`.
+
+```{r}
+data <- read_csv(file)
+class(data)
+
+class(data[])
+```
+
+## New features
+
+### Colored specifications
+
+The most user visible change is coloration of the column specifications. The column types are now colored based on 4 broad classes
+
+- **<font color="#CC0000">Red</font>** - Character data (characters, factors)
+- **<font color="#4D9901">Green</font>** - Numeric data (doubles, integers)
+- **<font color="#C6A30D">Yellow</font>** - Logical data (logicals)
+- **<font color="#265A9E">Blue</font>** - Temporal data (dates, times, datetimes)
+
+```{r include = FALSE}
+library(nycflights13)
+set.seed(42)
+flights %>%
+  transmute(
+    carrier, flight, tailnum, origin, dest,
+    departure = lubridate::make_datetime(year, month, day, hour, minute),
+    delayed = arr_delay > 15) %>%
+  sample_n(25) %>%
+  write_tsv("flights.tsv")
+
+readr::read_tsv("flights.tsv")
+```
+
+![Readr column specifications](/images/readr-1.3.1/readr-colors.png)
+
+By coloring the specification, we hope to make it easier to spot when a column
+differs from the rest or when guessing leads to import with an unexpected type.
+
+The coloring can be disabled by setting `options(crayon.enabled = FALSE)`.
+
+### Melt functions
+
+There is now a family of `melt_*()` functions in readr. These functions store
+data in 'long' or 'melted' form, where each row corresponds to a single
+value in the dataset. This form is useful when your data is ragged and not
+rectangular.
+
+```{r}
+file <-
+"a,b,c
+1,2
+w,x,y,z"
+
+readr::melt_csv(file)
+```
+
+Thanks to [Duncan Garmonsway (&#x0040;nacnudus)](https://github.com/nacnudus) for great work on the idea and
+implementation of the `melt_*()` functions!
+
+### Connection improvements
+
+In previous versions of readr the connections were read into an in-memory raw
+vector, then passed to the readr functions. This made reading connections for
+small to medium datasets fast, but also meant that the dataset had to fit into
+memory at least twice (once for the raw data, once for the parsed data). It
+also meant that reading could not begin until the full vector was read through
+the connection.
+
+We now write the connection to a temporary file (in the R temporary directory),
+than parse that temporary file. This means connections may take a little longer
+to be read, but also means they will no longer need to fit into memory. It also
+allows the use of the chunked readers to process the data in parts.
+
+Future improvements to readr could allow it to parse data from connections in a
+streaming fashion, which would avoid many of the drawbacks of either approach.
+
+## Acknowledgements
+
+Thank you to the 188 contributors who made this release possible by opening issues or submitting pull requests:
+[&#x0040;aaronschiff](https://github.com/aaronschiff), [&#x0040;abelew](https://github.com/abelew), [&#x0040;Abhijitsj](https://github.com/Abhijitsj), [&#x0040;ADraginda](https://github.com/ADraginda), [&#x0040;adrtod](https://github.com/adrtod), [&#x0040;ajdamico](https://github.com/ajdamico), [&#x0040;alessandro-gentilini](https://github.com/alessandro-gentilini), [&#x0040;arendsee](https://github.com/arendsee), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;bbrewington](https://github.com/bbrewington), [&#x0040;benmarwick](https://github.com/benmarwick), [&#x0040;benwhalley](https://github.com/benwhalley), [&#x0040;benzipperer](https://github.com/benzipperer), [&#x0040;BerwinTurlach](https://github.com/BerwinTurlach), [&#x0040;bheavner](https://github.com/bheavner), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;biostu24](https://github.com/biostu24), [&#x0040;blablablerg](https://github.com/blablablerg), [&#x0040;blakeboswell](https://github.com/blakeboswell), [&#x0040;brainfood](https://github.com/brainfood), [&#x0040;brianstamper](https://github.com/brianstamper), [&#x0040;brisk022](https://github.com/brisk022), [&#x0040;Brunohnp](https://github.com/Brunohnp), [&#x0040;bschneidr](https://github.com/bschneidr), [&#x0040;cameron-faerber](https://github.com/cameron-faerber), [&#x0040;Carenser](https://github.com/Carenser), [&#x0040;cboettig](https://github.com/cboettig), [&#x0040;cderv](https://github.com/cderv), [&#x0040;ChiWPak](https://github.com/ChiWPak), [&#x0040;christellacaze](https://github.com/christellacaze), [&#x0040;cimentadaj](https://github.com/cimentadaj), [&#x0040;conchoecia](https://github.com/conchoecia), [&#x0040;cuttlefish44](https://github.com/cuttlefish44), [&#x0040;dan-reznik](https://github.com/dan-reznik), [&#x0040;danielsjf](https://github.com/danielsjf), [&#x0040;dapperjapper](https://github.com/dapperjapper), [&#x0040;DarioS](https://github.com/DarioS), [&#x0040;DataStrategist](https://github.com/DataStrategist), [&#x0040;DDWetzel](https://github.com/DDWetzel), [&#x0040;DevGri](https://github.com/DevGri), [&#x0040;dfjenkins3](https://github.com/dfjenkins3), [&#x0040;dhbrand](https://github.com/dhbrand), [&#x0040;dhimmel](https://github.com/dhimmel), [&#x0040;digital-dharma](https://github.com/digital-dharma), [&#x0040;dioh](https://github.com/dioh), [&#x0040;djbirke](https://github.com/djbirke), [&#x0040;dkulp2](https://github.com/dkulp2), [&#x0040;dongzhuoer](https://github.com/dongzhuoer), [&#x0040;dpprdan](https://github.com/dpprdan), [&#x0040;Dulani](https://github.com/Dulani), [&#x0040;eddelbuettel](https://github.com/eddelbuettel), [&#x0040;ElToro1966](https://github.com/ElToro1966), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;Enchufa2](https://github.com/Enchufa2), [&#x0040;epetrovski](https://github.com/epetrovski), [&#x0040;eric-pedersen](https://github.com/eric-pedersen), [&#x0040;EricHe98](https://github.com/EricHe98), [&#x0040;EruIluvatar](https://github.com/EruIluvatar), [&#x0040;evelynmitchell](https://github.com/evelynmitchell), [&#x0040;EvgenyPetrovsky](https://github.com/EvgenyPetrovsky), [&#x0040;gandalf-randolph](https://github.com/gandalf-randolph), [&#x0040;GegznaV](https://github.com/GegznaV), [&#x0040;gergness](https://github.com/gergness), [&#x0040;ghost](https://github.com/ghost), [&#x0040;gksmyth](https://github.com/gksmyth), [&#x0040;gregrs-uk](https://github.com/gregrs-uk), [&#x0040;gwarnes-mdsol](https://github.com/gwarnes-mdsol), [&#x0040;ha0ye](https://github.com/ha0ye), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hbeale](https://github.com/hbeale), [&#x0040;Henri-Lo](https://github.com/Henri-Lo), [&#x0040;hiltonmbr](https://github.com/hiltonmbr), [&#x0040;hmorzaria](https://github.com/hmorzaria), [&#x0040;holstius](https://github.com/holstius), [&#x0040;hstojic](https://github.com/hstojic), [&#x0040;huftis](https://github.com/huftis), [&#x0040;ilyasustun](https://github.com/ilyasustun), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;isomorphisms](https://github.com/isomorphisms), [&#x0040;isteves](https://github.com/isteves), [&#x0040;j-bartholome](https://github.com/j-bartholome), [&#x0040;J535D165](https://github.com/J535D165), [&#x0040;jaearick](https://github.com/jaearick), [&#x0040;jasonserviss](https://github.com/jasonserviss), [&#x0040;javierluraschi](https://github.com/javierluraschi), [&#x0040;jdeboer](https://github.com/jdeboer), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jhpoelen](https://github.com/jhpoelen), [&#x0040;jiho](https://github.com/jiho), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;jimmo](https://github.com/jimmo), [&#x0040;johncassil](https://github.com/johncassil), [&#x0040;jomuller](https://github.com/jomuller), [&#x0040;jonovik](https://github.com/jonovik), [&#x0040;josiekre](https://github.com/josiekre), [&#x0040;jpiggod](https://github.com/jpiggod), [&#x0040;jschelbert](https://github.com/jschelbert), [&#x0040;jstaf](https://github.com/jstaf), [&#x0040;jtelleria](https://github.com/jtelleria), [&#x0040;jtelleriar](https://github.com/jtelleriar), [&#x0040;jtr13](https://github.com/jtr13), [&#x0040;juyeongkim](https://github.com/juyeongkim), [&#x0040;jzadra](https://github.com/jzadra), [&#x0040;kadekillary](https://github.com/kadekillary), [&#x0040;kendonB](https://github.com/kendonB), [&#x0040;kerry-ja](https://github.com/kerry-ja), [&#x0040;kevinushey](https://github.com/kevinushey), [&#x0040;kforner](https://github.com/kforner), [&#x0040;kk22boy](https://github.com/kk22boy), [&#x0040;KKulma](https://github.com/KKulma), [&#x0040;kos59125](https://github.com/kos59125), [&#x0040;kwstat](https://github.com/kwstat), [&#x0040;laresbernardo](https://github.com/laresbernardo), [&#x0040;lbartnik](https://github.com/lbartnik), [&#x0040;ldecicco-USGS](https://github.com/ldecicco-USGS), [&#x0040;Leo-Lee15](https://github.com/Leo-Lee15), [&#x0040;lsusatyo-gcmlp](https://github.com/lsusatyo-gcmlp), [&#x0040;martinjhnhadley](https://github.com/martinjhnhadley), [&#x0040;martj42](https://github.com/martj42), [&#x0040;matthewarbo](https://github.com/matthewarbo), [&#x0040;MatthieuStigler](https://github.com/MatthieuStigler), [&#x0040;mawds](https://github.com/mawds), [&#x0040;md0u80c9](https://github.com/md0u80c9), [&#x0040;mgirlich](https://github.com/mgirlich), [&#x0040;mikmart](https://github.com/mikmart), [&#x0040;mirkhosro](https://github.com/mirkhosro), [&#x0040;mohkar123](https://github.com/mohkar123), [&#x0040;momeara](https://github.com/momeara), [&#x0040;msberends](https://github.com/msberends), [&#x0040;msmall318](https://github.com/msmall318), [&#x0040;Naboum](https://github.com/Naboum), [&#x0040;nacnudus](https://github.com/nacnudus), [&#x0040;namelessjon](https://github.com/namelessjon), [&#x0040;nan1949](https://github.com/nan1949), [&#x0040;nbenn](https://github.com/nbenn), [&#x0040;neveldo](https://github.com/neveldo), [&#x0040;nevrome](https://github.com/nevrome), [&#x0040;NicolasImberty](https://github.com/NicolasImberty), [&#x0040;normandev](https://github.com/normandev), [&#x0040;olgamie](https://github.com/olgamie), [&#x0040;osorensen](https://github.com/osorensen), [&#x0040;pachevalier](https://github.com/pachevalier), [&#x0040;pakuipers](https://github.com/pakuipers), [&#x0040;pgensler](https://github.com/pgensler), [&#x0040;PMassicotte](https://github.com/PMassicotte), [&#x0040;prebours](https://github.com/prebours), [&#x0040;prosoitos](https://github.com/prosoitos), [&#x0040;QuLogic](https://github.com/QuLogic), [&#x0040;rafazaya](https://github.com/rafazaya), [&#x0040;ramiromagno](https://github.com/ramiromagno), [&#x0040;randomgambit](https://github.com/randomgambit), [&#x0040;raw937](https://github.com/raw937), [&#x0040;rdisalv2](https://github.com/rdisalv2), [&#x0040;rensa](https://github.com/rensa), [&#x0040;richierocks](https://github.com/richierocks), [&#x0040;RickPack](https://github.com/RickPack), [&#x0040;rmcd1024](https://github.com/rmcd1024), [&#x0040;RomeroBarata](https://github.com/RomeroBarata), [&#x0040;roshnamohan](https://github.com/roshnamohan), [&#x0040;ryanatanner](https://github.com/ryanatanner), [&#x0040;s-fleck](https://github.com/s-fleck), [&#x0040;saghirb](https://github.com/saghirb), [&#x0040;sambrady3](https://github.com/sambrady3), [&#x0040;seandavi](https://github.com/seandavi), [&#x0040;seanpor](https://github.com/seanpor), [&#x0040;sellisd](https://github.com/sellisd), [&#x0040;sibojan](https://github.com/sibojan), [&#x0040;SimonGoring](https://github.com/SimonGoring), [&#x0040;sindile](https://github.com/sindile), [&#x0040;statsccpr](https://github.com/statsccpr), [&#x0040;stelsemeyer](https://github.com/stelsemeyer), [&#x0040;StevenMMortimer](https://github.com/StevenMMortimer), [&#x0040;stianlagstad](https://github.com/stianlagstad), [&#x0040;tarmenic](https://github.com/tarmenic), [&#x0040;tdsmith](https://github.com/tdsmith), [&#x0040;thanosgatos](https://github.com/thanosgatos), [&#x0040;tigertoes](https://github.com/tigertoes), [&#x0040;tomsing1](https://github.com/tomsing1), [&#x0040;TPreijers](https://github.com/TPreijers), [&#x0040;tres-pitt](https://github.com/tres-pitt), [&#x0040;tungmilan](https://github.com/tungmilan), [&#x0040;wgrundlingh](https://github.com/wgrundlingh), [&#x0040;wibeasley](https://github.com/wibeasley), [&#x0040;willemvdb42](https://github.com/willemvdb42), [&#x0040;xhudik](https://github.com/xhudik), [&#x0040;yutannihilation](https://github.com/yutannihilation), [&#x0040;Zack-83](https://github.com/Zack-83), and [&#x0040;zeehio](https://github.com/zeehio)
