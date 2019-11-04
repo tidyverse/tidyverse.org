@@ -194,9 +194,9 @@ We have some cool new features in the pipeline such as
 [making styler ignore some lines](https://github.com/r-lib/styler/pull/560), 
 which you can try out by installing from the respective branches. Feedback welcome.
 
-## Acknowledgements
+## Acknowledgments
 
-We are of grateful to all of the people who contributed not just code, but also 
+We are grateful to all of the people who contributed not just code, but also 
 issues and comments over the last two years:
 
 [&#x0040;aaronrudkin](https://github.com/aaronrudkin),
