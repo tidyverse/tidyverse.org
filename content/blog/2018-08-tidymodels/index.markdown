@@ -7,30 +7,42 @@ description: >
   tidymodels 0.0.1 is on CRAN.
 categories:
   - package
+photo:
+  url: https://github.com/tidymodels
+  author: tidymodels
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE, comment = "#>", 
-  fig.width = 7, 
-  fig.align = 'center',
-  fig.asp = 0.618, # 1 / phi
-  out.width = "700px"
-)
-```
+
 
 The `tidymodels` package is now on [CRAN](http://cran.r-project.org/web/packages/tidymodels). Similar to its sister package `tidyverse`, it can be used to install and load tidyverse packages related to modeling and analysis. Currently, it installs and attaches [`broom`](https://broom.tidyverse.org/), [`dplyr`](http://dplyr.tidyverse.org), [`ggplot2`](https://ggplot2.tidyverse.org/), [`infer`](http://infer.netlify.com/), [`purrr`](https://purrr.tidyverse.org/), [`recipes`](https://tidymodels.github.io/recipes/), [`rsample`](https://tidymodels.github.io/rsample/), [`tibble`](https://tibble.tidyverse.org/), and [`yardstick`](https://tidymodels.github.io/yardstick/). 
 
-```{r load}
+
+```r
 library(tidymodels)
+#> ── Attaching packages ───────────────────────────────── tidymodels 0.0.1 ──
+#> ✔ ggplot2   3.0.0     ✔ recipes   0.1.3
+#> ✔ tibble    1.4.2     ✔ broom     0.5.0
+#> ✔ purrr     0.2.5     ✔ yardstick 0.0.1
+#> ✔ dplyr     0.7.6     ✔ infer     0.3.0
+#> ✔ rsample   0.0.2
+#> ── Conflicts ──────────────────────────────────── tidymodels_conflicts() ──
+#> ✖ rsample::fill() masks tidyr::fill()
+#> ✖ dplyr::filter() masks stats::filter()
+#> ✖ dplyr::lag()    masks stats::lag()
+#> ✖ recipes::step() masks stats::step()
 ```
+
 
 
 `tidymodels` also contains a burgeoning list of _tagged packages_. These can be used to install sets of packages for specific purposes. For example, if you are in need of additional tidy tools for analyzing text data:
 
-```{r tag}
+
+```r
 tag_attach("text analysis")
+#> ── Attaching packages ───────────────────────────────── tidymodels 0.0.1 ──
+#> ✔ tidytext 0.1.9     ✔ keras    2.1.6
 ```
+
 
 These tags will be updated with each version of `tidymodels` as new packages are released. 
 
