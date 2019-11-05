@@ -7,6 +7,7 @@ description: >
   Join us for tidyverse developer day on January 19!
 categories:
   - other
+tags: [tidyverse-dev-day]
 photo:
   url: https://unsplash.com/photos/yB5cYEq7y2U
   author: fancycrave
