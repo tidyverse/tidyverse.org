@@ -2,13 +2,13 @@
 title: testthat 2.3.0
 author: Hadley Wickham
 date: '2019-11-04'
-slug: tidyr-2-3-0
+slug: testthat-2-3-0
 categories:
   - package
 tags:
   - r-lib
   - devtools
-  - tidyr
+  - testthat
 photo:
   url: https://unsplash.com/photos/n_vD-7RxA3Q
   author: Roman Kraft
@@ -39,7 +39,7 @@ This release features two main improvements:
 * A polished `verify_output()` that is ready for you to use to test your
   print methods and error messages.
 
-For a complete list of all changes, please see the [release notes](https://testthat.r-lib.org/news/index.html#testthat-2-3-0).  
+For a complete list of changes, please see the [release notes](https://testthat.r-lib.org/news/index.html#testthat-2-3-0).  
 
 
 ```r
@@ -85,9 +85,11 @@ Instead, the best you can do is to check the results with your eyeballs every ti
 
 You'll need to use `verify_output()` in concert with git.
 Whenever the output changes, you'll get a test failure, but to see the change, you'll need to use git.
-If the change is correct, commit it with git; if it's incorrect, revert it.
+If the change is correct, commit it with git. 
+If it's incorrect, fix your code and rerun the tests. 
+Once fixed, the git diff will disappear.
 
-`verify_output()` works a little like RMarkdown: you give it some R code and it will run it and interleave the input and ouptut.
+`verify_output()` works a little like RMarkdown: you give it some R code and it will run it, interleaving the input and output.
 For example, imagine we were writing some tests to check that tibbles print correctly:
 
 
@@ -126,7 +128,7 @@ That test yields a `test-print-dataframe.txt` containing this output:
 
 ```
 
-Unfortunately there's no way for `verify_output()` to capture comments, so you can instead use bare strings if you want comments to appear in the output. If you start the comment with `#` it will be formatted as a heading:
+Unfortunately, there's no way for `verify_output()` to capture comments, so you can instead use bare strings if you want comments to appear in the output. If you start the comment with `#` it will be formatted as a heading:
 
 
 ```r
@@ -173,3 +175,5 @@ wide tibbles
 
 `verify_output()` is automatically skipped when run on CRAN.
 This avoids false positives because it's very easy to accidentally depend on the code from other packages, and failure does not imply incorrect computation, just a change in presentation.
+In other words, `verify_output()` is meant to monitor the evolution of outputs produced by your package rather than checking for regressions. 
+In this way, it is similar to the [vdiffr](http://vdiffr.r-lib.org/) extension to testthat which uses the same approach to monitor the evolution of plots.
