@@ -22,6 +22,9 @@ testthat makes it easy to turn your existing informal tests into formal automate
 testthat is the most popular unit-testing package for R, and is used by over 4,000 CRAN and Bioconductor packages. 
 You can learn more about unit testing at <https://r-pkgs.org/tests.html>. 
 
+(We didn't write a blog post about testthat 2.2.0 because it only introduced a single, experimental, new feature: `verify_output()`. 
+It has now matured to the point we think you should also try it out, so it's discussed below.)
+
 Install the latest version of testthat with:
 
 
@@ -36,9 +39,6 @@ This release features two main improvements:
 * A polished `verify_output()` that is ready for you to use to test your
   print methods and error messages.
 
-(We didn't write a blog post about testthat 2.2.0 because it only introduced a single experimental new feature: `verify_output()`. 
-It's now matured to the point we think you should also try it out, so it's discussed below.)
-
 For a complete list of all changes, please see the [release notes](https://testthat.r-lib.org/news/index.html#testthat-2-3-0).  
 
 
@@ -49,7 +49,7 @@ library(testthat)
 ## Errors
 
 The main improvements are mostly behind the scenes: we have overhauled the handling of errors and backtraces so that you should get more informative outputs when tests error unexpectedly or fail. 
-It's a little hard to demonstrate this authentically in an RMarkdown document, but if you have an error inside a test, like this:
+It's hard to authentically demonstrate this in an RMarkdown document, but if you have an error inside a test, like this:
 
 
 ```r
@@ -78,14 +78,14 @@ The previous version only showed the error message, which wasn't terribly useful
 
 ## `verify_output()`
 
-`verify_output()` is designed to test output aimed at a human, like print methods and error message.
+`verify_output()` is designed to test output aimed at a human, like print methods and error messages.
 Here you want to test that the output is useful to a human, but there's obviously no way to do that automatically.
-Instead, the best you can do is to check the results with your eyeballs, every time the results change.
-This makes `verify_output()` a type of visual regression test.
+Instead, the best you can do is to check the results with your eyeballs every time the results change.
+`verify_output()` is designed to help you do this, making it a type of visual regression test.
 
-`verify_output()` is designed to work with `git`.
-It will cause a test failure whenever the output changes, but it relies on you to use `git` to see the change.
-If the change is correct, you'll commit the new version with git; if it's incorrect, you'll revert it with `git`.
+You'll need to use `verify_output()` in concert with git.
+Whenever the output changes, you'll get a test failure, but to see the change, you'll need to use git.
+If the change is correct, commit it with git; if it's incorrect, revert it.
 
 `verify_output()` works a little like RMarkdown: you give it some R code and it will run it and interleave the input and ouptut.
 For example, imagine we were writing some tests to check that tibbles print correctly:
@@ -104,7 +104,7 @@ test_that("tibbles print usefully", {
 })
 ```
 
-That will yield a `test-print-dataframe.txt` containing this output:
+That test yields a `test-print-dataframe.txt` containing this output:
 
 ```
 > df1 <- tibble(x = 1:1e+06)
@@ -137,7 +137,7 @@ test_that("tibbles print usefully", {
     print(df1)
     
     "# wide tibbles"
-    "not yet implemented"
+    "not yet written"
   })
 })
 ```
@@ -168,8 +168,8 @@ long tibbles
 wide tibbles
 ============
 
-> # not yet implemented
+> # not yet written
 ```
 
 `verify_output()` is automatically skipped when run on CRAN.
-This avoids false positives because it's very easy to accidentally depend on the code from other acpages, and failure does not imply incorrect computation, just a change in presentation.
+This avoids false positives because it's very easy to accidentally depend on the code from other packages, and failure does not imply incorrect computation, just a change in presentation.
