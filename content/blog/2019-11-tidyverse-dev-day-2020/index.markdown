@@ -14,7 +14,7 @@ photo:
   author: Garth Pratt
 ---
 
-We're excited to announce that we'll be holding our next [**tidyverse developer day**](https://tdd-2019-jan.eventbrite.com/) on the Friday following [rstudio::conf](https://www.rstudio.com/conference/) in San Francisco. The event will take place from 9:00 AM – 5:00 PM at [Microsoft Reactor](https://goo.gl/maps/WkTivUvisfvVPRxt8), which is about a mile away from the conference venue (though tickets are open to anyone who wants to join).
+We're thrilled to announce that we'll be holding our next [**tidyverse developer day**](https://tdd-2019-jan.eventbrite.com/) on the Friday following [rstudio::conf](https://www.rstudio.com/conference/) in San Francisco. The event will take place from 9:00 AM – 5:00 PM at [Microsoft Reactor](https://goo.gl/maps/WkTivUvisfvVPRxt8), which is about a mile away from the conference venue (though you're welcome to attend even if you're not coming to the conferece).
 
  * 📆 **When:** 31 January, 9 am &#x2013; 5 pm.  
  * 🌉 **Where:** [Microsoft Reactor, San Francisco](https://goo.gl/maps/WkTivUvisfvVPRxt8).  
@@ -29,7 +29,7 @@ now**!](https://www.eventbrite.com/e/tidyverse-developer-day-jan-2020-tickets-79
 Tickets cost $10; we're charging a small fee because space is limited. All fees
 will be donated to a non-profit.
 
-Want to know more? Read about our [most recent tidy dev day](https://www.tidyverse.org/blog/2019/09/tidy-dev-day-toulouse/).
+Want to know more? Read about the [last tidy dev day](https://www.tidyverse.org/blog/2019/09/tidy-dev-day-toulouse/).
 
 ## Code of conduct
 
