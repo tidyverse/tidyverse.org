@@ -78,13 +78,14 @@ The previous version only showed the error message, which wasn't terribly useful
 
 ## `verify_output()`
 
-`verify_output()` provides a new tool in your testing arsenal. 
-Rather being a _unit_ testing tool, `verify_output()` is a _regression_ testing tool.
-This makes it useful for cases where you can't describe the correct output with code, and instead the best you can do is to check the results with your eyeballs, and then fail if the result changes.
-
 `verify_output()` is designed to test output aimed at a human, like print methods and error message.
 Here you want to test that the output is useful to a human, but there's obviously no way to do that automatically.
-Instead the best you can do is make the output explicit by capturing it into a file, which when used with `git`, makes it easy to see if something has changed.
+Instead, the best you can do is to check the results with your eyeballs, every time the results change.
+This makes `verify_output()` a type of visual regression test.
+
+`verify_output()` is designed to work with `git`.
+It will cause a test failure whenever the output changes, but it relies on you to use `git` to see the change.
+If the change is correct, you'll commit the new version with git; if it's incorrect, you'll revert it with `git`.
 
 `verify_output()` works a little like RMarkdown: you give it some R code and it will run it and interleave the input and ouptut.
 For example, imagine we were writing some tests to check that tibbles print correctly:
