@@ -7,6 +7,7 @@ date: '2019-09-06'
 slug: tidy-dev-day-toulouse
 categories:
   - other
+tags: [tidyverse-dev-day]
 photo:
   author: Romain François
 ---

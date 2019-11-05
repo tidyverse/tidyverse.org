@@ -7,6 +7,7 @@ description: >
   Join us for a pre-useR! tidyverse developer day on July 8!
 categories:
   - other
+tags: [tidyverse-dev-day]
 photo:
   url: https://photos.app.goo.gl/g5Fj6GmHVXZhTsPj8
   author: JD Long

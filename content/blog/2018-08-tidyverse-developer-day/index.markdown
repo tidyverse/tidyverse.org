@@ -7,6 +7,7 @@ description: >
   Save the date for tidyverse developer day the Saturday following rstudio::conf!
 categories:
   - other
+tags: [tidyverse-dev-day]
 photo:
   url: https://unsplash.com/photos/ZMMXSRMSoI8
   author: rawpixel
