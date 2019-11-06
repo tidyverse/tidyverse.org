@@ -1,7 +1,7 @@
 ---
 title: testthat 2.3.0
 author: Hadley Wickham
-date: '2019-11-04'
+date: '2019-11-06'
 slug: testthat-2-3-0
 categories:
   - package
