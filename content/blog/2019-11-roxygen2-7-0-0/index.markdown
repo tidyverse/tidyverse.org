@@ -14,7 +14,7 @@ photo:
   author: Art Lasovsky
 ---
 
-We're exceedingly happy to announce the release of [roxygen2 7.0.0](https://roxygen2.r-lib.org). roxygen2 allows you to write specially formatted R comments that generate R documentation files (`man/*.Rd`) and the `NAMESPACE` file. roxygen2 is used by over 8,000 CRAN packages.
+We're exceedingly happy to announce the release of [roxygen2 7.0.0](https://roxygen2.r-lib.org). roxygen2 allows you to write specially formatted R comments that generate R documentation files (`man/*.Rd`) and a `NAMESPACE` file. roxygen2 is used by over 8,000 CRAN packages.
 
 Install the latest version of roxygen2 with:
 
@@ -26,13 +26,13 @@ install.packages("roxygen2")
 This a huge release containing [many minor improvements and bug fixes](https://roxygen2.r-lib.org/news/index.html#roxygen2-7-0-0). This blog post focusses on seven major improvements:
 
 * roxygen2 is no longer (ironically!) the worst documented package. It has 
-  fresh new website, <https://roxygen2.r-lib.org>, and the vignettes have been
-  updated to dsicussed 
+  fresh new website, <https://roxygen2.r-lib.org>, and the vignettes have 
+  all been updated.
 
 * We've made a number of tweaks to the rendering of `.Rd`. Most importantly
-  you no longer needed to escape `%` in markdown, and long function usages 
-  are spread across multiple lines. We've also removed a few old features that 
-  are no longer supported.
+  you no longer needed to escape `%` in markdown, and functions with many
+  arguments are displayed with one argument per line. We've also removed a few 
+  old features that are no longer supported.
 
 * You can create tables and headings from markdown.
 
@@ -41,17 +41,19 @@ This a huge release containing [many minor improvements and bug fixes](https://r
 
 * You can now document R6 classes!
 
-* The way in which roxygen2 loads your code is considerably more flexible, 
-  making it easier to use roxygen2 in a variety of workflows.
+* A package can declare how roxygen2 should load its code, making it easier to 
+  use roxygen2 in wider variety of workflows.
 
-* roxygen2 is now readily extensible and it's easy to create new tags and
-  new roclets in other packages.
+* roxygen2 has a documented extension mechanism so that it's easy to implement
+  new tags and new roclets in other packages.
 
 ## Improved documentation
 
-roxygen2 finally (!!) has a [pkgdown](https://pkgdown.r-lib.org/) website! I used this as an opportunity to look at all the vignettes and make sure they are comprehensive and readable:
+roxygen2 finally (!!) has a [pkgdown](https://pkgdown.r-lib.org/) website! 
 
-* [Rd tags](https://roxygen2.r-lib.org/articles/rd.html)
+I used this as an opportunity to look at all the vignettes and make sure they are comprehensive and readable. These are now the best place to go if you want more details on any roxygen2 tag:
+
+* [Rd](https://roxygen2.r-lib.org/articles/rd.html)
 * [Inline Rd formatting](https://roxygen2.r-lib.org/articles/rd-formatting.html)
 * [`NAMESPACE`](https://roxygen2.r-lib.org/articles/namespace.html)
 
@@ -61,15 +63,15 @@ Of course, documentation can always be improved, so if you find something hard t
 
 When you run roxygen2 7.0.0 for the first time, you'll notice a number of changes to the rendered `.Rd`. The two most important are:
 
-* `%` (the Rd comments symbol) is now automatically escaped in markdown text. That means if you previously escaped it with `\%`, you'll need to remove the backslash and take it back to `%`. 
+* `%` (the Rd comment symbol) is now automatically escaped in markdown text. That means if you previously escaped it with `\%`, you'll need to remove the backslash and take it back to `%`. 
 
-    If you forget to do this, you'll see confusing R CMD check notes like:
+    If you forget to do this, you'll see confusing `R CMD check` notes like:
 
     * `unknown macro '\item'`
     * `unexpected section header '\description'`
     * `unexpected END_OF_INPUT`
 
-* The formatting of functon usage has changed. Previously, function usage usage was wrapped to produce the smallest number of lines, e.g.:
+* The formatting of functon usage has changed. Previously, function usage was wrapped to produce the smallest number of lines, e.g.:
       
     
     ```r
@@ -77,7 +79,7 @@ When you run roxygen2 7.0.0 for the first time, you'll notice a number of change
       registry = default_tags(), global_options = list())
     ```
     
-    Now it is wrapped so that each argument gets its own line (#820):
+    Now it is wrapped so that each argument gets its own line:
     
     
     ```r
@@ -98,15 +100,15 @@ When you run roxygen2 7.0.0 for the first time, you'll notice a number of change
 
 You'll also notice a number of small improvements:
 
-* `@family` automatically adds `()` when linking to functions,
-  and prints each link on its own line (to improve diffs).
-
 * Markdown code is converted to to either `\code{}` or `\verb{}`, depending on 
   whether it not is R code. For example, `` `foofy()` `` will become 
   `\code{foofy()}` but `` `1 +` `` will become `\verb{1 + }`. This better 
-  matches the intended usage of the `\code{}` and `\verb{}` macros, and should 
+  matches the intended usage of the `\code{}` and `\verb{}` macros and should 
   make it easier to include arbitrary "code" snippets in documentation without 
   causing Rd failures.
+
+* `@family` automatically adds `()` when linking to functions,
+  and prints each link on its own line (to improve diffs).
   
 We've also removed a few features to simplify the code and/or clearly advertise that certain features are no longer supported:
 
@@ -126,7 +128,7 @@ We've also removed a few features to simplify the code and/or clearly advertise 
 
 There are two major improvements to roxygen2's markdown support: you can now use markdown headers and tables.
 
-Markdown headings can be used top-level tags like `@description`, `@details`, and `@returns`. Level 1 headings create a new top-level `\section{}` and Level 2 headings (and below) create nested `\subsection{}`s:
+Markdown headings can be used in top-level tags like `@description`, `@details`, and `@returns`. Level 1 headings create a new top-level `\section{}` and Level 2 headings (and below) create nested `\subsection{}`s:
 
 ```R
 #' @details
@@ -154,24 +156,51 @@ is translated to
 }
 ```
 
-Markdown tables in the [GFM table](https://github.github.com/gfm/#tables-extension-) style are converted to `\tabular{}` macros:
+Markdown tables used the [GFM table syntax](https://github.github.com/gfm/#tables-extension-) and are converted to `\tabular{}` macros. For example,
 
 ```R
 #' | foo | bar |
-#' | --- | --- |
+#' | :-- | --: |
 #' | baz | bim |
 ```
 
 is translated to
 
 ```
-\tabular{ll}{
+\tabular{lr}{
    foo \tab bar \cr
    baz \tab bim \cr
 }
 ```
 
-Usimg unsupported markdown features (like blockquotes, inline HTML, and horizontal rules) will now produce an informative message.
+Lastly, using unsupported markdown features (like blockquotes, inline HTML, and horizontal rules) will now produce an informative message.
+
+## `@includeRmd`
+
+`@includeRmd` provides a new tool that allows you to share text and code amongst `.Rmd`  and `.Rd`. For example, if you have `vignettes/common.Rmd`, you can include it:
+
+*   In documentation, with:
+
+    ````
+    #' @includeRmd vignettes/common.Rmd
+    ````
+  
+*   In other vignettes with:
+
+    ````
+    ```{r child = "common.Rmd"}
+    ```
+    ````
+    
+*   In `README.Rmd`, with:
+
+    ````
+    ```{r child = "vignettes/common.Rmd"}
+    ```
+    ````
+
+Learn more in 
+[`vignette("rd")`](https://roxygen2.r-lib.org/articles/rd.html#including-external--rmd-md-files)
 
 ## R6 documentation
 
@@ -226,33 +255,6 @@ Learn more in [`vignette("rd")`](https://roxygen2.r-lib.org/articles/rd.html#r6)
 
 R6 documentation is a work in progress, so please let us know if you find anything missing or confusing. If you document a package with many R6 classes, you will get many warnings about missing documentation. If you want to suppress those warnings, you can turn off R6 documetation with the R6 option, i.e. put `Roxygen: list(r6 = FALSE)` in your `DESCRIPTION`.
 
-## `@includeRmd`
-
-`@includeRmd` provides a new tool that allows you to share text and prose between `.Rmd`  and `.Rd`. For example, if you have `vignettes/common.Rmd`, you can include it:
-
-*   In documentation, with 
-
-    ```R
-    #' @includeRmd vignettes/common.Rmd
-    ```
-
-*   In other vignettes with:
-
-    ````
-    ```{r child = "common.Rmd"}
-    ```
-    ````
-    
-*   In `README.Rmd`
-
-    ````
-    ```{r child = "vignettes/common.Rmd"}
-    ```
-    ````
-
-Learn more in 
-[`vignette("rd")`](https://roxygen2.r-lib.org/articles/rd.html#including-external--rmd-md-files)
-
 ## Code loading
 
 roxygen2 now provides three strategies for loading your code:
@@ -264,7 +266,7 @@ roxygen2 now provides three strategies for loading your code:
 * `load_source()` attaches required packages and `source()`s all files in `R/`. 
   This is a cruder simulation of package loading than pkgload (and e.g. is 
   unreliable if you use S4 extensively), but it does not require that the 
-  package be compiled. Use if the default strategy (used in roxygen2 6.1.0 
+  package be compiled. Try it if the default strategy (used in roxygen2 6.1.0 
   and above) causes you grief.
 
 * `load_installed()` assumes you have installed the package. This is best
@@ -276,7 +278,7 @@ You can override the default either by calling (e.g.) `roxygenise(load_code = "s
 
 The process for extending roxygen2 with new tags and new roclets has been completely overhauled, and is now documented in [`vignette("extending")`](https://roxygen2.r-lib.org/articles/extending.html). A big thanks goes to [Mikkel Meyer Andersen](https://github.com/mikldk) for starting on the vignette and motivating me to make the extension process much more pleasant.
 
-If you're one of the few people who have written a roxygen2 extension, sorry for breaking your code! But I genuinely believe that the improvements to the documentation, object structure, and print methods make it worth it. If you have previously made a new roclet, see the major changes in the [news](https://github.com/r-lib/roxygen2/blob/master/NEWS.md#extending-roxygen2). Because this interface is now documented, it will not change in the future without warning and a deprecation cycle. 
+If you're one of the few people who have written a roxygen2 extension, sorry for breaking your code! But I genuinely believe that the improvements to the documentation, object structure, and print methods make it worth it. If you have previously made a new roclet, see the major changes in the [news](https://github.com/r-lib/roxygen2/blob/master/NEWS.md#extending-roxygen2). Since this interface is now documented, it will not change again without warning and a deprecation cycle. 
 
 ## Acknowledgements
 
