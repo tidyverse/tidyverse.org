@@ -9,6 +9,9 @@ tags:
   - r-lib
   - devtools
   - roxygen2
+photo:
+  url: https://unsplash.com/photos/8XddFc6NkBY
+  author: Art Lasovsky
 ---
 
 We're exceedingly happy to announce the release of [roxygen2 7.0.0](https://roxygen2.r-lib.org). roxygen2 allows you to write specially formatted R comments that generate R documentation files (`man/*.Rd`) and the `NAMESPACE` file. roxygen2 is used by over 8,000 CRAN packages.
