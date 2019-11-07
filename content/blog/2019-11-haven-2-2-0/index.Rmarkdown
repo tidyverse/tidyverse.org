@@ -8,6 +8,8 @@ categories:
 tags:
   - tidyverse
   - haven
+description:
+  A new version of haven makes it easy to read only parts of a file.
 photo:
   url: https://unsplash.com/photos/R2bvzUYIdgY
   author: Tina Rolf
