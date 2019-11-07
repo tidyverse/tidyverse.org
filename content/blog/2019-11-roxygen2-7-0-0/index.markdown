@@ -25,7 +25,7 @@ install.packages("roxygen2")
 
 This a huge release containing [many minor improvements and bug fixes](https://roxygen2.r-lib.org/news/index.html#roxygen2-7-0-0). This blog post focusses on seven major improvements:
 
-* roxygen2 is no longer (ironically!) the worst documented package. It has 
+* roxygen2 is no longer (ironically!) the worst documented package. It has a 
   fresh new website, <https://roxygen2.r-lib.org>, and the vignettes have 
   all been updated.
 
@@ -59,7 +59,7 @@ I used this as an opportunity to look at all the vignettes and make sure they ar
 
 Of course, documentation can always be improved, so if you find something hard to follow, please [file an issue](https://github.com/r-lib/roxygen2/issues/new)!
 
-## Major changes
+## Changes to `.Rd` output
 
 When you run roxygen2 7.0.0 for the first time, you'll notice a number of changes to the rendered `.Rd`. The two most important are:
 
@@ -71,7 +71,7 @@ When you run roxygen2 7.0.0 for the first time, you'll notice a number of change
     * `unexpected section header '\description'`
     * `unexpected END_OF_INPUT`
 
-* The formatting of functon usage has changed. Previously, function usage was wrapped to produce the smallest number of lines, e.g.:
+* In "Usage" usage section, you'll notice the formatting of function calls has changed. Previously, function usage was wrapped to produce the smallest number of lines, e.g.:
       
     
     ```r
@@ -101,7 +101,7 @@ When you run roxygen2 7.0.0 for the first time, you'll notice a number of change
 You'll also notice a number of small improvements:
 
 * Markdown code is converted to to either `\code{}` or `\verb{}`, depending on 
-  whether it not is R code. For example, `` `foofy()` `` will become 
+  whether it not is valid R code. For example, `` `foofy()` `` will become 
   `\code{foofy()}` but `` `1 +` `` will become `\verb{1 + }`. This better 
   matches the intended usage of the `\code{}` and `\verb{}` macros and should 
   make it easier to include arbitrary "code" snippets in documentation without 
@@ -116,7 +116,7 @@ We've also removed a few features to simplify the code and/or clearly advertise 
   released 2014-05-02, over 5 years ago.
 
 * Using the `wrap` option will now trigger a warning, as it hasn't worked
-  for quite some time. Suppress the wraning by remove the option from your
+  for quite some time. Suppress the warning by remove the option from your
   `DESCRIPTION`.
 
 * `@docType package` will no longer add `-name` to the file name. If you relied 
@@ -156,7 +156,7 @@ is translated to
 }
 ```
 
-Markdown tables used the [GFM table syntax](https://github.github.com/gfm/#tables-extension-) and are converted to `\tabular{}` macros. For example,
+Markdown tables use the [GFM table syntax](https://github.github.com/gfm/#tables-extension-) and are converted to `\tabular{}` macros. For example,
 
 ```R
 #' | foo | bar |
@@ -282,4 +282,4 @@ If you're one of the few people who have written a roxygen2 extension, sorry for
 
 ## Acknowledgements
 
-A big thanks to all 69 contributors who helped make this giant release possible!  [&#x0040;achubaty](https://github.com/achubaty), [&#x0040;adam52](https://github.com/adam52), [&#x0040;alaagalal](https://github.com/alaagalal), [&#x0040;andrewmarx](https://github.com/andrewmarx), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;Bisaloo](https://github.com/Bisaloo), [&#x0040;coolbutuseless](https://github.com/coolbutuseless), [&#x0040;DominiqueMakowski](https://github.com/DominiqueMakowski), [&#x0040;drjxf](https://github.com/drjxf), [&#x0040;EmilBode](https://github.com/EmilBode), [&#x0040;espinielli](https://github.com/espinielli), [&#x0040;Freguglia](https://github.com/Freguglia), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;gdurif](https://github.com/gdurif), [&#x0040;gustavdelius](https://github.com/gustavdelius), [&#x0040;ha0ye](https://github.com/ha0ye), [&#x0040;hadley](https://github.com/hadley), [&#x0040;halldc](https://github.com/halldc), [&#x0040;HenrikBengtsson](https://github.com/HenrikBengtsson), [&#x0040;hongyuanjia](https://github.com/hongyuanjia), [&#x0040;huangwb8](https://github.com/huangwb8), [&#x0040;iembry](https://github.com/iembry), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;inmybrain](https://github.com/inmybrain), [&#x0040;jackwasey](https://github.com/jackwasey), [&#x0040;JazzyPierrot](https://github.com/JazzyPierrot), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jeroen](https://github.com/jeroen), [&#x0040;jhchou](https://github.com/jhchou), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;jonthegeek](https://github.com/jonthegeek), [&#x0040;kenahoo](https://github.com/kenahoo), [&#x0040;kevinrue](https://github.com/kevinrue), [&#x0040;kevinushey](https://github.com/kevinushey), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;leej3](https://github.com/leej3), [&#x0040;leepface](https://github.com/leepface), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;mamueller](https://github.com/mamueller), [&#x0040;maurolepore](https://github.com/maurolepore), [&#x0040;michaelquinn32](https://github.com/michaelquinn32), [&#x0040;mikemc](https://github.com/mikemc), [&#x0040;mikldk](https://github.com/mikldk), [&#x0040;mjskay](https://github.com/mjskay), [&#x0040;mnazarov](https://github.com/mnazarov), [&#x0040;msberends](https://github.com/msberends), [&#x0040;msenn](https://github.com/msenn), [&#x0040;nealrichardson](https://github.com/nealrichardson), [&#x0040;NikKrieger](https://github.com/NikKrieger), [&#x0040;nteetor](https://github.com/nteetor), [&#x0040;paleolimbot](https://github.com/paleolimbot), [&#x0040;pat-s](https://github.com/pat-s), [&#x0040;peterdesmet](https://github.com/peterdesmet), [&#x0040;phargarten2](https://github.com/phargarten2), [&#x0040;ramiromagno](https://github.com/ramiromagno), [&#x0040;Robinlovelace](https://github.com/Robinlovelace), [&#x0040;sfirke](https://github.com/sfirke), [&#x0040;Shians](https://github.com/Shians), [&#x0040;SoerenXD](https://github.com/SoerenXD), [&#x0040;stefanoborini](https://github.com/stefanoborini), [&#x0040;SteveBronder](https://github.com/SteveBronder), [&#x0040;tbates](https://github.com/tbates), [&#x0040;thalesmello](https://github.com/thalesmello), [&#x0040;the-knife](https://github.com/the-knife), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;trestletech](https://github.com/trestletech), [&#x0040;vivekbhr](https://github.com/vivekbhr), and [&#x0040;wenjie2wang](https://github.com/wenjie2wang)
+A big thanks to all 69 contributors who helped make this giant release possible!  [&#x0040;achubaty](https://github.com/achubaty), [&#x0040;adam52](https://github.com/adam52), [&#x0040;alaagalal](https://github.com/alaagalal), [&#x0040;andrewmarx](https://github.com/andrewmarx), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;Bisaloo](https://github.com/Bisaloo), [&#x0040;coolbutuseless](https://github.com/coolbutuseless), [&#x0040;DominiqueMakowski](https://github.com/DominiqueMakowski), [&#x0040;drjxf](https://github.com/drjxf), [&#x0040;EmilBode](https://github.com/EmilBode), [&#x0040;espinielli](https://github.com/espinielli), [&#x0040;Freguglia](https://github.com/Freguglia), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;gdurif](https://github.com/gdurif), [&#x0040;gustavdelius](https://github.com/gustavdelius), [&#x0040;ha0ye](https://github.com/ha0ye), [&#x0040;hadley](https://github.com/hadley), [&#x0040;halldc](https://github.com/halldc), [&#x0040;HenrikBengtsson](https://github.com/HenrikBengtsson), [&#x0040;hongyuanjia](https://github.com/hongyuanjia), [&#x0040;huangwb8](https://github.com/huangwb8), [&#x0040;iembry](https://github.com/iembry), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;inmybrain](https://github.com/inmybrain), [&#x0040;jackwasey](https://github.com/jackwasey), [&#x0040;JazzyPierrot](https://github.com/JazzyPierrot), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jeroen](https://github.com/jeroen), [&#x0040;jhchou](https://github.com/jhchou), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;jonthegeek](https://github.com/jonthegeek), [&#x0040;kenahoo](https://github.com/kenahoo), [&#x0040;kevinrue](https://github.com/kevinrue), [&#x0040;kevinushey](https://github.com/kevinushey), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;leej3](https://github.com/leej3), [&#x0040;leepface](https://github.com/leepface), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;mamueller](https://github.com/mamueller), [&#x0040;maurolepore](https://github.com/maurolepore), [&#x0040;michaelquinn32](https://github.com/michaelquinn32), [&#x0040;mikemc](https://github.com/mikemc), [&#x0040;mikldk](https://github.com/mikldk), [&#x0040;mjskay](https://github.com/mjskay), [&#x0040;mnazarov](https://github.com/mnazarov), [&#x0040;msberends](https://github.com/msberends), [&#x0040;msenn](https://github.com/msenn), [&#x0040;nealrichardson](https://github.com/nealrichardson), [&#x0040;NikKrieger](https://github.com/NikKrieger), [&#x0040;nteetor](https://github.com/nteetor), [&#x0040;paleolimbot](https://github.com/paleolimbot), [&#x0040;pat-s](https://github.com/pat-s), [&#x0040;peterdesmet](https://github.com/peterdesmet), [&#x0040;phargarten2](https://github.com/phargarten2), [&#x0040;ramiromagno](https://github.com/ramiromagno), [&#x0040;Robinlovelace](https://github.com/Robinlovelace), [&#x0040;sfirke](https://github.com/sfirke), [&#x0040;Shians](https://github.com/Shians), [&#x0040;SoerenXD](https://github.com/SoerenXD), [&#x0040;stefanoborini](https://github.com/stefanoborini), [&#x0040;SteveBronder](https://github.com/SteveBronder), [&#x0040;tbates](https://github.com/tbates), [&#x0040;thalesmello](https://github.com/thalesmello), [&#x0040;the-knife](https://github.com/the-knife), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;trestletech](https://github.com/trestletech), [&#x0040;vivekbhr](https://github.com/vivekbhr), and [&#x0040;wenjie2wang](https://github.com/wenjie2wang).
