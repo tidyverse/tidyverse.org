@@ -5,6 +5,8 @@ date: '2019-11-05'
 slug: roxygen2-7-0-0
 categories:
   - package
+description: >
+  A massive update to roxygen2 now on CRAN.
 tags:
   - r-lib
   - devtools
@@ -31,12 +33,12 @@ This a huge release containing [many minor improvements and bug fixes](https://r
 
 * We've made a number of tweaks to the rendering of `.Rd`. Most importantly
   you no longer needed to escape `%` in markdown, and functions with many
-  arguments are displayed with one argument per line. We've also removed a few 
-  old features that are no longer supported.
+  arguments are displayed with one argument per line. We've also removed a 
+  couple of old features that are no longer supported.
 
 * You can create tables and headings from markdown.
 
-* You can share text and code between your README/vignettes, and your 
+* You can share text and code between your README/vignettes and your 
   documentation with the new `@includeRmd` tag.
 
 * You can now document R6 classes!
@@ -71,7 +73,7 @@ When you run roxygen2 7.0.0 for the first time, you'll notice a number of change
     * `unexpected section header '\description'`
     * `unexpected END_OF_INPUT`
 
-* In "Usage" usage section, you'll notice the formatting of function calls has changed. Previously, function usage was wrapped to produce the smallest number of lines, e.g.:
+* In the "Usage" section, you'll notice the formatting of function calls has changed. Previously, function calls were wrapped to produce the smallest number of lines, e.g.:
       
     
     ```r
@@ -79,7 +81,7 @@ When you run roxygen2 7.0.0 for the first time, you'll notice a number of change
       registry = default_tags(), global_options = list())
     ```
     
-    Now it is wrapped so that each argument gets its own line:
+    Now long function calls are wrapped so that each argument gets its own line:
     
     
     ```r
@@ -103,7 +105,7 @@ You'll also notice a number of small improvements:
 * Markdown code is converted to to either `\code{}` or `\verb{}`, depending on 
   whether it not is valid R code. For example, `` `foofy()` `` will become 
   `\code{foofy()}` but `` `1 +` `` will become `\verb{1 + }`. This better 
-  matches the intended usage of the `\code{}` and `\verb{}` macros and should 
+  matches the intended usage of the `\code{}` and `\verb{}` macros, and should 
   make it easier to include arbitrary "code" snippets in documentation without 
   causing Rd failures.
 
@@ -204,7 +206,7 @@ Learn more in
 
 ## R6 documentation
 
-You can now document R6 classes! The basic usage is straighforward and works similarly to documenting function. The main difference is that methods require explicit `@description` and `@detail` tags.
+You can now document R6 classes! The basic usage is straighforward and works similarly to documenting functions. The main difference is that methods require explicit `@description` and `@detail` tags.
 
 
 ```r
@@ -253,7 +255,7 @@ Person <- R6::R6Class("Person",
 
 Learn more in [`vignette("rd")`](https://roxygen2.r-lib.org/articles/rd.html#r6).
 
-R6 documentation is a work in progress, so please let us know if you find anything missing or confusing. If you document a package with many R6 classes, you will get many warnings about missing documentation. If you want to suppress those warnings, you can turn off R6 documetation with the R6 option, i.e. put `Roxygen: list(r6 = FALSE)` in your `DESCRIPTION`.
+R6 documentation is a work in progress, so please let us know if you find anything missing or confusing. If you document a package with many R6 classes, you will get many warnings about missing documentation. If you want to suppress those warnings, you can turn off R6 documetation with the `r6` option, i.e. put `Roxygen: list(r6 = FALSE)` in your `DESCRIPTION`.
 
 ## Code loading
 
@@ -272,7 +274,7 @@ roxygen2 now provides three strategies for loading your code:
 * `load_installed()` assumes you have installed the package. This is best
   used as part of a bigger automated workflow.
 
-You can override the default either by calling (e.g.) `roxygenise(load_code = "source"))` or by setting the `load` option in your DESCRIPTION: `Roxygen: list(load = "source")`.
+You can override the default either by calling (e.g.) `roxygenise(load_code = "source")` or by setting the `load` option in your DESCRIPTION: `Roxygen: list(load = "source")`.
 
 ## Extending roxygen2
 
