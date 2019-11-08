@@ -1,7 +1,7 @@
 ---
 title: haven 2.2.0
 author: Hadley Wickham
-date: '2019-11-07'
+date: '2019-11-08'
 slug: haven-2-2-0
 categories:
   - package
