@@ -4,7 +4,7 @@ author: Hadley Wickham
 date: '2019-11-08'
 slug: dtplyr-1-0-0
 description: |
-  A total rewrite of dtplyr is now available on CRAN; it now performs
+  A total rewrite of dtplyr is now available on CRAN; it performs
   computation lazily (like dbplyr), making it much more performant.
 categories:
   - package
@@ -19,9 +19,11 @@ photo:
 
 
 
-I'm very excited to announce that [dtplyr](https://dtplyr.tidyverse.org) 1.0.0 is now on CRAN. dtplyr provides a [data.table](http://r-datatable.com/) backend for dplyr, allowing you to write dplyr code that is automatically translated to the equivalent, but usually much faster, data.table code.  
+I'm very excited to announce that [dtplyr](https://dtplyr.tidyverse.org) 1.0.0 is now on CRAN. dtplyr provides a [data.table](http://r-datatable.com/) backend for dplyr, allowing you to write dplyr code that is automatically translated to the equivalent data.table code.  
 
-This version of dtplyr is a complete rewrite which allows dtplyr to generate significantly more performant translations. dtplyr now works like [dbplyr](https://dbplyr.tidyverse.org), where computation only happens when requested by  `as.data.table()`, `as.data.frame()` or `as_tibble()` (this idea can also be seen in the [table.express](https://github.com/asardaes/table.express) and [rqdatatable](https://github.com/WinVector/rqdatatable/) packages). Unfortunately, this rewrite breaks pretty much all existing uses of dtplyr. But frankly, the prior version of dtplyr was not very good and few people used it, so a major overhaul should break little code in the wild.
+dtplyr 1.0.0 gives you the speed of data.table with the syntax of dplyr, unlocking the value of data.table to every user of dplyr. Of course, if you know data.table, you can still write it directly, just as we expect SQL experts to continue to write SQL rather than having [dbplyr](http://dbplyr.tidyverse.org/) generate it for them. Understanding these foundational tools is particularly important if you want to eke out every last drop of performance.
+
+This version of dtplyr is a complete rewrite which allows it to generate significantly more performant translations. dtplyr now works like [dbplyr](https://dbplyr.tidyverse.org), where computation only happens when requested by  `as.data.table()`, `as.data.frame()` or `as_tibble()` (this idea can also be seen in the [table.express](https://github.com/asardaes/table.express) and [rqdatatable](https://github.com/WinVector/rqdatatable/) packages). Unfortunately, this rewrite breaks pretty much all existing uses of dtplyr. But frankly, the prior version of dtplyr was not very good and few people used it, so a major overhaul should break little code in the wild.
 
 In this article, I'll introduce you to the basic usage of dtplyr, talk about some of the performance implications, and show off some of the translations that I'm most proud of.
 
@@ -65,7 +67,7 @@ mtcars2 %>%
 #> # Use as.data.table()/as.data.frame()/as_tibble() to access results
 ```
 
-Generally, however, you should reserve this for exploration and debugging, and instead use `as.data.table()`, `as.data.frame()`, or `as_tibble()` to indicate that you're done writing the transformation and want to access the results:
+Generally, however, you should reserve this preview for exploration and debugging, and instead use `as.data.table()`, `as.data.frame()`, or `as_tibble()` to indicate that you're done writing the transformation and want to access the results:
 
 
 ```r
@@ -85,11 +87,12 @@ mtcars2 %>%
 
 ## Performance
 
-You might wonder how fast dtplyr is. That's a difficult question to answer in general (because there are so many different ways to use it), so here I'll focus on why dtplyr might be slower than data.table. There are three main reasons: translation cost, copies, and interface mismatch
+How fast is dtplyr? data.table is generally faster than dplyr, but dtplyr has to do some work to perform the translation, so it's reasonable to ask if it's worth it. Do the benefits of using data.table outweigh the cost of the automated translation? My experimentation suggests that it is: the cost of translation is low, and independent of the size of the data. In this section, I'll explore the performance trade-off through three lenses: translation cost, copies, and interface mismatch.
+
 
 ### Translation cost
 
-Each dplyr verb must do some work to convert dplyr syntax to data.table syntax. We can use the [bench](http://bench.r-lib.org/) package to time the cost of four step pipeline that I used above:
+Each dplyr verb must do some work to convert dplyr syntax to data.table syntax. We can use the [bench](http://bench.r-lib.org/) package to time the cost of the four-step pipeline that I used above:
   
 
 ```r
@@ -109,7 +112,7 @@ Because this pipeline does not use `as.data.table()` or `print()` it only genera
 
 My intial experiments suggest that the translation cost is typically a few milliseconds. Since the computational cost increases with the size of the data, the translation cost becomes a smaller proportion of the total as the data size grows, suggesting the dtplyr does not impose a significant overhead on top of data.table.
 
-Take the following example, which uses large nycflights13 dataset. This isn't really big enough for data.table to really shine, but it's about as big as you can get in an R package. Here I'm going to compute the average arrival delay by destination. It takes raw dplyr about 60ms to do the work. Again, the dtplyr translation is fast, around 1ms, and then computation using data.table only takes about 30ms, almost twice as fast as dplyr.
+Take the following example, which uses the large nycflights13 dataset. This isn't really big enough for data.table to really shine, but it's about as big as you can get in an R package. Here I'm going to compute the average arrival delay by destination. It takes raw dplyr about 60ms to do the work. Again, the dtplyr translation is fast, around 1ms, and then computation using data.table only takes about 30ms, almost twice as fast as dplyr.
 
 
 ```r
@@ -132,9 +135,9 @@ bench::mark(
 #> # A tibble: 3 x 6
 #>   expression                                         min  median `itr/sec`
 #>   <bch:expr>                                     <bch:t> <bch:t>     <dbl>
-#> 1 flights %>% delay_by_dest()                     49.1ms  54.8ms      18.2
-#> 2 flights_dt %>% delay_by_dest()                   933µs  1.03ms     868. 
-#> 3 flights_dt %>% delay_by_dest() %>% as_tibble()  29.1ms 35.86ms      29.0
+#> 1 flights %>% delay_by_dest()                     52.3ms  59.1ms      16.9
+#> 2 flights_dt %>% delay_by_dest()                 890.3µs 995.7µs     991. 
+#> 3 flights_dt %>% delay_by_dest() %>% as_tibble()    31ms    36ms      28.8
 #> # … with 2 more variables: mem_alloc <bch:byt>, `gc/sec` <dbl>
 ```
 
@@ -150,7 +153,7 @@ mtcars2 %>%
 #> copy(`_DT1`)[, `:=`(x = x * 2)]
 ```
 
-However, dplyr never generates more than one copy (no matter how many mutates you use), and it also recognises many situations where data.table creates an implicit copy:
+However, dtplyr never generates more than one copy (no matter how many mutates you use), and it also recognises many situations where data.table creates an implicit copy:
 
 
 ```r
@@ -277,6 +280,6 @@ There are a couple of limitations that I hope to address in the next version of 
 
 ## Acknowledgements
 
-Big thanks to the data.table community, particularly [Michael Chirico](https://github.com/MichaelChirico) for their help educating me on the best way to translate dplyr code into performant, idiomatic, data.table code.
+Big thanks to the data.table community, particularly [Michael Chirico](https://github.com/MichaelChirico), for their help educating me on the best way to translate dplyr code into performant, idiomatic, data.table code.
 
 I'd also like to thank everyone to helped make this release happen through their contributions on GitHub: [&#x0040;AlanFeder](https://github.com/AlanFeder), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;benjaminleroy](https://github.com/benjaminleroy), [&#x0040;clayphan](https://github.com/clayphan), [&#x0040;ColinFay](https://github.com/ColinFay), [&#x0040;daranzolin](https://github.com/daranzolin), [&#x0040;edgararuiz](https://github.com/edgararuiz), [&#x0040;franknarf1](https://github.com/franknarf1), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hlynurhallgrims](https://github.com/hlynurhallgrims), [&#x0040;hope-data-science](https://github.com/hope-data-science), [&#x0040;ianmcook](https://github.com/ianmcook), [&#x0040;jl5000](https://github.com/jl5000), [&#x0040;jonthegeek](https://github.com/jonthegeek), [&#x0040;JoshuaSturm](https://github.com/JoshuaSturm), [&#x0040;lenay12](https://github.com/lenay12), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;nlbjan1](https://github.com/nlbjan1), [&#x0040;quantitative-technologies](https://github.com/quantitative-technologies), [&#x0040;richpauloo](https://github.com/richpauloo), [&#x0040;S-UP](https://github.com/S-UP), [&#x0040;tmastny](https://github.com/tmastny), [&#x0040;TobiRoby](https://github.com/TobiRoby), [&#x0040;tomazweiss](https://github.com/tomazweiss), [&#x0040;torema-ed](https://github.com/torema-ed), [&#x0040;Vidaringa](https://github.com/Vidaringa), [&#x0040;vlahm](https://github.com/vlahm), [&#x0040;vspinu](https://github.com/vspinu), [&#x0040;xiaodaigh](https://github.com/xiaodaigh), and [&#x0040;yiqinfu](https://github.com/yiqinfu).
