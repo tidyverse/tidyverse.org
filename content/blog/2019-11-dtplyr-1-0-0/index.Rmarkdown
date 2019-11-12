@@ -80,7 +80,7 @@ Each dplyr verb must do some work to convert dplyr syntax to data.table syntax. 
   
 ```{r}
 bench::mark(
-  mtcars2 %>% 
+  translate = mtcars2 %>% 
     filter(wt < 5) %>% 
     mutate(l100k = 235.21 / mpg) %>% # liters / 100 km
     group_by(cyl) %>% 
@@ -92,7 +92,7 @@ Because this pipeline does not use `as.data.table()` or `print()` it only genera
 
 My intial experiments suggest that the translation cost is typically a few milliseconds. Since the computational cost increases with the size of the data, the translation cost becomes a smaller proportion of the total as the data size grows, suggesting the dtplyr does not impose a significant overhead on top of data.table.
 
-Take the following example, which uses the large nycflights13 dataset. This isn't really big enough for data.table to really shine, but it's about as big as you can get in an R package. Here I'm going to compute the average arrival delay by destination. It takes raw dplyr about 60ms to do the work. Again, the dtplyr translation is fast, around 1ms, and then computation using data.table only takes about 30ms, almost twice as fast as dplyr.
+Take the following example, which uses the large nycflights13 dataset. This isn't really big enough for data.table to really shine, but it's about as big as you can get in an R package. Here I'm going to compute the average arrival delay by destination. It takes raw dplyr about 40ms to do the work. Again, the dtplyr translation is fast, around 1ms, and then computation using data.table only takes about 20ms, almost twice as fast as dplyr.
 
 ```{r}
 library(nycflights13)
