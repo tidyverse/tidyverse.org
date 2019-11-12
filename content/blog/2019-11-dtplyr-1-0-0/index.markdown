@@ -97,15 +97,16 @@ Each dplyr verb must do some work to convert dplyr syntax to data.table syntax. 
 
 ```r
 bench::mark(
-  mtcars2 %>% 
+  translate = mtcars2 %>% 
     filter(wt < 5) %>% 
     mutate(l100k = 235.21 / mpg) %>% # liters / 100 km
     group_by(cyl) %>% 
     summarise(l100k = mean(l100k))
 )
 #> # A tibble: 1 x 6
-#> # … with 6 more variables: expression <bch:expr>, min <bch:tm>,
-#> #   median <bch:tm>, `itr/sec` <dbl>, mem_alloc <bch:byt>, `gc/sec` <dbl>
+#>   expression      min   median `itr/sec` mem_alloc `gc/sec`
+#>   <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
+#> 1 translate     731µs    866µs     1112.      280B     28.5
 ```
 
 Because this pipeline does not use `as.data.table()` or `print()` it only generates the data.table code, it doesn't run it, so we're timing the translation cost. The translation cost scales with the complexity of the pipeline, not the size of the data, so these timings will apply regardless of the size of the underlying data.
@@ -135,9 +136,9 @@ bench::mark(
 #> # A tibble: 3 x 6
 #>   expression                                         min  median `itr/sec`
 #>   <bch:expr>                                     <bch:t> <bch:t>     <dbl>
-#> 1 flights %>% delay_by_dest()                     53.2ms 59.28ms      16.9
-#> 2 flights_dt %>% delay_by_dest()                 902.4µs  1.02ms     958. 
-#> 3 flights_dt %>% delay_by_dest() %>% as_tibble()  25.4ms  35.2ms      28.0
+#> 1 flights %>% delay_by_dest()                     35.5ms  37.2ms      26.9
+#> 2 flights_dt %>% delay_by_dest()                   676µs 723.6µs    1316. 
+#> 3 flights_dt %>% delay_by_dest() %>% as_tibble()  17.5ms  18.4ms      52.9
 #> # … with 2 more variables: mem_alloc <bch:byt>, `gc/sec` <dbl>
 ```
 
@@ -218,9 +219,9 @@ As do simple left and right joins:
 ```r
 dt2 <- lazy_dt(data.frame(a = 1, y = 1, z = 1))
 dt %>% left_join(dt2, by = "a") %>% show_query()
-#> `_DT5`[`_DT4`, on = .(a)]
+#> `_DT5`[`_DT4`, on = .(a), allow.cartesian = TRUE]
 dt %>% right_join(dt2, by = "a") %>% show_query()
-#> `_DT4`[`_DT5`, on = .(a)]
+#> `_DT4`[`_DT5`, on = .(a), allow.cartesian = TRUE]
 ```
 
 Where possible, dtplyr will collapse multiple calls to `[`:
@@ -237,7 +238,7 @@ dt %>%
   left_join(dt2, by = "a") %>% 
   select(a, b, z) %>% 
   show_query()
-#> `_DT5`[`_DT4`, .(a, b, z), on = .(a)]
+#> `_DT5`[`_DT4`, .(a, b, z), on = .(a), allow.cartesian = TRUE]
 ```
 
 But note that the order is important, as a `select()` followed by a `filter()` has to generate two statements:
