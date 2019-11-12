@@ -4,7 +4,7 @@ author: Hadley Wickham
 date: '2019-11-08'
 slug: dtplyr-1-0-0
 description: |
-  A total rewrite of dtplyr is now available on CRAN; it now performs
+  A total rewrite of dtplyr is now available on CRAN; it performs
   computation lazily (like dbplyr), making it much more performant.
 categories:
   - package
@@ -73,7 +73,7 @@ You might wonder how fast dtplyr is. That's a difficult question to answer in ge
 
 ### Translation cost
 
-Each dplyr verb must do some work to convert dplyr syntax to data.table syntax. We can use the [bench](http://bench.r-lib.org/) package to time the cost of four step pipeline that I used above:
+Each dplyr verb must do some work to convert dplyr syntax to data.table syntax. We can use the [bench](http://bench.r-lib.org/) package to time the cost of the four-step pipeline that I used above:
   
 ```{r}
 bench::mark(
@@ -89,7 +89,7 @@ Because this pipeline does not use `as.data.table()` or `print()` it only genera
 
 My intial experiments suggest that the translation cost is typically a few milliseconds. Since the computational cost increases with the size of the data, the translation cost becomes a smaller proportion of the total as the data size grows, suggesting the dtplyr does not impose a significant overhead on top of data.table.
 
-Take the following example, which uses large nycflights13 dataset. This isn't really big enough for data.table to really shine, but it's about as big as you can get in an R package. Here I'm going to compute the average arrival delay by destination. It takes raw dplyr about 60ms to do the work. Again, the dtplyr translation is fast, around 1ms, and then computation using data.table only takes about 30ms, almost twice as fast as dplyr.
+Take the following example, which uses the large nycflights13 dataset. This isn't really big enough for data.table to really shine, but it's about as big as you can get in an R package. Here I'm going to compute the average arrival delay by destination. It takes raw dplyr about 60ms to do the work. Again, the dtplyr translation is fast, around 1ms, and then computation using data.table only takes about 30ms, almost twice as fast as dplyr.
 
 ```{r}
 library(nycflights13)
@@ -120,7 +120,7 @@ mtcars2 %>%
   show_query()
 ```
 
-However, dplyr never generates more than one copy (no matter how many mutates you use), and it also recognises many situations where data.table creates an implicit copy:
+However, dtplyr never generates more than one copy (no matter how many mutates you use), and it also recognises many situations where data.table creates an implicit copy:
 
 ```{r}
 mtcars2 %>% 
@@ -223,6 +223,6 @@ There are a couple of limitations that I hope to address in the next version of 
 
 ## Acknowledgements
 
-Big thanks to the data.table community, particularly [Michael Chirico](https://github.com/MichaelChirico) for their help educating me on the best way to translate dplyr code into performant, idiomatic, data.table code.
+Big thanks to the data.table community, particularly [Michael Chirico](https://github.com/MichaelChirico), for their help educating me on the best way to translate dplyr code into performant, idiomatic, data.table code.
 
 I'd also like to thank everyone to helped make this release happen through their contributions on GitHub: [&#x0040;AlanFeder](https://github.com/AlanFeder), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;benjaminleroy](https://github.com/benjaminleroy), [&#x0040;clayphan](https://github.com/clayphan), [&#x0040;ColinFay](https://github.com/ColinFay), [&#x0040;daranzolin](https://github.com/daranzolin), [&#x0040;edgararuiz](https://github.com/edgararuiz), [&#x0040;franknarf1](https://github.com/franknarf1), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hlynurhallgrims](https://github.com/hlynurhallgrims), [&#x0040;hope-data-science](https://github.com/hope-data-science), [&#x0040;ianmcook](https://github.com/ianmcook), [&#x0040;jl5000](https://github.com/jl5000), [&#x0040;jonthegeek](https://github.com/jonthegeek), [&#x0040;JoshuaSturm](https://github.com/JoshuaSturm), [&#x0040;lenay12](https://github.com/lenay12), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;nlbjan1](https://github.com/nlbjan1), [&#x0040;quantitative-technologies](https://github.com/quantitative-technologies), [&#x0040;richpauloo](https://github.com/richpauloo), [&#x0040;S-UP](https://github.com/S-UP), [&#x0040;tmastny](https://github.com/tmastny), [&#x0040;TobiRoby](https://github.com/TobiRoby), [&#x0040;tomazweiss](https://github.com/tomazweiss), [&#x0040;torema-ed](https://github.com/torema-ed), [&#x0040;Vidaringa](https://github.com/Vidaringa), [&#x0040;vlahm](https://github.com/vlahm), [&#x0040;vspinu](https://github.com/vspinu), [&#x0040;xiaodaigh](https://github.com/xiaodaigh), and [&#x0040;yiqinfu](https://github.com/yiqinfu).
