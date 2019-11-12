@@ -1,7 +1,7 @@
 ---
 title: dtplyr 1.0.0
 author: Hadley Wickham
-date: '2019-11-08'
+date: '2019-11-12'
 slug: dtplyr-1-0-0
 description: |
   A total rewrite of dtplyr is now available on CRAN; it performs
@@ -135,9 +135,9 @@ bench::mark(
 #> # A tibble: 3 x 6
 #>   expression                                         min  median `itr/sec`
 #>   <bch:expr>                                     <bch:t> <bch:t>     <dbl>
-#> 1 flights %>% delay_by_dest()                     52.3ms  59.1ms      16.9
-#> 2 flights_dt %>% delay_by_dest()                 890.3µs 995.7µs     991. 
-#> 3 flights_dt %>% delay_by_dest() %>% as_tibble()    31ms    36ms      28.8
+#> 1 flights %>% delay_by_dest()                     53.2ms 59.28ms      16.9
+#> 2 flights_dt %>% delay_by_dest()                 902.4µs  1.02ms     958. 
+#> 3 flights_dt %>% delay_by_dest() %>% as_tibble()  25.4ms  35.2ms      28.0
 #> # … with 2 more variables: mem_alloc <bch:byt>, `gc/sec` <dbl>
 ```
 
