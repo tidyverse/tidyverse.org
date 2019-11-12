@@ -106,14 +106,14 @@ bench::mark(
 #> # A tibble: 1 x 6
 #>   expression      min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 translate     731µs    866µs     1112.      280B     28.5
+#> 1 translate     787µs    969µs     1028.      280B     26.4
 ```
 
 Because this pipeline does not use `as.data.table()` or `print()` it only generates the data.table code, it doesn't run it, so we're timing the translation cost. The translation cost scales with the complexity of the pipeline, not the size of the data, so these timings will apply regardless of the size of the underlying data.
 
 My intial experiments suggest that the translation cost is typically a few milliseconds. Since the computational cost increases with the size of the data, the translation cost becomes a smaller proportion of the total as the data size grows, suggesting the dtplyr does not impose a significant overhead on top of data.table.
 
-Take the following example, which uses the large nycflights13 dataset. This isn't really big enough for data.table to really shine, but it's about as big as you can get in an R package. Here I'm going to compute the average arrival delay by destination. It takes raw dplyr about 60ms to do the work. Again, the dtplyr translation is fast, around 1ms, and then computation using data.table only takes about 30ms, almost twice as fast as dplyr.
+Take the following example, which uses the large nycflights13 dataset. This isn't really big enough for data.table to really shine, but it's about as big as you can get in an R package. Here I'm going to compute the average arrival delay by destination. It takes raw dplyr about 40ms to do the work. Again, the dtplyr translation is fast, around 1ms, and then computation using data.table only takes about 20ms, almost twice as fast as dplyr.
 
 
 ```r
@@ -136,9 +136,9 @@ bench::mark(
 #> # A tibble: 3 x 6
 #>   expression                                         min  median `itr/sec`
 #>   <bch:expr>                                     <bch:t> <bch:t>     <dbl>
-#> 1 flights %>% delay_by_dest()                     35.5ms  37.2ms      26.9
-#> 2 flights_dt %>% delay_by_dest()                   676µs 723.6µs    1316. 
-#> 3 flights_dt %>% delay_by_dest() %>% as_tibble()  17.5ms  18.4ms      52.9
+#> 1 flights %>% delay_by_dest()                     35.7ms    36ms      27.8
+#> 2 flights_dt %>% delay_by_dest()                 671.9µs 824.6µs    1230. 
+#> 3 flights_dt %>% delay_by_dest() %>% as_tibble()  18.7ms  20.2ms      48.0
 #> # … with 2 more variables: mem_alloc <bch:byt>, `gc/sec` <dbl>
 ```
 
