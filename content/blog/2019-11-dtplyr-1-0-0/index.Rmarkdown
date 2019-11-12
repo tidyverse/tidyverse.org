@@ -24,9 +24,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-I'm very excited to announce that [dtplyr](https://dtplyr.tidyverse.org) 1.0.0 is now on CRAN. dtplyr provides a [data.table](http://r-datatable.com/) backend for dplyr, allowing you to write dplyr code that is automatically translated to the equivalent, but usually much faster, data.table code.  
+I'm very excited to announce that [dtplyr](https://dtplyr.tidyverse.org) 1.0.0 is now on CRAN. dtplyr provides a [data.table](http://r-datatable.com/) backend for dplyr, allowing you to write dplyr code that is automatically translated to the equivalent data.table code.  
 
-This version of dtplyr is a complete rewrite which allows dtplyr to generate significantly more performant translations. dtplyr now works like [dbplyr](https://dbplyr.tidyverse.org), where computation only happens when requested by  `as.data.table()`, `as.data.frame()` or `as_tibble()` (this idea can also be seen in the [table.express](https://github.com/asardaes/table.express) and [rqdatatable](https://github.com/WinVector/rqdatatable/) packages). Unfortunately, this rewrite breaks pretty much all existing uses of dtplyr. But frankly, the prior version of dtplyr was not very good and few people used it, so a major overhaul should break little code in the wild.
+dtplyr 1.0.0 gives you the speed of data.table with the syntax of dplyr, unlocking the value of data.table to every user of dplyr. Of course, if you know data.table, you can still write it directly, just as we expect SQL experts to continue to write SQL rather than having [dbplyr](http://dbplyr.tidyverse.org/) generate it for them. Understanding these foundational tools is particularly important if you want to eke out every last drop of performance.
+
+This version of dtplyr is a complete rewrite which allows it to generate significantly more performant translations. dtplyr now works like [dbplyr](https://dbplyr.tidyverse.org), where computation only happens when requested by  `as.data.table()`, `as.data.frame()` or `as_tibble()` (this idea can also be seen in the [table.express](https://github.com/asardaes/table.express) and [rqdatatable](https://github.com/WinVector/rqdatatable/) packages). Unfortunately, this rewrite breaks pretty much all existing uses of dtplyr. But frankly, the prior version of dtplyr was not very good and few people used it, so a major overhaul should break little code in the wild.
 
 In this article, I'll introduce you to the basic usage of dtplyr, talk about some of the performance implications, and show off some of the translations that I'm most proud of.
 
@@ -56,7 +58,7 @@ mtcars2 %>%
   summarise(l100k = mean(l100k))
 ```
 
-Generally, however, you should reserve this for exploration and debugging, and instead use `as.data.table()`, `as.data.frame()`, or `as_tibble()` to indicate that you're done writing the transformation and want to access the results:
+Generally, however, you should reserve this preview for exploration and debugging, and instead use `as.data.table()`, `as.data.frame()`, or `as_tibble()` to indicate that you're done writing the transformation and want to access the results:
 
 ```{r}
 mtcars2 %>% 
@@ -69,7 +71,8 @@ mtcars2 %>%
 
 ## Performance
 
-You might wonder how fast dtplyr is. That's a difficult question to answer in general (because there are so many different ways to use it), so here I'll focus on why dtplyr might be slower than data.table. There are three main reasons: translation cost, copies, and interface mismatch
+How fast is dtplyr? data.table is generally faster than dplyr, but dtplyr has to do some work to perform the translation, so it's reasonable to ask if it's worth it. Do the benefits of using data.table outweigh the cost of the automated translation? My experimentation suggests that it is: the cost of translation is low, and independent of the size of the data. In this section, I'll explore the performance trade-off through three lenses: translation cost, copies, and interface mismatch.
+
 
 ### Translation cost
 
