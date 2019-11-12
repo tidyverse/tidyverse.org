@@ -1,7 +1,7 @@
 ---
 title: roxygen2 7.0.0
 author: Hadley Wickham
-date: '2019-11-05'
+date: '2019-11-12'
 slug: roxygen2-7-0-0
 categories:
   - package
