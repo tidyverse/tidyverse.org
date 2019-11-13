@@ -7,6 +7,9 @@ description: >
     textrecipes 0.0.1 is now on CRAN!
 categories:
   - package
+tags:
+  - textrecipes
+  - tidymodels
 photo:
   url: https://unsplash.com/photos/X1exjxxBho4
   author: Roman Kraft
@@ -28,8 +31,8 @@ install.packages("textrecipes")
 The steps introduced here can be split into 3 types, those that:
 
 1. convert from characters to list-columns and vice versa,
-1. modify the elements in list-columns, and
-1. convert list-columns to numerics.
+2. modify the elements in list-columns, and
+3. convert list-columns to numerics.
 
 This allows for greater flexibility in the preprocessing tasks that can be done while staying inside the [recipes](https://github.com/tidymodels/recipes) framework. This also prevents having a single step with many arguments.
 

@@ -4,6 +4,9 @@ date: 2018-08-07
 slug: roxygen2-6-1-0
 author: Mara Averick
 categories: [package]
+tags:
+  - roxygen2
+  - r-lib
 description: >
     roxygen2 6.1.0 is now on CRAN!
 photo:

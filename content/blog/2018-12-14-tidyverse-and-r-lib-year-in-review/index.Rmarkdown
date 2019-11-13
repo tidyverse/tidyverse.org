@@ -7,6 +7,9 @@ description: >
   A look back on 2018 in the tidyverse and beyond.
 categories:
   - other
+tags:
+  - r-lib
+  - tidyverse
 photo:
   url: https://unsplash.com/photos/SshYpuf607g
   author: Aperture Vintage

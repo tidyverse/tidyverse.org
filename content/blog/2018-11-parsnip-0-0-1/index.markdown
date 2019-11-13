@@ -4,6 +4,9 @@ date: 2018-11-28
 slug: parsnip-0-0-1
 author: Max Kuhn
 categories: [package]
+tags:
+  - parsnip
+  - tidymodels
 description: >
     A tidy unified interface to models
 photo:

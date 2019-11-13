@@ -10,7 +10,9 @@ categories:
 photo:
   url: https://unsplash.com/photos/3kzlCL3rj8A
   author: Ricardo Gomez Angel
-tags: []
+tags:
+  - scales
+  - r-lib
 ---
 
 

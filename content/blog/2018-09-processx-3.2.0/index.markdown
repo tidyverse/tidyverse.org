@@ -4,6 +4,9 @@ date: 2018-09-06
 slug: processx-3.2.0
 author: Gábor Csárdi
 categories: [package]
+tags:
+  - processx
+  - r-lib
 description: >
     Run external processes with processx
 photo:

@@ -7,6 +7,9 @@ description: >
   pkgdown 1.3.0 is now on CRAN!
 categories:
   - package
+tags:
+  - pkgdown
+  - r-lib
 photo:
   url: https://pixabay.com/en/decoration-packages-gifts-ribbons-3229259/
   author: jackmac34

@@ -7,6 +7,9 @@ description: >
   broom 0.5.0 is on CRAN.
 categories:
   - package
+tags:
+  - broom
+  - tidymodels
 photo:
   url: https://unsplash.com/photos/vYcH7pI6v1Q
   author: Nagesh Badu

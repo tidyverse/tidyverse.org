@@ -10,6 +10,9 @@ photo:
   author: Anastasia Zhenina
 categories:
   - package
+tags:
+  - readr
+  - tidyverse
 ---
 
 

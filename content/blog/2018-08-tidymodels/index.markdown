@@ -7,6 +7,8 @@ description: >
   tidymodels 0.0.1 is on CRAN.
 categories:
   - package
+tags:
+  - tidymodels
 photo:
   url: https://github.com/tidymodels
   author: tidymodels
