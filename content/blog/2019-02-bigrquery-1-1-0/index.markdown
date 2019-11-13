@@ -7,6 +7,11 @@ description: >
   bigrquery 1.1.0 is now on CRAN.
 categories:
   - package
+tags:
+  - bigrquery
+  - dplyr
+  - dbplyr
+  - databases
 photo:
   url: https://www.pexels.com/photo/green-and-red-abstract-painting-1070534/
   author: Steve Johnson

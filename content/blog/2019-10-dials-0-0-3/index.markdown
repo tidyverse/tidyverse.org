@@ -4,6 +4,9 @@ date: 2019-10-01
 slug: dials-0-0-3
 author: Max Kuhn
 categories: [package]
+tags:
+  - dials
+  - tidymodels
 description: >
     A major update to the tuning parameter package. 
 photo:

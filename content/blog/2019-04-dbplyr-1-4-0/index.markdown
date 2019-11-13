@@ -6,6 +6,8 @@ slug: dbplyr-1-4-0
 categories:
   - package
 tags:
+  - dbplyr
+  - dplyr
   - databases
 photo:
   url: https://unsplash.com/photos/JuFcQxgCXwA

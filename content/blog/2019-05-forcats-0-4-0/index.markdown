@@ -7,6 +7,9 @@ description: >
   What's new in forcats 0.4.0?
 categories:
   - package
+tags:
+  - forcats
+  - tidyverse
 photo:
   url: https://www.pexels.com/photo/close-up-photo-of-a-hand-holding-three-white-kittens-1643456/
   author: Peng Louis

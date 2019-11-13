@@ -10,7 +10,6 @@ categories:
 tags:
   - dplyr
   - tidyverse
-  - package
 photo:
   url: https://unsplash.com/photos/-WAiyQLGEEc
   author: Element5 Digital

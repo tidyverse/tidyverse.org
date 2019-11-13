@@ -9,6 +9,9 @@ photo:
   url: https://unsplash.com/photos/24bzOuENxHc
   author: Ariana Prestes
 categories: [programming]
+tags:
+  - itdepends
+  - r-lib
 ---
 
 

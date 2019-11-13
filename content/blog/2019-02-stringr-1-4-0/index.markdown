@@ -7,6 +7,9 @@ description: >
     stringr 1.4.0 is now on CRAN!
 categories:
   - package
+tags:
+  - stringr
+  - tidyverse
 photo:
   url: https://unsplash.com/photos/o-d37kiKqqc
   author: Maranda Vandergriff

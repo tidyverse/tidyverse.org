@@ -4,6 +4,9 @@ date: 2019-09-26
 slug: devtools-2-2-1
 author: Jim Hester
 categories: [package]
+tags:
+  - devtools
+  - r-lib
 description: >
     Make package development easier by providing R functions that simplify and expedite common tasks.
 photo:

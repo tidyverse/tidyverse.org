@@ -7,7 +7,7 @@ description: Highlights include that `context()` is now optional, and
   new `expect_invisible()` and `expect_mapequal()` expectations.
 categories:
   - package
-tags: [package, r-lib]
+tags: [testthat, r-lib]
 photo:
   url: https://www.pexels.com/photo/38070/
   author: Skitterphoto

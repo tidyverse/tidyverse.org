@@ -7,6 +7,9 @@ description: >
   ggplot2 3.2.0 is now on CRAN!
 categories:
   - package
+tags:
+  - ggplot2
+  - tidyverse
 photo:
   url: https://unsplash.com/photos/eH_ftJYhaTY
   author: chuttersnap
