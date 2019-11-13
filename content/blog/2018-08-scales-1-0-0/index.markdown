@@ -12,6 +12,7 @@ photo:
   author: Ricardo Gomez Angel
 tags:
   - scales
+  - ggplot2
   - r-lib
 ---
 
