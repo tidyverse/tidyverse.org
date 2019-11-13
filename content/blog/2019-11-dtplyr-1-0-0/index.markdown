@@ -11,7 +11,7 @@ categories:
 tags:
   - dtplyr
   - dplyr
-  - tidverse
+  - tidyverse
 photo:
   url: https://unsplash.com/photos/h13Y8vyIXNU
   author: Jay Ruzesky
