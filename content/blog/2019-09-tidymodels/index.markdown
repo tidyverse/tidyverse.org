@@ -7,6 +7,13 @@ date: '2019-09-05'
 categories: [package]
 tags:
   - tidymodels
+  - recipes
+  - embed
+  - rsample
+  - parsnip
+  - corrr
+  - tidypredict
+  - yardstick
 photo:
   url: https://unsplash.com/photos/rqIfy1UyIzE
   author: Branden Harvey

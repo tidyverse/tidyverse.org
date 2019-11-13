@@ -7,6 +7,9 @@ description: >
   ggplot2 3.0.0 is on CRAN.
 categories:
   - package
+tags:
+  - ggplot2
+  - tidyverse
 photo:
   url: https://unsplash.com/photos/wEL2zPX3jDg
   author: Fabio Ballasina

@@ -9,6 +9,9 @@ photo:
   url: https://unsplash.com/photos/MPu7kSboG8E
   author: Philip Veater
 categories: [package]
+tags:
+  - usethis
+  - r-lib
 ---
 
 

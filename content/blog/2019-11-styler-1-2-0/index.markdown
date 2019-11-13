@@ -9,6 +9,9 @@ photo:
   url: https://unsplash.com/photos/mpdIPhYqZ4Y
 slug: styler-1-2-0
 categories: ["package"]
+tags:
+  - styler
+  - r-lib
 ---
 
 

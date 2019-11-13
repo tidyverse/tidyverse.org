@@ -7,6 +7,9 @@ description: >
   haven 2.1.0 is now on CRAN!
 categories:
   - package
+tags:
+  - haven
+  - tidyverse
 photo:
   url: https://www.pexels.com/photo/beach-lighthouse-3491/
   author: Skitterphoto

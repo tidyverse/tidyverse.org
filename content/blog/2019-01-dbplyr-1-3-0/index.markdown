@@ -7,6 +7,10 @@ description: >
   dbplyr 1.3.0 is now on CRAN.
 categories:
   - package
+tags:
+  - dbplyr
+  - dplyr
+  - tidyverse
 photo:
   url: https://unsplash.com/photos/sk59I1qRfEM
   author: Scott Webb

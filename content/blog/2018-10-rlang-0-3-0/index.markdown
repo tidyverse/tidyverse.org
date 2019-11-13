@@ -4,6 +4,9 @@ date: 2018-10-29
 slug: rlang-0-3-0
 author: Lionel Henry
 categories: [package]
+tags:
+  - rlang
+  - r-lib
 description: >
     API for working with tidy evaluation, base R types, and errors
 photo:

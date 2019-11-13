@@ -4,6 +4,9 @@ date: 2019-10-17
 slug: discrim-0-0-1
 author: Max Kuhn
 categories: [package]
+tags:
+  - discrim
+  - tidymodels
 description: >
     The first version of discrim (0.0.1) is on CRAN. 
 photo:

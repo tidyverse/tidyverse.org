@@ -7,6 +7,9 @@ description: >
   rlang 0.4.0 is now on CRAN!
 categories:
   - package
+tags:
+  - rlang
+  - r-lib
 photo:
   url: https://unsplash.com/photos/ar7ZWQ-r87g
   author: Caitlin Wynne

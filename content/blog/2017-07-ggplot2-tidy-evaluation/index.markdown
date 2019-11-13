@@ -4,6 +4,9 @@ date: '2018-07-24'
 slug: ggplot2-tidy-evaluation
 author: Mara Averick
 categories: [package]
+tags:
+  - ggplot2
+  - tidyverse
 description: >
   Using tidy evaluation in ggplot2 3.0.0.
 photo:

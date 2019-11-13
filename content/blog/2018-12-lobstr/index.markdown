@@ -7,6 +7,9 @@ description: >
   lobstr is now on CRAN. lobstr provides tools that allow you to dig into the detail of an object.
 categories:
   - package
+tags:
+  - lobstr
+  - r-lib
 photo:
   url: https://unsplash.com/photos/BmjuEqM4YOY
   author: Toa Heftiba

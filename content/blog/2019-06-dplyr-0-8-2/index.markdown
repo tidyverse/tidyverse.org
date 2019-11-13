@@ -8,6 +8,7 @@ date: '2019-06-29'
 categories: [package]
 tags:
   - dplyr
+  - tidyverse
 photo:
   url: https://unsplash.com/photos/xFTNsGW1isI
   author: Joanna Kosinska

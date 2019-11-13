@@ -9,6 +9,7 @@ categories:
   - package
 tags:
   - r-lib
+  - ragg
 photo:
   url: https://unsplash.com/photos/sBkK2VWV8Kw
   author: Gordon Williams

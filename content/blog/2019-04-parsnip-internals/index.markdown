@@ -10,6 +10,9 @@ photo:
   url: https://unsplash.com/photos/wRoyrBjSBzM
 slug: parsnip-internals
 categories: [package]
+tags:
+  - parsnip
+  - tidymodels
 ---
 
 

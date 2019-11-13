@@ -4,6 +4,9 @@ date: 2018-11-28
 slug: tibble-2.0.0-pre-announce
 author: Kirill Müller, Jenny Bryan
 categories: [package]
+tags:
+  - tibble
+  - tidyverse
 description: >
     The upcoming tibble 2.0.0 release has internal changes relevant to package developers who depend on tibble.
 photo:

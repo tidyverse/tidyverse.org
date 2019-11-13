@@ -7,10 +7,12 @@ description: >
   The first release of googledrive is now on CRAN. Operate on Google Drive files from R.
 categories:
   - package
+tags:
+  - googledrive
+  - tidyverse
 photo:
   url: https://unsplash.com/photos/wgLPy2YBXuc
   author: Paul Csogi
-tags: []
 ---
 
 We are tickled pink to announce the initial CRAN release of the [googledrive package](http://googledrive.tidyverse.org). This is a collaboration between Jenny Bryan and tidyverse intern, [Lucy D'Agostino McGowan](http://lucymcgowan.com/) (blog post on that coming soon!).

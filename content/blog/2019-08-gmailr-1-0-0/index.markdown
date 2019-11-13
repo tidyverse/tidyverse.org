@@ -8,6 +8,7 @@ date: '2019-08-26'
 categories: [package]
 tags:
   - gmailr
+  - r-lib
 photo:
   url: https://unsplash.com/photos/fb7yNPbT0l8
   author: Mathyas Kurmann

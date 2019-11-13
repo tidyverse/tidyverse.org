@@ -8,6 +8,7 @@ date: '2019-07-04'
 categories: [package]
 tags:
   - dplyr
+  - tidyverse
 photo:
   url: https://unsplash.com/photos/OxK32aLJXWU
   author: Krzysztof Niewolny

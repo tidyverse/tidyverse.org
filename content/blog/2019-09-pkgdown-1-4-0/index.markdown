@@ -10,6 +10,7 @@ categories:
   - package
 tags:
   - pkgdown
+  - r-lib
 ---
 
 We're happy to announce that [pkgdown](https://pkgdown.r-lib.org/) 1.4.0 is now

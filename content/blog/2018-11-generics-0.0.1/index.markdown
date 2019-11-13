@@ -4,6 +4,9 @@ date: 2018-11-14
 slug: generics-0.0.1
 author: Max Kuhn, Davis Vaughan
 categories: [package]
+tags:
+  - generics
+  - r-lib
 description: >
     Reduce package dependencies by using common lightweight S3 generics.
 photo:

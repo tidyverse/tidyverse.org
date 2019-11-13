@@ -9,6 +9,9 @@ photo:
   url: https://unsplash.com/photos/yaiy4mCbzw0
   author: Ganapathy Kumar
 categories: [package]
+tags:
+  - tibble
+  - tidyverse
 ---
 
 

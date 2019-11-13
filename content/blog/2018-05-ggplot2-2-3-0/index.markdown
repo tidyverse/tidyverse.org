@@ -6,6 +6,9 @@ slug: ggplot2-2-3-0
 description: >
     What you need to know about upcoming changes for ggplot2 2.3.0.
 categories: [package]
+tags:
+  - ggplot2
+  - tidyverse
 photo:
   url: https://unsplash.com/photos/OhQhkkVJYhI
   author: chuttersnap

@@ -4,6 +4,12 @@ date: 2018-11-29
 slug: tidymodels-update-nov-18
 author: Max Kuhn, Davis Vaughan, Alex Hayes
 categories: [package]
+tags:
+  - recipes
+  - yardstick
+  - embed
+  - tidyposterior
+  - tidymodels
 description: >
     A variety of updates for tidymodels packages.
 photo:

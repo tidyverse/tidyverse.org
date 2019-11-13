@@ -10,6 +10,9 @@ photo:
   author: David Hood
 categories:
   - package
+tags:
+  - readxl
+  - tidyverse
 ---
 
 

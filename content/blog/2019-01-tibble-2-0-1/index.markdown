@@ -9,6 +9,9 @@ photo:
   url: https://unsplash.com/photos/KA89yJKYtjE
   author: Marcello Gennari
 categories: [package]
+tags:
+  - tibble
+  - tidyverse
 ---
 
 

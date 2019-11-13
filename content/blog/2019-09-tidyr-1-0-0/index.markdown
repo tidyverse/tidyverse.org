@@ -7,6 +7,7 @@ categories:
   - package
 tags:
   - tidyr
+  - tidyverse
 photo:
   url: https://unsplash.com/photos/0yL6nXhn0pI
   author: Victor Garcia
