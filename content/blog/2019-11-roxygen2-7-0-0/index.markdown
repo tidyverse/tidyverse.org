@@ -27,23 +27,23 @@ install.packages("roxygen2")
 
 This a huge release containing [many minor improvements and bug fixes](https://roxygen2.r-lib.org/news/index.html#roxygen2-7-0-0). This blog post focusses on seven major improvements:
 
-* roxygen2 is no longer (ironically!) the worst documented package. It has a 
-  fresh new website, <https://roxygen2.r-lib.org>, and the vignettes have 
+* roxygen2 is no longer (ironically!) the worst documented package. It has a
+  fresh new website, <https://roxygen2.r-lib.org>, and the vignettes have
   all been updated.
 
 * We've made a number of tweaks to the rendering of `.Rd`. Most importantly
   you no longer needed to escape `%` in markdown, and functions with many
-  arguments are displayed with one argument per line. We've also removed a 
+  arguments are displayed with one argument per line. We've also removed a
   couple of old features that are no longer supported.
 
 * You can create tables and headings from markdown.
 
-* You can share text and code between your README/vignettes and your 
+* You can share text and code between your README/vignettes and your
   documentation with the new `@includeRmd` tag.
 
 * You can now document R6 classes!
 
-* A package can declare how roxygen2 should load its code, making it easier to 
+* A package can declare how roxygen2 should load its code, making it easier to
   use roxygen2 in wider variety of workflows.
 
 * roxygen2 has a documented extension mechanism so that it's easy to implement
@@ -51,7 +51,7 @@ This a huge release containing [many minor improvements and bug fixes](https://r
 
 ## Improved documentation
 
-roxygen2 finally (!!) has a [pkgdown](https://pkgdown.r-lib.org/) website! 
+roxygen2 finally (!!) has a [pkgdown](https://pkgdown.r-lib.org/) website!
 
 I used this as an opportunity to look at all the vignettes and make sure they are comprehensive and readable. These are now the best place to go if you want more details on any roxygen2 tag:
 
@@ -65,7 +65,7 @@ Of course, documentation can always be improved, so if you find something hard t
 
 When you run roxygen2 7.0.0 for the first time, you'll notice a number of changes to the rendered `.Rd`. The two most important are:
 
-* `%` (the Rd comment symbol) is now automatically escaped in markdown text. That means if you previously escaped it with `\%`, you'll need to remove the backslash and take it back to `%`. 
+* `%` (the Rd comment symbol) is now automatically escaped in markdown text. That means if you previously escaped it with `\%`, you'll need to remove the backslash and take it back to `%`.
 
     If you forget to do this, you'll see confusing `R CMD check` notes like:
 
@@ -74,16 +74,16 @@ When you run roxygen2 7.0.0 for the first time, you'll notice a number of change
     * `unexpected END_OF_INPUT`
 
 * In the "Usage" section, you'll notice the formatting of function calls has changed. Previously, function calls were wrapped to produce the smallest number of lines, e.g.:
-      
-    
+
+
     ```r
-    parse_package(path = ".", env = env_package(path), 
+    parse_package(path = ".", env = env_package(path),
       registry = default_tags(), global_options = list())
     ```
-    
+
     Now long function calls are wrapped so that each argument gets its own line:
-    
-    
+
+
     ```r
     parse_package(
       path = ".",
@@ -92,26 +92,26 @@ When you run roxygen2 7.0.0 for the first time, you'll notice a number of change
       global_options = list()
     )
     ```
-    
+
     If you prefer the old behaviour you can put the following in your
     `DESCRIPTION`:
-    
+
     ```
     Roxygen: list(old_usage = TRUE)
     ```
 
 You'll also notice a number of small improvements:
 
-* Markdown code is converted to to either `\code{}` or `\verb{}`, depending on 
-  whether it not is valid R code. For example, `` `foofy()` `` will become 
-  `\code{foofy()}` but `` `1 +` `` will become `\verb{1 + }`. This better 
-  matches the intended usage of the `\code{}` and `\verb{}` macros, and should 
-  make it easier to include arbitrary "code" snippets in documentation without 
+* Markdown code is converted to to either `\code{}` or `\verb{}`, depending on
+  whether it not is valid R code. For example, `` `foofy()` `` will become
+  `\code{foofy()}` but `` `1 +` `` will become `\verb{1 + }`. This better
+  matches the intended usage of the `\code{}` and `\verb{}` macros, and should
+  make it easier to include arbitrary "code" snippets in documentation without
   causing Rd failures.
 
 * `@family` automatically adds `()` when linking to functions,
   and prints each link on its own line (to improve diffs).
-  
+
 We've also removed a few features to simplify the code and/or clearly advertise that certain features are no longer supported:
 
 * `@S3method` has been removed. It was deprecated in roxygen2 4.0.0
@@ -121,8 +121,8 @@ We've also removed a few features to simplify the code and/or clearly advertise 
   for quite some time. Suppress the warning by remove the option from your
   `DESCRIPTION`.
 
-* `@docType package` will no longer add `-name` to the file name. If you relied 
-  on this, either switch to the 
+* `@docType package` will no longer add `-name` to the file name. If you relied
+  on this, either switch to the
   [new workflow](https://roxygen2.r-lib.org/articles/rd.html#packages), or
   use `@name` to manaully override the default file name.
 
@@ -138,7 +138,7 @@ Markdown headings can be used in top-level tags like `@description`, `@details`,
 #'
 #' ## Subheading
 #' Second sentence
-#'  
+#'
 #' # New section
 #' Third sentence
 ```
@@ -148,7 +148,7 @@ is translated to
 ```
 \details{
   First sentence
-  
+
   \subsection{Subheading}{
     Second sentence
   }
@@ -186,14 +186,14 @@ Lastly, using unsupported markdown features (like blockquotes, inline HTML, and 
     ````
     #' @includeRmd vignettes/common.Rmd
     ````
-  
+
 *   In other vignettes with:
 
     ````
     ```{r child = "common.Rmd"}
     ```
     ````
-    
+
 *   In `README.Rmd`, with:
 
     ````
@@ -201,7 +201,7 @@ Lastly, using unsupported markdown features (like blockquotes, inline HTML, and 
     ```
     ````
 
-Learn more in 
+Learn more in
 [`vignette("rd")`](https://roxygen2.r-lib.org/articles/rd.html#including-external--rmd-md-files)
 
 ## R6 documentation
@@ -210,7 +210,7 @@ You can now document R6 classes! The basic usage is straighforward and works sim
 
 
 ```r
-#' R6 Class pepresenting a person
+#' R6 Class representing a person
 #'
 #' A person has a name and a hair color.
 Person <- R6::R6Class("Person",
@@ -261,14 +261,14 @@ R6 documentation is a work in progress, so please let us know if you find anythi
 
 roxygen2 now provides three strategies for loading your code:
 
-* `load_pkgload()`, the default, uses [pkgload](https://www.github.com/r-lib/pkgload). 
-  Compared to the previous release, this now automatically recompiles your 
+* `load_pkgload()`, the default, uses [pkgload](https://www.github.com/r-lib/pkgload).
+  Compared to the previous release, this now automatically recompiles your
   package if needed.
 
-* `load_source()` attaches required packages and `source()`s all files in `R/`. 
-  This is a cruder simulation of package loading than pkgload (and e.g. is 
-  unreliable if you use S4 extensively), but it does not require that the 
-  package be compiled. Try it if the default strategy (used in roxygen2 6.1.0 
+* `load_source()` attaches required packages and `source()`s all files in `R/`.
+  This is a cruder simulation of package loading than pkgload (and e.g. is
+  unreliable if you use S4 extensively), but it does not require that the
+  package be compiled. Try it if the default strategy (used in roxygen2 6.1.0
   and above) causes you grief.
 
 * `load_installed()` assumes you have installed the package. This is best
@@ -280,7 +280,7 @@ You can override the default either by calling (e.g.) `roxygenise(load_code = "s
 
 The process for extending roxygen2 with new tags and new roclets has been completely overhauled, and is now documented in [`vignette("extending")`](https://roxygen2.r-lib.org/articles/extending.html). A big thanks goes to [Mikkel Meyer Andersen](https://github.com/mikldk) for starting on the vignette and motivating me to make the extension process much more pleasant.
 
-If you're one of the few people who have written a roxygen2 extension, sorry for breaking your code! But I genuinely believe that the improvements to the documentation, object structure, and print methods make it worth it. If you have previously made a new roclet, see the major changes in the [news](https://github.com/r-lib/roxygen2/blob/master/NEWS.md#extending-roxygen2). Since this interface is now documented, it will not change again without warning and a deprecation cycle. 
+If you're one of the few people who have written a roxygen2 extension, sorry for breaking your code! But I genuinely believe that the improvements to the documentation, object structure, and print methods make it worth it. If you have previously made a new roclet, see the major changes in the [news](https://github.com/r-lib/roxygen2/blob/master/NEWS.md#extending-roxygen2). Since this interface is now documented, it will not change again without warning and a deprecation cycle.
 
 ## Acknowledgements
 
