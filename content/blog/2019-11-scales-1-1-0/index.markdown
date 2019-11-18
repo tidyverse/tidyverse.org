@@ -1,8 +1,11 @@
 ---
 title: scales 1.1.0
 author: Hadley Wickham
-date: '2019-11-12'
+date: '2019-11-18'
 slug: scales-1-1-0
+description: 
+  scales 1.1.0 now available on CRAN. It includes a new naming scheme 
+  (with `breaks_` and `labels_` prefixes) and greatly improved documentation.
 categories:
   - package
 tags:
@@ -17,14 +20,14 @@ photo:
 
 
 We're thrilled to announce the release of [scales](https://scales.r-lib.org/) 1.1.0.
-The scales package provides much of infrastructure the underlies ggplot2's scales, and using it allow you to customize the transformations, breaks, and labels used by ggplot2. Get the latest version with:
+The scales package provides much of the infrastructure that underlies ggplot2's scales, and using it allow you to customize the transformations, breaks, and labels used by ggplot2. Get the latest version with:
 
 
 ```r
 install.packages("scales")
 ```
 
-The biggest improvements in this release of scales are related to usability and documentation:
+The biggest improvements in this release are related to usability and documentation:
 
 * Axis breaks and labels have a new naming scheme: functions that generate
   breaks from limits are called `breaks_`; functions that generate labels
@@ -34,7 +37,7 @@ The biggest improvements in this release of scales are related to usability and 
   `demo_continuous()`, `demo_discrete()`, and `demo_log10()`. These make
   it much easier to see how you'd use scales functions with ggplot2, so
   when you're [browsing the documentation](https://scales.r-lib.org/reference/index.html),
-  you can immediately how the functions work with ggplot2. 
+  you can immediately see how the functions work with ggplot2. 
 
 
 ```r
@@ -157,7 +160,7 @@ There are also a few new breaks and labels functions:
     
     <img src="figs/unnamed-chunk-8-2.png" width="700px" style="display: block; margin: auto;" />
 
-See the [change log](https://scales.r-lib.org/news/index.html#scales-1-1-0) for a full list of all changes and bug fixes in this version.
+See the [change log](https://scales.r-lib.org/news/index.html#scales-1-1-0) for a full list of changes and bug fixes in this version.
   
 ## Acknowledgements
 
