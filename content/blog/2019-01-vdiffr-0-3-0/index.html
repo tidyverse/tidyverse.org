@@ -1,0 +1,64 @@
+---
+title: 'vdiffr 0.3.0'
+author: Lionel Henry
+date: '2019-01-03'
+slug: vdiffr-0-3-0
+description: >
+  vdiffr 0.3.0 is now on CRAN.
+categories:
+  - package
+tags:
+  - vdiffr
+photo:
+  url: https://unsplash.com/photos/jHjjWSmnznc
+  author: Jakob Owens
+---
+
+
+
+<p>We’re thrilled to announce that <a href="https://github.com/lionel-/vdiffr">vdiffr 0.3.0</a> is now on CRAN! vdiffr is a testthat extension that makes it easy to add visual unit tests for R plots. Testing visualisations is hard because it is difficult to integrate in an automated workflow. vdiffr achieves this by generating SVG renditions of your plot, storing them in the <code>tests/fig</code> folder in your package, and comparing the SVGs when running the tests. If you’re developing a package for statistical graphics, you might be interested in adding vdiffr to your checking workflow.</p>
+<p>This is the first publicly announced version of vdiffr because previous versions had issues with the comparison of SVGs across platforms, such as Travis or the CRAN machines. These problems should now be fixed. If you’re already a vdiffr user, please note that you will need to regenerate all your figures with the new SVG generation engine.</p>
+<div id="create-visual-unit-tests" class="section level2">
+<h2>Create visual unit tests</h2>
+<p><code>expect_doppelganger()</code> is the main function you’ll be using to create visual unit tests. It accepts three types of input:</p>
+<ul>
+<li><p>ggplot2 objects, which are specially integrated in vdiffr (see
+below).</p></li>
+<li><p>More generally, any object whose <code>print()</code> method draws the object on the graphics device.</p></li>
+<li><p>Functions. Those will be called by vdiffr and should print the plot as side effect.</p></li>
+</ul>
+<p>Here is an example of how to use it:</p>
+<pre class="r"><code>context(&quot;Distributions&quot;)
+
+test_that(&quot;histograms draw correctly&quot;, {
+  hist_ggplot &lt;- ggplot(mtcars, aes(disp)) + geom_histogram()
+  vdiffr::expect_doppelganger(&quot;ggplot2 histogram&quot;, hist_ggplot)
+
+  hist_base &lt;- function() hist(mtcars$disp)
+  vdiffr::expect_doppelganger(&quot;Base graphics histogram&quot;, hist_base)
+})</code></pre>
+<p>The first argument of <code>expect_doppelganger()</code> is the plot title. It should be a description of what is being tested exactly by the plot. The title is also standardised (all special characters are converted to <code>-</code>) and used as a filename to store the visual case. In addition, the current testthat context (here, “Distributions”) is used as directory for all figures generated in that context. The example above creates two visual tests whose whose saved SVG files live (once validated) in <code>tests/figs/distributions/ggplot2-histogram.svg</code> and <code>tests/figs/distributions/base-graphics-histogram.svg</code>.</p>
+<p>vdiffr treats ggplot2 figures specially. First, it adds the figure title as <code>ggtitle()</code> (if the plot does not already have one). This makes the test figure self-explanatory when you open the SVG file. Secondly, if the plot does not have a ggplot2 theme, a minimalistic testing theme is automatically applied to it. This theme will not be tweaked in future ggplot2 versions to ensure some stability to the visual unit tests.</p>
+</div>
+<div id="manage-visual-tests-with-a-shiny-app" class="section level2">
+<h2>Manage visual tests with a Shiny app</h2>
+<p>New visual expectations must be validated first. To validate new figures, call <code>vdiffr::manage_cases()</code> or use the RStudio Addin installed by vdiffr. This opens a Shiny app that you will use to
+validate the figures of new visual expectations.</p>
+<p>Once the figures are validated, run <code>devtools::test()</code> in the usual way to run the visual tests. If the figure generated during the test doesn’t match its recorded version, testthat fails (but not on CRAN, see next section).</p>
+<p>When testthat reports that a visual comparison fails, open the Shiny app again. The app features several diffing widgets to help you compare the figures and detect why they don’t match. You can also revalidate the figure if the failure is the result of fixing a bug, adding a feature, or some other benign upstream change that caused a change in the appearance of your figure.</p>
+<div class="figure">
+<img src="https://raw.githubusercontent.com/lionel-/vdiffr/readme/rstudio-vdiffr.png" alt="vdiffr in RStudio" />
+<p class="caption">vdiffr in RStudio</p>
+</div>
+</div>
+<div id="testing-versus-monitoring" class="section level2">
+<h2>Testing versus Monitoring</h2>
+<p>When a figure doesn’t match its saved version, it is only reported as a failure under these circumstances:</p>
+<ul>
+<li><p>When the <code>NOT_CRAN</code> environment variable is set. Note that devtools sets this automatically when the tests are run interactively.</p></li>
+<li><p>On Travis, Appveyor, or any environment where the <code>Sys.getenv(&quot;CI&quot;)</code> is set.</p></li>
+</ul>
+<p>Otherwise, the failure is ignored. The motivation for this is that vdiffr is a monitoring tool and shouldn’t cause R CMD check failures on the CRAN machines.</p>
+<p>This behaviour is motivated by the inherent fragility of visual comparisons. The exact way plots are rendered depends on a lot of upstream logic, such as the way margins are computed. vdiffr uses a special ggplot2 theme that should change very rarely, but there are just too many upstream factors that could cause breakages. In the end, visual testing is not an alternative to writing unit tests for the internal data transformations performed during the creation of your figure. It is more of a monitoring tool that allows you to quickly check how the appearance of your figures changes over time, and to manually assess whether changes reflect actual problems in your packages.</p>
+<p>If you need to override the default vdiffr behaviour on CRAN (not recommended) or Travis (for example to run the tests in a particular builds but not others), set the <code>VDIFFR_RUN_TESTS</code> environment variable to “true” or “false”.</p>
+</div>

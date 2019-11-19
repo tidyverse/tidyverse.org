@@ -1,0 +1,115 @@
+---
+title: 'rlang 0.3.1'
+author: Lionel Henry
+date: '2019-01-10'
+slug: rlang-0-3-1
+description: >
+  rlang 0.3.1 is now on CRAN.
+categories:
+  - package
+tags:
+  - rlang
+  - r-lib
+photo:
+  url: https://unsplash.com/photos/FhdN5QVrBfY
+  author: Eberhard Grossgasteiger
+---
+
+
+
+<p>The patch release 0.3.1 of rlang is now on CRAN! This release polishes the rlang backtraces introduced in 0.3.0. See the <a href="https://rlang.r-lib.org/news/index.html#rlang-0-3-1">NEWS</a> for the complete set of changes. The main feature is <code>rlang::entrace()</code>, that you can set as a global error handler to get rlang backtraces for <em>all</em> errors.</p>
+<div id="numbered-backtraces" class="section level2">
+<h2>Numbered backtraces</h2>
+<p>Since rlang 0.3.0, errors thrown with <code>abort()</code> embed a backtrace that can be consulted by calling <code>last_error()</code>. We have improved the appearance of the backtraces by numbering its components. Let’s trigger an error within a complicated call stack:</p>
+<pre class="r"><code>f &lt;- function() tryCatch(g(), warning = identity) # Try g()
+g &lt;- function() evalq(h())                        # Eval h()
+h &lt;- function() abort(&quot;Oh no!&quot;)                   # And fail!
+
+f()</code></pre>
+<div class="output">
+<pre class="knitr r">#&gt; Error: Oh no!
+#&gt; <span style='color: #555555;'>Call `rlang::last_error()` to see a backtrace</span><span>
+</span></pre>
+</div>
+<p>The simplified backtrace shown on error is now numbered:</p>
+<pre class="r"><code>last_error()</code></pre>
+<div class="output">
+<pre class="knitr r">#&gt; <span style='font-weight: bold;'>&lt;error&gt;</span><span>
+#&gt; message: </span><span style='font-style: italic;'>Oh no!</span><span>
+#&gt; class:   `rlang_error`
+#&gt; backtrace:
+#&gt; </span><span style='color: #555555;'> 1. </span><span style='color: #BB0000;'>global::f()</span><span>
+#&gt; </span><span style='color: #555555;'> 6. </span><span style='color: #BB0000;'>global::g()</span><span>
+#&gt; </span><span style='color: #555555;'> 9. </span><span style='color: #BB0000;'>global::h()</span><span>
+#&gt; </span><span style='color: #555555;'>Call `rlang::last_trace()` to see the full backtrace</span><span>
+</span></pre>
+</div>
+<p>Notice how the numbering is not sequential? That’s because <code>last_error()</code> displays a simplified backtrace by default, that only includes the calls that are most likely to help you figure out a problem. Call the new function <code>last_trace()</code> to get the full picture:</p>
+<pre class="r"><code>last_trace()</code></pre>
+<div class="output">
+<pre class="knitr r">#&gt; <span style='color: #555555;'>    </span><span>█
+#&gt; </span><span style='color: #555555;'> 1. </span><span>└─global::f()
+#&gt; </span><span style='color: #555555;'> 2. </span><span>  ├─base::tryCatch(g(), warning = identity)
+#&gt; </span><span style='color: #555555;'> 3. </span><span>  │ └─base:::tryCatchList(expr, classes, parentenv, handlers)
+#&gt; </span><span style='color: #555555;'> 4. </span><span>  │   └─base:::tryCatchOne(expr, names, parentenv, handlers[[1L]])
+#&gt; </span><span style='color: #555555;'> 5. </span><span>  │     └─base:::doTryCatch(return(expr), name, parentenv, handler)
+#&gt; </span><span style='color: #555555;'> 6. </span><span>  └─global::g()
+#&gt; </span><span style='color: #555555;'> 7. </span><span>    ├─base::evalq(h())
+#&gt; </span><span style='color: #555555;'> 8. </span><span>    │ └─base::evalq(h())
+#&gt; </span><span style='color: #555555;'> 9. </span><span>    └─global::h()
+</span></pre>
+</div>
+<p>Note that this full backtrace is the equivalent of <code>base::traceback()</code>, only structured as a tree, presented in reverse order, and with namespace prefixes. Here is the output of <code>traceback()</code> for comparison:</p>
+<pre class="output"><code>#&gt; 9: h()
+#&gt; 8: evalq(h())
+#&gt; 7: evalq(h()) at #1
+#&gt; 6: g()
+#&gt; 5: doTryCatch(return(expr), name, parentenv, handler)
+#&gt; 4: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+#&gt; 3: tryCatchList(expr, classes, parentenv, handlers)
+#&gt; 2: tryCatch(g(), warning = identity) at #1
+#&gt; 1: f()</code></pre>
+</div>
+<div id="backtraces-for-base-errors" class="section level2">
+<h2>Backtraces for base errors!</h2>
+<p>These backtraces are normally only recorded for errors thrown with <code>abort()</code>. This leaves out errors thrown with <code>stop()</code>, errors thrown from native C code, and warnings converted to errors. Starting from this release, insert this snippet in your RProfile to enable backtraces for all errors:</p>
+<pre class="r"><code>if (requireNamespace(&quot;rlang&quot;, quietly = TRUE)) {
+  options(error = rlang::entrace)
+}</code></pre>
+<p>With this in place, any unhandled error will record an rlang backtrace automatically:</p>
+<pre class="r"><code>h &lt;- function() stop(&quot;stop!&quot;)
+f()</code></pre>
+<div class="output">
+<pre class="knitr r">#&gt; Error: stop!
+#&gt; <span style='color: #555555;'>Call `rlang::last_error()` to see a backtrace</span><span>
+</span></pre>
+</div>
+<p>The backtrace can be consulted in the ordinary way:</p>
+<pre class="r"><code>last_error()</code></pre>
+<div class="output">
+<pre class="knitr r">#&gt; <span style='font-weight: bold;'>&lt;error&gt;</span><span>
+#&gt; message: </span><span style='font-style: italic;'>stop!</span><span>
+#&gt; class:   `rlang_error`
+#&gt; backtrace:
+#&gt; </span><span style='color: #555555;'> 1. </span><span style='color: #BB0000;'>global::f()</span><span>
+#&gt; </span><span style='color: #555555;'> 6. </span><span style='color: #BB0000;'>global::g()</span><span>
+#&gt; </span><span style='color: #555555;'> 9. </span><span style='color: #BB0000;'>global::h()</span><span>
+#&gt; </span><span style='color: #555555;'>Call `rlang::last_trace()` to see the full backtrace</span><span>
+</span></pre>
+</div>
+<pre class="r"><code>last_trace()</code></pre>
+<div class="output">
+<pre class="knitr r">#&gt; <span style='color: #555555;'>    </span><span>█
+#&gt; </span><span style='color: #555555;'> 1. </span><span>└─global::f()
+#&gt; </span><span style='color: #555555;'> 2. </span><span>  ├─base::tryCatch(g(), warning = identity)
+#&gt; </span><span style='color: #555555;'> 3. </span><span>  │ └─base:::tryCatchList(expr, classes, parentenv, handlers)
+#&gt; </span><span style='color: #555555;'> 4. </span><span>  │   └─base:::tryCatchOne(expr, names, parentenv, handlers[[1L]])
+#&gt; </span><span style='color: #555555;'> 5. </span><span>  │     └─base:::doTryCatch(return(expr), name, parentenv, handler)
+#&gt; </span><span style='color: #555555;'> 6. </span><span>  └─global::g()
+#&gt; </span><span style='color: #555555;'> 7. </span><span>    ├─base::evalq(h())
+#&gt; </span><span style='color: #555555;'> 8. </span><span>    │ └─base::evalq(h())
+#&gt; </span><span style='color: #555555;'> 9. </span><span>    └─global::h()
+</span></pre>
+</div>
+<p>Both the entracing of base errors and the simplification of backtraces are experimental, but they should already work well enough to be useful in your day-to-day work. We’d love to hear about your feedback!</p>
+</div>

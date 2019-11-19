@@ -1,0 +1,117 @@
+---
+title: readxl 1.1.0
+slug: readxl-1-1-0
+description: >
+  readxl 1.1.0 is now on CRAN.
+author: Jenny Bryan
+date: 2018-04-23
+categories:
+  - package
+tags:
+  - readxl
+  - tidyverse
+photo:
+  url: https://twitter.com/Thoughtfulnz/status/987900521309614080
+  author: David Hood
+output:
+  blogdown::html_page:
+    css: "/css/article-image.css"
+---
+
+  <link rel="stylesheet" href="/css/article-image.css" type="text/css" />
+
+
+<p>We are pleased to announce that <a href="http://readxl.tidyverse.org">readxl</a> 1.1.0 is now available on CRAN. Learn more about readxl at <a href="http://readxl.tidyverse.org" class="uri">http://readxl.tidyverse.org</a>.</p>
+<p>The readxl package makes it easy to get tabular data out of Excel files and into R with code, not mouse clicks. It supports both the legacy <code>.xls</code> format and the modern XML-based <code>.xlsx</code> format. readxl is expressly designed to be easy to install and use on all operating systems. Therefore it has no external dependencies, such as Java or Perl, which have historically been a source of aggravation with some R packages that read Excel files.</p>
+<p>The easiest way to install the latest version from CRAN is to install the whole tidyverse.</p>
+<pre class="r"><code>install.packages(&quot;tidyverse&quot;)</code></pre>
+<p>Alternatively, install just readxl from CRAN:</p>
+<pre class="r"><code>install.packages(&quot;readxl&quot;)</code></pre>
+<p>Regardless, you will still need to load readxl explicitly via <code>library(readxl)</code>, because it is not a core tidyverse package loaded via <code>library(tidyverse)</code>. Do this like so in your scripts:</p>
+<pre class="r"><code>library(readxl)</code></pre>
+<p>readxl was last released almost exactly one year ago, in April 2017, at version 1.0.0. The associated <a href="http://readxl.tidyverse.org/articles/releases/readxl-1.0.0.html">blog post</a> summarizes many nifty new features in version 1.0.0. In contrast, version 1.1.0 is considerably less exciting for most users, but includes two important improvements:</p>
+<ul>
+<li>Security patches in the embedded libxls library</li>
+<li>Better support for detecting the format of files, i.e. whether to read as xls or xlsx</li>
+</ul>
+<p>Version 1.1.0 also includes several other small features and bug fixes. For full details on all versions, see the <a href="http://readxl.tidyverse.org/news/index.html">changelog</a>.</p>
+<p>Read (or skip!) <a href="#readxl-in-the-real-world">to the end for a story</a> about how readxl was used in a recent Los Angeles Times piece about homeless arrests. Or, rather, was not used.</p>
+<div id="security-fixes-for-libxls" class="section level2">
+<h2>Security fixes for libxls</h2>
+<p>readxl embeds the library <a href="https://github.com/evanmiller/libxls">libxls</a> in order to read xls files. Three security vulnerabilities have been identified in libxls and were shown to affect readxl (<a href="https://en.wikipedia.org/wiki/Common_Vulnerabilities_and_Exposures">CVE = Common Vulnerabilities and Exposures</a>):</p>
+<ul>
+<li><a href="https://www.talosintelligence.com/vulnerability_reports/TALOS-2017-0462">CVE-2017-12110</a></li>
+<li><a href="https://www.talosintelligence.com/vulnerability_reports/TALOS-2017-0403">CVE-2017-2896</a></li>
+<li><a href="https://www.talosintelligence.com/vulnerability_reports/TALOS-2017-0404">CVE-2017-2897</a></li>
+</ul>
+<p>Those have now been addressed upstream and version 1.1.0 of readxl embeds a version of libxls that includes those fixes.</p>
+<p>Two other CVEs mention readxl, but actually concern parts of libxls unused by readxl or problems that were identified and fixed before readxl existed. <a href="https://www.talosintelligence.com/vulnerability_reports/TALOS-2017-0463">CVE-2017-12111</a>, <a href="https://www.talosintelligence.com/vulnerability_reports/TALOS-2017-0426">CVE-2017-2919</a></p>
+<p>The recent maintenance of libxls by Evan Miller (<a href="https://github.com/evanmiller">@evanmiller</a>) is a very positive development and has allowed us to close many readxl issues related to crashes or other unsavory behaviour seen when reading specific xls files.</p>
+</div>
+<div id="is-it-xls-or-xlsx" class="section level2">
+<h2>Is it xls or xlsx?</h2>
+<p>readxl has 3 main functions for reading Excel files:</p>
+<ul>
+<li><a href="http://readxl.tidyverse.org/reference/read_excel.html"><code>read_xlsx()</code></a> reads input as xlsx</li>
+<li><a href="http://readxl.tidyverse.org/reference/read_excel.html"><code>read_xls()</code></a> reads input as xls</li>
+<li><a href="http://readxl.tidyverse.org/reference/read_excel.html"><code>read_excel()</code></a> determines whether the input is xls or xlsx, then calls one of the functions above</li>
+</ul>
+<p><code>read_excel()</code> has gotten better at inferring the file format and this functionality is now exposed, in case others need access. This is implemented in <a href="http://readxl.tidyverse.org/reference/excel_format.html"><code>excel_format()</code></a>, which first calls <a href="http://readxl.tidyverse.org/reference/excel_format.html"><code>format_from_ext()</code></a> to consult the extension and may then fall back to <a href="http://readxl.tidyverse.org/reference/excel_format.html"><code>format_from_signature()</code></a> to consult the <a href="https://en.wikipedia.org/wiki/List_of_file_signatures">file’s signature</a>, a.k.a. its “magic number”.</p>
+<p><code>format_from_ext()</code> and, therefore, <code>excel_format()</code>, now recognize more file extensions in the xlsx family, namely <code>.xlsm</code>, <code>.xltx</code>, and <code>.xltm</code>, in addition to <code>.xlsx</code>.</p>
+<pre class="r"><code>library(readxl)
+library(tibble)
+
+tibble(
+  excel_paths  = c(&quot;a.xlsx&quot;, &quot;b.xls&quot;, &quot;c.xlsm&quot;, &quot;d.xltx&quot;, &quot;e.jpg&quot;, &quot;f.csv&quot;, &quot;g&quot;),
+  format = excel_format(excel_paths, guess = FALSE) # consult extension **only**
+)
+#&gt; # A tibble: 7 x 2
+#&gt;   excel_paths format
+#&gt;   &lt;chr&gt;       &lt;chr&gt; 
+#&gt; 1 a.xlsx      xlsx  
+#&gt; 2 b.xls       xls   
+#&gt; 3 c.xlsm      xlsx  
+#&gt; 4 d.xltx      xlsx  
+#&gt; 5 e.jpg       &lt;NA&gt;  
+#&gt; 6 f.csv       &lt;NA&gt;  
+#&gt; 7 g           &lt;NA&gt;</code></pre>
+<p><code>format_from_signature()</code> and, therefore, <code>excel_format()</code> can determine the format of extensionless Excel files.</p>
+<pre class="r"><code>guess_my_format &lt;- c(
+  readxl_example(&quot;clippy.xls&quot;),
+  readxl_example(&quot;datasets.xlsx&quot;),
+  file.path(R.home(&quot;doc&quot;), &quot;html&quot;, &quot;logo.jpg&quot;)
+)
+
+## copy and strip the extension
+filename &lt;- tools::file_path_sans_ext(basename(guess_my_format))
+tmpdir &lt;- tempdir()
+file.copy(from = guess_my_format, to = file.path(tmpdir, filename))
+#&gt; [1] TRUE TRUE TRUE
+
+tibble(
+  filename = filename,
+  format = excel_format(file.path(tmpdir, filename))
+)
+#&gt; # A tibble: 3 x 2
+#&gt;   filename format
+#&gt;   &lt;chr&gt;    &lt;chr&gt; 
+#&gt; 1 clippy   xls   
+#&gt; 2 datasets xlsx  
+#&gt; 3 logo     &lt;NA&gt;</code></pre>
+</div>
+<div id="readxl-in-the-real-world" class="section level2">
+<h2>readxl in the real world</h2>
+<p>According to <a href="https://cranlogs.r-pkg.org">METACRAN</a>, readxl has over 2.7 million cumulative downloads and is typically in the top 50 CRAN packages in terms of monthly downloads. readxl has relatively few reverse dependencies (only about 70), so I believe the vast majority of usage occurs in users’ R scripts. And these users throw an incredibly diverse set of Excel files at readxl, mostly with quiet success.</p>
+<p>A recent failure, however, inspired an <a href="https://github.com/tidyverse/readxl/commit/eeeebf8171540a7cd14b373d20b08efbac7e3cd2">upgrade of readxl’s parsing of xlsx files</a>. <a href="https://twitter.com/christinezhang">Christine Zhang</a> (<a href="https://github.com/underthecurve">@underthecurve</a>) did the data work behind a <a href="http://www.latimes.com/local/politics/la-me-homeless-arrests-20180204-story.html">front-page Los Angeles Times story about homeless arrests</a>. The Los Angeles Police Department provides daily arrest logs in the form of xlsx files, written by an unknown third-party tool. These files are a literal implementation of the “minimal conformant SpreadsheetML package” and we had never seen such a specimen before. Both R/tidyverse/readxl and Python/pandas/xlrd refused to read these files. Undeterred, Christine took advantage of the fact that xlsx is “just” a bunch of XML files and took matters into her own hands. But I <a href="https://github.com/tidyverse/readxl/pull/437">got busy</a>, making sure that readxl would be ready the next time.</p>
+<p>Read the full backstory behind the LA Times story here: <a href="https://source.opennews.org/articles/how-we-found-new-patterns-la-homeless-arrest/">How We Found New Patterns in LA’s Homeless Arrest Data</a>. In the end, Christine got her job done and readxl is a more capable package as a result of this challenge.</p>
+</div>
+<div id="future-outlook" class="section level2">
+<h2>Future outlook</h2>
+<p>I predict the next user-visible changes in readxl will be improvements around column type specification, cell coercion, and reading from more general forms of input, e.g., from a URL. You can see other improvements and bug fixes that are on the radar in <a href="https://github.com/tidyverse/readxl/issues">readxl’s GitHub issues</a>.</p>
+<p>The next release will also have a breaking-ish change around name repair. readxl will switch to <a href="http://tibble.tidyverse.org/reference/tidy_names.html"><code>tibble::set_tidy_names()</code></a>, which remediates missing and duplicate variable names. I will make this change soon in the dev version, so that interested users can begin to adjust.</p>
+</div>
+<div id="acknowledgements" class="section level2">
+<h2>Acknowledgements</h2>
+<p>I am very thankful to the maintainers of the embedded libraries, especially the recent work on libxls by David Hoerl (<a href="https://github.com/dhoerl">@dhoerl</a>) and Evan Miller (<a href="https://github.com/evanmiller">@evanmiller</a>). readxl includes a great deal of compiled code, from disparate sources, and Jim Hester (<a href="https://github.com/jimhester">@jimhester</a>) is a fantastic troubleshooter. David Hood (<a href="https://github.com/thoughtfulbloke">@thoughtfulbloke</a>) delivered some delightful Clippy photos (featured here), in response to an <a href="https://twitter.com/JennyBryan/status/987415546596503552">absurd Twitter request</a>.</p>
+<p>A big thanks goes out to the 86 users who contributed issues and pull requests since the previous readxl release: <a href="https://github.com/aaa34169">@aaa34169</a>, <a href="https://github.com/afdta">@afdta</a>, <a href="https://github.com/alexeyknorre">@alexeyknorre</a>, <a href="https://github.com/alexhallam">@alexhallam</a>, <a href="https://github.com/anjurad">@anjurad</a>, <a href="https://github.com/arnyeinstein">@arnyeinstein</a>, <a href="https://github.com/batpigandme">@batpigandme</a>, <a href="https://github.com/bbrewington">@bbrewington</a>, <a href="https://github.com/bellafeng">@bellafeng</a>, <a href="https://github.com/burchill">@burchill</a>, <a href="https://github.com/chrisholbrook">@chrisholbrook</a>, <a href="https://github.com/Courvoisier13">@Courvoisier13</a>, <a href="https://github.com/danielsjf">@danielsjf</a>, <a href="https://github.com/DavisVaughan">@DavisVaughan</a>, <a href="https://github.com/dchiu911">@dchiu911</a>, <a href="https://github.com/Deepu298">@Deepu298</a>, <a href="https://github.com/dpprdan">@dpprdan</a>, <a href="https://github.com/ea-guerette">@ea-guerette</a>, <a href="https://github.com/espinielli">@espinielli</a>, <a href="https://github.com/gergness">@gergness</a>, <a href="https://github.com/gp2x">@gp2x</a>, <a href="https://github.com/heseber">@heseber</a>, <a href="https://github.com/hlynurhallgrims">@hlynurhallgrims</a>, <a href="https://github.com/hrecht">@hrecht</a>, <a href="https://github.com/huftis">@huftis</a>, <a href="https://github.com/hughmarera">@hughmarera</a>, <a href="https://github.com/iiLaurens">@iiLaurens</a>, <a href="https://github.com/ilpepe">@ilpepe</a>, <a href="https://github.com/Ironholds">@Ironholds</a>, <a href="https://github.com/jameshowison">@jameshowison</a>, <a href="https://github.com/jamesLSI">@jamesLSI</a>, <a href="https://github.com/jcolomb">@jcolomb</a>, <a href="https://github.com/jebyrnes">@jebyrnes</a>, <a href="https://github.com/jekriske-lilly">@jekriske-lilly</a>, <a href="https://github.com/jennybc">@jennybc</a>, <a href="https://github.com/jeroen">@jeroen</a>, <a href="https://github.com/jimhester">@jimhester</a>, <a href="https://github.com/jjcad">@jjcad</a>, <a href="https://github.com/Jmarks199">@Jmarks199</a>, <a href="https://github.com/KKPMW">@KKPMW</a>, <a href="https://github.com/krlmlr">@krlmlr</a>, <a href="https://github.com/kwstat">@kwstat</a>, <a href="https://github.com/KyleHaynes">@KyleHaynes</a>, <a href="https://github.com/Lu2017">@Lu2017</a>, <a href="https://github.com/lz1nwm">@lz1nwm</a>, <a href="https://github.com/m-macaskill">@m-macaskill</a>, <a href="https://github.com/mbeer">@mbeer</a>, <a href="https://github.com/mdbauer">@mdbauer</a>, <a href="https://github.com/melikovk">@melikovk</a>, <a href="https://github.com/MichaelChirico">@MichaelChirico</a>, <a href="https://github.com/MidhunT">@MidhunT</a>, <a href="https://github.com/MikhailLagutin">@MikhailLagutin</a>, <a href="https://github.com/mplatzer">@mplatzer</a>, <a href="https://github.com/msgoussi">@msgoussi</a>, <a href="https://github.com/nacnudus">@nacnudus</a>, <a href="https://github.com/nealrichardson">@nealrichardson</a>, <a href="https://github.com/nick-ulle">@nick-ulle</a>, <a href="https://github.com/nortonle">@nortonle</a>, <a href="https://github.com/oozdmr">@oozdmr</a>, <a href="https://github.com/PMassicotte">@PMassicotte</a>, <a href="https://github.com/ramanan82">@ramanan82</a>, <a href="https://github.com/reinderien">@reinderien</a>, <a href="https://github.com/reinierv4">@reinierv4</a>, <a href="https://github.com/robbriers">@robbriers</a>, <a href="https://github.com/RobertMyles">@RobertMyles</a>, <a href="https://github.com/rsbivand">@rsbivand</a>, <a href="https://github.com/rstub">@rstub</a>, <a href="https://github.com/ruaridhw">@ruaridhw</a>, <a href="https://github.com/sebastianschweer">@sebastianschweer</a>, <a href="https://github.com/shoebodh">@shoebodh</a>, <a href="https://github.com/simonthelwall">@simonthelwall</a>, <a href="https://github.com/slfan2013">@slfan2013</a>, <a href="https://github.com/smasuda">@smasuda</a>, <a href="https://github.com/sncr-github">@sncr-github</a>, <a href="https://github.com/stephlocke">@stephlocke</a>, <a href="https://github.com/steve4444">@steve4444</a>, <a href="https://github.com/sz-cgt">@sz-cgt</a>, <a href="https://github.com/t-kalinowski">@t-kalinowski</a>, <a href="https://github.com/tarunparmar">@tarunparmar</a>, <a href="https://github.com/tbeu">@tbeu</a>, <a href="https://github.com/thothal">@thothal</a>, <a href="https://github.com/tomsing1">@tomsing1</a>, <a href="https://github.com/tres-pitt">@tres-pitt</a>, <a href="https://github.com/vkapartzianis">@vkapartzianis</a>, <a href="https://github.com/willtudorevans">@willtudorevans</a>, and <a href="https://github.com/zauster">@zauster</a>.</p>
+</div>

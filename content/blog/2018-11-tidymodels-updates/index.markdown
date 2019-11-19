@@ -1,0 +1,191 @@
+---
+title: tidymodels package updates
+date: 2018-11-29
+slug: tidymodels-update-nov-18
+author: Max Kuhn, Davis Vaughan, Alex Hayes
+categories: [package]
+tags:
+  - recipes
+  - yardstick
+  - embed
+  - tidyposterior
+  - tidymodels
+description: >
+    A variety of updates for tidymodels packages.
+photo:
+  url: https://unsplash.com/photos/O6N9RV2rzX8
+  author: Jeremy Thomas
+---
+
+
+
+
+Along with the release of [`parsnip`](https://tidymodels.github.io/parsnip/) there are new versions of many `tidymodels` packages: [`recipes`](https://tidymodels.github.io/recipes/), [`yardstick`](https://tidymodels.github.io/yardstick/), [`embed`](https://tidymodels.github.io/embed/), [`tidyposterior`](https://tidymodels.github.io/tidyposterior/), and [`tidymodels`](https://github.com/tidymodels/tidymodels). 
+
+We made the conscious choice to add all of the breaking changes now instead of spreading them out over a few versions. The biggest changes are in `yardstick` and `recipes` and these are described below.
+
+One change across all of these packages: `broom` is no longer used to obtain the `tidy` S3 methods. Instead, the [`generics` package](https://www.tidyverse.org/articles/2018/11/generics-0.0.1/) is imported so that we might reduce dependencies. 
+
+## **yardstick**
+
+This is a large release for yardstick, with more metrics, grouped
+data frame integration, multiclass metric support, and a few breaking changes.
+
+### Breaking changes
+
+These changes were made with the intention of standardizing both the API and the output of each metric.
+
+All metrics now return a tibble rather than a single numeric value. This sets
+the groundwork for allowing metrics to be used with grouped data frames, and
+allows more informative output to be returned from each metric.
+
+To preserve some of the old behavior,  `_vec()` functions have been added for each
+metric. These take vectors as inputs and return a single numeric result.
+
+A number of small breaking changes have been made to be in line with the tidymodels [model implementation principles](https://tidymodels.github.io/model-implementation-principles/). These include: `mnLogLoss()` being renamed to [`mn_log_loss()`](https://tidymodels.github.io/yardstick/reference/mn_log_loss.html), the `na.rm` argument being renamed to `na_rm`, and other similar changes that reflect a standardization that is being implemented across the entire tidymodels ecosystem. All of the changes are documented in the [NEWS](https://tidymodels.github.io/yardstick/news/index.html#breaking-changes).
+
+### Multiclass metrics 
+
+A multiclass model is a classification model that has more than two potential outputs. Until now, the only metric with multiclass support was [`accuracy()`](https://tidymodels.github.io/yardstick/reference/accuracy.html) because its definition extends naturally into the multiclass world. Now, all metrics have some form of multiclass support through the concepts of macro and micro averaging. To learn about how these types of averaging work, read the new [vignette](https://tidymodels.github.io/yardstick/articles/multiclass.html).
+
+As an example, the following data set has columns for an observed multiclass result, the predicted class, individual class probability predictions, and the current resample (out of 10).
+
+
+```r
+library(dplyr)
+data("hpc_cv")
+hpc_single_resample <- filter(hpc_cv, Resample == "Fold01")
+head(hpc_single_resample, n = 1)
+```
+
+```
+#>   obs pred    VF      F       M        L Resample
+#> 1  VF   VF 0.914 0.0779 0.00848 1.99e-05   Fold01
+```
+
+```r
+# The outcome has 4 potential values
+unique(hpc_single_resample$obs)
+```
+
+```
+#> [1] VF F  M  L 
+#> Levels: VF F M L
+```
+
+yardstick will automatically detect that the input is from a multiclass model, 
+and will choose to use macro averaging by default in most cases.
+
+
+```r
+precision(hpc_single_resample, obs, pred)
+```
+
+```
+#> # A tibble: 1 x 3
+#>   .metric   .estimator .estimate
+#>   <chr>     <chr>          <dbl>
+#> 1 precision macro          0.637
+```
+
+To tell yardstick metrics to use a different variant of averaging, use the `estimator`
+argument to specify `"macro"`, `"micro"` or `"macro_weighted"` averaging, among
+others depending on the metric.
+
+### Grouped data frames
+
+To calculate metrics on multiple resamples at once, yardstick now recognizes 
+grouped data frames and calculates the metric on each group separately.
+
+
+```r
+hpc_grouped <- hpc_cv %>%
+  group_by(Resample)
+
+hpc_grouped %>%
+  pr_auc(obs, VF:L) %>%
+  head(3)
+```
+
+```
+#> # A tibble: 3 x 4
+#>   Resample .metric .estimator .estimate
+#>   <chr>    <chr>   <chr>          <dbl>
+#> 1 Fold01   pr_auc  macro          0.595
+#> 2 Fold02   pr_auc  macro          0.599
+#> 3 Fold03   pr_auc  macro          0.682
+```
+
+Combined with [`metric_set()`](https://tidymodels.github.io/yardstick/reference/metric_set.html), a new function for combining multiple metrics into one function call, this workflow makes calculating a large number of metrics over multiple resamples a quick task. We encourage you to check out the example section of [`metric_set()`'s help page](https://tidymodels.github.io/yardstick/reference/metric_set.html) if you are interested in learning more.
+
+### Curve functions
+
+Four new "curve" functions have been added to compute the full ROC curve, precision-recall curve, lift curve, and gain curve. Each of these functions has a corresponding `ggplot2::autoplot()` method. Combined with the grouped data frame support, this greatly simplifies some aspects of visualizing model performance.
+
+
+```r
+library(ggplot2)
+hpc_grouped %>%
+  roc_curve(obs, VF:L) %>%
+  autoplot() +
+  ggtitle("One-VS-All ROC Curve", subtitle = "Computed for each resample")
+```
+
+<img src="/articles/2018-11-tidymodels-updates_files/figure-html/unnamed-chunk-4-1.png" width="700px" style="display: block; margin: auto;" />
+
+### New metrics and vignettes
+
+The following metrics are new in this release: [`mape()`](https://tidymodels.github.io/yardstick/reference/mape.html), [`kap()`](https://tidymodels.github.io/yardstick/reference/kap.html), [`detection_prevalence()`](https://tidymodels.github.io/yardstick/reference/detection_prevalence.html), [`bal_accuracy()`](https://tidymodels.github.io/yardstick/reference/bal_accuracy.html), [`roc_curve()`](https://tidymodels.github.io/yardstick/reference/roc_curve.html), [`pr_curve()`](https://tidymodels.github.io/yardstick/reference/pr_curve.html), [`gain_curve()`](https://tidymodels.github.io/yardstick/reference/gain_curve.html), [`lift_curve()`](https://tidymodels.github.io/yardstick/reference/lift_curve.html), and [`gain_capture()`](https://tidymodels.github.io/yardstick/reference/gain_capture.html).
+
+There are also three new vignettes. One has already been mentioned that describes [multiclass averaging](https://tidymodels.github.io/yardstick/articles/multiclass.html). The other two focus on the three main [metric types](https://tidymodels.github.io/yardstick/articles/metric-types.html) in yardstick, and on implementing [custom metrics](https://tidymodels.github.io/yardstick/articles/custom-metrics.html) for personal use.
+
+## **recipes**
+
+### Breaking changes
+
+One big change was to make the argument names more consistent with the tidyverse standards and to also make them consistent with `dials` and other packages. For example, [`step_pca()`](https://tidymodels.github.io/recipes/reference/step_pca.html) now has an argument `num_comp` that replaces the previous `num` argument. This will pay off later when we enable the detection of tuning parameters and the automatic determination of grid values or parameter ranges. The biggest name change is in [`bake()`](https://tidymodels.github.io/recipes/reference/bake.html); `newdata` is now `new_data`. For the time being, a warning will be issued when `newdata` is used but that won't last past the next version. The list of name changes are detailed [here](https://tidymodels.github.io/recipes/news/index.html). 
+
+In recipes, variables can have different roles (e.g. "predictor" or "outcome"). Beyond those set by the package, roles are largely user specified and can be pretty much anything. Previously, only a single role was allowed. The new version of recipes expands the number of roles per column. This now means that [`add_role()`](https://tidymodels.github.io/recipes/reference/roles.html) will _append_ roles, and the new function [`update_role()`](https://tidymodels.github.io/recipes/reference/roles.html) will reset them. It also changes how the `summary()` results for a recipe are returned since there can now be multiple rows per column variable. 
+
+A feature that we will be working on in the _next_ version is to be able to reference (and use) previous steps. For example, if you center some variables, you might want to uncenter them at a later step. For this future feature, this version of `recipes` mandates an ID field for each step. The ID can be anything, but the current convention is to use the step name followed by random digits (e.g. `"center_irqtH"`). 
+
+Another change was to default the [`prep()`](https://tidymodels.github.io/recipes/reference/prep.html) option `retain` to `TRUE`. We (and others) found that this was something that is always done since it allows [`juice()`](https://tidymodels.github.io/recipes/reference/juice.html) to get the processed training set at no extra cost. The down-side is that, if the training set is large, you carry a large copy of the data inside the recipe. When the `verbose` option is turned on, a message is printed showing the size of the training set, i.e.: 
+
+> "The retained training set is ~ 20.0 Mb  in memory." 
+
+This size estimate is approximate since the base R function `object.size()` is used, which does not count objects in any environments that are carried along.
+
+Finally, a number of steps check for duplicate names and will throw an error during `prep()` if this occurs. This behavior may slightly change in the future due to changes in the `tibble` package related to how unique names should treated be when creating data frames. 
+
+
+### New steps
+
+A big new feature in this version of `recipes` is the addition of `dplyr`-related steps: [`step_arrange()`](https://tidymodels.github.io/recipes/reference/step_arrange.html), [`step_filter()`](https://tidymodels.github.io/recipes/reference/step_filter.html), [`step_mutate()`](https://tidymodels.github.io/recipes/reference/step_mutate.html), [`step_sample()`](https://tidymodels.github.io/recipes/reference/step_sample.html), and [`step_slice()`](https://tidymodels.github.io/recipes/reference/step_slice.html). They follow their `dplyr` analogs. [`step_sample()`](https://tidymodels.github.io/recipes/reference/step_sample.html) covers both `dplyr::sample_n()` and `dplyr::sample_frac()`. Other new steps include:
+
+* [`step_integer()`](https://tidymodels.github.io/recipes/reference/step_integer.html) converts data to ordered integers similar to [`LabelEncoder`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html).
+
+* [`step_geodist()`](https://tidymodels.github.io/recipes/reference/step_geodist.html) can be used to calculate the distance between geocodes and a single reference location.
+
+* [`step_nnmf()`](https://tidymodels.github.io/recipes/reference/step_nnmf.html) computes the non-negative matrix factorization components for non-negative data. 
+
+List-columns are also supported in `recipes` now. [`summary.recipe()`](https://tidymodels.github.io/recipes/reference/summary.recipe.html) now shows `type` column values as "list" and these can be selected using `has_type("list")`. When printing the recipe, a row is labeled as missing when its entire list element is missing (e.g. `is.na(list[[i]])` is `TRUE`). If the list element has some non-missing values, it is not counted as missing. 
+
+
+There are also bug fixes and other small changes that can be found in the [News file](https://tidymodels.github.io/recipes/news/index.html). 
+
+
+## **rsample**
+
+A function [`initial_time_split()`](https://tidymodels.github.io/rsample/reference/initial_split.html) was added. It can be used to create _ordered_ initial splits and would be appropriate for time series data. 
+
+(**breaking change**) Also, the `recipes`-related [`prepper()`](https://tidymodels.github.io/recipes/reference/prepper.html) function was moved to the `recipes` package. This makes the `rsample`'s install footprint much smaller. 
+
+Finally, `rsplit` objects have a better representation inside of tibbles when the sample sizes are large. 
+
+## **embed**
+
+The tensorflow function [`step_embed()`](https://tidymodels.github.io/embed/reference/step_embed.html) can now handle callbacks to `keras`. This enables a few different features, including stopping when a convergence criterion is met.  
+
+## **tidymodels**
+
+We added [`parsnip`](https://tidymodels.github.io/parsnip/) and [`dials`](https://tidymodels.github.io/dials/) to the core set of packages and bumped all packages up to their current versions. 

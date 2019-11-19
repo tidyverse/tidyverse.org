@@ -1,0 +1,56 @@
+---
+title: 'haven 2.0.0'
+author: Mara Averick
+date: '2019-01-02'
+slug: haven-2-0-0
+description: > 
+  haven 2.0.0 is now on CRAN.
+categories:
+  - package
+tags:
+  - haven
+  - tidyverse
+photo:
+  url: https://unsplash.com/photos/D5OzyJ71mLI
+  author: Robert Wiedemann
+---
+
+
+
+<p>We’re pleased to announce that <a href="https://haven.tidyverse.org/">haven 2.0.0</a> is now on CRAN. haven enables R to read and write various data formats used by other statistical packages by wrapping the <a href="https://github.com/WizardMac/ReadStat">ReadStat</a> C library written by <a href="http://www.evanmiller.org/">Evan Miller</a>. As always, you can find a detailed account of all the changes in this release in the <a href="https://haven.tidyverse.org/news/index.html#haven-2-0-0">Changelog</a>.</p>
+<div id="breaking-changes" class="section level2">
+<h2>Breaking changes</h2>
+<p>The biggest change is that <a href="https://haven.tidyverse.org/reference/labelled.html"><code>labelled()</code></a> and <a href="https://haven.tidyverse.org/reference/labelled_spss.html"><code>labelled_spss()</code></a> now produce objects with class “haven_labelled” and “haven_labelled_spss”. This resolves a <a href="https://github.com/tidyverse/haven/issues/329">problematic clash</a> with the labelled class defined by <a href="http://www.fharrell.com/">Frank Harrell</a>’s <a href="https://cran.r-project.org/web/packages/Hmisc/index.html">Hmisc</a> package.</p>
+<p>Given Hmisc has been around much longer than haven (Hmisc’s oldest source <a href="https://cran.r-project.org/src/contrib/Archive/Hmisc/">archive on CRAN</a> is from 2003), it makes sense that haven should be the one to make the change. This will require some changes to packages that use haven, but shouldn’t affect user code.</p>
+<pre class="r"><code>x1 &lt;- haven::labelled(c(1, 1, 2), c(Grunt = 1, Sgt = 2),
+                      label = &quot;Army status&quot;)
+
+class(x1)
+#&gt; [1] &quot;haven_labelled&quot;</code></pre>
+<pre class="r"><code>x2 &lt;- haven::labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf),
+                           label = &quot;Quality rating&quot;)
+
+class(x2)
+#&gt; [1] &quot;haven_labelled_spss&quot; &quot;haven_labelled&quot;</code></pre>
+</div>
+<div id="minor-improvements" class="section level2">
+<h2>Minor improvements</h2>
+<p><code>labelled()</code> and <code>labelled_spss()</code> now support adding the label attribute to the resulting object (as seen in the code above). The label is a short, human-readable description of the object, and is now also used when printing, and can be easily removed using the new <a href="https://haven.tidyverse.org/reference/zap_label.html"><code>zap_label()</code></a> function.</p>
+<pre class="r"><code>x1
+#&gt; &lt;Labelled double&gt;: Army status
+#&gt; [1] 1 1 2
+#&gt; 
+#&gt; Labels:
+#&gt;  value label
+#&gt;      1 Grunt
+#&gt;      2   Sgt
+
+zap_labels(x1)
+#&gt; [1] 1 1 2
+#&gt; attr(,&quot;label&quot;)
+#&gt; [1] &quot;Army status&quot;</code></pre>
+</div>
+<div id="acknowledgements" class="section level2">
+<h2>Acknowledgements</h2>
+<p>A special thanks to <a href="https://github.com/huftis">Karl Ove Hufthammer</a> for implementing <code>zap_label()</code>, as well as to the 30 others who contributed to this release: <a href="https://github.com/ajdamico">@ajdamico</a>, <a href="https://github.com/alexeyknorre">@alexeyknorre</a>, <a href="https://github.com/batpigandme">@batpigandme</a>, <a href="https://github.com/beckerbenj">@beckerbenj</a>, <a href="https://github.com/caayala">@caayala</a>, <a href="https://github.com/Crismoc">@Crismoc</a>, <a href="https://github.com/dar143">@dar143</a>, <a href="https://github.com/davidc92">@davidc92</a>, <a href="https://github.com/elbersb">@elbersb</a>, <a href="https://github.com/gergness">@gergness</a>, <a href="https://github.com/hadley">@hadley</a>, <a href="https://github.com/helge-baumann">@helge-baumann</a>, <a href="https://github.com/HughParsonage">@HughParsonage</a>, <a href="https://github.com/iadli100">@iadli100</a>, <a href="https://github.com/JanMarvin">@JanMarvin</a>, <a href="https://github.com/jeffeaton">@jeffeaton</a>, <a href="https://github.com/jimhester">@jimhester</a>, <a href="https://github.com/jmetzel">@jmetzel</a>, <a href="https://github.com/larmarange">@larmarange</a>, <a href="https://github.com/lemzwerg">@lemzwerg</a>, <a href="https://github.com/Majid-Eismann">@Majid-Eismann</a>, <a href="https://github.com/nealrichardson">@nealrichardson</a>, <a href="https://github.com/oscardssmith">@oscardssmith</a>, <a href="https://github.com/philstraforelli">@philstraforelli</a>, <a href="https://github.com/reyntjesr">@reyntjesr</a>, <a href="https://github.com/rubenarslan">@rubenarslan</a>, <a href="https://github.com/sjkiss">@sjkiss</a>, <a href="https://github.com/visseho">@visseho</a>, <a href="https://github.com/zkamvar">@zkamvar</a>, and <a href="https://github.com/zross">@zross</a>.</p>
+</div>

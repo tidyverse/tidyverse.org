@@ -1,0 +1,148 @@
+---
+title: callr 3.3.0
+slug: callr-3.3.0
+author: Gábor Csárdi
+date: '2019-07-08'
+description: >
+  callr 3.3.0 is now on CRAN
+categories:
+- package
+tags:
+  - callr
+  - r-lib
+photo:
+  url: https://pixabay.com/photos/venus-flytrap-carnivorous-plant-1531345
+  author: MonikaP
+---
+
+
+
+<STYLE type='text/css' scoped>
+PRE.fansi SPAN {padding-top: .25em; padding-bottom: .25em};
+</STYLE>
+<p>We have just updated the <a href="https://callr.r-lib.org/">callr</a> package to version 3.3.0 on CRAN.
+The biggest change in this release is better support for debugging the
+background process. See the full
+<a href="https://callr.r-lib.org/news/index.html">changelog here</a>.</p>
+<p>callr helps with running R code in a separate R process, synchronously or
+asynchronously. With synchronous execution the main R process waits until
+the separate R subprocess finishes, see <a href="https://callr.r-lib.org/reference/r.html"><code>callr::r()</code></a>. Asynchronous execution
+uses <a href="https://processx.r-lib.org/">processx</a> processes, see <a href="https://callr.r-lib.org/reference/r_bg.html"><code>callr::r_bg()</code></a>
+and <a href="https://callr.r-lib.org/reference/r_process.html"><code>callr::r_process()</code></a> for one-off and <a href="https://callr.r-lib.org/reference/r_session.html"><code>callr::r_session()</code></a> for persistent
+background R processes.</p>
+<div id="callr-error-objects" class="section level2">
+<h2>callr error objects</h2>
+<p>Debugging code running in a background process is notoriously difficult.
+Most of the time you cannot use an interactive debugger, and often even
+print-debugging, i.e. inserting <code>print()</code> and <code>cat()</code> calls into the
+code that runs in the background, can be non-trivial.</p>
+<p>The new 3.3.0 version of callr aims to help with this, by creating better
+error messages and error traces for errors originating from the background
+process. In particular, callr now always throws error objects that
+contain:</p>
+<ul>
+<li>the exit status of the R process, if the process terminated,</li>
+<li>the full error object thrown in the subprocess,</li>
+<li>the call that generated the error,</li>
+<li>the process id of the subprocess, and</li>
+<li>the full stack trace in the subprocess.</li>
+</ul>
+<p>Here is an example for a trivial error that shows how to extract this
+information if the error was caught in the main process:</p>
+<pre class="r"><code>err &lt;- tryCatch(
+  callr::r(function() library(Callr)),
+  error = function(e) e)
+err
+#&gt; &lt;callr_status_error: callr subprocess failed: there is no package called ‘Callr’&gt;
+#&gt;  in process 
+#&gt; --&gt;
+#&gt; &lt;callr_remote_error in library(Callr): there is no package called ‘Callr’&gt;</code></pre>
+<p>The error objects has two parts. The first is the error object thrown in
+the main process, and the second is the error object from the the
+subprocess. We can extract more information from <code>err</code>:</p>
+<pre class="r"><code>err$status
+#&gt; [1] 0
+err$parent
+#&gt; &lt;callr_remote_error in library(Callr): there is no package called ‘Callr’&gt;
+err$parent$call
+#&gt; function() library(Callr)
+err$parent$`_pid`
+#&gt; [1] 79124</code></pre>
+<p><code>err$status</code> is the exit status of the subprocess. This is not present
+for persistent background processes, i.e. the ones created by <code>r_session</code>,
+because these do not exit on error, but continue running. <code>err$parent</code> is
+the error object, thrown in the subprocess. <code>err$parent$call</code> is the call
+that generated the error, and <code>err$parent$`_pid`</code> is the process id
+of the subprocess.</p>
+<p>The stack trace of the error in subprocess can be printed via
+<code>err$parent$trace</code>. By default the trace omits the boilerplate frames
+added by callr, these are usually not very useful for the user.
+Nevertheless they are still included in <code>err$parent$trace$calls</code>.</p>
+<pre class="r"><code>err$parent$trace</code></pre>
+<PRE class="fansi fansi-output"><CODE>#&gt; 
+#&gt; <span style='font-weight: bold;'> ERROR TRACE for packageNotFoundError</span><span>
+#&gt; 
+#&gt; </span><span style='color: #555555;'> 12. </span><span>(function ()  ...
+#&gt; </span><span style='color: #555555;'> 13. </span><span style='color: #BBBB00;'>base:::library</span><span>(Callr)
+#&gt;     </span><span style='color: #00BBBB;font-style: italic;'>R/&lt;text&gt;:2:12</span><span>
+#&gt; </span><span style='color: #555555;'> 14. </span><span style='color: #BBBB00;'>base:::stop</span><span>(packageNotFoundError(package, lib.loc, sys.call()))
+#&gt; </span><span style='color: #555555;'> 15. </span><span>(function (e)  ...
+#&gt; </span><span style='color: #BB0000;font-weight: bold;'>
+#&gt;  x there is no package called ‘Callr’ </span><span>
+</span></CODE></PRE>
+<p>The trace starts with the anonymous function that we passed to <code>callr::r()</code>,
+and it is annotated with package names and source references, if they are
+available.</p>
+</div>
+<div id="the-last-error" class="section level2">
+<h2>The last error</h2>
+<p>Often, the error object is uncaught, i.e. we don’t <code>tryCatch()</code> the error
+in the main R process. Then the error message is printed, but the actual
+error object is lost, and you need to re-run the code in a <code>tryCatch()</code>,
+hoping that it would produce the same error.</p>
+<p>For a better workflow, whenever a callr error is uncaught, callr
+assigns it to the <code>.Last.error</code> variable, that can be inspected.
+Of course, a subsequent callr error will overwrite <code>.Last.error</code>, it works very
+much like <code>.Last.value</code>, but for errors. Here is the same code as above
+but without the <code>tryCatch()</code>:</p>
+<pre class="r"><code>callr::r(function() library(Callr))
+#&gt; Error: callr subprocess failed: there is no package called ‘Callr’</code></pre>
+<pre class="r"><code>.Last.error
+#&gt; &lt;callr_status_error: callr subprocess failed: there is no package called ‘Callr’&gt;
+#&gt; --&gt;
+#&gt; &lt;callr_remote_error in library(Callr): there is no package called ‘Callr’&gt;
+.Last.error$parent$call
+#&gt; function() library(Callr)</code></pre>
+</div>
+<div id="the-last-error-trace" class="section level2">
+<h2>The last error trace</h2>
+<p>If the error is uncaught, then callr adds a trace to the error object of
+the main process as well. The trace will have two parts in this case.
+callr also sets the <code>.Last.error.trace</code> variable for convenience, this is
+easier to type than <code>.Last.error$trace</code>.</p>
+<pre class="r"><code>.Last.error.trace</code></pre>
+<PRE class="fansi fansi-output"><CODE>#&gt; 
+#&gt; <span style='font-weight: bold;'> ERROR TRACE for callr_status_error, callr_error, rlib_error</span><span>
+#&gt; 
+#&gt;  </span><span style='font-weight: bold;'>Process 79108:</span><span>
+#&gt; </span><span style='color: #555555;'> 30. </span><span style='color: #BBBB00;'>callr::r</span><span>(function() library(Callr))
+#&gt; </span><span style='color: #555555;'> 31. </span><span style='color: #BBBB00;'>callr:::get_result</span><span>(output = out, options)
+#&gt;     </span><span style='color: #00BBBB;font-style: italic;'>R/eval.R:149:3</span><span>
+#&gt; </span><span style='color: #555555;'> 32. </span><span style='color: #BBBB00;'>base:::throw</span><span>(new_callr_error(output, msg), parent = err[[2]])
+#&gt;     </span><span style='color: #00BBBB;font-style: italic;'>R/result.R:73:5</span><span>
+#&gt; </span><span style='color: #BB0000;font-weight: bold;'>
+#&gt;  x callr subprocess failed: there is no package called ‘Callr’ </span><span>
+#&gt; 
+#&gt;  </span><span style='font-weight: bold;'>Process 79135:</span><span>
+#&gt; </span><span style='color: #555555;'> 44. </span><span>(function ()  ...
+#&gt; </span><span style='color: #555555;'> 45. </span><span style='color: #BBBB00;'>base:::library</span><span>(Callr)
+#&gt;     </span><span style='color: #00BBBB;font-style: italic;'>R/&lt;text&gt;:1:10</span><span>
+#&gt; </span><span style='color: #555555;'> 46. </span><span style='color: #BBBB00;'>base:::stop</span><span>(packageNotFoundError(package, lib.loc, sys.call()))
+#&gt; </span><span style='color: #555555;'> 47. </span><span>(function (e)  ...
+#&gt; </span><span style='color: #BB0000;font-weight: bold;'>
+#&gt;  x there is no package called ‘Callr’ </span><span>
+</span></CODE></PRE>
+<p>The top part of the trace contains the frames in the main process, and the
+bottom part contains the frames in the subprocess, starting with the
+anonymous function.</p>
+</div>

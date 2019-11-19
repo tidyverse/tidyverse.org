@@ -1,0 +1,68 @@
+---
+title: pkgdown 1.4.0
+author: Hadley Wickham
+date: '2019-09-05'
+slug: pkgdown-1-4-0
+photo:
+  url: https://unsplash.com/photos/ytMmedc6y44
+  author: noodle kimm
+categories:
+  - package
+tags:
+  - pkgdown
+---
+
+We're happy to announce that [pkgdown](https://pkgdown.r-lib.org/) 1.4.0 is now
+available on CRAN. pkgdown is designed to make it quick and easy to build a
+website for your package. Install it with:
+
+```{r, eval = FALSE}
+install.packages("pkgdown")
+```
+
+## Development and deployment modes
+
+The main change in this version is that [`build_site()`](https://pkgdown.r-lib.org/reference/build_site.html), [`build_reference()`](https://pkgdown.r-lib.org/reference/build_reference.html) and  [`build_home()`](https://pkgdown.r-lib.org/reference/build_home.html) gain a `devel` parameter that controls whether you're in deployment or development mode. 
+
+*  `devel = FALSE` activates deployment mode, which installs the package into a 
+    temporary library, and runs examples/articles in a new process. It's the
+    default for `build_site()`. 
+  
+    If you're using `build_site()` as part of an existing deployment workflow, 
+    you may need to set `install = FALSE` so that the package doesn't get 
+    installed twice.
+
+*   `devel = TRUE` activates development mode, simulates package loading with
+    `pkgload::load_all()` and does all work in the same process. This makes it
+    most suitable for rapid iteration, and so is the default for 
+    `build_reference()`. 
+  
+There were two related changes to `build_reference()` and `build_home()`: `build_reference()` no longer runs `devtools::document()` and `build_home()` no longer rebuilds `README.Rmd`.  This makes pkgdown's responsibilities more clear: it only modifies files in `docs/`.
+
+## Other important changes
+
+* [`build_home()`](https://pkgdown.r-lib.org/reference/build_home.html) now 
+  strips quotes from `Title` and `Description` fields when generating page 
+  metadata. Additionally, you can now override the defaults via the `title` 
+  and `description` fields in the `home` section of `_pkgdown.yml`. Setting a 
+  custom title is good practice as it allows you to add "R" and "package" to 
+  the title, which is likely to be useful for SEO.
+
+* [`vignette("linking")`](https://pkgdown.r-lib.org/articles/linking.html) 
+  describes how pkgdown's automatic linking works, and how to ensure that
+  cross-package links point to the right place. 
+  
+* For external packages, if we can't find an existing pkgdown website to link
+  to we now link to <https://rdrr.io>.
+
+* The rendering of `\examples{}`, `\dots`, `\tabular{}`, `\subsection{}`,
+  and `\preformatted{}` has been improved.
+
+* The navbar is now automatically hidden with 
+  [headroom.js](https://wicky.nillia.ms/headroom.js/), and the sidebar
+  is implemented with pure CSS.
+
+## Acknowledgements
+
+A big thank you goes to [&#x0040;jayhesselberth](https://github.com/jayhesselberth) (the co-maintainer of pkgdown), and to to the 77 other people who contributed to the release:
+[&#x0040;abodnahk](https://github.com/abodnahk), [&#x0040;agila5](https://github.com/agila5), [&#x0040;AliciaSchep](https://github.com/AliciaSchep), [&#x0040;andrie](https://github.com/andrie), [&#x0040;aravind-j](https://github.com/aravind-j), [&#x0040;asardaes](https://github.com/asardaes), [&#x0040;Bisaloo](https://github.com/Bisaloo), [&#x0040;Blackglade](https://github.com/Blackglade), [&#x0040;burgerga](https://github.com/burgerga), [&#x0040;cboettig](https://github.com/cboettig), [&#x0040;cderv](https://github.com/cderv), [&#x0040;chfleming](https://github.com/chfleming), [&#x0040;choisy](https://github.com/choisy), [&#x0040;CrumpLab](https://github.com/CrumpLab), [&#x0040;davidski](https://github.com/davidski), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;ddiez](https://github.com/ddiez), [&#x0040;docbiz](https://github.com/docbiz), [&#x0040;dongzhuoer](https://github.com/dongzhuoer), [&#x0040;dpprdan](https://github.com/dpprdan), [&#x0040;echasnovski](https://github.com/echasnovski), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;emilyriederer](https://github.com/emilyriederer), [&#x0040;espinielli](https://github.com/espinielli), [&#x0040;florisvdh](https://github.com/florisvdh), [&#x0040;flying-sheep](https://github.com/flying-sheep), [&#x0040;Fredo-XVII](https://github.com/Fredo-XVII), [&#x0040;grabear](https://github.com/grabear), [&#x0040;GregorDeCillia](https://github.com/GregorDeCillia), [&#x0040;gustavdelius](https://github.com/gustavdelius), [&#x0040;gvegayon](https://github.com/gvegayon), [&#x0040;hadley](https://github.com/hadley), [&#x0040;ijlyttle](https://github.com/ijlyttle), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;jackwasey](https://github.com/jackwasey), [&#x0040;jangorecki](https://github.com/jangorecki), [&#x0040;jemus42](https://github.com/jemus42), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jeroen](https://github.com/jeroen), [&#x0040;JohnCoene](https://github.com/JohnCoene), [&#x0040;katrinleinweber](https://github.com/katrinleinweber), [&#x0040;kevinushey](https://github.com/kevinushey), [&#x0040;kkmann](https://github.com/kkmann), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;maelle](https://github.com/maelle), [&#x0040;maksymiuks](https://github.com/maksymiuks), [&#x0040;manish-saraswat-olx](https://github.com/manish-saraswat-olx), [&#x0040;maurolepore](https://github.com/maurolepore), [&#x0040;maxheld83](https://github.com/maxheld83), [&#x0040;maximilianmordig](https://github.com/maximilianmordig), [&#x0040;mcanouil](https://github.com/mcanouil), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;mitchelloharawild](https://github.com/mitchelloharawild), [&#x0040;mjsteinbaugh](https://github.com/mjsteinbaugh), [&#x0040;msberends](https://github.com/msberends), [&#x0040;muschellij2](https://github.com/muschellij2), [&#x0040;NEONKID](https://github.com/NEONKID), [&#x0040;noamross](https://github.com/noamross), [&#x0040;nteetor](https://github.com/nteetor), [&#x0040;paul-buerkner](https://github.com/paul-buerkner), [&#x0040;peterdesmet](https://github.com/peterdesmet), [&#x0040;ramiromagno](https://github.com/ramiromagno), [&#x0040;rorynolan](https://github.com/rorynolan), [&#x0040;royfrancis](https://github.com/royfrancis), [&#x0040;s-fleck](https://github.com/s-fleck), [&#x0040;scizmeli](https://github.com/scizmeli), [&#x0040;sdhutchins](https://github.com/sdhutchins), [&#x0040;seanhardison1](https://github.com/seanhardison1), [&#x0040;seymakalay](https://github.com/seymakalay), [&#x0040;sharlagelfand](https://github.com/sharlagelfand), [&#x0040;surmann](https://github.com/surmann), [&#x0040;talgalili](https://github.com/talgalili), [&#x0040;TheOnlyArtz](https://github.com/TheOnlyArtz), [&#x0040;thierrygosselin](https://github.com/thierrygosselin), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;tobyhodges](https://github.com/tobyhodges), and [&#x0040;yiluheihei](https://github.com/yiluheihei)

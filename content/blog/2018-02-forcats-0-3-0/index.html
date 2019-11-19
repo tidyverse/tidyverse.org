@@ -1,0 +1,63 @@
+---
+title: "forcats 0.3.0"
+slug: forcats-0-3-0
+description: >
+    A new version of forcats is now on CRAN.
+date: 2018-02-21
+author: Mara Averick
+photo:
+  url: https://www.pexels.com/photo/photo-of-a-cat-sleeping-on-gray-concrete-bench-757457/
+  author: Nicole Law
+categories: [package]
+tags:
+  - forcats
+  - tidyverse
+---
+
+
+
+<p>We are pleased to announce that <a href="http://forcats.tidyverse.org/">forcats 0.3.0</a> is now on CRAN.</p>
+<p>The forcats package provides a suite of useful tools that solve common problems with factors in R. This version includes updates that resolve several of the “most popular” GitHub issues (as measured by reactions), some of which are highlighted below. For a complete set of changes, please see the <a href="https://github.com/tidyverse/forcats/releases/tag/v0.3.0">release notes</a>.</p>
+<p>You can install the latest version with:</p>
+<pre class="r"><code>install.packages(&quot;forcats&quot;)</code></pre>
+<div id="improvements-to-na-handling" class="section level3">
+<h3>Improvements to NA handling</h3>
+<p>Closing out one of the most up-voted <a href="https://github.com/tidyverse/forcats/issues/89">issues</a> in the tidyverse, <code>as_factor()</code> and <code>fct_inorder()</code> can accept NA levels.</p>
+<p><code>fct_inorder()</code> allows you to reorder factor levels by their first appearance. In this latest release, NAs are properly ignored.</p>
+<pre class="r"><code># forcats 0.3.0
+f &lt;- factor(c(&quot;b&quot;, &quot;b&quot;, NA, &quot;a&quot;, &quot;c&quot;, &quot;c&quot;, &quot;c&quot;, NA))
+f
+#&gt; [1] b    b    &lt;NA&gt; a    c    c    c    &lt;NA&gt;
+#&gt; Levels: a b c
+fct_inorder(f)
+#&gt; [1] b    b    &lt;NA&gt; a    c    c    c    &lt;NA&gt;
+#&gt; Levels: b a c</code></pre>
+<p><code>fct_lump()</code> now correctly accounts for NA in input. <code>lvls_revalue()</code> preserves NA levels. Missing values, including NAs, can be given an explicit factor level using <code>fct_explicit_na()</code>, which ensures that missing values will appear in summaries and plots.</p>
+</div>
+<div id="new-features" class="section level3">
+<h3>New features</h3>
+<p>Consistent with other tidyverse packages, all functions that take <code>...</code> now use tidy dots. This means that you can use <code>!!!</code> to splice in a list of values, and trailing empty arguments are automatically removed. For example:</p>
+<pre class="r"><code>fa &lt;- factor(&quot;a&quot;)
+fb &lt;- factor(&quot;b&quot;)
+fab &lt;- factor(c(&quot;a&quot;, &quot;b&quot;))
+
+# You can pass a list of factors with !!!
+fs &lt;- list(fa, fb, fab)
+fct_c(!!!fs)
+#&gt; [1] a b a b
+#&gt; Levels: a b</code></pre>
+<p>All other arguments to functions that take <code>...</code> gain a <code>.</code> prefix in order to avoid unhelpful matching of named arguments.</p>
+<p><code>fct_lump()</code> has a new argument, <code>w</code>, for weighing value frequencies before lumping them together. This is useful if you have pre-summarised data.</p>
+</div>
+<div id="api-changes" class="section level3">
+<h3>API changes</h3>
+<p>We needed to make two backward incompatible changes in order to increase consistency across the tidyverse:</p>
+<ul>
+<li><p><code>fct_c()</code> now requires explicit splicing with <code>!!!</code> if you have a list of factors that you want to combine. See example, above.</p></li>
+<li><p><code>fct_reorder()</code> and <code>fct_reorder2()</code> have renamed <code>fun</code> to <code>.fun</code> to avoid spurious matching of named arguments.</p></li>
+</ul>
+</div>
+<div id="contributors" class="section level3">
+<h3>Contributors</h3>
+<p>A big thanks goes to the 30-plus people who made this release possible by opening issues and contributing code: <a href="https://github.com/alistaire47">@alistaire47</a>, <a href="https://github.com/antaldaniel">@antaldaniel</a>, <a href="https://github.com/arhot">@arhot</a>, <a href="https://github.com/BarkleyBG">@BarkleyBG</a>, <a href="https://github.com/camdenhu">@camdenhu</a>, <a href="https://github.com/ColinFay">@ColinFay</a>, <a href="https://github.com/dannyparsons">@dannyparsons</a>, <a href="https://github.com/davechilders">@davechilders</a>, <a href="https://github.com/dpavlic">@dpavlic</a>, <a href="https://github.com/eclarke">@eclarke</a>, <a href="https://github.com/econandrew">@econandrew</a>, <a href="https://github.com/felipegerard">@felipegerard</a>, <a href="https://github.com/geneanalyst">@geneanalyst</a>, <a href="https://github.com/GlynisHumphrey">@GlynisHumphrey</a>, <a href="https://github.com/gregrs-uk">@gregrs-uk</a>, <a href="https://github.com/huftis">@huftis</a>, <a href="https://github.com/instantkaffee">@instantkaffee</a>, <a href="https://github.com/jmpsteen">@jmpsteen</a>, <a href="https://github.com/jtr13">@jtr13</a>, <a href="https://github.com/krlmlr">@krlmlr</a>, <a href="https://github.com/michaellevy">@michaellevy</a>, <a href="https://github.com/NBRAYKO">@NBRAYKO</a>, <a href="https://github.com/pbiecek">@pbiecek</a>, <a href="https://github.com/philstraforelli">@philstraforelli</a>, <a href="https://github.com/robinsones">@robinsones</a>, <a href="https://github.com/rtaph">@rtaph</a>, <a href="https://github.com/s-fleck">@s-fleck</a>, <a href="https://github.com/Tazinho">@Tazinho</a>, <a href="https://github.com/thercast">@thercast</a>, <a href="https://github.com/vspinu">@vspinu</a>, <a href="https://github.com/whatevergeek">@whatevergeek</a>, <a href="https://github.com/wilkox">@wilkox</a>, and <a href="https://github.com/wkostelecki">@wkostelecki</a>.</p>
+</div>

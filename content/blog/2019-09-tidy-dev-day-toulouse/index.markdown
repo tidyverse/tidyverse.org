@@ -1,0 +1,53 @@
+---
+title: 'Tidy dev day take two: Toulouse'
+author: Mara Averick and Hadley Wickham
+description: >
+  Reflections on tidyverse dev day at useR! 2019.
+date: '2019-09-06'
+slug: tidy-dev-day-toulouse
+categories:
+  - other
+tags: [tidyverse-dev-day]
+photo:
+  author: Romain François
+---
+
+
+
+We had our second official [tidyverse developer
+day](https://www.tidyverse.org/articles/2019/04/tidyverse-dev-day-at-user-2019/)
+just before [useR! 2019](http://www.user2019.fr/) in Toulouse. It was a fun day, and we managed to merge around **40** pull
+requests on the day, and [nearly **30** more](https://github.com/search?q=is%3Apr+label%3A%22tidy-dev-day+%3Anerd_face%3A%22+created%3A%3E2019-07-07+is%3Amerged&type=Issues) afterwards. You can learn more about the experience in the words of attendees [Laura
+Acion](https://lacion.rbind.io/post/my-first-user/) and [Dragos
+Moldovan-Grünfeld](https://www.mango-solutions.com/blog/user2019-roundup-workflow-reproducibility-and-friends).
+
+<!--html_preserve-->{{% tweet "1148252922272190464" %}}<!--/html_preserve-->
+
+The event was particularly successful thanks to a few changes we made after our 
+[first try](https://www.tidyverse.org/articles/2018/11/tidyverse-developer-day-2019/):
+
+  - 🤝 **Helpers** The goal of TDD is to provide 
+    opportunities for everyone to contribute, regardless of their level of 
+    expertise. This time we made sure to recruit plenty of helpers (~20 for 
+    ~70 participants) and to clearly identify them with snazzy nametags. Having 
+    friendly faces circulating and ready to lend a hand made the event much 
+    warmer for newcomers (and helping others is pretty satisfying, too).
+  
+  - 🏷 **Post-its** Searching GitHub issues for a problem you
+    can help solve is hard enough at the best of times, but it's darn near 
+    impossible when you're competing with a room full of people. To make it
+    easier we went back to the basics and paired every GitHub issue with a 
+    colour-coded sticky note. This made it much easier to find issues, and 
+    as a side-benefit made it possible to see collective progress over the day 
+    as post-its migrated from `To Do` to `Under Review` to `Done`.
+  
+  - 🛎 **The gong** Getting your PR merged is a cause for
+    celebration, and Hadley likes to travel with a gong. It was only natural 
+    to combine these two truths by ringing the gong every time a PR was merged!
+ 
+We will be hosting our next tidyverse dev day on **January 31st** in San
+Francisco, following [rstudio::conf(2020)](https://www.rstudio.com/conference/).
+We haven't yet finalized a venue, but it'll be convenient to the conference 
+location.
+
+

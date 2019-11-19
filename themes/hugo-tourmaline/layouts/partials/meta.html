@@ -1,0 +1,38 @@
+<!--meta tags-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+{{ $og_image := "" }}
+{{ $og_image = printf "images/%s" .Site.Params.sharing_image | absURL }}
+{{- with $og_image -}}
+  <meta name="og:image" content="{{ . }}" >
+{{- end -}}
+{{ hugo.Generator }}
+
+{{- if or .IsHome (not (eq .Section "blog")) -}}
+  <title>{{ .Site.Title }}</title>
+  <meta property="og:title" content="{{ .Site.Title }}">
+  <meta property="og:type" content="website">
+  <meta property="description" content="{{ .Site.Params.description }}">
+  <meta property="og:description" content="{{ .Site.Params.description }}">
+  {{ $twitter_card := "summary_large_image" }}
+    <meta property="twitter:card" content="{{ $twitter_card }}">
+  {{ $twitter_image := "" }}
+  {{ $twitter_image = printf "images/%s" .Site.Params.sharing_image | absURL }}
+  {{- with $twitter_image -}}
+    <meta name="twitter:image" content="{{ . }}" >
+  {{- end -}}
+
+{{- else -}}
+  <title>{{ .Title }}{{ with .Params.subtitle }} - {{ . }} {{ end }} - {{ .Site.Title }}</title>
+  <meta property="og:title" content="{{ .Title }} - {{ .Site.Title }}">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary">
+  {{ $thumbnail := (.Resources.ByType "image").GetMatch "*-sq*" }}
+  {{ if $thumbnail }}
+    <meta name="twitter:image" content="{{ $thumbnail.Permalink }}" >
+  {{ end }}
+  <meta property="description" content="{{ .Params.description }}">
+  <meta property="og:description" content="{{ .Params.description }}">
+
+{{- end }}

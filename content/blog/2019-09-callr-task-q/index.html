@@ -1,0 +1,645 @@
+---
+title: Multi Process Task Queue in 100 Lines of R Code
+slug: callr-task-q
+author: Gábor Csárdi
+date: '2019-09-09'
+description: >
+  We use `callr::r_session` to implement a worker pool and task queue in
+  100 lines of R code.
+categories:
+- programming
+- deep-dive
+tags:
+  - callr
+  - r-lib
+photo:
+  url: https://unsplash.com/photos/cDwZ40Lj9eo
+  author: Davide Ragusa
+---
+
+
+
+<STYLE type='text/css' scoped>
+PRE.fansi SPAN {padding-top: .25em; padding-bottom: .25em};
+</STYLE>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>This post is a demo of <code>callr::r_session</code>, a persistent R session you can
+use to run R code asynchronously. I set out to build a task queue, which
+runs tasks in subprocesses, concurrently, in a mere 100 lines of R code.</p>
+<p>Here is a short teaser for how the queue will work. <code>task_q$new()</code> creates
+a new R6 object, which represents the queue. Its <code>push()</code> method adds a
+task, which is a function and its arguments, similar to <code>callr::r()</code>.
+The <code>pop()</code> method gets the results of the first task that has finished.
+<code>pop()</code> has a timeout argument, which lets you wait for a task to finish,
+if all pushed tasks are still running. It returns <code>NULL</code> if no task has
+finished before the timeout was over. The timeout can be <code>0</code> or <code>Inf</code>,
+meaning no wait at all, or wait indefinitely. The default timeout is <code>0</code>.</p>
+<pre class="r"><code>q &lt;- task_q$new()
+q$push(function() { Sys.getpid() })
+q$push(function() { Sys.sleep(.5); Sys.getpid() })
+q$pop()
+#&gt; NULL</code></pre>
+<p>This <code>pop()</code> call returned <code>NULL</code>, as none of the tasks are done yet.
+Even though running <code>Sys.getpid()</code> is fast, the worker processes also need
+200-500 ms time start up, when the queue is created. If you are willing to
+wait a bit, at least one task should be done in less than half a second
+(500 ms), but usually not the second one yet:</p>
+<pre class="r"><code>q$pop(500)$result
+#&gt; [1] 18383
+q$pop()
+#&gt; NULL</code></pre>
+<p>The <code>poll()</code> method checks for finished tasks without removing their
+results from the queue. It also has a timeout parameter, which works the
+same way as <code>pop()</code>’s timeout. <code>poll()</code> returns the identifiers of all
+tasks that are done.</p>
+<pre class="r"><code>q$poll(Inf)
+#&gt; [1] &quot;.2&quot;
+q$pop()$result
+#&gt; [1] 18385</code></pre>
+<p>If the queue is empty, i.e. no tasks are running and no tasks are waiting,
+then <code>pop()</code> always returns <code>NULL</code>, immediately, because there is nothing
+to wait for:</p>
+<pre class="r"><code>q$pop()
+#&gt; NULL</code></pre>
+</div>
+<div id="api-design" class="section level2">
+<h2>API design</h2>
+<p>The task queue will be an R6 class, with <code>push()</code>, <code>pop()</code>, <code>poll()</code>
+methods like above, and some other query methods:</p>
+<pre class="r"><code>task_q &lt;- R6::R6Class(
+  &quot;task_q&quot;,
+  public = list(
+    initialize      = function(num_workers = 4L) { },
+    get_num_waiting = function() { },
+    get_num_running = function() { },
+    get_num_done    = function() { },
+    is_idle         = function() { },
+    list_tasks      = function() { },
+
+    push = function(fun, args = list(), id = NULL) { },
+    poll = function(timeout = 0) { },
+    pop = function(timeout = 0) { }
+  )
+)</code></pre>
+<p><code>initialize()</code> has an argument to set the number of workers. The size of
+the worker pool remains fixed for the lifetime of the queue.</p>
+<p>The <code>get_num_*()</code> methods return the number of waiting, running and
+completed tasks. <code>get_num_done()</code> includes tasks that haven’t been
+<code>pop()</code>-d yet. Once a task is <code>pop()</code>-d, it is removed completely from the
+queue.</p>
+<p><code>is_idle()</code> returns <code>TRUE</code> if the queue does not have any tasks (in any
+state). <code>list_tasks()</code> returns a data frame (tibble) with data about the
+tasks. This is especially useful for debugging.</p>
+<p><code>push()</code> adds a task to the queue. <code>poll()</code> returns the ids of all tasks
+that are done. <code>pop()</code> returns the result of the oldest task that is done.</p>
+</div>
+<div id="data-structure" class="section level2">
+<h2>Data structure</h2>
+<p>Before writing the methods, I’ll design the data structure that will
+store all information about the tasks and the worker processes. The
+standard data structure for a list of records is a data frame in R.</p>
+<p>A logical choice would be to have two data frames, one for the
+tasks, and another one for the workers. Then we could assign unique
+identifiers to both tasks and processes and cross-reference them in the
+two data frames, to mark which task a worker is running, and which worker
+a task is running on.</p>
+<p>I’ll go a step further here, and store both the tasks and the workers
+<em>in the same</em> data frame. This will simplify the implementation
+considerably. The queue will create a dummy <em>idle</em> task for each worker.
+Each worker will (pretend to) run its dummy task if there are no other,
+real tasks waiting in the queue. So the task list will always contain at
+least as many tasks as the number of workers in the queue.</p>
+<p>An example for a task data frame:</p>
+<pre class="r"><code>q$list_tasks()
+#&gt; # A tibble: 9 x 7
+#&gt;   id      idle  state   fun    args       worker     result
+#&gt;   &lt;chr&gt;   &lt;lgl&gt; &lt;chr&gt;   &lt;list&gt; &lt;list&gt;     &lt;list&gt;     &lt;list&gt;
+#&gt; 1 .11     FALSE running &lt;fn&gt;   &lt;list [1]&gt; &lt;r_sessin&gt; &lt;NULL&gt;
+#&gt; 2 .12     FALSE running &lt;fn&gt;   &lt;list [1]&gt; &lt;r_sessin&gt; &lt;NULL&gt;
+#&gt; 3 .13     FALSE running &lt;fn&gt;   &lt;list [1]&gt; &lt;r_sessin&gt; &lt;NULL&gt;
+#&gt; 4 .14     FALSE running &lt;fn&gt;   &lt;list [1]&gt; &lt;r_sessin&gt; &lt;NULL&gt;
+#&gt; 5 .15     FALSE waiting &lt;fn&gt;   &lt;list [1]&gt; &lt;NULL&gt;     &lt;NULL&gt;
+#&gt; 6 .idle-1 TRUE  waiting &lt;NULL&gt; &lt;NULL&gt;     &lt;NULL&gt;     &lt;NULL&gt;
+#&gt; 7 .idle-2 TRUE  waiting &lt;NULL&gt; &lt;NULL&gt;     &lt;NULL&gt;     &lt;NULL&gt;
+#&gt; 8 .idle-3 TRUE  waiting &lt;NULL&gt; &lt;NULL&gt;     &lt;NULL&gt;     &lt;NULL&gt;
+#&gt; 9 .idle-4 TRUE  waiting &lt;NULL&gt; &lt;NULL&gt;     &lt;NULL&gt;     &lt;NULL&gt;</code></pre>
+<p>The columns are:</p>
+<ul>
+<li><code>id</code>: a character id, which can be user-supplied or auto-assigned (if the
+user did not supply it). This is useful to identify tasks.</li>
+<li><code>idle</code>: a logical flag, whether this is a dummy idle task or not.</li>
+<li><code>state</code>: current state of the task. More about this shortly.</li>
+<li><code>fun</code>: the function the task needs to run. This is a list column.</li>
+<li><code>args</code>: arguments to pass to the function. This is a list itself,
+so the column is a list column.</li>
+<li><code>worker</code>: the <code>callr::r_session</code> object, the R session that is running
+the task, or <code>NULL</code> if the task is not running.</li>
+<li><code>result</code>: another list column, the result of the run, if the task is
+already done, <code>NULL</code> otherwise.</li>
+</ul>
+<p>The possible task states are: <em>waiting</em>, <em>running</em>, <em>ready</em> and <em>done</em>.
+The first two are not very surprising. The distinction between the
+last two is somewhat technical. A task is <em>ready</em> if the background R
+session has finished running it. The queue hasn’t read out its result yet,
+and the R session is still assigned to it. (I.e. the task’s <code>worker</code> column
+is not <code>NULL</code>.) A task is <em>done</em> if the queue has already read out the
+result of the function call, and has reassigned the R session to another
+task, so its <code>worker</code> column is <code>NULL</code>.</p>
+<p>Tasks that are <em>running</em> and <em>ready</em> always have an R session assigned to
+them. Since all R sessions are always assigned to tasks (dummy idle tasks,
+if there is nothing else), this means the that the sum of the <em>running</em>
+and <em>ready</em> tasks always equals the number of workers.</p>
+<p>The idle tasks are somewhat special, because they are never <em>done</em>. If
+an idle task is <em>ready</em> and its worker is reassigned, it will be <em>waiting</em>
+again. They are also almost never in the <em>running</em> state. When the queue
+assigns a worker to an idle task, the task will immediately go into the
+<em>ready</em> state, since the queue is immediately allowed to re-assign the
+worker, should a real task be <em>waiting</em>.</p>
+<p>However, when a worker is starting up, its idle task is <em>running</em>, until
+their background R process has started up. After this initial <em>running</em>
+state the idle tasks are always either <em>waiting</em> or <em>ready</em>.</p>
+</div>
+<div id="implementation" class="section level2">
+<h2>Implementation</h2>
+<p>I am ready to start the implementation now. I’ll focus on the individual
+methods here, and show the complete code of the R6 class at the end.
+Let’s start with the internal data. <code>tasks</code> contains the task data frame,
+<code>initialize()</code> will create it. <code>next_id</code> and <code>get_next_id</code> will provide
+us unique task ids. I prefix these with a dot, to increase the probability
+that they won’t interfere with user supplied task ids. So they’ll
+be <code>&quot;.1&quot;</code>, <code>&quot;.2&quot;</code>, etc.</p>
+<pre class="r"><code>  private = list(
+    tasks = NULL,
+    next_id = 1L,
+    get_next_id = function() {
+      id &lt;- private$next_id
+      private$next_id &lt;- id + 1L
+      paste0(&quot;.&quot;, id)
+    }
+  )</code></pre>
+<p>The <code>initialize()</code> method will just defer the work to a private method.</p>
+<pre class="r"><code>    initialize = function(num_workers = 4L) {
+      private$start_workers(num_workers)
+      invisible(self)
+    }</code></pre>
+<p>The private <code>start_workers()</code> method that actually starts the
+workers and creates the <code>tasks</code> data frame:</p>
+<pre class="r"><code>    start_workers = function(num_workers) {
+      private$tasks &lt;- tibble::tibble(
+        id = character(), idle = logical(),
+        state = c(&quot;waiting&quot;, &quot;running&quot;, &quot;ready&quot;, &quot;done&quot;)[0],
+        fun = list(), args = list(), worker = list(), result = list())
+      for (i in seq_len(num_workers)) {
+        rs &lt;- callr::r_session$new(wait = FALSE)
+        private$tasks &lt;- tibble::add_row(private$tasks,
+          id = paste0(&quot;.idle-&quot;, i), idle = TRUE, state = &quot;running&quot;,
+          fun = list(NULL), args = list(NULL), worker = list(rs),
+          result = list(NULL))
+      }
+    }</code></pre>
+<p>The starting values of the empty task data frame are mostly straightforward.
+If you are wondering about the indexing with zero here, it is a simple
+way to list all possible task states in the code, in one place, as a note
+for the code reader.</p>
+<p><code>callr::r_session$new()</code> starts a background R process. The <code>wait = FALSE</code>
+argument tells callr <em>not</em> to wait until the process is ready to run R
+code. This way the R processes start up in parallel, which is worth the
+trouble of making our dummy tasks a bit more complicated. The idle tasks
+are named <code>.idle-*</code>. After initialization, the workers are started, and
+the <em>running</em> idle tasks are added to the data frame.</p>
+<p>The query methods are next:</p>
+<pre class="r"><code>    list_tasks = function() private$tasks,
+    get_num_waiting = function()
+      sum(!private$tasks$idle &amp; private$tasks$state == &quot;waiting&quot;),
+    get_num_running = function() sum(private$tasks$state == &quot;running&quot;),
+    get_num_done = function() sum(private$tasks$state == &quot;done&quot;),
+    is_idle = function() sum(!private$tasks$idle) == 0
+</code></pre>
+<p><code>list_tasks()</code> will just return the task data frame, for simplicity.
+If not all data is needed, the <code>get_num_*()</code> functions are simpler.
+For the first two, we need to exclude the dummy idle tasks, because they
+can be in the <em>waiting</em> and <em>running</em> state as well. They cannot be in the
+<em>done</em> state.</p>
+<p>We still need to write the <code>push()</code>, <code>pop()</code> and <code>poll()</code> public methods.
+As the reader might suspect, these are more involved. Let’s start with
+<code>push()</code>.</p>
+<pre class="r"><code>    push = function(fun, args = list(), id = NULL) {
+      if (is.null(id)) id &lt;- private$get_next_id()
+      if (id %in% private$tasks$id) stop(&quot;Duplicate task id&quot;)
+      before &lt;- which(private$tasks$idle)[1]
+      private$tasks &lt;- tibble::add_row(private$tasks, .before = before,
+        id = id, idle = FALSE, state = &quot;waiting&quot;, fun = list(fun),
+        args = list(args), worker = list(NULL), result = list(NULL))
+      private$schedule()
+      invisible(id)
+    }</code></pre>
+<p>The queue needs to run the tasks in the same order as they were added.
+The data frame will keep the correct order, with the additional
+tweak that the idle tasks are always at the end. Indeed, these should only
+run if there is no other task waiting. So <code>push()</code> adds the new task right
+before the idle tasks.</p>
+<p>The <code>schedule()</code> private method is the core of the queue. It starts the
+tasks on the selected background R workers, and it also reads out the
+results after they are done. I.e. it performs the <em>waiting</em> to <em>running</em> and
+<em>ready</em> to <em>done</em> task state transitions. We will show it later.</p>
+<p><code>push()</code> returns the id of the newly added task, this can be helpful
+to follow the task and match it to the results of a <code>pop()</code> call.</p>
+<p><code>pop()</code> uses <code>poll()</code> to get a list of tasks that are <em>done</em>, and returns
+the result of the oldest one, which is always the first, thanks to the
+ordering of the task data frame.</p>
+<pre class="r"><code>    pop = function(timeout = 0) {
+      if (is.na(done &lt;- self$poll(timeout)[1])) return(NULL)
+      row &lt;- match(done, private$tasks$id)
+      result &lt;- private$tasks$result[[row]]
+      private$tasks &lt;- private$tasks[-row, ]
+      c(result, list(task_id = done))
+    }</code></pre>
+<p>If no task is <em>done</em>, then it returns <code>NULL</code>. The returned task is removed
+from the task data frame, and from the queue in general, for good. <code>pop()</code>
+adds the id of the task to the returned result as <code>task_id</code>, for easier
+matching of tasks to results.</p>
+<p><code>poll()</code> is the only method that checks on the running workers. This is
+important to remember, and unfortunately easy to forget. If the user does
+not call <code>poll()</code>, either directly or via <code>pop()</code>, the state of a <em>running</em>
+task cannot change, even if the background R session itself has finished.
+In other words, one cannot check the status of the tasks by listing
+the task data frame with <code>list_tasks()</code> periodically. This will never
+change if <code>poll()</code> is not called.</p>
+<p>I start with an initial version of <code>poll()</code>, which will need changes later,
+but this is hopefully easier to understand first:</p>
+<pre class="r"><code>    poll = function(timeout = 0) {
+      as_ms &lt;- function(x) if (x == Inf) -1L else as.integer(x)
+      topoll &lt;- which(private$tasks$state == &quot;running&quot;)
+      conns &lt;- lapply(
+        private$tasks$worker[topoll],
+        function(x) x$get_poll_connection())
+      pr &lt;- processx::poll(conns, as_ms(timeout))
+      private$tasks$state[topoll][pr == &quot;ready&quot;] &lt;- &quot;ready&quot;
+      private$schedule()
+      private$tasks$id[private$tasks$state == &quot;done&quot;]
+    }</code></pre>
+<p>We only need to check on tasks that are <em>running</em>. <code>poll()</code> uses the
+<code>processx::poll()</code> function that can wait on several <code>callr::r_session</code>s
+at once. More precisely, I extract the <em>poll connections</em> of the
+<code>r_session</code> objects and call <code>processx::poll()</code> on these. An <code>r_session</code>
+may have multiple pollable connections, one for its standard output
+stream, one for its standard error stream. These are not used by default
+in <code>r_session</code>s, and I only want to check on the poll connection, which
+signals if the R session has finished with the computation (or encountered
+an error while working on it). <code>processx::poll()</code> returns a list of
+character vectors, one entry for each (<em>running</em>) task. This is <code>&quot;ready&quot;</code>
+if the session is ready with the task. (Or it is <code>&quot;silent&quot;</code> if it is not
+ready, or <code>&quot;timeout&quot;</code> if the time limit expired and no workers are ready.)</p>
+<p>All tasks that returned <code>&quot;ready&quot;</code> are indeed set to the <em>ready</em> state.
+After this <code>poll()</code> calls <code>schedule()</code> to read out the results of the
+<em>ready</em> tasks and reassign their workers to <em>waiting</em> ones.</p>
+<p><code>poll()</code> returns the ids of all tasks that are <em>done</em>.</p>
+<p>This version of <code>poll()</code> has a small issue when the R sessions are starting
+up: it might return without any results, before the specified timeout
+value is over. At startup the idle tasks are <em>running,</em> and they are
+polled by <code>processx::poll()</code>. If any of the R sessions start up before the
+timeout is over, <code>processx::poll()</code> returns with <code>&quot;ready&quot;</code> for them.
+But <code>schedule()</code> cannot mark these tasks as <em>done</em>, because they are idle
+tasks, they’ll be <em>waiting</em>, and with no task <em>done</em>, <code>poll()</code>
+will return an empty vector. This is problematic, because <code>poll()</code>
+promises to either wait until the specified timeout <em>or</em> return a task
+that is <em>done</em>. So we need to wrap the simplified <code>poll()</code> into a loop, and
+keep calling <code>processx::poll()</code> until either the timeout
+expires or a task is <em>done</em>. The final <code>poll()</code> looks like this:</p>
+<pre class="r"><code>    poll = function(timeout = 0) {
+      limit &lt;- Sys.time() + timeout
+      as_ms &lt;- function(x) if (x == Inf) -1L else as.integer(x)
+      repeat{
+        topoll &lt;- which(private$tasks$state == &quot;running&quot;)
+        conns &lt;- lapply(
+          private$tasks$worker[topoll],
+          function(x) x$get_poll_connection())
+        pr &lt;- processx::poll(conns, as_ms(timeout))
+        private$tasks$state[topoll][pr == &quot;ready&quot;] &lt;- &quot;ready&quot;
+        private$schedule()
+        ret &lt;- private$tasks$id[private$tasks$state == &quot;done&quot;]
+        if (is.finite(timeout)) timeout &lt;- limit - Sys.time()
+        if (length(ret) || timeout &lt; 0) break;
+      }
+      ret
+    }</code></pre>
+<p>Only the private <code>schedule()</code> method is missing now:</p>
+<pre class="r"><code>    schedule = function() {
+      ready &lt;- which(private$tasks$state == &quot;ready&quot;)
+      if (!length(ready)) return()
+      rss &lt;- private$tasks$worker[ready]
+
+      private$tasks$result[ready] &lt;- lapply(rss, function(x) x$read())
+      private$tasks$worker[ready] &lt;- replicate(length(ready), NULL)
+      private$tasks$state[ready] &lt;-
+        ifelse(private$tasks$idle[ready], &quot;waiting&quot;, &quot;done&quot;)
+
+      waiting &lt;- which(private$tasks$state == &quot;waiting&quot;)[1:length(ready)]
+      private$tasks$worker[waiting] &lt;- rss
+      private$tasks$state[waiting] &lt;-
+        ifelse(private$tasks$idle[waiting], &quot;ready&quot;, &quot;running&quot;)
+      lapply(waiting, function(i) {
+        if (! private$tasks$idle[i]) {
+          private$tasks$worker[[i]]$call(private$tasks$fun[[i]],
+                                         private$tasks$args[[i]])
+        }
+      })
+    }</code></pre>
+<p><code>schedule()</code>’s job is to perform the <em>ready</em> to <em>done</em> and the
+<em>waiting</em> to <em>running</em> state transitions. The first involves reading
+out the results of the <em>ready</em> tasks and the second involves starting
+new computation on the workers.</p>
+<p>For every <em>ready</em> task, <code>schedule()</code> perform three steps:</p>
+<ol style="list-style-type: decimal">
+<li>Reads out and stores its result. (It can do this for the idle tasks
+as well, for these <code>r_session$read()</code> will return <code>NULL</code>.)</li>
+<li>Removes its worker, i.e. sets it to <code>NULL</code>.</li>
+<li>Updates its state to <em>done</em>. (Or to <em>waiting</em> if it is an idle task.)</li>
+</ol>
+<p>Then it deals with the <em>waiting</em> tasks, but not more than the number of
+<em>ready</em> tasks the queue had. For these <em>waiting</em> tasks <code>schedule()</code>
+performs three steps:</p>
+<ol style="list-style-type: decimal">
+<li>Assigns a just removed worker to it.</li>
+<li>Sets state to <em>running</em>. (Or to <em>ready</em> for idle tasks.)</li>
+<li>Calls <code>fun(args)</code> in the background session.</li>
+</ol>
+<p>When selecting the waiting tasks to run, the ordering of the task table
+makes sure that the oldest task is selected first, and that idle tasks
+are only selected if there is nothing else to run. The idle tasks make sure
+that <code>schedule()</code> always has at least as many waiting tasks as ready.</p>
+<p>It is possible that <code>schedule()</code> first sets an idle task to <em>waiting</em> and
+then selects it and (re-)assigns a worker to it. This is perfectly fine.</p>
+</div>
+<div id="try-it-out" class="section level2">
+<h2>Try it out</h2>
+<p>As a simple example, we add a bunch of fake tasks to a queue, and then
+run a simple event loop to completion. (To run this code, first
+you need to run the complete code at the end of the post.)</p>
+<pre class="r"><code>q &lt;- task_q$new()
+for (i in 1:10) {
+  q$push(function(i) { Sys.sleep(runif(1)); paste(i, &quot;done&quot;) }, list(i = i))
+}</code></pre>
+<p>This is how the queue looks after adding all these tasks:</p>
+<pre class="r"><code>q$list_tasks()</code></pre>
+<PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #555555;'># A tibble: 14 x 7</span><span>
+#&gt;    id      idle  state   fun    args             worker     result
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;lgl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span>           </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 1</span><span> .1      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 2</span><span> .2      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 3</span><span> .3      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 4</span><span> .4      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 5</span><span> .5      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 6</span><span> .6      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 7</span><span> .7      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 8</span><span> .8      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 9</span><span> .9      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>10</span><span> .10     FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>11</span><span> .idle-1 TRUE  running </span><span style='color: #555555;'>&lt;NULL&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>           </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>12</span><span> .idle-2 TRUE  running </span><span style='color: #555555;'>&lt;NULL&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>           </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>13</span><span> .idle-3 TRUE  running </span><span style='color: #555555;'>&lt;NULL&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>           </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>14</span><span> .idle-4 TRUE  running </span><span style='color: #555555;'>&lt;NULL&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>           </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>
+</span></CODE></PRE>
+<p>Probably no tasks are running just yet. The queue only has the chance to
+change its state when you <code>push()</code>, <code>pop()</code> or <code>poll()</code>. When pushing the
+tasks to the queue, the workers were still starting up (i.e. the idle tasks
+are <em>running</em>), so <code>push()</code> could not start any real tasks. Never mind, as
+soon as you try to <code>pop()</code> or <code>poll()</code>, they’ll start running:</p>
+<pre class="r"><code>q$poll(1000L)
+#&gt; [1] &quot;.2&quot;
+q$list_tasks()</code></pre>
+<PRE class="fansi fansi-output"><CODE>#&gt; <span style='color: #555555;'># A tibble: 14 x 7</span><span>
+#&gt;    id      idle  state   fun    args             worker     result    
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;lgl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span>           </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;list&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'> 1</span><span> .1      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'> 2</span><span> .2      FALSE done    </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;cllr_ss_&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 3</span><span> .3      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'> 4</span><span> .4      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'> 5</span><span> .5      FALSE running </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;r_sessin&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'> 6</span><span> .6      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'> 7</span><span> .7      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'> 8</span><span> .8      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'> 9</span><span> .9      FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'>10</span><span> .10     FALSE waiting </span><span style='color: #555555;'>&lt;fn&gt;</span><span>   </span><span style='color: #555555;'>&lt;named list [1]&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>    
+#&gt; </span><span style='color: #555555;'>11</span><span> .idle-1 TRUE  waiting </span><span style='color: #555555;'>&lt;NULL&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>           </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;cllr_ss_&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>12</span><span> .idle-2 TRUE  waiting </span><span style='color: #555555;'>&lt;NULL&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>           </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;cllr_ss_&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>13</span><span> .idle-3 TRUE  waiting </span><span style='color: #555555;'>&lt;NULL&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>           </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;cllr_ss_&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>14</span><span> .idle-4 TRUE  waiting </span><span style='color: #555555;'>&lt;NULL&gt;</span><span> </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>           </span><span style='color: #555555;'>&lt;NULL&gt;</span><span>     </span><span style='color: #555555;'>&lt;cllr_ss_&gt;</span><span>
+</span></CODE></PRE>
+<pre class="r"><code>while (!q$is_idle()) {
+  task_result &lt;- q$pop(Inf)
+  print(task_result$result)
+}
+#&gt; [1] &quot;1 done&quot;
+#&gt; [1] &quot;2 done&quot;
+#&gt; [1] &quot;3 done&quot;
+#&gt; [1] &quot;4 done&quot;
+#&gt; [1] &quot;6 done&quot;
+#&gt; [1] &quot;5 done&quot;
+#&gt; [1] &quot;7 done&quot;
+#&gt; [1] &quot;8 done&quot;
+#&gt; [1] &quot;9 done&quot;
+#&gt; [1] &quot;10 done&quot;</code></pre>
+<p><code>pop()</code> just returns whatever <code>r_session$read()</code> returns. Here is the last
+result from the loop:</p>
+<pre class="r"><code>task_result
+#&gt; $code
+#&gt; [1] 200
+#&gt; 
+#&gt; $message
+#&gt; [1] &quot;done file47c57a1f62b5&quot;
+#&gt; 
+#&gt; $result
+#&gt; [1] &quot;10 done&quot;
+#&gt; 
+#&gt; $stdout
+#&gt; [1] &quot;&quot;
+#&gt; 
+#&gt; $stderr
+#&gt; [1] &quot;&quot;
+#&gt; 
+#&gt; $error
+#&gt; NULL
+#&gt; 
+#&gt; $task_id
+#&gt; [1] &quot;.10&quot;</code></pre>
+<p>The important fields are:</p>
+<ul>
+<li><code>result</code>: the R object returned from the function. This is <code>NULL</code> on
+error.</li>
+<li><code>stdout</code>: the standard output of the background session, while running the
+function.</li>
+<li><code>stderr</code>: the standard error.</li>
+<li><code>error</code>: error object if the function failed. <code>NULL</code> otherwise.</li>
+<li><code>task_id</code>: the user supplied or auto-generated task id.</li>
+</ul>
+<p>Let’s see a task that errors.</p>
+<pre class="r"><code>q$push(function() stop(&quot;This failed, sorry&quot;))
+res &lt;- q$pop(Inf)
+res$error
+#&gt; &lt;callr_status_error: callr subprocess failed: This failed, sorry&gt;
+#&gt;  in process 
+#&gt; --&gt;
+#&gt; &lt;callr_remote_error in (function () stop(&quot;This failed, sorry&quot;))(): This failed, sorry&gt;</code></pre>
+<p>The error has two parts, the first refers to the main process, and the
+second is the original error, thrown in the background process. To help with
+debugging, the error from the background process includes a stack trace:</p>
+<pre class="r"><code>res$error$parent$trace</code></pre>
+<PRE class="fansi fansi-output"><CODE>#&gt; 
+#&gt; <span style='font-weight: bold;'> ERROR TRACE for simpleError</span><span>
+#&gt; 
+#&gt; </span><span style='color: #555555;'> 12. </span><span>(function ()  ...
+#&gt; </span><span style='color: #555555;'> 13. </span><span style='color: #BBBB00;'>base:::stop</span><span>("This failed, sorry")
+#&gt;     </span><span style='color: #00BBBB;font-style: italic;'>R/&lt;text&gt;:1:8</span><span>
+#&gt; </span><span style='color: #555555;'> 14. </span><span style='color: #BBBB00;'>base:::.handleSimpleError</span><span>(function (e)  ...
+#&gt; </span><span style='color: #555555;'> 15. </span><span style='color: #BBBB00;'>h</span><span>(simpleError(msg, call))
+#&gt; </span><span style='color: #BB0000;font-weight: bold;'>
+#&gt;  x This failed, sorry </span><span>
+</span></CODE></PRE>
+<p>For this simple function that just calls <code>stop()</code>, the trace is not
+very exciting, but it can be very helpful in general.</p>
+</div>
+<div id="how-about-process-cleanup" class="section level2">
+<h2>How about process cleanup?</h2>
+<p>Luckily we don’t have to do anything extra to clean up the R processes.
+<code>callr::r_session</code> objects kill their background R session in their
+finalizer, i.e. when they are garbage collected. As soon as the
+workers have no references, because e.g. the queue object itself has no
+references, the garbage collector will clean them up. An explicit <code>kill()</code>
+method would be still useful sometimes, but we leave that as an exercise to
+the reader.</p>
+</div>
+<div id="possible-improvements" class="section level2">
+<h2>Possible improvements</h2>
+<p>To use this task queue in real code, you would need to make it a bit more
+robust and flexible.</p>
+<ol style="list-style-type: decimal">
+<li>Most importantly, you would need to handle crashes and freezes in the
+worker tasks. <code>callr::r_session</code> does handle crashes properly, i.e.
+<code>poll()</code> returns immediately if the session crashes, and then <code>read()</code>
+returns an informative error result. But the task queue should also do
+something sensible in this case, e.g. return the error result, and
+restart the worker.</li>
+<li>To handle freezing worker tasks, the queue could support task timeouts,
+and then kill the tasks that don’t finish before their timeout expires.
+This can be probably implemented using the <code>r_session$interrupt()</code> and
+<code>r_session$kill()</code> methods.</li>
+<li>Make the queue interrupt-safe. All operations of the queue (e.g.
+<code>poll()</code>, <code>pop()</code>, etc.) are interruptible by the user, but they
+don’t always leave the task data frame and the background sessions in a
+consistent state. E.g. if <code>schedule()</code> is interrupted and you are
+unlucky, you might lose all worker processes. This is a very hard issue
+to solve, the relatively new <code>suspendInterrupts()</code> function probably
+helps a lot.</li>
+<li>It would be great to be able to change the number of worker tasks of
+the queue dynamically, i.e. add and remove worker processes.</li>
+<li>The whole queue could be implemented in a background process, so that
+the scheduler runs concurrently with the main R process. This is far
+from being trivial, especially if one wants to avoid copying data
+(the function arguments) twice for every task.</li>
+</ol>
+</div>
+<div id="complete-code" class="section level2">
+<h2>Complete code</h2>
+<p>It is also available <a href="https://github.com/r-lib/callr/blob/811a02f604de2cf03264f6b35ce9ec8a412f2581/vignettes/taskq.R">on GitHub</a>.</p>
+<pre class="r"><code>task_q &lt;- R6::R6Class(
+  &quot;task_q&quot;,
+  public = list(
+    initialize = function(concurrency = 4L) {
+      private$start_workers(concurrency)
+      invisible(self)
+    },
+    list_tasks = function() private$tasks,
+    get_num_waiting = function()
+      sum(!private$tasks$idle &amp; private$tasks$state == &quot;waiting&quot;),
+    get_num_running = function()
+      sum(!private$tasks$idle &amp; private$tasks$state == &quot;running&quot;),
+    get_num_done = function() sum(private$tasks$state == &quot;done&quot;),
+    is_idle = function() sum(!private$tasks$idle) == 0,
+
+    push = function(fun, args = list(), id = NULL) {
+      if (is.null(id)) id &lt;- private$get_next_id()
+      if (id %in% private$tasks$id) stop(&quot;Duplicate task id&quot;)
+      before &lt;- which(private$tasks$idle)[1]
+      private$tasks &lt;- tibble::add_row(private$tasks, .before = before,
+        id = id, idle = FALSE, state = &quot;waiting&quot;, fun = list(fun),
+        args = list(args), worker = list(NULL), result = list(NULL))
+      private$schedule()
+      invisible(id)
+    },
+
+    poll = function(timeout = 0) {
+      limit &lt;- Sys.time() + timeout
+      as_ms &lt;- function(x) if (x == Inf) -1L else as.integer(x)
+      repeat{
+        topoll &lt;- which(private$tasks$state == &quot;running&quot;)
+        conns &lt;- lapply(
+          private$tasks$worker[topoll],
+          function(x) x$get_poll_connection())
+        pr &lt;- processx::poll(conns, as_ms(timeout))
+        private$tasks$state[topoll][pr == &quot;ready&quot;] &lt;- &quot;ready&quot;
+        private$schedule()
+        ret &lt;- private$tasks$id[private$tasks$state == &quot;done&quot;]
+        if (is.finite(timeout)) timeout &lt;- limit - Sys.time()
+        if (length(ret) || timeout &lt; 0) break;
+      }
+      ret
+    },
+
+    pop = function(timeout = 0) {
+      if (is.na(done &lt;- self$poll(timeout)[1])) return(NULL)
+      row &lt;- match(done, private$tasks$id)
+      result &lt;- private$tasks$result[[row]]
+      private$tasks &lt;- private$tasks[-row, ]
+      c(result, list(task_id = done))
+    }
+  ),
+
+  private = list(
+    tasks = NULL,
+    next_id = 1L,
+    get_next_id = function() {
+      id &lt;- private$next_id
+      private$next_id &lt;- id + 1L
+      paste0(&quot;.&quot;, id)
+    },
+
+    start_workers = function(concurrency) {
+      private$tasks &lt;- tibble::tibble(
+        id = character(), idle = logical(),
+        state = c(&quot;waiting&quot;, &quot;running&quot;, &quot;ready&quot;, &quot;done&quot;)[NULL],
+        fun = list(), args = list(), worker = list(), result = list())
+      for (i in seq_len(concurrency)) {
+        rs &lt;- callr::r_session$new(wait = FALSE)
+        private$tasks &lt;- tibble::add_row(private$tasks,
+          id = paste0(&quot;.idle-&quot;, i), idle = TRUE, state = &quot;running&quot;,
+          fun = list(NULL), args = list(NULL), worker = list(rs),
+          result = list(NULL))
+      }
+    },
+
+    schedule = function() {
+      ready &lt;- which(private$tasks$state == &quot;ready&quot;)
+      if (!length(ready)) return()
+      rss &lt;- private$tasks$worker[ready]
+
+      private$tasks$result[ready] &lt;- lapply(rss, function(x) x$read())
+      private$tasks$worker[ready] &lt;- replicate(length(ready), NULL)
+      private$tasks$state[ready] &lt;-
+        ifelse(private$tasks$idle[ready], &quot;waiting&quot;, &quot;done&quot;)
+
+      waiting &lt;- which(private$tasks$state == &quot;waiting&quot;)[1:length(ready)]
+      private$tasks$worker[waiting] &lt;- rss
+      private$tasks$state[waiting] &lt;-
+        ifelse(private$tasks$idle[waiting], &quot;ready&quot;, &quot;running&quot;)
+      lapply(waiting, function(i) {
+        if (! private$tasks$idle[i]) {
+          private$tasks$worker[[i]]$call(private$tasks$fun[[i]],
+                                         private$tasks$args[[i]])
+        }
+      })
+    }
+  )
+)</code></pre>
+</div>

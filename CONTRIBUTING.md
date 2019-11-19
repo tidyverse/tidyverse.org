@@ -33,7 +33,6 @@ After the header, include our standard RMarkdown setup block:
 
 ````
 ```{r setup, include = FALSE}
-library(testthat)
 knitr::opts_chunk$set(
   collapse = TRUE, comment = "#>", 
   fig.width = 7, 
@@ -44,7 +43,7 @@ knitr::opts_chunk$set(
 ```
 ````
 
-(Replace `testthat` here and below with your own package name.)
+The `library(PACKAGENAME)` call should be done explicitly in a visible code chunk.
 
 ### Photos
 

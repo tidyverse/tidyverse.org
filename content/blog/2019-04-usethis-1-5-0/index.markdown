@@ -1,0 +1,161 @@
+---
+title: usethis 1.5.0
+slug: usethis-1.5.0
+description: >
+    usethis 1.5.0 is now on CRAN.
+date: 2019-04-09
+author: Jenny Bryan
+photo:
+  url: https://unsplash.com/photos/MPu7kSboG8E
+  author: Philip Veater
+categories: [package]
+tags:
+  - usethis
+  - r-lib
+---
+
+
+
+We're gratified to announce that [usethis](https://usethis.r-lib.org) 1.5.0 is now available on CRAN. Learn more about usethis at <https://usethis.r-lib.org>. Detailed notes are always in the [change log](https://usethis.r-lib.org/news/index.html).
+
+usethis is a package that facilitates interactive workflows for R project creation and development. It has broad coverage of package development tasks, but many of its functions are also applicable to non-package projects.
+
+usethis is part of the package development toolkit whose main public face is the venerable [devtools](https://devtools.r-lib.org) package. When devtools went through its [conscious uncoupling](https://www.tidyverse.org/articles/2018/10/devtools-2-0-0/#conscious-uncoupling), the functionality related to package/project setup landed in usethis.
+
+Install the latest release of usethis like so:
+
+
+```r
+install.packages("usethis")
+```
+
+devtools exposes all of usethis's functions and most users should just use `library(devtools)` to make usethis available in the session. 
+
+
+```r
+library(devtools)
+```
+
+It is also, of course, possible to just attach usethis specifically.
+
+
+```r
+library(usethis)
+```
+
+`usethis::use_devtools()` can help you put a code snippet in your `.Rprofile` to do this automatically at startup for interactive sessions.
+
+## Overview of recent developments
+
+We last blogged about usethis in February 2018, at the [release of v1.3.0](https://www.tidyverse.org/articles/2018/02/usethis-1-3-0/), so there's a lot to catch up on! We'll cover cumulative developments in v1.4.0 and v1.5.0. The current release also marks the passing of the maintainership torch from Hadley Wickham to Jenny Bryan.
+
+Main themes:
+
+  * Improve support for the Git/GitHub aspects of project initiation and development.
+  * Make it possible for others to extend usethis, i.e. to implement specialized workflows or organization-specific standards.
+  * Implement what the tidyverse/r-lib team regards as best practices, often in functions that feature the word "tidy". These are mostly for our use and are, honestly, occasionally aspirational, but others may find it interesting or useful.
+  * Embrace the [fs package](https://fs.r-lib.org) internally for everything related to filepath management. We're also gradually adding better tooling for programmatic management of specific files or for specific parts of a file, such as the badge section of `README.Rmd`.
+  
+Below we highlight specific changes or new features that are of special interest to users. Again, detailed notes are in the [change log](https://usethis.r-lib.org/news/index.html).
+
+## Options to set in `.Rprofile`
+
+usethis consults certain options when it creates a new package and, if found, it favors this info over built-in defaults when populating the DESCRIPTION fields. devtools has long had this feature, but it's a good time to open your `.Rprofile` (maybe via `usethis::edit_r_profile()`) and refresh your settings to look more like so:
+
+
+```r
+options(
+  usethis.full_name = "Jane Doe",
+  usethis.description = list(
+    `Authors@R` = 'person("Jane", "Doe", email = "jane@example.com", role = c("aut", "cre"), 
+    comment = c(ORCID = "YOUR-ORCID-ID"))',
+    License = "MIT + file LICENSE",
+    Version = "0.0.0.9000"
+  ),
+  usethis.protocol  = "ssh"
+)
+```
+
+Note the `usethis.*` name prefixes and that field-specific options like `devtools.desc.author` and `devtools.desc.license` have been replaced with a single named list, `usethis.description`. If you are firmly an "SSH person" or an "HTTPS person", in terms of your preferred Git transport protocol, this is a great place to express that. It affects remote URLs created by usethis.
+
+More setup tips can be found in the [usethis setup article](https://usethis.r-lib.org/articles/articles/usethis-setup.html). For example, you will unlock a lot of usethis's GitHub functionality by setting up a personal access token. `usethis::browse_github_token()` walks you through that process.
+
+## Git and GitHub
+
+The `git_sitrep()` function gives a **rep**ort on your current **sit**uation as a Git and GitHub user and specifics on the current repo's remotes and branches. Here's an example where Jane Doe is working in a local copy of OWNER's package, maybe preparing to contribute a bug fix or new feature:
+
+``` r
+usethis::git_sitrep()
+#> Git user
+#> * Name: 'Jane Doe'
+#> * Email: 'jane.doe@example.com'
+#> * Vaccinated: TRUE
+#> usethis + git2r
+#> * Default usethis protocol: 'ssh'
+#> * git2r supports SSH: TRUE
+#> * Credentials: '<usethis + git2r default behaviour>'
+#> GitHub
+#> * Personal access token: '<found in env var>'
+#> * User: 'janedoe'
+#> * Name: 'Jane Doe'
+#> Repo
+#> * Path: '/Users/jane/tmp/REPO/.git'
+#> * Local branch -> remote tracking branch: 'master' -> 'origin/master'
+#> GitHub pull request readiness
+#> * origin: janedoe/REPO, can push, forked from OWNER/REPO
+#> * upstream: OWNER/REPO, read only
+```
+
+`git_vaccinate()` makes sure your global, i.e. user-level, gitignore file contains entries relevant to useRs. You are less likely to push confidential or unnecessary and semi-embarrassing information to GitHub if you gitignore files like `.Rhistory` and `.Rdata`.
+
+Several other new functions are mostly for internal use but can also be used for troubleshooting and taking greater control of the Git side of usethis: `git_remotes()`, `use_git_remote()`, `git_protocol()`, `use_git_protocol()`, `git_credentials()`, `use_git_credentials()`.
+
+Two existing functions keep improving and deserve a mention:
+
+  * `create_from_github("OWNER/REPO)` creates a local project from a GitHub repository. It's pretty smart about when it should clone vs fork-and-clone (or you can specify this) and, when it forks, it sets up the `origin` and `upstream` remotes correctly.
+  
+    ``` r
+    usethis::create_from_github("OWNER/REPO", protocol = "ssh")
+    #> ✔ Creating '/Users/jane/rrr/REPO/'
+    #> ✔ Forking 'OWNER/REPO'
+    #> ✔ Cloning repo from 'git@github.com:janedoe/REPO.git' into '/Users/jane/rrr/REPO'
+    #> ✔ Setting active project to '/Users/jane/rrr/REPO'
+    #> ✔ Adding 'upstream' remote: 'git@github.com:OWNER/REPO.git'
+    #> ✔ Pulling changes from GitHub source repo 'upstream/master'
+    ```  
+  * `use_github()` connects an existing local repo to GitHub *post hoc*. It is more robust and, when it fails, it does so early and with actionable messages about what you can fix.
+
+A new experimental family of `pr_*()` functions makes GitHub pull requests (PR) easier, both for maintainers and contributors. We're quite excited about these, as we handle an extraordinary number of pull requests across the tidyverse, r-lib, and tidymodels organizations. For maintainers, `pr_fetch(<PR_NUMBER>)` allows you to check out a PR locally, explore it, check/test it, or even fix or extend it. `pr_push()` [pushes *back into the actual PR*](https://help.github.com/en/articles/committing-changes-to-a-pull-request-branch-created-from-a-fork), where it can now be merged or receive more work from the original author. For contributors, `pr_init()` and `pr_push()` help to initiate a PR. In all cases, `pr_finish()` does the necessary local clean up when the PR is no longer in play.
+
+## Extending usethis
+
+We've made usethis easier for others to wrap and extend:
+
+  * usethis is very chatty and this is now under the control of the option `usethis.quiet`. This makes it easier for a wrapper to muffle usethis's messaging or to temporarily toggle it with functions like `withr::with_options()` or `withr::local_options()`.
+  * Project-related helpers `proj_path()`, `with_project()`, `local_project()`, and `proj_activate()` are exported.
+  * File editing helpers `edit_file()`, `write_over()`, and `write_union()` are exported.
+  * `use_template()` can use a template file stored in any package, not just usethis.
+
+We've also exported the `ui_*()` functions that implement usethis's messaging, conditions, and interactive menus. This is in response to repeated community requests. These functions benefit greatly from the [glue](https://glue.tidyverse.org) and [crayon](https://github.com/r-lib/crayon#readme) packages to provide nifty features like string interpolation and formatting.
+
+There are inline styles (`ui_field()`, `ui_value()`, `ui_path()`, `ui_code()`), which can be used within the block styles (`ui_line()`, `ui_done()`, `ui_todo()`, `ui_oops()`, `ui_info()`). Some example usage (flanking newlines added for readability):
+
+<p><img src="/images/usethis-1.5.0/ui-done-todo-oops-info.png"/></p>
+
+`ui_stop()` and `ui_warn()` raise the associated condition, but with the same features for the message:
+
+<p><img src="/images/usethis-1.5.0/ui-stop-warn.png"/></p>
+
+Finally, `ui_yeah()` and `ui_nope()` facilitate control flow based on user input:
+
+<p><img src="/images/usethis-1.5.0/ui-nope-yeah.png"/></p>
+
+These functions may ultimately move to a more appropriate home, so we can use them to create a more consistent UI across a broad set of tidyverse, r-lib, and tidymodels packages.
+
+## Acknowledgements
+
+<!-- use_tidy_thanks(from = "v1.3.0", to = "v1.5.0") -->
+
+We give a tremendous thanks to the 108 useRs who contributed to the v1.4.0 and v1.5.0 releases, especially those who joined us at the inaugural [Tidyverse Developer Day](https://www.tidyverse.org/articles/2018/11/tidyverse-developer-day-2019/) following [rstudio::conf 2019](https://www.rstudio.com/conference/):
+
+[&#x0040;Aariq](https://github.com/Aariq), [&#x0040;adam-gruer](https://github.com/adam-gruer), [&#x0040;akgold](https://github.com/akgold), [&#x0040;alandipert](https://github.com/alandipert), [&#x0040;alexpghayes](https://github.com/alexpghayes), [&#x0040;andrie](https://github.com/andrie), [&#x0040;angela-li](https://github.com/angela-li), [&#x0040;apreshill](https://github.com/apreshill), [&#x0040;atheriel](https://github.com/atheriel), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;beanumber](https://github.com/beanumber), [&#x0040;behrman](https://github.com/behrman), [&#x0040;benmarwick](https://github.com/benmarwick), [&#x0040;bestdan](https://github.com/bestdan), [&#x0040;bfgray3](https://github.com/bfgray3), [&#x0040;boshek](https://github.com/boshek), [&#x0040;cboettig](https://github.com/cboettig), [&#x0040;cderv](https://github.com/cderv), [&#x0040;chris-billingham](https://github.com/chris-billingham), [&#x0040;Chris-Engelhardt](https://github.com/Chris-Engelhardt), [&#x0040;chris-prener](https://github.com/chris-prener), [&#x0040;coatless](https://github.com/coatless), [&#x0040;colearendt](https://github.com/colearendt), [&#x0040;cwickham](https://github.com/cwickham), [&#x0040;dirkschumacher](https://github.com/dirkschumacher), [&#x0040;dpprdan](https://github.com/dpprdan), [&#x0040;dragosmg](https://github.com/dragosmg), [&#x0040;duckmayr](https://github.com/duckmayr), [&#x0040;echasnovski](https://github.com/echasnovski), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;erictleung](https://github.com/erictleung), [&#x0040;etiennebr](https://github.com/etiennebr), [&#x0040;Fazendaaa](https://github.com/Fazendaaa), [&#x0040;friendly](https://github.com/friendly), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;gadenbuie](https://github.com/gadenbuie), [&#x0040;GregorDeCillia](https://github.com/GregorDeCillia), [&#x0040;GShotwell](https://github.com/GShotwell), [&#x0040;gvelasq](https://github.com/gvelasq), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hafen](https://github.com/hafen), [&#x0040;HanjoStudy](https://github.com/HanjoStudy), [&#x0040;haozhu233](https://github.com/haozhu233), [&#x0040;heavywatal](https://github.com/heavywatal), [&#x0040;ijlyttle](https://github.com/ijlyttle), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;jackwasey](https://github.com/jackwasey), [&#x0040;Jadamso](https://github.com/Jadamso), [&#x0040;jayhesselberth](https://github.com/jayhesselberth), [&#x0040;JBGruber](https://github.com/JBGruber), [&#x0040;jdblischak](https://github.com/jdblischak), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;jjchern](https://github.com/jjchern), [&#x0040;jmgirard](https://github.com/jmgirard), [&#x0040;jonocarroll](https://github.com/jonocarroll), [&#x0040;jonthegeek](https://github.com/jonthegeek), [&#x0040;jooyoungseo](https://github.com/jooyoungseo), [&#x0040;jsta](https://github.com/jsta), [&#x0040;jtr13](https://github.com/jtr13), [&#x0040;karawoo](https://github.com/karawoo), [&#x0040;kevinushey](https://github.com/kevinushey), [&#x0040;khailper](https://github.com/khailper), [&#x0040;kiwiroy](https://github.com/kiwiroy), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;lbusett](https://github.com/lbusett), [&#x0040;leonawicz](https://github.com/leonawicz), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;llrs](https://github.com/llrs), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;lwjohnst86](https://github.com/lwjohnst86), [&#x0040;maelle](https://github.com/maelle), [&#x0040;maislind](https://github.com/maislind), [&#x0040;markdly](https://github.com/markdly), [&#x0040;martinjhnhadley](https://github.com/martinjhnhadley), [&#x0040;MatthieuStigler](https://github.com/MatthieuStigler), [&#x0040;maurolepore](https://github.com/maurolepore), [&#x0040;maxheld83](https://github.com/maxheld83), [&#x0040;mdlincoln](https://github.com/mdlincoln), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [&#x0040;MishaCivey](https://github.com/MishaCivey), [&#x0040;mkearney](https://github.com/mkearney), [&#x0040;move[bot]](https://github.com/move[bot]), [&#x0040;muschellij2](https://github.com/muschellij2), [&#x0040;nbrgraphs](https://github.com/nbrgraphs), [&#x0040;nijibabulu](https://github.com/nijibabulu), [&#x0040;njtierney](https://github.com/njtierney), [&#x0040;noamross](https://github.com/noamross), [&#x0040;overmar](https://github.com/overmar), [&#x0040;pat-s](https://github.com/pat-s), [&#x0040;petermeissner](https://github.com/petermeissner), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rorynolan](https://github.com/rorynolan), [&#x0040;ryapric](https://github.com/ryapric), [&#x0040;sriharitn](https://github.com/sriharitn), [&#x0040;statquant](https://github.com/statquant), [&#x0040;statwonk](https://github.com/statwonk), [&#x0040;strboul](https://github.com/strboul), [&#x0040;stufield](https://github.com/stufield), [&#x0040;tgerke](https://github.com/tgerke), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;topepo](https://github.com/topepo), [&#x0040;trestletech](https://github.com/trestletech), [&#x0040;VerenaHeld](https://github.com/VerenaHeld), [&#x0040;VincentGuyader](https://github.com/VincentGuyader), [&#x0040;vnijs](https://github.com/vnijs), [&#x0040;webbedfeet](https://github.com/webbedfeet), and [&#x0040;wlandau](https://github.com/wlandau)
