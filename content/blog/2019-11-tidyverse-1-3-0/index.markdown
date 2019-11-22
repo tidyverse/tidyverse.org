@@ -14,16 +14,19 @@ photo:
   author: Juskteez Vu
 ---
 
-
-
 <html>
 <style>
 .footnote-ref {
-vertical-align: super;
-font-size: 0.8em;
+    vertical-align: baseline;
+    position: relative;
+    top: -0.4em;
+    font-size: smaller;
 }
 </style>
 </html>
+
+
+
 
 We're thrilled to announce that [tidyverse](https://tidyverse.tidyverse.org/) 1.3.0 is now on CRAN. The tidyverse is a set of packages that work in harmony because they share common data representations and API design. The tidyverse package is designed to make it easy to install and load core packages from the tidyverse in a single command. For a complete list of changes, please see the [release notes](https://tidyverse.tidyverse.org/news/index.html#tidyverse-1-3-0).
 
