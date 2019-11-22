@@ -49,12 +49,12 @@ And, as always, attach the package by running:
 library(tidyverse)
 ```
 
-## Welcome to the Tidyverse
+## Citing the tidyverse
 
 The most significant update in this version is a new vignette, ["Welcome to the Tidyverse"](https://tidyverse.tidyverse.org/articles/paper.html), which is a mirror of the recently-released paper of the same name in the [Journal of Open Source Software](https://joss.theoj.org/papers/10.21105/joss.01686). 
-The (long) list of authors includes all members of the tidyverse organisation and its component packages, and will become the canonical way to cite tidyverse packages.
+The (long) list of authors includes all members of the tidyverse organisation and its component packages, and is now the canonical way to cite tidyverse packages.
 
-## Citing the tidyverse
+### When to cite the tidyverse
 
 If you're in a position where you can easily cite every package that materially contributed to your analysis, you should totally do it. 
 But it is often hard because many packages don't have accompanying papers, and many journals still haven't got the memo that software is an important research artifact.
@@ -68,7 +68,8 @@ Of course, you're still free to cite individual tidyverse packages if you feel l
 
 ### How to cite the tidyverse
 
-The R [`citation()`](https://stat.ethz.ch/R-manual/R-devel/library/utils/html/citation.html) function makes it easy to cite R and R packages in publications. 
+The R [`citation()`](https://stat.ethz.ch/R-manual/R-devel/library/utils/html/citation.html) function makes it easy to cite R and R packages in publications.
+The latest version of the tidyverse package has the citation built in: 
 
 
 ```r
@@ -118,8 +119,6 @@ citation()
 #> when using it for data analysis. See also 'citation("pkgname")' for
 #> citing R packages.
 ```
-
-This gives you the citation string and BibTeX entries for citing the [R language](https://www.r-project.org/).
 
 ## Acknowledgments
 
