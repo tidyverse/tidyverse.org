@@ -1,7 +1,7 @@
 ---
 title: tidyverse 1.3.0
 author: Mara Averick
-date: '2019-11-21'
+date: '2019-11-22'
 slug: tidyverse-1-3-0
 description: > 
   tidyverse 1.3.0 is on CRAN, and has a paper in the Journal of Open Source Software! This should make it easier to cite tidyverse packages.
