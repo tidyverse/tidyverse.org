@@ -14,9 +14,12 @@ photo:
   author: Photo by Jordan Harrison
 ---
 
-odbc 1.2.0 is now on CRAN! The odbc package provides a [DataBase Interface (DBI)](https://dbi.r-dbi.org/) to [Open DataBase Connectivity (ODBC)](https://en.wikipedia.org/wiki/Open_Database_Connectivity) drivers. ODBC drivers exist for nearly all widely used databases, including [SQL Server](https://www.microsoft.com/en-us/sql-server/), [Oracle](https://www.oracle.com/database), [MySQL](https://www.mysql.com/), [PostgreSQL](https://www.postgresql.org/), [SQLite](https://sqlite.org/) and others. In addition RStudio provides a set of [Professional ODBC drivers](https://db.rstudio.com/rstudio/pro-drivers/) free of charge for customers who have RStudio Server Pro, RStudio Connect, or Shiny Server Pro. In addition visit [db.rstudio.com](https://db.rstudio.com/) for extensive resources on connecting to and working with databases from R. See the [change log](https://cloud.r-project.org/web/packages/odbc/news/news.html) for the full set of changes for this release.
-
-The odbc package allows you to query these databases from within R. Get the latest version with:
+odbc 1.2.0 is now on CRAN! The odbc package provides a [DataBase Interface (DBI)](https://dbi.r-dbi.org/) to [Open DataBase Connectivity (ODBC)](https://en.wikipedia.org/wiki/Open_Database_Connectivity) drivers.
+ODBC drivers exist for nearly all widely used databases, including [SQL Server](https://www.microsoft.com/en-us/sql-server/), [Oracle](https://www.oracle.com/database), [MySQL](https://www.mysql.com/), [PostgreSQL](https://www.postgresql.org/), [SQLite](https://sqlite.org/) and others.
+RStudio also provides a set of [Professional ODBC Drivers](https://db.rstudio.com/rstudio/pro-drivers/) free of charge for customers who have RStudio Server Pro, RStudio Connect, or Shiny Server Pro.
+In addition [db.rstudio.com](https://db.rstudio.com/) has extensive resources on connecting to and working with databases from R.
+The odbc package allows you to query these databases from within R.
+Get the latest version with:
 
 ```r
 install.packages("odbc")
@@ -30,10 +33,12 @@ con <- dbConnect(odbc::odbc(), "MicrosoftSQLServer", UID = "SA", PWD = "Password
 ```
 
 The biggest improvements in this release are related to querying within schemas, an API for immediate execution, and a new `timezone_out` parameter to control the displayed time of timezones returned by the query.
+See the [change log](https://cloud.r-project.org/web/packages/odbc/news/news.html) for the full set of changes for this release.
 
 ## Querying schemas
 
-Use `DBI::Id()` reference a table within a schema. This will allow odbc to handle any quoting necessary for your particular database. e.g. you can write to a table named `my.iris` even if there is a schema named `my`.
+Use `DBI::Id()` reference a table within a schema.
+This will allow odbc to handle any quoting necessary for your particular database. e.g. you can write to a table named `my.iris` even if there is a schema named `my`.
 
 ```{r, eval = FALSE}
 library(DBI)
@@ -55,7 +60,9 @@ This feature has actually existed for a number of odbc releases, but due to driv
 
 ## Immediate/direct execution
 
-The odbc package uses [Prepared Statements](https://en.wikipedia.org/wiki/Prepared_statement) to compile the query once and reuse it, allowing large or repeated queries to be more efficient. However, prepared statements can actually perform worse in some cases, such as many different small queries that are all only executed once. Because of this the odbc package now also supports direct queries by specifying `immediate = TRUE`.
+The odbc package uses [Prepared Statements](https://en.wikipedia.org/wiki/Prepared_statement) to compile the query once and reuse it, allowing large or repeated queries to be more efficient.
+However, prepared statements can actually perform worse in some cases, such as many different small queries that are all only executed once.
+Because of this the odbc package now also supports direct queries by specifying `immediate = TRUE`.
 
 ```r
 # This will use a prepared statement
@@ -67,7 +74,11 @@ dbGetQuery("SELECT * from iris", immediate = TRUE)
 
 ## Timezone display
 
-The odbc package has historically imported date times with a `UTC` timezone. This ensures that the same code will produce the same output regardless of the local time. However this can confuse users, particularly if the server timezones are stored or displayed in a non-UTC timezone. Because of this, the odbc package now supports a `timezone_out` parameter, which allows users to set the timezone the times should be displayed in. Setting this to your local timezone, or the timezone of the database may reduce this confusion.
+The odbc package has historically imported date times with a `UTC` timezone.
+This ensures that the same code will produce the same output regardless of the local time.
+However this can confuse users, particularly if the server timezones are stored or displayed in a non-UTC timezone.
+Because of this, the odbc package now supports a `timezone_out` parameter, which allows users to set the timezone the times should be displayed in.
+Setting this to your local timezone, or the timezone of the database may reduce this confusion.
 
 ``` r
 library(DBI)
