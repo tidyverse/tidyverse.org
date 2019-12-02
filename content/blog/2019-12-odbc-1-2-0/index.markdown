@@ -17,7 +17,7 @@ photo:
 odbc 1.2.0 is now on CRAN! The odbc package provides a [DataBase Interface (DBI)](https://dbi.r-dbi.org/) to [Open DataBase Connectivity (ODBC)](https://en.wikipedia.org/wiki/Open_Database_Connectivity) drivers.
 ODBC drivers exist for nearly all widely used databases, including [SQL Server](https://www.microsoft.com/en-us/sql-server/), [Oracle](https://www.oracle.com/database), [MySQL](https://www.mysql.com/), [PostgreSQL](https://www.postgresql.org/), [SQLite](https://sqlite.org/) and others.
 RStudio also provides a set of [Professional ODBC Drivers](https://db.rstudio.com/rstudio/pro-drivers/) free of charge for customers who have RStudio Server Pro, RStudio Connect, or Shiny Server Pro.
-In addition [db.rstudio.com](https://db.rstudio.com/) has extensive resources on connecting to and working with databases from R.
+In addition, [db.rstudio.com](https://db.rstudio.com/) has extensive resources on connecting to and working with databases from R.
 The odbc package allows you to query these databases from within R.
 Get the latest version with:
 
@@ -25,7 +25,7 @@ Get the latest version with:
 install.packages("odbc")
 ```
 
-Generally you will not need to load the odbc package with `library()`, instead you can load the `DBI` package and use `odbc::odbc()` to reference the driver when connecting. e.g.
+Generally you will *not* need to load the odbc package with `library()`, instead you can load the `DBI` package and use `odbc::odbc()` to reference the driver when connecting. e.g.
 
 ```r
 library(DBI)
