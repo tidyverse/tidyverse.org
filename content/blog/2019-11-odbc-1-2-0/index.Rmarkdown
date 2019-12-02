@@ -46,9 +46,9 @@ all.equal(tbl, tbl2)
 
 This feature has actually existed for a number of odbc releases, but due to driver inconsistencies was not working properly on SQL Server, which is now fixed.
 
-## Immediate/Direct execution
+## Immediate/direct execution
 
-The odbc package uses [Prepared Statements](https://en.wikipedia.org/wiki/Prepared_statement), to compile the query once and reuse it, allowing large or repeated queries to be more efficient. However prepared statements can actually perform worse in some cases, such as many different small queries that are all only executed once. Because of this the odbc package now also supports direct queries by specifying `immediate = TRUE`.
+The odbc package uses [Prepared Statements](https://en.wikipedia.org/wiki/Prepared_statement) to compile the query once and reuse it, allowing large or repeated queries to be more efficient. However, prepared statements can actually perform worse in some cases, such as many different small queries that are all only executed once. Because of this the odbc package now also supports direct queries by specifying `immediate = TRUE`.
 
 ```r
 # This will use a prepared statement
@@ -60,7 +60,7 @@ dbGetQuery("SELECT * from iris", immediate = TRUE)
 
 ## Timezone display
 
-The odbc package has historically imported date times with a `UTC` timezone. This ensures that the same code will produce the same output regardless of the local time. However this can confuse users, particularly if the server timezones are stored or displayed in a non-UTC timezone. Because of this the odbc package now supports a `timezone_out` parameter, which allows users to set the timezone the times should be displayed in. Setting this to your local timezone, or the timezone of the database may reduce this confusion.
+The odbc package has historically imported date times with a `UTC` timezone. This ensures that the same code will produce the same output regardless of the local time. However this can confuse users, particularly if the server timezones are stored or displayed in a non-UTC timezone. Because of this, the odbc package now supports a `timezone_out` parameter, which allows users to set the timezone the times should be displayed in. Setting this to your local timezone, or the timezone of the database may reduce this confusion.
 
 ``` r
 library(DBI)
