@@ -89,6 +89,8 @@ The tidyverse also includes many other packages with more specialised usage. The
 
 As well as [readr](https://readr.tidyverse.org), for reading flat files, the tidyverse includes:
 
+* [vroom](https://vroom.r-lib.org/) is similar to readr, but uses the [ALTREP](https://svn.r-project.org/R/branches/ALTREP/ALTREP.html) framework to increase efficiency.
+
 * [readxl](https://readxl.tidyverse.org) for `.xls` and `.xlsx` sheets.
 
 * [haven](https://haven.tidyverse.org) for SPSS, Stata, and SAS data.
