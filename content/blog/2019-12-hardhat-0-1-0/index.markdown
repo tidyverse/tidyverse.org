@@ -18,7 +18,7 @@ photo:
 
 
 
-We're excited to announce that the first version of hardhat is now on CRAN. hardhat is a developer focused package with the goal of making it easier to create new modeling packages, while simultaneously promoting good R modeling package standards. To accomplish this, hardhat provides tooling around preprocessing, predicting, and validating user input, along with a way to set up the structure of a new modeling package with a single function call.
+We're excited to announce that the first version of [hardhat](https://tidymodels.github.io/hardhat/) is now on CRAN. hardhat is a developer focused package with the goal of making it easier to create new modeling packages, while simultaneously promoting good R modeling package standards. To accomplish this, hardhat provides tooling around preprocessing, predicting, and validating user input, along with a way to set up the structure of a new modeling package with a single function call.
 
 
 ```r
