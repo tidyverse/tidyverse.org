@@ -11,6 +11,7 @@ categories:
   - package
 tags:
   - tidymodels
+  - hardhat
 photo: 
   url: https://unsplash.com/photos/YSxcf6C_SEg
   author: Silvia Brazzoduro
@@ -18,7 +19,7 @@ photo:
 
 
 
-We're excited to announce that the first version of [hardhat](https://tidymodels.github.io/hardhat/) is now on CRAN. hardhat is a developer focused package with the goal of making it easier to create new modeling packages, while simultaneously promoting good R modeling package standards. To accomplish this, hardhat provides tooling around preprocessing, predicting, and validating user input, along with a way to set up the structure of a new modeling package with a single function call.
+We're excited to announce that the first version of [hardhat](https://tidymodels.github.io/hardhat/) is now on CRAN. hardhat is a developer-focused package with the goal of making it easier to create new modeling packages, while simultaneously promoting good R modeling package standards. To accomplish this, hardhat provides tooling around preprocessing, predicting, and validating user input, along with a way to set up the structure of a new modeling package with a single function call.
 
 
 ```r
@@ -61,7 +62,7 @@ training
 #> # … with 446 more rows
 ```
 
-Depending on the model you choose, you might need to center and scale your data before passing it along to the fitting function. There are two main ways you might do this, a formula, or a recipe. As a modeling package developer, ideally you'd support both in your user-facing modeling function, like so:
+Depending on the model you choose, you might need to center and scale your data before passing it along to the fitting function. There are two main ways you might do this: a formula, or a recipe. As a modeling package developer, ideally you'd support both in your user-facing modeling function, like so:
 
 
 ```r
@@ -138,7 +139,7 @@ processed_recipe$outcomes
 ```
 
 
-Generally you won't call `mold()` interactively, but will instead call it from your top level modeling function as the first step to standardize and validate a user's input.
+Generally you won't call `mold()` interactively, but will, instead, call it from your top-level modeling function as the first step to standardize and validate a user's input.
 
 
 ```r
@@ -159,7 +160,7 @@ my_model.recipe <- function(x, data, ...) {
 
 ## Predicting
 
-Once you've used the preprocessed data to fit your model, at some point you'll probably want to make predictions on a test set. To do this, you'll need to reapply any preprocessing that you did on the training set to the test set as well. hardhat makes this easy with `hardhat::forge()`. `forge()` takes a data frame of new predictors, as well as a `blueprint` that was created in the call to `mold()`, and reapplies the correct preprocessing for you. Again, no matter what the original preprocessing method was, the output is consistent and predictable.
+Once you've used the preprocessed data to fit your model, you'll probably want to make predictions on a test set. To do this, you'll need to reapply any preprocessing that you did on the training set to the test set as well. hardhat makes this easy with `hardhat::forge()`. `forge()` takes a data frame of new predictors, as well as a `blueprint` that was created in the call to `mold()`, and reapplies the correct preprocessing for you. Again, no matter what the original preprocessing method was, the output is consistent and predictable.
 
 
 ```r
@@ -212,7 +213,7 @@ predict.my_model <- function(object, new_data, ...) {
 
 ## Learning more
 
-There are 3 large vignettes for hardhat.
+There are 3 key vignettes for hardhat.
 
 - [Creating Modeling Packages With hardhat](https://tidymodels.github.io/hardhat/articles/package.html)
 
