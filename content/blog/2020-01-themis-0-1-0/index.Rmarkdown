@@ -1,10 +1,10 @@
 ---
 title: themis 0.1.0
 author: Emil Hvitfeldt
-date: '2020-01-13'
+date: '2020-01-16'
 slug: themis-0-1-0
 description: 
-  themis 0.1.0 is now available on CRAN. Provides additional steps for `recipes`
+  themis 0.1.0 is now available on CRAN. Provides additional steps for recipes
   to deal with unbalanced data.
 categories:
   - package
