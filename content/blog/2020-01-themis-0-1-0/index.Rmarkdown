@@ -1,7 +1,7 @@
 ---
 title: themis 0.1.0
 author: Emil Hvitfeldt
-date: '2020-01-16'
+date: '2020-02-05'
 slug: themis-0-1-0
 description: 
   themis 0.1.0 is now available on CRAN. Provides additional steps for recipes
