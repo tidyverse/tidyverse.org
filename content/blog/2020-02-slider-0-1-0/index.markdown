@@ -1,7 +1,7 @@
 ---
 title: slider 0.1.0
 author: Davis Vaughan
-date: '2020-02-06'
+date: '2020-02-10'
 slug: slider-0-1-0
 description: 
   slider 0.1.0 is now available on CRAN. It provides a family of general purpose
