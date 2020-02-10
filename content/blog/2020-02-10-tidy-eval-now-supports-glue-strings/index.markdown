@@ -26,7 +26,7 @@ install.packages("rlang")
 
 ## Tunnelling data-variables with curly-curly
 
-With the `{{` operator you can __tunnel__ data-variables (i.e. columns from the data frames) through env-variables (in particular function arguments):
+With the `{{` operator you can __tunnel__ data-variables (i.e. columns from the data frames) through env-variables (programming variables from the environment, in particular function arguments):
 
 
 ```r
@@ -72,9 +72,9 @@ iris %>% mean_by_no_tunnel(Species, Sepal.Width)
 That's because of the ambiguity between the function argument `by` and the data-variable `Species`. R has no way of knowing that you meant the variable from the data frame.
 
 
-## Custom result name
+## Custom result names
 
-In the example above, the result name is hard-coded to `avg`. This is an informative generic name but returning a more specific name reflecting the context might make the function more helpful. For this reason, tidy eval functions taking dots (like `dplyr::mutate()`, `dplyr::group_by()`, or `dplyr::summarise()`) now support glue strings as result names.
+In the example above, the result name is hard-coded to `avg`. This is an informative generic name, but returning a more specific name that reflects the context might make the function more helpful. For this reason, tidy eval functions taking dots (like `dplyr::mutate()`, `dplyr::group_by()`, or `dplyr::summarise()`) now support glue strings as result names.
 
 Glue strings are implemented in the [glue package](https://glue.tidyverse.org/). They are a flexible way of composing a string from components, interpolating R code within the string:
 
@@ -104,7 +104,7 @@ iris %>% summarise("prefix_{suffix}" := mean(Sepal.Width))
 #> 1       3.06
 ```
 
-In addition to normal glue interpolation with `{` you can also tunnel data-variables through function arguments with `{{` inside the string:
+In addition to normal glue interpolation with `{`, you can also tunnel data-variables through function arguments with `{{` inside the string:
 
 
 ```r
@@ -143,3 +143,10 @@ iris %>% mean_by(Species, Sepal.Width)
 ```
 
 You can learn more about tunnelling variables in [this RStudio::conf 2020 talk](https://speakerdeck.com/lionelhenry/interactivity-and-programming-in-the-tidyverse).
+
+
+## Acknowledgements
+
+Read about other bugfixes and features from the 0.4.3 release in the [changelog](https://github.com/r-lib/rlang/blob/master/NEWS.md#rlang-043). Many thanks to all the contributors for this release!
+
+[&#x0040;chendaniely](https://github.com/chendaniely), [&#x0040;clauswilke](https://github.com/clauswilke), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;enoshliang](https://github.com/enoshliang), [&#x0040;hadley](https://github.com/hadley), [&#x0040;ianmcook](https://github.com/ianmcook), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;neelan29](https://github.com/neelan29), [&#x0040;nick-youngblut](https://github.com/nick-youngblut), [&#x0040;nteetor](https://github.com/nteetor), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;TylerGrantSmith](https://github.com/TylerGrantSmith), [&#x0040;vspinu](https://github.com/vspinu), and [&#x0040;yutannihilation](https://github.com/yutannihilation)
