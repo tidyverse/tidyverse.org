@@ -1,0 +1,112 @@
+---
+title: Tidy eval now supports glue strings
+author: Lionel Henry
+date: '2020-02-10'
+slug: rlang-0-4-3
+categories:
+  - package
+tags: [package, r-lib, tidyverse]
+photo:
+  url: https://unsplash.com/photos/pcoKkN3NsX0
+  author: Modestas Urbonas
+---
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>"
+)
+iris <- tibble::as_tibble(iris)
+```
+
+[rlang 0.4.0](https://www.tidyverse.org/blog/2019/06/rlang-0-4-0/) introduced the curly-curly `{{` operator to simplify writing functions around tidyverse pipelines. The minor update 0.4.3 of rlang makes it possible to use `{` and `{{` to create result names in tidyverse verbs taking pairs of names and expressions.
+
+Install the latest version of rlang to make the new feature globally available throughout the tidyverse:
+
+```{r, eval = FALSE}
+install.packages("rlang")
+```
+
+
+## Tunnelling data-variables with curly-curly
+
+With the `{{` operator you can __tunnel__ data-variables (i.e. columns from the data frames) through env-variables (in particular function arguments):
+
+```{r}
+suppressMessages(
+  library(tidyverse)
+)
+
+mean_by <- function(data, by, var) {
+  data %>%
+    group_by({{ by }}) %>%
+    summarise(avg = mean({{ var }}, na.rm = TRUE))
+}
+```
+
+The tunnel makes it possible to supply variables from the data frame to your wrapper function:
+
+```{r}
+iris %>% mean_by(Species, Sepal.Width)
+```
+
+Without a tunnel, the ambiguity between data-variables and env-variables causes R to complain about objects not found:
+
+```{r, error = TRUE}
+mean_by_no_tunnel <- function(data, by, var) {
+  data %>%
+    group_by(by) %>%
+    summarise(avg = mean(var, na.rm = TRUE))
+}
+
+iris %>% mean_by_no_tunnel(Species, Sepal.Width)
+```
+
+That's because of the ambiguity between the function argument `by` and the data-variable `Species`. R has no way of knowing that you meant the variable from the data frame.
+
+
+## Custom result name
+
+In the example above, the result name is hard-coded to `avg`. This is an informative generic name but returning a more specific name reflecting the context might make the function more helpful. For this reason, tidy eval functions taking dots (like `dplyr::mutate()`, `dplyr::group_by()`, or `dplyr::summarise()`) now support glue strings as result names.
+
+Glue strings are implemented in the [glue package](https://glue.tidyverse.org/). They are a flexible way of composing a string from components, interpolating R code within the string:
+
+```{r}
+library(glue)
+
+name <- "Bianca"
+glue("The result of `1 + 2` is {1 + 2}, so says {name}.")
+```
+
+You can now use glue strings in result names. Note that for technical reasons you need the Walrus operator `:=` instead of the usual `=`.
+
+```{r}
+suffix <- "foo"
+iris %>% summarise("prefix_{suffix}" := mean(Sepal.Width))
+```
+
+In addition to normal glue interpolation with `{` you can also tunnel data-variables through function arguments with `{{` inside the string:
+
+```{r}
+mean_by <- function(data, by, var) {
+  data %>%
+    group_by({{ by }}) %>%
+    summarise("{{ var }}" := mean({{ var }}, na.rm = TRUE))
+}
+
+iris %>% mean_by(Species, Sepal.Width)
+```
+
+And you can combine both forms of interpolation in a same glue string:
+
+```{r}
+mean_by <- function(data, by, var, prefix = "avg") {
+  data %>%
+    group_by({{ by }}) %>%
+    summarise("{prefix}_{{ var }}" := mean({{ var }}, na.rm = TRUE))
+}
+
+iris %>% mean_by(Species, Sepal.Width)
+```
+
+You can learn more about tunnelling variables in [this RStudio::conf 2020 talk](https://speakerdeck.com/lionelhenry/interactivity-and-programming-in-the-tidyverse).
