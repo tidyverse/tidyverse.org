@@ -26,7 +26,7 @@ install.packages("rlang")
 
 ## Tunnelling data-variables with curly-curly
 
-With the `{{` operator you can __tunnel__ data-variables (i.e. columns from the data frames) through env-variables (programming variables from the environment, in particular function arguments):
+With the `{{` operator you can __tunnel__ data-variables (i.e. columns from the data frames) through arg-variables (function arguments):
 
 
 ```r
@@ -52,7 +52,7 @@ iris %>% mean_by(Species, Sepal.Width)
 #> 3 virginica   2.97
 ```
 
-Without a tunnel, the ambiguity between data-variables and env-variables causes R to complain about objects not found:
+Without a tunnel, the ambiguity between data-variables and arg-variables causes R to complain about objects not found:
 
 
 ```r
