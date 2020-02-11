@@ -16,7 +16,6 @@ photo:
 knitr::opts_chunk$set(
   collapse = TRUE, comment = "#>"
 )
-iris <- tibble::as_tibble(iris)
 ```
 
 [rlang 0.4.0](https://www.tidyverse.org/blog/2019/06/rlang-0-4-0/) introduced the curly-curly `{{` operator to simplify writing functions around tidyverse pipelines. The minor update 0.4.3 of rlang makes it possible to use `{` and `{{` to create result names in tidyverse verbs taking pairs of names and expressions.
@@ -32,10 +31,8 @@ install.packages("rlang")
 
 With the `{{` operator you can __tunnel__ data-variables (i.e. columns from the data frames) through env-variables (programming variables from the environment, in particular function arguments):
 
-```{r}
-suppressMessages(
-  library(tidyverse)
-)
+```{r, message = FALSE}
+library(tidyverse)
 
 mean_by <- function(data, by, var) {
   data %>%

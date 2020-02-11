@@ -1,8 +1,8 @@
 ---
 title: Tidy eval now supports glue strings
 author: Lionel Henry
-date: '2020-02-10'
-slug: rlang-0-4-3
+date: '2020-02-11'
+slug: glue-strings-and-tidy-eval
 categories:
   - package
 tags: [package, r-lib, tidyverse]
@@ -30,9 +30,7 @@ With the `{{` operator you can __tunnel__ data-variables (i.e. columns from the 
 
 
 ```r
-suppressMessages(
-  library(tidyverse)
-)
+library(tidyverse)
 
 mean_by <- function(data, by, var) {
   data %>%
@@ -98,10 +96,8 @@ You can now use glue strings in result names. Note that for technical reasons yo
 ```r
 suffix <- "foo"
 iris %>% summarise("prefix_{suffix}" := mean(Sepal.Width))
-#> # A tibble: 1 x 1
 #>   prefix_foo
-#>        <dbl>
-#> 1       3.06
+#> 1   3.057333
 ```
 
 In addition to normal glue interpolation with `{`, you can also tunnel data-variables through function arguments with `{{` inside the string:
