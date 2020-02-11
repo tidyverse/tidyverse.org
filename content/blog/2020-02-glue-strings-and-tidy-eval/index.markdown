@@ -1,0 +1,148 @@
+---
+title: Tidy eval now supports glue strings
+author: Lionel Henry
+date: '2020-02-11'
+slug: glue-strings-and-tidy-eval
+categories:
+  - package
+tags: [package, r-lib, tidyverse]
+photo:
+  url: https://unsplash.com/photos/pcoKkN3NsX0
+  author: Modestas Urbonas
+---
+
+
+
+
+[rlang 0.4.0](https://www.tidyverse.org/blog/2019/06/rlang-0-4-0/) introduced the curly-curly `{{` operator to simplify writing functions around tidyverse pipelines. The minor update 0.4.3 of rlang makes it possible to use `{` and `{{` to create result names in tidyverse verbs taking pairs of names and expressions.
+
+Install the latest version of rlang to make the new feature globally available throughout the tidyverse:
+
+
+```r
+install.packages("rlang")
+```
+
+
+## Tunnelling data-variables with curly-curly
+
+With the `{{` operator you can __tunnel__ data-variables (i.e. columns from the data frames) through arg-variables (function arguments):
+
+
+```r
+library(tidyverse)
+
+mean_by <- function(data, by, var) {
+  data %>%
+    group_by({{ by }}) %>%
+    summarise(avg = mean({{ var }}, na.rm = TRUE))
+}
+```
+
+The tunnel makes it possible to supply variables from the data frame to your wrapper function:
+
+
+```r
+iris %>% mean_by(Species, Sepal.Width)
+#> # A tibble: 3 x 2
+#>   Species      avg
+#>   <fct>      <dbl>
+#> 1 setosa      3.43
+#> 2 versicolor  2.77
+#> 3 virginica   2.97
+```
+
+Without a tunnel, the ambiguity between data-variables and arg-variables causes R to complain about objects not found:
+
+
+```r
+mean_by_no_tunnel <- function(data, by, var) {
+  data %>%
+    group_by(by) %>%
+    summarise(avg = mean(var, na.rm = TRUE))
+}
+
+iris %>% mean_by_no_tunnel(Species, Sepal.Width)
+#> Error: Must group by variables found in `.data`
+#> * Column `by` is not found
+```
+
+That's because of the ambiguity between the function argument `by` and the data-variable `Species`. R has no way of knowing that you meant the variable from the data frame.
+
+
+## Custom result names
+
+In the example above, the result name is hard-coded to `avg`. This is an informative generic name, but returning a more specific name that reflects the context might make the function more helpful. For this reason, tidy eval functions taking dots (like `dplyr::mutate()`, `dplyr::group_by()`, or `dplyr::summarise()`) now support glue strings as result names.
+
+Glue strings are implemented in the [glue package](https://glue.tidyverse.org/). They are a flexible way of composing a string from components, interpolating R code within the string:
+
+
+```r
+library(glue)
+#> 
+#> Attaching package: 'glue'
+#> The following object is masked from 'package:dplyr':
+#> 
+#>     collapse
+
+name <- "Bianca"
+glue("The result of `1 + 2` is {1 + 2}, so says {name}.")
+#> The result of `1 + 2` is 3, so says Bianca.
+```
+
+You can now use glue strings in result names. Note that for technical reasons you need the Walrus operator `:=` instead of the usual `=`.
+
+
+```r
+suffix <- "foo"
+iris %>% summarise("prefix_{suffix}" := mean(Sepal.Width))
+#>   prefix_foo
+#> 1   3.057333
+```
+
+In addition to normal glue interpolation with `{`, you can also tunnel data-variables through function arguments with `{{` inside the string:
+
+
+```r
+mean_by <- function(data, by, var) {
+  data %>%
+    group_by({{ by }}) %>%
+    summarise("{{ var }}" := mean({{ var }}, na.rm = TRUE))
+}
+
+iris %>% mean_by(Species, Sepal.Width)
+#> # A tibble: 3 x 2
+#>   Species    Sepal.Width
+#>   <fct>            <dbl>
+#> 1 setosa            3.43
+#> 2 versicolor        2.77
+#> 3 virginica         2.97
+```
+
+And you can combine both forms of interpolation in a same glue string:
+
+
+```r
+mean_by <- function(data, by, var, prefix = "avg") {
+  data %>%
+    group_by({{ by }}) %>%
+    summarise("{prefix}_{{ var }}" := mean({{ var }}, na.rm = TRUE))
+}
+
+iris %>% mean_by(Species, Sepal.Width)
+#> # A tibble: 3 x 2
+#>   Species    avg_Sepal.Width
+#>   <fct>                <dbl>
+#> 1 setosa                3.43
+#> 2 versicolor            2.77
+#> 3 virginica             2.97
+```
+
+You can learn more about tunnelling variables in [this RStudio::conf 2020 talk](https://speakerdeck.com/lionelhenry/interactivity-and-programming-in-the-tidyverse).
+
+
+## Acknowledgements
+
+Read about other bugfixes and features from the 0.4.3 release in the [changelog](https://github.com/r-lib/rlang/blob/master/NEWS.md#rlang-043). Many thanks to all the contributors for this release!
+
+[&#x0040;chendaniely](https://github.com/chendaniely), [&#x0040;clauswilke](https://github.com/clauswilke), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;enoshliang](https://github.com/enoshliang), [&#x0040;hadley](https://github.com/hadley), [&#x0040;ianmcook](https://github.com/ianmcook), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;neelan29](https://github.com/neelan29), [&#x0040;nick-youngblut](https://github.com/nick-youngblut), [&#x0040;nteetor](https://github.com/nteetor), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;TylerGrantSmith](https://github.com/TylerGrantSmith), [&#x0040;vspinu](https://github.com/vspinu), and [&#x0040;yutannihilation](https://github.com/yutannihilation)
