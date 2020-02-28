@@ -1,7 +1,7 @@
 ---
 title: More 2020 tidy dev days!
 author: 'Mara Averick'
-date: '2020-02-27'
+date: '2020-02-28'
 slug: tidy-dev-days-2020
 description: > 
   A roundup of our post-rstudio::conf tidy dev day, and announcement of a pre-useR! 2020 event. 
