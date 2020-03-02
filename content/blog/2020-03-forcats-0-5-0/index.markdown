@@ -47,7 +47,6 @@ Lumping seems like a popular activity, and there are many interesting variants. 
   * `fct_lump_n()` lumps all levels except for the `n` most frequent (or least frequent, if `n < 0`).  
   * `fct_lump_lowfreq()` lumps together the least frequent levels, ensuring that `"Other"` is still the smallest level.  
 
-<br/>
 
 
 ```r
