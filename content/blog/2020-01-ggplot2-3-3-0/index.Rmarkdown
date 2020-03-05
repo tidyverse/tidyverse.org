@@ -1,7 +1,7 @@
 ---
 title: "ggplot2 3.3.0"
 author: "Thomas Lin Pedersen"
-date: '2020-01-07'
+date: '2020-03-05'
 description: |
   The next iteration of ggplot2 has just been released on CRAN, packed with new 
   features and bug fixes. Read all about what's new here.
