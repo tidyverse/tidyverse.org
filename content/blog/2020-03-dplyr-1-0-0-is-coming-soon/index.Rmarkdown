@@ -1,0 +1,203 @@
+---
+title: dplyr 1.0.0 is coming soon
+author: Hadley Wickham
+date: '2020-03-09'
+slug: dplyr-1-0-0-is-coming-soon
+categories:
+  - package
+tags:
+  - dplyr
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+We're very excited to announce the impending arrival of dplyr 1.0.0. We haven't started the official release process yet (where we officially inform maintainers), but that is likely to start in the next week or two, and then dplyr 1.0.0 is likely to be submitted to CRAN 4-6 weeks after that. 
+
+The goal of this blog post is let you know that dplyr 1.0.0 is coming, discuss some of the big changes, and to encourage early adopters to try it out and help us find problems that we've missed. This is the first of a series of blog posts that will lead up to the final release, so stay tuned for more info.
+
+```{r, message = FALSE}
+library(dplyr)
+```
+
+## New features
+
+dplyr 1.0.0 has a _lot_ of new features which we'll discuss in more detail in future posts. For now, here's a rough overview to get you started:
+
+* Much better support for row-wise operations: 
+  [`vignette("rowwise")`](https://dplyr.tidyverse.org/dev/articles/rowwise.html).
+
+* A new, simpler, approach to col-wise operations:
+  [`vignette("colwise")`](https://dplyr.tidyverse.org/dev/articles/rowwise.html).
+
+* `summarise()` can now easily create multiple colums and/or multiple rows 
+  from a single summary:
+  [`?summarise`](https://dplyr.tidyverse.org/dev/reference/summarise.html).
+
+* `select()` can select columns based on their type, and has a new syntax
+  that better matches how you describe selections in English:
+  [`?select`](https://dplyr.tidyverse.org/dev/reference/select.html)
+
+* A new `recolate()` verb makes it easier change the position of columns: 
+  [`?relocate`](https://dplyr.tidyverse.org/dev/reference/relocate.html).
+
+* Thanks to new rlang and dplyr features, and new a vocabulary, it's 
+  considerably easier to program with dplyr: [`vignette("programming")`](https://dplyr.tidyverse.org/dev/articles/programming.html).
+
+## dplyr internals
+
+Accompanying these user visible changes is much work behind the scenes. Most notably dplyr now has a completely new implementation based on the [vctrs package](http://vctrs.r-lib.org/) rather than custom C++ code. vctrs is a low-level package for principled and high-performance manipulation of R vectors. It's not something that you will use directly, but it's becoming an increasingly important part of the foundations of the tidyverse. 
+
+Using vctrs in dplyr has a number advantages:
+
+* It allows much more of dplyr to be implemented in R, which enables faster
+  prototyping, which is why this version comes with the first new major verbs 
+  since dplyr 0.3.0!
+
+* We benefit from a standardised approach to handling custom (S3) vector types.
+  This mostly a long-term benefit, but it makes dplyr substantially easier
+  to extend from the outside, and I expect it will facilitate a much richer
+  ecosystem of packages surrounding dplyr, in the same way that [ggplot2 2.0.0](https://blog.rstudio.com/2015/12/21/ggplot2-2-0-0/) 
+  enabled ggplot2 extension packages to flourish.
+
+* It allows us to drop the expensive BH and Rcpp dependencies, and to generally 
+  reduce the amount of C++ needed. This makes compilation much faster and 
+  makes it easier to build dplyr in low memory environments.
+
+Of course, this change also comes with some downsides:
+
+* The standard coercion rules implemented in vctrs are a little different from
+  existing dplyr rules, and some existing code will return different results. 
+  The biggest changes are how factors and character vectors are handled (we now
+  produce fewer warnings and more factors), but will be other changes, 
+  particularly in edge cases where (for example) you might be trying to combine 
+  a date and factor. We worked hard on informative error messages, but this is 
+  going to cause some pain.
+
+* We have basically reimplemented every single dplyr function from first
+  principles. While we have been careful and do have an extensive set of tests 
+  to call upon, it is likely that some new bugs have will have slipped in. One
+  goal of this blog post is to encourage the adventurous to try out dplyr today 
+  and report bugs so those who wait until the CRAN release won't see them.
+
+* There may be some performance decreases. We've put in quite a lot of time 
+  to ensure most performance changes are positive or only slightly negative,
+  but we may have missed some cases. Please let us know if you notice dplyr 
+  code that is substantially slower in this version.
+
+Overall, we believe that the upsides to using vctrs outweigh the downsides, particularly in the long term as we use vctrs to power more and more of the tidyverse. There will be pain, but we hope to keep it as small as possible by ripping the band aid off quickly. After this release, dplyr will be a 1.0.0, which means that you should expect very few breaking changes in the future. We'll continue to add new functions and arguments but will be much more conservative about modifying or removing features.
+
+If the potential for changes makes you nervous, now is a good time to learn about [renv](https://rstudio.github.io/renv/). renv allows to create isolated, reproducible, projects so that you can experiment with new package versions while feeling secure that your existing projects will continue to work as they always have.
+
+## Lifecycle
+
+To make the transition to dplyr 1.0.0 easier we have invested a lot of time in clarifying where functions (and some arguments) fall in their lifecycle. Our goal is to better inform you of our thinking about functions. You won't always agree with our decisions, but you shouldn't be surprised!
+
+There are three stages in the lifecycle that are particularly important to know about in dplyr 1.0.0:
+
+* **Deprecated** functions are on their way out and you'll should replace them
+  with their modern alternatives in the near future.
+  
+* **Superseded** functions aren't going away, but we no longer recommend using
+  them because we think we've discovered better alternatives. There's no rush, 
+  but we suggest that you learn about their replacements and phase out your 
+  use of the superseded functions over the next year or two.
+
+* **Experimental** features are those features that we're cautiously optmistic
+  about, but want to get more feedback on before we fully commit to them.
+  Please try them out and let us know what you think!
+
+The following sections describe each stage in more detail, illustrated with the most important functions in that stage in dplyr 1.0.0
+
+### Deprecated functions
+
+Deprecation is the most visible of the lifecycle stages because you're forced to immediately confront it when you use a deprecated function:
+
+```{r}
+mtcars2 <- add_rownames(mtcars)
+```
+
+This warning is generated by the [lifecycle](http://lifecycle.r-lib.org/) package, and by default will appear once every 8 hours. Goal is to gently and regularly remind you to upgrade, but not get too much in your face. You can control this warning with the `lifecycle_verbosity` option:
+  
+* `options(lifecycle_verbosity = "warning")` always warns. This is particularly 
+  useful if you want to make a warning reproducible so you can eliminate it.
+
+* `options(lifecycle_verbosity = "error")` turns use of deprecated functions
+  into an error. This forces you to rapidly deal with any deprecated functions,
+  but may cause problems if the deprecated function is called by another package.
+
+* `options(lifecycle_verbosity = "quiet")` silences deprecation warnings. 
+  We don't generally recommended this, but it's a short-term fix if you're 
+  finding the warnings too annoying.
+
+Deprecated functions are also labelled in the documentation, and we have rewritten the examples to show how you can to convert your old code to more modern syntax.
+
+dplyr 1.0.0 deprecates quite a few functions, but most of them are either rarely used (judging from GitHub searches) or have been informally deprecated for some time:
+
+* In `group_by()` you now need to use `.add` instead of `add`; using `add` 
+  was a mistake that violates our [design principles](https://design.tidyverse.org/dots-prefix.html)
+  and makes it impossible to create a new grouping variable called `add`.
+
+* `as.tbl()` and `tbl_df()`; replace with `as_tibble()` and `tibble()`.
+
+* `bench_tbls()`, `compare_tbls()`, and friends; they were provided as a 
+  convenience  for developers but they never received much love and hence
+  aren't very useful.
+
+* `combine()` was rarely used and has unclear semantics. If needed you can 
+  replace with `vctrs::vec_c()`.
+  
+* `src_mysql()`, `src_postgresql()`, `src_sqlite()`: please use dbplyr instead.
+
+You can see the complete list in [NEWS.md](https://github.com/tidyverse/dplyr/blob/master/NEWS.md#deprecated)
+
+### Superseded functions
+
+Superseded functions is a weaker form of deprecation: we believe that better approaches exist, but we know that the function is used by many people and it's going to take some time to move away from it. Superseded functions will not receive new features and will only receive critical bug fixes. They not going away any time soon; for dplyr, that means we won't even think about removing at least 2 years. When we do eventually decided to  remove them, we will deprecate first and we promise to provide plenty of warning.
+
+(Previously we called this stage "retired" but that caused confusion because many people interpreted it as meaning that the function was going away, when the intent is to convey the opposite.) 
+
+You can tell if a function is superseded by reading the documentation. You'll see a prominent "superseded" badge, accompanied by an explanation of why the function was superseded. The examples show how to translate your old code to the new syntax. In the future, will provide tools to programmatically identify your use of superseded functions so you could (e.g.) have a policy of not using superseded functions in production code.
+
+There are two important function families that have been superseded in dplyr 1.0.0:
+
+* All `_if()`, `_at()` and `_all()` function variants (e.g. `mutate_if()`,
+  `summarise_at()`, `filter_all()`) have been superseded in favour of new a
+  `across()` function that can be used inside of any 
+  [data masking](https://dplyr.tidyverse.org/dev/reference/dplyr_data_masking.html)
+  verb. Learn more about `across()` in 
+  [`vignette("colwise")`](https://dplyr.tidyverse.org/dev/articles/colwise.html)
+
+* `top_n()`, `sample_n()`, `sample_frac()`, and `top_n()` have been 
+  superseded in favour of a new family of slice helpers: `slice_min()`,
+  `slice_max()`, `slice_head()`, `slice_tail()`, `slice_random()`.
+
+### Experimental features
+
+Experimental features have been explored and discussed amongst dplyr developers and we're still not 100% sure if they're a good idea or not, or we're not sure exactly how the underlying idea is best expressed in code. We want to expose them to more people while maintaining the option to change (possibly radically!) or even remove them. Experimental features will work best if you try them out and let us know what you think. There are two types of feedback that are particularly useful. Please tell us when an experimental feature:
+
+* Allows you to solve a problem in better (e.g. faster, less code, 
+  more elegantly, ...) than your previous approach. 
+  
+* It confusing because it works differently to an existing function 
+  (particularly a function in the tidyverse).
+
+Informal feedback is fine; feel free to [ping me on twitter](http://twitter.com/hadleywickham/status/1235611849179136001), [email me](mailto:hadley@rstudio.com), or [open an issue](https://github.com/tidyverse/dplyr/issues/new). 
+
+In dplyr 1.0.0 there are three new experimental arguments to [`mutate()`](https://dplyr.tidyverse.org/dev/reference/mutate.html#arguments
+), `.keep`, `.before`, and `.after` that give you more control where new columns are kept, and precisely which columns should be retained in the output. Please let us know what you think!
+
+## Try it out
+
+If you're adventurous, you can try it out today. While it's not perfect, it should be very similar to previous versions in most cases. And where it doesn't work you can help us by filing an issue so we can figure what's gone wrong.
+
+```{r, eval = FALSE}
+remotes::install_github("tidyverse/dplyr")
+```
+
+To restore to released version:
+
+```{r, eval = FALSE}
+install.packages("dplyr")
+```
