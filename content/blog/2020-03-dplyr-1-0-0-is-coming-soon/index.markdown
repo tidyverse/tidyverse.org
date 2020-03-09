@@ -41,7 +41,7 @@ dplyr 1.0.0 has a _lot_ of new features which we'll discuss in more detail in fu
   that better matches how you describe selections in English:
   [`?select`](https://dplyr.tidyverse.org/dev/reference/select.html)
 
-* A new `recolate()` verb makes it easier change the position of columns: 
+* A new `relocate()` verb makes it easier change the position of columns: 
   [`?relocate`](https://dplyr.tidyverse.org/dev/reference/relocate.html).
 
 * Thanks to new rlang and dplyr features, and new a vocabulary, it's 
@@ -98,17 +98,20 @@ To make the transition to dplyr 1.0.0 easier we have invested a lot of time in c
 
 There are three stages in the lifecycle that are particularly important to know about in dplyr 1.0.0:
 
-* **Deprecated** functions are on their way out and you'll should replace them
-  with their modern alternatives in the near future.
+* **Deprecated** functions (![deprecated badge](lifecycle-deprecated.svg)) 
+  are on their way out and you'll should replace them with their modern 
+  alternatives in the near future.
   
-* **Superseded** functions aren't going away, but we no longer recommend using
-  them because we think we've discovered better alternatives. There's no rush, 
-  but we suggest that you learn about their replacements and phase out your 
-  use of the superseded functions over the next year or two.
+* **Superseded** functions (![superseded badge](lifecycle-superseded.svg)) 
+  aren't going away, but we no longer recommend using them because we think 
+  we've discovered better alternatives. There's no rush, but we suggest that 
+  you learn about their replacements and phase out your use of the superseded 
+  functions over the next year or two.
 
-* **Experimental** features are those features that we're cautiously optmistic
-  about, but want to get more feedback on before we fully commit to them.
-  Please try them out and let us know what you think!
+* **Experimental** features (![experimental badge](lifecycle-experimental.svg)) 
+  are those features that we're cautiously optmistic about, but want to get 
+  more feedback on before we fully commit to them. Please try them out and let 
+  us know what you think!
 
 The following sections describe each stage in more detail, illustrated with the most important functions in that stage in dplyr 1.0.0
 
@@ -187,7 +190,7 @@ Experimental features have been explored and discussed amongst dplyr developers 
 * Allows you to solve a problem in better (e.g. faster, less code, 
   more elegantly, ...) than your previous approach. 
   
-* It confusing because it works differently to an existing function 
+* Is confusing because it works differently to an existing function 
   (particularly a function in the tidyverse).
 
 Informal feedback is fine; feel free to [ping me on twitter](http://twitter.com/hadleywickham/status/1235611849179136001), [email me](mailto:hadley@rstudio.com), or [open an issue](https://github.com/tidyverse/dplyr/issues/new). 
