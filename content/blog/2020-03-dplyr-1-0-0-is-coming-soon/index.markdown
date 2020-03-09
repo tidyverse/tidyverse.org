@@ -57,6 +57,10 @@ Using vctrs in dplyr has a number advantages:
   prototyping, which is why this version comes with the first new major verbs 
   since dplyr 0.3.0!
 
+* It makes dplyr more consistent with the rest of the tidyverse, particularly
+  [tidyr 1.0.0](https://www.tidyverse.org/blog/2019/09/tidyr-1-0-0/), which 
+  is also implemented on top of vctrs.
+
 * We benefit from a standardised approach to handling custom (S3) vector types.
   This mostly a long-term benefit, but it makes dplyr substantially easier
   to extend from the outside, and I expect it will facilitate a much richer
