@@ -3,6 +3,9 @@ title: dplyr 1.0.0 is coming soon
 author: Hadley Wickham
 date: '2020-03-09'
 slug: dplyr-1-0-0-is-coming-soon
+photo:
+  url: https://unsplash.com/photos/7KLa-xLbSXA
+  author: Paul Skorupskas
 categories:
   - package
 tags:
