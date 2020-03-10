@@ -31,7 +31,7 @@ dplyr 1.0.0 has a _lot_ of new features which we'll discuss in more detail in fu
   [`vignette("rowwise")`](https://dplyr.tidyverse.org/dev/articles/rowwise.html).
 
 * A new, simpler, approach to col-wise operations:
-  [`vignette("colwise")`](https://dplyr.tidyverse.org/dev/articles/rowwise.html).
+  [`vignette("colwise")`](https://dplyr.tidyverse.org/dev/articles/colwise.html).
 
 * `summarise()` can now easily create multiple colums and/or multiple rows 
   from a single summary:
@@ -168,7 +168,7 @@ You can see the complete list in [NEWS.md](https://github.com/tidyverse/dplyr/bl
 
 ### Superseded functions
 
-Superseded functions is a weaker form of deprecation: we believe that better approaches exist, but we know that the function is used by many people and it's going to take some time to move away from it. Superseded functions will not receive new features and will only receive critical bug fixes. They not going away any time soon; for dplyr, that means we won't even think about removing at least 2 years. When we do eventually decided to  remove them, we will deprecate first and we promise to provide plenty of warning.
+Superseded functions is a weaker form of deprecation: we believe that better approaches exist, but we know that the function is used by many people and it's going to take some time to move away from it. Superseded functions will not receive new features and will only receive critical bug fixes. They not going away any time soon; for dplyr, that means we won't even think about removing at least 2 years. When we do eventually decide to remove them, we will deprecate first and we promise to provide plenty of warning.
 
 (Previously we called this stage "retired" but that caused confusion because many people interpreted it as meaning that the function was going away, when the intent is to convey the opposite.) 
 
