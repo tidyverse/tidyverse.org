@@ -183,7 +183,7 @@ There are two important function families that have been superseded in dplyr 1.0
   verb. Learn more about `across()` in 
   [`vignette("colwise")`](https://dplyr.tidyverse.org/dev/articles/colwise.html)
 
-* `top_n()`, `sample_n()`, `sample_frac()`, and `top_n()` have been 
+* `top_n()`, `sample_n()`, and `sample_frac()` have been 
   superseded in favour of a new family of slice helpers: `slice_min()`,
   `slice_max()`, `slice_head()`, `slice_tail()`, `slice_random()`.
 
