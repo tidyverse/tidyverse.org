@@ -81,6 +81,9 @@ By default plots create `.png` files in the `man/figures` directory. The file na
 #' ```
 ```
 
+Both the inline R code and the markdown code fences are evaluated when you run `devtools::document()` (or `roxygenize()`).
+You probably want to avoid lengthy computations, or set up caching to keep your package development workflow snappy.
+
 Please see `vignette("rd-formatting")` for more about dynamic documentation, including potential caveats.
 
 ## Line ending conversion
