@@ -1,5 +1,5 @@
 ---
-title: roxygen2 7.0.0
+title: roxygen2 7.1.0
 author: Gábor Csárdi
 date: '2020-03-11'
 slug: roxygen2-7-1-0
