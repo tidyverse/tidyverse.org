@@ -40,7 +40,7 @@ In a stable package, we are largely happy with the API, and major changes are un
 
 If API breaking change are needed, they will occur gradually. To begin with, the function or argument will be deprecated; it will continue to work but will emit an message informing you of the change. Next, typically after at least a year, the message will be transformed to an error.
 
-### Superseded ![](https://img.shields.io/badge/lifecycle-superseded-orange.svg) {#superseded}
+### Superseded ![](https://img.shields.io/badge/lifecycle-superseded-blue.svg) {#superseded}
 
 A superseded package is no longer under active development, and a known better alternative is available. We will only make the necessary changes to ensure that superseded packages remain on CRAN. No new features will be added, and only the most critical of bugs will be fixed.
 
