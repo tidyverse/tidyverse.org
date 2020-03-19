@@ -51,14 +51,14 @@ df %>%
   group_by(grp) %>% 
   summarise(x = quantile(x, c(0.25, 0.5, 0.75)), q = c(0.25, 0.5, 0.75))
 #> # A tibble: 6 x 3
-#>     grp      x     q
-#>   <int>  <dbl> <dbl>
-#> 1     1 -1.16   0.25
-#> 2     1  0.155  0.5 
-#> 3     1  0.596  0.75
-#> 4     2 -0.421  0.25
-#> 5     2 -0.292  0.5 
-#> 6     2  1.01   0.75
+#>     grp       x     q
+#>   <int>   <dbl> <dbl>
+#> 1     1 -1.37    0.25
+#> 2     1 -0.496   0.5 
+#> 3     1 -0.0599  0.75
+#> 4     2 -1.24    0.25
+#> 5     2 -0.431   0.5 
+#> 6     2  0.803   0.75
 ```
 
 It would be nice to be able to reduce the duplication in this code so that we don't have to type the quantile values twice. We can now write a simple function to do so because `summarise()` expressions can now return multiple columns:
@@ -72,14 +72,14 @@ df %>%
   group_by(grp) %>% 
   summarise(quantile2(x, c(0.25, 0.5, 0.75)))
 #> # A tibble: 6 x 3
-#>     grp      x     q
-#>   <int>  <dbl> <dbl>
-#> 1     1 -1.16   0.25
-#> 2     1  0.155  0.5 
-#> 3     1  0.596  0.75
-#> 4     2 -0.421  0.25
-#> 5     2 -0.292  0.5 
-#> 6     2  1.01   0.75
+#>     grp       x     q
+#>   <int>   <dbl> <dbl>
+#> 1     1 -1.37    0.25
+#> 2     1 -0.496   0.5 
+#> 3     1 -0.0599  0.75
+#> 4     2 -1.24    0.25
+#> 5     2 -0.431   0.5 
+#> 6     2  0.803   0.75
 ```
 
 In the past, one of the challenges of writing this sort of function was naming the columns. For example, when you call `quantile2(y)` it'd be nice if you'd get columns `y` and `y_q`, not `x` and `x_q`. Now, thanks to the recent combination of [glue and tidy evaluation](https://www.tidyverse.org/blog/2020/02/glue-strings-and-tidy-eval/) that behaviour is straightforward to implement: 
@@ -94,14 +94,14 @@ df %>%
   group_by(grp) %>% 
   summarise(quantile2(y, c(0.25, 0.5, 0.75)))
 #> # A tibble: 6 x 3
-#>     grp      y   y_q
-#>   <int>  <dbl> <dbl>
-#> 1     1 -1.25   0.25
-#> 2     1  0.410  0.5 
-#> 3     1  0.886  0.75
-#> 4     2 -0.376  0.25
-#> 5     2 -0.230  0.5 
-#> 6     2  0.114  0.75
+#>     grp       y   y_q
+#>   <int>   <dbl> <dbl>
+#> 1     1 -0.659   0.25
+#> 2     1  0.193   0.5 
+#> 3     1  0.692   0.75
+#> 4     2 -0.121   0.25
+#> 5     2  0.0721  0.5 
+#> 6     2  0.381   0.75
 ```
 Figuring out how to name the output columns is a surprisingly complex task and we're still thinking about the best approach. 
 
@@ -118,10 +118,10 @@ out
 #> # A tibble: 4 x 2
 #>     grp    y$y  $y_q
 #>   <int>  <dbl> <dbl>
-#> 1     1 -1.25   0.25
-#> 2     1  0.886  0.75
-#> 3     2 -0.376  0.25
-#> 4     2  0.114  0.75
+#> 1     1 -0.659  0.25
+#> 2     1  0.692  0.75
+#> 3     2 -0.121  0.25
+#> 4     2  0.381  0.75
 ```
 Look carefully at the output - you'll see a `$` in the column names. This is a suggestion that something weird is going on and you have what we call a **df-column** because you have a column of a data frame that is itself a data frame! You can confirm that by extracting just that column:
 
@@ -131,10 +131,10 @@ out$y
 #> # A tibble: 4 x 2
 #>        y   y_q
 #>    <dbl> <dbl>
-#> 1 -1.25   0.25
-#> 2  0.886  0.75
-#> 3 -0.376  0.25
-#> 4  0.114  0.75
+#> 1 -0.659  0.25
+#> 2  0.692  0.75
+#> 3 -0.121  0.25
+#> 4  0.381  0.75
 ```
 
 And of course, you can dig still deeper to get the individual values:
@@ -142,7 +142,7 @@ And of course, you can dig still deeper to get the individual values:
 
 ```r
 out$y$y
-#> [1] -1.2479482  0.8859874 -0.3757093  0.1135267
+#> [1] -0.6585828  0.6918536 -0.1214636  0.3812219
 ```
 
 Df-columns are simultaneously esoteric and prosaic. On one hand they are an oddity of base data frames that are useful in very few places. On the other, they are very closely related ot merged column headers, which judging by the frequency that they are found in spreadsheets, and an incredibly popular tool.
