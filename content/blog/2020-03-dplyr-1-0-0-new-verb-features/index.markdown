@@ -1,0 +1,316 @@
+---
+title: 'dplyr 1.0.0: new verb features'
+author: Hadley Wickham
+date: '2020-03-20'
+slug: dplyr-1-0-0-new-verb-features
+categories:
+  - package
+tags:
+  - dplyr
+---
+
+
+
+As we've mentioned, [dplyr 1.0.0](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/) is on its way. Today, we've started the official release process by notifying maintainers of packages that have problems with dplyr 1.0.0, and we're planning for a CRAN release on May 1.
+
+In this post, I'll introduce you to the major changes in existing dplyr verbs, along with couple of new verbs. I'll give you updates on `summarise()`, `select()` + `rename()`, `mutate()`, and the join functions.
+
+
+```r
+library(dplyr)
+```
+
+## `summarise()` can produce multiple rows and columns
+
+Two big changes make `summarise()` much more flexible. A single summary expression can now return:
+
+* A vector of any length, creating multiple rows.
+* A data frame, creating multiple columns.
+
+In other words, `summarise()` used to be limited to generating a single value (one row, one column), and now we've lifted that restriction so it can generate a rectangle of multiple rows and columns. This change makes `summarise()` as powerful as the now superseded `do()`, and if you were previously solving this type of problem with list-columns allows you to reduce your usage of `tidyr::unnest()`.
+
+This is a big change to `summarise()` but it should have minimal impact on existing code because it _broadens_ the interface: all existing code will continue to work, and a number of inputs that would have previously errored now work. 
+
+### Quantiles
+
+To demonstrate this new feature we'll start by looking at a summary that was previous hard to compute with `summarise()`. `quantile()` was hard to use because it returns multiple values which used to cause `summarise()` to error. Now it's straightforward:
+
+
+```r
+df <- tibble(
+  grp = rep(1:2, each = 10), 
+  x = c(rnorm(10, -0.25, 1), rnorm(10, 0, 1.5)),
+  y = c(rnorm(10, 0.25, 1), rnorm(10, 0, 0.5)),
+)
+df %>% 
+  group_by(grp) %>% 
+  summarise(x = quantile(x, c(0.25, 0.5, 0.75)), q = c(0.25, 0.5, 0.75))
+#> # A tibble: 6 x 3
+#>     grp        x     q
+#>   <int>    <dbl> <dbl>
+#> 1     1 -0.845    0.25
+#> 2     1  0.140    0.5 
+#> 3     1  0.460    0.75
+#> 4     2 -1.15     0.25
+#> 5     2 -0.529    0.5 
+#> 6     2 -0.00733  0.75
+```
+
+It would be nice to be able to reduce the duplication in this code so that we don't have to type the quantile values twice. We can now write a simple function to do so because `summarise()` expressions can now return multiple columns:
+
+
+```r
+quantile2 <- function(x, q = c(0.25, 0.5, 0.75)) {
+  tibble(x = quantile(x, q), q = q)
+}
+df %>% 
+  group_by(grp) %>% 
+  summarise(quantile2(x, c(0.25, 0.5, 0.75)))
+#> # A tibble: 6 x 3
+#>     grp        x     q
+#>   <int>    <dbl> <dbl>
+#> 1     1 -0.845    0.25
+#> 2     1  0.140    0.5 
+#> 3     1  0.460    0.75
+#> 4     2 -1.15     0.25
+#> 5     2 -0.529    0.5 
+#> 6     2 -0.00733  0.75
+```
+
+In the past, one of the challenges of writing this sort of function was naming the columns. For example, when you call `quantile2(y)` it'd be nice if you'd get columns `y` and `y_q`, not `x` and `x_q`. Now, thanks to the recent combination of [glue and tidy evaluation](https://www.tidyverse.org/blog/2020/02/glue-strings-and-tidy-eval/) that behaviour is straightforward to implement: 
+
+
+```r
+quantile2 <- function(x, q = c(0.25, 0.5, 0.75)) {
+  tibble("{{ x }}" := quantile(x, q), "{{ x }}_q" := q)
+}
+
+df %>% 
+  group_by(grp) %>% 
+  summarise(quantile2(y, c(0.25, 0.5, 0.75)))
+#> # A tibble: 6 x 3
+#>     grp        y   y_q
+#>   <int>    <dbl> <dbl>
+#> 1     1 -0.582    0.25
+#> 2     1  0.256    0.5 
+#> 3     1  1.32     0.75
+#> 4     2  0.00737  0.25
+#> 5     2  0.188    0.5 
+#> 6     2  0.615    0.75
+```
+Figuring out how to name the output columns is a surprisingly complex task and we're still thinking about the best approach. 
+
+### Packed columns
+
+Note that in the code above, we've been careful not to name the result of `quantile2()`. When we do that, the data frame result is automatically **unpacked** so each column becomes a column in the result. What happens if we name the output?
+
+
+```r
+out <- df %>% 
+  group_by(grp) %>% 
+  summarise(y = quantile2(y, c(0.25, 0.75)))
+out
+#> # A tibble: 4 x 2
+#>     grp      y$y  $y_q
+#>   <int>    <dbl> <dbl>
+#> 1     1 -0.582    0.25
+#> 2     1  1.32     0.75
+#> 3     2  0.00737  0.25
+#> 4     2  0.615    0.75
+```
+Look carefully at the output - you'll see a `$` in the column names. This is a suggestion that something weird is going on and you have what we call a **df-column** because you have a column of a data frame that is itself a data frame! You can confirm that by extracting just that column:
+
+
+```r
+out$y
+#> # A tibble: 4 x 2
+#>          y   y_q
+#>      <dbl> <dbl>
+#> 1 -0.582    0.25
+#> 2  1.32     0.75
+#> 3  0.00737  0.25
+#> 4  0.615    0.75
+```
+
+And of course, you can dig still deeper to get the individual values:
+
+
+```r
+out$y$y
+#> [1] -0.582456839  1.320392760  0.007365606  0.615460287
+```
+
+Df-columns are surprisingly important to the internals of dplyr 1.0.0, but you should able to ignore their existence unless you deliberately want to try them out. They're definitely an advanced topic, and are something that we're continuing to play around with. We're also thinking about how improve the tibble print method to make it more obvious that something unusual is going on.
+
+### Non-summaries
+
+In combination with [`rowwise()`](http://dplyr.tidyverse.org/dev/articles/rowwise.html) (more on that in a future blog post), `summarise()` is now sufficiently powerful enough to replace many workflows that previously required a `map()` or `apply()` function. For example, to read all the all the `.csv` files in the current directory, you could write:
+
+
+```r
+tibble(path = dir(pattern = "\\.csv$")) %>% 
+  rowwise(path) %>% 
+  summarise(read.csv(path))
+```
+
+I feel deeply ambivalent about this code: it seems rather forced to claim that `read.csv()` computes a summary of a file path, but it's rather elegant pattern for reading in many files into a tibble.
+
+## Improved tidy select syntax
+
+`select()` and `rename()` are now significantly more flexible thanks to enhancements to the [tidyselect](https://tidyselect.r-lib.org/) package.
+
+### Basics
+
+Tidy selection provides a domain specific language that provides five ways of selecting variables:
+
+* By **position**: `df %>% select(1, 5, 10)` or `df %>% select(1:4)`.
+  Selecting variables is not generally recommended, but `rename()`ing
+  variables based on position can be useful, particularly if the variable
+  names are very long, non-syntactic, or duplicated.
+ 
+* By **name**: `df %>% select(a, e, j)` or `df %>% select(a:d)`.
+
+* By **function of name**: `df %>% select(starts_with("x"))`, or
+  `df %>% select(ends_with("s"))`. You can also use helpers `contains()`
+  and `matches()` for more flexibly matching.
+
+* By **type**: `df %>% select(is.numeric)`, `df %>% select(is.factor)`.
+
+* By **any combination** of the above using Boolean algebra `!`, `&`, `|`:
+
+    * `df %>% select(!is.factor)`: selects all non-factor variables.
+    
+    * `df %>% select(is.numeric & starts_with("x"))`: selects all
+      numeric variables that starts with "x".
+      
+    * `df %>% select(starts_with("a") | ends_with("z"))`: selects all
+      variables that starts with "a" or ends with "z".
+
+### Programming
+
+We've also made tidy selection easier to program with two new functions: `any_of()` and `all_of()`. These both take a character vector of variable names, and differ only whether or not all variables in that vector must be present. You can learn more about programming with tidy selection in [`?dplyr_tidy_select`](https://dplyr.tidyverse.org/dev/reference/dplyr_tidy_select.html). `any_of()` supersedes the old `one_of()` function; I have no idea why I called it `one_of()` because it's always selected multiple variables!
+
+As well as `select()` and `rename()`, tidy selection is used in [`across()`](http://dplyr.tidyverse.org/dev/articles/colwise.html) (more on that in a future blog post), and in many tidyr functions.
+
+## Mutate experiments
+
+`mutate()` has two [experimental new arguments](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/#experimental-features): `.before` and `.after` allow you to choose where new variables appear, and `.keep` determines which variables to keep.
+
+### Where should the new columns go?
+
+`.before = 1` is an easy way to create new variables on the left hand side:
+
+
+```r
+df <- tibble(t = -3, u = -2, v = -1, w = 0, x = 1, y = 2, z = 3)
+df %>% mutate(xyz = x + y + z, .before = 1)
+#> # A tibble: 1 x 8
+#>     xyz     t     u     v     w     x     y     z
+#>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+#> 1     6    -3    -2    -1     0     1     2     3
+```
+But `.before` and `.after` accept the same tidy selection syntax as `select()`, giving you considerable power of where new variables are placed.
+
+### Which columns from the input should appear in the output?
+
+The new `.keep` argument has four options:
+
+*   "all": this is the default and keeps all existing variables.
+
+*   "used": keeps the variables that you've used to create new variables;
+    this is particularly useful for checking your work:
+    
+    
+    ```r
+    df %>% mutate(tuv = (t - u) / v, .keep = "used")
+    #> # A tibble: 1 x 4
+    #>       t     u     v   tuv
+    #>   <dbl> <dbl> <dbl> <dbl>
+    #> 1    -3    -2    -1     1
+    ```
+*  "unused": keeps the variables that you haven't "used up" while creating 
+   new variabes:
+   
+    
+    ```r
+    df %>% mutate(tuv = (t - u) / v, xyz = x + y + z, .keep = "unused")
+    #> # A tibble: 1 x 3
+    #>       w   tuv   xyz
+    #>   <dbl> <dbl> <dbl>
+    #> 1     0     1     6
+    ```
+
+*   "none": this doesn't keep any old variables, so the output only contains
+    the variables you've just created. This the same as `transmute()`, so 
+    if this experiment is successful, we're likely to supersede `transmute()`
+    in favour of `mutate(.keep = "none"))`.
+
+## `right_join()`
+
+In previous versions of dplyr, `right_join(x, y)` was almost identical to `left_join(y, x)`. Things have changed in this version because joins are now much more careful to preserve the properties of their first argument, particularly the order of the rows and columns.
+
+---
+
+<!-- HW: I think these should be reserved for a future blog post, unless anyone has a particularly strong desire to make this post longer -->
+
+## New verbs
+
+### `relocate()`
+
+For a long time, people have asked for some easy way to change the order of columns in data frame. It's been possible to perform some simple transformations with `select()`, but dplyr now has a specialised function for moving columns around: `relocate()`. It's equivalent to `arrange()` in the sense that the columns are unchanged apart from their position; in `arrange()` you still have the same rows but in a different order.
+
+The most common need is to move variables to the front, so that's the default behaviour:
+
+
+```r
+df <- tibble(w = 0, x = 1, y = "a", z = "b")
+df %>% relocate(y, z)
+#> # A tibble: 1 x 4
+#>   y     z         w     x
+#>   <chr> <chr> <dbl> <dbl>
+#> 1 a     b         0     1
+df %>% relocate(is.character)
+#> # A tibble: 1 x 4
+#>   y     z         w     x
+#>   <chr> <chr> <dbl> <dbl>
+#> 1 a     b         0     1
+```
+(It uses the same syntax as `select()` so you can use arbtirarily complex expressions to pick which variables you want to move.)
+
+If you want to move columns to a different position use `.before` or `.after`:
+
+
+```r
+df %>% relocate(w, .after = y)
+#> # A tibble: 1 x 4
+#>       x y         w z    
+#>   <dbl> <chr> <dbl> <chr>
+#> 1     1 a         0 b
+df %>% relocate(w, .before = y)
+#> # A tibble: 1 x 4
+#>       x     w y     z    
+#>   <dbl> <dbl> <chr> <chr>
+#> 1     1     0 a     b
+
+# If you want to move columns to the right hand side:
+df %>% relocate(w, .after = last_col())
+#> # A tibble: 1 x 4
+#>       x y     z         w
+#>   <dbl> <chr> <chr> <dbl>
+#> 1     1 a     b         0
+```
+
+### Slice helpers
+
+dplyr 1.0.0 also brings with it a passel of slice helpers which allow to select rows based on some property of their position:
+
+* `slice_head()` and `slice_tail()` select the first or last rows.
+* `slice_min()` and `slice_max()` select the rows with the highest or lowest
+  values of a variable.
+* `slice_sample()` randomly selects rows.
+
+All of them operate by group and you can choose how many rows to select either by specifying the number of rows, `n`, or the proportion of rows, `prop`.
+
+These functions supersede `top_n()`, `sample_n()`, and `sample_frac()`.
+
+
