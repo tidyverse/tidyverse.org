@@ -2,7 +2,7 @@
 title: 'dplyr 1.0.0: new `summarise()` features'
 author: Hadley Wickham
 date: '2020-03-20'
-slug: dplyr-1-0-0-new-verb-features
+slug: dplyr-1-0-0-summarise
 photo:
   url: https://unsplash.com/photos/OmCUSp8o7a4
   author: Brigitte Tohm
