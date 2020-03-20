@@ -14,7 +14,7 @@ tags:
 
 
 
-As we've mentioned, [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/). Today, we've started the official release process by notifying maintainers of packages that have problems with dplyr 1.0.0, and we're planning for a CRAN release six weeks later, on May 1. This post is the first in a series of posts that introduce you to new features in dplyr 1.0.0. Today, I'll start with some big changes to `summarise()` that make it significantly more powerful.
+As we've mentioned, [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/). Today, we've started the official release process by notifying maintainers of packages that have problems with dplyr 1.0.0, and we're planning for a CRAN release six weeks later, on May 1. This post is the first in a series that will introduce you to new features in dplyr 1.0.0. Today, I'll start with some big changes to `summarise()` that make it significantly more powerful.
 
 If you're interested in living life on the edge (or trying out anything you see in this blog post), you can install the development version of dplyr with:
 
@@ -93,13 +93,13 @@ df %>%
 #> 1     1 -2.69 -0.843
 #> 2     2 -2.73 -0.434
 ```
-(This isn't very useful when used directly, but as you'll see shortly, it's really useful inside functions.)
+(This isn't very useful when used directly, but as you'll see shortly, it's really useful inside of functions.)
 
 To put this another way, before dplyr 1.0.0, each summary had to be a single value (one row, one column), but now we've lifted that restriction so each summary can generate a rectangle of arbitrary size. This is a big change to `summarise()` but it should have minimal impact on existing code because it _broadens_ the interface: all existing code will continue to work, and a number of inputs that would have previously errored now work. 
 
 ## Quantiles
 
-To demonstrate this new flexibility in a more useful situation, lets take a look at `quantile()`. `quantile()` was hard to use previously because it returns multiple values. Now it's straightforward:
+To demonstrate this new flexibility in a more useful situation, let's take a look at `quantile()`. `quantile()` was hard to use previously because it returns multiple values. Now it's straightforward:
 
 
 ```r
@@ -138,7 +138,7 @@ df %>%
 #> 6     2 -0.366    0.75
 ```
 
-In the past, one of the challenges of writing this sort of function was naming the columns. For example, when you call `quibble(y)` it'd be nice if you'd get columns `y` and `y_q`, not `x` and `x_q`. Now, thanks to the recent combination of [glue and tidy evaluation](https://www.tidyverse.org/blog/2020/02/glue-strings-and-tidy-eval/) that's easy to implement: 
+In the past, one of the challenges of writing this sort of function was naming the columns. For example, when you call `quibble(y)` it'd be nice if you could get columns `y` and `y_q`, rather than `x` and `x_q`. Now, thanks to the recent combination of [glue and tidy evaluation](https://www.tidyverse.org/blog/2020/02/glue-strings-and-tidy-eval/), that's easy to implement: 
 
 
 ```r
@@ -160,11 +160,11 @@ df %>%
 #> 6     2 -0.0263  0.75
 ```
 
-One note of caution: name the output columns in a function like this is a surprisingly complex task, we're not yet sure what the best approach expect. Expect to here more about this as we continue to think about and experiment with it.
+One note of caution: naming the output columns in a function like this is a surprisingly complex task, we're not yet sure what the best approach is. Expect to hear more about this as we continue to think about and experiment with it.
 
-## Data frame columns
+## Data-frame columns
 
-We've been careful not to name the result of `quibble()` in the code above. That's because we leave the name off, the data frame result is automatically **unpacked** so each column returned by `quibble()` becomes a column in the result. What happens if we name the output?
+We've been careful not to name the result of `quibble()` in the code above. That's because when we leave the name off, the data frame result is automatically **unpacked** so each column returned by `quibble()` becomes a column in the result. What happens if we name the output?
 
 
 ```r
@@ -194,7 +194,7 @@ str(out)
 #>   ..$ y_q: num [1:4] 0.25 0.75 0.25 0.75
 ```
 
-And you can that `y` is indeed a data frame by extracting it:
+And you can see that `y` is indeed a data frame by extracting it:
 
 
 ```r
@@ -216,7 +216,7 @@ out$y$y
 #> [1] -0.30369938  0.87898204 -0.45703741 -0.02630095
 ```
 
-These df-columns are simultaneously esoteric and common place. On the one hand they are an oddity of data frames that has existed for a long time, but has been used in very few places. On the other hand, they are very closely related to merged column headers, which, judging by how often they're found in spreadsheets, are an incredibly popular tool. Our hope is that they are mostly kept under the covers in dplyr 1.0.0, but you can still deliberately choose to access them if you're interested.
+These df-columns are simultaneously esoteric and commonplace. On the one hand they are an oddity of data frames that has existed for a long time, but has been used in very few places. On the other hand, they are very closely related to merged column headers, which, judging by how often they're found in spreadsheets, are an incredibly popular tool. Our hope is that they are mostly kept under the covers in dplyr 1.0.0, but you can still deliberately choose to access them if you're interested.
 
 ## Non-summaries
 
@@ -269,4 +269,4 @@ df %>%
 #> 4     2 -0.0263  0.75
 ```
 
-We prefer the new `summarise()` approach with because it's concise, doesn't require learning about list-columns and unnesting, and uses a familiar syntax.
+We prefer the new `summarise()` approach because it's concise, doesn't require learning about list-columns and unnesting, and uses a familiar syntax.
