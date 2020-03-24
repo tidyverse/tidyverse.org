@@ -3,6 +3,9 @@ title: dplyr 1.0.0 and vctrs
 author: Hadley Wickham
 date: '2020-03-25'
 slug: dplyr-1-0-0-and-vctrs
+photo:
+  url: https://unsplash.com/photos/IstXvxHGoA4
+  author: 35mm
 categories:
   - package
 tags:
@@ -52,12 +55,12 @@ You might wonder why we can't just copy the behaviour of `c()`. Unfortunately `c
 
     
     ```r
-    today <- Sys.Date()
-    now <- Sys.time()
+    today <- as.Date("2020-03-24")
+    now <- as.POSIXct("2020-03-24 10:34")
     c(today, now)
-    #> [1] "2020-03-24"    "4341797-06-08"
+    #> [1] "2020-03-24"    "4341727-12-11"
     c(now, today)
-    #> [1] "2020-03-24 17:37:02 CDT" "1969-12-31 23:05:45 CST"
+    #> [1] "2020-03-24 10:34:00 CDT" "1969-12-31 23:05:45 CST"
     ```
 
 Additionally, `c()` isn't the only way that base R combines together. `rbind()` and `unlist()` can also be used to perform a similar job, but return different results. This is not to claim that the tidyverse has been any better in the past - we have used a variety of ad hoc method, undoubtedly using well more than three different approaches. 
@@ -82,7 +85,7 @@ This function resolves the greatest downsides of `c()` and provides a principled
 ```r
 library(vctrs)
 vec_c(today, now)
-#> [1] "2020-03-24 00:00:00 CDT" "2020-03-24 17:37:02 CDT"
+#> [1] "2020-03-24 00:00:00 CDT" "2020-03-24 10:34:00 CDT"
 vec_c(factor("x"), factor("y"))
 #> [1] x y
 #> Levels: x y
