@@ -20,7 +20,7 @@ We're well chuffed to announce that [pkgdown](https://pkgdown.r-lib.org/) 1.5.0 
 install.packages("pkgdown")
 ```
 
-The most important changes are higlighted below, and you can see a full list of changes <https://pkgdown.r-lib.org/news/index.html>.
+The most important changes are highlighted below and you can see a full list of changes in the [changelog](https://pkgdown.r-lib.org/news/).
 
 ## Articles
 
@@ -28,7 +28,7 @@ For packages with many vignettes/articles, we've provided much greater control o
   
 * The articles index page now displays article `description`s, taken from 
   YAML metadata in the header of each article. This lets you provide 
-  more context about each article.
+  more context for each article.
   
 * The articles navbar is now controlled by the `articles` section in
   `_pkgdown.yml`. The ordering of the sections, and articles within
@@ -36,13 +36,13 @@ For packages with many vignettes/articles, we've provided much greater control o
   use the new `navbar` field to control whether or not each section
   appears in the navbar.
 
-Learn more in [?`build_articles`](https://pkgdown.r-lib.org/reference/build_articles.html#index-and-navbar).
+Learn more about both of these features in [?`build_articles`](https://pkgdown.r-lib.org/reference/build_articles.html#index-and-navbar).
 
 Thanks to [Garrick Aden-Buie](https://github.com/gadenbuie), you also get much richer control over Open Graph and Twitter metadata for individual articles. See new [`vignette("metadata")`](https://pkgdown.r-lib.org/articles/metadata.html) for details.
 
 ## Reference index
 
-For packages with many documentation topics, you can add an additional layer of hierarchy to the reference index, using the new `subtitle` field. Here's an example for an partial (and imaginary) dplyr reference index:
+For packages with many documentation topics, you can add an additional layer of hierarchy to the reference index, using the new `subtitle` field. To give you some sense for what that might look like, here's an example for a partial (and imaginary) dplyr reference index:
 
 ```yaml
 references:
@@ -63,11 +63,13 @@ references:
 
 ## Tables of contents
 
-Tables of contents in sidebars now use [bootstrap-toc](https://afeld.github.io/bootstrap-toc/); this considerably improves navigation for long articles and reference pages.
+Sidebar tables of contents now use [bootstrap-toc](https://afeld.github.io/bootstrap-toc/), which considerably improves navigation for long articles and reference pages.
 
 ## Other source repositories
 
-You can now control the links to source files (in reference pages and articles) and issues and users (in the NEWS) with new `repo$url` config option. This makes it easier to use pkgdown with GitHub enterprise, packages in subdirectories, and other source hosts (like bitbucket). The YAML looks something like this:
+You can now control the links to source files (in reference pages and articles) and issues and users (in the NEWS) with new the `repo$url` config parameter. This makes it easier to use pkgdown with GitHub enterprise, packages in subdirectories, and other source hosts (like bitbucket). 
+
+The YAML looks something like this:
   
 ```yaml
 repo:
@@ -80,11 +82,7 @@ repo:
 
 The individual components (e.g. path, issue number, username) are pasted on the end of these urls so they should have trailing `/`s.
 
-You don't need to set these links for GitLab, as pkgdown now detects GitLab urls automatically (since they use the same structure as GitHub). 
-
-## Deployment
-
-The new `deploy_to_branch()` builds and deploys a pkgdown site to a branch of the current repository (defaulting to `gh-pages`, for compatibility with GitHub pages). This is used in our new GitHub action workflow for automatically building and deploying pkgdown sites - more on that soon, once we release usethis 1.5.0.
+pkgdown now detects GitLab urls automatically (since they use the same structure as GitHub), so you don't need to set these links if you package is hosted on GitLab, and you've included a link to your source repo in the `URL` or `BugReports` `DESCRIPTION` fields.
 
 ## Acknowledgements
 
