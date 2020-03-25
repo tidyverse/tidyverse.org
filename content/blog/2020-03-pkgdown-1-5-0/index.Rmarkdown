@@ -1,7 +1,7 @@
 ---
 title: pkgdown 1.5.0
 author: Hadley Wickham
-date: '2020-03-26'
+date: '2020-03-25'
 slug: pkgdown-1-5-0
 photo:
   url: https://unsplash.com/photos/5R5Trsu1aIM
