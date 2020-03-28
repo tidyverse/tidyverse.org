@@ -1,6 +1,6 @@
 ---
 title: 'dplyr 1.0.0: select, rename, relocate'
-author: Hadley Wicham
+author: Hadley Wickham
 date: '2020-03-27'
 slug: dplyr-1-0-0-select-rename-relocate
 categories:
@@ -146,7 +146,7 @@ df2 %>% rename_with(toupper)
 #>   <dbl> <chr> <dbl> <chr> <dbl> <chr> <dbl>
 #> 1     1 a         2 b         3 c         4
 ```
-(This pairs well with functions like [`janitior::make_clean_names()`](http://sfirke.github.io/janitor/reference/make_clean_names.html).)
+(This pairs well with functions like [`janitor::make_clean_names()`](http://sfirke.github.io/janitor/reference/make_clean_names.html).)
 
 You can optionally choose which columns to apply the transformation to:
 
