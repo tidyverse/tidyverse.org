@@ -15,7 +15,7 @@ photo:
 categories: [Other]
 ```
 
-The slug should match the file name. Generally, the `date` should be similar to the file name, but won't be identical - name the file according to when you created the blog post using the format `yyyy-mm-post-slug`, but make sure you update the date in the YAML header when you publish the post.
+Every blog post goes into its own subdirectory under `/content/blog`. The file must be named `index.Rmarkdown`. The slug should match the directory name. Generally, the `date` should be similar to the directory name, but won't be identical - name the directory according to when you created the blog post using the format `yyyy-mm-post-slug`, but make sure you update the date in the YAML header when you publish the post.
 
 Categories should be one (or more of): "case studies", "learn", "package", "programming", or "other".
 
@@ -49,12 +49,12 @@ The `library(PACKAGENAME)` call should be done explicitly in a visible code chun
 
 Every blog post needs to be accompanied by two versions of a photo:
 
-* `slug-sq.jpg` should be 300 x 300 pixels, and is shown on the articles listing.
+* `thumbnail-sq.jpg` should be 300 x 300 pixels, and is shown on the articles listing.
 
-* `slug-wd.jpg` should be 200 pixels high and at least 1000 pixels wide.  
+* `thumbnail-wd.jpg` should be 200 pixels high and at least 1000 pixels wide.  
   It is shown on the individual article page.
   
-If you don't already have a image in mind, I recommend looking on <https://unsplash.com>. If you do use a photo from a website, make sure to credit the author as shown with the `photo` metadata shown above.
+If you don't already have a image in mind, I recommend looking on <https://unsplash.com> or <https://pexels.com>. Jenny Bryan's [collection of websites](https://github.com/jennybc/free-photos) has many more. If you do use a photo from a website, make sure to credit the author as shown with the `photo` metadata shown above.
 
 Some indicative [magick](https://cran.r-project.org/web/packages/magick/vignettes/intro.html) code to produce suitable images:
 
@@ -73,12 +73,10 @@ img %>%
 
 ### Inline images
 
-Inline images can be added to articles by placing them in the `/static/images/` 
-directory. By current convention, these go in a subdirectory for each post.
-Images are added to the markdown by giving the full file-path, e.g.
+The images can live alongside the blog post and referred without relative path.
 
 ```
-![](/images/subdir/image-name.jpg)
+![](image-name.jpg)
 ```
 
 ### Acknowledgements
