@@ -54,7 +54,7 @@ Every blog post needs to be accompanied by two versions of a photo:
 * `thumbnail-wd.jpg` should be 200 pixels high and at least 1000 pixels wide.  
   It is shown on the individual article page.
   
-If you don't already have a image in mind, I recommend looking on <https://unsplash.com> or <https://pexels.com>. If you do use a photo from a website, make sure to credit the author as shown with the `photo` metadata shown above.
+If you don't already have a image in mind, I recommend looking on <https://unsplash.com> or <https://pexels.com>. Jenny Bryan's [collection of websites](https://github.com/jennybc/free-photos) has many more. If you do use a photo from a website, make sure to credit the author as shown with the `photo` metadata shown above.
 
 Some indicative [magick](https://cran.r-project.org/web/packages/magick/vignettes/intro.html) code to produce suitable images:
 
