@@ -15,7 +15,7 @@ photo:
 categories: [Other]
 ```
 
-Every blog post goes into its own subdirectory under `/content/blog`. The file must be named `index.Rmarkdown` or `index.md`. The slug should match the directory name. Generally, the `date` should be similar to the directory name, but won't be identical - name the directory according to when you created the blog post using the format `yyyy-mm-post-slug`, but make sure you update the date in the YAML header when you publish the post.
+Every blog post goes into its own subdirectory under `/content/blog`. The file must be named `index.Rmarkdown`. The slug should match the directory name. Generally, the `date` should be similar to the directory name, but won't be identical - name the directory according to when you created the blog post using the format `yyyy-mm-post-slug`, but make sure you update the date in the YAML header when you publish the post.
 
 Categories should be one (or more of): "case studies", "learn", "package", "programming", or "other".
 
