@@ -16,7 +16,13 @@ tags:
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-[dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/), and we've already shown you how [`summarise()` is growing](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/). Today, I wanted to talk a little bit how dplyr 1.0.0 now uses the  [vctrs](http://vctrs.r-lib.org/) package. This post explains why vctrs is so important, why we can't just copy what base R does, how to interpret some of new error messages that you'll see, and some of the major changes since the last version.
+This post is the latest in a series of post leading up the the dplyr 1.0.0 release. So far:
+
+* [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/)
+* [`summarise()` is growing](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/)
+* [`select()`, `rename`, `relocate()`](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/)
+
+Today, I wanted to talk a little bit how dplyr 1.0.0 uses the  [vctrs](http://vctrs.r-lib.org/) package. This post explains why vctrs is so important, why we can't just copy what base R does, how to interpret some of new error messages that you'll see, and some of the major changes since the last version.
 
 If you're interested in living life on the edge (or trying out anything you see in this blog post), you can install the development version of dplyr with:
 
@@ -26,7 +32,7 @@ devtools::install_github("tidyverse/dplyr")
 
 Note that the development version won't become 1.0.0 until it's released, but it has all the same features.
 
-```{r, setup}
+```{r setup}
 library(vctrs)
 library(dplyr, warn.conflicts = FALSE)
 ```
@@ -56,35 +62,45 @@ Our goal is to unify the code that underlies all these various functions so that
 You might wonder why we can't just copy the behaviour of `c()`. Unfortunately `c()` has some major downsides:
 
 *   It doesn't possess a `factor` method so it converts factors to their
-    underlying integer levels. It would be very difficult to change this
-    behaviour of `c()`, because it's likely that a lot of existing code 
-    relies on it.
+    underlying integer levels. 
     
     ```{r}
     c(factor("x"), factor("y"))
     ```
 
 *   It's difficult to implement methods when different classes are involved.
-    For example, let's trying combining a date (`Date`) and a date-time (`POSIXct`):
+    For example, combining a date (`Date`) and a date-time (`POSIXct`) yields
+    an incorrect result because the underlying data is combined without
+    first being translated.
 
     ```{r}
     today <- as.Date("2020-03-24")
     now <- as.POSIXct("2020-03-24 10:34")
+    
     c(today, now)
+    # (the second value is the 11 Dec 4341727-12-11)
+    class(c(today, now))
+    unclass(c(today, now))
+    
     c(now, today)
+    class(c(now, today))
+    unclass(c(now, today))
     ```
 
-Additionally, `c()` isn't the only way that base R combines vectors. `rbind()` and `unlist()` can also be used to perform a similar job, but return different results. It's hard to be compatible with base R when there are multiple approaches uses in different places. This is not to say that the tidyverse has been any better in the past --- we have used a variety of ad hoc methods, undoubtedly using well more than three different approaches. 
+It's difficult to change how `c()` works because any changes are likely to break some existing code, and base R is fundamentally conservative. Additionally, `c()` isn't the only way that base R combines vectors. `rbind()` and `unlist()` can also be used to perform a similar job, but return different results. This is not to say that the tidyverse has been any better in the past --- we have used a variety of ad hoc methods, undoubtedly using well more than three different approaches. 
 
-To improve the situation, we've come up with our own alternative to `c()`: `vectrs::vec_c()`. `vec_c()`'s behaviour is governed by three main principles:
+Given that it's hard to fix the problem in base R, we've come up with our own alternative to `c()`: `vectrs::vec_c()`. `vec_c()`'s behaviour is governed by three main principles:
 
 *   Symmetry: `vec_c(x, y)` should return a type as similar as possible to 
-    `vec_c(y, x)`.
+    `vec_c(y, x)`. For example, when combining a date and a date-time you
+    always get a date-time.
     
     ```{r}
     vec_c(today, now)
+
     vec_c(now, today)
     ```
+    
 *   Enrichment: `vec_c(x, y)` should return the richer type, where type `<x>` 
     is richer than type `<y>` if `x` can represent all values in `y`. For 
     example, this implies that combining an integer and double should return a
@@ -94,9 +110,10 @@ To improve the situation, we've come up with our own alternative to `c()`: `vect
     vec_c(1, 1.5)
     vec_c(today, now)
     ```
+    
 *   Consistency: `vec_c(x, y)` should error if `x` and `y` are of fundamentally 
-    different types. This implies that combining a string and a number or a 
-    factor and a date should error.
+    different types. For example, this implies that combining a string and a
+    number or a factor and a date should error.
 
     ```{r, error = TRUE}
     vec_c("a", 1)
@@ -114,14 +131,16 @@ df1 <- tibble(a = 1, b = 1)
 df2 <- tibble(a = 2, b = "a")
 bind_rows(df1, df2)
 ```
+
 Note the components of the error message:
 
 * "No common type" means that vctrs can't find a vector type that can
   represent both double and character values. 
   
-* vctrs error messages always puts the "type" of the variable in `<>`.
-  I'm using type informally here (although it does have a well-formed
-  definition); for many simple cases it's the same as the class.
+* vctrs error messages always puts the "type" of the variable in `<>`,
+  like `<character>`, or `<integer>`. I'm using type informally here 
+  (although it does have a precise definition); for many simple cases it's 
+  the same as the class.
   
 * `bind_rows()` doesn't have named arguments so vctrs uses `..1` and 
   `..2` to refer to the first and second arguments. You can tell the
@@ -141,29 +160,35 @@ If you're not sure where the errors are coming from, learning how to use the tra
 
 ## Key changes
 
-Finally, the switch to vctrs causes two major changes in dplyr 1.0.0:
+The switch to vctrs causes two major changes in dplyr 1.0.0:
 
 *   When combining factors with different level sets, dplyr previously 
     converted to a character vector with a warning. As of 1.0.0, dplyr will
-    create a factor with the union of the individual levels.
+    create a factor with the union of the individual levels:
   
     ```{r}
     vec_c(factor("x"), factor("y"))
     ```
   
 *   When combining a factor and a character, dplyr previously warned about
-    creating a character vector. It now silently creates a character vector.
+    creating a character vector. It now silently creates a character vector:
 
     ```{r}
     vec_c("x", factor("y"))
     ```
 
-These changes are motivated more by pragmatism than by theory. Strictly speaking, one should probably consider `factor("red")` and `factor("male")` to be incompatible, but this level of strictness causes much pain because character vectors are usually interchangeably with factors.
+These changes are motivated more by pragmatism than by theory. Strictly speaking, one should probably consider `factor("red")` and `factor("male")` to be incompatible, but this level of strictness causes much pain because character vectors can usually be used interchangeably with factors.
 
 Also note that dplyr continues to be stricter than base R when it comes to character conversions: 
 
 ```{r, error = TRUE}
-vec_c(1, "a")
+c(1, "2")
+vec_c(1, "2")
 ```
 
-We don't allow coercions to character vectors because we believe this to be an easy path to subtle bugs.
+In this case, we don't know whether you want a character vector or a numeric vector, so you need to decide by manually converting one of the inputs:
+
+```{r}
+vec_c(1, as.integer("2"))
+vec_c(as.character(1), "2")
+```
