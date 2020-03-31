@@ -31,70 +31,56 @@ Accessing and updating rows and columns is now based on a rock-solid framework a
 matrix columns.
 We believe that the changes will ultimately lead to better and safer code.
 
-This major release required quite some preparation, including a [new vignette](https://www.tidyverse.org/articles/2018/11/tibble-2.0.0-pre-announce/) that described the behavior of subsetting operations and the reasoning behind it.
-Due to the nature of the changes, about 60 CRAN packages were failing with our release candidate.
-Thanks to the maintainers of downstream packages who were very helpful in making this upgrade a smooth experience.
+This major release required quite some preparation, including a [new vignette](https://tibble.tidyverse.org/articles/invariants.html) that describes the behavior of subsetting and subset assignment operations and the reasoning behind it.
+For a complete overview please see the [release notes](https://tibble.tidyverse.org/news/index.html).
 
-In this blog post, I focus on a few user- and programmer-related changes, and give an outlook over future development:
+In a nutshell: if an object is a vector, it can be part of a tibble.
+My new [Awesome vectors](https://github.com/krlmlr/awesome-vctrs#readme) list aims at giving an overview of available implementations of vector types in R.
+If you're using a specialized class, or even implemented one, please file an issue in that repository or contribute an example.
+For problems with tibble, use the [issue tracker](https://github.com/tidyverse/tibble/issues) to report bugs or suggest ideas, your contributions are always welcome.
 
-- How to ensure that an object can be part of a tibble
+The rest of the post is about the technical details of a tibble, and therefore mostly suited for interested R programmers:
+
+- What can be part of a tibble?
+- Size and length
 - Sturdy recycling
-- Pitfalls with type conversion
-- Safe error handling
-- Formatting
-
-For a complete overview please see the [release notes](https://github.com/tidyverse/tibble/releases/tag/v2.0.0).
-
-Use the [issue tracker](https://github.com/tidyverse/tibble/issues) to submit bugs or suggest ideas, your contributions are always welcome.
 
 
 ## What can be part of a tibble?
 
-Tibbles and data frames are collections of columns, where each column is a vector of the same length.
+Tibbles and data frames are collections of columns, where each column is a vector of the same size.
 Neat.
 
 What is a vector?
-What is its length?
+What is its size?
 
 The new [vctrs package](https://vctrs.r-lib.org) is dedicated to answering these surprisingly tricky questions.
-The `vctrs::vec_is()` function decides if an object is a vector.
-This is important, because some objects are inherently scalar and cannot be added as a column to a data frame.
+Because this blog post describes many functions of this package, we load it.
 
-Environments, functions, and other "special" types of objects are clearly non-vectors.
-It is far less obvious for lists, in particular if they have a `"class"` attribute:
-
-```{r compare-list}
-model <- lm(y ~ x, data.frame(x = 1:3, y = 2:4), model = FALSE)
-is.list(model)
-length(model)
-time <- as.POSIXlt(Sys.time())
-is.list(time)
-length(time)
-length(unclass(time))
+```{r vctrs}
+library(vctrs)
 ```
 
-By relying on `vctrs::vec_is()`, the `tibble::tibble()` function and others can give an early error if used with an inherent scalar:
+The [`vec_is()`](https://vctrs.r-lib.org/reference/vec_assert.html) function decides if an object is a vector.
+This is important, because some objects are inherently scalar and cannot be added as a column to a data frame.
+
+Obviously, integers, characters, and other atomic objects (logical, numeric, complex, and raw) are vectors.
+Environments, functions, and other "special" types of objects are clearly non-vectors.
+Most objects that consist of an atomic type with a `"class"` attribute are also vectors: examples are `POSIXct` and [`hms::hms()`](https://hms.tidyverse.org/reference/hms.html).
+Lists are harder because some lists are vectors and some are not.
+
+The `vec_is()` function implements a heuristic that works automatically in most cases and adds a few special cases from base R.
+By relying on `vec_is()`, the `tibble()` function and others can give an early error if used with an inherent scalar:
 
 ```{r tibble}
 library(tibble)
+model <- lm(y ~ x, data.frame(x = 1:3, y = 2:4), model = FALSE)
 tibble(model)
+time <- Sys.time()
 tibble(time)
-
-x <- tibble(time)
-x$model <- model
 ```
 
-This is safer than the data frame implementation, which currently allows putting all lists (vector or not) into a column:
-
-```{r update-model}
-y <- data.frame(x = 1)
-y$model <- model
-y <- data.frame(x = 1:11)
-y$model <- model
-as_tibble(y)
-```
-
-The new `tibble_row()` function reverses this: inherent scalars are wrapped in lists:
+The new [`tibble_row()`](https://tibble.tidyverse.org/reference/tibble.html) function reverses this: inherent scalars are wrapped in lists:
 
 ```{r tibble-row}
 tibble_row(model)
@@ -102,24 +88,37 @@ tibble_row(time)
 tibble_row(time = rep(time, 2))
 ```
 
-For the `"POSIXlt"` class, this is handled by vctrs internally.
-For your own class, there are two ways to ensure that a list object is treated as a vector:
+If you have implemented a vector class, double-check that [`vec_is()`](https://vctrs.r-lib.org/reference/vec_assert.html) returns `TRUE` for your objects.
+Please also add it to my [Awesome vectors](https://github.com/krlmlr/awesome-vctrs#readme) list, or file an issue.
 
-- Add an explicit `"list"` to its classes
-- Implement a `vctrs::vec_proxy()` method
 
-```{r list}
-x <- structure(list(1), class = c("foo", "list"))
-vctrs::vec_is(x)
+## Size and length
 
-y <- structure(list(1), class = "bar")
-vctrs::vec_is(y)
+Data frames and matrices are also recognized vectors, and can be part of a tibble:
 
-vec_proxy.bar <- function(x, ...) x
-vctrs::vec_is(y)
+```{r two-d}
+vec_is(iris)
+vec_is(VADeaths)
+tibble(VADeaths)
 ```
 
-If you have implemented a vector class (list or not), please add it to my [Awesome vectors](https://github.com/krlmlr/awesome-vctrs#readme) list, or file an issue.
+The "elements" of a data frame or matrix are its rows.
+All subsetting and subassignment operations now use [`vec_slice()`](https://vctrs.r-lib.org/reference/vec_slice.html) under the hood.
+Contrary to `[`, slicing will work along the rows for matrices and data frames.
+
+For these and a few types, length and size are different: the length refers to the size of the internal data format, whereas the size is the number of elements.
+The [`vec_size()`](https://vctrs.r-lib.org/reference/vec_size.html) function, modeled after `NROW()`, returns the latter:
+
+```{r two-d-size}
+vec_size(iris)
+length(iris)
+vec_size(VADeaths)
+length(VADeaths)
+```
+
+For your own code, it is almost always safer to use `vec_size()` instead of `length()`.
+Use `ncol()` to count the number of columns in a data frame.
+
 
 ## Sturdy recycling
 
@@ -135,7 +134,7 @@ x$a <- rep(1:2, 2)
 x
 ```
 
-Related errors may also appear when applying a pattern that works with data frames:
+Related errors may also appear when applying a pattern that works with regular data frames:
 
 ```{r assign-named-vec}
 x <- data.frame(a = 1, b = 2)
@@ -154,29 +153,20 @@ x[1, ] <- list(a = 3, b = 4)
 x
 ```
 
+The ambiguity between a row vector and a column vector also affects the `as_tibble()` function.
+For this reason, it is now superseded for atomic and list inputs.
+In new code, use the new [`as_tibble_row()` and `as_tibble_col()`](https://tibble.tidyverse.org/reference/as_tibble.html) functions to clarify intent.
 
-## Pitfalls with type conversion and recycling
+```{r row-col}
+as_tibble_row(c(a = 3, b = 4))
+as_tibble_col(c(a = 3, b = 4))
+```
 
-The vctrs package now also provides a fail-safe way to
-
-- vctrs decides which types are coercible
-- clean error message when coercion fails
-- updating NA columns
-
-## Classed conditions
-
-- all errors classed
-- how to catch
-- error classes experimental, subject to change
-
-## Outlook: formatting moves to pillar
-
-- full control over all parts of the tibble
-- extensibility for formatting columns
-- consolidate formatting code
-- printing of data frames
 
 ## Acknowledgments
+
+Due to the nature of the changes, about 60 CRAN packages were failing with our release candidate.
+Many thanks to the maintainers of downstream packages who were very helpful in making this upgrade a smooth experience.
 
 Thanks to the following contributors who sent issues, pull requests, and comments since tibble 2.1.3:
 
