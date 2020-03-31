@@ -82,7 +82,7 @@ tibble(time)
 #> # A tibble: 1 x 1
 #>   time               
 #>   <dttm>             
-#> 1 2020-03-31 06:28:48
+#> 1 2020-03-31 06:34:44
 ```
 
 The new [`tibble_row()`](https://tibble.tidyverse.org/reference/tibble.html) function reverses this: inherent scalars are wrapped in lists:
@@ -98,7 +98,7 @@ tibble_row(time)
 #> # A tibble: 1 x 1
 #>   time               
 #>   <dttm>             
-#> 1 2020-03-31 06:28:48
+#> 1 2020-03-31 06:34:44
 tibble_row(time = rep(time, 2))
 #> Error: All vectors must be size one, use `list()` to wrap.
 #> x Column `time` is of size 2.
@@ -142,6 +142,7 @@ vec_size(iris)
 #> [1] 150
 length(iris)
 #> [1] 5
+
 vec_size(VADeaths)
 #> [1] 5
 length(VADeaths)
