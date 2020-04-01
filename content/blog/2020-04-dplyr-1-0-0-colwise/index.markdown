@@ -12,9 +12,7 @@ photo:
   url: https://unsplash.com/photos/Atl1BCVM2fo
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-```
+
 
 This post is the latest in a series of post leading up the the dplyr 1.0.0 release. So far, the series has covered:
 
@@ -28,13 +26,15 @@ Today, I wanted to talk a little bit about the new `across()` function that make
 
 If you're interested in living life on the edge (or trying out anything you see in this blog post), you can install the development version of dplyr with:
 
-```{r, eval = FALSE}
+
+```r
 devtools::install_github("tidyverse/dplyr")
 ```
 
 Note that the development version won't become 1.0.0 until it's released, but it has all the same features.
 
-```{r setup}
+
+```r
 library(vctrs)
 library(dplyr, warn.conflicts = FALSE)
 ```
@@ -43,7 +43,8 @@ library(dplyr, warn.conflicts = FALSE)
 
 It's often useful to perform the same operation on multiple columns, but copying and pasting is both tedious and error prone:
 
-```{r, eval = FALSE}
+
+```r
 df %>% 
   group_by(g1, g2) %>% 
   summarise(a = mean(a), b = mean(b), c = mean(c), d = mean(c))
@@ -51,7 +52,8 @@ df %>%
 
 You can now rewrite such code to use `across()`, which lets you apply a transformation to multiple variables selected with the same syntax a [`select()` and `rename()`]( [tidy selection](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/#select-and-renaming)):
 
-```{r, eval = FALSE}
+
+```r
 df %>% 
   group_by(g1, g2) %>% 
   summarise(across(a:d, mean))
@@ -77,19 +79,49 @@ You might be familiar with `summarise_if()` and `summarise_at()` that we previou
 
 Here are a couple of examples of `across()` in conjunction with its favourite verb, `summarise()`: 
 
-```{r}
+
+```r
 starwars %>% 
   summarise(across(is.character, n_distinct))
+#> # A tibble: 1 x 8
+#>    name hair_color skin_color eye_color   sex gender homeworld species
+#>   <int>      <int>      <int>     <int> <int>  <int>     <int>   <int>
+#> 1    87         13         31        15     5      3        49      38
 
 starwars %>% 
   group_by(species) %>% 
   filter(n() > 1) %>% 
   summarise(across(c(sex, gender, homeworld), n_distinct))
+#> # A tibble: 9 x 4
+#>   species    sex gender homeworld
+#>   <chr>    <int>  <int>     <int>
+#> 1 Droid        1      2         3
+#> 2 Gungan       1      1         1
+#> 3 Human        2      2        16
+#> 4 Kaminoan     2      2         1
+#> 5 Mirialan     1      1         1
+#> 6 Twi'lek      2      2         1
+#> 7 Wookiee      1      1         1
+#> 8 Zabrak       1      1         2
+#> 9 <NA>         1      1         3
 
 starwars %>% 
   group_by(homeworld) %>% 
   filter(n() > 1) %>% 
   summarise(across(is.numeric, mean, na.rm = TRUE), n = n())
+#> # A tibble: 10 x 5
+#>    homeworld height  mass birth_year     n
+#>    <chr>      <dbl> <dbl>      <dbl> <int>
+#>  1 Alderaan    176.  64         43       3
+#>  2 Corellia    175   78.5       25       2
+#>  3 Coruscant   174.  50         91       3
+#>  4 Kamino      208.  83.1       31.5     3
+#>  5 Kashyyyk    231  124        200       2
+#>  6 Mirial      168   53.1       49       2
+#>  7 Naboo       175.  64.2       55      11
+#>  8 Ryloth      179   55         48       2
+#>  9 Tatooine    170.  85.4       54.6    10
+#> 10 <NA>        139.  82        334.     10
 ```
 ## Other cool features
 
@@ -113,7 +145,8 @@ Why did we decide to move away from these functions in favour of `across()`?
     numeric vectors with one function, factors with another, and still 
     compute the number of rows in each group:
 
-    ```{r, eval = FALSE}
+    
+    ```r
     df %>%
       group_by(g1, g2) %>% 
       summarise(
@@ -154,7 +187,8 @@ Fortunately, if you have code that uses the `_if`, `_at`, or `_all()` functions,
 
 Here are a few examples of this process:
 
-```{r, eval = FALSE}
+
+```r
 df %>% mutate_if(is.numeric, mean, na.rm = TRUE)
 # ->
 df %>% mutate(across(is.numeric, mean, na.rm = TRUE))
