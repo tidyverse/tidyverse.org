@@ -1,6 +1,6 @@
 ---
 title: 'dplyr 1.0.0: working across columns'
-author: Hadley Wicham
+author: Hadley Wickham
 date: '2020-04-03'
 slug: dplyr-1-0-0-colwise
 categories:
