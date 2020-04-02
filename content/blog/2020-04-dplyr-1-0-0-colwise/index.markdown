@@ -20,7 +20,7 @@ This post is the latest in a series of post leading up the the dplyr 1.0.0 relea
 * [New `summarise()` features](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/).
 * [`select()`, `rename()`, `relocate()`](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/).
 
-Today, I wanted to talk a little bit about the new `across()` function that makes it easy to perform the same operation to multiple columns.
+Today, I wanted to talk a little bit about the new `across()` function that makes it easy to perform the same operation on multiple columns.
 
 ### Getting the dev version
 
@@ -35,7 +35,6 @@ Note that the development version won't become 1.0.0 until it's released, but it
 
 
 ```r
-library(vctrs)
 library(dplyr, warn.conflicts = FALSE)
 ```
 
@@ -50,7 +49,7 @@ df %>%
   summarise(a = mean(a), b = mean(b), c = mean(c), d = mean(c))
 ```
 
-You can now rewrite such code to use `across()`, which lets you apply a transformation to multiple variables selected with the same syntax a [`select()` and `rename()`]( [tidy selection](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/#select-and-renaming)):
+You can now rewrite such code using `across()`, which lets you apply a transformation to multiple variables selected with the same syntax as [`select()` and `rename()`]( [tidy selection](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/#select-and-renaming)):
 
 
 ```r
@@ -64,7 +63,7 @@ df %>%
   summarise(across(is.numeric, mean))
 ```
 
-You might be familiar with `summarise_if()` and `summarise_at()` that we previously recommended for this sort of operation. Later in the blog post we'll come back to why we now prefer `across()`. But for now, let's dive into the basics of `across()`.
+You might be familiar with `summarise_if()` and `summarise_at()` which we previously recommended for this sort of operation. Later in the blog post we'll come back to why we now prefer `across()`. But for now, let's dive into the basics of `across()`.
 
 ## Basic usage
 
@@ -72,12 +71,12 @@ You might be familiar with `summarise_if()` and `summarise_at()` that we previou
 
 * The first argument, `.cols`, selects the columns you want to operate on.
   It uses the tidy select syntax so you can pick columns by position, name,
-  function of name, type, or any combination.
+  function of name, type, or any combination thereof using Boolean operators.
 
 * The second argument, `.fns`, is a function or list of functions to apply to
   each column. You can use also purrr style formulas like `~ .x / 2`. 
 
-Here are a couple of examples of `across()` in conjunction with its favourite verb, `summarise()`: 
+Here are a couple of examples of `across()` used with `summarise()`: 
 
 
 ```r
@@ -136,12 +135,12 @@ You'll find a lot more about `across()` in [`vignette("colwise")`](https://dplyr
 
 ## Why `across()`? 
 
-If you've tackled this problem with an older version of dplyr, you might've used one of the functions had an `_if`, `_at`, or `_all` suffix. These functions solved a pressing need and are used by many people, but are now superseded. This means that they'll stay around, but will only recieve critical bug fixes. 
+If you've tackled this problem with an older version of dplyr, you might've used one of the functions with an `_if`, `_at`, or `_all` suffix. These functions solved a pressing need and are used by many people, but are now superseded. This means that they'll stay around, but will only receive critical bug fixes. 
 
 Why did we decide to move away from these functions in favour of `across()`?
 
 1.  `across()` makes it possible to compute useful summaries that were 
-    previously impossible. For example, it's now trivial to summarise
+    previously impossible. For example, it's now easy to summarise
     numeric vectors with one function, factors with another, and still 
     compute the number of rows in each group:
 
@@ -171,9 +170,9 @@ Why did we decide to move away from these functions in favour of `across()`?
 
 Why did it take it long to discover `across()`? Surprisingly, the key idea that makes `across()` works came out of our low-level work on the [vctrs](http://vctrs.r-lib.org/) package, where we learnt that you can have a column of a data frame that is itself a data frame. It's a bummer that we had a few false starts before we discovered `across()`, but even with hindsight, I don't see how we could've skipped the intermediate steps.
 
-## How do you convert existing code?
+## Converting existing code
 
-Fortunately, if you have code that uses the `_if`, `_at`, or `_all()` functions, it's generally straightforward to update:
+If you want to update your existing code to use `across()` instead of the `_if`, `_at`, or `_all()` functions, it's generally straightforward:
 
 *   Strip the `_if()`, `_at()` and `_all()` suffix off the function.
 
@@ -202,6 +201,6 @@ df %>% mutate_all(mean, na.rm = TRUE)
 df %>% mutate(across(everything(), mean, na.rm = TRUE))
 ```
 
-If you've used multiple `_if`/`_at`/`_all` functions in a row, you should also consider if it's now possible to collapse into a single call, using the new features of `across()`.
+If you've used multiple `_if`/`_at`/`_all` functions in a row, you should also consider if it's now possible to collapse them into a single call, using the new features of `across()`.
 
-Again, you don't need to worry about these functions going away in the short-term, but it's good practice to update your code to use our latest recommendations.
+Again, you don't need to worry about these functions going away in the short-term, but it's good practice to keep your code up-to-date. Note, however, that `across()` currently has a little more overhead than the older approaches so it will be a little slower. We have a plan to improve the performance in dplyr 1.1.0.

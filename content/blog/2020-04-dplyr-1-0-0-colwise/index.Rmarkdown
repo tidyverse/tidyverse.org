@@ -35,7 +35,6 @@ devtools::install_github("tidyverse/dplyr")
 Note that the development version won't become 1.0.0 until it's released, but it has all the same features.
 
 ```{r setup}
-library(vctrs)
 library(dplyr, warn.conflicts = FALSE)
 ```
 
@@ -75,7 +74,7 @@ You might be familiar with `summarise_if()` and `summarise_at()` which we previo
 * The second argument, `.fns`, is a function or list of functions to apply to
   each column. You can use also purrr style formulas like `~ .x / 2`. 
 
-Here are a couple of examples of `across()` in conjunction with its favourite verb, `summarise()`: 
+Here are a couple of examples of `across()` used with `summarise()`: 
 
 ```{r}
 starwars %>% 
@@ -138,9 +137,9 @@ Why did we decide to move away from these functions in favour of `across()`?
 
 Why did it take it long to discover `across()`? Surprisingly, the key idea that makes `across()` works came out of our low-level work on the [vctrs](http://vctrs.r-lib.org/) package, where we learnt that you can have a column of a data frame that is itself a data frame. It's a bummer that we had a few false starts before we discovered `across()`, but even with hindsight, I don't see how we could've skipped the intermediate steps.
 
-## How do you convert existing code?
+## Converting existing code
 
-If you have code that uses the `_if`, `_at`, or `_all()` functions, it's generally straightforward to update:
+If you want to update your existing code to use `across()` instead of the `_if`, `_at`, or `_all()` functions, it's generally straightforward:
 
 *   Strip the `_if()`, `_at()` and `_all()` suffix off the function.
 
@@ -170,4 +169,4 @@ df %>% mutate(across(everything(), mean, na.rm = TRUE))
 
 If you've used multiple `_if`/`_at`/`_all` functions in a row, you should also consider if it's now possible to collapse them into a single call, using the new features of `across()`.
 
-Again, you don't need to worry about these functions going away in the short-term, but it's good practice to update your code to use our latest recommendations.
+Again, you don't need to worry about these functions going away in the short-term, but it's good practice to keep your code up-to-date. Note, however, that `across()` currently has a little more overhead than the older approaches so it will be a little slower. We have a plan to improve the performance in dplyr 1.1.0.
