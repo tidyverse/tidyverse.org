@@ -129,7 +129,7 @@ They differ only in what happens when variables are not present in the data fram
 ```r
 df2 %>% select(all_of(vars))
 #> Error: Can't subset columns that don't exist.
-#> x The column `z` doesn't exist.
+#> x Column `z` doesn't exist.
 ```
 
 You can learn more about programming with tidy selection in [`?dplyr_tidy_select`](https://dplyr.tidyverse.org/dev/reference/dplyr_tidy_select.html). 

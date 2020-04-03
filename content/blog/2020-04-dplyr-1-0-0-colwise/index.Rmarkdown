@@ -146,7 +146,7 @@ If you want to update your existing code to use `across()` instead of the `_if`,
 *   Call `across()`. The first argument will be:
 
     1. For `_if()`, the old second argument.
-    1. For `_at()`, the old second argument, with the call to `vars()` removed.
+    1. For `_at()`, the old second argument. If there was a single element in `vars()` you can remove `vars()`, otherwise replace it with `c()`.
     1. For `_all()`, `everything()`.
 
     The subsequent arguments can be copied as is.
@@ -158,7 +158,7 @@ df %>% mutate_if(is.numeric, mean, na.rm = TRUE)
 # ->
 df %>% mutate(across(is.numeric, mean, na.rm = TRUE))
 
-df %>% mutate_at(vars(c(x, starts_with("y"))), mean, na.rm = TRUE)
+df %>% mutate_at(vars(x, starts_with("y")), mean, na.rm = TRUE)
 # ->
 df %>% mutate(across(c(x, starts_with("y")), mean, na.rm = TRUE))
 
