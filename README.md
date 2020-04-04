@@ -60,6 +60,22 @@ This will open a preview of the site in your web browser, and it will
 automatically update whenever you modify one of the input files. For `.Rmd`, 
 this will generate an `.html` file, which you should commit and push to GitHub.
 
+#### Troubleshooting
+
+If blogdown attempts to re-render posts (potentially on a massive scale), you need to make all the derived files look more recently modified than their respective source files. This affects (`.Rmarkdown`, `.markdown`) and (`.Rmd`, `.html`) file pairs. Do something like this:
+
+```R
+library(fs)
+
+md <- dir_ls("content", recurse = TRUE, glob = "*.markdown")
+file_touch(md)
+
+html <- dir_ls("content", recurse = TRUE, glob = "*.html")
+file_touch(html)
+```
+
+For other problems, consider that you need to update blogdown or to run `blogdown::update_hugo()` (perhaps in an R session launched with `sudo`).
+
 #### Other methods of local preview
 
 You should really preview the site using `blogdown::serve_site()`. But if, accidentally or intentionally, you knit or preview the content using another method (e.g. click the **Preview** button in RStudio for `.[R]md`), make sure you don't commit an `.html` file from an **`.md`** file.
