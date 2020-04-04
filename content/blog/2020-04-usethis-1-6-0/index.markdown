@@ -1,0 +1,97 @@
+---
+title: usethis 1.6.0
+author: Hadley Wickham
+date: '2020-04-06'
+slug: usethis-1-6-0
+categories:
+  - package
+tags:
+  - devtools
+  - usethis
+photo:
+  author: Rock'n Roll Monkey
+  url: https://unsplash.com/photos/R4WCbazrD1g
+---
+
+
+
+We're happy to announce that [usethis](https://usethis.r-lib.org) 1.6.0 is now available on CRAN. usethis is a package that facilitates interactive workflows for R project creation and development. It's mostly focussed on easing day-to-day package development, but many of its functions are also useful for non-package projects. Install usethis with:
+
+
+```r
+install.packages("usethis")
+```
+
+This blog post discusses three sets of improvements to usethis:
+
+* Our helpers for using GitHub actions are now polished, and if you're an 
+  R package developer who uses GitHub, we recommend moving away from Travis in 
+  favour of GitHub actions.
+  
+* We've made a number of small tweaks to `create_package()` in order to reduce
+  inconsistencies during the initial startup phase of a package.
+  
+* We've continued to polish our tools for contributing to other people's
+  packages.
+  
+This release also includes a handful of new functions (my favourite is [`rename_file()`](https://usethis.r-lib.org/reference/rename_files.html)), many bug fixes, and lots of small improvements. We're slowly grinding down the rough edges, so usethis just works in more cases, and when it fails, it's more likely to give you error messages that help you quickly figure out the problem. As usual, you can find detailed notes about all these changes in the [change log](https://usethis.r-lib.org/news/index.html).
+
+## GitHub actions
+
+[GitHub actions](https://github.com/features/actions) allows you to automatically run code whenever you push to GitHub. If you're developing a package this allows you to automate tasks like:
+
+* Runing R CMD check on multiple platforms (Linux, Windows, and Mac).
+* Recording the code coverage of your unit tests.
+* Re-building your [pkgdown](https://pkgdown.r-lib.org/) website.
+
+Outside of a package, you can also use them to rebuild blogdown and bookdown sites, or regularly re-knit `.Rmd` files. 
+
+Learn more by reading [_Github actions with R_](https://ropenscilabs.github.io/actions_sandbox/), by Chris Brown, Murray Cadzow, Paula A Martinez, Rhydwyn McGuire, David Neuzerling, David Wilkinson, and Saras Windecker, or watching Jim Hester's [rstudio::conf(2020) presentation](https://resources.rstudio.com/rstudio-conf-2020/azure-pipelines-and-github-actions-jim-hester).
+
+## Createing packages
+
+Based on our experience teaching package development we've made a few changes to how `create_package()` sets up a new package. The biggest difference is that we now assume that you're going to use roxygen2[^footnote] (although you can opt with `roxygen = FALSE`) reducing some inconsistencies in development behaviours before and after your first run of `devtools::document()`:
+
+[^footnote]: This seems like a reasonable assumption given that ~80% of new CRAN packages use roxygen2.
+
+*   We automatically add a `RoxygenNote` field to the `DESCRIPTION`. This is a 
+    subtle change that ensures `devtools::check()` re-documents your package even
+    when you haven't yet run `devtools::document()`.
+    
+*   The default `NAMESPACE` no longer exports anything. This means that you
+    must always use `@export` if you want functions to be available to the 
+    end-user.
+
+We made a couple of small changes to ease other minor frustrations:
+
+*   `use_rstudio()` now sets the `LineEndingConversion` to `Posix` so that
+    packages edited with RStudio always use LF line endings, regardless of 
+    platform. This reduces spurious changes when multiple people collaborate
+    on the same package.
+  
+*   The `usethis.description` option now lets you set `Authors@R = person()` 
+    directly, without having to wrap in it in quote marks. For example,
+    in my `.Rprofile` I used to have:
+    
+    
+    ```r
+    options(usethis.description = list(
+      `Authors@R` = 'person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre"))'
+    ))
+    ```
+    
+    And now I have:
+
+    
+    ```r
+    options(usethis.description = list(
+      `Authors@R` = utils::person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre"))
+    ))
+    ```
+      
+    As you can see from the syntax highlighting, it's now much easier to see if 
+    you all the quotes and commas in the right place.
+
+## Contributing to package
+
+Based on our experiences at [tidyverse developer day](https://www.tidyverse.org/blog/2019/11/tidyverse-dev-day-2020/), we've tweaked the behaviour of usethis to ensure that if you any new files have the same line ending as the rest of the project. We've also continued to polish our family of pull request helpers to reduce common problems. And thanks to [Mine Cetinkaya-Rundel]() we now have an article that [explains the overall workflow](https://usethis.r-lib.org/articles/articles/pr-functions.html).
