@@ -24,9 +24,9 @@ install.packages("usethis")
 
 This blog post discusses three sets of improvements to usethis:
 
-* Our helpers for using GitHub actions are now polished, and if you're an 
+* Our helpers for using GitHub Actions are now polished, and if you're an 
   R package developer who uses GitHub, we recommend moving away from Travis in 
-  favour of GitHub actions.
+  favour of GitHub Actions.
   
 * We've made a number of small tweaks to `create_package()` in order to reduce
   inconsistencies during the initial startup phase of a package.
@@ -36,21 +36,21 @@ This blog post discusses three sets of improvements to usethis:
   
 This release also includes a handful of new functions (my favourite is [`rename_file()`](https://usethis.r-lib.org/reference/rename_files.html)), many bug fixes, and lots of small improvements. We're slowly grinding down the rough edges, so usethis just works in more cases, and when it fails, it's more likely to give you error messages that help you quickly figure out the problem. As usual, you can find detailed notes about all these changes in the [change log](https://usethis.r-lib.org/news/index.html).
 
-## GitHub actions
+## GitHub Actions
 
-[GitHub actions](https://github.com/features/actions) allows you to automatically run code whenever you push to GitHub. If you're developing a package this allows you to automate tasks like:
+[GitHub Actions](https://github.com/features/actions) allows you to automatically run code whenever you push to GitHub. If you're developing a package this allows you to automate tasks like:
 
-* Runing R CMD check on multiple platforms (Linux, Windows, and Mac).
-* Recording the code coverage of your unit tests.
-* Re-building your [pkgdown](https://pkgdown.r-lib.org/) website.
+* Run `R CMD check` on multiple platforms (Linux, Windows, and Mac).
+* Record the code coverage of your unit tests.
+* Re-build your [pkgdown](https://pkgdown.r-lib.org/) website.
 
 Outside of a package, you can also use them to rebuild blogdown and bookdown sites, or regularly re-knit `.Rmd` files. 
 
-Learn more by reading [_Github actions with R_](https://ropenscilabs.github.io/actions_sandbox/), by Chris Brown, Murray Cadzow, Paula A Martinez, Rhydwyn McGuire, David Neuzerling, David Wilkinson, and Saras Windecker, or watching Jim Hester's [rstudio::conf(2020) presentation](https://resources.rstudio.com/rstudio-conf-2020/azure-pipelines-and-github-actions-jim-hester).
+Learn more by reading [_Github Actions with R_](https://ropenscilabs.github.io/actions_sandbox/), by Chris Brown, Murray Cadzow, Paula A Martinez, Rhydwyn McGuire, David Neuzerling, David Wilkinson, and Saras Windecker, or watching Jim Hester's [rstudio::conf(2020) presentation](https://resources.rstudio.com/rstudio-conf-2020/azure-pipelines-and-github-actions-jim-hester).
 
-## Createing packages
+## Creating packages
 
-Based on our experience teaching package development we've made a few changes to how `create_package()` sets up a new package. The biggest difference is that we now assume that you're going to use roxygen2[^footnote] (although you can opt with `roxygen = FALSE`) reducing some inconsistencies in development behaviours before and after your first run of `devtools::document()`:
+Based on our experience teaching package development, we've made a few changes to how `create_package()` sets up a new package. The biggest difference is that we now assume that you're going to use roxygen2[^footnote] (although you can opt out with `roxygen = FALSE`), reducing some inconsistencies in development behaviours before and after your first run of `devtools::document()`:
 
 [^footnote]: This seems like a reasonable assumption given that ~80% of new CRAN packages use roxygen2.
 
@@ -92,6 +92,6 @@ We made a couple of small changes to ease other minor frustrations:
     As you can see from the syntax highlighting, it's now much easier to see if 
     you all the quotes and commas in the right place.
 
-## Contributing to package
+## Contributing to packages via Pull Requests
 
-Based on our experiences at [tidyverse developer day](https://www.tidyverse.org/blog/2019/11/tidyverse-dev-day-2020/), we've tweaked the behaviour of usethis to ensure that if you any new files have the same line ending as the rest of the project. We've also continued to polish our family of pull request helpers to reduce common problems. And thanks to [Mine Cetinkaya-Rundel]() we now have an article that [explains the overall workflow](https://usethis.r-lib.org/articles/articles/pr-functions.html).
+Based on our experiences at [tidyverse developer day](https://www.tidyverse.org/blog/2019/11/tidyverse-dev-day-2020/), we've tweaked the behaviour of usethis to ensure that new files have the same line ending as the rest of the project. We've also continued to polish our family of pull request helpers to reduce common problems. And thanks to [Mine Cetinkaya-Rundel]() we now have an article that [explains the overall workflow](https://usethis.r-lib.org/articles/articles/pr-functions.html).
