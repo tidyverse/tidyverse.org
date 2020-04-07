@@ -180,4 +180,4 @@ Contributing to open source software will make you a better programmer, gain
 valuable feedback through code review, look great on your resume and increase
 your visibility in the community. It may even get you a job; I am on the
 tidyverse team today mainly because I was a frequent open source contributor to
-tidyverse packages over a number of years.
+ tidyverse packages over a number of years.

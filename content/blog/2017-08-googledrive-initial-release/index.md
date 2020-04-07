@@ -153,4 +153,4 @@ We look forward to hearing how this package is useful to you. Feel free to chime
 
 Learn more about googledrive at:
 
--   <http://googledrive.tidyverse.org>
+ -   <http://googledrive.tidyverse.org>

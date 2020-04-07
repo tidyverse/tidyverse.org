@@ -31,4 +31,4 @@ As well as radically improved graphic design, the site includes four new compone
   integrative case studies that show you how to use multiple packages
   from the tidyverse to solve real problems.
   
-The site is made with [blogdown](https://bookdown.org/yihui/blogdown) and the source code is [available on GitHub](https://github.com/tidyverse/tidyverse.org). If you spot any small mistakes please feel empowered to create a PR and fix them!
+ The site is made with [blogdown](https://bookdown.org/yihui/blogdown) and the source code is [available on GitHub](https://github.com/tidyverse/tidyverse.org). If you spot any small mistakes please feel empowered to create a PR and fix them!
