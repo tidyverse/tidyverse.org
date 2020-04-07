@@ -25,9 +25,9 @@ install.packages("usethis")
 
 This blog post discusses three sets of improvements to usethis:
 
-* Our helpers for using GitHub Actions are now polished, and if you're an 
-  R package developer who uses GitHub, we recommend moving away from Travis in 
-  favour of GitHub Actions.
+* New helpers for using GitHub Actions for continuous integration. If you're an 
+  R package developer who uses GitHub, we recommend moving away from Travis and
+  Appveyor in favour of GitHub Actions.
   
 * We've made a number of small tweaks to `create_package()` in order to reduce
   inconsistencies during the initial startup phase of a package.
@@ -39,15 +39,45 @@ This release also includes a handful of new functions (my favourite is [`rename_
 
 ## GitHub Actions
 
-[GitHub Actions](https://github.com/features/actions) allows you to automatically run code whenever you push to GitHub. If you're developing a package this allows you to automate tasks like:
+[GitHub Actions](https://github.com/features/actions) is a continuous integration service that allows you to automatically run code whenever you push to GitHub. If you're developing a package this allows you to automate tasks like:
 
-* Run `R CMD check` on multiple platforms (Linux, Windows, and Mac).
+* Run `R CMD check` on multiple platforms (Linux, Windows, and Mac). 
 * Record the code coverage of your unit tests.
 * Re-build your [pkgdown](https://pkgdown.r-lib.org/) website.
 
-Outside of a package, you can also use them to rebuild blogdown and bookdown sites, or regularly re-knit `.Rmd` files. 
+Outside of a package, you can also use them to rebuild [blogdown](https://github.com/r-lib/actions/blob/master/examples/blogdown.yaml) and [bookdown](https://github.com/r-lib/actions/blob/master/examples/bookdown.yaml) sites, or regularly re-knit `.Rmd` files. 
 
-Learn more by reading [_Github Actions with R_](https://ropenscilabs.github.io/actions_sandbox/), by Chris Brown, Murray Cadzow, Paula A Martinez, Rhydwyn McGuire, David Neuzerling, David Wilkinson, and Saras Windecker, or watching Jim Hester's [rstudio::conf(2020) presentation](https://resources.rstudio.com/rstudio-conf-2020/azure-pipelines-and-github-actions-jim-hester).
+A GitHub action is just a yaml file stored in `.github/workflows`, and we bundle a number of helpers to create these files:
+
+* [`use_github_action("check-standard")`](https://github.com/r-lib/actions/blob/master/examples/check-standard.yaml) runs R CMD check on the latest
+  R release on Linux, Windows, and Mac, and R-devel on the mac. This ensures
+  that your package works on all major operating systems, and alerts you to
+  any potential problems in the next version of R.
+
+* [`use_github_action("test-coverage")`](https://github.com/r-lib/actions/blob/master/examples/test-coverage.yaml) 
+  uses [covr](http://covr.r-lib.org/) to measure the test coverage of your site 
+  and publishes it to <http://codecov.io/>.
+  
+* [`use_github_action("pkgdown")`](https://github.com/r-lib/actions/blob/master/examples/pkgdown.yaml)
+  uses [pkgdown](https://pkgdown.r-lib.org/) to build your package website and 
+  publishes it to the `gh-pages` branch.
+
+You can see other examples at <https://github.com/r-lib/actions/tree/master/examples>. The files in this directory are templates that you can easily get into your package by running `use_github_action("name")`. We encourage you to look at the `.yaml` files that these functions create and customise them to meet your needs.
+
+Compared to Travis-CI, GitHub Actions:
+
+* Provides more resources, i.e. 6 hour build times and 20 concurrent builds 
+  instead of 50 minute build times and ~5 concurrent builds. 
+  
+* Has more complete support for building on Windows and macOS and a more 
+  natural way of using Docker containers. 
+  
+* Doesn't require any extra authentication because all code is run on GitHub.
+
+* Is considerably easier to customise to provide workflows that we haven't
+  made easy.
+
+You can learn more by reading [_Github Actions with R_](https://ropenscilabs.github.io/actions_sandbox/), by Chris Brown, Murray Cadzow, Paula A Martinez, Rhydwyn McGuire, David Neuzerling, David Wilkinson, and Saras Windecker, or watching Jim Hester's [rstudio::conf(2020) presentation](https://resources.rstudio.com/rstudio-conf-2020/azure-pipelines-and-github-actions-jim-hester).
 
 ## Creating packages
 
@@ -91,7 +121,7 @@ We made a couple of small changes to ease other minor frustrations:
     As you can see from the syntax highlighting, it's now much easier to see if 
     you all the quotes and commas in the right place.
 
-## Contributing to packages via Pull Requests
+## Contributing to packages
 
 Based on our experiences at [tidyverse developer day](https://www.tidyverse.org/blog/2019/11/tidyverse-dev-day-2020/), we've tweaked the behaviour of usethis to ensure that new files have the same line ending as the rest of the project. We've also continued to polish our family of pull request helpers to reduce common problems. And thanks to [Mine Cetinkaya-Rundel]() we now have an article that [explains the overall workflow](https://usethis.r-lib.org/articles/articles/pr-functions.html).
 
