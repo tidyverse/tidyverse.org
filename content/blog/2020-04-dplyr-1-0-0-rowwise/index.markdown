@@ -1,0 +1,25 @@
+---
+title: 'dplyr 1.0.0: working within rows'
+author: Hadley Wickham
+date: '2020-04-10'
+slug: dplyr-1-0-0-rowwise
+categories:
+  - package
+tags:
+  - dplyr
+photo:
+  author: Oleksandr Hrebelnyk
+  url: https://unsplash.com/photos/ckZU2xZUjO8
+---
+
+
+
+This post is the latest in a series of post leading up the the dplyr 1.0.0 release. So far, the series has covered:
+
+* [Major lifecycle changes](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/).
+* [New `summarise()` features](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/).
+* [`select()`, `rename()`, `relocate()`](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/).
+* [Working `across()` columns](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/).
+
+Today, I wanted to talk a little bit about the renewed `rowwise()` function that makes it easy to perform operation on a row-by-row basis.
+
