@@ -156,4 +156,4 @@ Recommended resources on talk preparation and the value of marketing and network
  * [7 Tips for Presenting Bulleted Lists in Digital Content](https://www.nngroup.com/articles/presenting-bulleted-lists/) by Hoa Loranger
  * [How To Give a Talk](http://www.howtogiveatalk.com) by David L. Stern
  * [Building Your Data Science Network: Finding Community](http://hookedondata.org/Building-Your-Data-Science-Network-Finding-Community/) by Emily Robinson
- * [Marketing for Data Science: A 7 Step ‘Go-to-Market’ Plan for Your Next Data Product](https://medium.com/indeed-data-science/marketing-for-data-science-a-7-step-go-to-market-plan-for-your-next-data-product-60c034c34d55) by Erik Oberg
+  * [Marketing for Data Science: A 7 Step ‘Go-to-Market’ Plan for Your Next Data Product](https://medium.com/indeed-data-science/marketing-for-data-science-a-7-step-go-to-market-plan-for-your-next-data-product-60c034c34d55) by Erik Oberg

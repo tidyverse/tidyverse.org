@@ -40,4 +40,4 @@ account. We're excited to give this a whirl, and hope to see you there!
 
 Have questions? Head over to the [tidyverse developer day](https://community.rstudio.com/t/tidyverse-developer-day/13146) thread on 
 the RStudio community site!
-
+ 

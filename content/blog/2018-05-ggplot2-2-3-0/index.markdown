@@ -165,4 +165,4 @@ There are several other improvements, which will be described in further detail
 once the ggplot 2.3.0 is released on CRAN (currently targeted for June 25th). 
 For now, please kick the tires and let us know what you think!
 
-[^1]: [CRAN Repository Policy](https://cran.r-project.org/web/packages/policies.html), Version $Revision: 3874. CRAN Repository Maintainers. <https://cran.r-project.org/web/packages/policies.html>
+ [^1]: [CRAN Repository Policy](https://cran.r-project.org/web/packages/policies.html), Version $Revision: 3874. CRAN Repository Maintainers. <https://cran.r-project.org/web/packages/policies.html>

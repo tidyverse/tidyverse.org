@@ -537,4 +537,4 @@ contributions to the R ecosystem.
 - [Matt Dowle](https://twitter.com/mattdowle) and the rest of the
   [Rdatatable](https://github.com/Rdatatable) team,
   `data.table::fread()` is blazing fast and a great motivator to think about
-  how to read delimited files fast\!
+   how to read delimited files fast\!

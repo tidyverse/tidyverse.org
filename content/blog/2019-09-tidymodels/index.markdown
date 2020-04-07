@@ -144,4 +144,4 @@ Two new metrics have been added to yardstick:
 
 We are currently working on two general use packages: `workflows` and `tune`. The former bundles together recipes, model object, and other items so that there can be single `fit()` and `predict()` methods. `tune` will have tools for... um... tuning models. We are hoping to make these public in the next month or so. 
 
-There will be some changes to accommodate model tuning. The `dials` package has been re-factored substantially (see the current GH master branch) and there were some small interfaces changes to `recipes` too (mostly backwards compatible and also on GH). We are pretty close to end of "Phase I" of our tidymodels work. 
+ There will be some changes to accommodate model tuning. The `dials` package has been re-factored substantially (see the current GH master branch) and there were some small interfaces changes to `recipes` too (mostly backwards compatible and also on GH). We are pretty close to end of "Phase I" of our tidymodels work. 

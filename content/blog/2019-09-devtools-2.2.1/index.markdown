@@ -113,4 +113,4 @@ We are of grateful to _all_ of the *29* people who contributed not just code, bu
 [&#x0040;TomKellyGenetics](https://github.com/TomKellyGenetics)
 
 [devtools]: https://devtools.r-lib.org
-[R Packages]: http://r-pkgs.had.co.nz/
+ [R Packages]: http://r-pkgs.had.co.nz/

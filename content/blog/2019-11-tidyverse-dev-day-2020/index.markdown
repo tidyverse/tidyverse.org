@@ -33,4 +33,4 @@ Want to know more? Read about the [last tidy dev day](https://www.tidyverse.org/
 
 ## Code of conduct
 
-All attendees will be expected to follow the [Code of Conduct](https://github.com/tidyverse/dev-day-2019/blob/master/CODE_OF_CONDUCT.md).
+ All attendees will be expected to follow the [Code of Conduct](https://github.com/tidyverse/dev-day-2019/blob/master/CODE_OF_CONDUCT.md).

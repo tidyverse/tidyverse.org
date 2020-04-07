@@ -55,4 +55,4 @@ All attendees are bound by the [rstudio::conf Code of Conduct](CODE_OF_CONDUCT.m
 ### Questions?
 
 Have questions? Head over to the [tidyverse developer day](https://community.rstudio.com/t/tidyverse-developer-day/13146) 
-thread on the RStudio community site!
+ thread on the RStudio community site!

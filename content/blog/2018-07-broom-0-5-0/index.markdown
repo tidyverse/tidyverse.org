@@ -205,4 +205,4 @@ augment(fit, data = df)
 
 Support for matrix-columns is on the way in dplyr and in a release cycle or two this won't be an issue.
 
-[Back to tibble section](#tibble)
+ [Back to tibble section](#tibble)

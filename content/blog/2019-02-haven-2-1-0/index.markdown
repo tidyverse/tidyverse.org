@@ -53,4 +53,4 @@ This release is updated to the latest version of Evan Miller's [ReadStat](https:
 
 Thank you to Evan Miller, as well as 
 [&#x0040;armenic](https://github.com/armenic),  [&#x0040;beckerbenj](https://github.com/beckerbenj), [&#x0040;caayala](https://github.com/caayala), [&#x0040;gergness](https://github.com/gergness), [&#x0040;jeffeaton](https://github.com/jeffeaton),  [&#x0040;philstraforelli](https://github.com/philstraforelli), [&#x0040;thays42](https://github.com/thays42), and [&#x0040;visseho](https://github.com/visseho) for their contributions to this release.
-
+ 

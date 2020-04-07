@@ -178,4 +178,4 @@ If you're new to tidy evaluation, the best place to learn more about it is in th
 
 You can also always ask for help at [community.rstudio.com](https://community.rstudio.com/).
 
-[^1]: Wickham, Hadley. 2016. “Programming with Ggplot2.” In _Ggplot2: Elegant Graphics for Data Analysis_, 241–53. Cham: Springer International Publishing. doi:10.1007/978-3-319-24277-4_12.
+ [^1]: Wickham, Hadley. 2016. “Programming with Ggplot2.” In _Ggplot2: Elegant Graphics for Data Analysis_, 241–53. Cham: Springer International Publishing. doi:10.1007/978-3-319-24277-4_12.

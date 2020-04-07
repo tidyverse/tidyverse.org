@@ -435,4 +435,4 @@ We’re grateful to the 8 people who contributed issues, code and comments
 since the last processx release:
 
   [&#xFF20;breichholf](https://github.com/breichholf), [&#xFF20;dchiu911](https://github.com/dchiu911), [&#xFF20;gaborcsardi](https://github.com/gaborcsardi), [&#xFF20;hadley](https://github.com/hadley), [&#xFF20;joelnitta](https://github.com/joelnitta), [&#xFF20;matthijsvanderloos](https://github.com/matthijsvanderloos), [&#xFF20;maxheld83](https://github.com/maxheld83), and [&#xFF20;wlandau](https://github.com/wlandau)
-  
+   

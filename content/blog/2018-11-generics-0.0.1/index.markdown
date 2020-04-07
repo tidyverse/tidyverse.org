@@ -78,4 +78,4 @@ Methods:
 The current list of S3 generics that are included in the package are: `as.factor`, `as.ordered`, `augment`, `calculate`, `compile`, `components`, `equation`, `estfun`, `evaluate`, `explain`, `fit`, `fit_xy`, `generate`, `glance`, `hypothesize`, `interpolate`, `intersect`, `is.element`, `learn`, `prune`, `refit`, `setdiff`, `setequal`, `specify`, `tidy`, `train`, `union`, `var_imp`, `varying_args`, and `visualize`.
 
 Thanks to those who contributed to the discussion prior to releasing the package: Achim Zeileis, Alex Hayes, Andrew Bray, Andy Liaw, Chester Ismay, Davis Vaughan, Hadley Wickham, Mitchell O'Hara-Wild, Przemyslaw Biecek, Rob Hyndman, Thomas Lin Pedersen, and Torsten Hothorn.
-
+ 

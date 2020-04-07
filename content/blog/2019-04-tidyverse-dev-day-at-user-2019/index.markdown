@@ -34,4 +34,4 @@ will be donated to a non-profit (TBD).
 
 All attendees will be expected to follow the [Code of Conduct](https://github.com/tidyverse/dev-day-2019/blob/master/CODE_OF_CONDUCT.md).
 
-
+ 

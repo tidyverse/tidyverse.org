@@ -216,4 +216,4 @@ To restore to released version:
 
 ```r
 install.packages("dplyr")
-```
+ ```

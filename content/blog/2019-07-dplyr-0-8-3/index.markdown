@@ -56,4 +56,4 @@ integration protects us from regressions in functionality, but not regression in
 
 We might investigate in that direction in the future.Thanks to all contributors for this release.
 
-[&#x0040;ajkroeg](https://github.com/ajkroeg), [&#x0040;bschneidr](https://github.com/bschneidr), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dhicks](https://github.com/dhicks), [&#x0040;gvfarns](https://github.com/gvfarns), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;romainfrancois](https://github.com/romainfrancois), and [&#x0040;shane-kercheval](https://github.com/shane-kercheval)
+ [&#x0040;ajkroeg](https://github.com/ajkroeg), [&#x0040;bschneidr](https://github.com/bschneidr), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dhicks](https://github.com/dhicks), [&#x0040;gvfarns](https://github.com/gvfarns), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;romainfrancois](https://github.com/romainfrancois), and [&#x0040;shane-kercheval](https://github.com/shane-kercheval)

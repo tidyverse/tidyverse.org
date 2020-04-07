@@ -203,4 +203,4 @@ We are of course grateful to _all_ of the *336* people who contributed not just 
 [Conscious uncoupling]: https://web.archive.org/web/20140326060230/http://www.goop.com/journal/be/conscious-uncoupling
 [rcmdcheck]: https://cran.r-project.org/package=rcmdcheck
 [spelling]: https://cran.r-project.org/package=spelling
-
+ 

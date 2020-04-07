@@ -203,4 +203,4 @@ df %>% mutate(across(everything(), mean, na.rm = TRUE))
 
 If you've used multiple `_if`/`_at`/`_all` functions in a row, you should also consider if it's now possible to collapse them into a single call, using the new features of `across()`.
 
-Again, you don't need to worry about these functions going away in the short-term, but it's good practice to keep your code up-to-date. Note, however, that `across()` currently has a little more overhead than the older approaches so it will be a little slower. We have a plan to improve the performance in dplyr 1.1.0.
+ Again, you don't need to worry about these functions going away in the short-term, but it's good practice to keep your code up-to-date. Note, however, that `across()` currently has a little more overhead than the older approaches so it will be a little slower. We have a plan to improve the performance in dplyr 1.1.0.

@@ -446,4 +446,4 @@ slide_period_dfr(
 
 A big thanks to some of the early adopters of slider!
 
-[&#x0040;AlanFeder](https://github.com/AlanFeder), [&#x0040;AlunHewinson](https://github.com/AlunHewinson), [&#x0040;echasnovski](https://github.com/echasnovski), [&#x0040;mik3y64](https://github.com/mik3y64), [&#x0040;perlatex](https://github.com/perlatex), and [&#x0040;RobertMyles](https://github.com/RobertMyles).
+ [&#x0040;AlanFeder](https://github.com/AlanFeder), [&#x0040;AlunHewinson](https://github.com/AlunHewinson), [&#x0040;echasnovski](https://github.com/echasnovski), [&#x0040;mik3y64](https://github.com/mik3y64), [&#x0040;perlatex](https://github.com/perlatex), and [&#x0040;RobertMyles](https://github.com/RobertMyles).

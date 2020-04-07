@@ -85,4 +85,4 @@ knitr::include_graphics(file)
 ragg is currently to be considered [experimental](https://www.tidyverse.org/lifecycle/#experimental). That is not to indicate that any API changes are to be expected, or that using it is not a safe long-term strategy. But we are continuing to invest and improve upon the graphic stack in R, and we cannot say whether ragg will be part of our final solution, or if it is just an interesting experiment. The experience gained in the graphic stack from building ragg will definitely be put to good use though, and you can expect more improvements in the future.
 
 ## Acknowledgements
-Thanks to [&#x0040;jeroen](https://github.com/jeroen) for much assistance in getting ragg to compile on all systems!
+ Thanks to [&#x0040;jeroen](https://github.com/jeroen) for much assistance in getting ragg to compile on all systems!

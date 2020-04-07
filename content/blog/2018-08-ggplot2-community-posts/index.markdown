@@ -40,4 +40,4 @@ by [Colin Fay](https://twitter.com/_ColinFay)
 ### Japanese
 * [ggplot2 3.0.0を使ってみた](https://notchained.hatenablog.com/entry/2018/05/27/190740) by [Hiroaki Yutani](https://twitter.com/yutannihilat_en)  
 * [`ggplot2::geom_sf()`を使ってみる](https://notchained.hatenablog.com/entry/2018/05/28/003910) by [Hiroaki Yutani](https://twitter.com/yutannihilat_en)  
-
+ 

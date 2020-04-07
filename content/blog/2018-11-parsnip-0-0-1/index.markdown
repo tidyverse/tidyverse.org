@@ -487,4 +487,4 @@ As an alternative, we are working on a different object type that is similar to 
 # What's next
 
 Subsequent blog posts on `parsnip` will talk about the underlying architecture and choices that we made along the line (and why). We'll also talk more about how `parsnip` integrates with other `tidymodels` packages, how quasiquotation can/should be used, and some other features that are [particularly interesting](https://tidymodels.github.io/parsnip/reference/descriptors.html) to us. 
-
+ 

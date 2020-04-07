@@ -348,4 +348,4 @@ In the `keras` example, the argument names in `nnet_spec` names match up with ob
 By avoiding evaluation in the model specification, we are enabling some interesting upcoming features. 
 
 Also, this feature will also be used with recipes and other future packages. This will enable joint optimization of parameters associated with pre-processing, model fitting, and post-processing activities.  
-
+ 

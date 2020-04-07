@@ -120,4 +120,4 @@ For more combinations, please consult the documentation and the [vignette](https
 ## Acknowledgements
 
  A big thank you goes out to the 6 people who contributed to this release:
-[&#x0040;ClaytonJY](https://github.com/ClaytonJY), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;jwijffels](https://github.com/jwijffels), [&#x0040;kanishkamisra](https://github.com/kanishkamisra), and [&#x0040;topepo](https://github.com/topepo).
+ [&#x0040;ClaytonJY](https://github.com/ClaytonJY), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;jwijffels](https://github.com/jwijffels), [&#x0040;kanishkamisra](https://github.com/kanishkamisra), and [&#x0040;topepo](https://github.com/topepo).

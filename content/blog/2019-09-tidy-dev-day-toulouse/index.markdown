@@ -50,4 +50,4 @@ Francisco, following [rstudio::conf(2020)](https://www.rstudio.com/conference/).
 We haven't yet finalized a venue, but it'll be convenient to the conference 
 location.
 
-
+ 

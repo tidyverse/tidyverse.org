@@ -128,4 +128,4 @@ For more detail, see the [Object size](https://adv-r.hadley.nz/names-values.html
 ## Memory usage
 
 [`mem_used()`](https://lobstr.r-lib.org/reference/mem_used.html) wraps around the base-R garbage collection function, [`gc()`](https://stat.ethz.ch/R-manual/R-devel/library/base/html/gc.html), and returns the exact number of bytes currently used by R. See [Unbinding and the garbage collector](https://adv-r.hadley.nz/names-values.html#gc) for details.
-
+ 

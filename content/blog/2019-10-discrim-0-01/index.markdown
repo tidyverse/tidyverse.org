@@ -328,4 +328,4 @@ roc_auc(probs_te, class, .pred_Class1)
 #>   <chr>   <chr>          <dbl>
 #> 1 roc_auc binary         0.971
 ```
-Pretty good!
+ Pretty good!

@@ -269,4 +269,4 @@ df %>%
 #> 4     2 -0.0263  0.75
 ```
 
-We prefer the new `summarise()` approach because it's concise, doesn't require learning about list-columns and unnesting, and uses a familiar syntax.
+ We prefer the new `summarise()` approach because it's concise, doesn't require learning about list-columns and unnesting, and uses a familiar syntax.

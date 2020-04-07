@@ -249,4 +249,4 @@ As always, a big thank goes to the entire community who helped make this release
 
 [mysql-window]: https://dev.mysql.com/doc/refman/8.0/en/window-functions.html
 [maria-window]: https://mariadb.com/kb/en/library/window-functions/
-[sqlite-window]: https://www.sqlite.org/windowfunctions.html
+ [sqlite-window]: https://www.sqlite.org/windowfunctions.html

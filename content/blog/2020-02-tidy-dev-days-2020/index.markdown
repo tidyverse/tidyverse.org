@@ -25,4 +25,4 @@ We will be holding our next Tidyverse developer day on **July 6th** in St. Louis
 We haven't yet finalized all the details, but it will be in the conference hotel. 
 Tickets will go on sale once the logistics are firmly in place.
 
-Please note that there will be the first ever R [Geospatial Dev Day](https://github.com/useR-stl/geospatial-dev-day) at the same time, run by the Geospatial-Track team, and led by [Angela Li](https://angela-li.github.io/)! If you work with geospatial data in R, we highly recommend that you check it out (especially if you've already been to a Tidyverse developer day).
+ Please note that there will be the first ever R [Geospatial Dev Day](https://github.com/useR-stl/geospatial-dev-day) at the same time, run by the Geospatial-Track team, and led by [Angela Li](https://angela-li.github.io/)! If you work with geospatial data in R, we highly recommend that you check it out (especially if you've already been to a Tidyverse developer day).

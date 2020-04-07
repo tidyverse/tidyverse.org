@@ -219,4 +219,4 @@ Together these three functions form a family of functions for working with colum
 * `relocate()` to changes position.
 
 It's interesting to think about how these compare to their row-based equivalents:
-`select()` is analogous to `filter()`, and `relocate()` to `arrange()`. There there's no row-wise equivalent to `rename()` because in the tidyverse rows don't have names.
+ `select()` is analogous to `filter()`, and `relocate()` to `arrange()`. There there's no row-wise equivalent to `rename()` because in the tidyverse rows don't have names.

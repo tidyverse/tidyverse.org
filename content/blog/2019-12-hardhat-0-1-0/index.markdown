@@ -221,4 +221,4 @@ There are 3 key vignettes for hardhat.
 
 - [Forging data for predictions](https://tidymodels.github.io/hardhat/articles/forge.html)
 
-There is also a video of Max Kuhn speaking about hardhat at the [XI Jornadas de Usuarios de R conference](https://canal.uned.es/video/5dd25b9f5578f275e407dd88).
+ There is also a video of Max Kuhn speaking about hardhat at the [XI Jornadas de Usuarios de R conference](https://canal.uned.es/video/5dd25b9f5578f275e407dd88).

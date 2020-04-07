@@ -188,4 +188,4 @@ The tensorflow function [`step_embed()`](https://tidymodels.github.io/embed/refe
 
 ## **tidymodels**
 
-We added [`parsnip`](https://tidymodels.github.io/parsnip/) and [`dials`](https://tidymodels.github.io/dials/) to the core set of packages and bumped all packages up to their current versions. 
+ We added [`parsnip`](https://tidymodels.github.io/parsnip/) and [`dials`](https://tidymodels.github.io/dials/) to the core set of packages and bumped all packages up to their current versions. 

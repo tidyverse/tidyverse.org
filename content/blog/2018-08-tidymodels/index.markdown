@@ -60,4 +60,4 @@ The number of tidyverse modeling package continues to grow. Some packages on the
 
 Keep an eye on the [tidymodels organization page](https://github.com/tidymodels) for up-to-date information. 
  
-
+ 
