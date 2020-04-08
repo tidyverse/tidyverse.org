@@ -25,7 +25,7 @@ Learn more about the tidyverse package at <https://tidyverse.tidyverse.org>.
       <h3><a href="https://ggplot2.tidyverse.org/">ggplot2</a></h3>
       <p>ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details. <a href="https://ggplot2.tidyverse.org/" aria-hidden="true">Learn more ...</a></p>
 
-    </div>
+  </div>
   </div>
   <div class="package">
     <img class="package-image" src="/images/hex-dplyr.png" alt=""></img>
