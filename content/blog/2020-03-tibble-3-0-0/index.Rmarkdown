@@ -97,9 +97,13 @@ Please also add it to my [Awesome vectors](https://github.com/krlmlr/awesome-vct
 Data frames and matrices are also recognized vectors, and can be part of a tibble:
 
 ```{r two-d}
-vec_is(iris)
-vec_is(VADeaths)
-tibble(VADeaths)
+df <- data.frame(a = 1:3, b = 2:4)
+m <- matrix(1:6, ncol = 3)
+
+vec_is(df)
+vec_is(m)
+tibble(packed = df)
+tibble(m)
 ```
 
 The "elements" of a data frame or matrix are its rows.
@@ -110,15 +114,15 @@ For these and a few types, length and size are different: the length refers to t
 The [`vec_size()`](https://vctrs.r-lib.org/reference/vec_size.html) function, modeled after `NROW()`, returns the latter:
 
 ```{r two-d-size}
-vec_size(iris)
-length(iris)
+vec_size(df)
+length(df)
 
-vec_size(VADeaths)
-length(VADeaths)
+vec_size(m)
+length(m)
 ```
 
 For your own code, it is almost always safer to use `vec_size()` instead of `length()`.
-Use `ncol()` to count the number of columns in a data frame.
+Use `ncol()` to count the columns in a data frame.
 
 
 ## Sturdy recycling
@@ -126,7 +130,7 @@ Use `ncol()` to count the number of columns in a data frame.
 We always recycled only vectors of size one in `tibble()` and `as_tibble()`.
 This now also applies to subassignment.
 We believe that most of the time this is an unintended error.
-Please use an explicit `rep()` if you really need to store a vector repeated multiple times in a column.
+Please use an explicit `rep()` if you really need to create a column that consists of multiple repetitions of a vector.
 
 ```{r recycle}
 x <- tibble(a = 1:4)
@@ -171,6 +175,6 @@ Many thanks to the maintainers of downstream packages who were very helpful in m
 
 Thanks to the following contributors who sent issues, pull requests, and comments since tibble 2.1.3:
 
-[&#x0040;adamdsmith](https://github.com/adamdsmith), [&#x0040;alankjackson](https://github.com/alankjackson), [&#x0040;anabbott](https://github.com/anabbott), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;borisleto](https://github.com/borisleto), [&#x0040;Breza](https://github.com/Breza), [&#x0040;Cervangirard](https://github.com/Cervangirard), [&#x0040;courtiol](https://github.com/courtiol), [&#x0040;dan-reznik](https://github.com/dan-reznik), [&#x0040;daviddalpiaz](https://github.com/daviddalpiaz), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;elinw](https://github.com/elinw), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;eran3006](https://github.com/eran3006), [&#x0040;frederikziebell](https://github.com/frederikziebell), [&#x0040;gavinsimpson](https://github.com/gavinsimpson), [&#x0040;gdequeiroz](https://github.com/gdequeiroz), [&#x0040;guiastrennec](https://github.com/guiastrennec), [&#x0040;hadley](https://github.com/hadley), [&#x0040;HashRocketSyntax](https://github.com/HashRocketSyntax), [&#x0040;hope-data-science](https://github.com/hope-data-science), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jmgirard](https://github.com/jmgirard), [&#x0040;kevinwolz](https://github.com/kevinwolz), [&#x0040;kieranjmartin](https://github.com/kieranjmartin), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;LudvigOlsen](https://github.com/LudvigOlsen), [&#x0040;mabafaba](https://github.com/mabafaba), [&#x0040;matteodefelice](https://github.com/matteodefelice), [&#x0040;MatthieuStigler](https://github.com/MatthieuStigler), [&#x0040;md0u80c9](https://github.com/md0u80c9), [&#x0040;michaelquinn32](https://github.com/michaelquinn32), [&#x0040;mitchelloharawild](https://github.com/mitchelloharawild), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;msberends](https://github.com/msberends), [&#x0040;pavopax](https://github.com/pavopax), [&#x0040;rbjanis](https://github.com/rbjanis), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rvg02010](https://github.com/rvg02010), [&#x0040;sfirke](https://github.com/sfirke), [&#x0040;Shians](https://github.com/Shians), [&#x0040;ShixiangWang](https://github.com/ShixiangWang), [&#x0040;stephensrmmartin](https://github.com/stephensrmmartin), [&#x0040;stufield](https://github.com/stufield), [&#x0040;Tazinho](https://github.com/Tazinho), [&#x0040;TimTeaFan](https://github.com/TimTeaFan), [&#x0040;tyluRp](https://github.com/tyluRp), [&#x0040;wgrundlingh](https://github.com/wgrundlingh), [&#x0040;xvrdm](https://github.com/xvrdm), [&#x0040;yannabraham](https://github.com/yannabraham), [&#x0040;ycroissant](https://github.com/ycroissant), [&#x0040;yogat3ch](https://github.com/yogat3ch), and [&#x0040;yutannihilation](https://github.com/yutannihilation).
+[&#x0040;adamdsmith](https://github.com/adamdsmith), [&#x0040;alankjackson](https://github.com/alankjackson), [&#x0040;anabbott](https://github.com/anabbott), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;borisleto](https://github.com/borisleto), [&#x0040;Breza](https://github.com/Breza), [&#x0040;Cervangirard](https://github.com/Cervangirard), [&#x0040;courtiol](https://github.com/courtiol), [&#x0040;dan-reznik](https://github.com/dan-reznik), [&#x0040;daviddalpiaz](https://github.com/daviddalpiaz), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;elinw](https://github.com/elinw), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;eran3006](https://github.com/eran3006), [&#x0040;frederikziebell](https://github.com/frederikziebell), [&#x0040;gavinsimpson](https://github.com/gavinsimpson), [&#x0040;gdequeiroz](https://github.com/gdequeiroz), [&#x0040;guiastrennec](https://github.com/guiastrennec), [&#x0040;hadley](https://github.com/hadley), [&#x0040;HashRocketSyntax](https://github.com/HashRocketSyntax), [&#x0040;hope-data-science](https://github.com/hope-data-science), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jmgirard](https://github.com/jmgirard), [&#x0040;kevinwolz](https://github.com/kevinwolz), [&#x0040;kieranjmartin](https://github.com/kieranjmartin), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;LudvigOlsen](https://github.com/LudvigOlsen), [&#x0040;mabafaba](https://github.com/mabafaba), [&#x0040;matteodefelice](https://github.com/matteodefelice), [&#x0040;MatthieuStigler](https://github.com/MatthieuStigler), [&#x0040;md0u80c9](https://github.com/md0u80c9), [&#x0040;michaelquinn32](https://github.com/michaelquinn32), [&#x0040;mitchelloharawild](https://github.com/mitchelloharawild), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;msberends](https://github.com/msberends), [&#x0040;pavopax](https://github.com/pavopax), [&#x0040;rbjanis](https://github.com/rbjanis), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rvg02010](https://github.com/rvg02010), [&#x0040;sfirke](https://github.com/sfirke), [&#x0040;Shians](https://github.com/Shians), [&#x0040;ShixiangWang](https://github.com/ShixiangWang), [&#x0040;stephensrmmartin](https://github.com/stephensrmmartin), [&#x0040;stufield](https://github.com/stufield), [&#x0040;Tazinho](https://github.com/Tazinho), [&#x0040;TimTeaFan](https://github.com/TimTeaFan), [&#x0040;tyluRp](https://github.com/tyluRp), [&#x0040;wgrundlingh](https://github.com/wgrundlingh), [&#x0040;xvrdm](https://github.com/xvrdm), [&#x0040;yannabraham](https://github.com/yannabraham), [&#x0040;ycroissant](https://github.com/ycroissant), [&#x0040;yogat3ch](https://github.com/yogat3ch), and [&#x0040;yutannihilation](https://github.com/yutannihilation).
 
 Your contributions are very valuable and important to us!

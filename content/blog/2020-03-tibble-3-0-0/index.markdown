@@ -82,7 +82,7 @@ tibble(time)
 #> # A tibble: 1 x 1
 #>   time               
 #>   <dttm>             
-#> 1 2020-03-31 06:34:44
+#> 1 2020-04-09 20:34:35
 ```
 
 The new [`tibble_row()`](https://tibble.tidyverse.org/reference/tibble.html) function reverses this: inherent scalars are wrapped in lists:
@@ -98,7 +98,7 @@ tibble_row(time)
 #> # A tibble: 1 x 1
 #>   time               
 #>   <dttm>             
-#> 1 2020-03-31 06:34:44
+#> 1 2020-04-09 20:34:35
 tibble_row(time = rep(time, 2))
 #> Error: All vectors must be size one, use `list()` to wrap.
 #> x Column `time` is of size 2.
@@ -114,19 +114,26 @@ Data frames and matrices are also recognized vectors, and can be part of a tibbl
 
 
 ```r
-vec_is(iris)
+df <- data.frame(a = 1:3, b = 2:4)
+m <- matrix(1:6, ncol = 3)
+
+vec_is(df)
 #> [1] TRUE
-vec_is(VADeaths)
+vec_is(m)
 #> [1] TRUE
-tibble(VADeaths)
-#> # A tibble: 5 x 1
-#>   VADeaths[,"Rural Male"] [,"Rural Female"] [,"Urban Male"] [,"Urban Female"]
-#>                     <dbl>             <dbl>           <dbl>             <dbl>
-#> 1                    11.7               8.7            15.4               8.4
-#> 2                    18.1              11.7            24.3              13.6
-#> 3                    26.9              20.3            37                19.3
-#> 4                    41                30.9            54.6              35.1
-#> 5                    66                54.3            71.1              50
+tibble(packed = df)
+#> # A tibble: 3 x 1
+#>   packed$a    $b
+#>      <int> <int>
+#> 1        1     2
+#> 2        2     3
+#> 3        3     4
+tibble(m)
+#> # A tibble: 2 x 1
+#>   m[,1]  [,2]  [,3]
+#>   <int> <int> <int>
+#> 1     1     3     5
+#> 2     2     4     6
 ```
 
 The "elements" of a data frame or matrix are its rows.
@@ -138,19 +145,19 @@ The [`vec_size()`](https://vctrs.r-lib.org/reference/vec_size.html) function, mo
 
 
 ```r
-vec_size(iris)
-#> [1] 150
-length(iris)
-#> [1] 5
+vec_size(df)
+#> [1] 3
+length(df)
+#> [1] 2
 
-vec_size(VADeaths)
-#> [1] 5
-length(VADeaths)
-#> [1] 20
+vec_size(m)
+#> [1] 2
+length(m)
+#> [1] 6
 ```
 
 For your own code, it is almost always safer to use `vec_size()` instead of `length()`.
-Use `ncol()` to count the number of columns in a data frame.
+Use `ncol()` to count the columns in a data frame.
 
 
 ## Sturdy recycling
@@ -158,7 +165,7 @@ Use `ncol()` to count the number of columns in a data frame.
 We always recycled only vectors of size one in `tibble()` and `as_tibble()`.
 This now also applies to subassignment.
 We believe that most of the time this is an unintended error.
-Please use an explicit `rep()` if you really need to store a vector repeated multiple times in a column.
+Please use an explicit `rep()` if you really need to create a column that consists of multiple repetitions of a vector.
 
 
 ```r
@@ -236,6 +243,6 @@ Many thanks to the maintainers of downstream packages who were very helpful in m
 
 Thanks to the following contributors who sent issues, pull requests, and comments since tibble 2.1.3:
 
-[&#x0040;adamdsmith](https://github.com/adamdsmith), [&#x0040;alankjackson](https://github.com/alankjackson), [&#x0040;anabbott](https://github.com/anabbott), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;borisleto](https://github.com/borisleto), [&#x0040;Breza](https://github.com/Breza), [&#x0040;Cervangirard](https://github.com/Cervangirard), [&#x0040;courtiol](https://github.com/courtiol), [&#x0040;dan-reznik](https://github.com/dan-reznik), [&#x0040;daviddalpiaz](https://github.com/daviddalpiaz), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;elinw](https://github.com/elinw), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;eran3006](https://github.com/eran3006), [&#x0040;frederikziebell](https://github.com/frederikziebell), [&#x0040;gavinsimpson](https://github.com/gavinsimpson), [&#x0040;gdequeiroz](https://github.com/gdequeiroz), [&#x0040;guiastrennec](https://github.com/guiastrennec), [&#x0040;hadley](https://github.com/hadley), [&#x0040;HashRocketSyntax](https://github.com/HashRocketSyntax), [&#x0040;hope-data-science](https://github.com/hope-data-science), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jmgirard](https://github.com/jmgirard), [&#x0040;kevinwolz](https://github.com/kevinwolz), [&#x0040;kieranjmartin](https://github.com/kieranjmartin), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;LudvigOlsen](https://github.com/LudvigOlsen), [&#x0040;mabafaba](https://github.com/mabafaba), [&#x0040;matteodefelice](https://github.com/matteodefelice), [&#x0040;MatthieuStigler](https://github.com/MatthieuStigler), [&#x0040;md0u80c9](https://github.com/md0u80c9), [&#x0040;michaelquinn32](https://github.com/michaelquinn32), [&#x0040;mitchelloharawild](https://github.com/mitchelloharawild), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;msberends](https://github.com/msberends), [&#x0040;pavopax](https://github.com/pavopax), [&#x0040;rbjanis](https://github.com/rbjanis), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rvg02010](https://github.com/rvg02010), [&#x0040;sfirke](https://github.com/sfirke), [&#x0040;Shians](https://github.com/Shians), [&#x0040;ShixiangWang](https://github.com/ShixiangWang), [&#x0040;stephensrmmartin](https://github.com/stephensrmmartin), [&#x0040;stufield](https://github.com/stufield), [&#x0040;Tazinho](https://github.com/Tazinho), [&#x0040;TimTeaFan](https://github.com/TimTeaFan), [&#x0040;tyluRp](https://github.com/tyluRp), [&#x0040;wgrundlingh](https://github.com/wgrundlingh), [&#x0040;xvrdm](https://github.com/xvrdm), [&#x0040;yannabraham](https://github.com/yannabraham), [&#x0040;ycroissant](https://github.com/ycroissant), [&#x0040;yogat3ch](https://github.com/yogat3ch), and [&#x0040;yutannihilation](https://github.com/yutannihilation).
+[&#x0040;adamdsmith](https://github.com/adamdsmith), [&#x0040;alankjackson](https://github.com/alankjackson), [&#x0040;anabbott](https://github.com/anabbott), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;borisleto](https://github.com/borisleto), [&#x0040;Breza](https://github.com/Breza), [&#x0040;Cervangirard](https://github.com/Cervangirard), [&#x0040;courtiol](https://github.com/courtiol), [&#x0040;dan-reznik](https://github.com/dan-reznik), [&#x0040;daviddalpiaz](https://github.com/daviddalpiaz), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;elinw](https://github.com/elinw), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;eran3006](https://github.com/eran3006), [&#x0040;frederikziebell](https://github.com/frederikziebell), [&#x0040;gavinsimpson](https://github.com/gavinsimpson), [&#x0040;gdequeiroz](https://github.com/gdequeiroz), [&#x0040;guiastrennec](https://github.com/guiastrennec), [&#x0040;hadley](https://github.com/hadley), [&#x0040;HashRocketSyntax](https://github.com/HashRocketSyntax), [&#x0040;hope-data-science](https://github.com/hope-data-science), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jmgirard](https://github.com/jmgirard), [&#x0040;kevinwolz](https://github.com/kevinwolz), [&#x0040;kieranjmartin](https://github.com/kieranjmartin), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;LudvigOlsen](https://github.com/LudvigOlsen), [&#x0040;mabafaba](https://github.com/mabafaba), [&#x0040;matteodefelice](https://github.com/matteodefelice), [&#x0040;MatthieuStigler](https://github.com/MatthieuStigler), [&#x0040;md0u80c9](https://github.com/md0u80c9), [&#x0040;michaelquinn32](https://github.com/michaelquinn32), [&#x0040;mitchelloharawild](https://github.com/mitchelloharawild), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;msberends](https://github.com/msberends), [&#x0040;pavopax](https://github.com/pavopax), [&#x0040;rbjanis](https://github.com/rbjanis), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rvg02010](https://github.com/rvg02010), [&#x0040;sfirke](https://github.com/sfirke), [&#x0040;Shians](https://github.com/Shians), [&#x0040;ShixiangWang](https://github.com/ShixiangWang), [&#x0040;stephensrmmartin](https://github.com/stephensrmmartin), [&#x0040;stufield](https://github.com/stufield), [&#x0040;Tazinho](https://github.com/Tazinho), [&#x0040;TimTeaFan](https://github.com/TimTeaFan), [&#x0040;tyluRp](https://github.com/tyluRp), [&#x0040;wgrundlingh](https://github.com/wgrundlingh), [&#x0040;xvrdm](https://github.com/xvrdm), [&#x0040;yannabraham](https://github.com/yannabraham), [&#x0040;ycroissant](https://github.com/ycroissant), [&#x0040;yogat3ch](https://github.com/yogat3ch), and [&#x0040;yutannihilation](https://github.com/yutannihilation).
 
 Your contributions are very valuable and important to us!
