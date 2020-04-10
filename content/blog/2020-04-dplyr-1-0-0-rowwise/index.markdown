@@ -41,7 +41,7 @@ library(dplyr, warn.conflicts = FALSE)
 
 ## Basic operation
 
-`rowwise()` works like `group_by()` in the sense that it doesn't change what the data looks like; it changes how dplyr verbs operate on it. Let's see how this works with a simple example. Here I have some imaginary test results for students in a class:
+`rowwise()` works like `group_by()` in the sense that it doesn't change what the data looks like; it changes how dplyr verbs operate on the data. Let's see how this works with a simple example. Here I have some imaginary test results for students in a class:
 
 
 ```r
@@ -62,7 +62,7 @@ df
 #> 4          4    13    23    33    43
 ```
 
-It'd like to be able to compute the mean of the test scores for each student, but `mutate()` and `mean()` do what I want:
+I'd like to be able to compute the mean of the test scores for each student, but `mutate()` and `mean()` don't do what I want:
 
 
 ```r
@@ -76,14 +76,14 @@ df %>% mutate(avg = mean(c(test1, test2, test3, test4)))
 #> 4          4    13    23    33    43  26.5
 ```
 
-The problem is that I'm getting a mean over the whole data frame, not for each student. I can resolve this problem a get a mean for each student by creating create a "row-wise" data frame with `rowwise()`:
+The problem is that I'm getting a mean over the whole data frame, not for each student. I can resolve this problem of getting a mean for each student by creating a "row-wise" data frame with `rowwise()`:
 
 
 ```r
 rf <- rowwise(df, student_id)
 ```
 
-`rowwise()` doesn't need any additional arguments unless you have variables that identify the rows, like `student_id` here. Much like grouping variables, they will be automatically preserved when you `summarise()` the data.
+`rowwise()` doesn't need any additional arguments unless you have variables that identify the rows, like `student_id` here. Much like grouping variables, identifier variables will be automatically preserved when you `summarise()` the data.
 
 
 ```r
@@ -112,7 +112,7 @@ rf %>% mutate(avg = mean(c(test1, test2, test3, test4)))
 #> 3          3    12    22    32    42    27
 #> 4          4    13    23    33    43    28
 ```
-An additional advantage of `rowwise()` is that it's paired with `c_across()`, which works like `c()` but uses the same tidyselect syntax as `across()`. That makes it easy to operate on multiple variables:
+An additional advantage of `rowwise()` is that it's paired with [`c_across()`](https://dplyr.tidyverse.org/dev/reference/across.html), which works like `c()` but uses the same tidyselect syntax as `across()`. That makes it easy to operate on multiple variables:
 
 
 ```r
@@ -128,7 +128,7 @@ rf %>% mutate(avg = mean(c_across(starts_with("test"))))
 ```
 ### Other ways of achieving the same result
 
-Some summary functions have alternative ways to compute row-wise summaries that take advantage of built-in vectorisation. For example, if you wanted to compute the sum, you could use `+`:
+Some summary functions have alternative ways of computing row-wise summaries that take advantage of built-in vectorisation. For example, if you wanted to compute the sum, you could use `+`:
 
 
 ```r
@@ -179,7 +179,7 @@ Where these functions exist, they'll usually be faster than `rowwise()`. The adv
 
 `rowwise()` is useful for computing simple summaries, but its real power comes when you use it with list-columns. Because lists can contain anything, you can use list-columns to keep related objects together, regardless of what type of thing they are. List-columns give you a convenient storage mechanism and `rowwise()` gives you a convenient computation mechanism.
 
-Let's make those ideas concrete by creating a data frame a list-column. A little later, we'll come back to how you might actually get a list-column in a more realistic situation. The following data frame uses list columns to store things that would otherwise be challenging:
+Let's make those ideas concrete by creating a data frame with a list-column. A little later, we'll come back to how you might actually get a list-column in a more realistic situation. The following data frame uses list columns to store things that would otherwise be challenging:
 
 * `x` contains vectors of different lengths.
 * `y` contains vectors of different types
@@ -221,7 +221,7 @@ df %>%
 #> 3        3 character   1.58
 ```
 
-This makes a row-wise `mutate()` or `summarise()` a general vectorisation tool, in the same way as the apply family in base R or the map family in purrr. It's now much simpler to solve a number of problems where we previously recommended learning about `map()`, `map2()`, `pmap()` and friends.
+This makes a row-wise `mutate()` or `summarise()` a general vectorisation tool, in the same way as the apply family in base R or the map family in purrr do. It's now much simpler to solve a number of problems where we previously recommended learning about `map()`, `map2()`, `pmap()` and friends.
 
 ## Use cases
 
@@ -268,22 +268,22 @@ df %>%
 #> # Rowwise:  id
 #>      id       x
 #>   <dbl>   <dbl>
-#> 1     1   0.125
-#> 2     1   0.567
-#> 3     1   0.909
-#> 4     2  31.8  
-#> 5     2  54.9  
-#> 6     3 110.   
-#> 7     3 742.
+#> 1     1   0.953
+#> 2     1   0.146
+#> 3     1   0.782
+#> 4     2  54.2  
+#> 5     2  65.8  
+#> 6     3 208.   
+#> 7     3 137.
 ```
 
 Note that `id` is preserved in the output here because we defined it as an identifier variable in the call to `rowwise()`.
 
-[`vignette("rowwise")`](https://dplyr.tidyverse.org/dev/articles/rowwise.html#repeated-function-calls-1) expands on this idea to show you can generate parameter grids and vary the random distribution used in each row.
+[`vignette("rowwise")`](https://dplyr.tidyverse.org/dev/articles/rowwise.html#repeated-function-calls-1) expands on this idea to show how you can generate parameter grids and vary the random distribution used in each row.
 
 ### Group-wise models
 
-The new `nest_by()` function works similarly to `group_by()` but instead of storing the grouping data as metadata, visibly changes the structure. Now we have three rows (one for each group), and we have a list-col, `data`, that stores the data for that group. Also note that the output is a `rowwise()`; this is important because it’s going to make working with that list of data frames much easier.
+The new `nest_by()` function works similarly to `group_by()` but instead of storing the grouping data as metadata, visibly changes the structure. Now we have three rows (one for each group), and we have a list-col, `data`, that stores the data for that group. Also note that the output is a `rowwise()` object; this is important because it’s going to make working with that list of data frames much easier.
 
 
 ```r
@@ -341,4 +341,3 @@ by_cyl %>% summarise(broom::tidy(model))
 #> 5     8 (Intercept)    23.9      3.01       7.94 0.00000405
 #> 6     8 wt             -2.19     0.739     -2.97 0.0118
 ```
-
