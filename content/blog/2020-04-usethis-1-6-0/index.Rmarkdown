@@ -27,13 +27,13 @@ This blog post discusses three sets of improvements to usethis:
 
 * New helpers for using GitHub Actions for continuous integration. If you're an 
   R package developer who uses GitHub, we recommend moving away from Travis and
-  Appveyor in favour of GitHub Actions.
+  AppVeyor in favour of GitHub Actions.
   
 * We've made a number of small tweaks to `create_package()` in order to reduce
-  inconsistencies during the initial startup phase of a package.
+  inessential friction in the initial startup phase of a package.
   
 * We've continued to polish our tools for contributing to other people's
-  packages.
+  packages through GitHub pull requests.
   
 This release also includes a handful of new functions (my favourite is [`rename_file()`](https://usethis.r-lib.org/reference/rename_files.html)), many bug fixes, and lots of small improvements. We're slowly grinding down the rough edges, so usethis just works in more cases, and when it fails, it's more likely to give you error messages that help you quickly figure out the problem. As usual, you can find detailed notes about all these changes in the [change log](https://usethis.r-lib.org/news/index.html).
 
@@ -41,28 +41,29 @@ This release also includes a handful of new functions (my favourite is [`rename_
 
 [GitHub Actions](https://github.com/features/actions) is a continuous integration service that allows you to automatically run code whenever you push to GitHub. If you're developing a package this allows you to automate tasks like:
 
-* Run `R CMD check` on multiple platforms (Linux, Windows, and Mac). 
+* Run `R CMD check` on multiple platforms (Linux, Windows, and Mac) and
+  different versions of R (e.g., devel, release, oldrel).
 * Record the code coverage of your unit tests.
 * Re-build your [pkgdown](https://pkgdown.r-lib.org/) website.
 
-Outside of a package, you can also use them to rebuild [blogdown](https://github.com/r-lib/actions/blob/master/examples/blogdown.yaml) and [bookdown](https://github.com/r-lib/actions/blob/master/examples/bookdown.yaml) sites, or regularly re-knit `.Rmd` files. 
+Outside of a package, you can also use GitHub Actions to rebuild [blogdown](https://github.com/r-lib/actions/blob/master/examples/blogdown.yaml) and [bookdown](https://github.com/r-lib/actions/blob/master/examples/bookdown.yaml) sites, or regularly re-knit `.Rmd` files. 
 
-A GitHub action is just a yaml file stored in `.github/workflows`, and we bundle a number of helpers to create these files:
+Each GitHub Actions *workflow* is described in a yaml file stored in the `.github/workflows` directory of your repository. usethis v1.6.0 introduces new helper functions to create these files:
 
-* [`use_github_action("check-standard")`](https://github.com/r-lib/actions/blob/master/examples/check-standard.yaml) runs R CMD check on the latest
-  R release on Linux, Windows, and Mac, and R-devel on the mac. This ensures
+* [`use_github_action("check-standard")`](https://github.com/r-lib/actions/blob/master/examples/check-standard.yaml) runs `R CMD check` on the latest
+  R release on Linux, Windows, and macOS, and R-devel on macOS. This ensures
   that your package works on all major operating systems, and alerts you to
   any potential problems in the next version of R.
 
 * [`use_github_action("test-coverage")`](https://github.com/r-lib/actions/blob/master/examples/test-coverage.yaml) 
-  uses [covr](http://covr.r-lib.org/) to measure the test coverage of your site 
+  uses [covr](http://covr.r-lib.org/) to measure the test coverage of your package 
   and publishes it to <http://codecov.io/>.
   
 * [`use_github_action("pkgdown")`](https://github.com/r-lib/actions/blob/master/examples/pkgdown.yaml)
   uses [pkgdown](https://pkgdown.r-lib.org/) to build your package website and 
   publishes it to the `gh-pages` branch.
 
-You can see other examples at <https://github.com/r-lib/actions/tree/master/examples>. The files in this directory are templates that you can easily get into your package by running `use_github_action("name")`. We encourage you to look at the `.yaml` files that these functions create and customise them to meet your needs.
+You can see examples of other workflows at <https://github.com/r-lib/actions/tree/master/examples>. The files in this directory are templates that you can easily copy into your package by running `use_github_action("name")`. We encourage you to look at the `.yaml` files that these functions create and customise them to meet your needs.
 
 Compared to Travis-CI, GitHub Actions:
 
