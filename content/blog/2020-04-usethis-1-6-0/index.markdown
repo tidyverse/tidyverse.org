@@ -1,7 +1,7 @@
 ---
 title: usethis 1.6.0
 author: Hadley Wickham
-date: '2020-04-06'
+date: '2020-04-11'
 slug: usethis-1-6-0
 categories:
   - package
