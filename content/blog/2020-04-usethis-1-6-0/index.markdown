@@ -101,8 +101,10 @@ We made a couple of small changes to ease other minor frustrations:
     on the same package.
   
 *   The `usethis.description` option now lets you set `Authors@R = person()` 
-    directly, without having to wrap in it in quote marks. For example,
-    in my `.Rprofile` I used to have:
+    directly. That is, you can make an actual call to `person()` as opposed
+    to writing a *string* that, when evaluated as code, returns a `person()`.
+    This makes it less aggravating to detect and correct any mistakes. For
+    example, in my `.Rprofile` I used to have:
     
     
     ```r
@@ -116,16 +118,20 @@ We made a couple of small changes to ease other minor frustrations:
     
     ```r
     options(usethis.description = list(
-      `Authors@R` = utils::person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre"))
+      `Authors@R` = utils::person(
+        "Hadley", "Wickham", , "hadley@rstudio.com",
+        role = c("aut", "cre")
+      )
     ))
     ```
       
     As you can see from the syntax highlighting, it's now much easier to see if 
-    you all the quotes and commas in the right place.
+    you've got all the quotes and commas in the right place. When you do this in
+    `.Rprofile`, note that you **must** call it as `utils::person()`.
 
-## Contributing to packages
+## Contributing to packages via GitHub pull requests
 
-Based on our experiences at [tidyverse developer day](https://www.tidyverse.org/blog/2019/11/tidyverse-dev-day-2020/), we've tweaked the behaviour of usethis to ensure that new files have the same line ending as the rest of the project. We've also continued to polish our family of pull request helpers to reduce common problems. And thanks to [Mine Cetinkaya-Rundel]() we now have an article that [explains the overall workflow](https://usethis.r-lib.org/articles/articles/pr-functions.html).
+Based on our experiences at [tidyverse developer day](https://www.tidyverse.org/blog/2019/11/tidyverse-dev-day-2020/), we've tweaked the behaviour of usethis to ensure that new files have the same line ending as the rest of the project. We've also continued to polish our family of pull request helpers to work in more real-world situations. And, thanks to [Mine Cetinkaya-Rundel](http://www2.stat.duke.edu/~mc301/), we now have an article that [explains the overall workflow](https://usethis.r-lib.org/articles/articles/pr-functions.html).
 
 ## Thank you!
 
