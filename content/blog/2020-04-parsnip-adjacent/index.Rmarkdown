@@ -100,10 +100,10 @@ pls_fit <-
   set_engine("mixOmics") %>% 
   set_mode("regression") %>% 
   fit_xy(
-    x = meats %>% select(-protein, fat, water) %>% slice(-(1:5)),
-    y = meats %>% select(protein, fat, water) %>% slice(-(1:5))
+    x = meats %>% select(-protein, -fat, -water) %>% slice(-(1:5)),
+    y = meats %>% select( protein,  fat,  water) %>% slice(-(1:5))
   )
-predict(pls_fit, meats %>% select(-protein, fat, water) %>% slice(1:5))
+predict(pls_fit, meats %>% select(-protein, -fat, -water) %>% slice(1:5))
 ```
 
 This model used 5 PLS components for each of the outcomes. The use of `num_terms` enables effect _sparsity_ where the 20 most influential predictors (out of 100) are used for each of the 5 PLS components. Different predictors can be used for each component. While this is not feature selection, it does offer the possibility of simpler models than ordinary PLS techniques.

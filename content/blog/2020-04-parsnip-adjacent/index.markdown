@@ -53,7 +53,7 @@ bag_cars <-
 bag_cars
 #> parsnip model object
 #> 
-#> Fit time:  4.7s 
+#> Fit time:  4.6s 
 #> Bagged CART (regression with 25 members)
 #> 
 #> Variable importance scores include:
@@ -121,7 +121,7 @@ poisson_reg() %>%
   fit(art ~ . | phd, data = bioChemists)
 #> parsnip model object
 #> 
-#> Fit time:  20ms 
+#> Fit time:  21ms 
 #> 
 #> Call:
 #> pscl::hurdle(formula = formula, data = data)
@@ -152,18 +152,18 @@ pls_fit <-
   set_engine("mixOmics") %>% 
   set_mode("regression") %>% 
   fit_xy(
-    x = meats %>% select(-protein, fat, water) %>% slice(-(1:5)),
-    y = meats %>% select(protein, fat, water) %>% slice(-(1:5))
+    x = meats %>% select(-protein, -fat, -water) %>% slice(-(1:5)),
+    y = meats %>% select( protein,  fat,  water) %>% slice(-(1:5))
   )
-predict(pls_fit, meats %>% select(-protein, fat, water) %>% slice(1:5))
+predict(pls_fit, meats %>% select(-protein, -fat, -water) %>% slice(1:5))
 #> # A tibble: 5 x 3
 #>   .pred_protein .pred_fat .pred_water
 #>           <dbl>     <dbl>       <dbl>
-#> 1          16.3     22.4         60.6
-#> 2          14.0     40.0         46.1
-#> 3          20.2      8.52        70.9
-#> 4          20.7      5.90        72.8
-#> 5          15.1     25.4         58.4
+#> 1          16.5     19.3         62.7
+#> 2          14.5     36.7         48.4
+#> 3          20.2     10.9         69.1
+#> 4          20.0      7.21        72.3
+#> 5          15.6     23.0         59.7
 ```
 
 This model used 5 PLS components for each of the outcomes. The use of `num_terms` enables effect _sparsity_ where the 20 most influential predictors (out of 100) are used for each of the 5 PLS components. Different predictors can be used for each component. While this is not feature selection, it does offer the possibility of simpler models than ordinary PLS techniques.
