@@ -1,4 +1,4 @@
-```yaml
+---
 title: New parsnip-adjacent packages
 slug: parsnip-adjacent
 description: >
@@ -9,7 +9,7 @@ photo:
   url: https://unsplash.com/photos/bph0kUmAoXc
   author: Mae Mu
 categories: [package]
-```
+---
 
 
 
@@ -53,7 +53,7 @@ bag_cars <-
 bag_cars
 #> parsnip model object
 #> 
-#> Fit time:  4.5s 
+#> Fit time:  4.7s 
 #> Bagged CART (regression with 25 members)
 #> 
 #> Variable importance scores include:
@@ -121,7 +121,7 @@ poisson_reg() %>%
   fit(art ~ . | phd, data = bioChemists)
 #> parsnip model object
 #> 
-#> Fit time:  19ms 
+#> Fit time:  20ms 
 #> 
 #> Call:
 #> pscl::hurdle(formula = formula, data = data)
@@ -172,5 +172,5 @@ This model used 5 PLS components for each of the outcomes. The use of `num_terms
 
 Each of these models come fully enables to be used with the tune package; their model parameters can be optimized for performance. 
 
-There are one or two other parsnip-adjacent packages that are around the corner. One is for mixed- and hierarchical models and another is for rule-based machine learning models (e.g. cubist, RuleFit, etc.).
+There are one or two other parsnip-adjacent packages that are around the corner. One is for mixed- and hierarchical models and another is for rule-based machine learning models (e.g. cubist, RuleFit, etc.) currently on GitHub in the [rules repo](https://github.com/tidymodels/rules). 
 
