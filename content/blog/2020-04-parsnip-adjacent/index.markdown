@@ -2,13 +2,19 @@
 title: New parsnip-adjacent packages
 slug: parsnip-adjacent
 description: >
-    Three new tidymodels pacakges for building models were just released on CRAN.
+    Three new tidymodels packages, baguette, poissonreg, and plsmod, were just released on CRAN.
 date: 2020-04-15
 author: Max Kuhn
 photo:
   url: https://unsplash.com/photos/bph0kUmAoXc
   author: Mae Mu
 categories: [package]
+tags:
+  - tidymodels
+  - baguette
+  - poissonreg
+  - plsmod
+  - parsnip
 ---
 
 
@@ -75,7 +81,7 @@ bag_cars
 
 ## poissonreg
 
-The parsnip package has methods for linear, logistic, and multinomial models. poissonreg extends this to data where the outcome is a count. There are engines for `glm`, `rstanarm`, `glmnet`, `hurdle`, and `zeroinfl`. The latter two enable zero-inflated Poisson models from the pscl package. 
+The parsnip package has methods for linear, logistic, and multinomial models. poissonreg extends this to data where the outcome is a count. There are engines for `glm`, `rstanarm`, `glmnet`, `hurdle`, and `zeroinfl`. The latter two enable zero-inflated Poisson models from the [pscl](https://github.com/atahk/pscl) package. 
 
 Here is an example using a log-linear model for analyzing a three dimensional contingency table using the data from Agresti (2007, Table 7.6):
 
@@ -90,7 +96,7 @@ log_lin_mod <-
 log_lin_mod
 #> parsnip model object
 #> 
-#> Fit time:  4ms 
+#> Fit time:  6ms 
 #> 
 #> Call:  stats::glm(formula = formula, family = stats::poisson, data = data)
 #> 
@@ -121,7 +127,7 @@ poisson_reg() %>%
   fit(art ~ . | phd, data = bioChemists)
 #> parsnip model object
 #> 
-#> Fit time:  21ms 
+#> Fit time:  23ms 
 #> 
 #> Call:
 #> pscl::hurdle(formula = formula, data = data)
@@ -173,4 +179,3 @@ This model used 5 PLS components for each of the outcomes. The use of `num_terms
 Each of these models come fully enables to be used with the tune package; their model parameters can be optimized for performance. 
 
 There are one or two other parsnip-adjacent packages that are around the corner. One is for mixed- and hierarchical models and another is for rule-based machine learning models (e.g. cubist, RuleFit, etc.) currently on GitHub in the [rules repo](https://github.com/tidymodels/rules). 
-
