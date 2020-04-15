@@ -131,7 +131,7 @@ In addition to [purrr](https://purrr.tidyverse.org), which provides very consist
 
 ## Model
 
-Modelling with the tidyverse is based on the collection of [tidymodels packages](https://www.tidymodels.org/), which largely replace the [modelr](https://github.com/tidyverse/modelr) package used in [R4DS](https://r4ds.had.co.nz/). These packages provide a comprehensive foundation for creating and using models of all types. Visit the [_Getting Started_](https://www.tidymodels.org/start/) guide or, if you already have a background in modelling, go straight to the [_Learn_](https://www.tidymodels.org/learn/) page.  
+Modeling with the tidyverse uses the collection of [tidymodels packages](https://www.tidymodels.org/), which largely replace the [modelr](https://github.com/tidyverse/modelr) package used in [R4DS](https://r4ds.had.co.nz/). These packages provide a comprehensive foundation for creating and using models of all types. Visit the [_Getting Started_](https://www.tidymodels.org/start/) guide or, for more detailed examples, go straight to the [_Learn_](https://www.tidymodels.org/learn/) page.  
 
 ## Get help
 
