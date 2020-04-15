@@ -24,14 +24,14 @@ This site has a different organization than its tidyverse sibling.
 
 The [**Getting Started** landing site](https://www.tidymodels.org/start/) has a series of five articles that are aimed at readers who have little to no experience with the tidymodels packages. Each article focuses on a specific task (e.g. building a model). The last article shows a small case study that brings all of the other elements together. 
 
-We will be consolidating many of the vignetttes and articles that showcase code examples on the [**Learn**](https://www.tidymodels.org/learn/) page. Previously, these were scattered across packages websites. The feedback that we've received was that keeping the articles in the individual sites made it too difficult to find the right material (especially when an article used multiple packages). Articles describing specific technical details of the package will remain in the pkgdown sites. 
+We will be consolidating many of the vignettes and articles that showcase code examples on the [**Learn**](https://www.tidymodels.org/learn/) page. Previously, these were scattered across packages websites. The feedback that we've received was that keeping the articles in the individual sites made it too difficult to find the right material (especially when an article used multiple packages). Articles describing specific technical details of the package will remain in the pkgdown sites. 
 
 The content in the **Learn** page are organized into these groups: 
 
  * Perform Statistical Analysis
  * Create Robust Models
  * Tune, Compare, and Work with Your Models
- * Develop Custom Moldeing Tools
+ * Develop Custom Modeling Tools
 
 New articles will be added to the **Learn** section based on new functions or for specific topics that need more documentation (based GitHub issues as well as posts to StackOverflow or RStudio Community). 
 
@@ -42,3 +42,4 @@ Blog posts related to tidymodels will still be posted here at the [tidyverse blo
 `tidymodels.org`  would not be possible without Alison Hill, whose incredible expertise and tenacity made it happen. Additionally, Alison and Julia Silge did an amazing job making the existing content more readable and better organized. [Desirée De Leon](https://desiree.rbind.io/) worked her magic to make the site look even better. We also used Allison Horst's [superb illustrations](https://github.com/allisonhorst/stats-illustrations) just to show off. The tidyverse group, Joshua Spiewak, and Sarah Lin (RStudio's Information Architect & Digital Librarian) were also very supportive and helpful.
 
 ![](parsnip-flagger.png)
+ 
