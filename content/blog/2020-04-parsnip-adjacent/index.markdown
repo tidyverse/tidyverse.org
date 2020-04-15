@@ -96,7 +96,7 @@ log_lin_mod <-
 log_lin_mod
 #> parsnip model object
 #> 
-#> Fit time:  6ms 
+#> Fit time:  4ms 
 #> 
 #> Call:  stats::glm(formula = formula, family = stats::poisson, data = data)
 #> 
@@ -127,7 +127,7 @@ poisson_reg() %>%
   fit(art ~ . | phd, data = bioChemists)
 #> parsnip model object
 #> 
-#> Fit time:  23ms 
+#> Fit time:  22ms 
 #> 
 #> Call:
 #> pscl::hurdle(formula = formula, data = data)
@@ -141,7 +141,7 @@ poisson_reg() %>%
 #>      0.3075       0.1750
 ```
 
-# plsmod
+## plsmod
 
 This package has parsnip methods for Partial Least Squares (PLS) regression and classification models based on the work in the Bioconductor [mixOmics](https://bioconductor.org/packages/release/bioc/html/mixOmics.html) package. This package facilitates ordinary PLS models as well as sparse versions. Additionally, it can also be used for multivariate models. 
 
