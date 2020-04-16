@@ -2,9 +2,8 @@
 title: Announcing tidymodels.org
 slug: tidymodels-org
 description: >
-    We're thrilled to announce the launch of tidymodels.org! The site is meant
-    to be a central location for learning and using the tidymodels packages. 
-date: 2020-04-17
+    We're thrilled to announce the launch of tidymodels.org! The site is a central location for learning and using the tidymodels packages. 
+date: 2020-04-21
 author: Max Kuhn
 photo:
   url: https://unsplash.com/photos/Hli3R6LKibo
