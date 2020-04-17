@@ -10,7 +10,7 @@ title: Learn the tidyverse
 </style>
 
 <!----- Page content ---->
-<a href="http://amzn.to/2aHLAQ1"><img class="bookCover" src="../images/cover.png" alt=""></a>
+<a href="http://amzn.to/2aHLAQ1"><img class="bookCover" src="../images/cover.png" alt="book cover for R for Data Science: Visualize, Model, Transform, Tidy, and Import Data"></a>
 
 <h2 class='noTrickPadding' id='r4ds'>R for data science</h2>
 
