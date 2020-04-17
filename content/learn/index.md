@@ -10,7 +10,7 @@ title: Learn the tidyverse
 </style>
 
 <!----- Page content ---->
-<a href="http://amzn.to/2aHLAQ1"><img class="bookCover" src="../images/cover.png" alt=""></a>
+<a href="http://amzn.to/2aHLAQ1"><img class="bookCover" src="../images/cover.png" alt="book cover for R for Data Science"></a>
 
 <h2 class='noTrickPadding' id='r4ds'>R for data science</h2>
 
@@ -82,4 +82,3 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
 * [Stat405](http://stat405.had.co.nz); Hadley Wickham, Rice University.
   Mainly included for historical interest - you can see some of the work
   that lead up to the creation of the tidyverse.
-
