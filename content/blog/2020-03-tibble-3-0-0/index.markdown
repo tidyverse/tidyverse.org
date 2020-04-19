@@ -165,7 +165,7 @@ Use `ncol()` to count the columns in a data frame.
 We always recycled only vectors of size one in `tibble()` and `as_tibble()`.
 This now also applies to subassignment.
 We believe that most of the time this is an unintended error.
-Please use an explicit `rep()` if you really need to create a column that consists of multiple repetitions of a vector.
+Please use an explicit `rep()` or `rep_len()` if you really need to create a column that consists of multiple repetitions of a vector.
 
 
 ```r
@@ -201,6 +201,7 @@ x[1, ] <- c(a = 3, b = 4)
 #> Error: Assigned data `c(a = 3, b = 4)` must be compatible with row subscript `1`.
 #> x 1 row must be assigned.
 #> x Assigned data has 2 rows.
+#> ℹ Row updates require a list value. Do you need `list()` or `as.list()`?
 ```
 
 This is because all vectors on the right-hand side are treated as columnar data.
