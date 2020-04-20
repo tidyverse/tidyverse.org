@@ -25,7 +25,7 @@ The [**Get Started**](https://www.tidymodels.org/start/) page has a series of fi
 
 We have consolidated many of the vignettes and articles that showcase code examples on the [**Learn**](https://www.tidymodels.org/learn/) page. Previously, these were scattered across package documentation websites. We received feedback that keeping these articles in the individual sites made it too difficult to find the right material, especially when an article used multiple packages. Articles describing specific technical details of an individual package will remain in that specific pkgdown site. 
 
-The content on the **Learn** page is organized into groups: 
+The content on the [**Learn**](https://www.tidymodels.org/learn/) page is organized into groups: 
 
  * Perform statistical analysis
  * Create robust models
@@ -38,7 +38,7 @@ The [**Help**](https://www.tidymodels.org/help/) section is an excellent place t
 
 Blog posts related to tidymodels will still be posted here at the [tidyverse blog](https://www.tidyverse.org/blog/). Both `tidyverse.org` and `tidymodels.org` are Hugo websites built using R with the [blogdown](https://bookdown.org/yihui/blogdown/) package. We learned a lot while launching this new website and plan to share about this process in detail soon.
 
-The launch of [`tidymodels.org`](https://www.tidymodels.org) would not have been possible without Alison Hill, whose incredible expertise and tenacity made it happen. Additionally, Alison and Julia Silge did an amazing job making the existing content more readable and better organized. [Desirée De Leon](https://desiree.rbind.io/) worked her magic to make the site look even better. We also used Allison Horst's [superb illustrations](https://github.com/allisonhorst/stats-illustrations) just to show off. The tidyverse group, Joshua Spiewak, and Sarah Lin (RStudio's Information Architect & Digital Librarian) also contributed valued support and help.
+The launch of [`tidymodels.org`](https://www.tidymodels.org) would not have been possible without Alison Hill, whose incredible expertise and tenacity made it happen. Additionally, Alison and Julia Silge did an amazing job making the existing content more readable and better organized. [Desirée De Leon](https://desiree.rbind.io/) worked her magic to make the site look even better. We also used Allison Horst's [superb illustrations](https://github.com/allisonhorst/stats-illustrations) just to show off. The tidyverse group, Joshua Spiewak, Greg Swinehart, and Sarah Lin (RStudio's Information Architect & Digital Librarian) also contributed valued support and help.
 
 ![](parsnip-flagger.png)
  
