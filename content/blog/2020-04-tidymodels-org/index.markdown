@@ -17,7 +17,7 @@ tags:
 
 We're thrilled to announce the launch of [`tidymodels.org`](https://www.tidymodels.org)! The site is a central location for learning and using the tidymodels packages. It has a new take on a familiar look:
 
-![](tidymodels-front-page.jpg)
+<img src="tidymodels-front-page.png" alt="tidymodels.org landing page screenshot">
 
 This site has a different organization than its tidyverse sibling. 
 
