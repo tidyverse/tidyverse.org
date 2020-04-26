@@ -18,7 +18,10 @@ This post is the latest in a series of post leading up the the dplyr 1.0.0 relea
 
 * [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/)
 * [`summarise()` is growing](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/)
-* [`select()`, `rename`, `relocate()`](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/)
+* [`select()`, `rename()`, `relocate()`](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/).
+* [Working `across()` columns](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/).
+* [Working within rows](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-rowwise/).
+
 
 Today, I wanted to talk a little bit how dplyr 1.0.0 uses the  [vctrs](http://vctrs.r-lib.org/) package. This post explains why vctrs is so important, why we can't just copy what base R does, how to interpret some of new error messages that you'll see, and some of the major changes since the last version.
 
