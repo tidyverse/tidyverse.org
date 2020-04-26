@@ -136,9 +136,9 @@ Given that it's hard to fix the problem in base R, we've come up with our own al
     
     ```r
     vec_c("a", 1)
-    #> Error: No common type for `..1` <character> and `..2` <double>.
-    vec_c(factor("x"), date)
-    #> Error: `..2` must be a vector, not a function.
+    #> Error: Can't combine `..1` <character> and `..2` <double>.
+    vec_c(factor("x"), today)
+    #> Error: Can't combine `..1` <factor<5a425>> and `..2` <date>.
     ```
 
 ## Errors
@@ -152,16 +152,15 @@ In this first example, we attempt to bind two data frames together where the col
 df1 <- tibble(a = 1, b = 1)
 df2 <- tibble(a = 2, b = "a")
 bind_rows(df1, df2)
-#> Error: No common type for `..1$b` <double> and `..2$b` <character>.
+#> Error: Can't combine `..1$b` <double> and `..2$b` <character>.
 ```
 
 Note the components of the error message:
 
-* "No common type" means that vctrs can't find a vector type that can
-  represent both double and character values. 
+* "Can't combine" means that vctrs can't combine double and character vectors. 
   
 * vctrs error messages always puts the "type" of the variable in `<>`,
-  like `<character>`, or `<integer>`. I'm using type informally here 
+  like `<double>`, or `<character>`. I'm using type informally here 
   (although it does have a precise definition); for many simple cases it's 
   the same as the class.
   
@@ -182,13 +181,14 @@ df %>%
 #> ℹ Result type for group 1 (g = 1): <character>.
 #> ℹ Result type for group 2 (g = 2): <double>.
 ```
-Writing good error messages is hard, and we've spent a lot of time trying to make them informative. 
+
+Writing good error messages is hard, so we've spent a lot of time trying to make them informative. We expect them to continue to improve as we see more examples from live data analysis code.
 
 If you're not sure where the errors are coming from, learning how to use the traceback (either `traceback()` or `rlang::last_error()`) will be helpful. I'd highly recommend Jenny Bryan's rstudio::conf keynote on debugging: [Object of type 'closure' is not subsettable](https://resources.rstudio.com/rstudio-conf-2020/object-of-type-closure-is-not-subsettable-jenny-bryan)
 
 ## Key changes
 
-The switch to vctrs causes two major changes in dplyr 1.0.0:
+Using vctrs in dplyr also causes two behaviour changes. We hope that these don't affect much existing code because they both previously generated warnings. 
 
 *   When combining factors with different level sets, dplyr previously 
     converted to a character vector with a warning. As of 1.0.0, dplyr will
@@ -212,14 +212,14 @@ The switch to vctrs causes two major changes in dplyr 1.0.0:
 
 These changes are motivated more by pragmatism than by theory. Strictly speaking, one should probably consider `factor("red")` and `factor("male")` to be incompatible, but this level of strictness causes much pain because character vectors can usually be used interchangeably with factors.
 
-Also note that dplyr continues to be stricter than base R when it comes to character conversions: 
+Note that dplyr continues to be stricter than base R when it comes to character conversions: 
 
 
 ```r
 c(1, "2")
 #> [1] "1" "2"
 vec_c(1, "2")
-#> Error: No common type for `..1` <double> and `..2` <character>.
+#> Error: Can't combine `..1` <double> and `..2` <character>.
 ```
 
 In this case, we don't know whether you want a character vector or a numeric vector, so you need to decide by manually converting one of the inputs:
