@@ -1,0 +1,71 @@
+---
+title: dplyr 1.0.0 for package developers
+author: Hadley Wickham
+date: '2020-04-24'
+slug: dplyr-1-0-0-package-dev
+categories:
+  - package
+tags:
+  - dplyr
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+As you're hopefully aware, [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/), and we've been writing a [series of blog posts](https://www.tidyverse.org/tags/dplyr/) about the user-facing changes that you, as a data scientist have to look forward to. Today, I wanted to change tack a little and talk about some of the changes that we've made that affect package developers.
+
+But first an update on the release process: in the process of preparing for the dplyr release, we discovered some subtle problems that arise when combining different types of data frames. It took us a little while to figure out what we (and package developers need to do), so we've decided to push back the dplyr release: we're now planning on releasing to CRAN on May 14.
+
+## Breaking changes
+
+We've tried to keep breaking changes as small as possible, but we have performed a complete overhaul of the internals of dplyr, and it's likely that we have made some accidental changes. If you're a package author, we rely on your help.  
+
+We are sorry when things break, but we've done our best to give you plenty of time to make changes 
+
+Given that this will be dplyr 1.0.0, we expect that there to be far fewer big changes in the future.
+
+## `all.equal()`
+
+One of the subtlest but furthest reaching changes is that we removed the `all.equal.tbl_df` method. This has far reaching changes because `testthat::expect_equal()` calls `all.equal()`, which when the first argument is a tibble, calls `all.equal.tbl_df()`. Unfortunately `all.equal.tbl_df` had a couple of major problems:
+
+*   It ignores the difference between data frames and tibbles so this code
+    would pass:
+  
+    ```{r, eval = FALSe}
+    expect_equal(tibble(x = 1), data.frame(x = 1))
+    ```
+
+*   By default, it ignores column and row order so the following tests
+    would pass:
+
+    ```{r, eval = FALSE}
+    expect_equal(tibble(x = 1:2), tibble(x = 2:1))
+    expect_equal(tibble(x = 1, y = 2), tibble(y = 2, x = 1))
+    ```
+
+The first issue was a genuine bug; the second one was something that I must've thought was a good idea at the time, but looking back at it was clearly a mistake. 
+
+We've been aware of this problem for a while, but knew that fixing it would cause a large number of CRAN packages to fail to pass `R CMD check`. We decided that the 1.0.0 release was a good time to rip the band-aid off.
+
+Unfortunately you won't get a terribly informative error message, so for now you'll just need to spot the errors shown below:
+
+```{r}
+library(testthat)
+library(tibble)
+
+expect_equal(data.frame(x = 1), tibble(x = 1))
+expect_equal(tibble(x = 1:2), tibble(x = 2:1))
+expect_equal(tibble(x = 1, y = 2), tibble(y = 2, x = 1))
+```
+(The problem of uninformative failures prompted me to start work on the [waldo package](https://waldo.r-lib.org) that attempts to do better. You can try it out by installing the dev version of testthat, `devtools::install_gitub("r-lib/testthat")` but note that it's still experimental so it's only recommended for the adventurous.)
+
+## vctrs and methods
+
+We've had many struggles with dplyr verbs maintaining the correct types/classes. I'm fairly confident that we now have a solid foundation for what happens with individual vector classes (i.e. the type of object that you put in a data frame column). We're still working on verbs as a whole. 
+
+I know that it feels like the goal posts keep shifting, and I can assure you that it's just as frustrating for us. But I think we're starting to converge on a theory that helps us understand what the correct results should be, and there should be much less change in the near future. 
+
+If you're having problems getting it to work, best bet is to just file an issue.
+
+
