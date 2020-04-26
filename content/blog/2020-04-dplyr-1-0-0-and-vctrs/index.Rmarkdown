@@ -1,7 +1,7 @@
 ---
 title: dplyr 1.0.0 and vctrs
 author: Hadley Wickham
-date: '2020-03-25'
+date: '2020-04-27'
 slug: dplyr-1-0-0-and-vctrs
 photo:
   url: https://unsplash.com/photos/IstXvxHGoA4
