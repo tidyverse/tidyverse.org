@@ -13,9 +13,7 @@ photo:
 
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-```
+
 
 As you're hopefully aware, [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/), and we've been writing a [series of blog posts](https://www.tidyverse.org/tags/dplyr/) about the user-facing changes that you, as a data scientist have to look forward to. Today, I wanted to change tack a little and talk about some of the changes that we've made that affect package developers.
 
@@ -36,14 +34,16 @@ One of the subtlest but furthest reaching changes is that we removed the `all.eq
 *   It ignores the difference between data frames and tibbles so this code
     would pass:
   
-    ```{r, eval = FALSE}
+    
+    ```r
     expect_equal(tibble(x = 1), data.frame(x = 1))
     ```
 
 *   By default, it ignores column and row order so the following tests
     would pass:
 
-    ```{r, eval = FALSE}
+    
+    ```r
     expect_equal(tibble(x = 1:2), tibble(x = 2:1))
     expect_equal(tibble(x = 1, y = 2), tibble(y = 2, x = 1))
     ```
@@ -54,13 +54,24 @@ We've been aware of this problem for a while, but knew that fixing it would caus
 
 Unfortunately you won't get a terribly informative error message, so for now you'll just need to spot the errors shown below:
 
-```{r, error = TRUE}
+
+```r
 library(testthat)
 library(tibble)
+#> Warning: package 'tibble' was built under R version 3.6.2
 
 expect_equal(data.frame(x = 1), tibble(x = 1))
+#> Error: data.frame(x = 1) not equal to tibble(x = 1).
+#> Attributes: < Component "class": Lengths (1, 3) differ (string compare on first 1) >
+#> Attributes: < Component "class": 1 string mismatch >
 expect_equal(tibble(x = 1:2), tibble(x = 2:1))
+#> Error: tibble(x = 1:2) not equal to tibble(x = 2:1).
+#> Component "x": Mean relative difference: 0.6666667
 expect_equal(tibble(x = 1, y = 2), tibble(y = 2, x = 1))
+#> Error: tibble(x = 1, y = 2) not equal to tibble(y = 2, x = 1).
+#> Names: 2 string mismatches
+#> Component 1: Mean relative difference: 1
+#> Component 2: Mean relative difference: 0.5
 ```
 
 (The problem of uninformative failures prompted me to start work on the [waldo package](https://waldo.r-lib.org) that attempts to do better. You can try it out by installing the dev version of testthat, `devtools::install_gitub("r-lib/testthat")` but note that it's still experimental so it's only recommended for the adventurous.)
