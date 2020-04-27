@@ -42,7 +42,7 @@ library(dplyr, warn.conflicts = FALSE)
 
 ## Combining vectors
 
-The heart of the reason we're using vctrs is the need to combine vectors together. You're already familiar with one base R tool for combining vectors, `c()`:
+The heart of the reason we're using vctrs is the need to combine vectors. You're already familiar with one base R tool for combining vectors, `c()`:
 
 
 ```r
@@ -52,7 +52,7 @@ c("a", "b", "c")
 #> [1] "a" "b" "c"
 ```
 
-But combining vectors comes up in many places in the tidyverse, e.g.:
+Combining vectors comes up in many places in the tidyverse, e.g.:
 
 * `dplyr::mutate()` and `dplyr::summarise()` have to combine the results 
   from each group.
@@ -102,7 +102,7 @@ You might wonder why we can't just copy the behaviour of `c()`. Unfortunately `c
     #> [1] 1585064040      18345
     ```
 
-It's difficult to change how `c()` works because any changes are likely to break some existing code, and base R is fundamentally conservative. Additionally, `c()` isn't the only way that base R combines vectors. `rbind()` and `unlist()` can also be used to perform a similar job, but return different results. This is not to say that the tidyverse has been any better in the past --- we have used a variety of ad hoc methods, undoubtedly using well more than three different approaches. 
+It's difficult to change how `c()` works because any changes are likely to break some existing code, and base R is committed to backward compatibility. Additionally, `c()` isn't the only way that base R combines vectors. `rbind()` and `unlist()` can also be used to perform a similar job, but return different results. This is not to say that the tidyverse has been any better in the past --- we have used a variety of ad hoc methods, undoubtedly using well more than three different approaches. 
 
 Given that it's hard to fix the problem in base R, we've come up with our own alternative to `c()`: `vectrs::vec_c()`. `vec_c()`'s behaviour is governed by three main principles:
 
@@ -146,7 +146,7 @@ Given that it's hard to fix the problem in base R, we've come up with our own al
 
 ## Errors
 
-As a data scientist, you don't really need to much about the vctrs package, except that it exists and its used internally by dplyr. (As a software engineer, you might want to learn about vctrs because [it makes it easier to create new types of vector](https://vctrs.r-lib.org/articles/s3-vector.html)). But vctrs is responsible for creating a number of error messages in dplyr, so it's worth understanding their basic form.
+As a data scientist, you don't really need to much about the vctrs package, except that it exists and its used internally by dplyr. (As a software engineer, you might want to learn about vctrs because [it makes it easier to create new types of vectors](https://vctrs.r-lib.org/articles/s3-vector.html)). But vctrs is responsible for creating a number of error messages in dplyr, so it's worth understanding their basic form.
 
 In this first example, we attempt to bind two data frames together where the columns have incompatible types: double and character.
 
@@ -171,6 +171,19 @@ Note the components of the error message:
   `..2` to refer to the first and second arguments. You can tell the
   problem is with the `b` column.
   
+If after reading the error, you do still want to combine the data frames, you'll need to make them compatible by manually transforming one of the columns:
+
+
+```r
+df1 <- df1 %>% mutate(b = as.character(b))
+bind_rows(df1, df2)
+#> # A tibble: 2 x 2
+#>       a b    
+#> * <dbl> <chr>
+#> 1     1 1    
+#> 2     2 a
+```
+
 Where possible, we attempt to give you more information to solve the problem. For example, if your call to `summarise()` or `mutate()` returns incompatible types, we'll tell you which groups have the problem:
 
 
@@ -187,7 +200,7 @@ df %>%
 
 Writing good error messages is hard, so we've spent a lot of time trying to make them informative. We expect them to continue to improve as we see more examples from live data analysis code.
 
-If you're not sure where the errors are coming from, learning how to use the traceback (either `traceback()` or `rlang::last_error()`) will be helpful. I'd highly recommend Jenny Bryan's rstudio::conf keynote on debugging: [Object of type 'closure' is not subsettable](https://resources.rstudio.com/rstudio-conf-2020/object-of-type-closure-is-not-subsettable-jenny-bryan)
+If you're not sure where the errors are coming from, learning how to use the traceback (either `traceback()` or `rlang::last_error()`) will be helpful. I'd highly recommend Jenny Bryan's rstudio::conf keynote on debugging: [Object of type 'closure' is not subsettable](https://resources.rstudio.com/rstudio-conf-2020/object-of-type-closure-is-not-subsettable-jenny-bryan).
 
 ## Key changes
 

@@ -148,6 +148,13 @@ Note the components of the error message:
   `..2` to refer to the first and second arguments. You can tell the
   problem is with the `b` column.
   
+If after reading the error, you do still want to combine the data frames, you'll need to make them compatible by manually transforming one of the columns:
+
+```{r}
+df1 <- df1 %>% mutate(b = as.character(b))
+bind_rows(df1, df2)
+```
+
 Where possible, we attempt to give you more information to solve the problem. For example, if your call to `summarise()` or `mutate()` returns incompatible types, we'll tell you which groups have the problem:
 
 ```{r, error = TRUE}
