@@ -87,24 +87,24 @@ You might wonder why we can't just copy the behaviour of `c()`. Unfortunately `c
     now <- as.POSIXct("2020-03-24 10:34")
     
     c(today, now)
-    #> [1] "2020-03-24"    "4341727-12-11"
+    #> [1] "2020-03-24"    "4341678-08-29"
     # (the second value is the 11 Dec 4341727-12-11)
     class(c(today, now))
     #> [1] "Date"
     unclass(c(today, now))
-    #> [1]      18345 1585064040
+    #> [1]      18345 1585046040
     
     c(now, today)
-    #> [1] "2020-03-24 10:34:00 CDT" "1969-12-31 23:05:45 CST"
+    #> [1] "2020-03-24 10:34:00 GMT" "1970-01-01 06:05:45 BST"
     class(c(now, today))
     #> [1] "POSIXct" "POSIXt"
     unclass(c(now, today))
-    #> [1] 1585064040      18345
+    #> [1] 1585046040      18345
     ```
 
 It's difficult to change how `c()` works because any changes are likely to break some existing code, and base R is committed to backward compatibility. Additionally, `c()` isn't the only way that base R combines vectors. `rbind()` and `unlist()` can also be used to perform a similar job, but return different results. This is not to say that the tidyverse has been any better in the past --- we have used a variety of ad hoc methods, undoubtedly using well more than three different approaches. 
 
-Given that it's hard to fix the problem in base R, we've come up with our own alternative to `c()`: `vectrs::vec_c()`. `vec_c()`'s behaviour is governed by three main principles:
+Given that it's hard to fix the problem in base R, we've come up with our own alternative to `c()`: `vctrs::vec_c()`. `vec_c()`'s behaviour is governed by three main principles:
 
 *   Symmetry: `vec_c(x, y)` should return a type as similar as possible to 
     `vec_c(y, x)`. For example, when combining a date and a date-time you
@@ -113,10 +113,10 @@ Given that it's hard to fix the problem in base R, we've come up with our own al
     
     ```r
     vec_c(today, now)
-    #> [1] "2020-03-24 00:00:00 CDT" "2020-03-24 10:34:00 CDT"
+    #> [1] "2020-03-24 00:00:00 GMT" "2020-03-24 10:34:00 GMT"
     
     vec_c(now, today)
-    #> [1] "2020-03-24 10:34:00 CDT" "2020-03-24 00:00:00 CDT"
+    #> [1] "2020-03-24 10:34:00 GMT" "2020-03-24 00:00:00 GMT"
     ```
     
 *   Enrichment: `vec_c(x, y)` should return the richer type, where type `<x>` 
@@ -129,7 +129,7 @@ Given that it's hard to fix the problem in base R, we've come up with our own al
     vec_c(1, 1.5)
     #> [1] 1.0 1.5
     vec_c(today, now)
-    #> [1] "2020-03-24 00:00:00 CDT" "2020-03-24 10:34:00 CDT"
+    #> [1] "2020-03-24 00:00:00 GMT" "2020-03-24 10:34:00 GMT"
     ```
     
 *   Consistency: `vec_c(x, y)` should error if `x` and `y` are of fundamentally 
