@@ -12,6 +12,7 @@ description: |
   A wild romp through environments -- namely, the environments associated with
   functions and tests. How to adopt a low-impact lifestyle.
 photo:
+  url: https://twitter.com/MariannaFoos
   author: Marianna Foos
 ---
 
