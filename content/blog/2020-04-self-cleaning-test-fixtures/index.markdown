@@ -1,7 +1,7 @@
 ---
 title: Self-cleaning test fixtures
 author: Jenny Bryan
-date: '2020-04-23'
+date: '2020-04-27'
 slug: self-cleaning-test-fixtures
 categories:
   - programming
@@ -9,15 +9,15 @@ categories:
 tags:
   - r-lib
 description: |
-  A 2-3 sentence description of the post that appears on the articles page.
+  A wild romp through environments -- namely, the environments associated with
+  functions and tests. How to adopt a low-impact lifestyle.
 photo:
-  url: https://
-  author: Jenny Bryan
+  author: Marianna Foos
 ---
 
 
 
-TODO: does it need an intro?
+*Adapted from an internal presentation to the tidyverse team, which tells you something about the target reader. The primary audience for this post is R programmers and, especially, package developers. The problems identified and solved here are pretty niche! People who are mostly interested in R as a data analysis tool may not have direct use for this material. But the post offers something for anyone curious about the hazards of side effects and the various ways we can leave the world as you found it.*
 
 ## Test hygiene
 
@@ -34,13 +34,7 @@ Ideally a test should leave the world exactly as it found it. Examples of things
 * Change working directory
 * Change an aspect of the tested package's state
 
-Scrupulous attention to cleanup is more than just courtesy or being fastidious. It is also self-serving. The state of the world after test `i` is the starting state for test `i + 1`. Tests that change state willy-nilly eventually end up interfering with each other in ways that can be very difficult to debug. Most tests are written with an **implicit** assumption about the starting state, usually whatever *tabula rasa* means for the target domain of your package. If you accumulate enough sloppy tests, I promise you that eventually some leftover piece of litter will cause (something something something).
-
-> Using Microsoft word *moves picture 3mm left* All text shifts, four new pages appear, paragraph breaks form a union, in the distance, sirens.
-
-— Amy Schwartz (schwartzanegger) February 11, 2016
-
-<http://ctrlq.org/first/102402-word-moves-distance-sirens/>
+Scrupulous attention to cleanup is more than just courtesy or being fastidious. It is also self-serving. The state of the world after test `i` is the starting state for test `i + 1`. Tests that change state willy-nilly eventually end up interfering with each other in ways that can be very difficult to debug. Most tests are written with an implicit assumption about the starting state, usually whatever *tabula rasa* means for the target domain of your package. If you accumulate enough sloppy tests, you will eventually find yourself asking the programming equivalent of questions like "Who forgot to turn off the oven?" and "Who didn't clean up after the dog?".
 
 First, we lay some foundations that aren't obviously related to tests, but just trust that we'll get there eventually.
 
@@ -48,11 +42,11 @@ First, we lay some foundations that aren't obviously related to tests, but just 
 
 If you want to clean up after yourself, how should you actually do it?
 
-The first function to know about is base R's [`on.exit()`](https://rdrr.io/r/base/on.exit.html). You use it inside a function. In the function body, every time you do something that should be undone **on exit**, you immediately register the cleanup code with `on.exit(expr, add = TRUE)`.
+The first function to know about is base R's [`on.exit()`](https://rdrr.io/r/base/on.exit.html). You use it inside a function. In the function body, every time you do something that should be undone **on exit**, you immediately register the cleanup code with `on.exit(expr, add = TRUE)`[^on-exit-add].
 
-*It's too bad `add = TRUE` isn't the default, because you almost always want this. Without it, each call to `on.exit()` clobbers the effect of previous calls.*
+[^on-exit-add]: It's too bad `add = TRUE` isn't the default, because you almost always want this. Without it, each call to `on.exit()` clobbers the effect of previous calls.
 
-Here's a `sloppy()` function that prints a number with a specific number of significant digits.
+Here's a `sloppy()` function that prints a number with a specific number of significant digits, by adjusting an R option.
 
 
 
@@ -77,7 +71,7 @@ pi
 
 Notice how `pi` prints differently before and after the call to `sloppy()`. Calling `sloppy()` has a side effect: it changes the `digits` option globally, not just within its own scope of operations. This is what we want to avoid.
 
-*Don't worry, I'm restoring global state behind the scenes here.*
+*Don't worry, I'm restoring global state (specifically, the `digits` option) behind the scenes here.*
 
 Here's how to do better with `on.exit()`.
 
@@ -124,20 +118,19 @@ exp(1)
 #> [1] 2.718282
 ```
 
-*For related reading, see the section about [Exit handlers](https://adv-r.hadley.nz/functions.html#on-exit) in Advanced R.*
-
 `on.exit()` is a very useful function and provides enough inspiration for an entire package: withr ([withr.r-lib.org](http://withr.r-lib.org)), which is a Swiss army knife for managing state in very flexible ways. It's what I usually use, in functions and tests, for situations like that above.
+
+*For more background, the section about [Exit handlers](https://adv-r.hadley.nz/functions.html#on-exit) in Advanced R is a good reference. The [cleancall package](https://github.com/r-lib/cleancall#readme) addresses a similar problem, but in the C code of an R package. cleancall is introduced in the blog post [Resource Cleanup in C and the R API](https://www.tidyverse.org/blog/2019/05/resource-cleanup-in-c-and-the-r-api/).*
 
 ## `withr::defer()`
 
-`withr::defer()` is a more general version of `on.exit()`. It can run cleanup for any environment, but defaults to the environment it was called in. Therefore, it works like `on.exit()` inside a function -- an extremely important special case -- but the added flexibility means you can use it in more complicated situations.
+`withr::defer()` is a more general version of `on.exit()`. It can run cleanup for any environment, but defaults to the environment it was called in. Therefore, it works like `on.exit()` inside a function -- an extremely important special case -- but the added flexibility means you can use it in more situations.
 
 Below I compare `on.exit()` and `withr::defer()` and I put the code inside `local()`, instead of inside a function. This is meant to reinforce that cleanup can be relevant beyond function execution environments. It also gives you another tool to play with, in addition to toy functions and tests, in your own explorations of how to manage scope.
 
 
 ```r
 library(withr)
-#> Warning: package 'withr' was built under R version 3.6.2
 
 local({
   on.exit(print("first"))
@@ -167,7 +160,9 @@ local({
 #> [1] "first"
 ```
 
-This showcases the nice ergonomics of `defer()`: each call *adds* to the list of deferred tasks (vs. replaces) and, by default, adds to the *front* of the stack (vs. the back). As you'll see below, this turns out to matter in most real world usage.
+This showcases the nice ergonomics of `defer()`: each call *adds* to the list of deferred tasks (vs. replaces) and, by default, adds to the *front* of the stack (vs. the back). As you'll see below, this turns out to matter in most real world usage[^on-exit-after].
+
+[^on-exit-after]: Note: the `after` argument of `on.exit()` first appeared in R 3.5.0.
 
 ## `withr::local_*()`
 
@@ -240,7 +235,7 @@ We can use `withr::local_options()` to write yet another version of `neat()`:
 
 
 ```r
-neat2 <- function(x, sig_digits) {
+neater <- function(x, sig_digits) {
   local_options(list(digits = sig_digits))
   print(x)
 }
@@ -248,7 +243,7 @@ neat2 <- function(x, sig_digits) {
 pi
 #> [1] 3.141593
 
-neat2(pi, 3)
+neater(pi, 3)
 #> [1] 3.14
 
 pi
@@ -261,22 +256,22 @@ Each `local_*()` function has a companion `with_()` function, which is a nod to 
 
 Testing is often demonstrated with cute little tests and functions where all the inputs and expected results can be inlined. But in real packages, things aren't always so simple. The main functions in your package probably aren't "1 number in, 1 number out". They might require more exotic objects or very specific circumstances. Changing state might be the entire purpose of a function! Now what?
 
-*Obligatory caveat: If you find it hard to write tests, this may be the universe telling you that your package has some design problems. Maybe you've somehow ended up with a small number of monster functions, with oodles of arguments, that can do everything from scramble eggs to change a lightbulb. The best move in this case may be to break things up into smaller and simpler functions. And those will be easier to test. End caveat.*
+*Obligatory caveat: If you find it hard to write tests, this may be the universe telling you that your package has some design problems. Maybe you've somehow ended up with a small number of monster functions, with oodles of arguments and complex conditional logic, that can do everything from scramble eggs to change a lightbulb. The best move in this case may be to break things up into smaller and simpler functions. And those will be easier to test. End caveat.*
 
-Tricky test situations can't always be eliminated by better package design. ?Something about [essential complexity](https://en.wikipedia.org/wiki/Essential_complexity)? Let's assume you've got a reasonable design and you're still facing some test dilemmas. Unless you find a way to make writing tests as pleasant as possible, you won't write nearly enough of them.
+Tricky test situations can't always be eliminated by better package design. Let's assume you've got a reasonable design and you're still facing some test dilemmas. Unless you find a way to make writing tests as pleasant as possible, you won't write nearly enough of them.
 
 One technique I've found useful is what I'll call a **self-cleaning test fixture**.
 
-### usethis and local packages
+### usethis and `create_local_package()`
 
-The usethis package ([usethis.r-lib.org](https://usethis.r-lib.org)) provides many functions for looking after the files and folders in an R project, especially an R package. These function names should give you a vague sense of what usethis does: `create_package()`, `use_vignette()`, `use_testthat()`, `use_github()`. Many of these functions only make sense in the context of an R package. That means in order to test them, we have to be working inside an R package.
+The usethis package ([usethis.r-lib.org](https://usethis.r-lib.org)) provides functions for looking after the files and folders in an R project, especially an R package. These function names should give you a vague sense of what usethis does: `create_package()`, `use_vignette()`, `use_testthat()`, `use_github()`. Many of these functions only make sense in the context of an R package. That means in order to test them, we have to be working inside an R package. And they can't all target some persistent Frankenpackage.
 
 We need a way to quickly spin up a minimal package, in the session temp directory. Test some functions against it. Then destroy it. Without a lot of fuss. We need a **local package**.
 
 
 ```r
-local_package <- function(dir = file_temp(), env = parent.frame()) {
-  old_project <- proj_get_()            # --- Record existing state --- 
+create_local_package <- function(dir = file_temp(), env = parent.frame()) {
+  old_project <- proj_get_()            # --- Record starting state --- 
   
   withr::defer({                        # --- Defer The Undoing --- 
     proj_set(old_project, force = TRUE) # restore active usethis project (-C)
@@ -291,16 +286,16 @@ local_package <- function(dir = file_temp(), env = parent.frame()) {
 }
 ```
 
-That's a simplified version of the test helper^[*] we use over 170 times in the usethis tests. Here's an example of how `local_package()` is used in a test:
+That's a simplified version of the test helper[^test-helpers] we use in over 170 tests in usethis. Here's an example of how `create_local_package()` is used in a test:
 
-[*] `local_package()` is a test helper. The testthat package allows such things to be defined in `tests/testthat/helper.R` and then makes them available within package tests. They are also loaded by `devtools::load_all()`. It's also a great place to define custom expectations.
+[^test-helpers]: `create_local_package()` is a test helper. The testthat package allows such things to be defined in `tests/testthat/helper.R` and then makes them available within package tests. They are also loaded by `devtools::load_all()`. `tests/testthat/helper.R` is also a great place to define custom expectations.
 
 
 ```r
 test_that("use_roxygen_md() adds DESCRIPTION fields", {
   skip_if_not_installed("roxygen2")
   
-  pkg <- local_package() # <<<<<------------------------ HERE IT IS!!!!!
+  pkg <- create_local_package() # <<<<<------------------------ HERE IT IS!!!!!
   
   use_roxygen_md()
   
@@ -313,9 +308,9 @@ test_that("use_roxygen_md() adds DESCRIPTION fields", {
 })
 ```
 
-This test checks that `usethis::use_roxygen_md()` does the setup necessary to use roxygen2 in a package and, specifically, to write documentation with markdown syntax. All 3 expectations consult the DESCRIPTION file, directly or indirectly. So it's very convenient that `local_package()` creates a minimal package, with a valid DESCRIPTION file, for us to test against. And when the test is done -- poof! -- the package is gone.
+This test checks that `usethis::use_roxygen_md()` does the setup necessary to use roxygen2 in a package and, specifically, to write documentation with markdown syntax. All 3 expectations consult the DESCRIPTION file, directly or indirectly. So it's very convenient that `create_local_package()` creates a minimal package, with a valid DESCRIPTION file, for us to test against. And when the test is done -- poof! -- the package is gone.
 
-The setup and teardown done by `local_package()` would be aggravating and repetitive to inline in each individual test. The tests would be dominated by this code, making them less readable. If we need to tweak something, we'd have to do it in hundreds of places. This sort of friction has a real chilling effect on one's enthusiasm for writing and maintaining tests.
+The setup and teardown done by `create_local_package()` would be aggravating and repetitive to inline in each individual test. The tests would be dominated by this code, making them less readable. If we need to tweak something, we'd have to do it in hundreds of places. This sort of friction has a real chilling effect on one's enthusiasm for writing and maintaining tests.
     
 A few more observations about the self-cleaning test fixture pattern:
 
@@ -327,9 +322,14 @@ A few more observations about the self-cleaning test fixture pattern:
     - Make the desired state change.
   * The undoing usually unfolds in the opposite order from the doing ("last in,
     first out"). This is almost always OK and it is often absolutely necessary.
-    In `local_package()`, we must create directory `dir` (A) before we can make
-    it the working directory (B). When undoing, we must restore the original
-    working directory (-B) before we can delete `dir` (-A).
+    In `create_local_package()`:
+    - Doing: We must create directory `dir` (A) before we can make it the
+      working directory (B). (A) must come before (B).
+    - Undoing: We must restore the original working directory (-B) before
+      we can delete `dir` (-A). (-B) must come before (-A). We can't delete
+      `dir` while it's still the working directory!
+    - Think of it like a stack of plates: the last plate onto the stack has to
+      be the first one off.
     
 **Test fixture** is a pre-existing term in the software engineering world (and beyond):
 
@@ -339,17 +339,19 @@ A few more observations about the self-cleaning test fixture pattern:
 
 When I first heard "test fixture" (from Gábor Csárdi, I think), a light bulb clicked on in my head. This was something I *knew* I needed and had even implemented in various half-baked ways. But I hadn't identified it as A Real Thing, with specific goals and design principles. It's a great example of [hypocognition](https://blogs.scientificamerican.com/observations/unknown-unknowns-the-problem-of-hypocognition/). Learning the term "test fixture" gave me a place to hang this knowledge and allowed me to more quickly identify situations where a test fixture was needed.
 
-### googlesheets4 and temporary spreadsheets
+### googlesheets4 and `local_ss()`
 
-The googlesheets4 package ([googlesheets4.tidyverse.org](https://googlesheets4.tidyverse.org)) provides an R interface to the Google Sheets API. A typical test needs access to a Google Sheet, constructed to have very specific properties and the test may even need to modify the Sheet. *You might ask about mocking here, but I usually don't embrace that heavily and, in any case, that is a topic for another day.*
+The googlesheets4 package ([googlesheets4.tidyverse.org](https://googlesheets4.tidyverse.org)) provides an R interface to the Google Sheets API. A typical test needs access to a Google Sheet, constructed to have very specific properties and the test may even need to modify the Sheet[^mocking].
 
-I need a way to quickly create a Sheet, possibly with very specific initial worksheets, cell data, locale, time zone, etc. Test some functions against it. Then trash it. I need a *temporary spreadsheet*. I use "temporary" instead of "local" here, since the main fixture lives elsewhere, i.e. on Google's servers.
+[^mocking]: You might ask about mocking here, but I usually don't embrace that heavily and, in any case, that is a topic for another day.
 
-Here's a simplified version of the helper `temp_ss()`:
+I need a way to quickly create a Sheet, possibly with very specific initial worksheets, cell data, locale, time zone, etc. Test some functions against it. Then trash it. I need a *local spreadsheet*.
+
+Here's a simplified version of the helper `local_ss()`:
 
 
 ```r
-temp_ss <- function(name, ..., env = parent.frame()) {
+local_ss <- function(name, ..., env = parent.frame()) {
   existing <- gs4_find(name)
   if (nrow(existing) > 0) {
     stop_glue("A spreadsheet named {sq(name)} already exists.")
@@ -366,7 +368,7 @@ temp_ss <- function(name, ..., env = parent.frame()) {
 
 Even though the Sheets API is very file-ID-oriented, I go out of my way to work here via Sheet name. I bring this up to illustrate another point: you can also use a helper like this to rationalize your development workflow.
 
-At first, it feels like `temp_ss()` should create a new Sheet, store its ID, and then schedule it for deletion. But reality is more messy. As I develop a function and its tests, my experimentation can leave behind several instances of a test Sheet (yes, on Drive, you can have several files with the same name!). This leads to a very cluttered and confusing situation in the test account, necessitating the occasional "search and destroy" mission for zombie test Sheets. Now my helper immediately alerts me to this problem and applies constant pressure to keep things neat and tidy.
+At first, it feels like `local_ss()` should create a new Sheet, store its ID, and then schedule it for deletion. But reality is more messy. As I develop a function and its tests, my experimentation can leave behind several instances of a test Sheet (yes, on Drive, you can have several files with the same name!). This leads to a very cluttered and confusing situation in the test account, requiring a periodic "search and destroy" mission for zombie test Sheets. Now my helper immediately alerts me to this problem and applies constant pressure to keep things neat and tidy.
 
 If you keep stubbing your toe in a particular way as you work on your package, zoom out and consider if you can design the problem away by adjusting your workflow. The helper that creates a self-cleaning test fixture is great place to apply this sort of leverage.
 
@@ -374,7 +376,9 @@ If you keep stubbing your toe in a particular way as you work on your package, z
 
 I conclude with one more story about workflow. We've talked about two main functions for registering deferred events: base R's `on.exit()` and `withr::defer()`. Part of what `withr::defer()` offers over `on.exit()` is the ability to defer events on *any* environment. But there was still a big exception: the global environment.
 
-Until quite recently, here's what happened if you called `defer()` in an interactive R session:
+Until quite recently, here's what happened if you called `defer()` in an interactive R session[^on-exit-global-env]:
+
+[^on-exit-global-env]: For all practical purposes, you get the same result with `on.exit()`. It's just a silent no-op.
 
 
 ```r
@@ -386,9 +390,9 @@ packageVersion("withr")
 #> [1] '2.1.2'
 ```
 
-This makes a lot of sense. Deferred events are triggered when an environment goes out of scope. `on.exit()` and `defer()` are meant to be used in an ephemeral environment, like a function execution environment. Deferring events on the global environment is pretty weird.
+Frankly, this makes a lot of sense. Deferred events are triggered when an environment goes out of scope. `on.exit()` and `defer()` are meant to be used in an ephemeral environment, like a function execution environment. Deferring events on the global environment is pretty weird.
 
-But what about your interactive development of functions and tests? Every time you hit a call to `defer()` or `local_*()`, that code fails to execute. You're forced to develop your logic at arm's length or implement the intent of the `local_*()` calls manually. It can be tricky to develop with functions that work one way inside a function, but another way in the global environment (or that don't work at all). `substitute()` is an example of this.
+But what about your interactive development of functions and tests? Every time you hit a call to `defer()` or `local_*()`, that code fails to execute. You're forced to develop your logic at arm's length or implement the intent of the `local_*()` calls manually. If you're doing quite a bit of work via `local_*()` or `on.exit()`, this presents a problem. Basically, it's harder to develop with functions that work one way inside a function, but another way in the global environment (or, worse, don't work at all). `substitute()` is another example of this.
 
 As of withr v2.2.0, you can `defer()` events on the global environment, which means that `local_*()` functions work too. This is still a pretty weird thing to do, which is why you get a message about how to trigger execution.
 
@@ -410,36 +414,14 @@ deferred_run()
 
 Since the global environment isn't perishable, like a test environment is, you have to call `deferred_run()` explicitly to execute the deferred events. You can also clear them, without running, with `deferred_clear()`.
 
-This new capability is especially handy with self-cleaning test fixtures, like `local_package()` and `temp_ss()` shown above. Sometimes you have to change state while developing tests, e.g. change working directory or create test Sheets. But now there's a way to run the associated cleanup on demand.
+This new capability is especially handy with self-cleaning test fixtures, like `create_local_package()` and `local_ss()` shown above. Sometimes you have to change global state while developing tests, e.g. change working directory or create test Sheets. But now there's a way to run the associated cleanup on demand.
 
-TODO: add a conclusion?
+## Recap
 
-## TODOs
+We've demonstrated that it's a problem to change state in a function or test. Obviously there are exceptions if, for example, that is the whole point of the function.
 
-Settle on the actual photo. Probably some R-Ladies cat.
+The most common and recommended solution to this is to use `on.exit()` to organize the necessary cleanup, i.e. restore the original state. However, `on.exit()` has some inherent limitations.
 
-Fill in the something something something part / deal with the Microsoft Word example.
+If this sort of setup/teardown happens frequently in the functions and tests in a package, it makes sense to write a custom helper. This function should follow the conventions of the `local_*()` functions in withr and will presumably be built around `withr::defer()`.
 
-Do we have more to say about why/how `on.exit()` works in tests? Reading the docs, that appears to be off-label use.
-
-Write the sentence about essential complexity.
-
-Change the name of the helper in usethis.
-
-Fix the footnote attempt. If successful, maybe turn more italicized asides into footnotes.
-
-`scoped_temporary_ss()` from googlesheets. Rename it. Update it for current withr.
-
-Why withr instead of `on.exit()`? Don't see how to work this in but ...
-
-  * From @hadley re: being able to compose calls to `local_*()`
-    functions (withr built-ins or homegrown) and something like `local_package()`
-        test_that("...", {
-          local_options(2)
-          pkg <- local_package()
-        })
-  
-Other thoughts:
-
-  * Same mentality makes sense in other contexts, like examples. But hard to implement within CRAN guidelines.
-  * Gee Paw has some interesting ?tweets? or ?posts? about creating test fixtures.
+There is some cost to using a custom `local_*()` helper, as it is one more thing to maintain and that all contributors must understand. Consider whether the pros outweigh the cons when adding another layer of abstraction.
