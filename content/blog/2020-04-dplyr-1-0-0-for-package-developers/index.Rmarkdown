@@ -17,17 +17,45 @@ photo:
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-As you're hopefully aware, [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/), and we've been writing a [series of blog posts](https://www.tidyverse.org/tags/dplyr/) about the user-facing changes that you, as a data scientist have to look forward to. Today, I wanted to change tack a little and talk about some of the changes that we've made that affect package developers.
+As you're hopefully aware, [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/), and we've been writing a [series of blog posts](https://www.tidyverse.org/tags/dplyr/) about the user-facing changes that you, as a data scientist have to look forward to. Today, I wanted to change tack a little and talk about the changes from the perspective of the package developer.
 
-But first an update on the release process: in the process of preparing for the dplyr release, we discovered some subtle problems that arise when combining different types of data frames. It took us a little while to figure out what we (and package developers need to do), so we've decided to push back the dplyr release: we're now planning on releasing to CRAN on May 14.
+But first, an update on the release process: in the process of preparing for the release, we discovered some subtle problems that arise when combining different types of data frames (including [data.table](http://r-datatable.com)s. It took us a little while to figure out what we (and package developers need to do), so we've decided to push back the dplyr release: we're now planning on releasing dplyr 1.0.0 to CRAN on May 15.
+
+In this post, I want to talk a little bit about how dplyr changes might break your package code, then discuss some of the major pain points and how to solve them. 
+
+```{r setup}
+library(dplyr, warn.conflicts = FALSE)
+```
 
 ## Breaking changes
 
-We've tried to keep breaking changes as small as possible, but we have performed a complete overhaul of the internals of dplyr, and it's likely that we have made some accidental changes. If you're a package author, we rely on your help.  
+There are three main ways an update to a package might break your existing code:
 
-We are sorry when things break, but we've done our best to give you plenty of time to make changes 
+* We've introduced a bug. We do our best to write bug free code but using 
+  software development best practices like unit testing (including tracking 
+  test coverage) and code review, but it's impossible to eliminate all bugs
+  
+* We've fixed a bug or otherwise made change we think is harmless. Sometimes 
+  your code accidentally depends on a behaviour that we think is incorrect and 
+  we change it. The change will be an improvement for most people, but 
+  unfortunately it [breaks your code](https://xkcd.com/1172/).
+  
+* We've deliberately made a backward incompatible interface change. We 
+  occasionally make these changes and always to significantly improve usability 
+  or consistency. Unless the package or function is experimental, we do our best 
+  to make such changes gradually, so that there's a deprecation period before 
+  the behaviour goes away altogether.
 
-Given that this will be dplyr 1.0.0, we expect that there to be far fewer big changes in the future.
+dplyr 1.0.0 contains very few backward incompatible changes, but it does make a large number of changes that we believe are mostly harmless or minor improvements.  The vast majority of these will not affect data analysis code, but can affect package code, particularly unit tests. To give you a flavour for what I mean here, dplyr now preserves the names of atomic vectors:
+
+```{r}
+df <- tibble(x = c(a = 1, b = 2))
+df %>% filter(x == 1) %>% .$x %>% str()
+```
+
+(With CRAN dplyr, this simply returns `1`.)
+
+We made this change to increase internal consistency as we've always preserved the names of list-columns (and some verbs preserved names of atomic vectors), and we expect it to have minimal impact on data analysis code. But it is likely to affect unit tests because now there are names where there weren't before. If this problem affects your code, typically the best strategy is to use `unname()` to strip the names off.
 
 ## `all.equal()`
 
@@ -54,23 +82,34 @@ We've been aware of this problem for a while, but knew that fixing it would caus
 
 Unfortunately you won't get a terribly informative error message, so for now you'll just need to spot the errors shown below:
 
-```{r, error = TRUE}
+```{r, error = TRUE, message = FALSE}
 library(testthat)
-library(tibble)
 
-expect_equal(data.frame(x = 1), tibble(x = 1))
+expect_equal(tibble(x = 1), data.frame(x = 1))
+
 expect_equal(tibble(x = 1:2), tibble(x = 2:1))
+
 expect_equal(tibble(x = 1, y = 2), tibble(y = 2, x = 1))
 ```
-
 (The problem of uninformative failures prompted me to start work on the [waldo package](https://waldo.r-lib.org) that attempts to do better. You can try it out by installing the dev version of testthat, `devtools::install_gitub("r-lib/testthat")` but note that it's still experimental so it's only recommended for the adventurous.)
 
-## vctrs and methods
+## Increased strictness from vctrs
+
+As we [discussed recently](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-and-vctrs/), dplyr now uses the [vctrs package](https://vctrs.r-lib.org) under the hood. This increase strictness affects a few edge cases. For example, in dplyr 0.8.5, the following code returned `tibble(x = character())` (which really was bug). Now that we're using the same process every where, a few problems of this nature have been revealed:
+
+```{r, error = TRUE}
+df1 <- tibble(x = integer())
+df2 <- tibble(x = character())
+bind_rows(df1, df2)
+```
+Typically the fix here is to think a little about what the type of each column should be, and then ensure they're always that type from the get go.
+
+## `data.frame` subclasses
 
 We've had many struggles with dplyr verbs maintaining the correct types/classes. I'm fairly confident that we now have a solid foundation for what happens with individual vector classes (i.e. the type of object that you put in a data frame column). We're still working on verbs as a whole. 
 
 I know that it feels like the goal posts keep shifting, and I can assure you that it's just as frustrating for us. But I think we're starting to converge on a theory that helps us understand what the correct results should be, and there should be much less change in the near future. 
 
-If you're having problems getting it to work, best bet is to just file an issue.
+## Need help?
 
-
+If you just can't figure out how to fix your package please let us know! The fastest way to get help is to [file an issue](https://github.com/tidyverse/dplyr) containing a [reprex](http://reprex.tidyverse.org/) that illustrates the precise problem. But if you're struggling to make a reprex, you can give us a link to your repo, and we'll take a look.
