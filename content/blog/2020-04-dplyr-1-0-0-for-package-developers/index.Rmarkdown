@@ -21,7 +21,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 As you're hopefully aware, [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/), and we've been writing a [series of blog posts](https://www.tidyverse.org/tags/dplyr/) about the user-facing changes that you, as a data scientist have to look forward to. Today, I wanted to change tack a little and talk about the changes from the perspective of the package developer.
 
-But first, an update on the release process: in the process of preparing for this release, we discovered some subtle problems that arise when combining different types of data frames (including [data.table](http://r-datatable.com)s). It took us a little while to figure out what we (and package developers need to do), so we've decided to push back the dplyr release: we're now planning on releasing dplyr 1.0.0 to CRAN on May 15. We're sorry that its going to longer than expected, but this gives package authors who use dplyr more time to handle changes.
+But first, an update on the release process: in the process of preparing for this release, we discovered some subtle problems that arise when combining different types of data frames (including [data.table](http://r-datatable.com)s and tibbles). It took us a little while to figure out what we (and package developers need to do), so we've decided to push back the dplyr release: we're now planning on releasing dplyr 1.0.0 to CRAN on May 15. We're sorry that its going to longer than expected, but this gives package authors who use dplyr more time to handle changes.
 
 In this post, I want to address how dplyr changes might break package code, then discuss some of the major pain points a package developer might experience, and how to get help if you need it.
 
@@ -42,13 +42,13 @@ There are three main ways an update to a package might break your existing code:
   we change it. The change will be an improvement for most people, but 
   unfortunately it [breaks your code](https://xkcd.com/1172/).
   
-* We've deliberately made a backward incompatible interface change. We 
-  occasionally make these changes and always to significantly improve usability 
-  or consistency. Unless the package or function is experimental, we do our best 
-  to make such changes gradually, so that there's a deprecation period before 
-  the behaviour goes away altogether.
+* We've deliberately made a backward incompatible interface change. We try
+  to make these as rarely as possible, and only to significantly improve 
+  usability or consistency. Unless the package or function is experimental, 
+  we do our best to make such changes gradually, so that there's a deprecation
+  period before the behaviour goes away altogether.
 
-dplyr 1.0.0 contains very few backward incompatible changes, but it does make a large number of changes that we believe are mostly harmless or minor improvements.  The vast majority of these will not affect data analysis code, but can affect package code, particularly unit tests. To give you a flavour for what I mean here, dplyr now preserves the names of atomic vectors:
+dplyr 1.0.0 contains very few backward incompatible changes, but it does make a large number of changes that we believe are mostly harmless or minor improvements.  The vast majority of these will not affect data analysis code, but some can affect packages, particularly through their unit tests. To give you a flavour for what I mean here, dplyr now preserves the names of atomic vectors:
 
 ```{r}
 df <- tibble(x = c(a = 1, b = 2))
@@ -61,7 +61,7 @@ We made this change to increase internal consistency, as some verbs already did 
 
 ## Our release process
 
-To make sure all package maintainers know about potential problems, we run `R CMD check` on all 1986 packages that use dplyr. (You can see the results on [github](https://github.com/tidyverse/dplyr/tree/master/revdep#revdeps)). If your maintain a package that uses dplyr, and your package has problems, we have already emailed you several times. 
+To make sure all package maintainers know about potential problems, we run `R CMD check` on all 1,986 packages that use dplyr. (You can see the results on [github](https://github.com/tidyverse/dplyr/tree/master/revdep#revdeps)). If you maintain a package that uses dplyr, and your package has problems, we have already emailed you several times throughout the release process. 
 
 We're also slowly working through the list of packages with problems and preparing pull requests where we can figure out a fix. Unfortunately, we don't have the resources to fix every package, but we're happy to help out if you get stuck (more on that below).
 
