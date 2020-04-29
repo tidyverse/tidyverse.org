@@ -15,7 +15,7 @@ The tidyverse team maintains several packages that make it easier to work with G
   * [bigrquery](https://bigrquery.r-dbi.org) wraps the [BigQuery API](https://developers.google.com/bigquery/)
   * [googledrive](https://googledrive.tidyverse.org) wraps the [Drive API](https://developers.google.com/drive/)
   * [gmailr](https://gmailr.r-lib.org) wraps the [Gmail API](https://developers.google.com/gmail/api/)
-  * [googlesheets4](https://googlesheets4.tidyverse.org) wraps the [Sheets API](https://developers.google.com/sheets/api/) *not released yet*
+  * [googlesheets4](https://googlesheets4.tidyverse.org) wraps the [Sheets API](https://developers.google.com/sheets/api/)
   
 All of these packages are governed by common policies recorded here. These packages use internal resources owned by the "Tidyverse API Packages" project on Google Cloud Platform. That is the name you will see in a consent screen. *Exception: gmailr does NOT use any resources owned by Tidyverse API Packages, due to [special requirements around Gmail and its scopes](https://developers.google.com/terms/api-services-user-data-policy#additional-requirements-for-specific-api-scopes). You MUST provide your own OAuth client to gmailr, whereas that is possible, but not mandatory, for the other packages listed here.*
 

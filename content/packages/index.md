@@ -15,7 +15,7 @@ Learn more about the tidyverse package at <https://tidyverse.tidyverse.org>.
 
 <div class="package-section-info">
   <h2 id="core-tidyverse">Core tidyverse</h2>
-  <p>The core tidyverse includes the packages that you're likely to use in everyday data analyses. As of tidyverse 1.2.0, the following packages are included in the core tidyverse:</p>
+  <p>The core tidyverse includes the packages that you're likely to use in everyday data analyses. As of tidyverse 1.3.0, the following packages are included in the core tidyverse:</p>
 </div>
 
 <div class="packages">
@@ -25,7 +25,7 @@ Learn more about the tidyverse package at <https://tidyverse.tidyverse.org>.
       <h3><a href="https://ggplot2.tidyverse.org/">ggplot2</a></h3>
       <p>ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details. <a href="https://ggplot2.tidyverse.org/" aria-hidden="true">Learn more ...</a></p>
 
-    </div>
+  </div>
   </div>
   <div class="package">
     <img class="package-image" src="/images/hex-dplyr.png" alt=""></img>
@@ -87,28 +87,31 @@ The tidyverse also includes many other packages with more specialised usage. The
 
 ## Import
 
-As well as [readr](https://readr.tidyverse.org), for reading flat files, the tidyverse includes:
+As well as [readr](https://readr.tidyverse.org), for reading flat files, the tidyverse package installs a number of other packages for reading data:
 
-* [readxl](https://readxl.tidyverse.org) for `.xls` and `.xlsx` sheets.
+* [DBI](https://github.com/rstats-db/DBI) for relational databases.
+  (Maintained by [Kirill Müller](https://www.cynkra.com).)
+  You'll need to pair DBI with a database specific backends like 
+  [RSQLite](https://rsqlite.r-dbi.org), 
+  [RMariaDB](https://rmariadb.r-dbi.org),
+  [RPostgres](https://rpostgres.r-dbi.org), or 
+  [odbc](https://github.com/r-dbi/odbc). 
+  Learn more at <https://db.rstudio.com>.
 
 * [haven](https://haven.tidyverse.org) for SPSS, Stata, and SAS data.
 
-The [googledrive](https://googledrive.tidyverse.org/) package allows you to interact with files on Google Drive from R.
+* [httr](https://github.com/r-lib/httr) for web APIs.
 
-There are a handful of other packages that are not in the tidyverse, but are tidyverse-adjacent. They are very useful for importing data from other sources:
+* [readxl](https://readxl.tidyverse.org) for `.xls` and `.xlsx` sheets.
 
-* [jsonlite](https://github.com/jeroen/jsonlite#jsonlite) for JSON.
+* [rvest](https://github.com/tidyverse/rvest) for web scraping.
+
+* [jsonlite](https://github.com/jeroen/jsonlite#jsonlite)
+  for JSON. (Maintained by [Jeroen Ooms](https://github.com/jeroen).)
 
 * [xml2](https://github.com/r-lib/xml2) for XML.
 
-* [httr](https://github.com/r-lib/httr) for web APIs.
-
-* [rvest](https://github.com/hadley/rvest) for web scraping.
-
-* [DBI](https://github.com/rstats-db/DBI) for relational databases.
-  To connect to a specific database, you'll need to pair DBI with a specific
-  backend like RSQLite, RPostgres, or odbc. Learn more at
-  <https://db.rstudio.com>.
+<!-- TODO: add googledrive and googlesheets4 once included: https://github.com/tidyverse/tidyverse/issues/229 -->
 
 ## Wrangle
 
@@ -131,9 +134,7 @@ In addition to [purrr](https://purrr.tidyverse.org), which provides very consist
 
 ## Model
 
-Modelling within the tidyverse is largely a work in progress. You can see some of the pieces in the [recipes](https://github.com/topepo/recipes) and [rsample](https://github.com/topepo/rsample) packages but we do not yet have a cohesive system that solves a wide range of challenges. This work will largely replace the [modelr](https://github.com/tidyverse/modelr) package used in [R4DS](https://r4ds.had.co.nz/).
-
-You may also find [broom](https://github.com/tidyverse/broom) to be useful: it turns models into tidy data which you can then wrangle and visualise using the tools you already know.
+Modeling with the tidyverse uses the collection of [tidymodels packages](https://www.tidymodels.org/), which largely replace the [modelr](https://github.com/tidyverse/modelr) package used in [R4DS](https://r4ds.had.co.nz/). These packages provide a comprehensive foundation for creating and using models of all types. Visit the [_Getting Started_](https://www.tidymodels.org/start/) guide or, for more detailed examples, go straight to the [_Learn_](https://www.tidymodels.org/learn/) page.  
 
 ## Get help
 
