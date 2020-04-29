@@ -12,8 +12,12 @@
 
       {{ $slug := .Param "slug" }}
       <div class="article-header">
-        {{ with $banner }}<div class="photo" style="background-image: url('{{ .RelPermalink }}');">{{ end }}</div>
-        {{ with $.Params.photo }}<div class="photoCredit">Photo by <a href="{{ .url }}">{{ .author }}</a></div>
+          {{ with $banner }}
+          <div class="photo">
+          <img src='{{ .RelPermalink }}' alt='{{ $page.Params.alt | default "A wide photograph" }}'>
+          </div>
+          {{ end }}
+        {{ with $.Params.photo }}<div id="photoCredit" class="photoCredit">Photo by <a href="{{ .url }}">{{ .author }}</a></div>
       </div>
       {{ end }}
 
