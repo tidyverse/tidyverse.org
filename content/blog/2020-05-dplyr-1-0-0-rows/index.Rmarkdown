@@ -1,0 +1,163 @@
+---
+title: 'dplyr 1.0.0: modifying individual rows'
+author: Kirill Müller, Hadley Wickham
+date: '2020-05-04'
+slug: dplyr-1-0-0-rows
+categories:
+  - package
+tags:
+  - dplyr
+photo:
+  author: La-Rel Easter
+  url: https://unsplash.com/photos/KuCGlBXjH_o
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+This post is the latest in a series of post leading up the the dplyr 1.0.0 release. So far, the series has covered:
+
+* [Major lifecycle changes](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/).
+* [New `summarise()` features](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/).
+* [`select()`, `rename()`, `relocate()`](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/).
+* [Working `across()` columns](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/).
+* [Working within rows](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-rowwise/).
+
+Today, I'm excited to present an entirely new feature: applying changes to individual rows.
+FIXME Summary
+FIXME Vignette? You can learn more about all of these topics in  [`vignette("rows")`](https://dplyr.tidyverse.org/dev/articles/rows.html).
+
+
+### Getting the dev version
+
+If you're interested in living life on the edge (or trying out anything you see in this blog post), you can install the development version of dplyr with:
+
+```{r, eval = FALSE}
+devtools::install_github("tidyverse/dplyr")
+```
+
+Note that the development version won't become 1.0.0 until it's released, but it has all the same features.
+
+```{r setup}
+library(dplyr, warn.conflicts = FALSE)
+```
+
+## Rationale
+
+So far:
+
+- Focused on querying data or applying transformations to the entire dataset
+- Updating individual rows cumbersome
+- No support for in-place updates on mutable backends (by design!)
+
+Now:
+
+- Consistent new interface, borrowing from SQL
+- Specification of changes via data frames
+- Designed for in-place updates (opt-in), also for multiple tables via dm
+- Safety first: early warning for key mismatch or duplication
+
+
+## Basic operation
+
+- Consistent new interface: `rows_(x, y, by, ...)`
+- Similar to joins, yet different
+- Explain semantics
+    - `y` is applied onto `x`
+    - `by` columns must be perfect match or perfect mismatch
+- No tidyselect, because generic and needs to be robust for programming
+
+- Adding rows: similar to `bind_rows()` or `union_all()`, checks for keys
+
+```{r error = TRUE}
+data <- tibble(a = 1:3, b = letters[c(1:2, NA)], c = 0.5 + 0:2)
+data
+rows_insert(data, tibble(a = 4, b = "z"))
+rows_insert(data, tibble(a = 3, b = "z"))
+rows_insert(data, tibble(a = 3, b = "z"), by = c("a", "b"))
+```
+
+
+Adding rows:
+
+- similar to `INSERT`
+- previously `bind_rows()` or `union_all()`
+- checks for keys
+
+```{r error = TRUE}
+data <- tibble(a = 1:3, b = letters[c(1:2, NA)], c = 0.5 + 0:2)
+data
+
+# Old way
+bind_rows(data, tibble(a = 4, b = "z"))
+
+# Now
+rows_insert(data, tibble(a = 4, b = "z"))
+rows_insert(data, tibble(a = 3, b = "z"))
+rows_insert(data, tibble(a = 3, b = "z"), by = c("a", "b"))
+```
+
+Updating rows
+
+- similar to `UPDATE ... JOIN`
+- equivalent: cumbersome join, mutate, select
+- `rows_patch()`: no direct SQL equivalent, useful for tweaking
+- checks for keys
+
+```{r error = TRUE}
+# Old way
+data %>% 
+  left_join(tibble(a = 2:3, b = "z"), by = "a", suffix = c("", ".new")) %>% 
+  mutate(b = coalesce(b.new, b)) %>% 
+  select(-ends_with(".new"))
+
+# Now
+rows_update(data, tibble(a = 2:3, b = "z"))
+rows_patch(data, tibble(a = 2:3, b = "z"))
+
+# Variants
+rows_update(data, tibble(a = 2:4, b = "z"))
+rows_upsert(data, tibble(a = 2:4, b = "z"))
+```
+
+Deleting rows
+
+- Similar to `DELETE`
+- equivalent: `anti_join()`
+- checks for keys
+
+```{r error = TRUE}
+rows_delete(data, tibble(a = 2:3))
+rows_delete(data, tibble(a = 2:4))
+```
+
+Immutable
+
+- `in_place = TRUE` gives an error, undefined for data frames
+
+```{r error = TRUE}
+data
+rows_delete(data, tibble(a = 2:3), in_place = TRUE)
+```
+
+
+Database operations
+
+- incubating in dm, moving to dbplyr later
+- return lazy tables by default, `in_place = TRUE` writes to the database
+
+```{r error = TRUE}
+library(dbplyr)
+requireNamespace("dm") # for methods
+
+data <- memdb_frame(a = 1:3, b = letters[c(1:2, NA)], c = 0.5 + 0:2)
+data
+
+# Now
+rows_insert(data, tibble(a = 4, b = "z"))
+rows_insert(data, memdb_frame(a = 4, b = "z"))
+data
+rows_insert(data, memdb_frame(a = 4, b = "z"), in_place = TRUE)
+data
+```
