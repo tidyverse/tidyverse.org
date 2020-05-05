@@ -54,23 +54,23 @@ c("a", "b", "c")
 
 Combining vectors comes up in many places in the tidyverse, e.g.:
 
-* `dplyr::mutate()` and `dplyr::summarise()` have to combine the results 
+* `dplyr::mutate()` and `dplyr::summarise()` have to combine the results
   from each group.
 * `dplyr::bind_rows()` has to combine columns from different data frames.
 * `dplyr::full_join()`  has to combine the keys from the `x` and `y` data
   frames.
 * `tidyr::pivot_longer()` has to combine multiple columns into one.
 
-Our goal is to unify the code that underlies all these various functions so that there's one consistent, principled approach. We've already made the change in [tidyr](https://www.tidyverse.org/blog/2019/09/tidyr-1-0-0/), and now it's dplyr's turn. 
+Our goal is to unify the code that underlies all these various functions so that there's one consistent, principled approach. We've already made the change in [tidyr](https://www.tidyverse.org/blog/2019/09/tidyr-1-0-0/), and now it's dplyr's turn.
 
 ## Base R behaviour
 
 You might wonder why we can't just copy the behaviour of `c()`. Unfortunately `c()` has some major downsides:
 
 *   It doesn't possess a `factor` method so it converts factors to their
-    underlying integer levels. 
-    
-    
+    underlying integer levels.
+
+
     ```r
     c(factor("x"), factor("y"))
     #> [1] 1 1
@@ -81,11 +81,11 @@ You might wonder why we can't just copy the behaviour of `c()`. Unfortunately `c
     an incorrect result because the underlying data is combined without
     first being translated.
 
-    
+
     ```r
     today <- as.Date("2020-03-24")
     now <- as.POSIXct("2020-03-24 10:34")
-    
+
     c(today, now)
     #> [1] "2020-03-24"    "4341678-08-29"
     # (the second value is the 11 Dec 4341727-12-11)
@@ -93,7 +93,7 @@ You might wonder why we can't just copy the behaviour of `c()`. Unfortunately `c
     #> [1] "Date"
     unclass(c(today, now))
     #> [1]      18345 1585046040
-    
+
     c(now, today)
     #> [1] "2020-03-24 10:34:00 GMT" "1970-01-01 06:05:45 BST"
     class(c(now, today))
@@ -102,41 +102,41 @@ You might wonder why we can't just copy the behaviour of `c()`. Unfortunately `c
     #> [1] 1585046040      18345
     ```
 
-It's difficult to change how `c()` works because any changes are likely to break some existing code, and base R is committed to backward compatibility. Additionally, `c()` isn't the only way that base R combines vectors. `rbind()` and `unlist()` can also be used to perform a similar job, but return different results. This is not to say that the tidyverse has been any better in the past --- we have used a variety of ad hoc methods, undoubtedly using well more than three different approaches. 
+It's difficult to change how `c()` works because any changes are likely to break some existing code, and base R is committed to backward compatibility. Additionally, `c()` isn't the only way that base R combines vectors. `rbind()` and `unlist()` can also be used to perform a similar job, but return different results. This is not to say that the tidyverse has been any better in the past --- we have used a variety of ad hoc methods, undoubtedly using well more than three different approaches.
 
 Given that it's hard to fix the problem in base R, we've come up with our own alternative to `c()`: `vctrs::vec_c()`. `vec_c()`'s behaviour is governed by three main principles:
 
-*   Symmetry: `vec_c(x, y)` should return a type as similar as possible to 
+*   Symmetry: `vec_c(x, y)` should return a type as similar as possible to
     `vec_c(y, x)`. For example, when combining a date and a date-time you
     always get a date-time.
-    
-    
+
+
     ```r
     vec_c(today, now)
     #> [1] "2020-03-24 00:00:00 GMT" "2020-03-24 10:34:00 GMT"
-    
+
     vec_c(now, today)
     #> [1] "2020-03-24 10:34:00 GMT" "2020-03-24 00:00:00 GMT"
     ```
-    
-*   Enrichment: `vec_c(x, y)` should return the richer type, where type `<x>` 
-    is richer than type `<y>` if `x` can represent all values in `y`. For 
+
+*   Enrichment: `vec_c(x, y)` should return the richer type, where type `<x>`
+    is richer than type `<y>` if `x` can represent all values in `y`. For
     example, this implies that combining an integer and double should return a
     double, and that combining a date and date-time should return a date-time.
-  
-    
+
+
     ```r
     vec_c(1, 1.5)
     #> [1] 1.0 1.5
     vec_c(today, now)
     #> [1] "2020-03-24 00:00:00 GMT" "2020-03-24 10:34:00 GMT"
     ```
-    
-*   Consistency: `vec_c(x, y)` should error if `x` and `y` are of fundamentally 
+
+*   Consistency: `vec_c(x, y)` should error if `x` and `y` are of fundamentally
     different types. For example, this implies that combining a string and a
     number or a factor and a date should error.
 
-    
+
     ```r
     vec_c("a", 1)
     #> Error: Can't combine `..1` <character> and `..2` <double>.
@@ -146,7 +146,7 @@ Given that it's hard to fix the problem in base R, we've come up with our own al
 
 ## Errors
 
-As a data scientist, you don't really need to much about the vctrs package, except that it exists and its used internally by dplyr. (As a software engineer, you might want to learn about vctrs because [it makes it easier to create new types of vectors](https://vctrs.r-lib.org/articles/s3-vector.html)). But vctrs is responsible for creating a number of error messages in dplyr, so it's worth understanding their basic form.
+As a data scientist, you don't really need to know much about the vctrs package, except that it exists and its used internally by dplyr. (As a software engineer, you might want to learn about vctrs because [it makes it easier to create new types of vectors](https://vctrs.r-lib.org/articles/s3-vector.html)). But vctrs is responsible for creating a number of error messages in dplyr, so it's worth understanding their basic form.
 
 In this first example, we attempt to bind two data frames together where the columns have incompatible types: double and character.
 
@@ -160,17 +160,17 @@ bind_rows(df1, df2)
 
 Note the components of the error message:
 
-* "Can't combine" means that vctrs can't combine double and character vectors. 
-  
+* "Can't combine" means that vctrs can't combine double and character vectors.
+
 * vctrs error messages always puts the "type" of the variable in `<>`,
-  like `<double>`, or `<character>`. I'm using type informally here 
-  (although it does have a precise definition); for many simple cases it's 
+  like `<double>`, or `<character>`. I'm using type informally here
+  (although it does have a precise definition); for many simple cases it's
   the same as the class.
-  
-* `bind_rows()` doesn't have named arguments so vctrs uses `..1` and 
+
+* `bind_rows()` doesn't have named arguments so vctrs uses `..1` and
   `..2` to refer to the first and second arguments. You can tell the
   problem is with the `b` column.
-  
+
 If after reading the error, you do still want to combine the data frames, you'll need to make them compatible by manually transforming one of the columns:
 
 
@@ -178,9 +178,9 @@ If after reading the error, you do still want to combine the data frames, you'll
 df1 <- df1 %>% mutate(b = as.character(b))
 bind_rows(df1, df2)
 #> # A tibble: 2 x 2
-#>       a b    
+#>       a b
 #> * <dbl> <chr>
-#> 1     1 1    
+#> 1     1 1
 #> 2     2 a
 ```
 
@@ -189,8 +189,8 @@ Where possible, we attempt to give you more information to solve the problem. Fo
 
 ```r
 df <- tibble(g = c(1, 2))
-df %>% 
-  group_by(g) %>% 
+df %>%
+  group_by(g) %>%
   mutate(y = if (g == 1) "a" else 1)
 #> Error: `mutate()` argument `y` must return compatible vectors across groups.
 #> ℹ `y` is `if (g == 1) "a" else 1`.
@@ -204,23 +204,23 @@ If you're not sure where the errors are coming from, learning how to use the tra
 
 ## Key changes
 
-Using vctrs in dplyr also causes two behaviour changes. We hope that these don't affect much existing code because they both previously generated warnings. 
+Using vctrs in dplyr also causes two behaviour changes. We hope that these don't affect much existing code because they both previously generated warnings.
 
-*   When combining factors with different level sets, dplyr previously 
+*   When combining factors with different level sets, dplyr previously
     converted to a character vector with a warning. As of 1.0.0, dplyr will
     create a factor with the union of the individual levels:
-  
-    
+
+
     ```r
     vec_c(factor("x"), factor("y"))
     #> [1] x y
     #> Levels: x y
     ```
-  
+
 *   When combining a factor and a character, dplyr previously warned about
     creating a character vector. It now silently creates a character vector:
 
-    
+
     ```r
     vec_c("x", factor("y"))
     #> [1] "x" "y"
@@ -228,7 +228,7 @@ Using vctrs in dplyr also causes two behaviour changes. We hope that these don't
 
 These changes are motivated more by pragmatism than by theory. Strictly speaking, one should probably consider `factor("red")` and `factor("male")` to be incompatible, but this level of strictness causes much pain because character vectors can usually be used interchangeably with factors.
 
-Note that dplyr continues to be stricter than base R when it comes to character conversions: 
+Note that dplyr continues to be stricter than base R when it comes to character conversions:
 
 
 ```r
