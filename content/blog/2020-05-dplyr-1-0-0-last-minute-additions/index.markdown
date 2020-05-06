@@ -1,6 +1,6 @@
 ---
 title: 'dplyr 1.0.0: last minute additions'
-author: Hadley Wickham
+author: Hadley Wickham, Kirill Müller
 date: '2020-05-06'
 slug: dplyr-1-0-0-last-minute-additions
 categories:
@@ -8,7 +8,7 @@ categories:
 tags:
   - dplyr
 description: >
-    Learn about two last minute additions to dplyr 1bl.0.0: a chattier 
+    Learn about two last-minute additions to dplyr 1.0.0: a chattier 
     `summarise()` with more options for controlling grouping of output,
     and new row manipulation functions inspired by SQL.
 photo:
@@ -25,10 +25,10 @@ This post is the latest in a series of post leading up the the dplyr 1.0.0 relea
 -   [`select()`, `rename()`, and (new) `relocate()`](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/).
 -   [Working `across()` columns](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/).
 -   [Working within rows](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-rowwise/).
--   [The role of the vctrs package](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-and-vctrs/)
--   [Notes for package developers](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-package-dev/)
+-   [The role of the vctrs package](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-and-vctrs/).
+-   [Notes for package developers](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-package-dev/).
 
-Today I wanted to talk about two cool new features that we've added since I started blogging about dplyr 1.0.0: `summarise()` now gives you greater control over how the results and grouped, and we've added a new set of functions for modifying rows.
+Today I wanted to talk about two cool new features that we've added since I started blogging about dplyr 1.0.0: `summarise()` now gives you greater control over how the results are grouped, and a new set of functions make it easier to modify rows.
 
 ### Getting the dev version
 
@@ -71,9 +71,9 @@ head(homeworld_species, 3)
 #> 3 Bespin      Human       1
 ```
 
-That's because `summarise()` always peels off the last group, based on the logic that this group now occupies a single row so there's no point grouping by it. This behaviour made perfect sense to me at the time I implemented it, but it's been a long standing source of confusion amongst dplyr users (and it doesn't make sense if your summary [returns multiple rows](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/)).
+That's because `summarise()` always peels off the last group, based on the logic that this group now occupies a single row so there's no point grouping by it. This behaviour made perfect sense to me at the time I implemented it, but it's been a long standing source of confusion among dplyr users (and it doesn't make sense if your summary [returns multiple rows](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/)).
 
-Unfortunately, it would be very difficult to change this default now because a lot of code probably relies on it. Instead, we're doing the next best thing: exposing the default behaviour more explicit and making it easier to change. In dplyr 1.0.0, the code above will display a message telling you how the result has been grouped:
+Unfortunately, it would be very difficult to change this default now because a lot of code probably relies on it. Instead, we're doing the next best thing: exposing the default behaviour more explicitly and making it easier to change. In dplyr 1.0.0, the code above will display a message telling you how the result has been grouped:
 
 
 ```r
@@ -88,28 +88,28 @@ The text hints at how to take control of grouping and eliminate the message: a n
 -   `.groups = "drop_last"` drops the last grouping level (i.e. the default behaviour sans message).
 -   `.groups = "drop"` drops all grouping levels and returns a tibble.
 -   `.groups = "keep"` preserves the grouping of the input.
--   `.groups = "rowwise"` turns each row into its own group.
+-   `.groups = "rowwise"` turns each row into [its own group](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-rowwise/).
 
-If you find the default message annoying you can suppress by setting a global option:
+If you find the default message annoying, you can suppress by setting a global option:
 
 
 ```r
 options(dplyr.summarise.inform = FALSE)
 ```
 
-`.groups` is very new, so we've marked it as experimental, meaning that it may change in the future. Please let us know what you think of it so that we have enough data to make a decision about its future.
+`.groups` is very new, so we've marked it as experimental, meaning that it may change in the future. Please let us know what you think of it to help us make a decision about its future.
 
 ## Row mutation
 
 Thanks to [Kirill Müller](https://krlmlr.info/), dplyr has a new experimental family of row mutation functions inspired by SQL's `UPDATE`, `INSERT`, `UPSERT`, and `DELETE`. Like the join functions, they all work with a pair of data frames:
 
--   `rows_update(x, y)` updates existing rows `x` in with values in `y`.
+-   `rows_update(x, y)` updates existing rows in `x` with values in `y`.
 -   `rows_patch(x, y)` works like `rows_update()` but only changes `NA` values.
--   `rows_insert(x, y)` adds new rows to `x` from from `y`.
+-   `rows_insert(x, y)` adds new rows to `x` from `y`.
 -   `rows_upsert(x, y)` updates existing rows in `x` and adds new rows from `y`.
 -   `rows_delete(x, y)` deletes rows in `x` that match rows in `y`.
 
-The `row_` functions match `x` and `y` using **keys**. A key is one or more variables that uniquely identifies each row. All `row_` functions check that the keys of `x` and `y` are valid (i.e. unique) before doing anything.
+The `rows_` functions match `x` and `y` using **keys**. A key is one or more variables that uniquely identifies each row. All `rows_` functions check that the keys of `x` and `y` are valid (i.e. unique) before doing anything.
 
 Let's see how these work with some toy data:
 
@@ -125,7 +125,7 @@ df
 #> 3     3 <NA>    2.5
 ```
 
-We can use `row_insert()` to add new rows:
+We can use `rows_insert()` to add new rows:
 
 
 ```r
@@ -153,7 +153,7 @@ df %>% rows_insert(tibble(a = 3, b = "c"))
 
 (The error messages are very minimal right now; if people find these functions useful we'll invest more effort in useful errors.)
 
-If you want to update existing values, use `rows_update()`. As you might expect it'll error if the row to update doesn't exist:
+If you want to update existing values, use `rows_update()`. As you might expect, it'll error if one of the rows to update doesn't exist:
 
 
 ```r
@@ -204,4 +204,4 @@ df %>%
 #> 4     4 d      NA
 ```
 
-These functions are designed particularly with an eye to mutable backends where you really might want to modify existing datasets in place (e.g. data.tables, databases, and googlesheets). That's a dangerous operation so you'll need to explicitly opt-in to modification with `inplace = TRUE`. Expect to hear more about this in the future.
+These functions are designed particularly with an eye towards mutable backends where you really might want to modify existing datasets in place (e.g. data.tables, databases, and googlesheets). That's a dangerous operation so you'll need to explicitly opt-in to modification with `in_place = TRUE`. For example, the [dm package](https://krlmlr.github.io/dm/) will use these functions to update multiple related tables in the correct order, in memory or on the database. Expect to hear more about this in the future.
