@@ -30,7 +30,7 @@ This post is the latest in a series of post leading up the the dplyr 1.0.0 relea
 -   [The role of the vctrs package](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-and-vctrs/).
 -   [Notes for package developers](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-package-dev/).
 
-Today I wanted to talk about two cool new features that we've added since I started blogging about dplyr 1.0.0: `summarise()` now gives you greater control over how the results and grouped, and we've added a new set of functions for modifying rows.
+Today I wanted to talk about two cool new features that we've added since I started blogging about dplyr 1.0.0: `summarise()` now gives you greater control over how the results are grouped, and a new set of functions make it easier to modify rows.
 
 ### Getting the dev version
 
@@ -77,7 +77,7 @@ The text hints at how to take control of grouping and eliminate the message: a n
 -   `.groups = "drop_last"` drops the last grouping level (i.e. the default behaviour sans message).
 -   `.groups = "drop"` drops all grouping levels and returns a tibble.
 -   `.groups = "keep"` preserves the grouping of the input.
--   `.groups = "rowwise"` turns each row into its own group.
+-   `.groups = "rowwise"` turns each row into [its own group](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-rowwise/).
 
 If you find the default message annoying, you can suppress by setting a global option:
 
@@ -91,7 +91,7 @@ options(dplyr.summarise.inform = FALSE)
 
 Thanks to [Kirill Müller](https://krlmlr.info/), dplyr has a new experimental family of row mutation functions inspired by SQL's `UPDATE`, `INSERT`, `UPSERT`, and `DELETE`. Like the join functions, they all work with a pair of data frames:
 
--   `rows_update(x, y)` updates existing rows `x` in with values in `y`.
+-   `rows_update(x, y)` updates existing rows in `x` with values in `y`.
 -   `rows_patch(x, y)` works like `rows_update()` but only changes `NA` values.
 -   `rows_insert(x, y)` adds new rows to `x` from `y`.
 -   `rows_upsert(x, y)` updates existing rows in `x` and adds new rows from `y`.
@@ -144,4 +144,4 @@ df %>%
   rows_upsert(tibble(a = 4, b = "d"))
 ```
 
-These functions are designed particularly with an eye towards mutable backends where you really might want to modify existing datasets in place (e.g. data.tables, databases, and googlesheets). That's a dangerous operation so you'll need to explicitly opt-in to modification with `in_place = TRUE`. Expect to hear more about this in the future.
+These functions are designed particularly with an eye towards mutable backends where you really might want to modify existing datasets in place (e.g. data.tables, databases, and googlesheets). That's a dangerous operation so you'll need to explicitly opt-in to modification with `in_place = TRUE`. For example, the [dm package](https://krlmlr.github.io/dm/) will use these functions to update multiple related tables in the correct order, in memory or on the database. Expect to hear more about this in the future.
