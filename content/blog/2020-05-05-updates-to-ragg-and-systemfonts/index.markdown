@@ -1,5 +1,8 @@
 ---
 title: Updates to ragg and systemfonts
+description: |
+  We have recently updated some of our low-level graphics packages. Read on 
+  about what is new in ragg and systemfonts
 author: Thomas Lin Pedersen
 date: '2020-05-05'
 slug: updates-to-ragg-and-systemfonts
