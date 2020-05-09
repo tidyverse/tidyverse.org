@@ -4,6 +4,6 @@ library(knitr)
 
 knit(
   # the leading `_` keeps blogdown from re-rendering the original
-  "content/blog/2020-05-googlesheets4-0-2-0/_index.Rmarkdown.orig.Rmarkdown",
+  "content/blog/2020-05-googlesheets4-0-2-0/index.Rmarkdown.orig",
   "content/blog/2020-05-googlesheets4-0-2-0/index.Rmarkdown"
 )

@@ -13,7 +13,7 @@ photo:
   url: https://unsplash.com/photos/ufxd6aU0w9U
 ---
 
-<!-- index.Rmarkdown is generated from _index.Rmarkdown.orig.Rmarkdown -->
+<!-- index.Rmarkdown is generated from index.Rmarkdown.orig -->
 <!-- Please edit that file and run precompile.R -->
 
 
@@ -119,7 +119,7 @@ A browser URL is OK for quick-and-dirty work, but there are other ways to target
 
 
 ```r
-gs4_example("gapminder") %>% 
+gs4_example("gapminder") %>%
   read_sheet(range = "Asia!A:D")
 #> Reading from "gapminder"
 #> Range "'Asia'!A:D"
@@ -172,7 +172,7 @@ ss <- gs4_create(
 #> Creating new Sheet: "able-aardvark"
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1Mi_WnJycQbpS95ROrbfBKA0R7O7VNwWGaDThV6DPq5g
+#>                 ID: 14KGbP1tuXJ1I94yUX44QxRtgEiUQCHUK5zRMLNb27Oo
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 2
@@ -238,7 +238,7 @@ Let's take one last glance at our creation.
 ```r
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1Mi_WnJycQbpS95ROrbfBKA0R7O7VNwWGaDThV6DPq5g
+#>                 ID: 14KGbP1tuXJ1I94yUX44QxRtgEiUQCHUK5zRMLNb27Oo
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 3
@@ -255,7 +255,7 @@ Finally, we clean up. Note that we (must) use googledrive for this. The Sheets A
 ```r
 googledrive::drive_trash(ss)
 #> Files trashed:
-#>   * able-aardvark: 1Mi_WnJycQbpS95ROrbfBKA0R7O7VNwWGaDThV6DPq5g
+#>   * able-aardvark: 14KGbP1tuXJ1I94yUX44QxRtgEiUQCHUK5zRMLNb27Oo
 ```
 
 Once again, the [articles](https://googlesheets4.tidyverse.org/articles/index.html) provide much deeper coverage of all of these topics.
