@@ -165,8 +165,7 @@ deaths_dribble
 #>   <chr>  <chr>    <chr>                                        <list>           
 #> 1 deaths ~/deaths 1VTJjWoP1nshbyxmL9JqXgdVsimaYty21LGxxs018H2Y <named list [35]>
 
-deaths_dribble %>% 
-  as_sheets_id()
+as_sheets_id(deaths_dribble)
 #>   Spreadsheet name: deaths
 #>                 ID: 1VTJjWoP1nshbyxmL9JqXgdVsimaYty21LGxxs018H2Y
 #>             Locale: en_US
@@ -186,7 +185,8 @@ deaths_dribble %>%
 
 
 ```r
-read_sheet(deaths_dribble, range = "arts_data", col_types = "??i?DD")
+deaths_dribble %>% 
+  read_sheet(range = "arts_data", col_types = "??i?DD")
 #> Reading from "deaths"
 #> Range "arts_data"
 #> # A tibble: 10 x 6
@@ -219,7 +219,7 @@ ss <- gs4_create(
 #> Creating new Sheet: "able-aardvark"
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1MCVpy2IX00cqKzFV56TlGPt0W8N3yf2NJ0v8i-_54E0
+#>                 ID: 1S_UnCLyN3-nvCAOJLMX3nvxwyveNyiz5yVRuu7fLT6E
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 2
@@ -263,7 +263,7 @@ write_sheet(my_data, ss = ss)
 #> Writing to sheet "my_data"
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1MCVpy2IX00cqKzFV56TlGPt0W8N3yf2NJ0v8i-_54E0
+#>                 ID: 1S_UnCLyN3-nvCAOJLMX3nvxwyveNyiz5yVRuu7fLT6E
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 3
@@ -296,7 +296,7 @@ Let's take one last glance at our creation.
 ```r
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1MCVpy2IX00cqKzFV56TlGPt0W8N3yf2NJ0v8i-_54E0
+#>                 ID: 1S_UnCLyN3-nvCAOJLMX3nvxwyveNyiz5yVRuu7fLT6E
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 3
@@ -313,7 +313,7 @@ Finally, we clean up. Note that we (must) use googledrive for this. The Sheets A
 ```r
 googledrive::drive_trash(ss)
 #> Files trashed:
-#>   * able-aardvark: 1MCVpy2IX00cqKzFV56TlGPt0W8N3yf2NJ0v8i-_54E0
+#>   * able-aardvark: 1S_UnCLyN3-nvCAOJLMX3nvxwyveNyiz5yVRuu7fLT6E
 ```
 
 Once again, the [articles](https://googlesheets4.tidyverse.org/articles/index.html) provide much deeper coverage of topics like identifying and modifying Sheets. 
