@@ -172,7 +172,7 @@ ss <- gs4_create(
 #> Creating new Sheet: "able-aardvark"
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1U4WeU0PjIjKOVnr8HkHbEqOX-xZYCoOrRKuCX5X6EBU
+#>                 ID: 1HOLw6GxyB_qIDfeNZCfnrJ6E_c404A0dh6IcXshDNSw
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 2
@@ -238,7 +238,7 @@ Let's take one last glance at our creation.
 ```r
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1U4WeU0PjIjKOVnr8HkHbEqOX-xZYCoOrRKuCX5X6EBU
+#>                 ID: 1HOLw6GxyB_qIDfeNZCfnrJ6E_c404A0dh6IcXshDNSw
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 3
@@ -255,7 +255,7 @@ Finally, we clean up. Note that we (must) use googledrive for this. The Sheets A
 ```r
 googledrive::drive_trash(ss)
 #> Files trashed:
-#>   * able-aardvark: 1U4WeU0PjIjKOVnr8HkHbEqOX-xZYCoOrRKuCX5X6EBU
+#>   * able-aardvark: 1HOLw6GxyB_qIDfeNZCfnrJ6E_c404A0dh6IcXshDNSw
 ```
 
 Once again, the [articles](https://googlesheets4.tidyverse.org/articles/index.html) provide much deeper coverage of all of these topics.
