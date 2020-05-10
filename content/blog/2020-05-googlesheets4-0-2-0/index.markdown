@@ -124,7 +124,7 @@ gap_id
 
 The above demonstrates that printing a Sheet ID (literally, an instance of `sheets_id`) reveals relevant metadata about the Sheet, such as its name and an overview of its worksheets and named ranges.
 
-`read_sheet()` is happy to accept a Sheet ID, instead of a URL. Such a Sheet ID might be an instance of `sheets_id`, but you can also provide the ID as a string. Here we show piping a Sheet ID into `read_sheet()` and we start to demonstrate other features, e.g. the use of a qualifed A1-style `range`.
+`read_sheet()` is happy to accept a Sheet ID, instead of a URL. Such a Sheet ID might be an instance of `sheets_id`, but you can also provide the ID as a string. Here we show piping a Sheet ID into `read_sheet()` and we start to demonstrate other features, e.g. the use of a qualified A1-style `range`.
 
 
 ```r
@@ -219,7 +219,7 @@ ss <- gs4_create(
 #> Creating new Sheet: "able-aardvark"
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1S_UnCLyN3-nvCAOJLMX3nvxwyveNyiz5yVRuu7fLT6E
+#>                 ID: 1z4jhfMpNnc-bmcY0LxITLVwA4D1NZHLKZHNKfQ2LWYA
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 2
@@ -263,7 +263,7 @@ write_sheet(my_data, ss = ss)
 #> Writing to sheet "my_data"
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1S_UnCLyN3-nvCAOJLMX3nvxwyveNyiz5yVRuu7fLT6E
+#>                 ID: 1z4jhfMpNnc-bmcY0LxITLVwA4D1NZHLKZHNKfQ2LWYA
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 3
@@ -296,7 +296,7 @@ Let's take one last glance at our creation.
 ```r
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1S_UnCLyN3-nvCAOJLMX3nvxwyveNyiz5yVRuu7fLT6E
+#>                 ID: 1z4jhfMpNnc-bmcY0LxITLVwA4D1NZHLKZHNKfQ2LWYA
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 3
@@ -313,7 +313,7 @@ Finally, we clean up. Note that we (must) use googledrive for this. The Sheets A
 ```r
 googledrive::drive_trash(ss)
 #> Files trashed:
-#>   * able-aardvark: 1S_UnCLyN3-nvCAOJLMX3nvxwyveNyiz5yVRuu7fLT6E
+#>   * able-aardvark: 1z4jhfMpNnc-bmcY0LxITLVwA4D1NZHLKZHNKfQ2LWYA
 ```
 
 Once again, the [articles](https://googlesheets4.tidyverse.org/articles/index.html) provide much deeper coverage of topics like identifying and modifying Sheets. 
