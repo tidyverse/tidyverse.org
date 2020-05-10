@@ -152,20 +152,41 @@ as_sheets_id("https://docs.google.com/spreadsheets/d/1U6Cf_qEOhiR9AZqTqS3mbMF3zt
 #> [1] "1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY"
 ```
 
-We can also use googledrive's ability to address Drive files by **name**[^non-unique-names] to help us identify the Sheet of interest. The account I'm logged in with owns a Sheet named "deaths" and `googledrive::drive_get()` retrieves its metadata as a one-row `dribble` ("Drive tibble"). `read_sheet()` accepts this as input. Here I also show the use of `range` to target a *named range* and specify some of the column types:
+We can also use googledrive's ability to address Drive files by **name**[^non-unique-names] to help us identify the Sheet of interest. The account I'm logged in with owns a Sheet named "deaths" and `googledrive::drive_get()` retrieves its metadata as a `dribble` ("Drive tibble"). `as_sheets_id()` is also happy to take a `dribble` as input, but it must contain exactly 1 row, describing a Drive file that is also a Sheet.
 
 [^non-unique-names]: Believe it or not, files on Drive don't have to have a unique name. You can have multiple files named "foofy" on Drive, even in the same folder. In fact, historically, a file can also belong to multiple folders (although this is mercifully being phased out). The main takeaway is that your usual expectations about "a name or filepath identifies at most one file" and "a file is identified by exactly one name or filepath" don't hold on Drive.
 
 
 ```r
-googledrive::drive_get("deaths")
+deaths_dribble <- googledrive::drive_get("deaths")
+deaths_dribble
 #> # A tibble: 1 x 4
 #>   name   path     id                                           drive_resource   
 #>   <chr>  <chr>    <chr>                                        <list>           
 #> 1 deaths ~/deaths 1VTJjWoP1nshbyxmL9JqXgdVsimaYty21LGxxs018H2Y <named list [35]>
 
-googledrive::drive_get("deaths") %>%
-  read_sheet(range = "arts_data", col_types = "??i?DD")
+deaths_dribble %>% 
+  as_sheets_id()
+#>   Spreadsheet name: deaths
+#>                 ID: 1VTJjWoP1nshbyxmL9JqXgdVsimaYty21LGxxs018H2Y
+#>             Locale: en_US
+#>          Time zone: America/Los_Angeles
+#>        # of sheets: 2
+#> 
+#> (Sheet name): (Nominal extent in rows x columns)
+#>         arts: 1000 x 26
+#>        other: 1000 x 26
+#> 
+#> (Named range): (A1 range)    
+#>    other_data: 'other'!A5:F15
+#>     arts_data: 'arts'!A5:F15
+```
+
+`read_sheet()` also accepts a one-row `dribble` as input. Here I also show the use of `range` to target a *named range* and specify some of the column types:
+
+
+```r
+read_sheet(deaths_dribble, range = "arts_data", col_types = "??i?DD")
 #> Reading from "deaths"
 #> Range "arts_data"
 #> # A tibble: 10 x 6
@@ -198,7 +219,7 @@ ss <- gs4_create(
 #> Creating new Sheet: "able-aardvark"
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1Znz6A5bfA9b0IwqkhpJ1N2l2NxpCVJIHJThiu7vxOoA
+#>                 ID: 1MCVpy2IX00cqKzFV56TlGPt0W8N3yf2NJ0v8i-_54E0
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 2
@@ -242,7 +263,7 @@ write_sheet(my_data, ss = ss)
 #> Writing to sheet "my_data"
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1Znz6A5bfA9b0IwqkhpJ1N2l2NxpCVJIHJThiu7vxOoA
+#>                 ID: 1MCVpy2IX00cqKzFV56TlGPt0W8N3yf2NJ0v8i-_54E0
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 3
@@ -275,7 +296,7 @@ Let's take one last glance at our creation.
 ```r
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1Znz6A5bfA9b0IwqkhpJ1N2l2NxpCVJIHJThiu7vxOoA
+#>                 ID: 1MCVpy2IX00cqKzFV56TlGPt0W8N3yf2NJ0v8i-_54E0
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 3
@@ -292,7 +313,7 @@ Finally, we clean up. Note that we (must) use googledrive for this. The Sheets A
 ```r
 googledrive::drive_trash(ss)
 #> Files trashed:
-#>   * able-aardvark: 1Znz6A5bfA9b0IwqkhpJ1N2l2NxpCVJIHJThiu7vxOoA
+#>   * able-aardvark: 1MCVpy2IX00cqKzFV56TlGPt0W8N3yf2NJ0v8i-_54E0
 ```
 
 Once again, the [articles](https://googlesheets4.tidyverse.org/articles/index.html) provide much deeper coverage of topics like identifying and modifying Sheets. 

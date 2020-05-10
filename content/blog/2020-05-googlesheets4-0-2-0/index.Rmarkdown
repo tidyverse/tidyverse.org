@@ -117,15 +117,22 @@ as_sheets_id("https://docs.google.com/spreadsheets/d/1U6Cf_qEOhiR9AZqTqS3mbMF3zt
   as.character()
 ```
 
-We can also use googledrive's ability to address Drive files by **name**[^non-unique-names] to help us identify the Sheet of interest. The account I'm logged in with owns a Sheet named "deaths" and `googledrive::drive_get()` retrieves its metadata as a one-row `dribble` ("Drive tibble"). `read_sheet()` accepts this as input. Here I also show the use of `range` to target a *named range* and specify some of the column types:
+We can also use googledrive's ability to address Drive files by **name**[^non-unique-names] to help us identify the Sheet of interest. The account I'm logged in with owns a Sheet named "deaths" and `googledrive::drive_get()` retrieves its metadata as a `dribble` ("Drive tibble"). `as_sheets_id()` is also happy to take a `dribble` as input, but it must contain exactly 1 row, describing a Drive file that is also a Sheet.
 
 [^non-unique-names]: Believe it or not, files on Drive don't have to have a unique name. You can have multiple files named "foofy" on Drive, even in the same folder. In fact, historically, a file can also belong to multiple folders (although this is mercifully being phased out). The main takeaway is that your usual expectations about "a name or filepath identifies at most one file" and "a file is identified by exactly one name or filepath" don't hold on Drive.
 
 ```{r}
-googledrive::drive_get("deaths")
+deaths_dribble <- googledrive::drive_get("deaths")
+deaths_dribble
 
-googledrive::drive_get("deaths") %>%
-  read_sheet(range = "arts_data", col_types = "??i?DD")
+deaths_dribble %>% 
+  as_sheets_id()
+```
+
+`read_sheet()` also accepts a one-row `dribble` as input. Here I also show the use of `range` to target a *named range* and specify some of the column types:
+
+```{r}
+read_sheet(deaths_dribble, range = "arts_data", col_types = "??i?DD")
 ```
 
 `read_sheet()` is the main "read" function of googlesheets4 and should remind you of other table-reading functions, like `readr::read_csv()` and `readxl::read_excel()`. It also goes by another name: `range_read()`, which is the most correct name according to googlesheets4's naming conventions. Either name is fine! It's OK if you don't care about this, I just want to give you a heads up. If you make extensive use of googlesheets4, you'll notice there are 3 large families of functions, with the prefixes `gs4_`, `sheet_`, and `range_`. The prefix conveys a function's scope of operation.
