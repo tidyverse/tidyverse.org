@@ -67,7 +67,7 @@ Change is hard, but let's focus on the positive:
   provides a full-featured client for working with files on Google Drive, which
   allows googlesheets4 to focus on operations specific to spreadsheets. In the
   original googlesheets package, about half of the code and effort was actually
-  devoted to Drive, not Sheets.
+  related to Drive, not Sheets.
 
 ## Read a Sheet
 
@@ -89,7 +89,7 @@ read_sheet("https://docs.google.com/spreadsheets/d/1U6Cf_qEOhiR9AZqTqS3mbMF3zt2d
 #> # … with 619 more rows
 ```
 
-I'm reading from one of our public example Sheets -- specifically, a Sheet that holds Gapminder data. `gs4_examples()` and `gs4_example()` make the example Sheets easy to access.
+I'm reading from one of our public example Sheets --- specifically, a Sheet that holds Gapminder data. `gs4_examples()` and `gs4_example()` make the example Sheets easy to access.
 
 *If you're following along at home, you probably just got a prompt to log in with Google. That's because, in general, you'll want googlesheets4 to be able to do the same things you can do with Sheets in the browser. If you know you only want to read public Sheets, you can use `gs4_deauth()` to tell googlesheets4 that it should not attempt auth.*
 
@@ -161,18 +161,18 @@ Remember there are [articles](https://googlesheets4.tidyverse.org/articles/index
 
 I'll go out in a blaze of glory, demonstrating just a few of the functions that can create and edit a Sheet.
 
-Create a new Sheet with `gs4_create()` and send some initial data to well-named worksheets.
+First I create a new Sheet with `gs4_create()` and send some initial data to well-named worksheets:
 
 
 ```r
 ss <- gs4_create(
   "able-aardvark",
   sheets = list(flowers = head(iris), autos = head(mtcars))
-  )
+)
 #> Creating new Sheet: "able-aardvark"
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 14KGbP1tuXJ1I94yUX44QxRtgEiUQCHUK5zRMLNb27Oo
+#>                 ID: 1U4WeU0PjIjKOVnr8HkHbEqOX-xZYCoOrRKuCX5X6EBU
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 2
@@ -238,7 +238,7 @@ Let's take one last glance at our creation.
 ```r
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 14KGbP1tuXJ1I94yUX44QxRtgEiUQCHUK5zRMLNb27Oo
+#>                 ID: 1U4WeU0PjIjKOVnr8HkHbEqOX-xZYCoOrRKuCX5X6EBU
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 3
@@ -255,7 +255,7 @@ Finally, we clean up. Note that we (must) use googledrive for this. The Sheets A
 ```r
 googledrive::drive_trash(ss)
 #> Files trashed:
-#>   * able-aardvark: 14KGbP1tuXJ1I94yUX44QxRtgEiUQCHUK5zRMLNb27Oo
+#>   * able-aardvark: 1U4WeU0PjIjKOVnr8HkHbEqOX-xZYCoOrRKuCX5X6EBU
 ```
 
 Once again, the [articles](https://googlesheets4.tidyverse.org/articles/index.html) provide much deeper coverage of all of these topics.
