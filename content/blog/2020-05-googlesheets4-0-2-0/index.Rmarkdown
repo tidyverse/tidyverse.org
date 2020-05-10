@@ -16,11 +16,22 @@ photo:
 <!-- index.Rmarkdown is generated from index.Rmarkdown.orig -->
 <!-- Please edit that file and run precompile.R -->
 
+```{r setup, include = FALSE}
+can_decrypt <- gargle:::secret_can_decrypt("googlesheets4")
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  eval = can_decrypt
+)
+options(tibble.print_min = 5L, tibble.print_max = 5L)
+```
 
+```{r eval = !can_decrypt, echo = FALSE, comment = NA}
+message("No token available. Code chunks will not be evaluated.")
+```
 
-
-
-
+```{r auth, include = FALSE}
+googlesheets4:::gs4_auth_docs()
+```
 
 We're ecstatic to announce the release of googlesheets4 0.2.0 on CRAN:
 
@@ -30,15 +41,13 @@ googlesheets4 is a package to work with Google Sheets from R. Although version 0
 
 Install googlesheets4 from CRAN like so:
 
-
-```r
+```{r eval = FALSE}
 install.packages("googlesheets4")
 ```
 
 Then attach it for use via:
 
-
-```r
+```{r}
 library(googlesheets4)
 ```
 
@@ -67,90 +76,38 @@ Change is hard, but let's focus on the positive:
   provides a full-featured client for working with files on Google Drive, which
   allows googlesheets4 to focus on operations specific to spreadsheets. In the
   original googlesheets package, about half of the code and effort was actually
-  devoted to Drive, not Sheets.
+  related to Drive, not Sheets.
 
 ## Read a Sheet
 
 Let's say you're staring at a Sheet in the browser and you want to read it into R. Copy the URL to your clipboard and paste it into a call to `read_sheet()` like this:
 
-
-```r
+```{r}
 read_sheet("https://docs.google.com/spreadsheets/d/1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY/edit#gid=780868077")
-#> Reading from "gapminder"
-#> Range "Africa"
-#> # A tibble: 624 x 6
-#>   country continent  year lifeExp      pop gdpPercap
-#>   <chr>   <chr>     <dbl>   <dbl>    <dbl>     <dbl>
-#> 1 Algeria Africa     1952    43.1  9279525     2449.
-#> 2 Algeria Africa     1957    45.7 10270856     3014.
-#> 3 Algeria Africa     1962    48.3 11000948     2551.
-#> 4 Algeria Africa     1967    51.4 12760499     3247.
-#> 5 Algeria Africa     1972    54.5 14760787     4183.
-#> # … with 619 more rows
 ```
 
-I'm reading from one of our public example Sheets -- specifically, a Sheet that holds Gapminder data. `gs4_examples()` and `gs4_example()` make the example Sheets easy to access.
+I'm reading from one of our public example Sheets --- specifically, a Sheet that holds Gapminder data. `gs4_examples()` and `gs4_example()` make the example Sheets easy to access.
 
 *If you're following along at home, you probably just got a prompt to log in with Google. That's because, in general, you'll want googlesheets4 to be able to do the same things you can do with Sheets in the browser. If you know you only want to read public Sheets, you can use `gs4_deauth()` to tell googlesheets4 that it should not attempt auth.*
 
-
-```r
+```{r}
 gs4_example("gapminder")
-#>   Spreadsheet name: gapminder
-#>                 ID: 1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY
-#>             Locale: en_US
-#>          Time zone: America/Los_Angeles
-#>        # of sheets: 5
-#> 
-#> (Sheet name): (Nominal extent in rows x columns)
-#>       Africa: 625 x 6
-#>     Americas: 301 x 6
-#>         Asia: 397 x 6
-#>       Europe: 361 x 6
-#>      Oceania: 25 x 6
-#> 
-#> (Named range): (A1 range)        
-#>        canada: 'Americas'!A38:F49
 ```
 
 The above demonstrates that printing a Sheet ID reveals relevant metadata about the Sheet, such as its name and an overview of its worksheets and named ranges.
 
 A browser URL is OK for quick-and-dirty work, but there are other ways to target Sheet that are more robust and easier on the eyes. We can pipe a Sheet ID into `read_sheet()`. I'll also start to demonstrate other features, e.g. the use of a qualifed A1-style `range`.
 
-
-```r
+```{r}
 gs4_example("gapminder") %>%
   read_sheet(range = "Asia!A:D")
-#> Reading from "gapminder"
-#> Range "'Asia'!A:D"
-#> # A tibble: 396 x 4
-#>   country     continent  year lifeExp
-#>   <chr>       <chr>     <dbl>   <dbl>
-#> 1 Afghanistan Asia       1952    28.8
-#> 2 Afghanistan Asia       1957    30.3
-#> 3 Afghanistan Asia       1962    32.0
-#> 4 Afghanistan Asia       1967    34.0
-#> 5 Afghanistan Asia       1972    36.1
-#> # … with 391 more rows
 ```
 
 We can use googledrive's ability to address Drive files by **name** to help us identify the Sheet of interest. I'll switch to a different example Sheet, show the use of `range` to target a *named range*, and specify some of the column types:
 
-
-```r
+```{r}
 googledrive::drive_get("deaths") %>%
   read_sheet(range = "arts_data", col_types = "??i?DD")
-#> Reading from "deaths"
-#> Range "arts_data"
-#> # A tibble: 10 x 6
-#>   Name          Profession   Age `Has kids` `Date of birth` `Date of death`
-#>   <chr>         <chr>      <int> <lgl>      <date>          <date>         
-#> 1 David Bowie   musician      69 TRUE       1947-01-08      2016-01-10     
-#> 2 Carrie Fisher actor         60 TRUE       1956-10-21      2016-12-27     
-#> 3 Chuck Berry   musician      90 TRUE       1926-10-18      2017-03-18     
-#> 4 Bill Paxton   actor         61 TRUE       1955-05-17      2017-02-25     
-#> 5 Prince        musician      57 TRUE       1958-06-07      2016-04-21     
-#> # … with 5 more rows
 ```
 
 `read_sheet()` is the main "read" function of googlesheets4 and should remind you of other table-reading functions, like `readr::read_csv()` and `readxl::read_excel()`. It also goes by another name: `range_read()`, which is the "correct" name according to googlesheets4's naming conventions. Either name is fine! It's OK if you don't care about this, I just want to give you a heads up. If you make extensive use of googlesheets4, you'll notice there are 3 large families of functions, with the prefixes `gs4_`, `sheet_`, and `range_`. The prefix conveys a function's scope of operation.
@@ -161,101 +118,58 @@ Remember there are [articles](https://googlesheets4.tidyverse.org/articles/index
 
 I'll go out in a blaze of glory, demonstrating just a few of the functions that can create and edit a Sheet.
 
-Create a new Sheet with `gs4_create()` and send some initial data to well-named worksheets.
+First I create a new Sheet with `gs4_create()` and send some initial data to well-named worksheets:
 
-
-```r
+```{r}
 ss <- gs4_create(
   "able-aardvark",
   sheets = list(flowers = head(iris), autos = head(mtcars))
-  )
-#> Creating new Sheet: "able-aardvark"
+)
 ss
-#>   Spreadsheet name: able-aardvark
-#>                 ID: 14KGbP1tuXJ1I94yUX44QxRtgEiUQCHUK5zRMLNb27Oo
-#>             Locale: en_US
-#>          Time zone: Etc/GMT
-#>        # of sheets: 2
-#> 
-#> (Sheet name): (Nominal extent in rows x columns)
-#>      flowers: 7 x 5
-#>        autos: 7 x 11
 
 read_sheet(ss)
-#> Reading from "able-aardvark"
-#> Range "flowers"
-#> # A tibble: 6 x 5
-#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
-#>          <dbl>       <dbl>        <dbl>       <dbl> <chr>  
-#> 1          5.1         3.5          1.4         0.2 setosa 
-#> 2          4.9         3            1.4         0.2 setosa 
-#> 3          4.7         3.2          1.3         0.2 setosa 
-#> 4          4.6         3.1          1.5         0.2 setosa 
-#> 5          5           3.6          1.4         0.2 setosa 
-#> # … with 1 more row
 ```
 
 If you're following along at home, you can use `gs4_browse()` to open a Sheet in your default web browser.
 
-
-```r
+```{r eval = FALSE}
 gs4_browse(ss)
 ```
 
 Send another data frame to an entirely new (work)sheet within this existing (spread)Sheet with `write_sheet()`.
 
-
-```r
+```{r}
 my_data <- data.frame(
   numbers = c(1, 5, 3, 2, 4, 6),
   letters = letters[1:6]
 )
 
 write_sheet(my_data, ss = ss)
-#> Writing to "able-aardvark"
-#> Writing to sheet "my_data"
 ```
 
 Let's append a row to the bottom of `my_data` and populate it with formulas that summarize the data in each column (hey, a sparkline!).
 
-
-```r
+```{r}
 my_summaries <- data.frame(
   x = gs4_formula('=SPARKLINE(A2:A7, {"color", "blue"})'),
   y = gs4_formula('=JOIN("-", B2:B7)')
 )
 ss %>%
   sheet_append(my_summaries, sheet = "my_data")
-#> Writing to "able-aardvark"
-#> Appending 1 row(s) to "my_data"
 ```
 
 Notice that we did not have to specify which row to write the new values into. `sheet_append()` uses an endpoint that knows how to add rows to the existing table of data. It's true that we used some row knowledge in our formulas, but more often you will just be sending data. Also notice the use of `gs4_formula()`. This is how you indicate that character data should be sent as Sheets formulas, as opposed to regular strings.
 
 Let's take one last glance at our creation.
 
-
-```r
+```{r}
 ss
-#>   Spreadsheet name: able-aardvark
-#>                 ID: 14KGbP1tuXJ1I94yUX44QxRtgEiUQCHUK5zRMLNb27Oo
-#>             Locale: en_US
-#>          Time zone: Etc/GMT
-#>        # of sheets: 3
-#> 
-#> (Sheet name): (Nominal extent in rows x columns)
-#>      flowers: 7 x 5
-#>        autos: 7 x 11
-#>      my_data: 8 x 2
 ```
 
 Finally, we clean up. Note that we (must) use googledrive for this. The Sheets API can create a Sheet, but alas it cannot delete one. For that (and most other "whole file" operations), we must use the Drive API, which is why googlesheets4 is designed to work *with* googledrive.
 
-
-```r
+```{r}
 googledrive::drive_trash(ss)
-#> Files trashed:
-#>   * able-aardvark: 14KGbP1tuXJ1I94yUX44QxRtgEiUQCHUK5zRMLNb27Oo
 ```
 
 Once again, the [articles](https://googlesheets4.tidyverse.org/articles/index.html) provide much deeper coverage of all of these topics.
