@@ -219,7 +219,7 @@ ss <- gs4_create(
 #> Creating new Sheet: "able-aardvark"
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1z4jhfMpNnc-bmcY0LxITLVwA4D1NZHLKZHNKfQ2LWYA
+#>                 ID: 1OV9Mxf-NdTyB1ChmlVKEFy0e1AaPAJCahzcWBw1w3qQ
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 2
@@ -263,7 +263,7 @@ write_sheet(my_data, ss = ss)
 #> Writing to sheet "my_data"
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1z4jhfMpNnc-bmcY0LxITLVwA4D1NZHLKZHNKfQ2LWYA
+#>                 ID: 1OV9Mxf-NdTyB1ChmlVKEFy0e1AaPAJCahzcWBw1w3qQ
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 3
@@ -296,7 +296,7 @@ Let's take one last glance at our creation.
 ```r
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1z4jhfMpNnc-bmcY0LxITLVwA4D1NZHLKZHNKfQ2LWYA
+#>                 ID: 1OV9Mxf-NdTyB1ChmlVKEFy0e1AaPAJCahzcWBw1w3qQ
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 3
@@ -307,13 +307,17 @@ ss
 #>      my_data: 8 x 2
 ```
 
+In the browser, the `my_data` sheet looks something like this at this point:
+
+<img src="append-formula-sparkline.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" width="40%" />
+
 Finally, we clean up. Note that we (must) use googledrive for this. The Sheets API can create a Sheet, but alas it cannot delete one. For that (and most other "whole file" operations), we must use the Drive API, which is why googlesheets4 is designed to work *with* googledrive.
 
 
 ```r
 googledrive::drive_trash(ss)
 #> Files trashed:
-#>   * able-aardvark: 1z4jhfMpNnc-bmcY0LxITLVwA4D1NZHLKZHNKfQ2LWYA
+#>   * able-aardvark: 1OV9Mxf-NdTyB1ChmlVKEFy0e1AaPAJCahzcWBw1w3qQ
 ```
 
 Once again, the [articles](https://googlesheets4.tidyverse.org/articles/index.html) provide much deeper coverage of topics like identifying and modifying Sheets. 
