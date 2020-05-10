@@ -71,7 +71,9 @@ Change is hard, but let's focus on the positive:
 
 ## Read a Sheet
 
-Let's say you're staring at a Sheet in the browser and you want to read it into R. Copy the URL to your clipboard and paste it into a call to `read_sheet()` like this:
+Let's say you're staring at a Sheet[^terminology] in the browser and you want to read it into R. Copy the URL to your clipboard and paste it into a call to `read_sheet()` like this:
+
+[^terminology]: It's very easy to get confused about vocabulary when talking about spreadsheets and, especially, about Google Sheets. When we say capital-S "Sheet", we mean a spreadsheet or (spread)Sheet, i.e. the Google equivalent of an Excel workbook or `.xlsx` file. Indeed, the actual Sheets API uses the term  "spreadsheet". The individual tabs inside a Sheet are (work)sheets, i.e. small-s "sheet".
 
 
 ```r
@@ -89,13 +91,23 @@ read_sheet("https://docs.google.com/spreadsheets/d/1U6Cf_qEOhiR9AZqTqS3mbMF3zt2d
 #> # … with 619 more rows
 ```
 
-I'm reading from one of our public example Sheets --- specifically, a Sheet that holds Gapminder data. `gs4_examples()` and `gs4_example()` make the example Sheets easy to access.
-
 *If you're following along at home, you probably just got a prompt to log in with Google. That's because, in general, you'll want googlesheets4 to be able to do the same things you can do with Sheets in the browser. If you know you only want to read public Sheets, you can use `gs4_deauth()` to tell googlesheets4 that it should not attempt auth.*
+
+I'm reading from one of our public example Sheets --- specifically, a Sheet that holds Gapminder data. A browser URL is OK for quick-and-dirty work, but there are other ways to target a Sheet that are more robust and easier on the eyes.
+
+You will often want to refer to your Sheets by ID or by name. For the public example Sheets, we offer convenience functions `gs4_example()` and `gs4_examples()` to get IDs based on name. 
 
 
 ```r
-gs4_example("gapminder")
+gap_id <- gs4_example("gapminder")
+
+class(gap_id)
+#> [1] "sheets_id" "drive_id"
+unclass(gap_id)
+#>                                      gapminder 
+#> "1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY"
+
+gap_id
 #>   Spreadsheet name: gapminder
 #>                 ID: 1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY
 #>             Locale: en_US
@@ -113,9 +125,9 @@ gs4_example("gapminder")
 #>        canada: 'Americas'!A38:F49
 ```
 
-The above demonstrates that printing a Sheet ID reveals relevant metadata about the Sheet, such as its name and an overview of its worksheets and named ranges.
+The above demonstrates that printing a Sheet ID (literally, an instance of `sheets_id`) reveals relevant metadata about the Sheet, such as its name and an overview of its worksheets and named ranges.
 
-A browser URL is OK for quick-and-dirty work, but there are other ways to target Sheet that are more robust and easier on the eyes. We can pipe a Sheet ID into `read_sheet()`. I'll also start to demonstrate other features, e.g. the use of a qualifed A1-style `range`.
+`read_sheet()` is happy to accept a Sheet ID, instead of a URL. Here we show piping a Sheet ID into `read_sheet()` and we start to demonstrate other features, e.g. the use of a qualifed A1-style `range`.
 
 
 ```r
@@ -134,10 +146,29 @@ gs4_example("gapminder") %>%
 #> # … with 391 more rows
 ```
 
-We can use googledrive's ability to address Drive files by **name** to help us identify the Sheet of interest. I'll switch to a different example Sheet, show the use of `range` to target a *named range*, and specify some of the column types:
+But how do you get a Sheet ID for your *own* Sheets? First, you can use `as_sheets_id()` to extract the ID from various types of input, such as a browser URL:
 
 
 ```r
+gs4_example("chicken-sheet") %>% 
+  as_sheets_id() %>% 
+  unclass()
+#>                                  chicken-sheet 
+#> "1ct9t1Efv8pAGN9YO5gC2QfRq2wT4XjNoTMXpVeUghJU"
+```
+
+We can also use googledrive's ability to address Drive files by **name**[^non-unique-names] to help us identify the Sheet of interest. The account I'm logged in with owns a Sheet named "deaths" and `googledrive::drive_get()` retrieves its metadata as a one-row `dribble` ("Drive tibble"). `read_sheet()` accepts this as input. Here I also show the use of `range` to target a *named range* and specify some of the column types:
+
+[^non-unique-names]: Believe it or not, files on Drive don't have to have a unique name. You can have multiple files named "foofy" on Drive, even in the same folder. In fact, historically, a file can also belong to multiple folders (although this is mercifully being phased out). The main takeaway is that your usual expectations about "a name or filepath identifies at most one file" and "a file is identified by exactly one name or filepath" don't hold on Drive.
+
+
+```r
+googledrive::drive_get("deaths")
+#> # A tibble: 1 x 4
+#>   name   path     id                                           drive_resource   
+#>   <chr>  <chr>    <chr>                                        <list>           
+#> 1 deaths ~/deaths 1VTJjWoP1nshbyxmL9JqXgdVsimaYty21LGxxs018H2Y <named list [35]>
+
 googledrive::drive_get("deaths") %>%
   read_sheet(range = "arts_data", col_types = "??i?DD")
 #> Reading from "deaths"
@@ -153,7 +184,7 @@ googledrive::drive_get("deaths") %>%
 #> # … with 5 more rows
 ```
 
-`read_sheet()` is the main "read" function of googlesheets4 and should remind you of other table-reading functions, like `readr::read_csv()` and `readxl::read_excel()`. It also goes by another name: `range_read()`, which is the "correct" name according to googlesheets4's naming conventions. Either name is fine! It's OK if you don't care about this, I just want to give you a heads up. If you make extensive use of googlesheets4, you'll notice there are 3 large families of functions, with the prefixes `gs4_`, `sheet_`, and `range_`. The prefix conveys a function's scope of operation.
+`read_sheet()` is the main "read" function of googlesheets4 and should remind you of other table-reading functions, like `readr::read_csv()` and `readxl::read_excel()`. It also goes by another name: `range_read()`, which is the most correct name according to googlesheets4's naming conventions. Either name is fine! It's OK if you don't care about this, I just want to give you a heads up. If you make extensive use of googlesheets4, you'll notice there are 3 large families of functions, with the prefixes `gs4_`, `sheet_`, and `range_`. The prefix conveys a function's scope of operation.
 
 Remember there are [articles](https://googlesheets4.tidyverse.org/articles/index.html) that go into much more depth.
 
@@ -172,7 +203,7 @@ ss <- gs4_create(
 #> Creating new Sheet: "able-aardvark"
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1irBke_guFfgz6XZNluDyisP3Uj9McwTYM9uUBfa9SOU
+#>                 ID: 1XjZPNbSCdZADSt7IYAzrPiak-FmNcWnZUOW44N0nULo
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 2
@@ -238,7 +269,7 @@ Let's take one last glance at our creation.
 ```r
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1irBke_guFfgz6XZNluDyisP3Uj9McwTYM9uUBfa9SOU
+#>                 ID: 1XjZPNbSCdZADSt7IYAzrPiak-FmNcWnZUOW44N0nULo
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 3
@@ -255,7 +286,7 @@ Finally, we clean up. Note that we (must) use googledrive for this. The Sheets A
 ```r
 googledrive::drive_trash(ss)
 #> Files trashed:
-#>   * able-aardvark: 1irBke_guFfgz6XZNluDyisP3Uj9McwTYM9uUBfa9SOU
+#>   * able-aardvark: 1XjZPNbSCdZADSt7IYAzrPiak-FmNcWnZUOW44N0nULo
 ```
 
 Once again, the [articles](https://googlesheets4.tidyverse.org/articles/index.html) provide much deeper coverage of all of these topics.
