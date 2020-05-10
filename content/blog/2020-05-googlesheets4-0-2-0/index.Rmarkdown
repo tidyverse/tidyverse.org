@@ -80,7 +80,7 @@ Change is hard, but let's focus on the positive:
 
 Let's say you're staring at a Sheet[^terminology] in the browser and you want to read it into R. Copy the URL to your clipboard and paste it into a call to `read_sheet()` like this:
 
-[^terminology]: It's very easy to get confused about vocabulary when talking about spreadsheets and, especially, about Google Sheets. When we say capital-S "Sheet", we mean a spreadsheet or (spread)Sheet, i.e. the Google equivalent of an Excel workbook or `.xlsx` file. Indeed, the actual Sheets API uses the term  "spreadsheet". The individual tabs inside a Sheet are (work)sheets, i.e. small-s "sheet".
+[^terminology]: It's very easy to get confused about vocabulary when talking about spreadsheets and, especially, about Google Sheets. When we say capital-S "Sheet", we mean a spreadsheet or (spread)Sheet, i.e. the Google equivalent of an Excel workbook or `.xlsx` file. Indeed, the actual Sheets API uses the term  "spreadsheet". An individual "tab" inside a Sheet is a (work)sheet, i.e. small-s "sheet". So one Sheet contains one or more sheets.
 
 ```{r}
 read_sheet("https://docs.google.com/spreadsheets/d/1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY/edit#gid=780868077")
@@ -103,19 +103,18 @@ gap_id
 
 The above demonstrates that printing a Sheet ID (literally, an instance of `sheets_id`) reveals relevant metadata about the Sheet, such as its name and an overview of its worksheets and named ranges.
 
-`read_sheet()` is happy to accept a Sheet ID, instead of a URL. Here we show piping a Sheet ID into `read_sheet()` and we start to demonstrate other features, e.g. the use of a qualifed A1-style `range`.
+`read_sheet()` is happy to accept a Sheet ID, instead of a URL. Such a Sheet ID might be an instance of `sheets_id`, but you can also provide the ID as a string. Here we show piping a Sheet ID into `read_sheet()` and we start to demonstrate other features, e.g. the use of a qualifed A1-style `range`.
 
 ```{r}
 gs4_example("gapminder") %>%
   read_sheet(range = "Asia!A:D")
 ```
 
-But how do you get a Sheet ID for your *own* Sheets? First, you can use `as_sheets_id()` to extract the ID from various types of input, such as a browser URL:
+But how do you get a Sheet ID for your *own* Sheets? First, you can use `as_sheets_id()` to extract the ID from various types of input, such as a browser URL. I use `as.character()` here to suppress the default printing     behaviour, so we can just stare at the plain string.
 
 ```{r}
-gs4_example("chicken-sheet") %>% 
-  as_sheets_id() %>% 
-  unclass()
+as_sheets_id("https://docs.google.com/spreadsheets/d/1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY/edit#gid=780868077") %>% 
+  as.character()
 ```
 
 We can also use googledrive's ability to address Drive files by **name**[^non-unique-names] to help us identify the Sheet of interest. The account I'm logged in with owns a Sheet named "deaths" and `googledrive::drive_get()` retrieves its metadata as a one-row `dribble` ("Drive tibble"). `read_sheet()` accepts this as input. Here I also show the use of `range` to target a *named range* and specify some of the column types:
@@ -131,13 +130,13 @@ googledrive::drive_get("deaths") %>%
 
 `read_sheet()` is the main "read" function of googlesheets4 and should remind you of other table-reading functions, like `readr::read_csv()` and `readxl::read_excel()`. It also goes by another name: `range_read()`, which is the most correct name according to googlesheets4's naming conventions. Either name is fine! It's OK if you don't care about this, I just want to give you a heads up. If you make extensive use of googlesheets4, you'll notice there are 3 large families of functions, with the prefixes `gs4_`, `sheet_`, and `range_`. The prefix conveys a function's scope of operation.
 
-Remember there are [articles](https://googlesheets4.tidyverse.org/articles/index.html) that go into much more depth.
+Remember there are [articles](https://googlesheets4.tidyverse.org/articles/index.html) that go into much more depth on reading Sheets, column types, and using googlesheets4 in concert with googledrive.
 
 ## Write and modify a Sheet
 
 I'll go out in a blaze of glory, demonstrating just a few of the functions that can create and edit a Sheet.
 
-First I create a new Sheet with `gs4_create()` and send some initial data to well-named worksheets:
+First I create a new Sheet with `gs4_create()` and send some initial data to two well-named worksheets:
 
 ```{r}
 ss <- gs4_create(
@@ -149,13 +148,13 @@ ss
 read_sheet(ss)
 ```
 
-If you're following along at home, you can use `gs4_browse()` to open a Sheet in your default web browser.
+If you're following along at home, you can use `gs4_browse()` to open a Sheet in your default web browser. This is especially helpful when you are developing code that writes to a Sheet.
 
 ```{r eval = FALSE}
 gs4_browse(ss)
 ```
 
-Send another data frame to an entirely new (work)sheet within this existing (spread)Sheet with `write_sheet()`.
+Now I send a third data frame to an entirely new (work)sheet within this existing (spread)Sheet with `write_sheet()`.
 
 ```{r}
 my_data <- data.frame(
@@ -164,6 +163,7 @@ my_data <- data.frame(
 )
 
 write_sheet(my_data, ss = ss)
+ss
 ```
 
 Let's append a row to the bottom of `my_data` and populate it with formulas that summarize the data in each column (hey, a sparkline!).
@@ -191,15 +191,15 @@ Finally, we clean up. Note that we (must) use googledrive for this. The Sheets A
 googledrive::drive_trash(ss)
 ```
 
-Once again, the [articles](https://googlesheets4.tidyverse.org/articles/index.html) provide much deeper coverage of all of these topics.
+Once again, the [articles](https://googlesheets4.tidyverse.org/articles/index.html) provide much deeper coverage of topics like identifying and modifying Sheets. 
 
 ## Try it out
 
-The googlesheets4 package is marked as [experimental](https://www.tidyverse.org/lifecycle/#experimental), but it's really somewhere between experimental and [maturing](https://www.tidyverse.org/lifecycle/#maturing). This is the first CRAN release that includes write and edit capability, so I reserve the right to make some relatively quick, modest changes to the interface in response to user feedback. But such changes get more painful for everyone the longer we wait. Now is a great time to take googlesheets4 out for a test drive.
+The googlesheets4 package is marked as experimental, but it's really somewhere between [experimental](https://www.tidyverse.org/lifecycle/#experimental) and [maturing](https://www.tidyverse.org/lifecycle/#maturing). This is the first CRAN release that includes write and edit capability, so I want the flexibility to make some relatively quick, modest changes to the interface in response to user feedback. But such changes get more painful for everyone the longer we wait. Now is a great time to take googlesheets4 out for a test drive.
 
 If you encounter ergonomic problems or spot tasks that were possible with googlesheets but are not yet possible with googlesheet4, please [open an issue](https://github.com/tidyverse/googlesheets4/issues).
 
 ## Thank you!
 
-A big thanks to all 64 contributors who helped make this release happen via their contributions on GitHub.
+A big thanks to all 64 contributors who've helped to bring googlesheets4 to this point via their contributions on GitHub.
 [&#x0040;4marel](https://github.com/4marel), [&#x0040;AaronGullickson](https://github.com/AaronGullickson), [&#x0040;adisarid](https://github.com/adisarid), [&#x0040;ahelgason](https://github.com/ahelgason), [&#x0040;alex-steiner-next](https://github.com/alex-steiner-next), [&#x0040;aljrico](https://github.com/aljrico), [&#x0040;amir2cs](https://github.com/amir2cs), [&#x0040;antoine-sachet](https://github.com/antoine-sachet), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;behrman](https://github.com/behrman), [&#x0040;ben519](https://github.com/ben519), [&#x0040;Biomiha](https://github.com/Biomiha), [&#x0040;BriBecker](https://github.com/BriBecker), [&#x0040;ceprdata](https://github.com/ceprdata), [&#x0040;ChemiKyle](https://github.com/ChemiKyle), [&#x0040;chrowe](https://github.com/chrowe), [&#x0040;cneskey](https://github.com/cneskey), [&#x0040;csnardi](https://github.com/csnardi), [&#x0040;dan-reznik](https://github.com/dan-reznik), [&#x0040;dcaley5005](https://github.com/dcaley5005), [&#x0040;Flavjack](https://github.com/Flavjack), [&#x0040;GitHubDoug](https://github.com/GitHubDoug), [&#x0040;gloignon](https://github.com/gloignon), [&#x0040;grwhumphries](https://github.com/grwhumphries), [&#x0040;guhanrv](https://github.com/guhanrv), [&#x0040;ianformanek](https://github.com/ianformanek), [&#x0040;j-Rinehart](https://github.com/j-Rinehart), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jiaoshuo](https://github.com/jiaoshuo), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;jjankowiak](https://github.com/jjankowiak), [&#x0040;jpawlata](https://github.com/jpawlata), [&#x0040;jperkel](https://github.com/jperkel), [&#x0040;juliangilbey](https://github.com/juliangilbey), [&#x0040;jzadra](https://github.com/jzadra), [&#x0040;karawoo](https://github.com/karawoo), [&#x0040;kaveh1000](https://github.com/kaveh1000), [&#x0040;lucasmation](https://github.com/lucasmation), [&#x0040;MarkEdmondson1234](https://github.com/MarkEdmondson1234), [&#x0040;mikegunn](https://github.com/mikegunn), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [&#x0040;mitchelloharawild](https://github.com/mitchelloharawild), [&#x0040;mlamias](https://github.com/mlamias), [&#x0040;mountainMath](https://github.com/mountainMath), [&#x0040;mssanjavickovic](https://github.com/mssanjavickovic), [&#x0040;nacnudus](https://github.com/nacnudus), [&#x0040;nathanhwangbo](https://github.com/nathanhwangbo), [&#x0040;nicole-brewer](https://github.com/nicole-brewer), [&#x0040;ogs22](https://github.com/ogs22), [&#x0040;pachamaltese](https://github.com/pachamaltese), [&#x0040;peeter-t2](https://github.com/peeter-t2), [&#x0040;ramirobentes](https://github.com/ramirobentes), [&#x0040;realauggieheschmeyer](https://github.com/realauggieheschmeyer), [&#x0040;RSherwoodJr](https://github.com/RSherwoodJr), [&#x0040;sam-watts](https://github.com/sam-watts), [&#x0040;schmalte04](https://github.com/schmalte04), [&#x0040;seanchrismurphy](https://github.com/seanchrismurphy), [&#x0040;selesnow](https://github.com/selesnow), [&#x0040;somnambWl](https://github.com/somnambWl), [&#x0040;SridharJagannathan](https://github.com/SridharJagannathan), [&#x0040;Tadge-Analytics](https://github.com/Tadge-Analytics), [&#x0040;untergeekDE](https://github.com/untergeekDE), [&#x0040;wildcat47](https://github.com/wildcat47), and [&#x0040;yogat3ch](https://github.com/yogat3ch).
