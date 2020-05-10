@@ -42,7 +42,7 @@ Then attach it for use via:
 library(googlesheets4)
 ```
 
-googlesheets4 is already documented through [several articles](https://googlesheets4.tidyverse.org/articles/index.html) and, as always, you can find detailed notes about all changes in the [change log](https://googlesheets4.tidyverse.org/news/index.html).
+Below we give a brief overview of the basic read and write functionality of googlesheets4. The website has [several articles](https://googlesheets4.tidyverse.org/articles/index.html) that document more advanced use and special topics, such as auth. As always, you can find detailed notes about all changes in the [change log](https://googlesheets4.tidyverse.org/news/index.html).
 
 ## googlesheets is dead! Long live googlesheets4!
 
@@ -172,7 +172,7 @@ ss <- gs4_create(
 #> Creating new Sheet: "able-aardvark"
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1HOLw6GxyB_qIDfeNZCfnrJ6E_c404A0dh6IcXshDNSw
+#>                 ID: 1irBke_guFfgz6XZNluDyisP3Uj9McwTYM9uUBfa9SOU
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 2
@@ -238,7 +238,7 @@ Let's take one last glance at our creation.
 ```r
 ss
 #>   Spreadsheet name: able-aardvark
-#>                 ID: 1HOLw6GxyB_qIDfeNZCfnrJ6E_c404A0dh6IcXshDNSw
+#>                 ID: 1irBke_guFfgz6XZNluDyisP3Uj9McwTYM9uUBfa9SOU
 #>             Locale: en_US
 #>          Time zone: Etc/GMT
 #>        # of sheets: 3
@@ -255,7 +255,7 @@ Finally, we clean up. Note that we (must) use googledrive for this. The Sheets A
 ```r
 googledrive::drive_trash(ss)
 #> Files trashed:
-#>   * able-aardvark: 1HOLw6GxyB_qIDfeNZCfnrJ6E_c404A0dh6IcXshDNSw
+#>   * able-aardvark: 1irBke_guFfgz6XZNluDyisP3Uj9McwTYM9uUBfa9SOU
 ```
 
 Once again, the [articles](https://googlesheets4.tidyverse.org/articles/index.html) provide much deeper coverage of all of these topics.
