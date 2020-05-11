@@ -30,6 +30,21 @@ Note that the development version won't become 1.0.0 until it's released, but it
 library(dplyr, warn.conflicts = FALSE)
 ```
 
+
+### _Update notice_
+
+We have updated the syntax for selecting with a function.  Where you would use `data %>% select(is.numeric)` in the early development versions, you must now use `data %>% select(where(is.numeric))`. We made this change to avoid puzzling error messages when a variable is unexpectedly missing from the data frame and there is a corresponding function in the environment:
+
+
+```r
+# Attempts to invoke `data()` function
+data.frame(x = 1) %>% select(data)
+```
+
+The rest of this post has been updated accordingly.
+
+
+
 ## Select and renaming
 
 `select()` and `rename()` are now significantly more flexible thanks to enhancements to the [tidyselect](https://tidyselect.r-lib.org/) package. There are now five ways to select variables in `select()` and `rename()`:
@@ -46,13 +61,13 @@ library(dplyr, warn.conflicts = FALSE)
   `df %>% select(ends_with("s"))`. You can also use helpers `contains()`
   and `matches()` for more flexibly matching.
 
-* By **type**: `df %>% select(is.numeric)`, `df %>% select(is.factor)`.
+* By **type**: `df %>% select(where(is.numeric))`, `df %>% select(where(is.factor))`.
 
 * By **any combination** of the above using the Boolean operators `!`, `&`, and `|`:
 
-    * `df %>% select(!is.factor)`: selects all non-factor variables.
+    * `df %>% select(!where(is.factor))`: selects all non-factor variables.
     
-    * `df %>% select(is.numeric & starts_with("x"))`: selects all
+    * `df %>% select(where(is.numeric) & starts_with("x"))`: selects all
       numeric variables that starts with "x".
       
     * `df %>% select(starts_with("a") | ends_with("z"))`: selects all
@@ -87,21 +102,21 @@ df1 %>% rename(b = 2)
 
 df2 <- tibble(x1 = 1, x2 = "a", x3 = 2, y1 = "b", y2 = 3, y3 = "c", y4 = 4)
 # Keep numeric columns
-df2 %>% select(is.numeric)
+df2 %>% select(where(is.numeric))
 #> # A tibble: 1 x 4
 #>      x1    x3    y2    y4
 #>   <dbl> <dbl> <dbl> <dbl>
 #> 1     1     2     3     4
 
 # Or all columns that aren't character
-df2 %>% select(!is.character)
+df2 %>% select(!where(is.character))
 #> # A tibble: 1 x 4
 #>      x1    x3    y2    y4
 #>   <dbl> <dbl> <dbl> <dbl>
 #> 1     1     2     3     4
 
 # Or columns that start with x and are numeric
-df2 %>% select(starts_with("x") & is.numeric)
+df2 %>% select(starts_with("x") & where(is.numeric))
 #> # A tibble: 1 x 2
 #>      x1    x3
 #>   <dbl> <dbl>
@@ -129,7 +144,7 @@ They differ only in what happens when variables are not present in the data fram
 ```r
 df2 %>% select(all_of(vars))
 #> Error: Can't subset columns that don't exist.
-#> x Column `z` doesn't exist.
+#> ✖ Column `z` doesn't exist.
 ```
 
 You can learn more about programming with tidy selection in [`?dplyr_tidy_select`](https://dplyr.tidyverse.org/dev/reference/dplyr_tidy_select.html). 
@@ -158,7 +173,7 @@ df2 %>% rename_with(toupper, starts_with("x"))
 #>   <dbl> <chr> <dbl> <chr> <dbl> <chr> <dbl>
 #> 1     1 a         2 b         3 c         4
 
-df2 %>% rename_with(toupper, is.numeric)
+df2 %>% rename_with(toupper, where(is.numeric))
 #> # A tibble: 1 x 7
 #>      X1 x2       X3 y1       Y2 y3       Y4
 #>   <dbl> <chr> <dbl> <chr> <dbl> <chr> <dbl>
@@ -178,7 +193,7 @@ df3 %>% relocate(y, z)
 #>   y     z         w     x
 #>   <chr> <chr> <dbl> <dbl>
 #> 1 a     b         0     1
-df3 %>% relocate(is.character)
+df3 %>% relocate(where(is.character))
 #> # A tibble: 1 x 4
 #>   y     z         w     x
 #>   <chr> <chr> <dbl> <dbl>
