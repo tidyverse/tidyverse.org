@@ -22,6 +22,20 @@ This post is the latest in a series of post leading up the the dplyr 1.0.0 relea
 
 Today, I wanted to talk a little bit about the new `across()` function that makes it easy to perform the same operation on multiple columns.
 
+
+### _Update notice_
+
+We have updated the syntax for selecting with a function.  Where you would use `across(is.numeric)` in the early development versions, you must now use `across(where(is.numeric))`. We made this change to avoid puzzling error messages when a variable is unexpectedly missing from the data frame and there is a corresponding function in the environment:
+
+
+```r
+# Attempts to invoke `data()` function
+data.frame(x = 1) %>% select(data)
+```
+
+The rest of this post has been updated accordingly.
+
+
 ### Getting the dev version
 
 If you're interested in living life on the edge (or trying out anything you see in this blog post), you can install the development version of dplyr with:
@@ -60,7 +74,7 @@ df %>%
 # or 
 df %>% 
   group_by(g1, g2) %>% 
-  summarise(across(is.numeric, mean))
+  summarise(across(where(is.numeric), mean))
 ```
 
 You might be familiar with `summarise_if()` and `summarise_at()` which we previously recommended for this sort of operation. Later in the blog post we'll come back to why we now prefer `across()`. But for now, let's dive into the basics of `across()`.
@@ -81,7 +95,7 @@ Here are a couple of examples of `across()` used with `summarise()`:
 
 ```r
 starwars %>% 
-  summarise(across(is.character, n_distinct))
+  summarise(across(where(is.character), n_distinct))
 #> # A tibble: 1 x 8
 #>    name hair_color skin_color eye_color   sex gender homeworld species
 #>   <int>      <int>      <int>     <int> <int>  <int>     <int>   <int>
@@ -91,6 +105,7 @@ starwars %>%
   group_by(species) %>% 
   filter(n() > 1) %>% 
   summarise(across(c(sex, gender, homeworld), n_distinct))
+#> `summarise()` ungrouping (override with `.groups` argument)
 #> # A tibble: 9 x 4
 #>   species    sex gender homeworld
 #>   <chr>    <int>  <int>     <int>
@@ -107,7 +122,8 @@ starwars %>%
 starwars %>% 
   group_by(homeworld) %>% 
   filter(n() > 1) %>% 
-  summarise(across(is.numeric, mean, na.rm = TRUE), n = n())
+  summarise(across(where(is.numeric), mean, na.rm = TRUE), n = n())
+#> `summarise()` ungrouping (override with `.groups` argument)
 #> # A tibble: 10 x 5
 #>    homeworld height  mass birth_year     n
 #>    <chr>      <dbl> <dbl>      <dbl> <int>
@@ -149,8 +165,8 @@ Why did we decide to move away from these functions in favour of `across()`?
     df %>%
       group_by(g1, g2) %>% 
       summarise(
-        across(is.numeric, mean), 
-        across(is.factor, nlevels),
+        across(where(is.numeric), mean), 
+        across(where(is.factor), nlevels),
         n = n(), 
       )
     ```
@@ -190,7 +206,7 @@ Here are a few examples of this process:
 ```r
 df %>% mutate_if(is.numeric, mean, na.rm = TRUE)
 # ->
-df %>% mutate(across(is.numeric, mean, na.rm = TRUE))
+df %>% mutate(across(where(is.numeric), mean, na.rm = TRUE))
 
 df %>% mutate_at(vars(x, starts_with("y")), mean, na.rm = TRUE)
 # ->
