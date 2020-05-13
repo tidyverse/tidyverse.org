@@ -31,6 +31,20 @@ Note that the development version won't become 1.0.0 until it's released, but it
 library(dplyr, warn.conflicts = FALSE)
 ```
 
+
+### _Update notice_
+
+We have updated the syntax for selecting with a function.  Where you would use `data %>% select(is.numeric)` in the early development versions, you must now use `data %>% select(where(is.numeric))`. We made this change to avoid puzzling error messages when a variable is unexpectedly missing from the data frame and there is a corresponding function in the environment:
+
+```{r, eval = FALSE}
+# Attempts to invoke `data()` function
+data.frame(x = 1) %>% select(data)
+```
+
+The rest of this post has been updated accordingly.
+
+
+
 ## Select and renaming
 
 `select()` and `rename()` are now significantly more flexible thanks to enhancements to the [tidyselect](https://tidyselect.r-lib.org/) package. There are now five ways to select variables in `select()` and `rename()`:
@@ -47,13 +61,13 @@ library(dplyr, warn.conflicts = FALSE)
   `df %>% select(ends_with("s"))`. You can also use helpers `contains()`
   and `matches()` for more flexibly matching.
 
-* By **type**: `df %>% select(is.numeric)`, `df %>% select(is.factor)`.
+* By **type**: `df %>% select(where(is.numeric))`, `df %>% select(where(is.factor))`.
 
 * By **any combination** of the above using the Boolean operators `!`, `&`, and `|`:
 
-    * `df %>% select(!is.factor)`: selects all non-factor variables.
+    * `df %>% select(!where(is.factor))`: selects all non-factor variables.
     
-    * `df %>% select(is.numeric & starts_with("x"))`: selects all
+    * `df %>% select(where(is.numeric) & starts_with("x"))`: selects all
       numeric variables that starts with "x".
       
     * `df %>% select(starts_with("a") | ends_with("z"))`: selects all
@@ -71,13 +85,13 @@ df1 %>% rename(b = 2)
 
 df2 <- tibble(x1 = 1, x2 = "a", x3 = 2, y1 = "b", y2 = 3, y3 = "c", y4 = 4)
 # Keep numeric columns
-df2 %>% select(is.numeric)
+df2 %>% select(where(is.numeric))
 
 # Or all columns that aren't character
-df2 %>% select(!is.character)
+df2 %>% select(!where(is.character))
 
 # Or columns that start with x and are numeric
-df2 %>% select(starts_with("x") & is.numeric)
+df2 %>% select(starts_with("x") & where(is.numeric))
 ```
 
 ## Programming
@@ -112,7 +126,7 @@ You can optionally choose which columns to apply the transformation to:
 ```{r}
 df2 %>% rename_with(toupper, starts_with("x"))
 
-df2 %>% rename_with(toupper, is.numeric)
+df2 %>% rename_with(toupper, where(is.numeric))
 ```
 `rename_with()` supersedes `rename_if()` and `rename_at()`; we'll talk more about the other `_if()`, `_at()`, and `_all()` functions in the near future.
 
@@ -123,7 +137,7 @@ For a long time, people have asked an easy way to change the order of columns in
 ```{r}
 df3 <- tibble(w = 0, x = 1, y = "a", z = "b")
 df3 %>% relocate(y, z)
-df3 %>% relocate(is.character)
+df3 %>% relocate(where(is.character))
 ```
 
 (It uses the same syntax as `select()` and `rename()` so you can use arbitrarily complex expressions to pick which variables you want to move.)
