@@ -23,19 +23,6 @@ This post is the latest in a series of post leading up the the dplyr 1.0.0 relea
 Today, I wanted to talk a little bit about the new `across()` function that makes it easy to perform the same operation on multiple columns.
 
 
-### _Update notice_
-
-We have updated the syntax for selecting with a function.  Where you would use `across(is.numeric)` in the early development versions, you must now use `across(where(is.numeric))`. We made this change to avoid puzzling error messages when a variable is unexpectedly missing from the data frame and there is a corresponding function in the environment:
-
-
-```r
-# Attempts to invoke `data()` function
-data.frame(x = 1) %>% select(data)
-```
-
-The rest of this post has been updated accordingly.
-
-
 ### Getting the dev version
 
 If you're interested in living life on the edge (or trying out anything you see in this blog post), you can install the development version of dplyr with:
@@ -71,7 +58,7 @@ df %>%
   group_by(g1, g2) %>% 
   summarise(across(a:d, mean))
 
-# or 
+# or with a function
 df %>% 
   group_by(g1, g2) %>% 
   summarise(across(where(is.numeric), mean))
@@ -105,7 +92,7 @@ starwars %>%
   group_by(species) %>% 
   filter(n() > 1) %>% 
   summarise(across(c(sex, gender, homeworld), n_distinct))
-#> `summarise()` ungrouping (override with `.groups` argument)
+#> `summarise()` ungroup (override with `.groups` argument)
 #> # A tibble: 9 x 4
 #>   species    sex gender homeworld
 #>   <chr>    <int>  <int>     <int>
@@ -123,7 +110,7 @@ starwars %>%
   group_by(homeworld) %>% 
   filter(n() > 1) %>% 
   summarise(across(where(is.numeric), mean, na.rm = TRUE), n = n())
-#> `summarise()` ungrouping (override with `.groups` argument)
+#> `summarise()` ungroup (override with `.groups` argument)
 #> # A tibble: 10 x 5
 #>    homeworld height  mass birth_year     n
 #>    <chr>      <dbl> <dbl>      <dbl> <int>
@@ -176,9 +163,9 @@ Why did we decide to move away from these functions in favour of `across()`?
     to remember) and easier for us to develop (since we only need to implement 
     one function for each new verb, not four).
 
-3.  `across()` unifies `_if` and `_at` semantics, allowing combinations that 
+3.  With the `where()` helper, `across()` unifies `_if` and `_at` semantics, allowing combinations that 
     used to be impossible. For example, you can now transform all numeric 
-    columns whose name begins with "x": `across(is.numeric & starts_with("x"))`.
+    columns whose name begins with "x": `across(where(is.numeric) & starts_with("x"))`.
 
 4.  `across()` doesn't need `vars()`. The `_at()` functions are the only place 
     in dplyr where you have to use `vars()`, which makes them unusual, 

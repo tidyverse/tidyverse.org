@@ -56,7 +56,7 @@ df %>%
   group_by(g1, g2) %>% 
   summarise(across(a:d, mean))
 
-# or 
+# or with a function
 df %>% 
   group_by(g1, g2) %>% 
   summarise(across(where(is.numeric), mean))
@@ -128,9 +128,9 @@ Why did we decide to move away from these functions in favour of `across()`?
     to remember) and easier for us to develop (since we only need to implement 
     one function for each new verb, not four).
 
-3.  `across()` unifies `_if` and `_at` semantics, allowing combinations that 
+3.  With the `where()` helper, `across()` unifies `_if` and `_at` semantics, allowing combinations that 
     used to be impossible. For example, you can now transform all numeric 
-    columns whose name begins with "x": `across(is.numeric & starts_with("x"))`.
+    columns whose name begins with "x": `across(where(is.numeric) & starts_with("x"))`.
 
 4.  `across()` doesn't need `vars()`. The `_at()` functions are the only place 
     in dplyr where you have to use `vars()`, which makes them unusual, 
