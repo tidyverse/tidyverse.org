@@ -63,7 +63,7 @@ invisible(dev.off())
 knitr::include_graphics(pngfile)
 ```
 
-![](index_files/figure-html/unnamed-chunk-2-1/png_image.png)<!-- -->
+<img src="/blog/2020-05-updates-to-ragg-and-systemfonts/index_files/figure-html/unnamed-chunk-2-1/png_image.png" width="1000" />
 
 
 ```r
@@ -76,7 +76,7 @@ invisible(dev.off())
 knitr::include_graphics(jpegfile)
 ```
 
-![](index_files/figure-html/unnamed-chunk-3-1/jpeg_image.jpeg)<!-- -->
+<img src="/blog/2020-05-updates-to-ragg-and-systemfonts/index_files/figure-html/unnamed-chunk-3-1/jpeg_image.jpeg" width="1000" />
 
 As you can hopefully agree on, there is no noticeable quality difference between the two. What about file size?
 
@@ -221,7 +221,7 @@ invisible(dev.off())
 knitr::include_graphics(pngfile)
 ```
 
-![](index_files/figure-html/unnamed-chunk-8-1/png_image.png)<!-- -->
+<img src="/blog/2020-05-updates-to-ragg-and-systemfonts/index_files/figure-html/unnamed-chunk-8-1/png_image.png" width="900" />
 
 When you see this you may immediately think of the work Claus Wilke has done with [gridtext](https://wilkelab.org/gridtext/). We are both committed to improving the rich text support in R, and are attacking the problem from different directions. Claus has worked on doing per-word shaping, whereas the text shaping done in systemfonts are done glyph-by-glyph. Both approaches has their merits, and we are currently at a stage where we are trying to figure out how to best solve this in R. At the time of writing there is no doubt that gridtext is more complete and stable, but doing glyph-based shaping offers possibilities that are not possible with gridtext, e.g. setting tracking and flowing text along paths. All of this is highly experimental still, and there will need to be some changes in the graphic engine to make glyph-based rendering performant.
 
