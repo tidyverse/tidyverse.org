@@ -4,12 +4,11 @@ description: |
   We have recently updated some of our low-level graphics packages. Read on 
   about what is new in ragg and systemfonts
 author: Thomas Lin Pedersen
-date: '2020-05-14'
+date: '2020-05-15'
 slug: updates-to-ragg-and-systemfonts
 categories:
   - package
 tags:
-  - package
   - ragg
   - systemfonts
 authors:
@@ -28,9 +27,9 @@ We're thrilled to announce the new releases of ragg and systemfonts. ragg is a p
 While these are not the most flashy of releases, we thought it would be a good time to discuss some of our thoughts on the future of graphics in R, especially related to fonts.
 
 ## ragg 0.2.0
-ragg is our current take on a modern set of raster devices for R. Read [the 0.1.0 release post](https://www.tidyverse.org/blog/2019/07/ragg-0-1-0/) for an overview of the package. Together with the svglite package ragg provides alternatives to most of the devices that ships with base R. ragg is based on the AGG 2D graphics library, and provides both [high quality](https://ragg.r-lib.org/articles/ragg_quality.html) and [high performance](https://ragg.r-lib.org/articles/ragg_performance.html) output. One of its many virtues is that it provides high quality font support and automatically supports the different fonts installed on your system. This all happens through systemfonts as we'll discuss below.
+ragg is our take on a modern set of raster devices for R, based based on the AGG 2D graphics library which provides both [high quality](https://ragg.r-lib.org/articles/ragg_quality.html) and [high performance](https://ragg.r-lib.org/articles/ragg_performance.html) output (you can read more about in [the 0.1.0 release post](https://www.tidyverse.org/blog/2019/07/ragg-0-1-0/)). It also provides high quality font support and automatically finds fonts installed on your computer. 
 
-In this release we have cleared out a range of rendering bugs. The most user-visible change though, is the addition of a jpeg device (`agg_jpeg()`) for writing output to the jpeg file format. jpeg is a lossy image format (i.e. it decreases the quality of the image as part of the compression) as opposed to png which uses a lossless compression scheme. jpeg is usually not the best choice for the graphics one normally produce in R as it struggles to render line graphics without artifacts. For the standard type of plot, png (using `agg_png()`) will always be preferred. It does excel in compressing image data, so for this type of plot it can offer a very high compression with almost no noticeable degradation in quality:
+This release has resolved many rendering bugs and include one major new features: the addition of a jpeg device (`agg_jpeg()`) that produces jpegs. jpeg is a lossy image format (i.e. it decreases the image quality to reduce file size) as opposed to png which uses a lossless compression scheme. That means that jpeg is usually not the best choice for most R graphics, but it does excel in compressing image data, so for this type of plot it can offer a very high compression with almost no noticeable degradation in quality:
 
 ```{r, message=FALSE}
 library(ragg)
@@ -81,10 +80,10 @@ file_size(pngfile)
 file_size(jpegfile)
 ```
 
-We observe more than a 50% file size reduction. Again, bear in mind that this is only when saving image-type plots with high-frequency variations. `agg_png()` should always be your go-to device for any standard type of data visualization.
+We observe more than a 50% file size reduction. Again, this is only worth it when saving image-type plots with high-frequency variations. `agg_png()` should be your go-to device for most data visualizations.
 
 ## systemfonts 0.2.0
-systemfonts is a package that spun out of the development of ragg. Its main claim-to-fame is its ability to find the correct font file for a specific font and style request. With this release we have fixed up a lot of the underlying implementation as well as added a bunch of new features that may interest you.
+systemfonts is a package that spun out of the development of ragg. Its main claim-to-fame is its ability to find the correct font file for a specific font and style. This release has improved a lot of the underlying implementation and added a bunch of new features that may interest you.
 
 ### Why is text so hard?
 Before we delve into the features of systemfonts it may be good to understand why fonts don't just work. At its core text and fonts are just very messy, with differences between operating systems and font file formats to name some of the challenges. (For a humorous overview consult the [*Text Rendering Hates You*](https://gankra.github.io/blah/text-hates-you/)). 
@@ -170,11 +169,11 @@ invisible(dev.off())
 knitr::include_graphics(pngfile)
 ```
 
-When you see this you may immediately think of the work Claus Wilke has done with [gridtext](https://wilkelab.org/gridtext/). We are both committed to improving the rich text support in R, and are attacking the problem from different directions. Claus has worked on doing per-word shaping, whereas the text shaping done in systemfonts are done glyph-by-glyph. Both approaches has their merits, and we are currently at a stage where we are trying to figure out how to best solve this in R. At the time of writing there is no doubt that gridtext is more complete and stable, but doing glyph-based shaping offers possibilities that are not possible with gridtext, e.g. setting tracking and flowing text along paths. All of this is highly experimental still, and there will need to be some changes in the graphic engine to make glyph-based rendering performant.
+When you see this you may immediately think of the work Claus Wilke has done with [gridtext](https://wilkelab.org/gridtext/). We are both committed to improving the rich text support in R, and are attacking the problem from different directions. Claus has worked on doing per-word shaping, whereas the text shaping done in systemfonts are done glyph-by-glyph. Both approaches have their merits, and we are currently at a stage where we are trying to figure out how to best solve this in R. At the time of writing there is no doubt that gridtext is more complete and stable, but doing glyph-based shaping offers possibilities that are not possible with gridtext, e.g. setting tracking and flowing text along paths. All of this is highly experimental still, and there will need to be some changes in the graphic engine to make glyph-based rendering performant.
 
 ### The font-ier
 A big (for some) issue that I haven't touched upon is support for ligatures. A **ligature** is a glyph that represents multiple characters, as when "f" and "i" are substituted for the single glyph "`r "\UFB01"`". Ligatures are often used as flourishes in Western scripts but are essential for other scripts such as Arabic. Further, ligatures power emojis which have become an integral part of modern communication. 
 
-While we don't currently have support for ligatures, there's no doubt that we need to in order to be more inclusive in the script types that we support. The exact mechanism for this is still up in the air because ligatures must be resolved at the font rendering level. Each font file may provide their own unique ligatures and the mapping from multiple characters to a single glyph can be encoded into a number of different substitution table formats in the font file. Because of this complexity it is often handled by a dedicated library such as [HarfBuzz](https://www.freedesktop.org/wiki/Software/HarfBuzz/). This could of course be wrapped by an R package but since ligatures can not be encoded with unicode (for the most part), there is no way of precomputing the substitution and pass it on to the graphic devices. Whether ligature support can retroactively be added to old graphic devices is thus still up in the air.
+While we don't currently have support for ligatures, there's no doubt that we need. The exact mechanism for this is still up in the air because ligatures must be resolved at the font rendering level. Each font file may provide their own unique ligatures and the mapping from multiple characters to a single glyph can be encoded into a number of different substitution table formats in the font file. Because of this complexity it is often handled by a dedicated library such as [HarfBuzz](https://www.freedesktop.org/wiki/Software/HarfBuzz/). This could of course be wrapped by an R package but since ligatures can not be encoded with unicode (for the most part), there is no way of precomputing the substitution and pass it on to the graphic devices. Whether ligature support can retroactively be added to old graphic devices is thus still up in the air.
 
 Text rendering in R is a delicate collaboration between graphic devices, the graphic engine, and additional support packages such as systemfonts and gridtext, but thankfully the focus and will is there in all parts to push this forward.
