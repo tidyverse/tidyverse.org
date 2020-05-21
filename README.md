@@ -49,7 +49,7 @@ The tidyverse site is automatically published with [netlify](http://netlify.com/
 * We once again use `.Rmd`, which generates `.md`, not `.html`.
 
 * `.Rmd`s are only rendered when you explicitly knit them. If you're concerned
-  that an `.md` is out of date, you can use `site_rmd(needs_render = TRUE)` to
+  that an `.md` is out of date, you can use `hugodown::site_outdated()` to
   list all `.Rmd`s that need to be re-rendered.
 
 * All `.Rmd`s use `output: hugodown::hugo_document` which automatically sets
