@@ -3,22 +3,20 @@ title: dplyr 1.0.0 for package developers
 author: Hadley Wickham
 date: '2020-04-29'
 slug: dplyr-1-0-0-package-dev
-output_format: hugodown::hugo_document
-description: > 
-  dplyr 1.0.0 is scheduled for release on May 15. This blog post talks
-  about what package maintainers can do to prepare.
+output: hugodown::hugo_document
+description: |
+  dplyr 1.0.0 is scheduled for release on May 15. This blog post talks about what package maintainers can do to prepare.
 categories:
-  - package
+- package
 tags:
-  - dplyr
+- dplyr
 photo:
   author: Tekton
   url: https://unsplash.com/photos/LtphNTXHQAc
+rmd_hash: a04bde23d89147a6
+
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-```
 
 As you're hopefully aware, [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/), and we've been writing a [series of blog posts](https://www.tidyverse.org/tags/dplyr/) about the user-facing changes that you, as a data scientist have to look forward to. Today, I wanted to change tack a little and talk about the changes from the perspective of the package developer.
 
@@ -26,7 +24,8 @@ But first, an update on the release process: in the process of preparing for thi
 
 In this post, I want to address how dplyr changes might break package code, then discuss some of the major pain points a package developer might experience, and how to get help if you need it.
 
-```{r setup}
+
+```r
 library(dplyr, warn.conflicts = FALSE)
 ```
 
@@ -51,9 +50,13 @@ There are three main ways an update to a package might break your existing code:
 
 dplyr 1.0.0 contains very few backward incompatible changes, but it does make a large number of changes that we believe are mostly harmless or minor improvements.  The vast majority of these will not affect data analysis code, but some can affect packages, particularly through their unit tests. To give you a flavour for what I mean here, dplyr now preserves the names of atomic vectors:
 
-```{r}
+
+```r
+# Hello
 df <- tibble(x = c(a = 1, b = 2))
 df %>% filter(x == 1) %>% .$x %>% str()
+#>  Named num 1
+#>  - attr(*, "names")= chr "a"
 ```
 
 (With dplyr 0.8.5, this returns an unnamed vector.)
@@ -73,14 +76,16 @@ One of the subtlest, but furthest reaching changes for package authors is that w
 *   It ignores the difference between data frames and tibbles so this code
     would pass:
   
-    ```{r, eval = FALSE}
+    
+    ```r
     expect_equal(tibble(x = 1), data.frame(x = 1))
     ```
 
 *   By default, it ignores column and row order so the following tests
     would pass:
 
-    ```{r, eval = FALSE}
+    
+    ```r
     expect_equal(tibble(x = 1:2), tibble(x = 2:1))
     expect_equal(tibble(x = 1, y = 2), tibble(y = 2, x = 1))
     ```
@@ -89,17 +94,30 @@ The first issue was a genuine bug; the second one was something that I must've t
 
 Unfortunately if this change affects your code, you won't get a terribly informative error message, so for now you'll just need to pattern match on the errors below:
 
-```{r, error = TRUE, message = FALSE}
+
+```r
 library(testthat)
 
 # Class mismatch
 expect_equal(tibble(x = 1), data.frame(x = 1))
+#> Error: `actual` (tibble(x = 1)) not equal to `expected` (data.frame(x = 1)).
+#> 
+#> `class(actual)`:   "tbl_df" "tbl" "data.frame"
+#> `class(expected)`:                "data.frame"
 
 # Row order is different
 expect_equal(tibble(x = 1:2), tibble(x = 2:1))
+#> Error: `actual` (tibble(x = 1:2)) not equal to `expected` (tibble(x = 2:1)).
+#> 
+#>   `actual$x`: 1 2  
+#> `expected$x`:   2 1
 
 # Column order is different
 expect_equal(tibble(x = 1, y = 2), tibble(y = 2, x = 1))
+#> Error: `actual` (tibble(x = 1, y = 2)) not equal to `expected` (tibble(y = 2, x = 1)).
+#> 
+#> `names(actual)`:   "x" "y"    
+#> `names(expected)`:     "y" "x"
 ```
 Fixing these failures will typically involve updating the expected value.
 
@@ -109,10 +127,12 @@ Fixing these failures will typically involve updating the expected value.
 
 As we [discussed recently](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-and-vctrs/), dplyr now uses the [vctrs package](https://vctrs.r-lib.org) under the hood. This increased strictness affects a few edge cases. For example, in dplyr 0.8.5, the following code returned `tibble(x = character())` (what we'd now consider to be a bug):
 
-```{r, error = TRUE}
+
+```r
 df1 <- tibble(x = integer())
 df2 <- tibble(x = character())
 bind_rows(df1, df2)
+#> Error: Can't combine `..1$x` <integer> and `..2$x` <character>.
 ```
 If this affects your package, you'll typically need to think about what the type of each column should be, and then ensure that's the case everywhere in your code.
 
