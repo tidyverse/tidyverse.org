@@ -13,7 +13,7 @@ tags:
 photo:
   author: Tekton
   url: https://unsplash.com/photos/LtphNTXHQAc
-rmd_hash: 5a4029fcc598fdaa
+rmd_hash: 6edd99d584ab2d19
 
 ---
 
@@ -52,7 +52,6 @@ dplyr 1.0.0 contains very few backward incompatible changes, but it does make a 
 
 
 ```r
-# Hello
 df <- tibble(x = c(a = 1, b = 2))
 df %>% filter(x == 1) %>% .$x %>% str()
 #>  Named num 1
@@ -100,24 +99,21 @@ library(testthat)
 
 # Class mismatch
 expect_equal(tibble(x = 1), data.frame(x = 1))
-#> Error: `actual` (tibble(x = 1)) not equal to `expected` (data.frame(x = 1)).
-#> 
-#> `class(actual)`:   "tbl_df" "tbl" "data.frame"
-#> `class(expected)`:                "data.frame"
+#> Error: tibble(x = 1) not equal to data.frame(x = 1).
+#> Attributes: < Component "class": Lengths (3, 1) differ (string compare on first 1) >
+#> Attributes: < Component "class": 1 string mismatch >
 
 # Row order is different
 expect_equal(tibble(x = 1:2), tibble(x = 2:1))
-#> Error: `actual` (tibble(x = 1:2)) not equal to `expected` (tibble(x = 2:1)).
-#> 
-#>   `actual$x`: 1 2  
-#> `expected$x`:   2 1
+#> Error: tibble(x = 1:2) not equal to tibble(x = 2:1).
+#> Component "x": Mean relative difference: 0.6666667
 
 # Column order is different
 expect_equal(tibble(x = 1, y = 2), tibble(y = 2, x = 1))
-#> Error: `actual` (tibble(x = 1, y = 2)) not equal to `expected` (tibble(y = 2, x = 1)).
-#> 
-#> `names(actual)`:   "x" "y"    
-#> `names(expected)`:     "y" "x"
+#> Error: tibble(x = 1, y = 2) not equal to tibble(y = 2, x = 1).
+#> Names: 2 string mismatches
+#> Component 1: Mean relative difference: 1
+#> Component 2: Mean relative difference: 0.5
 ```
 Fixing these failures will typically involve updating the expected value.
 
