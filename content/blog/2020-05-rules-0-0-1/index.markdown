@@ -86,7 +86,7 @@ summary(cubist_fit$fit)
 #> cubist.default(x = x, y = y, committees = 1)
 #> 
 #> 
-#> Cubist [Release 2.07 GPL Edition]  Wed May 20 21:32:39 2020
+#> Cubist [Release 2.07 GPL Edition]  Wed May 20 21:39:22 2020
 #> ---------------------------------
 #> 
 #>     Target attribute `outcome'
@@ -242,7 +242,7 @@ predict(cubist_fit, car_te %>% select(-Price))
 ```
 
 
-The functions also work with the [tune package](https://tune.tidymodels.org/). To optimize our model, the number of committees (similar to boosting iterations) and the number of nearest-neighbors are the primary parameters for tuning. 
+The functions also work with the [tune package](https://tune.tidymodels.org/). To optimize our model, the number of committees (similar to boosting iterations) and the number of nearest-neighbors are the primary parameters for tuning.
 
 
 ```r
