@@ -25,7 +25,13 @@ The source of the website is a collection of `.Rmd` files stored in
 
 ## Workflow
 
-This site now uses [hugodown](http://github.com/r-lib/hugodown/issues) rather than blogdown. Compared to blogdown, hugodown separates the process of building the site into two pieces: hugodown converts `.Rmd` to `.md`, and then hugo converts `.md` to `.html`.
+This site now uses [hugodown](http://github.com/r-lib/hugodown/issues) rather than blogdown. Install it with:
+
+```r
+remotes::install_github("r-lib/hugodown")
+```
+
+Compared to blogdown, hugodown separates the process of building the site into two pieces: hugodown converts `.Rmd` to `.md`, and then hugo converts `.md` to `.html`.
 
 * To add a new post call `hugo::tidy_post_create("short-name")`. This will
   add on the current year and month, then create a new directory containing 
