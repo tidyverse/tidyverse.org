@@ -3,13 +3,16 @@ title: rules 0.0.1
 slug: rules-0-0-1
 description: >
     The rules package is on CRAN and enables rule-based models for tidymodels.
-date: 2020-05-18
+date: 2020-05-21
 author: Max Kuhn
 photo:
   url: https://unsplash.com/photos/lu15z1m_KfM
   author: Lili Popper
 categories:
   - package
+tags:
+  - tidymodels
+  - rules
 ---  
 
 
@@ -22,22 +25,36 @@ We are happy to announce the release of the [rules package](https://rules.tidymo
  
  * `rule_fit()`: classification or regression rules using the RuleFit model. 
  
-If you aren't familiar with these techniques, there is a [companion blog post](https://rviews.rstudio.com/2020/05/18/modern-rule-based-models/) that summarizes how rule-based models work.
+If you aren't familiar with rule-based models, there is a [companion blog post](https://rviews.rstudio.com/2020/05/21/modern-rule-based-models/) that summarizes how they work.
 
-Here's an example of creating regression rules via Cubist via the parsnip package: 
+Install googlesheets4 from CRAN like so: 
+  
+
+```r
+install.packages("rules") 
+```
+  
+ Then attach it for use via:
+  
+
+```r
+library(rules)
+```
+
+Here's an example of creating Cubist regression rules via the [parsnip package](https://tune.tidymodels.org/): 
 
 
 ```r
 library(tidymodels)
-#> ── Attaching packages ────────────────────────────────────── tidymodels 0.1.0 ──
-#> ✓ broom     0.7.0.9000     ✓ recipes   0.1.12    
-#> ✓ dials     0.0.6          ✓ rsample   0.0.6     
-#> ✓ dplyr     0.8.5          ✓ tibble    3.0.1     
-#> ✓ ggplot2   3.3.0          ✓ tune      0.1.0     
-#> ✓ infer     0.5.1          ✓ workflows 0.1.0     
-#> ✓ parsnip   0.1.1          ✓ yardstick 0.0.5     
+#> ── Attaching packages ──────────────────────────────────── tidymodels 0.1.0 ──
+#> ✓ broom     0.5.6      ✓ recipes   0.1.12
+#> ✓ dials     0.0.6      ✓ rsample   0.0.6 
+#> ✓ dplyr     0.8.5      ✓ tibble    3.0.1 
+#> ✓ ggplot2   3.3.0      ✓ tune      0.1.0 
+#> ✓ infer     0.5.1      ✓ workflows 0.1.1 
+#> ✓ parsnip   0.1.1      ✓ yardstick 0.0.6 
 #> ✓ purrr     0.3.4
-#> ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+#> ── Conflicts ─────────────────────────────────────── tidymodels_conflicts() ──
 #> x purrr::accumulate() masks foreach::accumulate()
 #> x purrr::discard()    masks scales::discard()
 #> x dplyr::filter()     masks stats::filter()
@@ -69,7 +86,7 @@ summary(cubist_fit$fit)
 #> cubist.default(x = x, y = y, committees = 1)
 #> 
 #> 
-#> Cubist [Release 2.07 GPL Edition]  Fri May 15 11:40:28 2020
+#> Cubist [Release 2.07 GPL Edition]  Wed May 20 21:32:39 2020
 #> ---------------------------------
 #> 
 #>     Target attribute `outcome'
@@ -225,7 +242,7 @@ predict(cubist_fit, car_te %>% select(-Price))
 ```
 
 
-The functions also work with the tune package. To optimize our model, the number of committees (similar to boosting iterations) and the number of nearest-neighbors are the primary parameters for tuning. 
+The functions also work with the [tune package](https://tune.tidymodels.org/). To optimize our model, the number of committees (similar to boosting iterations) and the number of nearest-neighbors are the primary parameters for tuning. 
 
 
 ```r
@@ -280,9 +297,9 @@ final_cb_mod <-
   fit(log10(Price) ~ ., data = car_tr)
 ```
 
-It appears that the benefit of using committees occurs in the first 10 iterations. The nearest-neighbor adjustment was important to obtaining good performance. 
+It appears that the benefit of using committees occurs in the first 10 iterations. The nearest-neighbor adjustment was important to obtaining good performance.
 
-The test set results look good and are consistent with the resampling estimate of RMSE: 
+The test set results look good and are consistent with the resampling estimate of RMSE:
 
 
 ```r

@@ -3,13 +3,16 @@ title: rules 0.0.1
 slug: rules-0-0-1
 description: >
     The rules package is on CRAN and enables rule-based models for tidymodels.
-date: 2020-05-18
+date: 2020-05-21
 author: Max Kuhn
 photo:
   url: https://unsplash.com/photos/lu15z1m_KfM
   author: Lili Popper
 categories:
   - package
+tags:
+  - tidymodels
+  - rules
 ---  
 
 ```{r setup, include=FALSE}
@@ -32,11 +35,23 @@ We are happy to announce the release of the [rules package](https://rules.tidymo
  
  * `rule_fit()`: classification or regression rules using the RuleFit model. 
  
-If you aren't familiar with rule-based models, there is a [companion blog post](https://rviews.rstudio.com/2020/05/18/modern-rule-based-models/) that summarizes how they work.
+If you aren't familiar with rule-based models, there is a [companion blog post](https://rviews.rstudio.com/2020/05/21/modern-rule-based-models/) that summarizes how they work.
 
-Here's an example of creating Cubist regression rules via the parsnip package: 
+Install googlesheets4 from CRAN like so: 
+  
+```{r eval = FALSE} 
+install.packages("rules") 
+``` 
+  
+ Then attach it for use via:
+  
+```{r, eval = FALSE} 
+library(rules)
+``` 
 
-```{r cb-rules}
+Here's an example of creating Cubist regression rules via the [parsnip package](https://tune.tidymodels.org/): 
+
+```{r cb-rules, warning = FALSE}
 library(tidymodels)
 library(rules)
 
@@ -64,7 +79,7 @@ predict(cubist_fit, car_te %>% select(-Price))
 theme_set(theme_bw())
 ```
 
-The functions also work with the tune package. To optimize our model, the number of committees (similar to boosting iterations) and the number of nearest-neighbors are the primary parameters for tuning. 
+The functions also work with the [tune package](https://tune.tidymodels.org/). To optimize our model, the number of committees (similar to boosting iterations) and the number of nearest-neighbors are the primary parameters for tuning. 
 
 ```{r cb-tune}
 cb_grid <- expand.grid(committees = 1:30, neighbors = c(1, 3, 5, 7, 9))
@@ -101,9 +116,9 @@ final_cb_mod <-
   fit(log10(Price) ~ ., data = car_tr)
 ```
 
-It appears that the benefit of using committees occurs in the first 10 iterations. The nearest-neighbor adjustment was important to obtaining good performance. 
+It appears that the benefit of using committees occurs in the first 10 iterations. The nearest-neighbor adjustment was important to obtaining good performance.
 
-The test set results look good and are consistent with the resampling estimate of RMSE: 
+The test set results look good and are consistent with the resampling estimate of RMSE:
 
 ```{r cb-test}
 test_pred <- 
