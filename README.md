@@ -11,78 +11,46 @@ how it all works.
 * If you see any larger problems, an issue is probably better: that way we can 
   discuss the problem before you commit any time to it.
 
-* If you'd like to contribute a blog post, please chat with one of us first.
-  Then read the [contributing guide](CONTRIBUTING.md).
-
 This repo (and resulting website) is licensed as [CC BY-SA](LICENSE.md).
 
-## Structure
+## Workflow
 
-The source of the website is a collection of `.md` and `.Rmd` files stored in 
-[`content/`](content/), which are rendered for the site with 
-[blogdown](https://bookdown.org/yihui/blogdown). 
+This site now uses [hugodown](http://github.com/r-lib/hugodown/issues) rather than blogdown. Install it with:
 
-* `content/*.md`: these files generate the top-level pages on the site:
-  packages, learn, help, and contribute. 
+```r
+remotes::install_github("r-lib/hugodown")
+```
+
+* To add a new post call `hugodown::tidy_post_create("short-name")`. This will
+  add on the current year and month, then create a new directory containing 
+  an `index.Rmd` file that tells you what to do next.
+
+* Knit to `.Rmd` to generate a `.md`.
+
+* To preview the site (i.e. turn `.md` into `.html`), call 
+  `hugodown::server_start()` (you only need to do this once per session as it
+  will continue to run in the background).
+
+* Every blog post has to be accompanied by a photo (precise details are 
+  provided in the `.Rmd` template). If you don't already have a image in 
+  mind, try <https://unsplash.com>, <https://pexels.com>, or Jenny Bryan's 
+  [free photo](https://github.com/jennybc/free-photos) link collection. 
   
-* `content/articles/`: these files are the tidyverse blog. New blog entries
-  should be given name `year-month-slug.md`. Unfortunately this data isn't
-  actually used when generating the output file: you'll need to set up 
-  the yaml metadata. More on that below.  
-    + For `*.md` posts, no `*.html` file should be committed. If you generate one locally during development, delete it once it's no longer useful to you. Keep it out of this repo.
-    
-    + For `*.Rmd` posts, an `*.html` file _should_ be committed. It will be generated when you run `blogdown::serve_site()` (see recommended workflow below).      
-    + If your post includes emoji, use the `.Rmd` format, and incorporate emoji using the [emo](https://github.com/hadley/emo) package.  
+The tidyverse site is automatically published with [netlify](http://netlify.com/), so every PR will automatically get a live preview. Once the PR is merged, that preview becomes the live site.
 
-* `data/events.yaml`: this yaml file contains information about upcoming 
-  events. The site automatically filters out events that have happened,
-  sorts by date, and then shows at most two events.
+### Changes from blogdown
 
-## Previewing changes
+The main difference is that hugodown cleanly separates the process of building the site into two steps: hugodown generates `.md` from `.Rmd`,  then hugo generates `.html` from `.md`. This leads to the following changes:
 
-### Use `blogdown::serve_site()`
+* We once again use `.Rmd`, which generates `.md`, not `.html`.
 
-To build the site locally, you'll need to install blogdown, and then install 
-hugo, the music behind the magic of blogdown:
+* `.Rmd`s are only rendered when you explicitly knit them. If you're concerned
+  that an `.md` is out of date, call `hugodown::site_outdated()` to list all 
+  `.Rmd`s that need to be re-rendered.
 
-```R
-install.packages("blogdown")
-blogdown::install_hugo()
-```
+* `.Rmd` files use `output: hugodown::hugo_document` to which automatically sets
+  the correct chunk knitr options.
 
-Then run
-
-```R
-blogdown::serve_site()
-```
-
-This will open a preview of the site in your web browser, and it will 
-automatically update whenever you modify one of the input files. For `.Rmd`, 
-this will generate an `.html` file, which you should commit and push to GitHub.
-
-#### Troubleshooting
-
-If blogdown attempts to re-render posts (potentially on a massive scale), you need to make all the derived files look more recently modified than their respective source files. This affects (`.Rmarkdown`, `.markdown`) and (`.Rmd`, `.html`) file pairs. Do something like this:
-
-```R
-library(fs)
-
-md <- dir_ls("content", recurse = TRUE, glob = "*.markdown")
-file_touch(md)
-
-html <- dir_ls("content", recurse = TRUE, glob = "*.html")
-file_touch(html)
-```
-
-For other problems, consider that you need to update blogdown or to run `blogdown::update_hugo()` (perhaps in an R session launched with `sudo`).
-
-#### Other methods of local preview
-
-You should really preview the site using `blogdown::serve_site()`. But if, accidentally or intentionally, you knit or preview the content using another method (e.g. click the **Preview** button in RStudio for `.[R]md`), make sure you don't commit an `.html` file from an **`.md`** file.
-
-### In PRs
-
-The tidyverse site is automatically published with 
-[netlify](http://netlify.com/). One big advantage of netlify is that every PR 
-automatically gets a live preview. Once the PR is merged, that preview becomes 
-the live site.
+* If you want to change an old blog post to use hugodown, you need to rename
+  it from `.Rmarkdown` to `.Rmd`, delete the `.markdown` file, and set
+  `output: hugodown::hugo_document` in the yaml metadata.

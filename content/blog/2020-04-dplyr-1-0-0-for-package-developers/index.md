@@ -3,18 +3,19 @@ title: dplyr 1.0.0 for package developers
 author: Hadley Wickham
 date: '2020-04-29'
 slug: dplyr-1-0-0-package-dev
-description: > 
-  dplyr 1.0.0 is scheduled for release on May 15. This blog post talks
-  about what package maintainers can do to prepare.
+output: hugodown::hugo_document
+description: |
+  dplyr 1.0.0 is scheduled for release on May 15. This blog post talks about what package maintainers can do to prepare.
 categories:
-  - package
+- package
 tags:
-  - dplyr
+- dplyr
 photo:
   author: Tekton
   url: https://unsplash.com/photos/LtphNTXHQAc
----
+rmd_hash: 4c234a193385589e
 
+---
 
 
 As you're hopefully aware, [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/), and we've been writing a [series of blog posts](https://www.tidyverse.org/tags/dplyr/) about the user-facing changes that you, as a data scientist have to look forward to. Today, I wanted to change tack a little and talk about the changes from the perspective of the package developer.
