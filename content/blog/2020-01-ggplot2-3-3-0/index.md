@@ -1,17 +1,19 @@
 ---
-title: "ggplot2 3.3.0"
-author: "Thomas Lin Pedersen"
+title: ggplot2 3.3.0
+author: Thomas Lin Pedersen
 date: '2020-03-05'
-description: |
-  The next iteration of ggplot2 has just been released on CRAN, packed with new 
-  features and bug fixes. Read all about what's new here.
+description: "The next iteration of ggplot2 has just been released on CRAN, packed
+  with new \nfeatures and bug fixes. Read all about what's new here.\n"
+output: hugodown::hugo_document
 photo:
   author: Steve Harvey
   url: https://unsplash.com/photos/xWiXi6wRLGo
 slug: ggplot2-3-3-0
-categories: ["package"]
----
+categories:
+- package
+rmd_hash: 4c775a26cdaa575b
 
+---
 
 
 We're so happy to announce the release of ggplot2 3.3.0 on CRAN. [ggplot2](https://ggplot2.tidyverse.org/) is a system for declaratively creating graphics, based on *The Grammar of Graphics*. You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details. The new version can be installed from CRAN using `install.packages("ggplot2")`
@@ -38,7 +40,7 @@ p <- ggplot(mpg) +
 plot(p)
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-1-1.png" width="672" />
+<img src="figs/unnamed-chunk-1-1.png" width="700px" style="display: block; margin: auto;" />
 
 
 ```r
@@ -47,7 +49,7 @@ p +
   scale_x_discrete(guide = guide_axis(n.dodge = 2))
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+<img src="figs/unnamed-chunk-2-1.png" width="700px" style="display: block; margin: auto;" />
 
 
 ```r
@@ -56,7 +58,7 @@ p +
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE))
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+<img src="figs/unnamed-chunk-3-1.png" width="700px" style="display: block; margin: auto;" />
 
 The resolving of overlapping tick labels is designed so that the first and last labels are always shown. It is obviously best suited for continuous or ordered data where the identity of the removed labels can be deduced from the remaining ones.
 
@@ -72,7 +74,7 @@ p +
   scale_size_binned()
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<img src="figs/unnamed-chunk-4-1.png" width="700px" style="display: block; margin: auto;" />
 
 
 ```r
@@ -80,7 +82,7 @@ p +
   scale_colour_binned()
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+<img src="figs/unnamed-chunk-5-1.png" width="700px" style="display: block; margin: auto;" />
 
 As can be seen, the legends reflect the binned nature of the scale by placing tick marks at the border between bins. By default the outermost ticks are not shown, indicating that the binning is open in both ends. This behavior can be controlled in the guide.
 
@@ -90,7 +92,7 @@ p +
   scale_size_binned(guide = guide_bins(show.limits = TRUE))
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+<img src="figs/unnamed-chunk-6-1.png" width="700px" style="display: block; margin: auto;" />
 
 When used with a positional scale it acts in much the same way, placing data at the center of the bin they belong to:
 
@@ -100,7 +102,7 @@ p +
   scale_x_binned()
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+<img src="figs/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" />
 
 One of the benefits of this is that it is now a breeze to create histograms with tick-marks between the bars, as a histogram is effectively a binned scale with a bar geom:
 
@@ -111,7 +113,7 @@ ggplot(mpg) +
   scale_x_binned()
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+<img src="figs/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" />
 
 ### Bi-directional geoms and stats
 While we are messing with the foundation of ggplot2, we might as well challenge another paradigm, namely that certain geoms have a direction, and to change the direction you'd have to use `coord_flip()`. The prime example of this is a horizontal bar chart:
@@ -123,7 +125,7 @@ ggplot(mpg) +
   coord_flip()
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+<img src="figs/unnamed-chunk-9-1.png" width="700px" style="display: block; margin: auto;" />
 
 This approach has served ggplot2 well, and will continue to work in the future, but with this release we update all the directional stats and geoms to work in both directions. The direction of the stat/geom is deduced from the aesthetic mapping, so it should simply behave as expected. The example above can thus be rewritten to:
 
@@ -133,7 +135,7 @@ ggplot(mpg) +
   geom_bar(aes(y = manufacturer))
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+<img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />
 
 The direction determination is not only looking at which aesthetics are mapped, but also what they are mapped to, so most layers can be determined without ambiguity. In the presence of ambiguity, it is conservative and will default to the standard orientation. If you want to overwrite the direction, either because it fails to detect it, or because the geom/stat is ambiguous by nature, it can be set directly with the `orientation` argument:
 
@@ -144,7 +146,7 @@ ggplot(mpg, aes(displ, hwy)) +
   geom_smooth(orientation = "y")
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+<img src="figs/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" />
 
 ### More control over aesthetic evaluation
 When mapping data to aesthetics we are usually differentiating between two mappings: one for the stat, and one for the geom. We don't think about this that often, because the stat simply accepts the mappings and carries them over to the geom (sometimes with modifications). Sometimes, though, we want to control the mapping that happens between the output of the stat and the geom. The approach to this has been to use `stat()` (and `..var..` notation before that), to indicate that the aesthetic should be evaluated after the stat has been computed.
@@ -159,7 +161,7 @@ ggplot(mpg, aes(displ)) +
   geom_histogram(aes(y = after_stat(density)))
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-12-1.png" width="672" />
+<img src="figs/unnamed-chunk-12-1.png" width="700px" style="display: block; margin: auto;" />
 
 And you can use `after_scale()` to assign fill as a variant of the scaled color:
 
@@ -169,7 +171,7 @@ ggplot(mpg, aes(class, hwy)) +
   geom_boxplot(aes(colour = class, fill = after_scale(alpha(colour, 0.4))))
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-13-1.png" width="672" />
+<img src="figs/unnamed-chunk-13-1.png" width="700px" style="display: block; margin: auto;" />
 
 Furthermore, it is now possible to perform multiple mapping for the same aesthetic, using the `stage()` function. This can be used to e.g. set alpha on the stroke of a polygon (the default is to only apply alpha to fill for polygon-type geoms):
 
@@ -185,7 +187,7 @@ ggplot(mpg) +
   )
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-14-1.png" width="672" />
+<img src="figs/unnamed-chunk-14-1.png" width="700px" style="display: block; margin: auto;" />
 
 `stage()` is definitely not something you need every day, but it does resolve a range of issues (like the one above), and it is nice to have full transparency and control over the aesthetic evaluation.
 
@@ -226,7 +228,7 @@ ggplot(volcano_long, aes(x, y, z = z)) +
   guides(fill = "legend")
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-16-1.png" width="672" />
+<img src="figs/unnamed-chunk-16-1.png" width="700px" style="display: block; margin: auto;" />
 
 There is so much wrong going on here that we won't go through it. In any case, this is all in the past because ggplot2 has moved on to using the new isoband package and now provides a geom for filled contours specifically:
 
@@ -236,7 +238,7 @@ ggplot(volcano_long, aes(x, y, z = z)) +
   geom_contour_filled(aes(fill = stat(level)), alpha = 0.5)
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-17-1.png" width="672" />
+<img src="figs/unnamed-chunk-17-1.png" width="700px" style="display: block; margin: auto;" />
 
 We see that all the issues above have been fixed. Local minima are now represented, and the alpha level is now a true representation of the scale since levels don't overlap and accumulate opacity. Further, each level is correctly denoted as a range.
 
@@ -249,7 +251,7 @@ ggplot(volcano_long, aes(x, y, z = z)) +
   guides(fill = guide_colorsteps(barheight = unit(10, "cm")))
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-18-1.png" width="672" />
+<img src="figs/unnamed-chunk-18-1.png" width="700px" style="display: block; margin: auto;" />
 
 This also mean that it is possible to use pre-binned data with the new bin guide, as long as you adhere to the output format of `cut()`.
 
@@ -264,7 +266,7 @@ ggplot(mpg) +
   theme(plot.title.position = "plot")
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-19-1.png" width="672" />
+<img src="figs/unnamed-chunk-19-1.png" width="700px" style="display: block; margin: auto;" />
 
 When to use what is partly a matter of personal taste, but will usually also depend on the context the plot is used in. As a stand-alone figure, the old style will often look best, while the new style has merits when e.g. the figure appears within a longer text. In the end the decision is up to you.
 
@@ -279,7 +281,7 @@ ggplot(huron, aes(year)) +
   geom_ribbon(aes(ymin = level - 10, ymax = level + 10), fill = "grey", colour = "black")
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+<img src="figs/unnamed-chunk-20-1.png" width="700px" style="display: block; margin: auto;" />
 
 
 ```r
@@ -287,7 +289,7 @@ ggplot(diamonds, aes(carat)) +
   geom_density(fill = "grey")
 ```
 
-<img src="/blog/2020-01-ggplot2-3-3-0/index_files/figure-html/unnamed-chunk-21-1.png" width="672" />
+<img src="figs/unnamed-chunk-21-1.png" width="700px" style="display: block; margin: auto;" />
 
 ## Acknowledgements
 Thank you to the 102 people who who contributed issues, code and comments to this release: [&#x0040;abiyug](https://github.com/abiyug), [&#x0040;adisarid](https://github.com/adisarid), [&#x0040;adrowe1](https://github.com/adrowe1), [&#x0040;AmeliaMN](https://github.com/AmeliaMN), [&#x0040;atusy](https://github.com/atusy), [&#x0040;Ax3man](https://github.com/Ax3man), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;brwheeler](https://github.com/brwheeler), [&#x0040;capebulbs](https://github.com/capebulbs), [&#x0040;carywreams](https://github.com/carywreams), [&#x0040;clauswilke](https://github.com/clauswilke), [&#x0040;cneyens](https://github.com/cneyens), [&#x0040;CorradoLanera](https://github.com/CorradoLanera), [&#x0040;cpsievert](https://github.com/cpsievert), [&#x0040;damianooldoni](https://github.com/damianooldoni), [&#x0040;daniel-barnett](https://github.com/daniel-barnett), [&#x0040;davebraze](https://github.com/davebraze), [&#x0040;dkahle](https://github.com/dkahle), [&#x0040;dmaupin12](https://github.com/dmaupin12), [&#x0040;dracodoc](https://github.com/dracodoc), [&#x0040;eliocamp](https://github.com/eliocamp), [&#x0040;EvaMaeRey](https://github.com/EvaMaeRey), [&#x0040;FantacticMisterFox](https://github.com/FantacticMisterFox), [&#x0040;GeospatialDaryl](https://github.com/GeospatialDaryl), [&#x0040;ggrothendieck](https://github.com/ggrothendieck), [&#x0040;hadley](https://github.com/hadley), [&#x0040;Hillerst](https://github.com/Hillerst), [&#x0040;hvaret](https://github.com/hvaret), [&#x0040;iago-pssjd](https://github.com/iago-pssjd), [&#x0040;idno0001](https://github.com/idno0001), [&#x0040;Ilia-Kosenkov](https://github.com/Ilia-Kosenkov), [&#x0040;isteves](https://github.com/isteves), [&#x0040;James-G-Hill](https://github.com/James-G-Hill), [&#x0040;japhir](https://github.com/japhir), [&#x0040;jarauh](https://github.com/jarauh), [&#x0040;jhuntergit](https://github.com/jhuntergit), [&#x0040;jkbest2](https://github.com/jkbest2), [&#x0040;joethorley](https://github.com/joethorley), [&#x0040;jokorn](https://github.com/jokorn), [&#x0040;jtr13](https://github.com/jtr13), [&#x0040;jzadra](https://github.com/jzadra), [&#x0040;kadyb](https://github.com/kadyb), [&#x0040;karawoo](https://github.com/karawoo), [&#x0040;karsfri](https://github.com/karsfri), [&#x0040;katrinleinweber](https://github.com/katrinleinweber), [&#x0040;Kodiologist](https://github.com/Kodiologist), [&#x0040;koenvandenberge](https://github.com/koenvandenberge), [&#x0040;kuriwaki](https://github.com/kuriwaki), [&#x0040;lizlaw](https://github.com/lizlaw), [&#x0040;luispfonseca](https://github.com/luispfonseca), [&#x0040;lwjohnst86](https://github.com/lwjohnst86), [&#x0040;malcolmbarrett](https://github.com/malcolmbarrett), [&#x0040;MaraAlexeev](https://github.com/MaraAlexeev), [&#x0040;markpayneatwork](https://github.com/markpayneatwork), [&#x0040;MartinEarle](https://github.com/MartinEarle), [&#x0040;Maschette](https://github.com/Maschette), [&#x0040;MaxBareiss](https://github.com/MaxBareiss), [&#x0040;mcsiple](https://github.com/mcsiple), [&#x0040;melissakey](https://github.com/melissakey), [&#x0040;microly](https://github.com/microly), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [&#x0040;mlamias](https://github.com/mlamias), [&#x0040;mluerig](https://github.com/mluerig), [&#x0040;MohoWu](https://github.com/MohoWu), [&#x0040;mpgerstl](https://github.com/mpgerstl), [&#x0040;msberends](https://github.com/msberends), [&#x0040;N1h1l1sT](https://github.com/N1h1l1sT), [&#x0040;nipnipj](https://github.com/nipnipj), [&#x0040;now2014](https://github.com/now2014), [&#x0040;ovvldc](https://github.com/ovvldc), [&#x0040;paciorek](https://github.com/paciorek), [&#x0040;paleolimbot](https://github.com/paleolimbot), [&#x0040;PatrickRobotham](https://github.com/PatrickRobotham), [&#x0040;pmarchand1](https://github.com/pmarchand1), [&#x0040;privefl](https://github.com/privefl), [&#x0040;Prometheus77](https://github.com/Prometheus77), [&#x0040;qxxxd](https://github.com/qxxxd), [&#x0040;RABxx](https://github.com/RABxx), [&#x0040;rcorty](https://github.com/rcorty), [&#x0040;rfarouni](https://github.com/rfarouni), [&#x0040;rowlesmr](https://github.com/rowlesmr), [&#x0040;shrikantsoni88](https://github.com/shrikantsoni88), [&#x0040;smouksassi](https://github.com/smouksassi), [&#x0040;steenharsted](https://github.com/steenharsted), [&#x0040;StefanBRas](https://github.com/StefanBRas), [&#x0040;steveharoz](https://github.com/steveharoz), [&#x0040;stweb75](https://github.com/stweb75), [&#x0040;teunbrand](https://github.com/teunbrand), [&#x0040;ThomasKnecht](https://github.com/ThomasKnecht), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;TimTeaFan](https://github.com/TimTeaFan), [&#x0040;tjmahr](https://github.com/tjmahr), [&#x0040;tmalsburg](https://github.com/tmalsburg), [&#x0040;traversc](https://github.com/traversc), [&#x0040;tungmilan](https://github.com/tungmilan), [&#x0040;vankesteren](https://github.com/vankesteren), [&#x0040;wch](https://github.com/wch), [&#x0040;weiyangtham](https://github.com/weiyangtham), [&#x0040;wfulp](https://github.com/wfulp), [&#x0040;wilfredom](https://github.com/wilfredom), [&#x0040;woodwards](https://github.com/woodwards), and [&#x0040;yutannihilation](https://github.com/yutannihilation).
