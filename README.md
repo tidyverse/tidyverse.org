@@ -33,7 +33,7 @@ remotes::install_github("r-lib/hugodown")
 
 Compared to blogdown, hugodown separates the process of building the site into two pieces: hugodown converts `.Rmd` to `.md`, and then hugo converts `.md` to `.html`.
 
-* To add a new post call `hugo::tidy_post_create("short-name")`. This will
+* To add a new post call `hugodown::tidy_post_create("short-name")`. This will
   add on the current year and month, then create a new directory containing 
   an `index.Rmd` file that tells you what to do next.
 
