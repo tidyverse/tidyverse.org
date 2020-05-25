@@ -1,21 +1,21 @@
 ---
 output: hugodown::hugo_document
-  
 title: tidyr 1.1.0
-date: 2020-05-27
+date: '2020-05-27'
 author: Hadley Wickham
-description: >
-    tidyr 1.1.0 includes a bunch of quality of life improvements, particularly
-    for pivoting and rectangling.
-
+description: |
+  tidyr 1.1.0 includes a bunch of quality of life improvements, particularly for pivoting and rectangling.
 photo:
   url: https://unsplash.com/photos/__ZMnefoI3k
   author: Jan Vasek
+categories:
+- package
+tags:
+- tidyr
+rmd_hash: 139a5fee1ee9aacb
 
-# one of: "deep-dive", "learn", "package", "programming", or "other"
-categories: [package] 
-tags: [tidyr]
 ---
+
 
 <!--
 TODO:
@@ -26,13 +26,15 @@ We're delighted to announce that [tidyr](http://tidyr.tidyverse.org/) 1.1.0 is n
 
 Install tidyr with:
 
-```{r, eval = FALSE}
+
+```r
 install.packages("tidyr")
 ```
 
 This release doesn't include any major new excitement but it includes a whole passel of minor improvements building on the major changes in [tidyr 1.0.0](https://www.tidyverse.org/blog/2019/09/tidyr-1-0-0/), and generally making everything easier to use and a little more flexible. In this blog post, I'll give a quick run down on new pivoting features; see the [full release announcement](https://github.com/tidyverse/tidyr/releases/tag/v1.1.0) for the details of other changes.
 
-```{r setup}
+
+```r
 library(tidyr)
 ```
 
@@ -43,31 +45,57 @@ library(tidyr)
     use this new argument along with [`readr::parse_number()`][parse_number] to
     parse column names that really should be numbers:
 
-    ```{r}
+    
+    ```r
     df <- tibble(id = 1, wk1 = 0, wk2 = 4, wk3 = 9, wk4 = 25)
     df %>% pivot_longer(
       cols = starts_with("wk"),
       names_to = "week",
       names_transform = list(week = readr::parse_number),
     )
+    #> # A tibble: 4 x 3
+    #>      id  week value
+    #>   <dbl> <dbl> <dbl>
+    #> 1     1     1     0
+    #> 2     1     2     4
+    #> 3     1     3     9
+    #> 4     1     4    25
     ```
 
 *   `pivot_longer()` can now discard uninformative column names by setting 
     `names_to = character()`, thanks to idea and implementation from 
     [Mitch O'Hara Wild](https://github.com/mitchelloharawild):
 
-    ```{r}
+    
+    ```r
     df <- tibble(id = 1:2, fruitful_panda = 3:4, angry_aardvark = 5:6)  
     df %>% pivot_longer(-id, names_to = character())
+    #> # A tibble: 4 x 2
+    #>      id value
+    #>   <int> <int>
+    #> 1     1     3
+    #> 2     1     5
+    #> 3     2     4
+    #> 4     2     6
     ```
 
 *   `pivot_longer()` no longer creates a `.copy` variable in the presence of
     duplicate column names. This makes it more consistent with the handling
     of non-unique specs.
   
-    ```{r}
+    
+    ```r
     df <- tibble(id = 1:3, x = 1:3, x = 4:6, .name_repair = "minimal")  
     df %>% pivot_longer(-id)
+    #> # A tibble: 6 x 3
+    #>      id name  value
+    #>   <int> <chr> <int>
+    #> 1     1 x         1
+    #> 2     1 x         4
+    #> 3     2 x         2
+    #> 4     2 x         5
+    #> 5     3 x         3
+    #> 6     3 x         6
     ```
     
 *   `pivot_longer()` automatically disambiguates non-unique ouputs, which can
@@ -75,13 +103,47 @@ library(tidyr)
     don't care about and want to discard. You can discard parts of column names
     either with `names_pattern` or with `NA` in `names_to`.
   
-    ```{r}
+    
+    ```r
     df <- tibble(id = 1:3, x_1 = 1:3, y_2 = 4:6, y_3 = 9:11)
     df %>% pivot_longer(-id, names_pattern = "(.)_.")
+    #> # A tibble: 9 x 3
+    #>      id name  value
+    #>   <int> <chr> <int>
+    #> 1     1 x         1
+    #> 2     1 y         4
+    #> 3     1 y         9
+    #> 4     2 x         2
+    #> 5     2 y         5
+    #> 6     2 y        10
+    #> 7     3 x         3
+    #> 8     3 y         6
+    #> 9     3 y        11
     
     df %>% pivot_longer(-id, names_sep = "_", names_to = c("name", NA))
+    #> # A tibble: 9 x 3
+    #>      id name  value
+    #>   <int> <chr> <int>
+    #> 1     1 x         1
+    #> 2     1 y         4
+    #> 3     1 y         9
+    #> 4     2 x         2
+    #> 5     2 y         5
+    #> 6     2 y        10
+    #> 7     3 x         3
+    #> 8     3 y         6
+    #> 9     3 y        11
     
     df %>% pivot_longer(-id, names_sep = "_", names_to = c(".value", NA))
+    #> # A tibble: 6 x 3
+    #>      id     x     y
+    #>   <int> <int> <int>
+    #> 1     1     1     4
+    #> 2     1    NA     9
+    #> 3     2     2     5
+    #> 4     2    NA    10
+    #> 5     3     3     6
+    #> 6     3    NA    11
     ```
 ## `pivot_wider()`
 
@@ -90,7 +152,8 @@ library(tidyr)
     first appearance. I'm considering  changing the default value to `TRUE`
     in a future version.
     
-    ```{r}
+    
+    ```r
     df <- tibble(
       day_int = c(4, 3, 5, 1, 2),
       day_fac = factor(day_int, labels = c("Mon", "Tue", "Wed", "Thu", "Fri"))
@@ -99,18 +162,27 @@ library(tidyr)
       names_from = day_fac, 
       values_from = day_int
     )
+    #> # A tibble: 1 x 5
+    #>     Thu   Wed   Fri   Mon   Tue
+    #>   <dbl> <dbl> <dbl> <dbl> <dbl>
+    #> 1     4     3     5     1     2
     df %>% pivot_wider(
       names_from = day_fac,
       names_sort = TRUE,
       values_from = day_int
     )
+    #> # A tibble: 1 x 5
+    #>     Mon   Tue   Wed   Thu   Fri
+    #>   <dbl> <dbl> <dbl> <dbl> <dbl>
+    #> 1     1     2     3     4     5
     ```
     
 *   `pivot_wider()` gains a `names_glue` argument that allows you to construct
     output column names with a glue specification when `names_to` includes 
     multiple columns.
     
-    ```{r}
+    
+    ```r
     df <- tibble(
       first = "a",
       second = "1",
@@ -122,6 +194,10 @@ library(tidyr)
       values_from = val,
       names_glue = "{first}.{second}_{third}"
     )
+    #> # A tibble: 1 x 1
+    #>   a.1_X
+    #>   <dbl>
+    #> 1     1
     ```
 
 *   `pivot_wider()` arguments `values_fn` and `values_fill` can now be single 
