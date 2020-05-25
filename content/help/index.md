@@ -68,7 +68,7 @@ It is now ready and waiting on your clipboard, so you can paste it into, say, a 
 <img src="reprex-addins-menu.png" alt="reprex addins menu"></img>
 <img src="reprex-addin.png" alt="reprex addin interface"></img>
 
-In either case, you can eventually [explore other features](http://reprex.tidyverse.org), such as formatting output for Stack Overflow or as a commented R script. reprex even uploads figures so you can easily ask questions about ggplot2. Some people automatically load reprex at start up, so it's always available.
+In either case, you can eventually [explore other features](http://reprex.tidyverse.org), such as adding session info or formatting output as a commented R script. reprex even uploads figures so you can easily ask questions about ggplot2. Some people automatically load reprex at start up, so it's always available.
 
 If your code is not self-contained, running `reprex()` results in an error. It may feel like tough love, but this way you can get your story straight in private. The reprex format also strongly encourages you to find the minimal dataset necessary to show your problem. Creating an effective reprex is a learned skill and the immediate feedback from reprex makes this very concrete.
 
