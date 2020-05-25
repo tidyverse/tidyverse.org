@@ -163,7 +163,9 @@ op <- options(digits = sig_digits)
 on.exit(options(op), add = TRUE)      
 ```
 
-First, you capture the current state. Then you make the desired state change. If you call a setter that returns the previous state, as `options()` does, these two steps can be combined. Last, you schedule the associated cleanup.
+The first statement accomplishes two things at once: it sets the `digits` option and captures its original value in `op`. The second statement schedules the restoration of `digits`. This order of operations is encouraged by the design of `options()`, which returns the original values when it's used as a setter.
+
+Here is the more general (and possibly slightly safer) approach: First, capture the current state. Then, immediately schedule the eventual restoration of this original state, so that this is arranged before any additional calls are made that could exit, e.g. throw an error. Last, make the desired state change.
 
 What if such a maneuver happens all over your package and you want to write a helper?
 
