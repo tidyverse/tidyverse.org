@@ -29,13 +29,21 @@ That sounds like a lot of work!  And it can be, but it has a great payoff:
 
 ## The reprex package {#reprex-pkg}
 
-When creating a reprex by hand, it's easy to accidentally miss something that means your code can't be run on someone else's computer. Avoid this problem by using the [reprex package](http://reprex.tidyverse.org). It's installed as part of the tidyverse *(will be true soon)* or you can install it by itself. Go ahead and load it.
+When creating a reprex by hand, it's easy to accidentally miss something that means your code can't be run on someone else's computer. Avoid this problem by using the [reprex package](http://reprex.tidyverse.org). It's installed as part of the tidyverse or you can install it by itself. Do this once.
 
 ```R
-## pick one:
-##   install.packages("tidyverse") <-- will work soon
-##   install.packages("reprex")    <-- works today
+# pick ONE:
 
+# reprex is one of the (many) packages installed when you install tidyverse
+install.packages("tidyverse")
+
+# install reprex by itself
+install.packages("reprex")
+```
+
+When you want to make a reprex, you need to load the reprex package.
+
+```R
 library(reprex)
 ```
 
@@ -60,7 +68,7 @@ It is now ready and waiting on your clipboard, so you can paste it into, say, a 
 <img src="reprex-addins-menu.png" alt="reprex addins menu"></img>
 <img src="reprex-addin.png" alt="reprex addin interface"></img>
 
-In either case, you can eventually [explore other features](http://reprex.tidyverse.org), such as formatting output for Stack Overflow or as a commented R script. reprex even uploads figures so you can easily ask questions about ggplot2.
+In either case, you can eventually [explore other features](http://reprex.tidyverse.org), such as adding session info or formatting output as a commented R script. reprex even uploads figures so you can easily ask questions about ggplot2. Some people automatically load reprex at start up, so it's always available.
 
 If your code is not self-contained, running `reprex()` results in an error. It may feel like tough love, but this way you can get your story straight in private. The reprex format also strongly encourages you to find the minimal dataset necessary to show your problem. Creating an effective reprex is a learned skill and the immediate feedback from reprex makes this very concrete.
 
@@ -88,6 +96,4 @@ Now that you've made a reprex that you can easily inflict on others, you need to
 * If you think you've found a __bug__, please follow the instructions on 
   [contributing to the tidyverse](/contribute#issues).
 
-[ggplot2-ml]: https://groups.google.com/forum/#!forum/ggplot2
-[manipulatr-ml]: https://groups.google.com/forum/#!forum/manipulatr
 [twitter-rstats]: https://twitter.com/search?q=%23rstats&src=typd
