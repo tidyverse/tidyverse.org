@@ -13,19 +13,11 @@ photo:
   url: https://unsplash.com/photos/45GmTCcW8Hk
   author: Sergey Nikolaev
 
-# one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [haven]
 ---
 
-<!--
-TODO:
-* [ ] `hugodown::tidy_thumbnail()`
-* [ ] Add intro sentence
-* [ ] `use_tidy_thanks()`
--->
-
-We're tickled pink to announce the release of [haven](https://haven.tidyverse.org) 2.2.0. haven allows R to read and write SAS, SPSS, and Stata data formats by wrapping the [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](https://www.evanmiller.org/).
+We're tickled pink to announce the release of [haven](https://haven.tidyverse.org) 2.2.0. haven allows you to read and write SAS, SPSS, and Stata data formats from R, thanks to the wonderful [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](https://www.evanmiller.org/).
 
 You can install haven from CRAN with:
 
@@ -33,13 +25,25 @@ You can install haven from CRAN with:
 install.packages("haven")
 ```
 
-This release includes
+This release is mainly in preparation for dplyr 1.0.0. It includes improved [vctrs support](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-and-vctrs/) for the `labelled()` class that haven uses to represent labelled vectors that come from SAS, Stata, and SPSS. This is not terribly exciting, but it means that the labelled class is now preserved by every dplyr operation where it makes sense:
 
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
-
-```{r setup}
+```{r}
 library(haven)
-library(labelled)
+library(dplyr, warn.conflicts = FALSE)
+
+x <- labelled(sample(5), c("bad" = 1, "good" = 5), "scores")
+df <- tibble(x, y = letters[c(1, 3, 5, 7, 9)])
+df
+
+df %>% arrange(x)
+df %>% filter(y %in% c("a", "c"))
+
+bind_rows(df, df)
+
+df2 <- tibble(y = letters[1:10])
+df2 %>% left_join(df)
 ```
 
 ## Acknowledgements
+
+As always thanks to the GitHub community who helped make this release happen! [&#x0040;180312allison](https://github.com/180312allison), [&#x0040;armenic](https://github.com/armenic), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;beckerbenj](https://github.com/beckerbenj), [&#x0040;bergen288](https://github.com/bergen288), [&#x0040;courtiol](https://github.com/courtiol), [&#x0040;deschen1](https://github.com/deschen1), [&#x0040;edvbb](https://github.com/edvbb), [&#x0040;Ghanshyamsavaliya](https://github.com/Ghanshyamsavaliya), [&#x0040;hadley](https://github.com/hadley), [&#x0040;JackLandry](https://github.com/JackLandry), [&#x0040;Jagadeeshkb](https://github.com/Jagadeeshkb), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;kurt-vd](https://github.com/kurt-vd), [&#x0040;larmarange](https://github.com/larmarange), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;mayer79](https://github.com/mayer79), [&#x0040;mikmart](https://github.com/mikmart), [&#x0040;mitchelloharawild](https://github.com/mitchelloharawild), [&#x0040;omsai](https://github.com/omsai), [&#x0040;pdbailey0](https://github.com/pdbailey0), [&#x0040;randrescastaneda](https://github.com/randrescastaneda), [&#x0040;richarddmorey](https://github.com/richarddmorey), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rubenarslan](https://github.com/rubenarslan), [&#x0040;sda030](https://github.com/sda030), [&#x0040;Sdurier](https://github.com/Sdurier), and [&#x0040;tobwen](https://github.com/tobwen).

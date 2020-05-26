@@ -13,41 +13,88 @@ categories:
 - package
 tags:
 - haven
-rmd_hash: 6f6d9c3301afcb56
+rmd_hash: a735857f08b23bc3
 
 ---
 
 
-<!--
-TODO:
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] `hugodown::tidy_thumbnail()`
-* [ ] Add intro sentence
-* [ ] `use_tidy_thanks()`
--->
+We're tickled pink to announce the release of [haven](https://haven.tidyverse.org) 2.2.0. haven allows you to read and write SAS, SPSS, and Stata data formats from R, thanks to the wonderful [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](https://www.evanmiller.org/).
 
-We're tickled pink to announce the release of [haven](https://haven.tidyverse.org) 2.2.0.9000. haven enables R to read and write various data formats used by other statistical packages by wrapping the [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](https://www.evanmiller.org/).
-
-You can install it from CRAN with:
+You can install haven from CRAN with:
 
 
 ```r
-install.packages("{package}")
+install.packages("haven")
 ```
 
-This blog post will ...
-
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
+This release is mainly in preparation for dplyr 1.0.0. It includes improved [vctrs support](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-and-vctrs/) for the `labelled()` class that haven uses to represent labelled vectors that come from SAS, Stata, and SPSS. This is not terribly exciting, but it means that the labelled class is now preserved by every dplyr operation where it makes sense:
 
 
 ```r
 library(haven)
+library(dplyr, warn.conflicts = FALSE)
+
+x <- labelled(sample(5), c("bad" = 1, "good" = 5), "scores")
+df <- tibble(x, y = letters[c(1, 3, 5, 7, 9)])
+df
+#> # A tibble: 5 x 2
+#>           x y    
+#>   <int+lbl> <chr>
+#> 1  4        a    
+#> 2  3        c    
+#> 3  5 [good] e    
+#> 4  1 [bad]  g    
+#> 5  2        i
+
+df %>% arrange(x)
+#> # A tibble: 5 x 2
+#>           x y    
+#>   <int+lbl> <chr>
+#> 1  1 [bad]  g    
+#> 2  2        i    
+#> 3  3        c    
+#> 4  4        a    
+#> 5  5 [good] e
+df %>% filter(y %in% c("a", "c"))
+#> # A tibble: 2 x 2
+#>           x y    
+#>   <int+lbl> <chr>
+#> 1         4 a    
+#> 2         3 c
+
+bind_rows(df, df)
+#> # A tibble: 10 x 2
+#>            x y    
+#>    <int+lbl> <chr>
+#>  1  4        a    
+#>  2  3        c    
+#>  3  5 [good] e    
+#>  4  1 [bad]  g    
+#>  5  2        i    
+#>  6  4        a    
+#>  7  3        c    
+#>  8  5 [good] e    
+#>  9  1 [bad]  g    
+#> 10  2        i
+
+df2 <- tibble(y = letters[1:10])
+df2 %>% left_join(df)
+#> Joining, by = "y"
+#> # A tibble: 10 x 2
+#>    y             x
+#>    <chr> <int+lbl>
+#>  1 a      4       
+#>  2 b     NA       
+#>  3 c      3       
+#>  4 d     NA       
+#>  5 e      5 [good]
+#>  6 f     NA       
+#>  7 g      1 [bad] 
+#>  8 h     NA       
+#>  9 i      2       
+#> 10 j     NA
 ```
 
-## Topic 1
-
-## Topic 2
-
 ## Acknowledgements
+
+As always thanks to the GitHub community who helped make this release happen! [&#x0040;180312allison](https://github.com/180312allison), [&#x0040;armenic](https://github.com/armenic), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;beckerbenj](https://github.com/beckerbenj), [&#x0040;bergen288](https://github.com/bergen288), [&#x0040;courtiol](https://github.com/courtiol), [&#x0040;deschen1](https://github.com/deschen1), [&#x0040;edvbb](https://github.com/edvbb), [&#x0040;Ghanshyamsavaliya](https://github.com/Ghanshyamsavaliya), [&#x0040;hadley](https://github.com/hadley), [&#x0040;JackLandry](https://github.com/JackLandry), [&#x0040;Jagadeeshkb](https://github.com/Jagadeeshkb), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;kurt-vd](https://github.com/kurt-vd), [&#x0040;larmarange](https://github.com/larmarange), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;mayer79](https://github.com/mayer79), [&#x0040;mikmart](https://github.com/mikmart), [&#x0040;mitchelloharawild](https://github.com/mitchelloharawild), [&#x0040;omsai](https://github.com/omsai), [&#x0040;pdbailey0](https://github.com/pdbailey0), [&#x0040;randrescastaneda](https://github.com/randrescastaneda), [&#x0040;richarddmorey](https://github.com/richarddmorey), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rubenarslan](https://github.com/rubenarslan), [&#x0040;sda030](https://github.com/sda030), [&#x0040;Sdurier](https://github.com/Sdurier), and [&#x0040;tobwen](https://github.com/tobwen).
