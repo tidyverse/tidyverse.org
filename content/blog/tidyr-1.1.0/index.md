@@ -1,7 +1,7 @@
 ---
 output: hugodown::hugo_document
 title: tidyr 1.1.0
-date: '2020-05-27'
+date: '2020-05-26'
 author: Hadley Wickham
 description: |
   tidyr 1.1.0 includes a bunch of quality of life improvements, particularly for pivoting and rectangling.
@@ -12,26 +12,21 @@ categories:
 - package
 tags:
 - tidyr
-rmd_hash: 139a5fee1ee9aacb
+rmd_hash: 30c462a7ea1d88ca
 
 ---
 
 
-<!--
-TODO:
-* [ ] `use_tidy_thanks()`
--->
-
 We're delighted to announce that [tidyr](http://tidyr.tidyverse.org/) 1.1.0 is now available from CRAN. tidyr provides a set of tools for transforming data frames to and from tidy data, where each variable is a column and each observation is a row. Tidy data is a convention for matching the semantics and structure of your data that makes using the rest of the tidyverse (and many other R packages) much easier.
 
-Install tidyr with:
+You can install install tidyr with:
 
 
 ```r
 install.packages("tidyr")
 ```
 
-This release doesn't include any major new excitement but it includes a whole passel of minor improvements building on the major changes in [tidyr 1.0.0](https://www.tidyverse.org/blog/2019/09/tidyr-1-0-0/), and generally making everything easier to use and a little more flexible. In this blog post, I'll give a quick run down on new pivoting features; see the [full release announcement](https://github.com/tidyverse/tidyr/releases/tag/v1.1.0) for the details of other changes.
+This release doesn't include any major new excitement but it includes a whole passel of minor improvements building on the major changes in [tidyr 1.0.0](https://www.tidyverse.org/blog/2019/09/tidyr-1-0-0/), and generally making everything easier to use and a bit more flexible. In this blog post, I'll give a quick run down on new pivoting features; see the [full release announcement](https://github.com/tidyverse/tidyr/releases/tag/v1.1.0) for the details of other changes.
 
 
 ```r
@@ -81,7 +76,7 @@ library(tidyr)
 
 *   `pivot_longer()` no longer creates a `.copy` variable in the presence of
     duplicate column names. This makes it more consistent with the handling
-    of non-unique specs.
+    of non-unique pivot specifications.
   
     
     ```r
@@ -98,7 +93,7 @@ library(tidyr)
     #> 6     3 x         6
     ```
     
-*   `pivot_longer()` automatically disambiguates non-unique ouputs, which can
+*   `pivot_longer()` automatically disambiguates non-unique outputs, which can
     occur when the input variables include some additional component that you
     don't care about and want to discard. You can discard parts of column names
     either with `names_pattern` or with `NA` in `names_to`.
@@ -145,11 +140,12 @@ library(tidyr)
     #> 5     3     3     6
     #> 6     3    NA    11
     ```
+
 ## `pivot_wider()`
 
 *   `pivot_wider()` gains a `names_sort` argument which allows you to sort
     column names in order. The default, `FALSE`, orders columns by their 
-    first appearance. I'm considering  changing the default value to `TRUE`
+    first appearance. I'm considering changing the default value to `TRUE`
     in a future version.
     
     
@@ -202,8 +198,8 @@ library(tidyr)
 
 *   `pivot_wider()` arguments `values_fn` and `values_fill` can now be single 
     values; you now only need to use a named list if you want to use different 
-    values for different value columns. They also get improved errors if 
-    they're not of the expected type.
+    values for different value columns. You'll also get better errors if 
+    they're not of the correct type.
 
 *   Finally, both `pivot_wider()` and `pivot_longer()` are considerably more 
     performant, thanks largely to improvements in the underlying vctrs code 
