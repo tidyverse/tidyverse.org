@@ -13,9 +13,11 @@ categories:
 - package
 tags:
 - haven
-rmd_hash: a735857f08b23bc3
+rmd_hash: efb089f53fbbab4f
 
 ---
+
+
 
 
 We're tickled pink to announce the release of [haven](https://haven.tidyverse.org) 2.2.0. haven allows you to read and write SAS, SPSS, and Stata data formats from R, thanks to the wonderful [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](https://www.evanmiller.org/).
@@ -40,9 +42,9 @@ df
 #> # A tibble: 5 x 2
 #>           x y    
 #>   <int+lbl> <chr>
-#> 1  4        a    
+#> 1  5 [good] a    
 #> 2  3        c    
-#> 3  5 [good] e    
+#> 3  4        e    
 #> 4  1 [bad]  g    
 #> 5  2        i
 
@@ -53,27 +55,27 @@ df %>% arrange(x)
 #> 1  1 [bad]  g    
 #> 2  2        i    
 #> 3  3        c    
-#> 4  4        a    
-#> 5  5 [good] e
+#> 4  4        e    
+#> 5  5 [good] a
 df %>% filter(y %in% c("a", "c"))
 #> # A tibble: 2 x 2
 #>           x y    
 #>   <int+lbl> <chr>
-#> 1         4 a    
-#> 2         3 c
+#> 1  5 [good] a    
+#> 2  3        c
 
 bind_rows(df, df)
 #> # A tibble: 10 x 2
 #>            x y    
 #>    <int+lbl> <chr>
-#>  1  4        a    
+#>  1  5 [good] a    
 #>  2  3        c    
-#>  3  5 [good] e    
+#>  3  4        e    
 #>  4  1 [bad]  g    
 #>  5  2        i    
-#>  6  4        a    
+#>  6  5 [good] a    
 #>  7  3        c    
-#>  8  5 [good] e    
+#>  8  4        e    
 #>  9  1 [bad]  g    
 #> 10  2        i
 
@@ -83,11 +85,11 @@ df2 %>% left_join(df)
 #> # A tibble: 10 x 2
 #>    y             x
 #>    <chr> <int+lbl>
-#>  1 a      4       
+#>  1 a      5 [good]
 #>  2 b     NA       
 #>  3 c      3       
 #>  4 d     NA       
-#>  5 e      5 [good]
+#>  5 e      4       
 #>  6 f     NA       
 #>  7 g      1 [bad] 
 #>  8 h     NA       
