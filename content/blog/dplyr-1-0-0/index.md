@@ -17,15 +17,21 @@ categories:
 tags:
   - dplyr
   - dplyr-1-0-0
-rmd_hash: f9ac7b63213a775f
+rmd_hash: c8c1616035516090
 
 ---
 
 I'm very excited to announce the ninth and final blog post in the [dplyr 1.0.0 series](/tags/dplyr-1-0-0): [dplyr 1.0.0](http://dplyr.tidyverse.org/) is now available from CRAN! Install it by running:
 
-``` r
-install.packages("dplyr")
-```
+<pre class='downlit'>
+<span class='fu'>install.packages</span>(<span class='st'>"dplyr"</span>)
+</pre>
+
+Then load it with:
+
+<pre class='downlit'>
+<span class='fu'>library</span>(<span class='kw'><a href='https://dplyr.tidyverse.org/reference'>dplyr</a></span>)
+</pre>
 
 New features
 ------------
@@ -34,17 +40,17 @@ dplyr 1.0.0 is chock-a-block with new features; so many, in fact, that we can't 
 
 -   [Major lifecycle changes](/blog/2020/03/dplyr-1-0-0-is-coming-soon/). This post focusses on the idea of the "function lifecycle" which helps you understand where functions in dplyr are going. Particularly important is the idea of a "superseded" function. A superseded function is not going away, but we no longer recommend using it in new code.
 
--   [New `summarise()` features](/blog/2020/03/dplyr-1-0-0-summarise/). In `summarise()`, a single summary expression can now create both multiple rows and multiple columns. This significantly increases its power and flexibility.
+-   [New `summarise()` features](/blog/2020/03/dplyr-1-0-0-summarise/). In [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), a single summary expression can now create both multiple rows and multiple columns. This significantly increases its power and flexibility.
 
--   [`select()`, `rename()`, and (new) `relocate()`](/blog/2020/03/dplyr-1-0-0-select-rename-relocate/). `select()` and `rename()` can now select by position, name, function of name, type, and any combination thereof. A new `relocate()` function makes it easy to change the position of columns.
+-   [`select()`, `rename()`, and (new) `relocate()`](/blog/2020/03/dplyr-1-0-0-select-rename-relocate/). [`select()`](https://dplyr.tidyverse.org/reference/select.html) and [`rename()`](https://dplyr.tidyverse.org/reference/rename.html) can now select by position, name, function of name, type, and any combination thereof. A new [`relocate()`](https://dplyr.tidyverse.org/reference/relocate.html) function makes it easy to change the position of columns.
 
--   [Working `across()` columns](/blog/2020/04/dplyr-1-0-0-colwise/). A new `across()` function makes it much easier to apply the same operation to multiple columns. It supersedes the `_if()`, `_at()`, and `_all()` function variants.
+-   [Working `across()` columns](/blog/2020/04/dplyr-1-0-0-colwise/). A new [`across()`](https://dplyr.tidyverse.org/reference/across.html) function makes it much easier to apply the same operation to multiple columns. It supersedes the `_if()`, `_at()`, and `_all()` function variants.
 
--   [Working within rows](/blog/2020/04/dplyr-1-0-0-rowwise/). `rowwise()` has been renewed and revamped to make it easier to perform operations row-by-row. This makes it much easier to solve problems that previously required `lapply()`, `map()`, or friends.
+-   [Working within rows](/blog/2020/04/dplyr-1-0-0-rowwise/). [`rowwise()`](https://dplyr.tidyverse.org/reference/rowwise.html) has been renewed and revamped to make it easier to perform operations row-by-row. This makes it much easier to solve problems that previously required [`base::lapply()`](https://rdrr.io/r/base/lapply.html), [`purrr::map()`](https://purrr.tidyverse.org/reference/map.html), or friends.
 
 -   [The role of the vctrs package](/blog/2020/04/dplyr-1-0-0-and-vctrs/). dplyr now makes heavy use of [vctrs](http://vctrs.r-lib.org/) behind the scenes. This brings with it greater consistency and (hopefully!) more useful error messages.
 
--   [Last minute additions](/blog/2020/05/dplyr-1-0-0-last-minute-additions/) `summarise()` now allows you to control how its results are grouped, and there's a new family of functions designed for modifying rows.
+-   [Last minute additions](/blog/2020/05/dplyr-1-0-0-last-minute-additions/) [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) now allows you to control how its results are grouped, and there's a new family of functions designed for modifying rows.
 
 You can see the full list of changes in the [release notes](https://github.com/tidyverse/dplyr/releases/tag/v1.0.0).
 
@@ -62,45 +68,45 @@ A small teaser
 
 The best way to find out about all the cool new features dplyr has to offer is to read through the blog posts linked to above. But thanks to inspiration from [Daniel Anderson](https://twitter.com/datalorax_/status/1258208502960422914) here's one example of fitting two different models by subgroup that shows off a bunch of cool features:
 
-``` r
-library(dplyr, warn.conflicts = FALSE)
+<pre class='downlit'>
+<span class='fu'>library</span>(<span class='kw'><a href='https://dplyr.tidyverse.org/reference'>dplyr</a></span>, warn.conflicts = <span class='fl'>FALSE</span>)
 
-models <- tibble::tribble(
-  ~model_name,    ~ formula,
-  "length-width", Sepal.Length ~ Petal.Width + Petal.Length,
-  "interaction",  Sepal.Length ~ Petal.Width * Petal.Length
+<span class='kw'>models</span> <span class='op'>&lt;-</span> <span class='kw'>tibble</span>::<span class='fu'><a href='https://tibble.tidyverse.org/reference/tribble.html'>tribble</a></span>(
+  <span class='op'>~</span><span class='kw'>model_name</span>,    <span class='op'>~</span> <span class='kw'>formula</span>,
+  <span class='st'>"length-width"</span>, <span class='kw'>Sepal.Length</span> <span class='op'>~</span> <span class='kw'>Petal.Width</span> <span class='op'>+</span> <span class='kw'>Petal.Length</span>,
+  <span class='st'>"interaction"</span>,  <span class='kw'>Sepal.Length</span> <span class='op'>~</span> <span class='kw'>Petal.Width</span> <span class='op'>*</span> <span class='kw'>Petal.Length</span>
 )
 
-iris %>% 
-  nest_by(Species) %>% 
-  left_join(models, by = character()) %>% 
-  rowwise(Species, model_name) %>% 
-  mutate(model = list(lm(formula, data = data))) %>% 
-  summarise(broom::glance(model))
-#> `summarise()` regrouping output by 'Species', 'model_name' (override with `.groups` argument)
-#> # A tibble: 6 x 13
-#> # Groups:   Species, model_name [6]
-#>   Species model_name r.squared adj.r.squared sigma statistic  p.value    df
-#>   <fct>   <chr>          <dbl>         <dbl> <dbl>     <dbl>    <dbl> <int>
-#> 1 setosa  length-wi…     0.112        0.0739 0.339      2.96 6.18e- 2     3
-#> 2 setosa  interacti…     0.133        0.0760 0.339      2.34 8.54e- 2     4
-#> 3 versic… length-wi…     0.574        0.556  0.344     31.7  1.92e- 9     3
-#> 4 versic… interacti…     0.577        0.549  0.347     20.9  1.11e- 8     4
-#> 5 virgin… length-wi…     0.747        0.736  0.327     69.3  9.50e-15     3
-#> 6 virgin… interacti…     0.757        0.741  0.323     47.8  3.54e-14     4
-#> # … with 5 more variables: logLik <dbl>, AIC <dbl>, BIC <dbl>, deviance <dbl>,
-#> #   df.residual <int>
-```
+<span class='kw'>iris</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/nest_by.html'>nest_by</a></span>(<span class='kw'>Species</span>) <span class='op'>%&gt;%</span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span>(<span class='kw'>models</span>, by = <span class='fu'>character</span>()) <span class='op'>%&gt;%</span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/rowwise.html'>rowwise</a></span>(<span class='kw'>Species</span>, <span class='kw'>model_name</span>) <span class='op'>%&gt;%</span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span>(model = <span class='fu'>list</span>(<span class='fu'>lm</span>(<span class='kw'>formula</span>, data = <span class='kw'>data</span>))) <span class='op'>%&gt;%</span> 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span>(<span class='kw'>broom</span>::<span class='fu'><a href='https://rdrr.io/pkg/broom/man/reexports.html'>glance</a></span>(<span class='kw'>model</span>))
+<span class='co'>#&gt; `summarise()` regrouping output by 'Species', 'model_name' (override with `.groups` argument)</span>
+<span class='co'>#&gt; # A tibble: 6 x 13</span>
+<span class='co'>#&gt; # Groups:   Species, model_name [6]</span>
+<span class='co'>#&gt;   Species model_name r.squared adj.r.squared sigma statistic  p.value    df</span>
+<span class='co'>#&gt;   &lt;fct&gt;   &lt;chr&gt;          &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;</span>
+<span class='co'>#&gt; 1 setosa  length-wi…     0.112        0.0739 0.339      2.96 6.18e- 2     3</span>
+<span class='co'>#&gt; 2 setosa  interacti…     0.133        0.0760 0.339      2.34 8.54e- 2     4</span>
+<span class='co'>#&gt; 3 versic… length-wi…     0.574        0.556  0.344     31.7  1.92e- 9     3</span>
+<span class='co'>#&gt; 4 versic… interacti…     0.577        0.549  0.347     20.9  1.11e- 8     4</span>
+<span class='co'>#&gt; 5 virgin… length-wi…     0.747        0.736  0.327     69.3  9.50e-15     3</span>
+<span class='co'>#&gt; 6 virgin… interacti…     0.757        0.741  0.323     47.8  3.54e-14     4</span>
+<span class='co'>#&gt; # … with 5 more variables: logLik &lt;dbl&gt;, AIC &lt;dbl&gt;, BIC &lt;dbl&gt;, deviance &lt;dbl&gt;,</span>
+<span class='co'>#&gt; #   df.residual &lt;int&gt;</span>
+</pre>
 
 Note the use of:
 
--   The new `nest_by()`, which generates a nested data frame where each row represents one subgroup.
+-   The new [`nest_by()`](https://dplyr.tidyverse.org/reference/nest_by.html), which generates a nested data frame where each row represents one subgroup.
 
--   In `left_join()`, `by = character()` which now performs a Cartesian product, generating every combination of subgroup and model.
+-   In [`left_join()`](https://dplyr.tidyverse.org/reference/mutate-joins.html), `by = character()` which now performs a Cartesian product, generating every combination of subgroup and model.
 
--   `rowwise()` and `mutate()` which fit a model to each row.
+-   [`rowwise()`](https://dplyr.tidyverse.org/reference/rowwise.html) and [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) which fit a model to each row.
 
--   The newly powerful `summarise()` which summarises each model with the model fit statistics computed by `broom::glance()`.
+-   The newly powerful [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) which summarises each model with the model fit statistics computed by [`broom::glance()`](https://rdrr.io/pkg/broom/man/reexports.html).
 
 Acknowledgements
 ----------------
