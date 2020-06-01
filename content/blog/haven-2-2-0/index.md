@@ -1,38 +1,35 @@
 ---
 output: hugodown::hugo_document
+
 slug: haven-2-2-0
 title: haven 2.2.0
-date: '2020-05-27'
+date: 2020-05-27
 author: Hadley Wickham
-description: |
-  haven now uses vctrs which means labelled classes will be preserved in tidyr and dplyr operation.
+description: >
+    haven now uses vctrs which means labelled classes will be preserved in
+    tidyr and dplyr operation.
+
 photo:
   url: https://unsplash.com/photos/45GmTCcW8Hk
   author: Sergey Nikolaev
-categories:
-- package
-tags:
-- haven
+
+categories: [package] 
+tags: [haven]
 rmd_hash: efb089f53fbbab4f
 
 ---
-
-
-
 
 We're tickled pink to announce the release of [haven](https://haven.tidyverse.org) 2.2.0. haven allows you to read and write SAS, SPSS, and Stata data formats from R, thanks to the wonderful [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](https://www.evanmiller.org/).
 
 You can install haven from CRAN with:
 
-
-```r
+``` r
 install.packages("haven")
 ```
 
 This release is mainly in preparation for dplyr 1.0.0. It includes improved [vctrs support](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-and-vctrs/) for the `labelled()` class that haven uses to represent labelled vectors that come from SAS, Stata, and SPSS. This is not terribly exciting, but it means that the labelled class is now preserved by every dplyr operation where it makes sense:
 
-
-```r
+``` r
 library(haven)
 library(dplyr, warn.conflicts = FALSE)
 
@@ -97,6 +94,7 @@ df2 %>% left_join(df)
 #> 10 j     NA
 ```
 
-## Acknowledgements
+Acknowledgements
+----------------
 
-As always thanks to the GitHub community who helped make this release happen! [&#x0040;180312allison](https://github.com/180312allison), [&#x0040;armenic](https://github.com/armenic), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;beckerbenj](https://github.com/beckerbenj), [&#x0040;bergen288](https://github.com/bergen288), [&#x0040;courtiol](https://github.com/courtiol), [&#x0040;deschen1](https://github.com/deschen1), [&#x0040;edvbb](https://github.com/edvbb), [&#x0040;Ghanshyamsavaliya](https://github.com/Ghanshyamsavaliya), [&#x0040;hadley](https://github.com/hadley), [&#x0040;JackLandry](https://github.com/JackLandry), [&#x0040;Jagadeeshkb](https://github.com/Jagadeeshkb), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;kurt-vd](https://github.com/kurt-vd), [&#x0040;larmarange](https://github.com/larmarange), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;mayer79](https://github.com/mayer79), [&#x0040;mikmart](https://github.com/mikmart), [&#x0040;mitchelloharawild](https://github.com/mitchelloharawild), [&#x0040;omsai](https://github.com/omsai), [&#x0040;pdbailey0](https://github.com/pdbailey0), [&#x0040;randrescastaneda](https://github.com/randrescastaneda), [&#x0040;richarddmorey](https://github.com/richarddmorey), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rubenarslan](https://github.com/rubenarslan), [&#x0040;sda030](https://github.com/sda030), [&#x0040;Sdurier](https://github.com/Sdurier), and [&#x0040;tobwen](https://github.com/tobwen).
+As always thanks to the GitHub community who helped make this release happen! [@180312allison](https://github.com/180312allison), [@armenic](https://github.com/armenic), [@batpigandme](https://github.com/batpigandme), [@beckerbenj](https://github.com/beckerbenj), [@bergen288](https://github.com/bergen288), [@courtiol](https://github.com/courtiol), [@deschen1](https://github.com/deschen1), [@edvbb](https://github.com/edvbb), [@Ghanshyamsavaliya](https://github.com/Ghanshyamsavaliya), [@hadley](https://github.com/hadley), [@JackLandry](https://github.com/JackLandry), [@Jagadeeshkb](https://github.com/Jagadeeshkb), [@jimhester](https://github.com/jimhester), [@kurt-vd](https://github.com/kurt-vd), [@larmarange](https://github.com/larmarange), [@lionel-](https://github.com/lionel-), [@mayer79](https://github.com/mayer79), [@mikmart](https://github.com/mikmart), [@mitchelloharawild](https://github.com/mitchelloharawild), [@omsai](https://github.com/omsai), [@pdbailey0](https://github.com/pdbailey0), [@randrescastaneda](https://github.com/randrescastaneda), [@richarddmorey](https://github.com/richarddmorey), [@romainfrancois](https://github.com/romainfrancois), [@rubenarslan](https://github.com/rubenarslan), [@sda030](https://github.com/sda030), [@Sdurier](https://github.com/Sdurier), and [@tobwen](https://github.com/tobwen).
