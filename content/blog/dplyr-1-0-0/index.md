@@ -5,7 +5,7 @@ output: hugodown::hugo_document
 description: > 
   dplyr 1.0.0 is now available from CRAN!
 author: Hadley Wickham
-date: '2020-05-22'
+date: '2020-06-01'
 slug: dplyr-1-0-0
 
 photo:
@@ -16,7 +16,7 @@ categories:
   - package
 tags:
   - dplyr
-rmd_hash: b7a22f9029cf33f8
+rmd_hash: 559fbd0f03cc34c7
 
 ---
 
@@ -35,6 +35,15 @@ You can learn about the new features in dplyr 1.0.0 by reading the
 ``` r
 library(dplyr, warn.conflicts = FALSE)
 ```
+
+New logo
+--------
+
+dplyr has a new logo thanks to the talented [Allison Horst](https://allisonhorst.github.io)!
+
+<img src="dplyr.png" width="250" alt="New dplyr logo" /> 
+
+(Stay tuned for details about how to get this sticker on to your laptop. We have some exciting news coming up!)
 
 A small teaser
 --------------
