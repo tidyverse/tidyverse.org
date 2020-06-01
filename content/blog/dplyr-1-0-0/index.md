@@ -7,11 +7,16 @@ description: >
 author: Hadley Wickham
 date: '2020-05-22'
 slug: dplyr-1-0-0
+
+photo:
+  url: https://unsplash.com/photos/W8BNwvOvW4M
+  author: Helinton Fantin
+
 categories:
   - package
 tags:
   - dplyr
-rmd_hash: 65e083017932cd88
+rmd_hash: b7a22f9029cf33f8
 
 ---
 
