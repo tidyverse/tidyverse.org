@@ -1,50 +1,44 @@
 ---
+slug: dplyr-1-0-0-rowwise
 title: 'dplyr 1.0.0: working within rows'
 author: Hadley Wickham
 date: '2020-04-10'
-slug: dplyr-1-0-0-rowwise
+description: >
+  `rowwise()` has been renewed and revamped to make it easier to perform
+  operations row-by-row. This makes it much easier to solve problems that
+  previously required `lapply()`, `map()`, or friends.
+
+output: hugodown::hugo_document
+
 categories:
-  - package
+- package
 tags:
-  - dplyr
+- dplyr
+- dplyr-1-0-0
+
 photo:
   author: Oleksandr Hrebelnyk
   url: https://unsplash.com/photos/ckZU2xZUjO8
+rmd_hash: d7024928b355f876
+
 ---
 
+Today, I wanted to talk a little bit about the renewed `rowwise()` function that makes it easy to perform operations "row-by-row". I'll show how you can use `rowwise()` to compute summaries "by row", talk about how `rowwise()` is a natural pairing with list-columns, and show a couple of use cases that I think are particularly elegant. You can learn more about all of these topics in [`vignette("rowwise")`](https://dplyr.tidyverse.org/dev/articles/rowwise.html).
 
+------------------------------------------------------------------------
 
-This post is the latest in a series of post leading up the the dplyr 1.0.0 release. So far, the series has covered:
+**Update**: as of June 1, dplyr 1.0.0 is now available on CRAN! Read [all about it](/blog/2020/06/dplyr-1-0-0/) or install it now with `install.packages("dplyr")`.
 
-* [Major lifecycle changes](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/).
-* [New `summarise()` features](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/).
-* [`select()`, `rename()`, `relocate()`](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/).
-* [Working `across()` columns](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/).
+------------------------------------------------------------------------
 
-Today, I wanted to talk a little bit about the renewed `rowwise()` function that makes it easy to perform operations "row-by-row". I'll show how you can use `rowwise()` to compute summaries "by row", talk about how `rowwise()` is a natural pairing with list-columns, and show a couple of use cases that I think are particularly elegant. You can learn more about all of these topics in  [`vignette("rowwise")`](https://dplyr.tidyverse.org/dev/articles/rowwise.html).
-
-### Getting the dev version
-
-If you're interested in living life on the edge (or trying out anything you see in this blog post), you can install the development version of dplyr with:
-
-
-```r
-devtools::install_github("tidyverse/dplyr")
-```
-
-Note that the development version won't become 1.0.0 until it's released, but it has all the same features.
-
-
-```r
-library(dplyr, warn.conflicts = FALSE)
-```
-
-## Basic operation
+Basic operation
+---------------
 
 `rowwise()` works like `group_by()` in the sense that it doesn't change what the data looks like; it changes how dplyr verbs operate on the data. Let's see how this works with a simple example. Here I have some imaginary test results for students in a class:
 
+``` r
+library(dplyr, warn.conflicts = FALSE)
 
-```r
 df <- tibble(
   student_id = 1:4, 
   test1 = 10:13, 
@@ -64,8 +58,7 @@ df
 
 I'd like to be able to compute the mean of the test scores for each student, but `mutate()` and `mean()` don't do what I want:
 
-
-```r
+``` r
 df %>% mutate(avg = mean(c(test1, test2, test3, test4)))
 #> # A tibble: 4 x 6
 #>   student_id test1 test2 test3 test4   avg
@@ -78,15 +71,13 @@ df %>% mutate(avg = mean(c(test1, test2, test3, test4)))
 
 The problem is that I'm getting a mean over the whole data frame, not for each student. I can resolve this problem of getting a mean for each student by creating a "row-wise" data frame with `rowwise()`:
 
-
-```r
+``` r
 rf <- rowwise(df, student_id)
 ```
 
 `rowwise()` doesn't need any additional arguments unless you have variables that identify the rows, like `student_id` here. Much like grouping variables, identifier variables will be automatically preserved when you `summarise()` the data.
 
-
-```r
+``` r
 rf
 #> # A tibble: 4 x 5
 #> # Rowwise:  student_id
@@ -98,10 +89,9 @@ rf
 #> 4          4    13    23    33    43
 ```
 
-`rf` _looks_ very similar to `df`, but _behaves_ very differently:
+`rf` *looks* very similar to `df`, but *behaves* very differently:
 
-
-```r
+``` r
 rf %>% mutate(avg = mean(c(test1, test2, test3, test4)))
 #> # A tibble: 4 x 6
 #> # Rowwise:  student_id
@@ -112,10 +102,10 @@ rf %>% mutate(avg = mean(c(test1, test2, test3, test4)))
 #> 3          3    12    22    32    42    27
 #> 4          4    13    23    33    43    28
 ```
+
 An additional advantage of `rowwise()` is that it's paired with [`c_across()`](https://dplyr.tidyverse.org/dev/reference/across.html), which works like `c()` but uses the same tidyselect syntax as `across()`. That makes it easy to operate on multiple variables:
 
-
-```r
+``` r
 rf %>% mutate(avg = mean(c_across(starts_with("test"))))
 #> # A tibble: 4 x 6
 #> # Rowwise:  student_id
@@ -126,12 +116,12 @@ rf %>% mutate(avg = mean(c_across(starts_with("test"))))
 #> 3          3    12    22    32    42    27
 #> 4          4    13    23    33    43    28
 ```
+
 ### Other ways of achieving the same result
 
 Some summary functions have alternative ways of computing row-wise summaries that take advantage of built-in vectorisation. For example, if you wanted to compute the sum, you could use `+`:
 
-
-```r
+``` r
 df %>% mutate(total = test1 + test2 + test3 + test4)
 #> # A tibble: 4 x 6
 #>   student_id test1 test2 test3 test4 total
@@ -141,10 +131,10 @@ df %>% mutate(total = test1 + test2 + test3 + test4)
 #> 3          3    12    22    32    42   108
 #> 4          4    13    23    33    43   112
 ```
-And you _could_ use the same basic idea to compute the mean:
 
+And you *could* use the same basic idea to compute the mean:
 
-```r
+``` r
 df %>% mutate(avg = (test1 + test2 + test3 + test4) / 4)
 #> # A tibble: 4 x 6
 #>   student_id test1 test2 test3 test4   avg
@@ -157,8 +147,7 @@ df %>% mutate(avg = (test1 + test2 + test3 + test4) / 4)
 
 Another family of summary functions have "parallel" extensions where you can provide multiple variables in the arguments:
 
-
-```r
+``` r
 df %>% mutate(
   min = pmin(test1, test2, test3, test4), 
   max = pmax(test1, test2, test3, test4), 
@@ -175,18 +164,20 @@ df %>% mutate(
 
 Where these functions exist, they'll usually be faster than `rowwise()`. The advantage of `rowwise()` is that it works with any function, not just those that are already vectorised.
 
-## List-columns
+List-columns
+------------
 
 `rowwise()` is useful for computing simple summaries, but its real power comes when you use it with list-columns. Because lists can contain anything, you can use list-columns to keep related objects together, regardless of what type of thing they are. List-columns give you a convenient storage mechanism and `rowwise()` gives you a convenient computation mechanism.
 
 Let's make those ideas concrete by creating a data frame with a list-column. A little later, we'll come back to how you might actually get a list-column in a more realistic situation. The following data frame uses list columns to store things that would otherwise be challenging:
 
-* `x` contains vectors of different lengths.
-* `y` contains vectors of different types
-* `z` contains functions, which can't usually live in a data frame.
+-   `x` contains vectors of different lengths.
+-   `y` contains vectors of different types
+-   `z` contains functions, which can't usually live in a data frame.
 
+<!-- -->
 
-```r
+``` r
 df <- tibble(
   x = list(1, 2:3, 4:6),
   y = list(TRUE, 1, "a"),
@@ -203,8 +194,7 @@ df
 
 When you have list-columns in a row-wise data frame, you can easily compute with each element of the list:
 
-
-```r
+``` r
 df %>% 
   rowwise() %>% 
   summarise(
@@ -212,8 +202,8 @@ df %>%
     y_type = typeof(y),
     z_call = z(1:5)
   )
+#> `summarise()` ungrouping output (override with `.groups` argument)
 #> # A tibble: 3 x 3
-#> # Rowwise: 
 #>   x_length y_type    z_call
 #>      <int> <chr>      <dbl>
 #> 1        1 logical    15   
@@ -223,7 +213,8 @@ df %>%
 
 This makes a row-wise `mutate()` or `summarise()` a general vectorisation tool, in the same way as the apply family in base R or the map family in purrr do. It's now much simpler to solve a number of problems where we previously recommended learning about `map()`, `map2()`, `pmap()` and friends.
 
-## Use cases
+Use cases
+---------
 
 To finish up, I wanted to show off a couple of use cases where I think `rowwise()` provides a really elegant solution: simulations and modelling.
 
@@ -231,8 +222,7 @@ To finish up, I wanted to show off a couple of use cases where I think `rowwise(
 
 The basic idea of using `rowwise()` to perform simulation is to store all your simulation paramters in a data frame:
 
-
-```r
+``` r
 df <- tribble(
   ~id, ~ n, ~ min, ~ max,
     1,   3,     0,     1,
@@ -243,8 +233,7 @@ df <- tribble(
 
 Then you can either generate a list-column containing the simulated values with `mutate()`:
 
-
-```r
+``` r
 df %>%
   rowwise(id) %>%
   mutate(data = list(runif(n, min, max)))
@@ -257,24 +246,24 @@ df %>%
 #> 3     3     2   100  1000 <dbl [2]>
 ```
 
-Or take advantage of [`summarise()`'s new capabilities](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/) and return one element per row: 
+Or take advantage of [`summarise()`'s new capabilities](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/) and return one element per row:
 
-
-```r
+``` r
 df %>%
   rowwise(id) %>%
   summarise(x = runif(n, min, max))
+#> `summarise()` regrouping output by 'id' (override with `.groups` argument)
 #> # A tibble: 7 x 2
-#> # Rowwise:  id
+#> # Groups:   id [3]
 #>      id       x
 #>   <dbl>   <dbl>
-#> 1     1   0.953
-#> 2     1   0.146
-#> 3     1   0.782
-#> 4     2  54.2  
-#> 5     2  65.8  
-#> 6     3 208.   
-#> 7     3 137.
+#> 1     1   0.579
+#> 2     1   0.269
+#> 3     1   0.120
+#> 4     2  29.0  
+#> 5     2  50.8  
+#> 6     3 451.   
+#> 7     3 985.
 ```
 
 Note that `id` is preserved in the output here because we defined it as an identifier variable in the call to `rowwise()`.
@@ -283,45 +272,43 @@ Note that `id` is preserved in the output here because we defined it as an ident
 
 ### Group-wise models
 
-The new `nest_by()` function works similarly to `group_by()` but instead of storing the grouping data as metadata, visibly changes the structure. Now we have three rows (one for each group), and we have a list-col, `data`, that stores the data for that group. Also note that the output is a `rowwise()` object; this is important because it’s going to make working with that list of data frames much easier.
+The new `nest_by()` function works similarly to `group_by()` but instead of storing the grouping data as metadata, visibly changes the structure. Now we have three rows (one for each group), and we have a list-col, `data`, that stores the data for that group. Also note that the output is a `rowwise()` object; this is important because it's going to make working with that list of data frames much easier.
 
-
-```r
+``` r
 by_cyl <- mtcars %>% nest_by(cyl)
 by_cyl
 #> # A tibble: 3 x 2
 #> # Rowwise:  cyl
-#>     cyl            data
-#>   <dbl> <list<df[,10]>>
-#> 1     4       [11 × 10]
-#> 2     6        [7 × 10]
-#> 3     8       [14 × 10]
+#>     cyl                data
+#>   <dbl> <list<tbl_df[,10]>>
+#> 1     4           [11 × 10]
+#> 2     6            [7 × 10]
+#> 3     8           [14 × 10]
 ```
 
 Now we can use `mutate()` to fit a model to each data frame:
 
-
-```r
+``` r
 by_cyl <- by_cyl %>% mutate(model = list(lm(mpg ~ wt, data = data)))
 by_cyl
 #> # A tibble: 3 x 3
 #> # Rowwise:  cyl
-#>     cyl            data model 
-#>   <dbl> <list<df[,10]>> <list>
-#> 1     4       [11 × 10] <lm>  
-#> 2     6        [7 × 10] <lm>  
-#> 3     8       [14 × 10] <lm>
+#>     cyl                data model 
+#>   <dbl> <list<tbl_df[,10]>> <list>
+#> 1     4           [11 × 10] <lm>  
+#> 2     6            [7 × 10] <lm>  
+#> 3     8           [14 × 10] <lm>
 ```
 
 (Note that we need to wrap the output of `lm()` into a list; if you forget this, the error message will remind you.)
 
 And then extract model summaries or coefficients with `summarise()` and [broom](http://broom.tidyverse.org/) functions:
 
-
-```r
+``` r
 by_cyl %>% summarise(broom::glance(model))
+#> `summarise()` regrouping output by 'cyl' (override with `.groups` argument)
 #> # A tibble: 3 x 12
-#> # Rowwise:  cyl
+#> # Groups:   cyl [3]
 #>     cyl r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC
 #>   <dbl>     <dbl>         <dbl> <dbl>     <dbl>   <dbl> <int>  <dbl> <dbl> <dbl>
 #> 1     4     0.509         0.454  3.33      9.32  0.0137     2 -27.7   61.5  62.7
@@ -330,8 +317,9 @@ by_cyl %>% summarise(broom::glance(model))
 #> # … with 2 more variables: deviance <dbl>, df.residual <int>
 
 by_cyl %>% summarise(broom::tidy(model))
+#> `summarise()` regrouping output by 'cyl' (override with `.groups` argument)
 #> # A tibble: 6 x 6
-#> # Rowwise:  cyl
+#> # Groups:   cyl [3]
 #>     cyl term        estimate std.error statistic    p.value
 #>   <dbl> <chr>          <dbl>     <dbl>     <dbl>      <dbl>
 #> 1     4 (Intercept)    39.6      4.35       9.10 0.00000777

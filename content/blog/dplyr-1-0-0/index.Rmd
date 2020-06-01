@@ -1,0 +1,117 @@
+---
+title: dplyr 1.0.0 available now!
+output: hugodown::hugo_document
+
+description: > 
+  dplyr 1.0.0 is now available from CRAN!
+author: Hadley Wickham
+date: '2020-06-01'
+slug: dplyr-1-0-0
+
+photo:
+  url: https://unsplash.com/photos/W8BNwvOvW4M
+  author: Helinton Fantin
+
+categories:
+  - package
+tags:
+  - dplyr
+  - dplyr-1-0-0
+---
+
+I'm very excited to announce the ninth and final blog post in the [dplyr 1.0.0 series](/tags/dplyr-1-0-0): [dplyr 1.0.0](http://dplyr.tidyverse.org/) is now available from CRAN! Install it by running:
+
+```{r, eval = FALSE}
+install.packages("dplyr")
+```
+
+## New features
+
+dplyr 1.0.0 is chock-a-block with new features; so many, in fact, that we can't fit them all into one post. So if you want to learn more about what's new, we recommend reading our existing series of posts:
+
+-   [Major lifecycle changes](/blog/2020/03/dplyr-1-0-0-is-coming-soon/). 
+    This post focusses on the idea of the "function lifecycle" which helps 
+    you understand where functions in dplyr are going. Particularly important
+    is the idea of a "superseded" function. A superseded function is not going
+    away, but we no longer recommend using it in new code.
+  
+-   [New `summarise()` features](/blog/2020/03/dplyr-1-0-0-summarise/). 
+    In `summarise()`, a single summary expression can now create both
+    multiple rows and multiple columns. This significantly increases its power
+    and flexibility.
+
+-   [`select()`, `rename()`, and (new) `relocate()`](/blog/2020/03/dplyr-1-0-0-select-rename-relocate/). 
+    `select()` and `rename()` can now select by position, name, function of
+    name, type, and any combination thereof. A new `relocate()` function 
+    makes it easy to change the position of columns.
+
+-   [Working `across()` columns](/blog/2020/04/dplyr-1-0-0-colwise/).
+    A new `across()` function makes it much easier to apply the same operation
+    to multiple columns. It supersedes the `_if()`, `_at()`, and `_all()`
+    function variants.
+
+-   [Working within rows](/blog/2020/04/dplyr-1-0-0-rowwise/).
+    `rowwise()` has been renewed and revamped to make it easier to perform
+    operations row-by-row. This makes it much easier to solve problems that
+    previously required `lapply()`, `map()`, or friends.
+
+-   [The role of the vctrs package](/blog/2020/04/dplyr-1-0-0-and-vctrs/).
+    dplyr now makes heavy use of [vctrs](http://vctrs.r-lib.org/) behind
+    the scenes. This brings with it greater consistency and (hopefully!)
+    more useful error messages.
+
+-   [Last minute additions](/blog/2020/05/dplyr-1-0-0-last-minute-additions/)
+    `summarise()` now allows you to control how its results are grouped,
+    and there's a new family of functions designed for modifying rows.
+
+You can see the full list of changes in the [release notes](https://github.com/tidyverse/dplyr/releases/tag/v1.0.0).
+
+## New logo
+
+dplyr has a new logo thanks to the talented [Allison Horst](https://allisonhorst.github.io)!
+
+![New dplyr logo](dplyr.png){width=250px}\ 
+
+(Stay tuned for details about how to get this sticker on to your laptop. We have some exciting news coming up!)
+
+## A small teaser
+
+The best way to find out about all the cool new features dplyr has to offer is to read through the blog posts linked to above. But thanks to inspiration from [Daniel Anderson](https://twitter.com/datalorax_/status/1258208502960422914) here's one example of fitting two different models by subgroup that shows off a bunch of cool features:
+
+```{r}
+library(dplyr, warn.conflicts = FALSE)
+
+models <- tibble::tribble(
+  ~model_name,    ~ formula,
+  "length-width", Sepal.Length ~ Petal.Width + Petal.Length,
+  "interaction",  Sepal.Length ~ Petal.Width * Petal.Length
+)
+
+iris %>% 
+  nest_by(Species) %>% 
+  left_join(models, by = character()) %>% 
+  rowwise(Species, model_name) %>% 
+  mutate(model = list(lm(formula, data = data))) %>% 
+  summarise(broom::glance(model))
+```
+
+Note the use of:
+
+* The new `nest_by()`, which generates a nested data frame where each row
+  represents one subgroup.
+
+* In `left_join()`, `by = character()` which now performs a Cartesian product, 
+  generating every combination of subgroup and model.
+  
+* `rowwise()` and `mutate()` which fit a model to each row.
+
+* The newly powerful `summarise()` which summarises each model with the model
+  fit statistics computed by `broom::glance()`.
+
+## Acknowledgements
+
+dplyr 1.0.0 has been one of the biggest projects that we, as a team, have ever tackled. Almost everyone in the tidyverse team has been involved in some capacity. Special thanks go to Romain François, who in his role as primary developer has been working on this release for over six months, and to Lionel Henry and Davis Vaughn for all their work on the vctrs package. Jim Hester's work on running revdep checks in the cloud also made a big impact on our ability to understand failure modes.
+
+A big thanks to all 137 members of the dplyr community who helped make this release possible by finding bugs, discussing issues, and writing code: [&#x0040;AdaemmerP](https://github.com/AdaemmerP), [&#x0040;adelarue](https://github.com/adelarue), [&#x0040;ahernnelson](https://github.com/ahernnelson), [&#x0040;alaataleb111](https://github.com/alaataleb111), [&#x0040;antoine-sachet](https://github.com/antoine-sachet), [&#x0040;atusy](https://github.com/atusy), [&#x0040;Auld-Greg](https://github.com/Auld-Greg), [&#x0040;b-rodrigues](https://github.com/b-rodrigues), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;bedantaguru](https://github.com/bedantaguru), [&#x0040;benjaminschlegel](https://github.com/benjaminschlegel), [&#x0040;benjbuch](https://github.com/benjbuch), [&#x0040;bergsmat](https://github.com/bergsmat), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;brianmsm](https://github.com/brianmsm), [&#x0040;bwiernik](https://github.com/bwiernik), [&#x0040;caldwellst](https://github.com/caldwellst), [&#x0040;cat-zeppelin](https://github.com/cat-zeppelin), [&#x0040;chillywings](https://github.com/chillywings), [&#x0040;clauswilke](https://github.com/clauswilke), [&#x0040;colearendt](https://github.com/colearendt), [&#x0040;DanChaltiel](https://github.com/DanChaltiel), [&#x0040;danoreper](https://github.com/danoreper), [&#x0040;danzafar](https://github.com/danzafar), [&#x0040;davidbaniadam](https://github.com/davidbaniadam), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dblodgett-usgs](https://github.com/dblodgett-usgs), [&#x0040;ddsjoberg](https://github.com/ddsjoberg), [&#x0040;deschen1](https://github.com/deschen1), [&#x0040;dfrankow](https://github.com/dfrankow), [&#x0040;DiegoKoz](https://github.com/DiegoKoz), [&#x0040;dkahle](https://github.com/dkahle), [&#x0040;DzimitryM](https://github.com/DzimitryM), [&#x0040;earowang](https://github.com/earowang), [&#x0040;echasnovski](https://github.com/echasnovski), [&#x0040;edwindj](https://github.com/edwindj), [&#x0040;elbersb](https://github.com/elbersb), [&#x0040;elcega](https://github.com/elcega), [&#x0040;ericemc3](https://github.com/ericemc3), [&#x0040;espinielli](https://github.com/espinielli), [&#x0040;FedericoConcas](https://github.com/FedericoConcas), [&#x0040;FlukeAndFeather](https://github.com/FlukeAndFeather), [&#x0040;GegznaV](https://github.com/GegznaV), [&#x0040;gergness](https://github.com/gergness), [&#x0040;ggrothendieck](https://github.com/ggrothendieck), [&#x0040;glennmschultz](https://github.com/glennmschultz), [&#x0040;gowerc](https://github.com/gowerc), [&#x0040;greg-minshall](https://github.com/greg-minshall), [&#x0040;gregorp](https://github.com/gregorp), [&#x0040;ha0ye](https://github.com/ha0ye), [&#x0040;hadley](https://github.com/hadley), [&#x0040;Harrison4192](https://github.com/Harrison4192), [&#x0040;henry090](https://github.com/henry090), [&#x0040;hughjonesd](https://github.com/hughjonesd), [&#x0040;ianmcook](https://github.com/ianmcook), [&#x0040;ismailmuller](https://github.com/ismailmuller), [&#x0040;isteves](https://github.com/isteves), [&#x0040;its-gazza](https://github.com/its-gazza), [&#x0040;j450h1](https://github.com/j450h1), [&#x0040;Jagadeeshkb](https://github.com/Jagadeeshkb), [&#x0040;jarauh](https://github.com/jarauh), [&#x0040;jason-liu-cs](https://github.com/jason-liu-cs), [&#x0040;jayqi](https://github.com/jayqi), [&#x0040;JBGruber](https://github.com/JBGruber), [&#x0040;jemus42](https://github.com/jemus42), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jflournoy](https://github.com/jflournoy), [&#x0040;jhuntergit](https://github.com/jhuntergit), [&#x0040;JohannesNE](https://github.com/JohannesNE), [&#x0040;jzadra](https://github.com/jzadra), [&#x0040;karldw](https://github.com/karldw), [&#x0040;kassambara](https://github.com/kassambara), [&#x0040;klin333](https://github.com/klin333), [&#x0040;knausb](https://github.com/knausb), [&#x0040;kriemo](https://github.com/kriemo), [&#x0040;krispiepage](https://github.com/krispiepage), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;kvasilopoulos](https://github.com/kvasilopoulos), [&#x0040;larry77](https://github.com/larry77), [&#x0040;leonawicz](https://github.com/leonawicz), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;LudvigOlsen](https://github.com/LudvigOlsen), [&#x0040;madlogos](https://github.com/madlogos), [&#x0040;markdly](https://github.com/markdly), [&#x0040;markfairbanks](https://github.com/markfairbanks), [&#x0040;meghapsimatrix](https://github.com/meghapsimatrix), [&#x0040;meixiaba](https://github.com/meixiaba), [&#x0040;melissagwolf](https://github.com/melissagwolf), [&#x0040;mgirlich](https://github.com/mgirlich), [&#x0040;Michael-Sheppard](https://github.com/Michael-Sheppard), [&#x0040;mikmart](https://github.com/mikmart), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [&#x0040;mir-cat](https://github.com/mir-cat), [&#x0040;mjsmith037](https://github.com/mjsmith037), [&#x0040;mlane3](https://github.com/mlane3), [&#x0040;msberends](https://github.com/msberends), [&#x0040;msgoussi](https://github.com/msgoussi), [&#x0040;nefissakhd](https://github.com/nefissakhd), [&#x0040;nick-youngblut](https://github.com/nick-youngblut), [&#x0040;nzbart](https://github.com/nzbart), [&#x0040;pavel-shliaha](https://github.com/pavel-shliaha), [&#x0040;pdbailey0](https://github.com/pdbailey0), [&#x0040;pnacht](https://github.com/pnacht), [&#x0040;ponnet](https://github.com/ponnet), [&#x0040;r2evans](https://github.com/r2evans), [&#x0040;ramnathv](https://github.com/ramnathv), [&#x0040;randy3k](https://github.com/randy3k), [&#x0040;richardjtelford](https://github.com/richardjtelford), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rorynolan](https://github.com/rorynolan), [&#x0040;ryanvoyack](https://github.com/ryanvoyack), [&#x0040;selesnow](https://github.com/selesnow), [&#x0040;selin1st](https://github.com/selin1st), [&#x0040;sewouter](https://github.com/sewouter), [&#x0040;sfirke](https://github.com/sfirke), [&#x0040;SimonDedman](https://github.com/SimonDedman), [&#x0040;sjmgarnier](https://github.com/sjmgarnier), [&#x0040;smingerson](https://github.com/smingerson), [&#x0040;stefanocoretta](https://github.com/stefanocoretta), [&#x0040;strengejacke](https://github.com/strengejacke), [&#x0040;tfkillian](https://github.com/tfkillian), [&#x0040;tilltnet](https://github.com/tilltnet), [&#x0040;tonyvibe](https://github.com/tonyvibe), [&#x0040;topepo](https://github.com/topepo), [&#x0040;torockel](https://github.com/torockel), [&#x0040;trinker](https://github.com/trinker), [&#x0040;tungmilan](https://github.com/tungmilan), [&#x0040;tzakharko](https://github.com/tzakharko), [&#x0040;uasolo](https://github.com/uasolo), [&#x0040;werkstattcodes](https://github.com/werkstattcodes), [&#x0040;wlandau](https://github.com/wlandau), [&#x0040;xiaoa6435](https://github.com/xiaoa6435), [&#x0040;yiluheihei](https://github.com/yiluheihei), [&#x0040;yutannihilation](https://github.com/yutannihilation), [&#x0040;zenggyu](https://github.com/zenggyu), and [&#x0040;zkamvar](https://github.com/zkamvar).
+
+

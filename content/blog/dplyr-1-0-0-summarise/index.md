@@ -1,48 +1,49 @@
 ---
+slug: dplyr-1-0-0-summarise
 title: 'dplyr 1.0.0: new `summarise()` features'
 author: Hadley Wickham
 date: '2020-03-20'
-slug: dplyr-1-0-0-summarise
+description: >
+  In `summarise()`, a single summary expression can now create both
+  multiple rows and multiple columns. This significantly increases its power
+  and flexibility.
+
+output: hugodown::hugo_document
+
+categories:
+- package
+tags:
+- dplyr
+- dplyr-1-0-0
+
 photo:
   url: https://unsplash.com/photos/OmCUSp8o7a4
   author: Brigitte Tohm
-categories:
-  - package
-tags:
-  - dplyr
+rmd_hash: 191a12dca52c9961
+
 ---
-
-
 
 As we've mentioned, [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/). Today, we've started the official release process by notifying maintainers of packages that have problems with dplyr 1.0.0, and we're planning for a CRAN release six weeks later, on May 1. This post is the first in a series that will introduce you to new features in dplyr 1.0.0. Today, I'll start with some big changes to `summarise()` that make it significantly more powerful.
 
-If you're interested in living life on the edge (or trying out anything you see in this blog post), you can install the development version of dplyr with:
+------------------------------------------------------------------------
 
+**Update**: as of June 1, dplyr 1.0.0 is now available on CRAN! Read [all about it](/blog/2020/06/dplyr-1-0-0/) or install it now with `install.packages("dplyr")`.
 
-```r
-devtools::install_github("tidyverse/dplyr")
-```
+------------------------------------------------------------------------
 
-Note that the development version won't become 1.0.0 until it's released, but it has all the same features.
-
-
-```r
-library(dplyr)
-packageVersion("dplyr") 
-#> [1] '0.8.99.9000'
-```
-
-## Multiple rows and columns
+Multiple rows and columns
+-------------------------
 
 Two big changes make `summarise()` much more flexible. A single summary expression can now return:
 
-* A vector of any length, creating multiple rows.
-* A data frame, creating multiple columns.
+-   A vector of any length, creating multiple rows.
+-   A data frame, creating multiple columns.
 
 To get a sense for what this means, take this toy dataset:
 
+``` r
+library(dplyr, warn.conflicts = FALSE)
 
-```r
 df <- tibble(
   grp = rep(1:2, each = 5), 
   x = c(rnorm(5, -0.25, 1), rnorm(5, 0, 1.5)),
@@ -66,12 +67,13 @@ df
 
 You can now use summaries that return multiple values:
 
-
-```r
+``` r
 df %>% 
   group_by(grp) %>% 
   summarise(rng = range(x))
+#> `summarise()` regrouping output by 'grp' (override with `.groups` argument)
 #> # A tibble: 4 x 2
+#> # Groups:   grp [2]
 #>     grp    rng
 #>   <int>  <dbl>
 #> 1     1 -2.69 
@@ -80,33 +82,36 @@ df %>%
 #> 4     2  1.72
 ```
 
-Or return multiple columns from a single summary expression: 
+Or return multiple columns from a single summary expression:
 
-
-```r
+``` r
 df %>% 
   group_by(grp) %>% 
   summarise(tibble(min = min(x), mean = mean(x)))
+#> `summarise()` ungrouping output (override with `.groups` argument)
 #> # A tibble: 2 x 3
 #>     grp   min   mean
 #> * <int> <dbl>  <dbl>
 #> 1     1 -2.69 -0.843
 #> 2     2 -2.73 -0.434
 ```
+
 (This isn't very useful when used directly, but as you'll see shortly, it's really useful inside of functions.)
 
-To put this another way, before dplyr 1.0.0, each summary had to be a single value (one row, one column), but now we've lifted that restriction so each summary can generate a rectangle of arbitrary size. This is a big change to `summarise()` but it should have minimal impact on existing code because it _broadens_ the interface: all existing code will continue to work, and a number of inputs that would have previously errored now work. 
+To put this another way, before dplyr 1.0.0, each summary had to be a single value (one row, one column), but now we've lifted that restriction so each summary can generate a rectangle of arbitrary size. This is a big change to `summarise()` but it should have minimal impact on existing code because it *broadens* the interface: all existing code will continue to work, and a number of inputs that would have previously errored now work.
 
-## Quantiles
+Quantiles
+---------
 
 To demonstrate this new flexibility in a more useful situation, let's take a look at `quantile()`. `quantile()` was hard to use previously because it returns multiple values. Now it's straightforward:
 
-
-```r
+``` r
 df %>% 
   group_by(grp) %>% 
   summarise(x = quantile(x, c(0.25, 0.5, 0.75)), q = c(0.25, 0.5, 0.75))
+#> `summarise()` regrouping output by 'grp' (override with `.groups` argument)
 #> # A tibble: 6 x 3
+#> # Groups:   grp [2]
 #>     grp        x     q
 #>   <int>    <dbl> <dbl>
 #> 1     1 -1.65     0.25
@@ -119,15 +124,16 @@ df %>%
 
 It would be nice to be able to reduce the duplication in this code so that we don't have to type the quantile values twice. We can now write a simple function because summary expressions can now be data frames or tibbles:
 
-
-```r
+``` r
 quibble <- function(x, q = c(0.25, 0.5, 0.75)) {
   tibble(x = quantile(x, q), q = q)
 }
 df %>% 
   group_by(grp) %>% 
   summarise(quibble(x, c(0.25, 0.5, 0.75)))
+#> `summarise()` regrouping output by 'grp' (override with `.groups` argument)
 #> # A tibble: 6 x 3
+#> # Groups:   grp [2]
 #>     grp        x     q
 #>   <int>    <dbl> <dbl>
 #> 1     1 -1.65     0.25
@@ -138,10 +144,9 @@ df %>%
 #> 6     2 -0.366    0.75
 ```
 
-In the past, one of the challenges of writing this sort of function was naming the columns. For example, when you call `quibble(y)` it'd be nice if you could get columns `y` and `y_q`, rather than `x` and `x_q`. Now, thanks to the recent combination of [glue and tidy evaluation](https://www.tidyverse.org/blog/2020/02/glue-strings-and-tidy-eval/), that's easy to implement: 
+In the past, one of the challenges of writing this sort of function was naming the columns. For example, when you call `quibble(y)` it'd be nice if you could get columns `y` and `y_q`, rather than `x` and `x_q`. Now, thanks to the recent combination of [glue and tidy evaluation](https://www.tidyverse.org/blog/2020/02/glue-strings-and-tidy-eval/), that's easy to implement:
 
-
-```r
+``` r
 quibble2 <- function(x, q = c(0.25, 0.5, 0.75)) {
   tibble("{{ x }}" := quantile(x, q), "{{ x }}_q" := q)
 }
@@ -149,7 +154,9 @@ quibble2 <- function(x, q = c(0.25, 0.5, 0.75)) {
 df %>% 
   group_by(grp) %>% 
   summarise(quibble2(y, c(0.25, 0.5, 0.75)))
+#> `summarise()` regrouping output by 'grp' (override with `.groups` argument)
 #> # A tibble: 6 x 3
+#> # Groups:   grp [2]
 #>     grp       y   y_q
 #>   <int>   <dbl> <dbl>
 #> 1     1 -0.304   0.25
@@ -162,17 +169,19 @@ df %>%
 
 One note of caution: naming the output columns in a function like this is a surprisingly complex task, we're not yet sure what the best approach is. Expect to hear more about this as we continue to think about and experiment with it.
 
-## Data-frame columns
+Data-frame columns
+------------------
 
 We've been careful not to name the result of `quibble()` in the code above. That's because when we leave the name off, the data frame result is automatically **unpacked** so each column returned by `quibble()` becomes a column in the result. What happens if we name the output?
 
-
-```r
+``` r
 out <- df %>% 
   group_by(grp) %>% 
   summarise(y = quibble2(y, c(0.25, 0.75)))
+#> `summarise()` regrouping output by 'grp' (override with `.groups` argument)
 out
 #> # A tibble: 4 x 2
+#> # Groups:   grp [2]
 #>     grp     y$y  $y_q
 #>   <int>   <dbl> <dbl>
 #> 1     1 -0.304   0.25
@@ -180,24 +189,31 @@ out
 #> 3     2 -0.457   0.25
 #> 4     2 -0.0263  0.75
 ```
-Look carefully at the output - you'll see a `$` in the column names. This lets you know that something weird is going on and you have what we call a **df-column**; a column of a data frame that is itself a data frame! 
+
+Look carefully at the output - you'll see a `$` in the column names. This lets you know that something weird is going on and you have what we call a **df-column**; a column of a data frame that is itself a data frame!
 
 You can see the structure a little better with `str()`:
 
-
-```r
+``` r
 str(out)
-#> tibble [4 × 2] (S3: tbl_df/tbl/data.frame)
+#> tibble [4 × 2] (S3: grouped_df/tbl_df/tbl/data.frame)
 #>  $ grp: int [1:4] 1 1 2 2
 #>  $ y  : tibble [4 × 2] (S3: tbl_df/tbl/data.frame)
-#>   ..$ y  : num [1:4] -0.3037 0.879 -0.457 -0.0263
+#>   ..$ y  : Named num [1:4] -0.3037 0.879 -0.457 -0.0263
+#>   .. ..- attr(*, "names")= chr [1:4] "25%" "75%" "25%" "75%"
 #>   ..$ y_q: num [1:4] 0.25 0.75 0.25 0.75
+#>  - attr(*, "groups")= tibble [2 × 2] (S3: tbl_df/tbl/data.frame)
+#>   ..$ grp  : int [1:2] 1 2
+#>   ..$ .rows: list<int> [1:2] 
+#>   .. ..$ : int [1:2] 1 2
+#>   .. ..$ : int [1:2] 3 4
+#>   .. ..@ ptype: int(0) 
+#>   ..- attr(*, ".drop")= logi TRUE
 ```
 
 And you can see that `y` is indeed a data frame by extracting it:
 
-
-```r
+``` r
 out$y
 #> # A tibble: 4 x 2
 #>         y   y_q
@@ -210,22 +226,22 @@ out$y
 
 And of course, you can dig still deeper to get the individual values:
 
-
-```r
+``` r
 out$y$y
-#> [1] -0.30369938  0.87898204 -0.45703741 -0.02630095
+#>         25%         75%         25%         75% 
+#> -0.30369938  0.87898204 -0.45703741 -0.02630095
 ```
 
 These df-columns are simultaneously esoteric and commonplace. On the one hand they are an oddity of data frames that has existed for a long time, but has been used in very few places. On the other hand, they are very closely related to merged column headers, which, judging by how often they're found in spreadsheets, are an incredibly popular tool. Our hope is that they are mostly kept under the covers in dplyr 1.0.0, but you can still deliberately choose to access them if you're interested.
 
-## Non-summaries
+Non-summaries
+-------------
 
-In combination with [`rowwise()`](http://dplyr.tidyverse.org/dev/articles/rowwise.html) (more on that in a future blog post), `summarise()` is now sufficiently powerful to replace many workflows that previously required a `map()` or `apply()` function. 
+In combination with [`rowwise()`](http://dplyr.tidyverse.org/dev/articles/rowwise.html) (more on that in a future blog post), `summarise()` is now sufficiently powerful to replace many workflows that previously required a `map()` or `apply()` function.
 
 For example, to read all the all the `.csv` files in the current directory, you could write:
 
-
-```r
+``` r
 tibble(path = dir(pattern = "\\.csv$")) %>% 
   rowwise(path) %>% 
   summarise(read_csv(path))
@@ -233,16 +249,17 @@ tibble(path = dir(pattern = "\\.csv$")) %>%
 
 I feel deeply ambivalent about this code: it seems rather forced to claim that `read.csv()` computes a summary of a file path, but it's rather elegant pattern for reading in many files into a tibble.
 
-## Previous approaches
+Previous approaches
+-------------------
 
 There were a couple of previous approach to solving the quantile problem illustrated above. One way was to create a list-column and then unnest it:
 
-
-```r
+``` r
 df %>% 
   group_by(grp) %>% 
   summarise(y = list(quibble(y, c(0.25, 0.75)))) %>% 
   tidyr::unnest(y)
+#> `summarise()` ungrouping output (override with `.groups` argument)
 #> # A tibble: 4 x 3
 #>     grp       x     q
 #>   <int>   <dbl> <dbl>
@@ -254,8 +271,7 @@ df %>%
 
 Or to use `do()`:
 
-
-```r
+``` r
 df %>% 
   group_by(grp) %>% 
   do(quibble(.$y, c(0.25, 0.75)))
