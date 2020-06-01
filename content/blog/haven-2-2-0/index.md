@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: haven-2-2-0
 title: haven 2.2.0
-date: 2020-05-27
+date: 2020-06-01
 author: Hadley Wickham
 description: >
     haven now uses vctrs which means labelled classes will be preserved in
@@ -14,8 +14,8 @@ photo:
   author: Sergey Nikolaev
 
 categories: [package] 
-tags: [haven]
-rmd_hash: efb089f53fbbab4f
+tags: [tidyverse, haven]
+rmd_hash: 8464895d4025789f
 
 ---
 
@@ -97,4 +97,4 @@ df2 %>% left_join(df)
 Acknowledgements
 ----------------
 
-As always thanks to the GitHub community who helped make this release happen! [@180312allison](https://github.com/180312allison), [@armenic](https://github.com/armenic), [@batpigandme](https://github.com/batpigandme), [@beckerbenj](https://github.com/beckerbenj), [@bergen288](https://github.com/bergen288), [@courtiol](https://github.com/courtiol), [@deschen1](https://github.com/deschen1), [@edvbb](https://github.com/edvbb), [@Ghanshyamsavaliya](https://github.com/Ghanshyamsavaliya), [@hadley](https://github.com/hadley), [@JackLandry](https://github.com/JackLandry), [@Jagadeeshkb](https://github.com/Jagadeeshkb), [@jimhester](https://github.com/jimhester), [@kurt-vd](https://github.com/kurt-vd), [@larmarange](https://github.com/larmarange), [@lionel-](https://github.com/lionel-), [@mayer79](https://github.com/mayer79), [@mikmart](https://github.com/mikmart), [@mitchelloharawild](https://github.com/mitchelloharawild), [@omsai](https://github.com/omsai), [@pdbailey0](https://github.com/pdbailey0), [@randrescastaneda](https://github.com/randrescastaneda), [@richarddmorey](https://github.com/richarddmorey), [@romainfrancois](https://github.com/romainfrancois), [@rubenarslan](https://github.com/rubenarslan), [@sda030](https://github.com/sda030), [@Sdurier](https://github.com/Sdurier), and [@tobwen](https://github.com/tobwen).
+As always thanks to the GitHub community who helped make this release happen: [@180312allison](https://github.com/180312allison), [@armenic](https://github.com/armenic), [@batpigandme](https://github.com/batpigandme), [@beckerbenj](https://github.com/beckerbenj), [@bergen288](https://github.com/bergen288), [@courtiol](https://github.com/courtiol), [@deschen1](https://github.com/deschen1), [@edvbb](https://github.com/edvbb), [@Ghanshyamsavaliya](https://github.com/Ghanshyamsavaliya), [@hadley](https://github.com/hadley), [@JackLandry](https://github.com/JackLandry), [@Jagadeeshkb](https://github.com/Jagadeeshkb), [@jimhester](https://github.com/jimhester), [@kurt-vd](https://github.com/kurt-vd), [@larmarange](https://github.com/larmarange), [@lionel-](https://github.com/lionel-), [@mayer79](https://github.com/mayer79), [@mikmart](https://github.com/mikmart), [@mitchelloharawild](https://github.com/mitchelloharawild), [@omsai](https://github.com/omsai), [@pdbailey0](https://github.com/pdbailey0), [@randrescastaneda](https://github.com/randrescastaneda), [@richarddmorey](https://github.com/richarddmorey), [@romainfrancois](https://github.com/romainfrancois), [@rubenarslan](https://github.com/rubenarslan), [@sda030](https://github.com/sda030), [@Sdurier](https://github.com/Sdurier), and [@tobwen](https://github.com/tobwen).
