@@ -6,6 +6,6 @@ options(
 
 rprofile <- Sys.getenv("R_PROFILE_USER", "~/.Rprofile")
 
-if (file.exists(rprofile)) {
+if (file.exists(rprofile) && !grepl("callr", rprofile)) {
   source(file = rprofile)
 }
