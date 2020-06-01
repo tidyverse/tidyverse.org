@@ -1,8 +1,8 @@
 ---
 output: hugodown::hugo_document
 
-slug: haven-2-2-0
-title: haven 2.2.0
+slug: haven-2-3-0
+title: haven 2.3.0
 date: 2020-06-01
 author: Hadley Wickham
 description: >
@@ -15,11 +15,11 @@ photo:
 
 categories: [package] 
 tags: [tidyverse, haven]
-rmd_hash: 8464895d4025789f
+rmd_hash: b8607035f6ba0b49
 
 ---
 
-We're tickled pink to announce the release of [haven](https://haven.tidyverse.org) 2.2.0. haven allows you to read and write SAS, SPSS, and Stata data formats from R, thanks to the wonderful [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](https://www.evanmiller.org/).
+We're tickled pink to announce the release of [haven](https://haven.tidyverse.org) 2.3.0. haven allows you to read and write SAS, SPSS, and Stata data formats from R, thanks to the wonderful [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](https://www.evanmiller.org/).
 
 You can install haven from CRAN with:
 
