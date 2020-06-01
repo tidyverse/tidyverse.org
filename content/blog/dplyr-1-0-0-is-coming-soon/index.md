@@ -3,7 +3,11 @@ slug: dplyr-1-0-0-is-coming-soon
 title: dplyr 1.0.0 is coming soon
 author: Hadley Wickham
 date: '2020-03-09'
-
+description: >
+  This post focusses on the idea of the "function lifecycle" which helps 
+  you understand where functions in dplyr are going. Particularly important
+  is the idea of a "superseded" function. A superseded function is not going
+  away, but we no longer recommend using it in new code.
 output: hugodown::hugo_document
 
 categories:
@@ -15,7 +19,7 @@ tags:
 photo:
   url: https://unsplash.com/photos/7KLa-xLbSXA
   author: Paul Skorupskas
-rmd_hash: 81a04a9e112623b0
+rmd_hash: 0cbad29578407067
 
 ---
 

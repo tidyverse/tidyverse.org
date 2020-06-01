@@ -3,6 +3,10 @@ slug: dplyr-1-0-0-and-vctrs
 title: dplyr 1.0.0 and vctrs
 author: Hadley Wickham
 date: '2020-04-27'
+description: >
+  dplyr now makes heavy use of [vctrs](http://vctrs.r-lib.org/) behind
+  the scenes. This brings with it greater consistency and (hopefully!)
+  more useful error messages.
 
 output: hugodown::hugo_document
 
@@ -15,7 +19,7 @@ tags:
 photo:
   url: https://unsplash.com/photos/IstXvxHGoA4
   author: 35mm
-rmd_hash: 2f15e4e2c3331860
+rmd_hash: 9875ed351ec52fdc
 
 ---
 

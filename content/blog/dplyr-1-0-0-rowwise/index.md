@@ -3,6 +3,10 @@ slug: dplyr-1-0-0-rowwise
 title: 'dplyr 1.0.0: working within rows'
 author: Hadley Wickham
 date: '2020-04-10'
+description: >
+  `rowwise()` has been renewed and revamped to make it easier to perform
+  operations row-by-row. This makes it much easier to solve problems that
+  previously required `lapply()`, `map()`, or friends.
 
 output: hugodown::hugo_document
 
@@ -15,7 +19,7 @@ tags:
 photo:
   author: Oleksandr Hrebelnyk
   url: https://unsplash.com/photos/ckZU2xZUjO8
-rmd_hash: 3da29dae273db4e0
+rmd_hash: d7024928b355f876
 
 ---
 
@@ -253,13 +257,13 @@ df %>%
 #> # Groups:   id [3]
 #>      id       x
 #>   <dbl>   <dbl>
-#> 1     1   0.738
-#> 2     1   0.896
-#> 3     1   0.294
-#> 4     2  46.0  
-#> 5     2  88.5  
-#> 6     3 227.   
-#> 7     3 855.
+#> 1     1   0.579
+#> 2     1   0.269
+#> 3     1   0.120
+#> 4     2  29.0  
+#> 5     2  50.8  
+#> 6     3 451.   
+#> 7     3 985.
 ```
 
 Note that `id` is preserved in the output here because we defined it as an identifier variable in the call to `rowwise()`.

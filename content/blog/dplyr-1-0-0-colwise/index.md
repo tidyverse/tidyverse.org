@@ -3,6 +3,10 @@ slug: dplyr-1-0-0-colwise
 title: 'dplyr 1.0.0: working across columns'
 author: Hadley Wickham
 date: '2020-04-03'
+description: >
+  A new `across()` function makes it much easier to apply the same operation
+  to multiple columns. It supersedes the `_if()`, `_at()`, and `_all()`
+  function variants.
 
 output: hugodown::hugo_document
 
@@ -15,7 +19,7 @@ tags:
 photo:
   author: Alexey Derevtsov
   url: https://unsplash.com/photos/Atl1BCVM2fo
-rmd_hash: 009cba49d1ab674c
+rmd_hash: 2473887965ec5cf4
 
 ---
 

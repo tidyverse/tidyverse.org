@@ -3,6 +3,10 @@ slug: dplyr-1-0-0-summarise
 title: 'dplyr 1.0.0: new `summarise()` features'
 author: Hadley Wickham
 date: '2020-03-20'
+description: >
+  In `summarise()`, a single summary expression can now create both
+  multiple rows and multiple columns. This significantly increases its power
+  and flexibility.
 
 output: hugodown::hugo_document
 
@@ -15,7 +19,7 @@ tags:
 photo:
   url: https://unsplash.com/photos/OmCUSp8o7a4
   author: Brigitte Tohm
-rmd_hash: be06c2277c467936
+rmd_hash: 191a12dca52c9961
 
 ---
 

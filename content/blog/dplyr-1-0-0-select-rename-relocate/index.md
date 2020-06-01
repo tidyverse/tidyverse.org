@@ -3,6 +3,10 @@ slug: dplyr-1-0-0-select-rename-relocate
 title: 'dplyr 1.0.0: select, rename, relocate'
 author: Hadley Wickham
 date: '2020-03-27'
+description: >
+  `select()` and `rename()` can now select by position, name, function of
+  name, type, and any combination thereof. A new `relocate()` function 
+  makes it easy to change the position of columns.
 
 output: hugodown::hugo_document
 
@@ -15,7 +19,7 @@ tags:
 photo:
   url: https://unsplash.com/photos/sxNt9g77PE0
   author: Erda Estremera
-rmd_hash: a05726e45b8deac0
+rmd_hash: 09d2ce43b9796704
 
 ---
 
