@@ -15,27 +15,17 @@ tags:
 photo:
   url: https://unsplash.com/photos/IstXvxHGoA4
   author: 35mm
-rmd_hash: 440e18876a8d1a58
+rmd_hash: 2f15e4e2c3331860
 
 ---
 
-This post is the latest in a series of post leading up the the dplyr 1.0.0 release. So far:
-
--   [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/)
--   [`summarise()` is growing](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/)
--   [`select()`, `rename()`, `relocate()`](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/).
--   [Working `across()` columns](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/).
--   [Working within rows](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-rowwise/).
-
 Today, I wanted to talk a little bit how dplyr 1.0.0 uses the [vctrs](http://vctrs.r-lib.org/) package. This post explains why vctrs is so important, why we can't just copy what base R does, how to interpret some of new error messages that you'll see, and some of the major changes since the last version.
 
-If you're interested in living life on the edge (or trying out anything you see in this blog post), you can install the development version of dplyr with:
+------------------------------------------------------------------------
 
-``` r
-devtools::install_github("tidyverse/dplyr")
-```
+**Update**: as of June 1, dplyr 1.0.0 is now available on CRAN! Read [all about it](/blog/2020/06/dplyr-1-0-0/) or install it now with `install.packages("dplyr")`.
 
-Note that the development version won't become 1.0.0 until it's released, but it has all the same features.
+------------------------------------------------------------------------
 
 ``` r
 library(vctrs)

@@ -15,31 +15,17 @@ tags:
 photo:
   author: Alexey Derevtsov
   url: https://unsplash.com/photos/Atl1BCVM2fo
-rmd_hash: d7411d77a150448f
+rmd_hash: 009cba49d1ab674c
 
 ---
 
-This post is the latest in a series of post leading up the the dplyr 1.0.0 release. So far, the series has covered:
-
--   [Major lifecycle changes](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/).
--   [New `summarise()` features](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/).
--   [`select()`, `rename()`, `relocate()`](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/).
-
 Today, I wanted to talk a little bit about the new `across()` function that makes it easy to perform the same operation on multiple columns.
 
-### Getting the dev version
+------------------------------------------------------------------------
 
-If you're interested in living life on the edge (or trying out anything you see in this blog post), you can install the development version of dplyr with:
+**Update**: as of June 1, dplyr 1.0.0 is now available on CRAN! Read [all about it](/blog/2020/06/dplyr-1-0-0/) or install it now with `install.packages("dplyr")`.
 
-``` r
-devtools::install_github("tidyverse/dplyr")
-```
-
-Note that the development version won't become 1.0.0 until it's released, but it has all the same features.
-
-``` r
-library(dplyr, warn.conflicts = FALSE)
-```
+------------------------------------------------------------------------
 
 Motivation
 ----------
@@ -79,6 +65,8 @@ Basic usage
 Here are a couple of examples of `across()` used with `summarise()`:
 
 ``` r
+library(dplyr, warn.conflicts = FALSE)
+
 starwars %>% 
   summarise(across(where(is.character), n_distinct))
 #> # A tibble: 1 x 8

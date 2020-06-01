@@ -15,11 +15,17 @@ tags:
 photo:
   url: https://unsplash.com/photos/7KLa-xLbSXA
   author: Paul Skorupskas
-rmd_hash: bab898f854e1e697
+rmd_hash: 81a04a9e112623b0
 
 ---
 
 We're very excited to announce the impending arrival of dplyr 1.0.0. We haven't started the official release process yet (where we officially inform maintainers), but that is likely to start in the next week or two, and then dplyr 1.0.0 is likely to be submitted to CRAN 4-6 weeks after that.
+
+------------------------------------------------------------------------
+
+**Update**: as of June 1, dplyr 1.0.0 is now available on CRAN! Read [all about it](/blog/2020/06/dplyr-1-0-0/) or install it now with `install.packages("dplyr")`.
+
+------------------------------------------------------------------------
 
 The goal of this blog post is let you know that dplyr 1.0.0 is coming, discuss some of the big changes, and to encourage early adopters to try it out and help us find problems that we've missed. This is the first of a series of blog posts that will lead up to the final release, so stay tuned for more info.
 

@@ -18,11 +18,17 @@ tags:
 photo:
   author: Tekton
   url: https://unsplash.com/photos/LtphNTXHQAc
-rmd_hash: a36820b7de2cc236
+rmd_hash: dedef739fddf3841
 
 ---
 
 As you're hopefully aware, [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/), and we've been writing a [series of blog posts](https://www.tidyverse.org/tags/dplyr/) about the user-facing changes that you, as a data scientist have to look forward to. Today, I wanted to change tack a little and talk about the changes from the perspective of the package developer.
+
+------------------------------------------------------------------------
+
+**Update**: as of June 1, dplyr 1.0.0 is now available on CRAN! Read [all about it](/blog/2020/06/dplyr-1-0-0/) or install it now with `install.packages("dplyr")`.
+
+------------------------------------------------------------------------
 
 But first, an update on the release process: in the process of preparing for this release, we discovered some subtle problems that arise when combining different types of data frames (including [data.table](http://r-datatable.com)s and tibbles). It took us a little while to figure out what we (and package developers need to do), so we've decided to push back the dplyr release: we're now planning on releasing dplyr 1.0.0 to CRAN on May 15. We're sorry that its going to longer than expected, but this gives package authors who use dplyr more time to handle changes.
 

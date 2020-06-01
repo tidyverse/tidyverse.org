@@ -15,23 +15,17 @@ tags:
 photo:
   url: https://unsplash.com/photos/sxNt9g77PE0
   author: Erda Estremera
-rmd_hash: 49e3cd86c0217c3b
+rmd_hash: a05726e45b8deac0
 
 ---
 
 [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/), and last week we showed how [`summarise()` is growing](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/). Today, I wanted to talk a little bit about functions for selecting, renaming, and relocating columns.
 
-If you're interested in trying out the features you see in this blog post, you'll need the development version of dplyr. You can install it with:
+------------------------------------------------------------------------
 
-``` r
-devtools::install_github("tidyverse/dplyr")
-```
+**Update**: as of June 1, dplyr 1.0.0 is now available on CRAN! Read [all about it](/blog/2020/06/dplyr-1-0-0/) or install it now with `install.packages("dplyr")`.
 
-Note that the development version won't become 1.0.0 until it's released, but it has all the same features.
-
-``` r
-library(dplyr, warn.conflicts = FALSE)
-```
+------------------------------------------------------------------------
 
 ### *Update notice*
 
@@ -70,6 +64,8 @@ Select and renaming
 Here's a few examples of how you might use these techniques in with some toy data:
 
 ``` r
+library(dplyr, warn.conflicts = FALSE)
+
 # Rename by position to fix a data frame with duplicated column names
 df1 <- tibble(a = 1:5, a = 5:1, .name_repair = "minimal")
 df1

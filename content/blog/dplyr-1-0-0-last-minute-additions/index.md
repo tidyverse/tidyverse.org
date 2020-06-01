@@ -19,35 +19,17 @@ tags:
 photo:
   url: https://unsplash.com/photos/FfbVFLAVscw
   author: Malvestida Magazine
-rmd_hash: 3ef0b8a6baa92041
+rmd_hash: 2acb56a814a5b1a6
 
 ---
 
-This post is the latest in a series of post leading up the the dplyr 1.0.0 release on May 15. So far, the series has covered:
-
--   [Major lifecycle changes](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/).
--   [New `summarise()` features](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/).
--   [`select()`, `rename()`, and (new) `relocate()`](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/).
--   [Working `across()` columns](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/).
--   [Working within rows](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-rowwise/).
--   [The role of the vctrs package](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-and-vctrs/).
--   [Notes for package developers](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-package-dev/).
-
 Today I wanted to talk about two cool new features that we've added since I started blogging about dplyr 1.0.0: `summarise()` now gives you greater control over how the results are grouped, and a new set of functions make it easier to modify rows.
 
-### Getting the dev version
+------------------------------------------------------------------------
 
-If you'd like to try out anything you see in this blog post, you can install the development version of dplyr with:
+**Update**: as of June 1, dplyr 1.0.0 is now available on CRAN! Read [all about it](/blog/2020/06/dplyr-1-0-0/) or install it now with `install.packages("dplyr")`.
 
-``` r
-devtools::install_github("tidyverse/dplyr")
-```
-
-Note that the development version won't become 1.0.0 until it's released, but at this point, it's very similar to what we'll be submitting to CRAN on May 15.
-
-``` r
-library(dplyr, warn.conflicts = FALSE)
-```
+------------------------------------------------------------------------
 
 `summarise()` and grouping
 --------------------------
@@ -55,6 +37,8 @@ library(dplyr, warn.conflicts = FALSE)
 There\'s a common confusion about the result of `summarise()`. How do you think the result of the following code will be grouped?
 
 ``` r
+library(dplyr, warn.conflicts = FALSE)
+
 homeworld_species <- starwars %>% 
   group_by(homeworld, species) %>% 
   summarise(n = n())

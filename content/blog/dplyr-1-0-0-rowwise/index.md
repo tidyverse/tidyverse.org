@@ -15,32 +15,17 @@ tags:
 photo:
   author: Oleksandr Hrebelnyk
   url: https://unsplash.com/photos/ckZU2xZUjO8
-rmd_hash: 89d06c23143357ce
+rmd_hash: 3da29dae273db4e0
 
 ---
 
-This post is the latest in a series of post leading up the the dplyr 1.0.0 release. So far, the series has covered:
-
--   [Major lifecycle changes](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/).
--   [New `summarise()` features](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/).
--   [`select()`, `rename()`, `relocate()`](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-select-rename-relocate/).
--   [Working `across()` columns](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/).
-
 Today, I wanted to talk a little bit about the renewed `rowwise()` function that makes it easy to perform operations "row-by-row". I'll show how you can use `rowwise()` to compute summaries "by row", talk about how `rowwise()` is a natural pairing with list-columns, and show a couple of use cases that I think are particularly elegant. You can learn more about all of these topics in [`vignette("rowwise")`](https://dplyr.tidyverse.org/dev/articles/rowwise.html).
 
-### Getting the dev version
+------------------------------------------------------------------------
 
-If you're interested in living life on the edge (or trying out anything you see in this blog post), you can install the development version of dplyr with:
+**Update**: as of June 1, dplyr 1.0.0 is now available on CRAN! Read [all about it](/blog/2020/06/dplyr-1-0-0/) or install it now with `install.packages("dplyr")`.
 
-``` r
-devtools::install_github("tidyverse/dplyr")
-```
-
-Note that the development version won't become 1.0.0 until it's released, but it has all the same features.
-
-``` r
-library(dplyr, warn.conflicts = FALSE)
-```
+------------------------------------------------------------------------
 
 Basic operation
 ---------------
@@ -48,6 +33,8 @@ Basic operation
 `rowwise()` works like `group_by()` in the sense that it doesn't change what the data looks like; it changes how dplyr verbs operate on the data. Let's see how this works with a simple example. Here I have some imaginary test results for students in a class:
 
 ``` r
+library(dplyr, warn.conflicts = FALSE)
+
 df <- tibble(
   student_id = 1:4, 
   test1 = 10:13, 
@@ -264,15 +251,15 @@ df %>%
 #> `summarise()` regrouping output by 'id' (override with `.groups` argument)
 #> # A tibble: 7 x 2
 #> # Groups:   id [3]
-#>      id        x
-#>   <dbl>    <dbl>
-#> 1     1   0.546 
-#> 2     1   0.0303
-#> 3     1   0.370 
-#> 4     2  52.5   
-#> 5     2  87.2   
-#> 6     3 473.    
-#> 7     3 221.
+#>      id       x
+#>   <dbl>   <dbl>
+#> 1     1   0.738
+#> 2     1   0.896
+#> 3     1   0.294
+#> 4     2  46.0  
+#> 5     2  88.5  
+#> 6     3 227.   
+#> 7     3 855.
 ```
 
 Note that `id` is preserved in the output here because we defined it as an identifier variable in the call to `rowwise()`.

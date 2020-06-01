@@ -15,25 +15,17 @@ tags:
 photo:
   url: https://unsplash.com/photos/OmCUSp8o7a4
   author: Brigitte Tohm
-rmd_hash: 1b9e97ac7290a921
+rmd_hash: be06c2277c467936
 
 ---
 
 As we've mentioned, [dplyr 1.0.0 is coming soon](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/). Today, we've started the official release process by notifying maintainers of packages that have problems with dplyr 1.0.0, and we're planning for a CRAN release six weeks later, on May 1. This post is the first in a series that will introduce you to new features in dplyr 1.0.0. Today, I'll start with some big changes to `summarise()` that make it significantly more powerful.
 
-If you're interested in living life on the edge (or trying out anything you see in this blog post), you can install the development version of dplyr with:
+------------------------------------------------------------------------
 
-``` r
-devtools::install_github("tidyverse/dplyr")
-```
+**Update**: as of June 1, dplyr 1.0.0 is now available on CRAN! Read [all about it](/blog/2020/06/dplyr-1-0-0/) or install it now with `install.packages("dplyr")`.
 
-Note that the development version won't become 1.0.0 until it's released, but it has all the same features.
-
-``` r
-library(dplyr)
-packageVersion("dplyr") 
-#> [1] '0.8.99.9003'
-```
+------------------------------------------------------------------------
 
 Multiple rows and columns
 -------------------------
@@ -46,6 +38,8 @@ Two big changes make `summarise()` much more flexible. A single summary expressi
 To get a sense for what this means, take this toy dataset:
 
 ``` r
+library(dplyr, warn.conflicts = FALSE)
+
 df <- tibble(
   grp = rep(1:2, each = 5), 
   x = c(rnorm(5, -0.25, 1), rnorm(5, 0, 1.5)),
