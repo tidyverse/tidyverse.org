@@ -17,7 +17,7 @@ categories:
 tags:
   - dplyr
   - dplyr-1-0-0
-rmd_hash: 9f5e0e00afed0fd7
+rmd_hash: f9ac7b63213a775f
 
 ---
 
@@ -60,7 +60,7 @@ dplyr has a new logo thanks to the talented [Allison Horst](https://allisonhorst
 A small teaser
 --------------
 
-The best way to find out all the cool new features dplyr has to offer is to read through the blog posts linked to above. But thanks to inspiration from [Daniel Anderson](https://twitter.com/datalorax_/status/1258208502960422914) here's one example of fitting two different models to here are bunch of cool features in one single example:
+The best way to find out about all the cool new features dplyr has to offer is to read through the blog posts linked to above. But thanks to inspiration from [Daniel Anderson](https://twitter.com/datalorax_/status/1258208502960422914) here's one example of fitting two different models by subgroup that shows off a bunch of cool features:
 
 ``` r
 library(dplyr, warn.conflicts = FALSE)
@@ -96,11 +96,11 @@ Note the use of:
 
 -   The new `nest_by()`, which generates a nested data frame where each row represents one subgroup.
 
--   In `left_join()`, `by = character()` now performs a Cartesian product, generating every combination of subgroup and model.
+-   In `left_join()`, `by = character()` which now performs a Cartesian product, generating every combination of subgroup and model.
 
--   `rowwise()` and `mutate()` fit a model to each row.
+-   `rowwise()` and `mutate()` which fit a model to each row.
 
--   The newly powerful `summarise()` summarises each model with the model fit statistics computed by `broom::glance()`.
+-   The newly powerful `summarise()` which summarises each model with the model fit statistics computed by `broom::glance()`.
 
 Acknowledgements
 ----------------
