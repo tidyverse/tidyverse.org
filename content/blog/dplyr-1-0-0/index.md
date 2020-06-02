@@ -97,13 +97,13 @@ The best way to find out about all the cool new features dplyr has to offer is t
 
 Note the use of:
 
--   The new `nest_by()`, which generates a nested data frame where each row represents one subgroup.
+-   The new [`nest_by()`](https://dplyr.tidyverse.org/reference/nest_by.html), which generates a nested data frame where each row represents one subgroup.
 
--   In `left_join()`, `by = character()` which now performs a Cartesian product, generating every combination of subgroup and model.
+-   In [`left_join()`](https://dplyr.tidyverse.org/reference/mutate-joins.html), `by = character()` which now performs a Cartesian product, generating every combination of subgroup and model.
 
--   `rowwise()` and `mutate()` which fit a model to each row.
+-   [`rowwise()`](https://dplyr.tidyverse.org/reference/rowwise.html) and [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) which fit a model to each row.
 
--   The newly powerful `summarise()` which summarises each model with the model fit statistics computed by `broom::glance()`.
+-   The newly powerful [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) which summarises each model with the model fit statistics computed by [`broom::glance()`](https://rdrr.io/pkg/broom/man/reexports.html).
 
 Acknowledgements
 ----------------
