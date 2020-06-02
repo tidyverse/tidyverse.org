@@ -81,7 +81,6 @@ The best way to find out about all the cool new features dplyr has to offer is t
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span>(model = <span class='nf'>list</span>(<span class='nf'>lm</span>(<span class='k'>formula</span>, data = <span class='k'>data</span>))) <span class='o'>%&gt;%</span> 
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span>(<span class='k'>broom</span>::<span class='nf'><a href='https://rdrr.io/pkg/broom/man/reexports.html'>glance</a></span>(<span class='k'>model</span>))
 <span class='c'>#&gt; `summarise()` regrouping output by 'Species', 'model_name' (override with `.groups` argument)</span>
-
 <span class='c'>#&gt; # A tibble: 6 x 13</span>
 <span class='c'>#&gt; # Groups:   Species, model_name [6]</span>
 <span class='c'>#&gt;   Species model_name r.squared adj.r.squared sigma statistic  p.value    df</span>
@@ -94,7 +93,6 @@ The best way to find out about all the cool new features dplyr has to offer is t
 <span class='c'>#&gt; 6 virgin… interacti…     0.757        0.741  0.323     47.8  3.54e-14     4</span>
 <span class='c'>#&gt; # … with 5 more variables: logLik &lt;dbl&gt;, AIC &lt;dbl&gt;, BIC &lt;dbl&gt;, deviance &lt;dbl&gt;,</span>
 <span class='c'>#&gt; #   df.residual &lt;int&gt;</span>
-
 </pre>
 
 Note the use of:
