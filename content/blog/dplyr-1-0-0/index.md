@@ -17,7 +17,7 @@ categories:
 tags:
   - dplyr
   - dplyr-1-0-0
-rmd_hash: 1a90b4d904094dd2
+rmd_hash: c8c1616035516090
 
 ---
 
@@ -94,11 +94,6 @@ The best way to find out about all the cool new features dplyr has to offer is t
 <span class='c'>#&gt; 6 virgin… interacti…     0.757        0.741  0.323     47.8  3.54e-14     4</span>
 <span class='c'>#&gt; # … with 5 more variables: logLik &lt;dbl&gt;, AIC &lt;dbl&gt;, BIC &lt;dbl&gt;, deviance &lt;dbl&gt;,</span>
 <span class='c'>#&gt; #   df.residual &lt;int&gt;</span>
-
-
-<span class='k'>dplyr</span>:::<span class='nf'>ruler</span>()
-<span class='c'>#&gt; ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8</span>
-<span class='c'>#&gt; 12345678901234567890123456789012345678901234567890123456789012345678901234567890</span>
 
 </pre>
 
