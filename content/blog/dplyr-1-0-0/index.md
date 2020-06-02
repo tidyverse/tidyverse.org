@@ -38,17 +38,17 @@ dplyr 1.0.0 is chock-a-block with new features; so many, in fact, that we can't 
 
 -   [Major lifecycle changes](/blog/2020/03/dplyr-1-0-0-is-coming-soon/). This post focusses on the idea of the "function lifecycle" which helps you understand where functions in dplyr are going. Particularly important is the idea of a "superseded" function. A superseded function is not going away, but we no longer recommend using it in new code.
 
--   [New `summarise()` features](/blog/2020/03/dplyr-1-0-0-summarise/). In `summarise()`, a single summary expression can now create both multiple rows and multiple columns. This significantly increases its power and flexibility.
+-   [New `summarise()` features](/blog/2020/03/dplyr-1-0-0-summarise/). In [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), a single summary expression can now create both multiple rows and multiple columns. This significantly increases its power and flexibility.
 
--   [`select()`, `rename()`, and (new) `relocate()`](/blog/2020/03/dplyr-1-0-0-select-rename-relocate/). `select()` and `rename()` can now select by position, name, function of name, type, and any combination thereof. A new `relocate()` function makes it easy to change the position of columns.
+-   [`select()`, `rename()`, and (new) `relocate()`](/blog/2020/03/dplyr-1-0-0-select-rename-relocate/). [`select()`](https://dplyr.tidyverse.org/reference/select.html) and [`rename()`](https://dplyr.tidyverse.org/reference/rename.html) can now select by position, name, function of name, type, and any combination thereof. A new [`relocate()`](https://dplyr.tidyverse.org/reference/relocate.html) function makes it easy to change the position of columns.
 
--   [Working `across()` columns](/blog/2020/04/dplyr-1-0-0-colwise/). A new `across()` function makes it much easier to apply the same operation to multiple columns. It supersedes the `_if()`, `_at()`, and `_all()` function variants.
+-   [Working `across()` columns](/blog/2020/04/dplyr-1-0-0-colwise/). A new [`across()`](https://dplyr.tidyverse.org/reference/across.html) function makes it much easier to apply the same operation to multiple columns. It supersedes the `_if()`, `_at()`, and `_all()` function variants.
 
--   [Working within rows](/blog/2020/04/dplyr-1-0-0-rowwise/). `rowwise()` has been renewed and revamped to make it easier to perform operations row-by-row. This makes it much easier to solve problems that previously required `base::lapply()`, `purrr::map()`, or friends.
+-   [Working within rows](/blog/2020/04/dplyr-1-0-0-rowwise/). [`rowwise()`](https://dplyr.tidyverse.org/reference/rowwise.html) has been renewed and revamped to make it easier to perform operations row-by-row. This makes it much easier to solve problems that previously required [`base::lapply()`](https://rdrr.io/r/base/lapply.html), [`purrr::map()`](https://purrr.tidyverse.org/reference/map.html), or friends.
 
 -   [The role of the vctrs package](/blog/2020/04/dplyr-1-0-0-and-vctrs/). dplyr now makes heavy use of [vctrs](http://vctrs.r-lib.org/) behind the scenes. This brings with it greater consistency and (hopefully!) more useful error messages.
 
--   [Last minute additions](/blog/2020/05/dplyr-1-0-0-last-minute-additions/) `summarise()` now allows you to control how its results are grouped, and there's a new family of functions designed for modifying rows.
+-   [Last minute additions](/blog/2020/05/dplyr-1-0-0-last-minute-additions/) [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) now allows you to control how its results are grouped, and there's a new family of functions designed for modifying rows.
 
 You can see the full list of changes in the [release notes](https://github.com/tidyverse/dplyr/releases/tag/v1.0.0).
 
