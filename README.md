@@ -21,9 +21,11 @@ This site now uses [hugodown](http://github.com/r-lib/hugodown/issues) rather th
 remotes::install_github("r-lib/hugodown")
 ```
 
-* To add a new post call `hugodown::tidy_post_create("short-name")`. This will
-  add on the current year and month, then create a new directory containing 
-  an `index.Rmd` file that tells you what to do next.
+* To add a new post call `hugodown::tidy_post_create("short-name")`. 
+  This creates `content/blog/short-name/`containing an `index.Rmd` file that 
+  tells you what to do next.
+  
+* To add a new event call `hugodown::post_create("events/year-event-name")`.
 
 * Knit to `.Rmd` to generate a `.md`.
 
