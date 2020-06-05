@@ -1,12 +1,19 @@
 ---
-output: hugodown::hugo_document
 title: "embed 0.1.0"
-date: 2020-05-25
+output: hugodown::hugo_document
 
-authors: ["Max Kuhn"]
+description: > 
+  embed 0.1.0 is now available from CRAN!
+author: Max Kuhn
+date: '2020-06-09'
+slug: embed-0-1-0
 
-tags: ["tidymodels", "embed"]
-categories: ["package"]
+categories:
+  - package
+tags:
+  - tidymodels
+  - embed
+  - embed-0-1-0
 
 photo:
   url: https://unsplash.com/photos/rNhL85ocOGg
@@ -17,6 +24,20 @@ photo:
 ```{r setup, include=FALSE}
 library(doMC)
 registerDoMC(cores = parallel::detectCores())
+library(tidymodels)
+library(embed)
+library(keras)
+library(AmesHousing)
+
+thm <- theme_bw() + 
+  theme(
+    panel.background = element_rect(fill = "transparent", colour = NA), 
+    plot.background = element_rect(fill = "transparent", colour = NA),
+    legend.position = "top",
+    legend.background = element_rect(fill = "transparent", colour = NA),
+    legend.key = element_rect(fill = "transparent", colour = NA)
+  )
+theme_set(thm)
 ```
 
 There is a new release of the [embed package](https://embed.tidymodels.org) on [CRAN](https://cran.r-project.org/package=embed). embed contains a number of recipe steps that can be used to represent predictors using a smaller set of artificial features that can be used in a model. Some of these methods are _supervised_ (i.e., it uses the outcome data) and others are _unsupervised_ (the outcome is not considered). The recipes package already contains similar methods (e.g. principal component analysis, partial least squares, etc.). embed has more sophisticated method and these tend to have more significant package dependencies such as stan and tensorflow. 
@@ -25,7 +46,7 @@ The current slew of methods in the embed package are:
 
  * _Entity embeddings_ where categorical predictors are decomposed into a set of smaller numeric features (supervised, [`step_embed()`](https://embed.tidymodels.org/reference/step_embed.html)).
  
- * _Effect encodings_ model categorical predictors against the outcome and the resulting coeffcieints are used as the numeric features (supervised, [`step_lencode_*()`](https://embed.tidymodels.org/reference/index.html)).
+ * _Effect encodings_ model categorical predictors against the outcome and the resulting coefficients are used as the numeric features (supervised, [`step_lencode_*()`](https://embed.tidymodels.org/reference/index.html)).
  
  * _Weight of evidence transformation_ that use measures of association for  categorical predictors and categorical outcomes to generate new features (supervised, [`step_woe()`](https://embed.tidymodels.org/reference/step_woe.html)).
  
@@ -45,7 +66,7 @@ The recipes package already includes `step_discretize()`. This is an unsupervise
 
 Konrad Semsch contributed [`step_discretize_xgb()`](https://embed.tidymodels.org/reference/step_discretize_xgb.html)) which uses an xgboost model. An initial boosting model is created with a single numeric predictor and the unique splits across boosting iterations are used to discretize the predictor. Here's an example predictor from the Ames housing data: 
 
-```{r ames-longitude}
+```{r ames-longitude, fig.height=4.25, dev = 'svg', dev.args = list(bg = "transparent"), message = FALSE, warning = FALSE}
 library(tidymodels)
 library(embed)
 library(AmesHousing)
@@ -95,7 +116,7 @@ bake(ames_rec, ames_test, Longitude)
 
 For the test set, here are the breaks: 
 
-```{r ames-longitude-breaks}
+```{r ames-longitude-breaks, fig.height=4.25, dev = 'svg', dev.args = list(bg = "transparent")}
 ggplot(ames_train, aes(x = Longitude, y = Sale_Price)) + 
   geom_vline(xintercept = breaks, col = "blue", alpha = 0.7) + 
   geom_point(alpha = 0.3) +
@@ -139,7 +160,7 @@ hashed
 
 How were neighborhoods mapped to indicators in these data? Each neighborhood only maps to a single row. However, unlike the traditional methods, multiple neighborhoods are likely to be mapped to the same indicator column:
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 hashed %>%
   tidyr::pivot_longer(cols = c(contains("hash")),
                       names_to = "column",
@@ -153,12 +174,12 @@ For this configuration, multiple neighborhoods are mapped to the same feature. I
 On the bright side, new neighborhoods can be easily mapped. For example: 
 
  * `Novigrad` would be mapped to column `r keras::text_hashing_trick("Novigrad", 10, filters = "", split = "don't", lower = FALSE)`.
- * `Brokilon Forest` would be mapped to column `r keras::text_hashing_trick("Rivendell Forest", 10, filters = "", split = "don't", lower = FALSE)`. 
-  * `Brokilon forest` would be mapped to column `r keras::text_hashing_trick("rivendell forest", 10, filters = "", split = "don't", lower = FALSE)`. 
+ * `Brokilon Forest` would be mapped to column `r keras::text_hashing_trick("Brokilon Forest", 10, filters = "", split = "don't", lower = FALSE)`. 
+ * `Brokilon forest` would be mapped to column `r keras::text_hashing_trick("Brokilon forest", 10, filters = "", split = "don't", lower = FALSE)`. 
  
 As the last two examples show, the actual value of the factor level is used. Also note that, if a different number of features are created, the mapping will also change. 
 
 ## Hex logo
 
-The embed package doesn't have a hex logo. If you would like to propose one, please [tweet](https://twitter.com/topepos) or [email](mailto:max@rstudio.com) us! 
+The embed package doesn't have a hex logo. If you would like to propose one, please [tweet at us](https://twitter.com/topepos) or [email](mailto:max@rstudio.com)! 
 

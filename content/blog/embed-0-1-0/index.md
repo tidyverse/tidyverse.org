@@ -1,12 +1,19 @@
 ---
-title: "2020 05 embed 0.1.0"
-date: 2020-05-25T16:14:32-04:00
-draft: true
+title: "embed 0.1.0"
+output: hugodown::hugo_document
 
-authors: ["Max Kuhn"]
+description: > 
+  embed 0.1.0 is now available from CRAN!
+author: Max Kuhn
+date: '2020-06-09'
+slug: embed-0-1-0
 
-tags: ["tidymodels", "embed"]
-categories: ["package"]
+categories:
+  - package
+tags:
+  - tidymodels
+  - embed
+  - embed-0-1-0
 
 photo:
   url: https://unsplash.com/photos/rNhL85ocOGg
@@ -22,7 +29,7 @@ The current slew of methods in the embed package are:
 
  * _Entity embeddings_ where categorical predictors are decomposed into a set of smaller numeric features (supervised, [`step_embed()`](https://embed.tidymodels.org/reference/step_embed.html)).
  
- * _Effect encodings_ model categorical predictors against the outcome and the resulting coeffcieints are used as the numeric features (supervised, [`step_lencode_*()`](https://embed.tidymodels.org/reference/index.html)).
+ * _Effect encodings_ model categorical predictors against the outcome and the resulting coefficients are used as the numeric features (supervised, [`step_lencode_*()`](https://embed.tidymodels.org/reference/index.html)).
  
  * _Weight of evidence transformation_ that use measures of association for  categorical predictors and categorical outcomes to generate new features (supervised, [`step_woe()`](https://embed.tidymodels.org/reference/step_woe.html)).
  
@@ -45,23 +52,6 @@ Konrad Semsch contributed [`step_discretize_xgb()`](https://embed.tidymodels.org
 
 ```r
 library(tidymodels)
-#> ── Attaching packages ────────────────────────────────── tidymodels 0.1.0 ──
-#> ✓ broom     0.5.6          ✓ recipes   0.1.12    
-#> ✓ dials     0.0.6          ✓ rsample   0.0.6     
-#> ✓ dplyr     0.8.5          ✓ tibble    3.0.1     
-#> ✓ ggplot2   3.3.0          ✓ tune      0.1.0.9000
-#> ✓ infer     0.5.1          ✓ workflows 0.1.1     
-#> ✓ parsnip   0.1.1          ✓ yardstick 0.0.6     
-#> ✓ purrr     0.3.4
-#> Warning: package 'recipes' was built under R version 3.6.2
-#> ── Conflicts ───────────────────────────────────── tidymodels_conflicts() ──
-#> x purrr::accumulate() masks foreach::accumulate()
-#> x purrr::discard()    masks scales::discard()
-#> x dplyr::filter()     masks stats::filter()
-#> x dplyr::lag()        masks stats::lag()
-#> x ggplot2::margin()   masks dials::margin()
-#> x recipes::step()     masks stats::step()
-#> x purrr::when()       masks foreach::when()
 library(embed)
 library(AmesHousing)
 
@@ -82,7 +72,7 @@ ggplot(ames_train, aes(x = Longitude, y = Sale_Price)) +
   scale_y_log10()
 ```
 
-<img src="figure/ames-longitude-1.png" title="plot of chunk ames-longitude" alt="plot of chunk ames-longitude" width="700px" style="display: block; margin: auto;" />
+![plot of chunk ames-longitude](figure/ames-longitude-1.svg)
 
 Because the Iowa State University is in the center of Ames, there are discontinuous relationships between the sale price of houses and longitude. There's a relationship here but it is nonlinear and complex. To discretize these data: 
 
@@ -105,27 +95,33 @@ breaks <-
   pull(values)
 
 breaks
-#> [1] -93.68667 -93.67038 -93.65519 -93.64602 -93.63570 -93.62575 -93.61737
+```
+
+```
+## [1] -93.68667 -93.67038 -93.65519 -93.64602 -93.63570 -93.62575 -93.61737
 ```
 The consequence of using `step_discretize_xgb()` is that the numeric predictor `Longitude` is converted to a factor with 8 levels: 
 
 
 ```r
 bake(ames_rec, ames_test, Longitude)
-#> # A tibble: 731 x 1
-#>    Longitude      
-#>    <fct>          
-#>  1 [-93.63,-93.62)
-#>  2 [-93.63,-93.62)
-#>  3 [-93.65,-93.64)
-#>  4 [-93.64,-93.63)
-#>  5 [-93.64,-93.63)
-#>  6 [-93.64,-93.63)
-#>  7 [-93.64,-93.63)
-#>  8 [-93.66,-93.65)
-#>  9 [-93.66,-93.65)
-#> 10 [-93.66,-93.65)
-#> # … with 721 more rows
+```
+
+```
+## # A tibble: 731 x 1
+##    Longitude      
+##    <fct>          
+##  1 [-93.63,-93.62)
+##  2 [-93.63,-93.62)
+##  3 [-93.65,-93.64)
+##  4 [-93.64,-93.63)
+##  5 [-93.64,-93.63)
+##  6 [-93.64,-93.63)
+##  7 [-93.64,-93.63)
+##  8 [-93.66,-93.65)
+##  9 [-93.66,-93.65)
+## 10 [-93.66,-93.65)
+## # … with 721 more rows
 ```
 
 For the test set, here are the breaks: 
@@ -138,7 +134,7 @@ ggplot(ames_train, aes(x = Longitude, y = Sale_Price)) +
   scale_y_log10()
 ```
 
-<img src="figure/ames-longitude-breaks-1.png" title="plot of chunk ames-longitude-breaks" alt="plot of chunk ames-longitude-breaks" width="700px" style="display: block; margin: auto;" />
+![plot of chunk ames-longitude-breaks](figure/ames-longitude-breaks-1.svg)
 
 `step_discretize_xgb()` and `step_discretize_cart()` contain arguments for the common tuning parameters (e.g. the number of breaks, tree depth, etc.) that can be optimized using the tune package. Also, it is possible that the tree model cannot find any informative splits of a predictor. In this case, a warning is issued and the predictor is not discretized. 
 
@@ -175,23 +171,25 @@ all_nhood <-
   distinct()
 hashed <- bake(hash_rec, all_nhood, starts_with("Neighborhood"))
 hashed
-#> # A tibble: 28 x 11
-#>    Neighborhood Neighborhood_ha… Neighborhood_ha… Neighborhood_ha…
-#>    <fct>                   <dbl>            <dbl>            <dbl>
-#>  1 North_Ames                  0                0                0
-#>  2 Gilbert                     0                1                0
-#>  3 Stone_Brook                 0                0                0
-#>  4 Northwest_A…                0                0                0
-#>  5 Somerset                    0                0                0
-#>  6 Briardale                   0                0                0
-#>  7 Northpark_V…                0                0                1
-#>  8 Northridge_…                0                1                0
-#>  9 Bloomington…                0                0                0
-#> 10 Northridge                  0                0                0
-#> # … with 18 more rows, and 7 more variables: Neighborhood_hash_04 <dbl>,
-#> #   Neighborhood_hash_05 <dbl>, Neighborhood_hash_06 <dbl>,
-#> #   Neighborhood_hash_07 <dbl>, Neighborhood_hash_08 <dbl>,
-#> #   Neighborhood_hash_09 <dbl>, Neighborhood_hash_10 <dbl>
+```
+
+```
+## # A tibble: 28 x 11
+##    Neighborhood Neighborhood_ha… Neighborhood_ha… Neighborhood_ha… Neighborhood_ha…
+##    <fct>                   <dbl>            <dbl>            <dbl>            <dbl>
+##  1 North_Ames                  0                0                1                0
+##  2 Gilbert                     0                1                0                0
+##  3 Stone_Brook                 0                0                0                0
+##  4 Northwest_A…                0                0                0                1
+##  5 Somerset                    1                0                0                0
+##  6 Briardale                   0                0                0                0
+##  7 Northpark_V…                0                1                0                0
+##  8 Northridge_…                0                0                0                0
+##  9 Bloomington…                1                0                0                0
+## 10 Northridge                  0                1                0                0
+## # … with 18 more rows, and 6 more variables: Neighborhood_hash_05 <dbl>,
+## #   Neighborhood_hash_06 <dbl>, Neighborhood_hash_07 <dbl>, Neighborhood_hash_08 <dbl>,
+## #   Neighborhood_hash_09 <dbl>, Neighborhood_hash_10 <dbl>
 ```
 
 How were neighborhoods mapped to indicators in these data? Each neighborhood only maps to a single row. However, unlike the traditional methods, multiple neighborhoods are likely to be mapped to the same indicator column:
@@ -204,32 +202,35 @@ hashed %>%
                       values_to = "values") %>%
   group_by(column) %>%
   summarize(num_neighborhood = sum(values))
-#> # A tibble: 10 x 2
-#>    column               num_neighborhood
-#>    <chr>                           <dbl>
-#>  1 Neighborhood_hash_01                1
-#>  2 Neighborhood_hash_02                4
-#>  3 Neighborhood_hash_03                6
-#>  4 Neighborhood_hash_04                3
-#>  5 Neighborhood_hash_05                0
-#>  6 Neighborhood_hash_06                2
-#>  7 Neighborhood_hash_07                4
-#>  8 Neighborhood_hash_08                2
-#>  9 Neighborhood_hash_09                6
-#> 10 Neighborhood_hash_10                0
+```
+
+```
+## # A tibble: 10 x 2
+##    column               num_neighborhood
+##    <chr>                           <dbl>
+##  1 Neighborhood_hash_01                2
+##  2 Neighborhood_hash_02                5
+##  3 Neighborhood_hash_03                5
+##  4 Neighborhood_hash_04                3
+##  5 Neighborhood_hash_05                0
+##  6 Neighborhood_hash_06                3
+##  7 Neighborhood_hash_07                6
+##  8 Neighborhood_hash_08                3
+##  9 Neighborhood_hash_09                1
+## 10 Neighborhood_hash_10                0
 ```
 
 For this configuration, multiple neighborhoods are mapped to the same feature. In statistics, this is called _aliasing_ or _confounding_. While sometime required, confounding methods should generally alias different values to the same feature using some sort of optimality criterion. Feature hashing does not appear to be optimal in any way that is relevant to modeling. Also note in the output above that some hash features will have no indicators. It might be a good practice to follow this step with `step_zv()` to remove them. 
 
 On the bright side, new neighborhoods can be easily mapped. For example: 
 
- * `Novigrad` would be mapped to column 6.
- * `Brokilon Forest` would be mapped to column 5. 
-  * `Brokilon forest` would be mapped to column 5. 
+ * `Novigrad` would be mapped to column 2.
+ * `Brokilon Forest` would be mapped to column 1. 
+ * `Brokilon forest` would be mapped to column 1. 
  
 As the last two examples show, the actual value of the factor level is used. Also note that, if a different number of features are created, the mapping will also change. 
 
 ## Hex logo
 
-The embed package doesn't have a hex logo. If you would like to propose one, please [tweet](https://twitter.com/topepos) or [email](mailto:max@rstudio.com) us! 
+The embed package doesn't have a hex logo. If you would like to propose one, please [tweet at us](https://twitter.com/topepos) or [email](mailto:max@rstudio.com)! 
 
