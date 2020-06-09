@@ -43,9 +43,9 @@ theme_set(thm)
 keras::text_hashing_trick("see if keras works", 10)
 ```
 
-There is a new release of the [embed package](https://embed.tidymodels.org) on [CRAN](https://cran.r-project.org/package=embed). embed contains a number of recipe steps that can be used to represent predictors using a smaller set of artificial features that can be used in a model. Some of these methods are _supervised_ (i.e., it uses the outcome data) and others are _unsupervised_ (the outcome is not considered). The recipes package already contains similar methods (e.g. principal component analysis, partial least squares, etc.). embed has more sophisticated method and these tend to have more significant package dependencies such as stan and tensorflow. 
+There is a new release of the [embed package](https://embed.tidymodels.org) on [CRAN](https://cran.r-project.org/package=embed). embed contains a number of recipe steps that can be used to represent predictors using a smaller set of artificial features. Some of these methods are _supervised_ (i.e., it uses the outcome data) and others are _unsupervised_ (the outcome is not considered). The recipes package already contains similar methods (e.g. principal component analysis, partial least squares, etc.). embed has more sophisticated method and these tend to have more significant package dependencies such as stan and tensorflow. 
 
-The current slew of methods in the embed package are: 
+The current roster of methods in the embed package are: 
 
  * _Entity embeddings_ where categorical predictors are decomposed into a set of smaller numeric features (supervised, [`step_embed()`](https://embed.tidymodels.org/reference/step_embed.html)).
  
@@ -63,7 +63,7 @@ The latter two sets of steps are only in this new version. Let's look at these t
 
 ## Discretization
 
-It is not a secret that I am [not a huge fan](https://bookdown.org/max/FES/numeric-one-to-many.html#binning) of taking numeric data and re-encoding them as categorical predictors. There is mostly likely a loss of information by doing so and other methods, such as splines, are probably a better approach overall. However, I'm willing to admit that there might be some data sets where binning works best. 
+I am [not a huge fan](https://bookdown.org/max/FES/numeric-one-to-many.html#binning) of taking numeric data and re-encoding them as categorical predictors. There is mostly likely a loss of information by doing so and other methods, such as splines, are probably a better approach overall. However, I'm willing to admit that there might be some data sets where binning works best. 
 
 The recipes package already includes `step_discretize()`. This is an unsupervised method that creates the bins using percentiles of the data (so that the new categories have about the same frequency). The new methods in embed use the outcome data (numeric or categorical) to determine the values of the bins as well as how many bins are required.  
 
@@ -181,6 +181,8 @@ On the bright side, new neighborhoods can be easily mapped. For example:
  * `Brokilon forest` would be mapped to column 9. 
  
 As the last two examples show, the actual value of the factor level is used. Also note that, if a different number of features are created, the mapping will also change. 
+
+This step requires the [keras](https://keras.rstudio.com/) R package along with a working [tensorflow](https://tensorflow.rstudio.com/installation/) installation.
 
 ## Hex logo
 
