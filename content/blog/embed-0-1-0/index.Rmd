@@ -38,6 +38,9 @@ thm <- theme_bw() +
     legend.key = element_rect(fill = "transparent", colour = NA)
   )
 theme_set(thm)
+
+# test:
+keras::text_hashing_trick("see if keras works", 10)
 ```
 
 There is a new release of the [embed package](https://embed.tidymodels.org) on [CRAN](https://cran.r-project.org/package=embed). embed contains a number of recipe steps that can be used to represent predictors using a smaller set of artificial features that can be used in a model. Some of these methods are _supervised_ (i.e., it uses the outcome data) and others are _unsupervised_ (the outcome is not considered). The recipes package already contains similar methods (e.g. principal component analysis, partial least squares, etc.). embed has more sophisticated method and these tend to have more significant package dependencies such as stan and tensorflow. 
@@ -173,9 +176,9 @@ For this configuration, multiple neighborhoods are mapped to the same feature. I
 
 On the bright side, new neighborhoods can be easily mapped. For example: 
 
- * `Novigrad` would be mapped to column `r keras::text_hashing_trick("Novigrad", 10, filters = "", split = "don't", lower = FALSE)`.
- * `Brokilon Forest` would be mapped to column `r keras::text_hashing_trick("Brokilon Forest", 10, filters = "", split = "don't", lower = FALSE)`. 
- * `Brokilon forest` would be mapped to column `r keras::text_hashing_trick("Brokilon forest", 10, filters = "", split = "don't", lower = FALSE)`. 
+ * `Novigrad` would be mapped to column 1.
+ * `Brokilon Forest` would be mapped to column 4. 
+ * `Brokilon forest` would be mapped to column 9. 
  
 As the last two examples show, the actual value of the factor level is used. Also note that, if a different number of features are created, the mapping will also change. 
 

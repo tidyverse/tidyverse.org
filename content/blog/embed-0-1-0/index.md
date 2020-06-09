@@ -175,20 +175,21 @@ hashed
 
 ```
 ## # A tibble: 28 x 11
-##    Neighborhood Neighborhood_ha… Neighborhood_ha… Neighborhood_ha… Neighborhood_ha…
-##    <fct>                   <dbl>            <dbl>            <dbl>            <dbl>
-##  1 North_Ames                  0                0                1                0
-##  2 Gilbert                     0                1                0                0
-##  3 Stone_Brook                 0                0                0                0
-##  4 Northwest_A…                0                0                0                1
-##  5 Somerset                    1                0                0                0
-##  6 Briardale                   0                0                0                0
-##  7 Northpark_V…                0                1                0                0
-##  8 Northridge_…                0                0                0                0
-##  9 Bloomington…                1                0                0                0
-## 10 Northridge                  0                1                0                0
-## # … with 18 more rows, and 6 more variables: Neighborhood_hash_05 <dbl>,
-## #   Neighborhood_hash_06 <dbl>, Neighborhood_hash_07 <dbl>, Neighborhood_hash_08 <dbl>,
+##    Neighborhood Neighborhood_ha… Neighborhood_ha… Neighborhood_ha…
+##    <fct>                   <dbl>            <dbl>            <dbl>
+##  1 North_Ames                  0                0                0
+##  2 Gilbert                     0                0                0
+##  3 Stone_Brook                 0                0                0
+##  4 Northwest_A…                1                0                0
+##  5 Somerset                    0                0                1
+##  6 Briardale                   0                0                0
+##  7 Northpark_V…                0                0                0
+##  8 Northridge_…                0                0                0
+##  9 Bloomington…                0                0                0
+## 10 Northridge                  0                0                0
+## # … with 18 more rows, and 7 more variables: Neighborhood_hash_04 <dbl>,
+## #   Neighborhood_hash_05 <dbl>, Neighborhood_hash_06 <dbl>,
+## #   Neighborhood_hash_07 <dbl>, Neighborhood_hash_08 <dbl>,
 ## #   Neighborhood_hash_09 <dbl>, Neighborhood_hash_10 <dbl>
 ```
 
@@ -208,15 +209,15 @@ hashed %>%
 ## # A tibble: 10 x 2
 ##    column               num_neighborhood
 ##    <chr>                           <dbl>
-##  1 Neighborhood_hash_01                2
-##  2 Neighborhood_hash_02                5
-##  3 Neighborhood_hash_03                5
-##  4 Neighborhood_hash_04                3
-##  5 Neighborhood_hash_05                0
-##  6 Neighborhood_hash_06                3
-##  7 Neighborhood_hash_07                6
-##  8 Neighborhood_hash_08                3
-##  9 Neighborhood_hash_09                1
+##  1 Neighborhood_hash_01                4
+##  2 Neighborhood_hash_02                2
+##  3 Neighborhood_hash_03                3
+##  4 Neighborhood_hash_04                2
+##  5 Neighborhood_hash_05                2
+##  6 Neighborhood_hash_06                4
+##  7 Neighborhood_hash_07                3
+##  8 Neighborhood_hash_08                4
+##  9 Neighborhood_hash_09                4
 ## 10 Neighborhood_hash_10                0
 ```
 
@@ -224,9 +225,9 @@ For this configuration, multiple neighborhoods are mapped to the same feature. I
 
 On the bright side, new neighborhoods can be easily mapped. For example: 
 
- * `Novigrad` would be mapped to column 2.
- * `Brokilon Forest` would be mapped to column 1. 
- * `Brokilon forest` would be mapped to column 1. 
+ * `Novigrad` would be mapped to column 1.
+ * `Brokilon Forest` would be mapped to column 4. 
+ * `Brokilon forest` would be mapped to column 9. 
  
 As the last two examples show, the actual value of the factor level is used. Also note that, if a different number of features are created, the mapping will also change. 
 
