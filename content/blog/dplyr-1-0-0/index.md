@@ -23,13 +23,19 @@ rmd_hash: c8c1616035516090
 
 I'm very excited to announce the ninth and final blog post in the [dplyr 1.0.0 series](/tags/dplyr-1-0-0): [dplyr 1.0.0](http://dplyr.tidyverse.org/) is now available from CRAN! Install it by running:
 
-<pre class='chroma'><span class='nf'>install.packages</span>(<span class='s'>"dplyr"</span>)
-</pre>
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>install.packages</span>(<span class='s'>"dplyr"</span>)</code></pre>
+
+</div>
 
 Then load it with:
 
-<pre class='chroma'><span class='nf'>library</span>(<span class='k'><a href='https://dplyr.tidyverse.org/reference'>dplyr</a></span>)
-</pre>
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>library</span>(<span class='k'><a href='https://dplyr.tidyverse.org/reference'>dplyr</a></span>)</code></pre>
+
+</div>
 
 New features
 ------------
@@ -66,7 +72,9 @@ A small teaser
 
 The best way to find out about all the cool new features dplyr has to offer is to read through the blog posts linked to above. But thanks to inspiration from [Daniel Anderson](https://twitter.com/datalorax_/status/1258208502960422914) here's one example of fitting two different models by subgroup that shows off a bunch of cool features:
 
-<pre class='chroma'><span class='nf'>library</span>(<span class='k'><a href='https://dplyr.tidyverse.org/reference'>dplyr</a></span>, warn.conflicts = <span class='m'>FALSE</span>)
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>library</span>(<span class='k'><a href='https://dplyr.tidyverse.org/reference'>dplyr</a></span>, warn.conflicts = <span class='m'>FALSE</span>)
 
 <span class='k'>models</span> <span class='o'>&lt;-</span> <span class='k'>tibble</span>::<span class='nf'><a href='https://tibble.tidyverse.org/reference/tribble.html'>tribble</a></span>(
   <span class='o'>~</span><span class='k'>model_name</span>,    <span class='o'>~</span> <span class='k'>formula</span>,
@@ -81,19 +89,20 @@ The best way to find out about all the cool new features dplyr has to offer is t
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span>(model = <span class='nf'>list</span>(<span class='nf'>lm</span>(<span class='k'>formula</span>, data = <span class='k'>data</span>))) <span class='o'>%&gt;%</span> 
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span>(<span class='k'>broom</span>::<span class='nf'><a href='https://rdrr.io/pkg/broom/man/reexports.html'>glance</a></span>(<span class='k'>model</span>))
 <span class='c'>#&gt; `summarise()` regrouping output by 'Species', 'model_name' (override with `.groups` argument)</span>
-<span class='c'>#&gt; # A tibble: 6 x 13</span>
-<span class='c'>#&gt; # Groups:   Species, model_name [6]</span>
-<span class='c'>#&gt;   Species model_name r.squared adj.r.squared sigma statistic  p.value    df</span>
-<span class='c'>#&gt;   &lt;fct&gt;   &lt;chr&gt;          &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;</span>
-<span class='c'>#&gt; 1 setosa  length-wi…     0.112        0.0739 0.339      2.96 6.18e- 2     3</span>
-<span class='c'>#&gt; 2 setosa  interacti…     0.133        0.0760 0.339      2.34 8.54e- 2     4</span>
-<span class='c'>#&gt; 3 versic… length-wi…     0.574        0.556  0.344     31.7  1.92e- 9     3</span>
-<span class='c'>#&gt; 4 versic… interacti…     0.577        0.549  0.347     20.9  1.11e- 8     4</span>
-<span class='c'>#&gt; 5 virgin… length-wi…     0.747        0.736  0.327     69.3  9.50e-15     3</span>
-<span class='c'>#&gt; 6 virgin… interacti…     0.757        0.741  0.323     47.8  3.54e-14     4</span>
-<span class='c'>#&gt; # … with 5 more variables: logLik &lt;dbl&gt;, AIC &lt;dbl&gt;, BIC &lt;dbl&gt;, deviance &lt;dbl&gt;,</span>
-<span class='c'>#&gt; #   df.residual &lt;int&gt;</span>
-</pre>
+<span class='c'>#&gt; <span style='color: #949494;'># A tibble: 6 x 13</span></span>
+<span class='c'>#&gt; <span style='color: #949494;'># Groups:   Species, model_name [6]</span></span>
+<span class='c'>#&gt;   <span style='font-weight: bold;'>Species</span><span> </span><span style='font-weight: bold;'>model_name</span><span> </span><span style='font-weight: bold;'>r.squared</span><span> </span><span style='font-weight: bold;'>adj.r.squared</span><span> </span><span style='font-weight: bold;'>sigma</span><span> </span><span style='font-weight: bold;'>statistic</span><span>  </span><span style='font-weight: bold;'>p.value</span><span>    </span><span style='font-weight: bold;'>df</span></span>
+<span class='c'>#&gt;   <span style='color: #949494;font-style: italic;'>&lt;fct&gt;</span><span>   </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>          </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>         </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>     </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #BCBCBC;'>1</span><span> setosa  length-wi…     0.112        0.073</span><span style='text-decoration: underline;'>9</span><span> 0.339      2.96 6.18</span><span style='color: #949494;'>e</span><span style='color: #BB0000;'>- 2</span><span>     3</span></span>
+<span class='c'>#&gt; <span style='color: #BCBCBC;'>2</span><span> setosa  interacti…     0.133        0.076</span><span style='text-decoration: underline;'>0</span><span> 0.339      2.34 8.54</span><span style='color: #949494;'>e</span><span style='color: #BB0000;'>- 2</span><span>     4</span></span>
+<span class='c'>#&gt; <span style='color: #BCBCBC;'>3</span><span> versic… length-wi…     0.574        0.556  0.344     31.7  1.92</span><span style='color: #949494;'>e</span><span style='color: #BB0000;'>- 9</span><span>     3</span></span>
+<span class='c'>#&gt; <span style='color: #BCBCBC;'>4</span><span> versic… interacti…     0.577        0.549  0.347     20.9  1.11</span><span style='color: #949494;'>e</span><span style='color: #BB0000;'>- 8</span><span>     4</span></span>
+<span class='c'>#&gt; <span style='color: #BCBCBC;'>5</span><span> virgin… length-wi…     0.747        0.736  0.327     69.3  9.50</span><span style='color: #949494;'>e</span><span style='color: #BB0000;'>-15</span><span>     3</span></span>
+<span class='c'>#&gt; <span style='color: #BCBCBC;'>6</span><span> virgin… interacti…     0.757        0.741  0.323     47.8  3.54</span><span style='color: #949494;'>e</span><span style='color: #BB0000;'>-14</span><span>     4</span></span>
+<span class='c'>#&gt; <span style='color: #949494;'># … with 5 more variables: </span><span style='color: #949494;font-weight: bold;'>logLik</span><span style='color: #949494;'> </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #949494;'>, </span><span style='color: #949494;font-weight: bold;'>AIC</span><span style='color: #949494;'> </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #949494;'>, </span><span style='color: #949494;font-weight: bold;'>BIC</span><span style='color: #949494;'> </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #949494;'>, </span><span style='color: #949494;font-weight: bold;'>deviance</span><span style='color: #949494;'> </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #949494;'>,</span></span>
+<span class='c'>#&gt; <span style='color: #949494;'>#   </span><span style='color: #949494;font-weight: bold;'>df.residual</span><span style='color: #949494;'> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span></span></code></pre>
+
+</div>
 
 Note the use of:
 
