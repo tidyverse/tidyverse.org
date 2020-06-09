@@ -3,7 +3,7 @@ title: "embed 0.1.0"
 output: hugodown::hugo_document
 
 description: > 
-  embed 0.1.0 is now available from CRAN!
+  An update to embed adds two new steps.
 author: Max Kuhn
 date: '2020-06-09'
 slug: embed-0-1-0
