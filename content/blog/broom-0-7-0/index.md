@@ -4,7 +4,7 @@ output: hugodown::hugo_document
 slug: broom-0-7-0
 title: broom 0.7.0
 date: 2020-06-19
-author: Simon Couch
+author: Simon Couch and Alex Hayes
 description: >
     The newest release of broom features many new tidier methods, bug fixes, and
     improvements to internal consistency.
@@ -16,15 +16,15 @@ photo:
 categories: [package] 
 tags:
   - tidymodels
-rmd_hash: f1a4c33589957313
+rmd_hash: b1f04b7f199e3d62
 
 ---
 
-I'm excited to announce the release of broom 0.7.0 on CRAN!
+We're excited to announce the release of broom 0.7.0 on CRAN!
 
 broom is a package for summarizing statistical model objects in tidy tibbles. While several compatibility updates have been released in recent months, this is the first major update to broom in almost two years. This update includes many new tidier methods, bug fixes, improvements to existing tidier methods and their documentation, and improvements to maintainability and internal consistency. The full list of changes is available in the package [release notes](https://broom.tidymodels.org/news/index.html).
 
-This release was made possible by the RStudio internship program, which has allowed me ([Simon Couch](https://github.com/simonpcouch)) to work on broom full-time for the last month.
+This release was made possible in part by the RStudio internship program, which has allowed one of us ([Simon Couch](https://github.com/simonpcouch)) to work on broom full-time for the last month.
 
 You can install the most recent broom update with the following code:
 
@@ -42,7 +42,7 @@ Then attach it for use with:
 
 </div>
 
-I'll outline some of the more notable changes below!
+We'll outline some of the more notable changes below!
 
 ### New Tidier Methods
 
