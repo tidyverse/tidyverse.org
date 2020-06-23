@@ -47,7 +47,7 @@ In the [_feature extraction_](https://en.wikipedia.org/wiki/Feature_extraction) 
 ```r
 library(tidymodels)
 
-# Many highly correlated numeric predictions:
+# Many highly correlated numeric predictors:
 data(meats, package = "modeldata")
 
 set.seed(2383)
