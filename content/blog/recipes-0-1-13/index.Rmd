@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 
 slug: recipes-0-1-13
-title: recipes 0 1 13
+title: recipes 0.1.13
 date: 2020-06-25
 author: Max Kuhn
 description: >
