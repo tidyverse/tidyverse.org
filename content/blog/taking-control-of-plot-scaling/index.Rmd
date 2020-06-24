@@ -1,0 +1,104 @@
+---
+title: "Taking Control of Plot Scaling"
+date: 2020-06-24
+output: hugodown::hugo_document
+
+description: > 
+  Learn how to control scaling of the content in your plot when you render plots
+  to different sizes.
+
+# Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
+authors: ["Thomas Lin Pedersen"]
+
+# Tags and categories
+# For example, use `tags = []` for no tags, or the form `tags = ["A Tag", "Another Tag"]` for one or more tags.
+tags: ["graphics", "ragg"]
+categories: ["learn"]
+
+# For wide photo caption
+photo:
+  url: https://unsplash.com/photos/6GjHwABuci4
+  author: Mikael Kristenson
+---
+
+Some time ago, while working on the new edition of the ggplot2 book, I asked out to the R twitterverse what part of using ggplot2 was the most incomprehensible for seasoned users. By a very large margin the most "popular" response revolved around making sure that output had the correct scaling of text, lines, etc.
+
+The latest release of ragg contains a new functionality that will hopefully make this issue a thing of the past. Read on how to use it.
+
+## The problem
+The issue, if you are blissfully unaware, revolves around ensuring that dimensions in your graphic is tied to the resolution of the final plot. This means that it is quite difficult to increase the resolution of a plot while maintaining the same look of the plot. The issue is related to increasing the resolution of your screen, which, in olden days, resulted in almost comically small text and UI elements:
+
+```{r, message=FALSE}
+# Let us create an example plot
+library(ggplot2)
+library(ragg)
+
+p <- ggplot(mtcars) + 
+  geom_point(aes(disp, mpg)) + 
+  geom_smooth(aes(disp, mpg))
+
+pngfile <- fs::path(knitr::fig_path(),  "low_res.png")
+
+agg_png(pngfile, width = 15, height = 9, units = "cm", res = 72)
+plot(p)
+invisible(dev.off())
+knitr::include_graphics(pngfile)
+```
+
+We may feel the the relative sizing in the plot is spot on here, but the resolution is horrible (after all 72 dpi is not something anyone wants to look at in this day and age). We can readily fix this by increasing the resolution:
+
+```{r, message=FALSE}
+pngfile <- fs::path(knitr::fig_path(),  "high_res.png")
+agg_png(pngfile, width = 15, height = 9, units = "cm", res = 300)
+plot(p)
+invisible(dev.off())
+knitr::include_graphics(pngfile)
+```
+
+So far, so good. Now, I want to create a poster with this plot. For the poster I'll need a larger size because it is meant to be read at a distance. For simplicity we'll make the plot twice as big in both dimensions
+
+```{r, message=FALSE}
+pngfile <- fs::path(knitr::fig_path(),  "big_size.png")
+agg_png(pngfile, width = 30, height = 18, units = "cm", res = 300)
+plot(p)
+invisible(dev.off())
+knitr::include_graphics(pngfile)
+```
+
+The size of the plot has increased but the absolute size of text, lines, margins, etc. has stayed the same. The end result is that the relative size of these elements has decreased. This was not what we wanted.
+
+A related issue is rendering a plot to a fixed pixel size. Here the `res` argument is rather arbitrary as it relates the physical size to the pixel dimensions, and we haven't provided a physical size at all:
+
+```{r, message=FALSE}
+pngfile <- fs::path(knitr::fig_path(),  "pixel_size.png")
+agg_png(pngfile, width = 2000, height = 1200, units = "px")
+plot(p)
+invisible(dev.off())
+knitr::include_graphics(pngfile)
+```
+
+You can reclaim eligibility by increasing the `res` argument, but this is a quite non-obvious solution and one that requires a lot of trial and error.
+
+```{r, message=FALSE}
+pngfile <- fs::path(knitr::fig_path(),  "pixel_size_legible.png")
+agg_png(pngfile, width = 2000, height = 1200, units = "px", res = 600)
+plot(p)
+invisible(dev.off())
+knitr::include_graphics(pngfile)
+```
+
+## The solution
+I came into this issue, thinking that it was simply a matter of educating users on how the different arguments interact, but I had to quickly reevaluate that stance. Basically, there is no solution that works across all the different ways of specifying image dimensions. Specifically, when the outputs needs to be a specific absolute size and resolution, the only resolution is to change theming of the plot object so text, size, margins, etc are increased.
+
+Because of this I've added a new argument to all devices in ragg that lets you
+control the scaling of the output. It is interpreted as a multiplier that is applied to all absolute sizing in the plot, without affecting the encoded resolution of the plot. Let us use it to get the desired plot for our poster. We doubled each dimension for the poster version, so we need to set `scaling = 2` to maintain the look of the plot:
+
+```{r, message=FALSE}
+pngfile <- fs::path(knitr::fig_path(),  "big_size_correct.png")
+agg_png(pngfile, width = 30, height = 18, units = "cm", res = 300, scaling = 2)
+plot(p)
+invisible(dev.off())
+knitr::include_graphics(pngfile)
+```
+
+As can be seen, the new argument makes it very easy to reclaim the look of the plot after resizing. Hopefully this will remove a good deal of the pain related to generating plots for papers, posters, presentations, etc.
