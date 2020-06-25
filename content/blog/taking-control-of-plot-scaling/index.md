@@ -8,7 +8,7 @@ description: >
   to different sizes.
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
-authors: ["Thomas Lin Pedersen"]
+author: Thomas Lin Pedersen
 
 # Tags and categories
 # For example, use `tags = []` for no tags, or the form `tags = ["A Tag", "Another Tag"]` for one or more tags.
@@ -19,7 +19,7 @@ categories: ["learn"]
 photo:
   url: https://unsplash.com/photos/6GjHwABuci4
   author: Mikael Kristenson
-rmd_hash: 1455e343389daac6
+rmd_hash: 37dc2282d268dc25
 
 ---
 
