@@ -19,7 +19,7 @@ categories: ["learn"]
 photo:
   url: https://unsplash.com/photos/6GjHwABuci4
   author: Mikael Kristenson
-rmd_hash: 671d4a9a1d64edb5
+rmd_hash: 1455e343389daac6
 
 ---
 
@@ -34,9 +34,9 @@ Before we delve into the problem we should clarify a few concepts related to gra
 
 **Absolute size:** This is the physical dimensions of the graphic (or, more precisely, the intended physical dimensions). This is measured in centimeters or inches or another absolute length unit.
 
-**Pixel size:** For raster output, the graphic is encoded as a matrix of colour values. Each cell in the matrix is a pixel. The pixel size is the number of rows and columns in the matrix. Pixels does not have any inherent physical size.
+**Pixel size:** For raster output, the graphic is encoded as a matrix of color values. Each cell in the matrix is a pixel. The pixel size is the number of rows and columns in the matrix. Pixels does not have any inherent physical size.
 
-**Resolution:** This number ties absolute and pixel size together. It is usually given in ppi (pixels per inch), though dpi (dots per inch) is used interchangebly. A resolution of 72 ppi means that an inch is considered 72 pixels long.
+**Resolution:** This number ties absolute and pixel size together. It is usually given in ppi (pixels per inch), though dpi (dots per inch) is used interchangeably. A resolution of 72 ppi means that an inch is considered 72 pixels long.
 
 **Pointsize:** This is a measure tied to text sizing. When we set a font to size 12, it is given in points. While the actual size of a point has [varied throughout history](https://en.wikipedia.org/wiki/Point_(typography)#Varying_standards), the general consensus now is that 1pt = 1/72 inch (this is also adopted by R). Since points is an absolute unit, the resolution of the output will determine the number of pixels it correspond to.
 
@@ -82,7 +82,7 @@ This is the plot, and how it looks on a computer:
 
 </div>
 
-This looks good, but remember we want to use this on a poster. A poster is usually observed at a farther distance than a computer screen, so in order to make it legible the plot should be bigger. How much bigger? Well, if we assume that we are watching our screen at 50 cm distance, and the our poster is meant to be observed at 1.5 m distance, then our plot should be 3 times as larger to take up the same amount of space in our vision:
+This looks good, but remember we want to use this on a poster. A poster is usually observed at a farther distance than a computer screen, so in order to make it legible the plot should be bigger. How much bigger? Well, if we assume that we are watching our screen at 50 cm distance, and our poster is meant to be observed at 1.5 m distance, then our plot should be 3 times larger to take up the same amount of space in our vision:
 
 ![Schematic representation of the fact that size must increase by the same factor as distance to object in order to continue taking up the same amount of space in the vision](scaling.png)
 
