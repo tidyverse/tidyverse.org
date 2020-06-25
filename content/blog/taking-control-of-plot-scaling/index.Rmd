@@ -25,80 +25,158 @@ Some time ago, while working on the new edition of the ggplot2 book, I asked out
 
 The latest release of ragg contains a new functionality that will hopefully make this issue a thing of the past. Read on how to use it.
 
-## The problem
-The issue, if you are blissfully unaware, revolves around ensuring that dimensions in your graphic is tied to the resolution of the final plot. This means that it is quite difficult to increase the resolution of a plot while maintaining the same look of the plot. The issue is related to increasing the resolution of your screen, which, in olden days, resulted in almost comically small text and UI elements:
+## Some definitions
+Before we delve into the problem we should clarify a few concepts related to graphics and sizing:
 
-```{r, message=FALSE}
-# Let us create an example plot
+**Absolute size:** This is the physical dimensions of the graphic (or, more precisely, the intended physical dimensions). This is measured in centimeters or inches or another absolute length unit.
+
+**Pixel size:** For raster output, the graphic is encoded as a matrix of colour values. Each cell in the matrix is a pixel. The pixel size is the number of rows and columns in the matrix. Pixels does not have any inherent physical size.
+
+**Resolution:** This number ties absolute and pixel size together. It is usually given in ppi (pixels per inch), though dpi (dots per inch) is used interchangebly. A resolution of 72 ppi means that an inch is considered 72 pixels long.
+
+**Pointsize:** This is a measure tied to text sizing. When we set a font to size 12, it is given in points. While the actual size of a point has [varied throughout history](https://en.wikipedia.org/wiki/Point_(typography)#Varying_standards), the general consensus now is that 1pt = 1/72 inch (this is also adopted by R). Since points is an absolute unit, the resolution of the output will determine the number of pixels it correspond to.
+
+## The problem
+With formalities out of the way, we can describe the problem more clearly. At its core, this is about ensuring the correct scaling of a plot as we develop it for varying absolute sizes.
+
+When we develop a graphic we will generally sit in front of a computer and fine tune it while continuously getting previews on the screen. Once we are content with it we will save it to the correct absolute size required by wherever we intend to publish the plot. In the remainder of the text we will assume that we sit in front of a computer developing a plot that should end up on a poster.
+
+This is the plot, and how it looks on a computer:
+
+```{r, message=FALSE, out.width=""}
 library(ggplot2)
 library(ragg)
+library(palmerpenguins)
 
-p <- ggplot(mtcars) + 
-  geom_point(aes(disp, mpg)) + 
-  geom_smooth(aes(disp, mpg))
+# plot adapted from https://github.com/allisonhorst/palmerpenguins
+p <- ggplot(na.omit(penguins), aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(
+    aes(color = species, shape = species),
+    size = 3,
+    alpha = 0.8
+  ) + 
+  ggforce::geom_mark_ellipse(
+    aes(filter = species == "Gentoo", 
+        description = "Gentoo penguins are generally bigger in size")
+  ) + 
+  labs(x = "Flipper Length [mm]", y = "Body Mass [g]",  colour = "Species", 
+       shape = "Species")
 
-pngfile <- fs::path(knitr::fig_path(),  "low_res.png")
+pngfile <- fs::path(knitr::fig_path(),  "basis.png")
 
-agg_png(pngfile, width = 15, height = 9, units = "cm", res = 72)
+# I'm explicitly calling the device functions so you can see the dimensions 
+# used
+agg_png(pngfile, width = 20, height = 12, units = "cm", res = 300)
 plot(p)
 invisible(dev.off())
 knitr::include_graphics(pngfile)
 ```
 
-We may feel the the relative sizing in the plot is spot on here, but the resolution is horrible (after all 72 dpi is not something anyone wants to look at in this day and age). We can readily fix this by increasing the resolution:
+This looks good, but remember we want to use this on a poster. A poster is usually observed at a farther distance than a computer screen, so in order to make it legible the plot should be bigger. How much bigger? Well, if we assume that we are watching our screen at 50 cm distance, and the our poster is meant to be observed at 1.5 m distance, then our plot should be 3 times as larger to take up the same amount of space in our vision:
 
-```{r, message=FALSE}
-pngfile <- fs::path(knitr::fig_path(),  "high_res.png")
-agg_png(pngfile, width = 15, height = 9, units = "cm", res = 300)
+![Schematic representation of the fact that size must increase by the same factor as distance to object in order to continue taking up the same amount of space in the vision](scaling.png)
+
+With that in mind we quickly size up our plot:
+
+```{r, message=FALSE, out.width=""}
+pngfile <- fs::path(knitr::fig_path(),  "large_basis.png")
+agg_png(pngfile, width = 60, height = 36, units = "cm", res = 300)
 plot(p)
 invisible(dev.off())
 knitr::include_graphics(pngfile)
 ```
 
-So far, so good. Now, I want to create a poster with this plot. For the poster I'll need a larger size because it is meant to be read at a distance. For simplicity we'll make the plot twice as big in both dimensions
+The plot above doesn't look physically larger, but that is because the webpage downscales it to make it fit. You can download each of the images and open them in a image editor to convince yourself that they are of different absolute size. The downscaling done by the webpage allows us to simulate how looking at our poster may feel like, and it is not pretty; everything seems super small and ineligible. 
 
-```{r, message=FALSE}
-pngfile <- fs::path(knitr::fig_path(),  "big_size.png")
-agg_png(pngfile, width = 30, height = 18, units = "cm", res = 300)
+Why is that? Our plot is a mix of elements positioned and dimensioned based on both relative and absolute sizes. While the relative sizes expand along with the output size, the absolute sizes does not. The text is given in points which, as you recall, is an absolute dimension. The same is true for the element sizes in the scatterplot, the grid lines, etc. This means that as we scale up the output size, they remain the same size and will thus get smaller relative to the full image.
+
+> The reverse can be a problem as well. If you render a plot to a smaller size than the one you've previewed you may find that text, margins, etc. take up all the available space.
+
+Now, how should we go about correcting this?
+
+## Attempt 1: Theming
+One approach to fixing this is by changing the theme settings of the plot, so that they work better for a larger size:
+
+```{r, message=FALSE, out.width=""}
+p1 <- p + 
+  theme_gray(base_size = 33)
+pngfile <- fs::path(knitr::fig_path(),  "theming.png")
+agg_png(pngfile, width = 60, height = 36, units = "cm", res = 300)
+plot(p1)
+invisible(dev.off())
+knitr::include_graphics(pngfile)
+```
+
+This approach got us surprisingly far. A lot of the theme elements of the plot is derived from the base size argument so many adapts. Not all though, as we can see the legend keys maintaining their relative small size. If you've been using a custom theme it may also be that you've overwritten some of the default sizes and will need to change that as well.
+
+One thing missing is all the non-theme elements (i.e. things part of the layer). Because of this we'd have to redo the whole plot in order to get the desired result:
+
+```{r, message=FALSE, out.width=""}
+p1 <- ggplot(na.omit(penguins), aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(
+    aes(color = species, shape = species),
+    size = 9,
+    alpha = 0.8
+  ) + 
+  ggforce::geom_mark_ellipse(
+    aes(filter = species == "Gentoo", 
+        description = "Gentoo penguins are generally bigger in size"),
+    size = 1.5,
+    label.fontsize = 36
+  ) + 
+  labs(x = "Flipper Length [mm]", y = "Body Mass [g]",  colour = "Species", 
+       shape = "Species") + 
+  theme_gray(base_size = 33)
+pngfile <- fs::path(knitr::fig_path(),  "theming2.png")
+agg_png(pngfile, width = 60, height = 36, units = "cm", res = 300)
+plot(p1)
+invisible(dev.off())
+knitr::include_graphics(pngfile)
+```
+
+We can see that we are getting there, but the journey hasn't been pleasant. Especially for the last part it requires knowledge of all the different settings in a geom that encodes absolute sizes. For the mark geom we only fixed the ellipse line width and the text size, but there are many more settings that needs to be updated as well as is apparent from the weird look of the text box.
+
+Another issue that arises is that if we need this plot at yet another different scale, we will need to change quite a lot of code in order to get there.
+
+## Attempt 2: Resolution scaling
+Since the resolution is the parameter that ties the pixel size and absolute size together it is possible to use it as a scaling factor, but it requires some non-obvious adjustments:
+
+The first thing we need to do is convert our physical dimensions to pixel dimensions using our desired resolution. We want to end up with a 60x36cm plot at 300ppi. This gives us:
+
+```{r, message=FALSE, out.width=""}
+c(60, 36) *
+  0.3937 * # convert to inch
+  300 # convert to pixels
+```
+
+We can now use these values directly in our device and change the resolution of the device to trick it into thinking that text etc should be rendered at a larger size
+
+```{r, message=FALSE, out.width=""}
+pngfile <- fs::path(knitr::fig_path(),  "resolution.png")
+agg_png(pngfile, width = 7087, height = 4252, units = "px", res = 900)
 plot(p)
 invisible(dev.off())
 knitr::include_graphics(pngfile)
 ```
 
-The size of the plot has increased but the absolute size of text, lines, margins, etc. has stayed the same. The end result is that the relative size of these elements has decreased. This was not what we wanted.
+This actually works exactly as we hoped. We've gotten our huge version of the plot but with the same exact scaling of all graphic elements.
 
-A related issue is rendering a plot to a fixed pixel size. Here the `res` argument is rather arbitrary as it relates the physical size to the pixel dimensions, and we haven't provided a physical size at all:
-
-```{r, message=FALSE}
-pngfile <- fs::path(knitr::fig_path(),  "pixel_size.png")
-agg_png(pngfile, width = 2000, height = 1200, units = "px")
-plot(p)
-invisible(dev.off())
-knitr::include_graphics(pngfile)
-```
-
-You can reclaim eligibility by increasing the `res` argument, but this is a quite non-obvious solution and one that requires a lot of trial and error.
-
-```{r, message=FALSE}
-pngfile <- fs::path(knitr::fig_path(),  "pixel_size_legible.png")
-agg_png(pngfile, width = 2000, height = 1200, units = "px", res = 600)
-plot(p)
-invisible(dev.off())
-knitr::include_graphics(pngfile)
-```
+Depending on your temperament this may be a perfect solution. To me, I think the conversion from physical dimensions to pixels is tedious, and it has the added drawback that the dimensions of the plot is incorrectly encoded (it will appear as a 20*12cm plot at 900ppi) which may impact how it is presented in different programs. In the end you may have to manually resize it to get the correct physical dimensions in the end.
 
 ## The solution
-I came into this issue, thinking that it was simply a matter of educating users on how the different arguments interact, but I had to quickly reevaluate that stance. Basically, there is no solution that works across all the different ways of specifying image dimensions. Specifically, when the outputs needs to be a specific absolute size and resolution, the only resolution is to change theming of the plot object so text, size, margins, etc are increased.
+Seeing that there is no single perfect solution to fixing this with the tools at our disposal, I've added a new argument to the ragg devices called `scaling`. It's a multiplier that is applied to all absolute sizes, without interfering with the encoded dimensions of the output. Since we have increased the dimensions 3 times we set `scaling = 3` to make sure that the absolute sized elements are keeping their relative size.
 
-Because of this I've added a new argument to all devices in ragg that lets you
-control the scaling of the output. It is interpreted as a multiplier that is applied to all absolute sizing in the plot, without affecting the encoded resolution of the plot. Let us use it to get the desired plot for our poster. We doubled each dimension for the poster version, so we need to set `scaling = 2` to maintain the look of the plot:
-
-```{r, message=FALSE}
-pngfile <- fs::path(knitr::fig_path(),  "big_size_correct.png")
-agg_png(pngfile, width = 30, height = 18, units = "cm", res = 300, scaling = 2)
+```{r, message=FALSE, out.width=""}
+pngfile <- fs::path(knitr::fig_path(),  "scaling.png")
+agg_png(pngfile, width = 60, height = 36, units = "cm", res = 300, scaling = 3)
 plot(p)
 invisible(dev.off())
 knitr::include_graphics(pngfile)
 ```
 
 As can be seen, the new argument makes it very easy to reclaim the look of the plot after resizing. Hopefully this will remove a good deal of the pain related to generating plots for papers, posters, presentations, etc.
+
+## Addendum
+- The discussion above is especially relevant to raster output since they don't resize gracefully and it is thus very important to get the correct dimensions and resolution when it is rendered. However, rendering to a pdf or svg yields some of the same issues. For the `pdf()` device the only way to correct it is to render it at the dimension where it looks good, and then manually resize it once you've imported it into wherever it needs to be. Since it is vector based the resizing will not result in quality issues. As for svgs, the next version of the svglite package will include the same scaling argument as the ragg devices, which means that the given solution is applicable there.
+- Preparing graphics for the web presents an additional hurdle. The HTML specification assumes a screen resolution of 96ppi since that was the predominant screen resolution at the time. Modern monitors have a much higher resolution but the assumption is still in effect (though operating systems may mitigate it). This is the reason why plots may look slightly smaller when rendered through Shiny, blogdown, or hugodown. Simply set the resolution to 96ppi and use pixel dimensions for the output to make sure it has the correct scaling.
+- Rendering images with RMarkdown requires some care as well since chunk options both take an output dimension in inches as well as a scaling factor for how big the rendered image should appear in the document. [R for Data Science](https://r4ds.had.co.nz/graphics-for-communication.html#figure-sizing) has some additional information on this

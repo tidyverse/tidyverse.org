@@ -19,7 +19,7 @@ categories: ["learn"]
 photo:
   url: https://unsplash.com/photos/6GjHwABuci4
   author: Mikael Kristenson
-rmd_hash: ac9d9d863793ffe9
+rmd_hash: 671d4a9a1d64edb5
 
 ---
 
@@ -27,108 +27,198 @@ Some time ago, while working on the new edition of the ggplot2 book, I asked out
 
 The latest release of ragg contains a new functionality that will hopefully make this issue a thing of the past. Read on how to use it.
 
+Some definitions
+----------------
+
+Before we delve into the problem we should clarify a few concepts related to graphics and sizing:
+
+**Absolute size:** This is the physical dimensions of the graphic (or, more precisely, the intended physical dimensions). This is measured in centimeters or inches or another absolute length unit.
+
+**Pixel size:** For raster output, the graphic is encoded as a matrix of colour values. Each cell in the matrix is a pixel. The pixel size is the number of rows and columns in the matrix. Pixels does not have any inherent physical size.
+
+**Resolution:** This number ties absolute and pixel size together. It is usually given in ppi (pixels per inch), though dpi (dots per inch) is used interchangebly. A resolution of 72 ppi means that an inch is considered 72 pixels long.
+
+**Pointsize:** This is a measure tied to text sizing. When we set a font to size 12, it is given in points. While the actual size of a point has [varied throughout history](https://en.wikipedia.org/wiki/Point_(typography)#Varying_standards), the general consensus now is that 1pt = 1/72 inch (this is also adopted by R). Since points is an absolute unit, the resolution of the output will determine the number of pixels it correspond to.
+
 The problem
 -----------
 
-The issue, if you are blissfully unaware, revolves around ensuring that dimensions in your graphic is tied to the resolution of the final plot. This means that it is quite difficult to increase the resolution of a plot while maintaining the same look of the plot. The issue is related to increasing the resolution of your screen, which, in olden days, resulted in almost comically small text and UI elements:
+With formalities out of the way, we can describe the problem more clearly. At its core, this is about ensuring the correct scaling of a plot as we develop it for varying absolute sizes.
+
+When we develop a graphic we will generally sit in front of a computer and fine tune it while continuously getting previews on the screen. Once we are content with it we will save it to the correct absolute size required by wherever we intend to publish the plot. In the remainder of the text we will assume that we sit in front of a computer developing a plot that should end up on a poster.
+
+This is the plot, and how it looks on a computer:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='c'># Let us create an example plot</span>
-<span class='nf'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='k'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span>)
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='k'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span>)
 <span class='nf'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='k'><a href='https://ragg.r-lib.org'>ragg</a></span>)
+<span class='nf'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='k'><a href='https://allisonhorst.github.io/palmerpenguins'>palmerpenguins</a></span>)
 
-<span class='k'>p</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='k'>mtcars</span>) <span class='o'>+</span> 
-  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span>(<span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(<span class='k'>disp</span>, <span class='k'>mpg</span>)) <span class='o'>+</span> 
-  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span>(<span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(<span class='k'>disp</span>, <span class='k'>mpg</span>))
+<span class='c'># plot adapted from https://github.com/allisonhorst/palmerpenguins</span>
+<span class='k'>p</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='nf'><a href='https://rdrr.io/r/stats/na.fail.html'>na.omit</a></span>(<span class='k'>penguins</span>), <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(x = <span class='k'>flipper_length_mm</span>, y = <span class='k'>body_mass_g</span>)) <span class='o'>+</span>
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span>(
+    <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(color = <span class='k'>species</span>, shape = <span class='k'>species</span>),
+    size = <span class='m'>3</span>,
+    alpha = <span class='m'>0.8</span>
+  ) <span class='o'>+</span> 
+  <span class='k'>ggforce</span>::<span class='nf'><a href='https://ggforce.data-imaginist.com/reference/geom_mark_ellipse.html'>geom_mark_ellipse</a></span>(
+    <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(filter = <span class='k'>species</span> <span class='o'>==</span> <span class='s'>"Gentoo"</span>, 
+        description = <span class='s'>"Gentoo penguins are generally bigger in size"</span>)
+  ) <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span>(x = <span class='s'>"Flipper Length [mm]"</span>, y = <span class='s'>"Body Mass [g]"</span>,  colour = <span class='s'>"Species"</span>, 
+       shape = <span class='s'>"Species"</span>)
 
-<span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"low_res.png"</span>)
+<span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"basis.png"</span>)
 
-<span class='nf'><a href='https://ragg.r-lib.org/reference/agg_png.html'>agg_png</a></span>(<span class='k'>pngfile</span>, width = <span class='m'>15</span>, height = <span class='m'>9</span>, units = <span class='s'>"cm"</span>, res = <span class='m'>72</span>)
+<span class='c'># I'm explicitly calling the device functions so you can see the dimensions </span>
+<span class='c'># used</span>
+<span class='nf'><a href='https://ragg.r-lib.org/reference/agg_png.html'>agg_png</a></span>(<span class='k'>pngfile</span>, width = <span class='m'>20</span>, height = <span class='m'>12</span>, units = <span class='s'>"cm"</span>, res = <span class='m'>300</span>)
 <span class='nf'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='k'>p</span>)
 <span class='nf'><a href='https://rdrr.io/r/base/invisible.html'>invisible</a></span>(<span class='nf'><a href='https://rdrr.io/r/grDevices/dev.html'>dev.off</a></span>())
 <span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span>(<span class='k'>pngfile</span>)
 </code></pre>
-<img src="figs/unnamed-chunk-1-1/low_res.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-1-1/basis.png" width="" style="display: block; margin: auto;" />
 
 </div>
 
-We may feel the the relative sizing in the plot is spot on here, but the resolution is horrible (after all 72 dpi is not something anyone wants to look at in this day and age). We can readily fix this by increasing the resolution:
+This looks good, but remember we want to use this on a poster. A poster is usually observed at a farther distance than a computer screen, so in order to make it legible the plot should be bigger. How much bigger? Well, if we assume that we are watching our screen at 50 cm distance, and the our poster is meant to be observed at 1.5 m distance, then our plot should be 3 times as larger to take up the same amount of space in our vision:
+
+![Schematic representation of the fact that size must increase by the same factor as distance to object in order to continue taking up the same amount of space in the vision](scaling.png)
+
+With that in mind we quickly size up our plot:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"high_res.png"</span>)
-<span class='nf'><a href='https://ragg.r-lib.org/reference/agg_png.html'>agg_png</a></span>(<span class='k'>pngfile</span>, width = <span class='m'>15</span>, height = <span class='m'>9</span>, units = <span class='s'>"cm"</span>, res = <span class='m'>300</span>)
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"large_basis.png"</span>)
+<span class='nf'><a href='https://ragg.r-lib.org/reference/agg_png.html'>agg_png</a></span>(<span class='k'>pngfile</span>, width = <span class='m'>60</span>, height = <span class='m'>36</span>, units = <span class='s'>"cm"</span>, res = <span class='m'>300</span>)
 <span class='nf'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='k'>p</span>)
 <span class='nf'><a href='https://rdrr.io/r/base/invisible.html'>invisible</a></span>(<span class='nf'><a href='https://rdrr.io/r/grDevices/dev.html'>dev.off</a></span>())
 <span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span>(<span class='k'>pngfile</span>)
 </code></pre>
-<img src="figs/unnamed-chunk-2-1/high_res.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-2-1/large_basis.png" width="" style="display: block; margin: auto;" />
 
 </div>
 
-So far, so good. Now, I want to create a poster with this plot. For the poster I'll need a larger size because it is meant to be read at a distance. For simplicity we'll make the plot twice as big in both dimensions
+The plot above doesn't look physically larger, but that is because the webpage downscales it to make it fit. You can download each of the images and open them in a image editor to convince yourself that they are of different absolute size. The downscaling done by the webpage allows us to simulate how looking at our poster may feel like, and it is not pretty; everything seems super small and ineligible.
+
+Why is that? Our plot is a mix of elements positioned and dimensioned based on both relative and absolute sizes. While the relative sizes expand along with the output size, the absolute sizes does not. The text is given in points which, as you recall, is an absolute dimension. The same is true for the element sizes in the scatterplot, the grid lines, etc. This means that as we scale up the output size, they remain the same size and will thus get smaller relative to the full image.
+
+> The reverse can be a problem as well. If you render a plot to a smaller size than the one you've previewed you may find that text, margins, etc. take up all the available space.
+
+Now, how should we go about correcting this?
+
+Attempt 1: Theming
+------------------
+
+One approach to fixing this is by changing the theme settings of the plot, so that they work better for a larger size:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"big_size.png"</span>)
-<span class='nf'><a href='https://ragg.r-lib.org/reference/agg_png.html'>agg_png</a></span>(<span class='k'>pngfile</span>, width = <span class='m'>30</span>, height = <span class='m'>18</span>, units = <span class='s'>"cm"</span>, res = <span class='m'>300</span>)
-<span class='nf'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='k'>p</span>)
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>p1</span> <span class='o'>&lt;-</span> <span class='k'>p</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_gray</a></span>(base_size = <span class='m'>33</span>)
+<span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"theming.png"</span>)
+<span class='nf'><a href='https://ragg.r-lib.org/reference/agg_png.html'>agg_png</a></span>(<span class='k'>pngfile</span>, width = <span class='m'>60</span>, height = <span class='m'>36</span>, units = <span class='s'>"cm"</span>, res = <span class='m'>300</span>)
+<span class='nf'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='k'>p1</span>)
 <span class='nf'><a href='https://rdrr.io/r/base/invisible.html'>invisible</a></span>(<span class='nf'><a href='https://rdrr.io/r/grDevices/dev.html'>dev.off</a></span>())
 <span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span>(<span class='k'>pngfile</span>)
 </code></pre>
-<img src="figs/unnamed-chunk-3-1/big_size.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-3-1/theming.png" width="" style="display: block; margin: auto;" />
 
 </div>
 
-The size of the plot has increased but the absolute size of text, lines, margins, etc. has stayed the same. The end result is that the relative size of these elements has decreased. This was not what we wanted.
+This approach got us surprisingly far. A lot of the theme elements of the plot is derived from the base size argument so many adapts. Not all though, as we can see the legend keys maintaining their relative small size. If you've been using a custom theme it may also be that you've overwritten some of the default sizes and will need to change that as well.
 
-A related issue is rendering a plot to a fixed pixel size. Here the `res` argument is rather arbitrary as it relates the physical size to the pixel dimensions, and we haven't provided a physical size at all:
+One thing missing is all the non-theme elements (i.e. things part of the layer). Because of this we'd have to redo the whole plot in order to get the desired result:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"pixel_size.png"</span>)
-<span class='nf'><a href='https://ragg.r-lib.org/reference/agg_png.html'>agg_png</a></span>(<span class='k'>pngfile</span>, width = <span class='m'>2000</span>, height = <span class='m'>1200</span>, units = <span class='s'>"px"</span>)
-<span class='nf'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='k'>p</span>)
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>p1</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='nf'><a href='https://rdrr.io/r/stats/na.fail.html'>na.omit</a></span>(<span class='k'>penguins</span>), <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(x = <span class='k'>flipper_length_mm</span>, y = <span class='k'>body_mass_g</span>)) <span class='o'>+</span>
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span>(
+    <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(color = <span class='k'>species</span>, shape = <span class='k'>species</span>),
+    size = <span class='m'>9</span>,
+    alpha = <span class='m'>0.8</span>
+  ) <span class='o'>+</span> 
+  <span class='k'>ggforce</span>::<span class='nf'><a href='https://ggforce.data-imaginist.com/reference/geom_mark_ellipse.html'>geom_mark_ellipse</a></span>(
+    <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(filter = <span class='k'>species</span> <span class='o'>==</span> <span class='s'>"Gentoo"</span>, 
+        description = <span class='s'>"Gentoo penguins are generally bigger in size"</span>),
+    size = <span class='m'>1.5</span>,
+    label.fontsize = <span class='m'>36</span>
+  ) <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span>(x = <span class='s'>"Flipper Length [mm]"</span>, y = <span class='s'>"Body Mass [g]"</span>,  colour = <span class='s'>"Species"</span>, 
+       shape = <span class='s'>"Species"</span>) <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_gray</a></span>(base_size = <span class='m'>33</span>)
+<span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"theming2.png"</span>)
+<span class='nf'><a href='https://ragg.r-lib.org/reference/agg_png.html'>agg_png</a></span>(<span class='k'>pngfile</span>, width = <span class='m'>60</span>, height = <span class='m'>36</span>, units = <span class='s'>"cm"</span>, res = <span class='m'>300</span>)
+<span class='nf'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='k'>p1</span>)
 <span class='nf'><a href='https://rdrr.io/r/base/invisible.html'>invisible</a></span>(<span class='nf'><a href='https://rdrr.io/r/grDevices/dev.html'>dev.off</a></span>())
 <span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span>(<span class='k'>pngfile</span>)
 </code></pre>
-<img src="figs/unnamed-chunk-4-1/pixel_size.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-4-1/theming2.png" width="" style="display: block; margin: auto;" />
 
 </div>
 
-You can reclaim eligibility by increasing the `res` argument, but this is a quite non-obvious solution and one that requires a lot of trial and error.
+We can see that we are getting there, but the journey hasn't been pleasant. Especially for the last part it requires knowledge of all the different settings in a geom that encodes absolute sizes. For the mark geom we only fixed the ellipse line width and the text size, but there are many more settings that needs to be updated as well as is apparent from the weird look of the text box.
+
+Another issue that arises is that if we need this plot at yet another different scale, we will need to change quite a lot of code in order to get there.
+
+Attempt 2: Resolution scaling
+-----------------------------
+
+Since the resolution is the parameter that ties the pixel size and absolute size together it is possible to use it as a scaling factor, but it requires some non-obvious adjustments:
+
+The first thing we need to do is convert our physical dimensions to pixel dimensions using our desired resolution. We want to end up with a 60x36cm plot at 300ppi. This gives us:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"pixel_size_legible.png"</span>)
-<span class='nf'><a href='https://ragg.r-lib.org/reference/agg_png.html'>agg_png</a></span>(<span class='k'>pngfile</span>, width = <span class='m'>2000</span>, height = <span class='m'>1200</span>, units = <span class='s'>"px"</span>, res = <span class='m'>600</span>)
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='m'>60</span>, <span class='m'>36</span>) <span class='o'>*</span>
+  <span class='m'>0.3937</span> <span class='o'>*</span> <span class='c'># convert to inch</span>
+  <span class='m'>300</span> <span class='c'># convert to pixels</span>
+<span class='c'>#&gt; [1] 7086.60 4251.96</span></code></pre>
+
+</div>
+
+We can now use these values directly in our device and change the resolution of the device to trick it into thinking that text etc should be rendered at a larger size
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"resolution.png"</span>)
+<span class='nf'><a href='https://ragg.r-lib.org/reference/agg_png.html'>agg_png</a></span>(<span class='k'>pngfile</span>, width = <span class='m'>7087</span>, height = <span class='m'>4252</span>, units = <span class='s'>"px"</span>, res = <span class='m'>900</span>)
 <span class='nf'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='k'>p</span>)
 <span class='nf'><a href='https://rdrr.io/r/base/invisible.html'>invisible</a></span>(<span class='nf'><a href='https://rdrr.io/r/grDevices/dev.html'>dev.off</a></span>())
 <span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span>(<span class='k'>pngfile</span>)
 </code></pre>
-<img src="figs/unnamed-chunk-5-1/pixel_size_legible.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-6-1/resolution.png" width="" style="display: block; margin: auto;" />
 
 </div>
+
+This actually works exactly as we hoped. We've gotten our huge version of the plot but with the same exact scaling of all graphic elements.
+
+Depending on your temperament this may be a perfect solution. To me, I think the conversion from physical dimensions to pixels is tedious, and it has the added drawback that the dimensions of the plot is incorrectly encoded (it will appear as a 20\*12cm plot at 900ppi) which may impact how it is presented in different programs. In the end you may have to manually resize it to get the correct physical dimensions in the end.
 
 The solution
 ------------
 
-I came into this issue, thinking that it was simply a matter of educating users on how the different arguments interact, but I had to quickly reevaluate that stance. Basically, there is no solution that works across all the different ways of specifying image dimensions. Specifically, when the outputs needs to be a specific absolute size and resolution, the only resolution is to change theming of the plot object so text, size, margins, etc are increased.
-
-Because of this I've added a new argument to all devices in ragg that lets you control the scaling of the output. It is interpreted as a multiplier that is applied to all absolute sizing in the plot, without affecting the encoded resolution of the plot. Let us use it to get the desired plot for our poster. We doubled each dimension for the poster version, so we need to set `scaling = 2` to maintain the look of the plot:
+Seeing that there is no single perfect solution to fixing this with the tools at our disposal, I've added a new argument to the ragg devices called `scaling`. It's a multiplier that is applied to all absolute sizes, without interfering with the encoded dimensions of the output. Since we have increased the dimensions 3 times we set `scaling = 3` to make sure that the absolute sized elements are keeping their relative size.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"big_size_correct.png"</span>)
-<span class='nf'><a href='https://ragg.r-lib.org/reference/agg_png.html'>agg_png</a></span>(<span class='k'>pngfile</span>, width = <span class='m'>30</span>, height = <span class='m'>18</span>, units = <span class='s'>"cm"</span>, res = <span class='m'>300</span>, scaling = <span class='m'>2</span>)
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"scaling.png"</span>)
+<span class='nf'><a href='https://ragg.r-lib.org/reference/agg_png.html'>agg_png</a></span>(<span class='k'>pngfile</span>, width = <span class='m'>60</span>, height = <span class='m'>36</span>, units = <span class='s'>"cm"</span>, res = <span class='m'>300</span>, scaling = <span class='m'>3</span>)
 <span class='nf'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='k'>p</span>)
 <span class='nf'><a href='https://rdrr.io/r/base/invisible.html'>invisible</a></span>(<span class='nf'><a href='https://rdrr.io/r/grDevices/dev.html'>dev.off</a></span>())
 <span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span>(<span class='k'>pngfile</span>)
 </code></pre>
-<img src="figs/unnamed-chunk-6-1/big_size_correct.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-7-1/scaling.png" width="" style="display: block; margin: auto;" />
 
 </div>
 
 As can be seen, the new argument makes it very easy to reclaim the look of the plot after resizing. Hopefully this will remove a good deal of the pain related to generating plots for papers, posters, presentations, etc.
+
+Addendum
+--------
+
+-   The discussion above is especially relevant to raster output since they don't resize gracefully and it is thus very important to get the correct dimensions and resolution when it is rendered. However, rendering to a pdf or svg yields some of the same issues. For the [`pdf()`](https://rdrr.io/r/grDevices/pdf.html) device the only way to correct it is to render it at the dimension where it looks good, and then manually resize it once you've imported it into wherever it needs to be. Since it is vector based the resizing will not result in quality issues. As for svgs, the next version of the svglite package will include the same scaling argument as the ragg devices, which means that the given solution is applicable there.
+-   Preparing graphics for the web presents an additional hurdle. The HTML specification assumes a screen resolution of 96ppi since that was the predominant screen resolution at the time. Modern monitors have a much higher resolution but the assumption is still in effect (though operating systems may mitigate it). This is the reason why plots may look slightly smaller when rendered through Shiny, blogdown, or hugodown. Simply set the resolution to 96ppi and use pixel dimensions for the output to make sure it has the correct scaling.
+-   Rendering images with RMarkdown requires some care as well since chunk options both take an output dimension in inches as well as a scaling factor for how big the rendered image should appear in the document. [R for Data Science](https://r4ds.had.co.nz/graphics-for-communication.html#figure-sizing) has some additional information on this
 
