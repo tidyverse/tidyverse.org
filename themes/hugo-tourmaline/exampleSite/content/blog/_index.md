@@ -1,4 +1,0 @@
----
-title: News
-url: /news
----
