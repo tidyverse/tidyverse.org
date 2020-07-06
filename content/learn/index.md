@@ -2,13 +2,6 @@
 title: Learn the tidyverse
 ---
 
-<!----- CSS rules to get rid of CONTENTS header on this page only ---->
-<style type = "text/css">
-.hideOnMobile .sectionTitle {
-    display: none;
-}
-</style>
-
 <!----- Page content ---->
 <a href="http://amzn.to/2aHLAQ1"><img class="bookCover" src="../images/cover.png" alt="book cover for R for Data Science"></a>
 
@@ -18,7 +11,7 @@ The best place to start learning the tidyverse is [R for Data Science](http://r4
 
 We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstudio.com/resources/cheatsheets/). These cheatsheets have been carefully designed to pack a lot of information into a small amount of space. You can keep them handy at your desk and quickly jog your memory when you get stuck. Most of the cheatsheets have been translated into multiple languages.
 
-<h2 class='stopFloatBefore' id="books">Books</h2>
+## Books
 
 * [Statistical Inference via Data Science: A ModernDive into R and the tidyverse](https://www.moderndive.com/) by
   Chester Ismay and Albert Y. Kim. "Help! I’m new to R and RStudio and I need to learn them! What do I do?" If you're asking yourself this, this book is for you.
@@ -32,14 +25,14 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
 
 * [Data Manipulation in R](http://geni.us/datamanipulationir) by Steph Locke. Covers data manipulation in a tidyverse way.
 
-<h2>Workshops</h2>
+## Workshops
 
   * [Mastering the Tidyverse](https://www.jumpingrivers.com/courses/22_r-tidyverse) by Jumping Rivers. A one day crash course covering tidyverse fundamentals. The course is a mixture of lectures, short exercises and longer tutorial questions. During the day, we'll cover dplyr, tidy data, tibbles, dates/times and string manipulation.
   * [Introduction to R](https://itsalocke.com/courses/intro-to-r/) by Locke Data. A two day course covering data manipulation and reporting fundamentals using the tidyverse, rmarkdown, and shiny. The course blends lectures, exercises, and practicals over two days to cover the 80% of work that almost everyone needs to do.
 
-<h2>University courses</h2>
+## University courses
 
-<h3>2017</h3>
+### 2017
 
 * [Data Challenge Lab](https://dcl-docs.stanford.edu/).
   Stanford University; Hadley Wickham and Bill Behrman. This is a 5-unit
@@ -72,12 +65,12 @@ We highly recommend pairing R4DS with the [RStudio cheatsheets](https://www.rstu
 
 * [Applied Media Analytics](https://www.elon.edu/u/academics/communications/academics/media-analytics-major/) Elon University; Brian Walsh. An Undergraduate introduction to R programming for Media Analytics majors. Students learn ggplot2, dplyr, and lubridate, as well as basic sentiment analysis, Twitter insights, and Google Analytics. 
   
-<h3>2016</h3>
+### 2016
 
 * [Stat545](http://stat545.com); UBC; Jenny Bryan. Data wrangling, 
   exploration, and analysis with R
   
-<h3>2012</h3>
+### 2012
 
 * [Stat405](http://stat405.had.co.nz); Hadley Wickham, Rice University.
   Mainly included for historical interest - you can see some of the work
