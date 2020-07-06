@@ -1,3 +1,0 @@
----
-title: Meet the team 
----
