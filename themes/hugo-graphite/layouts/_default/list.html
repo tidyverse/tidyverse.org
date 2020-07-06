@@ -5,18 +5,21 @@
   <div class="bandContent">
     <div class="full splitColumns withMobileMargins">
       <div class="column75">
-        <div class="sectionTitle">{{ with .Site.GetPage "section" "blog" }}{{ .Title | title | humanize }}{{ end }}</div>
+        <div class="sectionTitle">{{ .Title }}</div>
 
-        {{ $paginator := .Paginate (where .Pages ".Params.announce" "!=" false) }}
-        <div>{{ range $paginator.Pages }}
+        {{ $paginator := .Paginate (where site.RegularPages "Section" "blog") }}
+        <div>{{ range where $paginator.Pages ".Params.announce" "!=" false }}
               {{ $post := . }}
           <div class="listItem">
-             {{ $card := (.Resources.ByType "image").GetMatch "*-sq*" }}
-             {{ with $card }}
+
+             {{ $thumbnail := (.Resources.ByType "image").GetMatch "*thumbnail*" }}
+             {{ $sq := (.Resources.ByType "image").GetMatch "*-sq*" | default $thumbnail }}
+             {{ with $sq }}
               <a class="itemImage project" href="{{ $post.RelPermalink }}" aria-hidden="true">
                 <img src="{{ .RelPermalink }}">
               </a>
               {{ end }}
+             
             <div class="itemDetails">
               <div class="itemHeader">
 
@@ -30,13 +33,13 @@
               <div class="itemMeta">
                 <div class="author">
                 <!-- based on author field being used in YAML frontmatter -->
-                {{ $show_authors := $.Site.Params.articles.authors_list | default true }}
+                {{ $show_authors := $.Site.Params.authors.show_list | default true }}
                 {{ if $show_authors }}
                 {{ partial "pretty_author_names" . }}
                 {{ end }}
                 </div>
                 <div class="itemDescription">{{ default .Description | markdownify }}
-                  <a class="readMore" href="{{ .RelPermalink }}">Read more ...</a>
+                  <a class="readMore mobile-only" href="{{ .RelPermalink }}">Read more ...</a>
                 </div>
                 <div class="itemDate">
                   <div class="created">{{ .Date.Format "2006/01/02" }}</div>
@@ -48,7 +51,8 @@
       {{ template "_internal/pagination.html" . }}
       </div>
 
-      {{ partial "sidebar" . }}
+{{ partial "sidebar.html" . }}
+
     </div>
   </div>  <!-- bandContent -->
 </div> <!-- band -->

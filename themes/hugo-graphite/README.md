@@ -18,7 +18,7 @@ Why graphite? It's a mineral made up of carbon atoms that are arranged in hexes.
 * Gains copy-to-clipboard functionality for code chunks
 * Gains anchorized header links
 * Gains new shortcodes to create note and warning boxes
-* Gains two new layout types (**tutorial** and **learn**)
+* Gains two new layout types ([**tutorial**](https://hugo-graphite.netlify.app/start/) and [**learn**](https://hugo-graphite.netlify.app/learn/))
 * Better image accessibility
 * Larger base font sizes for improved accessibility
 * Many more parameters for customizing the site aesthetics
