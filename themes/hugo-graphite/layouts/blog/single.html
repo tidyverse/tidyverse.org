@@ -26,7 +26,7 @@
       {{ if or (eq .Section "articles") (eq .Section "blog") }}
       <span class="article-date"><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;{{ .Date.Format "2006/01/02" }}</span>
       {{ end }}
-      
+
       {{ $show_authors := $.Site.Params.authors.show_single | default true }}
       {{ if and $show_authors (or (eq .Section "articles") (eq .Section "blog")) }}
         <p>
@@ -37,8 +37,8 @@
 
       <div class="article-content">
       {{ .Content }}
-      
-      
+
+
         <div class="tags-list blog-tags">
         {{ if .Params.tags }}
           <h2 class="learning-objective"><i class="fas fa-tags"></i> Tags: </h2>
@@ -46,18 +46,18 @@
           {{ range $i, $tags := (.GetTerms "tags") }}
             {{- if $i -}}, {{ end -}}
             {{ with $tags }}
-            <a href="{{ .Permalink }}">{{- .LinkTitle -}}</a>
+            <a href="{{ .RelPermalink }}">{{- .LinkTitle -}}</a>
             {{- end -}}
           {{- end -}}
         </div>
-      
+
       </div>
 
 
       {{ partial "disqus.html" .}}
 
       </div> <!-- column75-->
-      
+
       <div class="column25">
         <div class="section hideOnMobile">
           {{ if ge (len .TableOfContents) 40 }}
