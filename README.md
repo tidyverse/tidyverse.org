@@ -21,7 +21,7 @@ This site now uses [hugodown](http://github.com/r-lib/hugodown/issues) rather th
 remotes::install_github("r-lib/hugodown")
 ```
 
-* To add a new post call `hugodown::tidy_post_create("short-name")`. 
+* To add a new post call `hugodown::use_tidy_post("short-name")`. 
   This creates `content/blog/short-name/`containing an `index.Rmd` file that 
   tells you what to do next.
   
@@ -30,7 +30,7 @@ remotes::install_github("r-lib/hugodown")
 * Knit to `.Rmd` to generate a `.md`.
 
 * To preview the site (i.e. turn `.md` into `.html`), call 
-  `hugodown::server_start()` (you only need to do this once per session as it
+  `hugodown::hugo_start()` (you only need to do this once per session as it
   will continue to run in the background).
 
 * Every blog post has to be accompanied by a photo (precise details are 
