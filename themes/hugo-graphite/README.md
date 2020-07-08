@@ -25,6 +25,7 @@ Why graphite? It's a mineral made up of carbon atoms that are arranged in hexes.
 
 ### Small tweaks
 
+* Adds `target=_blank` to all external links
 * Hexes on package pages are now symmetric
 * Improved functioning for highlighting active menu items in the upper navbar (even with Hugo [nested sections](https://gohugo.io/content-management/sections/#nested-sections))
 * JQuery upgrade
