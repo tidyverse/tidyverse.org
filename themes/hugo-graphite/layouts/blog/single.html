@@ -24,33 +24,34 @@
       </div>
 
       {{ if or (eq .Section "articles") (eq .Section "blog") }}
-      <span class="article-date"><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;{{ .Date.Format "2006/01/02" }}</span>
+      <span class="article-date">
+        <i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;{{ .Date.Format "2006/01/02" }}
+      </span>
+      
+      {{ if .Params.tags }}
+        <p style="margin-bottom: 0.5em; margin-top: 0.85em;">
+          <i class="fas fa-tags"></i>&nbsp;
       {{ end }}
-      
-      {{ $show_authors := $.Site.Params.authors.show_single | default true }}
-      {{ if and $show_authors (or (eq .Section "articles") (eq .Section "blog")) }}
-        <p>
-        <i class="fas fa-user-circle fa-fw"></i>
-        {{ partial "pretty_author_names" . }}
-      {{ end }}
-        </p>
-
-      <div class="article-content">
-      {{ .Content }}
-      
-      
-        <div class="tags-list blog-tags">
-        {{ if .Params.tags }}
-          <h2 class="learning-objective"><i class="fas fa-tags"></i> Tags: </h2>
-        {{ end }}
           {{ range $i, $tags := (.GetTerms "tags") }}
             {{- if $i -}}, {{ end -}}
             {{ with $tags }}
             <a href="{{ .RelPermalink }}">{{- .LinkTitle -}}</a>
             {{- end -}}
           {{- end -}}
-        </div>
+      </p>
+      {{ end }}
       
+      {{ $show_authors := $.Site.Params.authors.show_single | default true }}
+      {{ if and $show_authors (or (eq .Section "articles") (eq .Section "blog")) }}
+        <p style="margin-top: 0.5em;">
+        <i class="fas fa-user-circle fa-fw"></i>&nbsp;
+        {{ partial "pretty_author_names" . }}
+      {{ end }}
+        </p>
+      
+
+      <div class="article-content">
+      {{ .Content }}
       </div>
 
 
