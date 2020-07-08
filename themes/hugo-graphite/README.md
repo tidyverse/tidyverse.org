@@ -15,6 +15,7 @@ Why graphite? It's a mineral made up of carbon atoms that are arranged in hexes.
 ### New and improved features include:
 
 * Gains a sticky Table of Contents for blog posts
+* Gains new taxonomy terms templates for [tags](https://hugo-graphite.netlify.app/tags/) and [categories](https://hugo-graphite.netlify.app/categories/)
 * Gains copy-to-clipboard functionality for code chunks
 * Gains anchorized header links
 * Gains new shortcodes to create note and warning boxes
@@ -29,7 +30,7 @@ Why graphite? It's a mineral made up of carbon atoms that are arranged in hexes.
 * Hexes on package pages are now symmetric
 * Improved functioning for highlighting active menu items in the upper navbar (even with Hugo [nested sections](https://gohugo.io/content-management/sections/#nested-sections))
 * JQuery upgrade
-* Improved RSS feed handling
+* Improved RSS feed handling (see: https://hugo-graphite.netlify.app/blog/index.xml)
 * Styled footnotes from Goldmark Renderer
 * Includes chroma CSS styles for highlighting via downlit for Hugodown sites
 * Shiny new demo site
