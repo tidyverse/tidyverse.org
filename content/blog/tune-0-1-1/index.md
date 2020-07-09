@@ -29,12 +29,11 @@ install.packages("tune")
 
 
 
-You can see a full list of changes in the [release notes](https://tune.tidymodels.org/news/index.html). 
- The release was originally motivated by dplyr 1.0.0 changes although there are a lot of nice, new features to talk about. 
+You can see a full list of changes in the [release notes](https://tune.tidymodels.org/news/index.html). The release was originally motivated by [dplyr 1.0.0 changes](https://www.tidyverse.org/tags/dplyr-1-0-0) although there are a lot of nice, new features to talk about. 
 
 ## Better `autoplot()`
 
-The previous plot method produces what we referred to as a _marginal plot_; each predictor was plotted against performance. That is probably the best that we can do for non-regular grids (which tends to be the default in tune). Here's an example using the [Chicago train data](https://bookdown.org/max/FES/chicago-intro.html): 
+The previous plot method produces what we refer to as a _marginal plot_; each predictor was plotted against performance. That is probably the best that we can do for non-regular grids (which tends to be the default in tune). Here's an example using the [Chicago train data](https://bookdown.org/max/FES/chicago-intro.html): 
 
 
 ```r
@@ -78,7 +77,7 @@ autoplot(non_regular_grid, metric = "rmse") +
 ```
 <img src="figure/irreg-plot-old-1.svg" title="plot of chunk irreg-plot-old" alt="plot of chunk irreg-plot-old" style="display: block; margin: auto;" />
 
-Not bad but it could be better in a few ways: 
+Not bad but it could be improved in a few ways: 
 
  * Both tuning parameters are generated on log scales. The data are shown above in the natural units and the data at the low end of the scale gets smashed together. 
  
@@ -133,9 +132,9 @@ autoplot(regular_grid, metric = "rmse") +
 ```
 <img src="figure/reg-plot-old-1.svg" title="plot of chunk reg-plot-old" alt="plot of chunk reg-plot-old" style="display: block; margin: auto;" />
 
-This could be better since there might be a pattern in one parameter for each value of the other. 
+This visualization also could be improved, since there might be a pattern in one parameter for each value of the other.  
 
-The new version of tune shows improved versions of both of these plots: 
+The new version of tune creates improved versions of both of these plots: 
 
 
 ```r
@@ -147,7 +146,7 @@ autoplot(non_regular_grid, metric = "rmse") +
 
 This tells a completely different story than the previous version where the parameters were in their natural units. 
 
-The regular grid results are much better and tell a cleaner story: 
+The regular grid results are also much better and tell a cleaner story: 
 
 
 ```r
@@ -157,7 +156,7 @@ autoplot(regular_grid, metric = "rmse") +
 
 <img src="figure/ap-reg-new-1.svg" title="plot of chunk ap-reg-new" alt="plot of chunk ap-reg-new" style="display: block; margin: auto;" />
 
-Extra arguments can be passed when a numeric grouping column is used and these are given to `format()`. To avoid scientific notation:
+Extra arguments can be passed when a numeric grouping column is used;l these are given to `format()`. To avoid scientific notation:
 
 
 ```r
@@ -167,7 +166,7 @@ autoplot(regular_grid, metric = "rmse", digits = 3, scientific = FALSE) +
 
 <img src="figure/ap-reg-new-new-1.svg" title="plot of chunk ap-reg-new-new" alt="plot of chunk ap-reg-new-new" style="display: block; margin: auto;" />
 
-## A `ggplot2` `coord` for plotting observed and predicted values
+## A ggplot2 `coord` for plotting observed and predicted values
 
 One helpful visualization of the fit of a regression model is to plot the true outcome value against the predictions. These _should_ be on the same scale. Let's look at such a plot: 
 
@@ -216,7 +215,8 @@ ggplot(holdout_predictions, aes(x = ridership, y = .pred)) +
 
 <img src="figure/obs-pred-old-1.svg" title="plot of chunk obs-pred-old" alt="plot of chunk obs-pred-old" style="display: block; margin: auto;" />
 
-This can be very helpful but there are a few possible improvements. The new version of tune has `coord_obs_pred()` that produces a square plot with the same axes: 
+This is very helpful but there are a few possible improvements. The new version of tune has `coord_obs_pred()` that produces a square plot with the same axes: 
+
 
 
 ```r
@@ -231,11 +231,11 @@ ggplot(holdout_predictions, aes(x = ridership, y = .pred)) +
 
 ## Tuning engine parameters
 
-[Bruna Wundervald](https://github.com/brunaw) (from Maynooth University) have a [great presentation](https://brunaw.com/slides/rladies-helsinki/talk.html#1) that used tidymodels packages. She ran into the problem that, if you wanted to tune parameters that we specific to the engine, you have to go to a lot of trouble to do so. This did work on an earlier version of tune and we fixed this issue. One feature in this version of tune, along with the new 0.0.8 version of the dials package, is that we have added dials `parameter` objects for every parameter that users are likely to tune with the existing engines that we support (this was not as difficult as it sounds).
+[Bruna Wundervald](https://github.com/brunaw) (from Maynooth University) gave a [great presentation](https://brunaw.com/slides/rladies-helsinki/talk.html#1) that used tidymodels packages. She ran into the problem that, if you wanted to tune parameters that were specific to the engine, you'd have to go through a lot of trouble to do so. This used to work well in a previous version of tune. Unfortunately, we accidentally broke it, but now you can once again tune engine specific parameters. One feature in this version of tune, along with the new 0.0.8 version of the dials package, is that we have added dials `parameter` objects for every parameter that users might tuned with the existing engines that we support (this was not as difficult as it sounds).
 
-To demonstrate, we'll use the times series data above but optimize the `ranger` parameters that Bruna is interested in. 
+To demonstrate, we'll use the time series data above, but this time we'll optimize the ranger parameters that Bruna was interested in. 
 
-Since parsnip has a pre-defined list of models and engines, we've gone ahead and setup the infrastructure for tuning most engine-specific values. In the example above, what would happen if we tried to tune the two regularization parameters? 
+Since parsnip has a pre-defined list of models and engines, we've gone ahead and set up the infrastructure for tuning most engine-specific values. For example, in the above example we could tune two regularization parameters specific to ranger.
 
 
 ```r
@@ -300,7 +300,7 @@ I'm sure that we missed someone's favorite engine-specific parameter so please p
 
 ## `.config` columns
 
-When model tuning is conducted, the tune package now saves a new column in the outputs called `.config`. This column is a qualitative identification column for unique tuning parameter combinations. It often reflects what is being tuned. A value of `.config = "Recipe1_Model3"` indicates that the first recipe tuning parameter set is being evaluated in conjunction with the third set of model parameters. Here's an example from the random forest model that we just fit: 
+When model tuning is conducted, the tune package now saves a new column in the output called `.config`. This column is a qualitative identification column for unique tuning parameter combinations. It often reflects what is being tuned. A value of `.config = "Recipe1_Model3"` indicates that the first recipe tuning parameter set is being evaluated in conjunction with the third set of model parameters. Here's an example from the random forest model that we just fit: 
 
 
 ```r
@@ -329,15 +329,13 @@ ranger_params %>%
 
 ## Other changes
 
-* `conf_mat_resampled()` computes the average confusion matrix across resampling statistics for a single model.  
+* `conf_mat_resampled()` is a new function that computes the average confusion matrix across resampling statistics for a single model.  
 
-* `show_best()`, and the `select_*()` functions will now use the first metric in the metric set if no metric is supplied. 
+* `show_best()` and the `select_*()` functions will now use the first metric in the metric set if no metric is supplied. 
 
 * `filter_parameters()` can trim the `.metrics` column of unwanted results (as well as columns `.predictions` and `.extracts`) from `tune_*` objects. 
 
 * If a grid is given, parameters do not need to be finalized to be used in the `tune_*()` functions. 
-
-* Added a `save_workflow` argument to `control_*` functions that will result in the workflow object used to carry out tuning/fitting (regardless of whether a formula or recipe was given as input to the function) to be appended to the resulting `tune_results` object in a `workflow` attribute. The new `.get_tune_workflow()` function can be used to access the workflow.
 
 ## Acknowledgements
 
