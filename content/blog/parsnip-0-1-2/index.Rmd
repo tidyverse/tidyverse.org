@@ -51,13 +51,13 @@ theme_set(thm)
 
 ## Predictor encoding consistency
 
-Normally, when using giving a formula to an R modeling function, the standard `model.matrix()` machinery will convert factor predictors to a set of binary indicator columns However, there are a few notable exceptions: 
+Normally, when you give a formula to an R modeling function, the standard `model.matrix()` machinery converts factor predictors to a set of binary indicator columns. However, there are a few notable exceptions: 
 
-* Tree-based models, such as CART, C5.0, or random forests, don't require binary indicator variables since their splitting methods can create groups of categories. For a function like `ranger::ranger()`, the formula does _not_ create indicators; the factor predictors are left as factors. 
+* Tree-based models, such as CART, C5.0, and random forests, don't require binary indicator variables since their splitting methods can create groups of categories. When using a tree-based model function like `ranger::ranger()`, the formula does _not_ create indicators; the factor predictors are left as factors.  
 
-* Naive Bayes models would rather have the predictors in their native format so that their conditional distributions are estimated using discrete probability distributions. 
+* Naive Bayes models would rather have the predictors in their native format as well, so that the predictors' conditional distributions are estimated using discrete probability distributions. 
 
-* Multi-level models, such as mixed models or Bayesian hierarchical models, would prefer that the columns that are associated with random effects (e.g. subject) to remain factors. 
+* Multi-level models, such as mixed models or Bayesian hierarchical models, would prefer that the columns that are associated with random effects (e.g. subject) remain factors. 
 
 When `parsnip::fit()` is used with a modeling function that takes a formula, the formula is directly passed to the underlying model function (without processing the data). The resulting model is the same as what the underlying model would have produced. For example: 
 
@@ -124,7 +124,8 @@ ranger(body_mass_g ~ species + island, data = penguins, seed = 1221)
 
 (Note the `Number of independent variables:  2`). 
 
-However, the workflows package does process the data before giving it to the modeling function. In this case, indicators were produced when a formula is used. As a result, instead of two independent variables, the `species` was expanded and five predictor columns are given to the model: 
+However, the workflows package _does_ process the data before giving it to the modeling function. In this case using the previous version of these packages, indicators were produced when a formula was used. As a result, instead of two predictor columns, the `species` variable was expanded and five predictor columns are given to the model: 
+
 
 ```r
 library(workflows)
@@ -165,9 +166,9 @@ rf_wflow %>%
 ## R squared (OOB):                  0.6674451
 ```
 
-Not only was the inconsistency of these two interfaces a problem, but `ranger` is very persnickety about  column names and some indicator columns would result in errors (see, for example, [this issue](https://github.com/tidymodels/tune/issues/151)).
+Not only was the inconsistency of these two interfaces (parsnip vs. workflows) a problem, but ranger is very persnickety about column names and some indicator columns would result in errors (see, for example, [this issue](https://github.com/tidymodels/tune/issues/151)).
 
-The new set of hardhat/workflow/parsnip versions now fix this behavior. In parsnip, each model/engine combination has a recommended set of predictor encoding methods attached to them (including a "leave my data alone" option). These are designed to be consistent with what the underlying model function expects so that there are no inconsistencies. 
+The new set of hardhat/workflows/parsnip versions now fixes this behavior. In parsnip, each model/engine combination has a recommended set of predictor encoding methods attached to them (including a "leave my data alone" option). These are designed to be consistent with what the underlying model function expects so that there are no inconsistencies. 
 
 You can override these new default encoding methods by using a recipe (instead of a formula) or by using a hardhat `blueprint`. 
 
@@ -188,7 +189,7 @@ levels(unique_levels$island)
 model.matrix(~ 0 + species + island, data = unique_levels)
 ```
 
-(three indicators for `species` but two for `island`)
+Notice that there are three indicators for `species` but two for `island`.
 
 parsnip now has a contrast function that produces the whole set: 
 
@@ -205,7 +206,7 @@ model.matrix(~ species + island, data = unique_levels)
 options(contrasts = old_contr)
 ```
 
-The removing the intercept does not change the nature of the indicator columns 
+Now, removing the intercept does not change the nature of the indicator columns.
 
 ## Better call objects
 
@@ -244,7 +245,7 @@ cart_fit <- repair_call(cart_fit, data = penguins)
 cart_fit$fit$call
 ```
 
-There are some R packages that use the object's formula in other functions. For example, the new [`ggparty`](https://github.com/martin-borkovec/ggparty) package has some pretty cool methods for plotting tree-based models. To use them, the model must be converted into a `party` object and this requires a proper call object. Now that we have onel, we can do the conversion from an `rpart` object to a `party` object:  
+There are some R packages that use the object's formula in other functions. For example, the new [`ggparty`](https://github.com/martin-borkovec/ggparty) package has some pretty cool methods for plotting tree-based models. To use them, the model must be converted into a `party` object and this requires a proper call object. Now that we have one, we can do the conversion from an `rpart` object to a `party` object:  
 
 ```{r party-on-garth}
 library(partykit)
@@ -269,11 +270,13 @@ ggparty(cart_party) +
 
  * A new main argument was added to [`boost_tree()`](https://parsnip.tidymodels.org/reference/boost_tree.html) called `stop_iter` for early stopping. The `xgb_train()` function gained arguments for early stopping and a percentage of data to leave out for a validation set. 
 
- * The `predict()` function now checks to see if required modeling packages are installed. The packages are loaded (but not attached). 
+* The `predict()` method for `model_fit`s now checks to see if required modeling packages are installed. The packages are loaded (but not attached). 
 
  * The function `req_pkgs()` is a user interface to determining the required packages. 
 
 ## Acknowledgements
 
 Many thanks to Julia Silge and Davis Vaughan for their patience and insights when discussing strategies for predictor encodings. 
+
+Also, we want to thank everyone who contributed changes or issues since the last release: [&#x0040;cgoo4](https://github.com/cgoo4),  [&#x0040;Deleetdk](https://github.com/Deleetdk), [&#x0040;EllaKaye](https://github.com/EllaKaye), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;enixam](https://github.com/enixam), [&#x0040;FranciscoPalomares](https://github.com/FranciscoPalomares), [&#x0040;FrieseWoudloper](https://github.com/FrieseWoudloper), [&#x0040;hadley](https://github.com/hadley), [&#x0040;jtelleriar](https://github.com/jtelleriar), [&#x0040;kylegilde](https://github.com/kylegilde), [&#x0040;markbneal](https://github.com/markbneal), [&#x0040;markhwhiteii](https://github.com/markhwhiteii), [&#x0040;mdancho84](https://github.com/mdancho84), [&#x0040;oude-gao](https://github.com/oude-gao), [&#x0040;ouzor](https://github.com/ouzor), [&#x0040;RichardPilbery](https://github.com/RichardPilbery), [&#x0040;rorynolan](https://github.com/rorynolan), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;StefanBRas](https://github.com/StefanBRas), [&#x0040;stevenpawley](https://github.com/stevenpawley), [&#x0040;ThomasWolf0701](https://github.com/ThomasWolf0701), and [&#x0040;UnclAlDeveloper](https://github.com/UnclAlDeveloper).
  
