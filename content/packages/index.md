@@ -13,10 +13,13 @@ Learn more about the tidyverse package at <https://tidyverse.tidyverse.org>.
 
 <div class="package-section">
 
+ 
 <div class="package-section-info">
-  <h2 id="core-tidyverse">Core tidyverse</h2>
-  <p>The core tidyverse includes the packages that you're likely to use in everyday data analyses. As of tidyverse 1.3.0, the following packages are included in the core tidyverse:</p>
-</div>
+
+## Core tidyverse
+The core tidyverse includes the packages that you're likely to use in everyday data analyses. As of tidyverse 1.3.0, the following packages are included in the core tidyverse:
+
+</div> <!--package-section-info-->
 
 <div class="packages">
   <div class="package">
