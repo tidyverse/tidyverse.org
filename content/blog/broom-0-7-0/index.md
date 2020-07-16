@@ -16,7 +16,7 @@ photo:
 categories: [package] 
 tags:
   - tidymodels
-rmd_hash: 139ec680ae431425
+rmd_hash: ceeda7aa4a0f2caf
 
 ---
 
@@ -100,7 +100,7 @@ Finally, the package's website has moved from its previous tidyverse domain to [
 
 ### Looking Forward
 
-Most notably, **the broom dev team generally is changing the process to add new tidying methods to the package.** Instead, we ask that issues/PRs requesting support for new model objects be directed to the model-owning package (i.e. the package that the model is exported from) rather than to broom. If the maintainers of those packages are unable or unwilling to provide tidying methods in the model-owning package, we would then welcome a PR with a new tidier to broom.
+Most notably, **the broom dev team generally is changing the process to add new tidying methods to the package.** Instead, we ask that issues/PRs requesting support for new model objects be directed to the model-owning package (i.e. the package that the model is exported from) rather than to broom. If the maintainers of those packages are unable or unwilling to provide tidying methods in the model-owning package, it might be possible to add the new tidier to broom. broom is near its limit of tidiers; adding more may make the package unsustainable.
 
 For developers exporting tidying methods directly from model-owning packages, we are actively working to provide resources to both ease the process of writing new tidiers methods and reduce the dependency burden of taking on broom generics and helpers. As for the first point, we recently posted an [article](https://www.tidymodels.org/learn/develop/broom/) on the tidymodels website providing notes on best practices for writing tidiers. This article will be kept up to date as we develop new resources for easing the process of writing new tidier methods. As for the latter, the [`r-lib/generics`](https://github.com/r-lib/generics) package provides lightweight dependencies for the main broom generics. We hope to soon provide a coherent suite of helper functions for use in external broom methods.
 
