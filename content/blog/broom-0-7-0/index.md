@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: broom-0-7-0
 title: broom 0.7.0
-date: 2020-06-19
+date: 2020-07-17
 author: Simon Couch and Alex Hayes
 description: >
     The newest release of broom features many new tidier methods, bug fixes, and
@@ -16,7 +16,7 @@ photo:
 categories: [package] 
 tags:
   - tidymodels
-rmd_hash: b1f04b7f199e3d62
+rmd_hash: 139ec680ae431425
 
 ---
 
@@ -100,11 +100,11 @@ Finally, the package's website has moved from its previous tidyverse domain to [
 
 ### Looking Forward
 
-Most notably, **the broom dev team generally will no longer be adding new tidier methods to the package.** Instead, we ask that issues/PRs requesting support for new model objects be directed to the model-owning package (i.e. the package that the model is exported from) rather than to broom.
+Most notably, **the broom dev team generally is changing the process to add new tidying methods to the package.** Instead, we ask that issues/PRs requesting support for new model objects be directed to the model-owning package (i.e. the package that the model is exported from) rather than to broom. If the maintainers of those packages are unable or unwilling to provide tidying methods in the model-owning package, we would then welcome a PR with a new tidier to broom.
 
-We are actively working to provide resources to both ease the process of writing new tidiers methods and reduce the dependency burden of taking on broom generics and helpers. As for the first point, we recently posted an [article](https://www.tidymodels.org/learn/develop/broom/) on the tidymodels website providing notes on best practices for writing tidiers. This article will be kept up to date as we develop new resources for easing the process of writing new tidier methods. As for the latter, the [`r-lib/generics`](https://github.com/r-lib/generics) package provides lightweight dependencies for the main broom generics. We hope to soon provide a coherent suite of helper functions for use in external broom methods.
+For developers exporting tidying methods directly from model-owning packages, we are actively working to provide resources to both ease the process of writing new tidiers methods and reduce the dependency burden of taking on broom generics and helpers. As for the first point, we recently posted an [article](https://www.tidymodels.org/learn/develop/broom/) on the tidymodels website providing notes on best practices for writing tidiers. This article will be kept up to date as we develop new resources for easing the process of writing new tidier methods. As for the latter, the [`r-lib/generics`](https://github.com/r-lib/generics) package provides lightweight dependencies for the main broom generics. We hope to soon provide a coherent suite of helper functions for use in external broom methods.
 
-We anticipate that the most active development on the broom package, looking forward, will center on [`augment()`](https://rdrr.io/pkg/generics/man/augment.html) methods.
+We anticipate that the most active development on the broom package, looking forward, will center on improving [`augment()`](https://rdrr.io/pkg/generics/man/augment.html) methods. We are also hoping to change our CRAN release cycle and to provide incremental updates every several months rather than major changes every couple years.
 
 ### Contributors
 
