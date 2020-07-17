@@ -16,7 +16,7 @@ photo:
 categories: [package] 
 tags:
   - tidymodels
-rmd_hash: ceeda7aa4a0f2caf
+rmd_hash: 47555c17fccad24d
 
 ---
 
@@ -44,7 +44,8 @@ Then attach it for use with:
 
 We'll outline some of the more notable changes below!
 
-### New Tidier Methods
+New Tidier Methods
+------------------
 
 For one, this release includes support for several new model objects---many of these additions came from first-time contributors to broom!
 
@@ -64,7 +65,8 @@ For one, this release includes support for several new model objects---many of t
 -   `svyglm` objects from the `survey` package
 -   We have restored a simplified version of [`glance.aov()`](https://broom.tidymodels.org/reference/glance.aov.html)
 
-### Improvements and Bug Fixes for Existing Tidiers
+Improvements and Bug Fixes for Existing Tidiers
+-----------------------------------------------
 
 This update also features many bug fixes improvements to existing tidiers. Some of the more notable ones:
 
@@ -78,7 +80,8 @@ This update also features many bug fixes improvements to existing tidiers. Some 
 -   Various warnings resulting from changes to the tidyr API in v1.0.0 have been fixed.
 -   Added options to provide additional columns in the outputs of [`glance.biglm()`](https://broom.tidymodels.org/reference/glance.biglm.html), [`tidy.felm()`](https://broom.tidymodels.org/reference/tidy.felm.html), `tidy.lmsobj()`, [`tidy.lmodel2()`](https://broom.tidymodels.org/reference/tidy.lmodel2.html), [`tidy.polr()`](https://broom.tidymodels.org/reference/tidy.polr.html), [`tidy.prcomp()`](https://broom.tidymodels.org/reference/tidy.prcomp.html), [`tidy.zoo()`](https://broom.tidymodels.org/reference/tidy.zoo.html), [`tidy_optim()`](https://broom.tidymodels.org/reference/tidy_optim.html)
 
-### Breaking Changes and Deprecations
+Breaking Changes and Deprecations
+---------------------------------
 
 This release also contains a number of breaking changes and deprecations meant to improve maintainability and internal consistency.
 
@@ -90,7 +93,8 @@ This release also contains a number of breaking changes and deprecations meant t
 
 This release of broom also deprecates several helper functions as well as tidier methods for a number of non-model objects, each in favor of more principled approaches from other packages (outlined in the NEWS file). Notably, though, tidiers have been deprecated for data frames, rowwise data frames, vectors, and matrices. Further, we have moved forward with the planned transfer of tidiers for mixed models to `broom.mixed`.
 
-### Other Changes
+Other Changes
+-------------
 
 Most all unit testing for the package is now supported by the [modeltests](https://github.com/alexpghayes/modeltests) package!
 
@@ -98,15 +102,17 @@ Also, we have revised several vignettes and moved them to the tidymodels website
 
 Finally, the package's website has moved from its previous tidyverse domain to [broom.tidymodels.org](https://broom.tidymodels.org/).
 
-### Looking Forward
+Looking Forward
+---------------
 
-Most notably, **the broom dev team generally is changing the process to add new tidying methods to the package.** Instead, we ask that issues/PRs requesting support for new model objects be directed to the model-owning package (i.e. the package that the model is exported from) rather than to broom. If the maintainers of those packages are unable or unwilling to provide tidying methods in the model-owning package, it might be possible to add the new tidier to broom. broom is near its limit of tidiers; adding more may make the package unsustainable.
+Most notably, **the broom dev team is changing the process to add new tidying methods to the package.** Instead, we ask that issues/PRs requesting support for new model objects be directed to the model-owning package (i.e. the package that the model is exported from) rather than to broom. If the maintainers of those packages are unable or unwilling to provide tidying methods in the model-owning package, it might be possible to add the new tidier to broom. broom is near its limit of tidiers; adding more may make the package unsustainable.
 
 For developers exporting tidying methods directly from model-owning packages, we are actively working to provide resources to both ease the process of writing new tidiers methods and reduce the dependency burden of taking on broom generics and helpers. As for the first point, we recently posted an [article](https://www.tidymodels.org/learn/develop/broom/) on the tidymodels website providing notes on best practices for writing tidiers. This article will be kept up to date as we develop new resources for easing the process of writing new tidier methods. As for the latter, the [`r-lib/generics`](https://github.com/r-lib/generics) package provides lightweight dependencies for the main broom generics. We hope to soon provide a coherent suite of helper functions for use in external broom methods.
 
 We anticipate that the most active development on the broom package, looking forward, will center on improving [`augment()`](https://rdrr.io/pkg/generics/man/augment.html) methods. We are also hoping to change our CRAN release cycle and to provide incremental updates every several months rather than major changes every couple years.
 
-### Contributors
+Contributors
+------------
 
 This release features work and input from over 140 contributors (over 50 of them for their first time) since the last major release. See the package [release notes](https://broom.tidymodels.org/news/index.html) to see more specific notes on contributions. Thank you all for your thoughtful comments, patience, and hard work!
 
