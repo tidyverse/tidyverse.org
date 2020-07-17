@@ -1,0 +1,336 @@
+---
+output: hugodown::hugo_document
+
+slug: broom-0-7-0
+title: broom 0.7.0
+date: 2020-07-17
+author: Simon Couch and Alex Hayes
+description: >
+    The newest release of broom features many new tidier methods, bug fixes, and
+    improvements to internal consistency.
+
+photo:
+  url: https://unsplash.com/photos/3gS-lDkOuJ4
+  author: Timothy Dykes
+
+categories: [package] 
+tags:
+  - tidymodels
+---
+
+We're excited to announce the release of broom 0.7.0 on CRAN!
+
+broom is a package for summarizing statistical model objects in tidy tibbles. 
+While several compatibility updates have been released in recent months, this 
+is the first major update to broom in almost two years. This update includes 
+many new tidier methods, bug fixes, improvements to existing tidier methods 
+and their documentation, and improvements to maintainability and internal 
+consistency. The full list of changes is available in the 
+package [release notes](https://broom.tidymodels.org/news/index.html).
+
+This release was made possible in part by the RStudio internship program, which 
+has allowed one of us ([Simon Couch](https://github.com/simonpcouch)) to work on
+broom full-time for the last month.
+
+You can install the most recent broom update with the following code:
+
+```{r, eval = FALSE}
+install.packages("broom")
+```
+
+Then attach it for use with:
+
+```{r, eval = FALSE}
+library(broom)
+```
+
+We'll outline some of the more notable changes below!
+
+### New Tidier Methods
+
+For one, this release includes support for several new model objects---many of
+these additions came from first-time contributors to broom!
+
+* `anova` objects from the `car` package
+* `pam` objects from the `cluster` package
+* `drm` objects from the `drc` package
+* `summary_emm` objects from the `emmeans` package
+* `epi.2by2` objects from the `epiR` package
+* `fixest` objects from the `fixest` package
+* `regsubsets` objects from the `leaps` package
+* `lm.beta` objects from the `lm.beta` package
+* `rma` objects from the `metafor` package
+* `mfx`, `logitmfx`, `negbinmfx`, `poissonmfx`, `probitmfx`, and `betamfx` 
+objects from the`mfx` package
+* `lmrob` and `glmrob` objects from the `robustbase` package
+* `sarlm` objects from the `spatialreg` package
+* `speedglm` objects from the `speedglm` package
+* `svyglm` objects from the `survey` package
+* We have restored a simplified version of `glance.aov()`
+
+### Improvements and Bug Fixes for Existing Tidiers
+
+This update also features many bug fixes improvements to existing tidiers. 
+Some of the more notable ones:
+
+* Many improvements to the consistency of `augment.*()` methods:
+    - If you pass a dataset to `augment()` via the `data` or `newdata` arguments,
+  you are now guaranteed that the augmented dataset will have exactly the same
+  number of rows as the original dataset. This differs from previous behavior
+  primarily when there are missing values. Previously `augment()` would drop
+  rows containing `NA`. This should no longer be the case. As a result, 
+  `augment.*()` methods no longer accept an `na.action` argument.
+    - In previous versions, several `augment.*()` methods inherited the 
+  `augment.lm()` method, but required additions to the `augment.lm()` method
+  itself. We have shifted away from this approach in favor of re-implementing
+  many `augment.*()` methods as standalone methods making use of internal 
+  helper functions. As a result, `augment.lm()` and some related methods have
+  deprecated (previously unused) arguments.
+    - The `.resid` column in the output of `augment().*` methods is now 
+  consistently defined as `y - y_hat`.
+    - `augment()` tries to give an informative error when `data` isn't the original
+  training data.
+* Several `glance.*()` methods have been refactored in order to return a 
+one-row tibble even when the model matrix is rank-deficient.
+* Many `glance()` methods now return a `nobs` column, which contains the number 
+of data points used to fit the model!
+* Various warnings resulting from changes to the tidyr API in v1.0.0 have been 
+fixed.
+* Added options to provide additional columns in the outputs of 
+`glance.biglm()`, `tidy.felm()`, `tidy.lmsobj()`, `tidy.lmodel2()`, 
+`tidy.polr()`, `tidy.prcomp()`, `tidy.zoo()`, `tidy_optim()`
+
+### Breaking Changes and Deprecations
+
+This release also contains a number of breaking changes and deprecations 
+meant to improve maintainability and internal consistency.
+
+* We have changed how we report degrees of freedom for `lm` objects. 
+This is especially important for instructors in statistics 
+courses. Previously the `df` column in `glance.lm()` reported the rank of the 
+design matrix. Now it reports degrees of freedom of the numerator for the 
+overall F-statistic. This is equal to the rank of the model matrix minus one 
+(unless you omit an intercept column), so the new `df` should be the old 
+`df` minus one.
+* We are moving away from supporting `summary.*()` objects. In particular, we 
+have removed `tidy.summary.lm()` as part of a major overhaul of internals. 
+Instead of calling `tidy()` on `summary`-like objects, please call `tidy()` 
+directly on model objects moving forward.
+* We have removed all support for the `quick` argument in `tidy()` methods. 
+This is to simplify internals and is for maintainability purposes. We anticipate
+this will not influence many users as few people seemed to use it. If this 
+majorly cramps your style, let us know, as we are considering a new verb to 
+return only model parameters. In the meantime, `stats::coef()` together with 
+`tibble::enframe()` provides most of the functionality 
+of `tidy(..., quick = TRUE)`.
+* All `conf.int` arguments now default to `FALSE`, and all `conf.level` 
+arguments now default to `0.95`. This should primarily affect `tidy.survreg()`, 
+which previously always returned confidence intervals, although there are 
+some others.
+* Tidiers for `emmeans`-objects use the arguments `conf.int` and `conf.level` 
+instead of relying on the argument names native to 
+the `emmeans::summary()`-methods (i.e., `infer` and `level`). 
+Similarly, `multcomp`-tidiers now include a call to `summary()` as previous 
+behavior was akin to setting the now removed argument `quick = TRUE`. Both 
+families of tidiers now use the `adj.p.value` column name when appropriate. 
+Finally, `emmeans`-, `multcomp`-, and `TukeyHSD`-tidiers now consistently 
+use the column names `contrast` and `null.value` instead 
+of `comparison`, `level1` and `level2`, or `lhs` and `rhs`.
+
+This release of broom also deprecates several helper functions as well as
+tidier methods for a number of non-model objects, each in favor of more
+principled approaches from other packages (outlined in the NEWS file). Notably,
+though, tidiers have been deprecated for data frames, rowwise data frames,
+vectors, and matrices. Further, we have moved forward with the planned
+transfer of tidiers for mixed models to `broom.mixed`.
+
+### Other Changes
+
+Most all unit testing for the package is now supported by the
+[modeltests](https://github.com/alexpghayes/modeltests) package!
+
+Also, we have revised several vignettes and moved them to the tidymodels 
+website. For backward compatibility, the existing vignettes will now simply 
+link to the revised versions.
+
+Finally, the package's website has moved from its previous
+tidyverse domain to [broom.tidymodels.org](https://broom.tidymodels.org/).
+
+### Looking Forward
+
+Most notably, **the broom dev team is changing the process to add new tidying 
+methods to the package.** Instead, we ask that issues/PRs requesting support for 
+new model objects be directed to the model-owning package (i.e. the package 
+that the model is exported from) rather than to broom. If the maintainers of 
+those packages are unable or unwilling to provide tidying methods in the
+model-owning package, it might be possible to add the new tidier to broom. 
+broom is near its limit of tidiers; adding more may make the package 
+unsustainable. 
+
+For developers exporting tidying methods directly from model-owning packages,
+we are actively working to provide resources to both ease the process of 
+writing new tidiers methods and reduce the dependency burden of taking 
+on broom generics and helpers. As for the first point, we recently posted
+an [article](https://www.tidymodels.org/learn/develop/broom/) on the
+tidymodels website providing notes on best practices for writing tidiers.
+This article will be kept up to date as we develop new resources for
+easing the process of writing new tidier methods. As for the latter, 
+the [`r-lib/generics`](https://github.com/r-lib/generics)
+package provides lightweight dependencies for the main broom generics. We hope
+to soon provide a coherent suite of helper functions for use in external
+broom methods.
+
+We anticipate that the most active development on the broom package, looking
+forward, will center on improving `augment()` methods. We are also hoping to
+change our CRAN release cycle and to provide incremental updates every several
+months rather than major changes every couple years.
+
+### Contributors
+
+This release features work and input from over 140 contributors (over 50 of them
+for their first time) since the last major release. See the package
+[release notes](https://broom.tidymodels.org/news/index.html) to see more 
+specific notes on contributions. Thank you all for your thoughtful comments, 
+patience, and hard work!
+
+[&#x0040;abbylsmith](https://github.com/abbylsmith), 
+[&#x0040;acoppock](https://github.com/acoppock), 
+[&#x0040;ajb5d](https://github.com/ajb5d),
+[&#x0040;aloy](https://github.com/aloy), 
+[&#x0040;AndrewKostandy](https://github.com/AndrewKostandy), 
+[&#x0040;angusmoore](https://github.com/angusmoore), 
+[&#x0040;anniew](https://github.com/anniew), 
+[&#x0040;aperaltasantos](https://github.com/aperaltasantos), 
+[&#x0040;asbates](https://github.com/asbates), 
+[&#x0040;asondhi](https://github.com/asondhi), 
+[&#x0040;asreece](https://github.com/asreece), 
+[&#x0040;atyre2](https://github.com/atyre2), 
+[&#x0040;bachmeil](https://github.com/bachmeil), 
+[&#x0040;batpigandme](https://github.com/batpigandme), 
+[&#x0040;bbolker](https://github.com/bbolker), 
+[&#x0040;benjbuch](https://github.com/benjbuch), 
+[&#x0040;bfgray3](https://github.com/bfgray3), 
+[&#x0040;BibeFiu](https://github.com/BibeFiu), 
+[&#x0040;billdenney](https://github.com/billdenney), 
+[&#x0040;BrianOB](https://github.com/BrianOB), 
+[&#x0040;briatte](https://github.com/briatte), 
+[&#x0040;bruc](https://github.com/bruc), 
+[&#x0040;brunaw](https://github.com/brunaw), 
+[&#x0040;brunolucian](https://github.com/brunolucian), 
+[&#x0040;bschneidr](https://github.com/bschneidr), 
+[&#x0040;carlislerainey](https://github.com/carlislerainey), 
+[&#x0040;CGMossa](https://github.com/CGMossa), 
+[&#x0040;CharlesNaylor](https://github.com/CharlesNaylor), 
+[&#x0040;ChuliangXiao](https://github.com/ChuliangXiao), 
+[&#x0040;cimentadaj](https://github.com/cimentadaj), 
+[&#x0040;crsh](https://github.com/crsh), 
+[&#x0040;cwang23](https://github.com/cwang23), 
+[&#x0040;DavisVaughan](https://github.com/DavisVaughan), 
+[&#x0040;dchiu911](https://github.com/dchiu911), 
+[&#x0040;ddsjoberg](https://github.com/ddsjoberg), 
+[&#x0040;dgrtwo](https://github.com/dgrtwo), 
+[&#x0040;dmenne](https://github.com/dmenne), 
+[&#x0040;dylanjm](https://github.com/dylanjm), 
+[&#x0040;ecohen13](https://github.com/ecohen13), 
+[&#x0040;economer](https://github.com/economer), 
+[&#x0040;EDiLD](https://github.com/EDiLD), 
+[&#x0040;ekatko1](https://github.com/ekatko1), 
+[&#x0040;ellessenne](https://github.com/ellessenne), 
+[&#x0040;ethchr](https://github.com/ethchr), 
+[&#x0040;florencevdubois](https://github.com/florencevdubois), 
+[&#x0040;GegznaV](https://github.com/GegznaV), 
+[&#x0040;gershomtripp](https://github.com/gershomtripp), 
+[&#x0040;grantmcdermott](https://github.com/grantmcdermott), 
+[&#x0040;gregmacfarlane](https://github.com/gregmacfarlane), 
+[&#x0040;hadley](https://github.com/hadley), 
+[&#x0040;haozhu233](https://github.com/haozhu233), 
+[&#x0040;hasenbratan](https://github.com/hasenbratan), 
+[&#x0040;HenrikBengtsson](https://github.com/HenrikBengtsson), 
+[&#x0040;hermandr](https://github.com/hermandr), 
+[&#x0040;hideaki](https://github.com/hideaki), 
+[&#x0040;hughjonesd](https://github.com/hughjonesd), 
+[&#x0040;iago-pssjd](https://github.com/iago-pssjd), 
+[&#x0040;ifellows](https://github.com/ifellows), 
+[&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), 
+[&#x0040;Inferrator](https://github.com/Inferrator), 
+[&#x0040;istvan60](https://github.com/istvan60), 
+[&#x0040;jamesmartherus](https://github.com/jamesmartherus), 
+[&#x0040;JanLauGe](https://github.com/JanLauGe), 
+[&#x0040;jasonyang5](https://github.com/jasonyang5), 
+[&#x0040;jaspercooper](https://github.com/jaspercooper), 
+[&#x0040;jcfisher](https://github.com/jcfisher), 
+[&#x0040;jennybc](https://github.com/jennybc), 
+[&#x0040;jessecambon](https://github.com/jessecambon), 
+[&#x0040;jkylearmstrongibx](https://github.com/jkylearmstrongibx), 
+[&#x0040;jmuhlenkamp](https://github.com/jmuhlenkamp), 
+[&#x0040;JulianMutz](https://github.com/JulianMutz), 
+[&#x0040;Jungpin](https://github.com/Jungpin), 
+[&#x0040;jwilber](https://github.com/jwilber), 
+[&#x0040;jyuu](https://github.com/jyuu), 
+[&#x0040;karissawhiting](https://github.com/karissawhiting), 
+[&#x0040;karldw](https://github.com/karldw), 
+[&#x0040;khailper](https://github.com/khailper), 
+[&#x0040;krauskae](https://github.com/krauskae), 
+[&#x0040;kuriwaki](https://github.com/kuriwaki), 
+[&#x0040;kyusque](https://github.com/kyusque), 
+[&#x0040;KZARCA](https://github.com/KZARCA), 
+[&#x0040;Laura-O](https://github.com/Laura-O), 
+[&#x0040;ldlpdx](https://github.com/ldlpdx), 
+[&#x0040;ldmahoney](https://github.com/ldmahoney), 
+[&#x0040;lilymedina](https://github.com/lilymedina), 
+[&#x0040;llendway](https://github.com/llendway), 
+[&#x0040;lrose1](https://github.com/lrose1), 
+[&#x0040;ltobalina](https://github.com/ltobalina), 
+[&#x0040;LukasWallrich](https://github.com/LukasWallrich), 
+[&#x0040;lukesonnet](https://github.com/lukesonnet), 
+[&#x0040;lwjohnst86](https://github.com/lwjohnst86), 
+[&#x0040;malcolmbarrett](https://github.com/malcolmbarrett), 
+[&#x0040;margarethannum](https://github.com/margarethannum), 
+[&#x0040;mariusbarth](https://github.com/mariusbarth),
+[&#x0040;MatthieuStigler](https://github.com/MatthieuStigler),
+[&#x0040;mattle24](https://github.com/mattle24), 
+[&#x0040;mattpollock](https://github.com/mattpollock), 
+[&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), 
+[&#x0040;mkirzon](https://github.com/mkirzon), 
+[&#x0040;mlaviolet](https://github.com/mlaviolet), 
+[&#x0040;Move87](https://github.com/Move87),
+[&#x0040;namarkus](https://github.com/namarkus),
+[&#x0040;nlubock](https://github.com/nlubock),
+[&#x0040;nmjakobsen](https://github.com/nmjakobsen),
+[&#x0040;ns-1m](https://github.com/ns-1m),
+[&#x0040;nt-williams](https://github.com/nt-williams),
+[&#x0040;oij11](https://github.com/oij11), 
+[&#x0040;petrhrobar](https://github.com/petrhrobar),
+[&#x0040;PirateGrunt](https://github.com/PirateGrunt),
+[&#x0040;pjpaulpj](https://github.com/pjpaulpj),
+[&#x0040;pkq](https://github.com/pkq),
+[&#x0040;poppymiller](https://github.com/poppymiller), 
+[&#x0040;QuLogic](https://github.com/QuLogic), 
+[&#x0040;randomgambit](https://github.com/randomgambit),
+[&#x0040;riinuots](https://github.com/riinuots), 
+[&#x0040;RobertoMuriel](https://github.com/RobertoMuriel),
+[&#x0040;Roisin-White](https://github.com/Roisin-White), 
+[&#x0040;romainfrancois](https://github.com/romainfrancois),
+[&#x0040;rsbivand](https://github.com/rsbivand), 
+[&#x0040;serina-robinson](https://github.com/serina-robinson), 
+[&#x0040;shabbybanks](https://github.com/shabbybanks),
+[&#x0040;Silver-Fang](https://github.com/Silver-Fang), 
+[&#x0040;Sim19](https://github.com/Sim19),
+[&#x0040;simonpcouch](https://github.com/simonpcouch), 
+[&#x0040;sjackson1236](https://github.com/sjackson1236), 
+[&#x0040;softloud](https://github.com/softloud), 
+[&#x0040;stefvanbuuren](https://github.com/stefvanbuuren), 
+[&#x0040;strengejacke](https://github.com/strengejacke), [&#x0040;sushmitavgopalan16](https://github.com/sushmitavgopalan16), 
+[&#x0040;tcuongd](https://github.com/tcuongd), 
+[&#x0040;thisisnic](https://github.com/thisisnic),
+[&#x0040;topepo](https://github.com/topepo), 
+[&#x0040;tyluRp](https://github.com/tyluRp), 
+[&#x0040;vincentarelbundock](https://github.com/vincentarelbundock), 
+[&#x0040;vjcitn](https://github.com/vjcitn), 
+[&#x0040;vnijs](https://github.com/vnijs), 
+[&#x0040;weiyangtham](https://github.com/weiyangtham), 
+[&#x0040;william3031](https://github.com/william3031), 
+[&#x0040;x249wang](https://github.com/x249wang), 
+[&#x0040;xieguagua](https://github.com/xieguagua), 
+[&#x0040;yrosseel](https://github.com/yrosseel), 
+and [&#x0040;zoews](https://github.com/zoews)
