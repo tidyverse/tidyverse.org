@@ -1,0 +1,48 @@
+---
+output: hugodown::hugo_document
+
+slug: dplyr-count
+title: dplyr 1.0.1 and the `count()` function
+date: 2020-07-27
+author: Hadley Wickham
+description: >
+    dplyr 1.0.1 is out now — the main change is that `dplyr::count()` now
+    never automatically weights.
+photo:
+  url: https://unsplash.com/photos/xvkSnspiETA
+  author: David Carboni
+
+# one of: "deep-dive", "learn", "package", "programming", or "other"
+categories: [package] 
+tags: [dplyr]
+---
+
+We're chuffed to announce the release of [dplyr](http://dplyr.tidyverse.org/) 1.0.1. This is minor release with a [few small fixes](XXXXXXXXXXx) and one bigger change that I want to discuss here. You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("{package}")
+```
+
+The main change in this version of dplyr is that `count()` no longer automatically weights if there is a column called `n` in the input:
+
+```{r}
+library(dplyr, warn.conflicts = FALSE)
+
+df <- tribble(
+  ~name,    ~flower, ~n,
+  "Cory",   "Daffodil", 5,
+  "Cory",   "Rose",     3,
+  "Enzo",   "Rose",    12,
+  "Stella", "Daffodil", 5
+)
+
+df %>% count(flower)
+```
+
+If you want to weight by an existing variable, you must explicitly supply it:
+
+```{r}
+df %>% count(flower, wt = n)
+```
+
+Unfortunately dplyr 1.0.0 introduced automatic weighting because of my faulty memory. Historically, in dplyr 0.8.0 and earlier, `tally()` automatically weighted and `count()` did not, but this behaviour was [accidentally changed](https://github.com/tidyverse/dplyr/pull/4408) in dplyr 0.8.2 so that neither automatically weighted. This shouldn't have happened in a patch release but we missed the behaviour change in that PR. Since 0.8.2 is almost a year old, and the automatic weighting behaviour was confusing to many people anyway, we've removed it from both `count()` and `tally()`.
