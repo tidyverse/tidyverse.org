@@ -33,7 +33,9 @@
     <!--find image with -wd in filename-->
     {{/* Get page wide image for sharing. */}}
     {{ $card_image := (.Resources.ByType "image").GetMatch "*-wd*" }}
-    <meta name="twitter:image" content="{{ $card_image.Permalink }}" >
+    {{ with $card_image }}
+        <meta name="twitter:image" content="{{ .Permalink }}" >
+    {{ end }}
 
 <!--home page-->
 {{ else if .IsHome }}
