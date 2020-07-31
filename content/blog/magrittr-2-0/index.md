@@ -6,8 +6,7 @@ title: magrittr 2.0 is coming soon
 date: 2020-07-30
 author: Lionel Henry
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    A new version of the magrittr package brings laziness, better performance, and leaner backtraces for debugging errors.
 
 photo:
   url: https://unsplash.com/photos/X-NAMq6uP3Q
@@ -15,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: 0eea8db631baf62e
+rmd_hash: 3e6a4f72cc843f5f
 
 ---
 
@@ -23,11 +22,9 @@ rmd_hash: 0eea8db631baf62e
 
 </div>
 
-It is with unclouded exhilaration that we announce the impending release of [magrittr](https://magrittr.tidyverse.org/) 2.0. magrittr is the package home to the [`%>%`](https://magrittr.tidyverse.org/reference/pipe.html) pipe operator written by Stefan Milton Bache and used throughout the tidyverse.
+It is with unclouded exhilaration that we announce the upcoming release of [magrittr](https://magrittr.tidyverse.org/) 2.0. magrittr is the package home to the [`%>%`](https://magrittr.tidyverse.org/reference/pipe.html) pipe operator written by Stefan Milton Bache and used throughout the tidyverse.
 
-With this major release, we intend to bring the behaviour of the pipe closer to the base pipe `|>` that will likely be included in a future version of R. We also fixed some longstanding issues that made the pipe problematic for programming in packages.
-
-You can try this development version from github with:
+This a major rewrite which adds laziness, gives better backtraces, and has much improved performance. Our testing suggests that it should be a drop in replacement, but we'd really like you to try it out and give us some feedback before we submit to CRAN. You can try the development version from GitHub with:
 
 <div class="highlight">
 
@@ -35,6 +32,8 @@ You can try this development version from github with:
 <span class='k'>remotes</span>::<span class='nf'><a href='https://remotes.r-lib.org/reference/install_github.html'>install_github</a></span>(<span class='s'>"magrittr"</span>)</code></pre>
 
 </div>
+
+If you discover any issues, please let us know by posting issues on the [Github repository](https://github.com/tidyverse/magrittr) of magrittr.
 
 This blog post covers the three main changes in this new version of the magrittr pipe.
 
@@ -58,7 +57,7 @@ The main user-visible change in this release is that the pipe expressions are no
 
 </div>
 
-This has subtle implications but should be mostly backward compatible with existing code. The main source of behaviour change is that some code that previously failed may stop failing if the latter part of the pipeline specifically handle the error.
+This has subtle implications but should be backward compatible with existing pipelines that run without error. The main source of behaviour change is that some code that previously failed may stop failing if the latter part of the pipeline specifically handled the error.
 
 Similarly, warnings that were previously issued might now be suppressed by a function you're piping into. That's because the following expressions are now almost completely equivalent:
 
@@ -117,7 +116,7 @@ The R implementation of the magrittr pipe was rather costly in terms of backtrac
 
 </div>
 
-This clutter is now completely fixed:
+This clutter is now completely resolved:
 
 <div class="highlight">
 
@@ -136,7 +135,7 @@ This clutter is now completely fixed:
 
 </div>
 
-Note however that one consequence of having a lazy pipe is that the whole pipeline is pushed on the stack before errors have a chance to be thrown.
+Note that one consequence of having a lazy pipe is that the whole pipeline will be shown on the call stack before any errors are thrown:
 
 <div class="highlight">
 
@@ -171,44 +170,40 @@ The pipe is now written in C. This greatly improves the performance. Here is a b
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>bench</span>::<span class='nf'><a href='http://bench.r-lib.org/reference/mark.html'>mark</a></span>(
-  `0` = <span class='nf'>f1</span>(<span class='kr'>NULL</span>),
   `1` = <span class='kr'>NULL</span> <span class='o'>%&gt;%</span> <span class='nf'>f1</span>(),
   `2` = <span class='kr'>NULL</span> <span class='o'>%&gt;%</span> <span class='nf'>f1</span>() <span class='o'>%&gt;%</span> <span class='nf'>f2</span>(),
   `3` = <span class='kr'>NULL</span> <span class='o'>%&gt;%</span> <span class='nf'>f1</span>() <span class='o'>%&gt;%</span> <span class='nf'>f2</span>() <span class='o'>%&gt;%</span> <span class='nf'>f3</span>(),
   `4` = <span class='kr'>NULL</span> <span class='o'>%&gt;%</span> <span class='nf'>f1</span>() <span class='o'>%&gt;%</span> <span class='nf'>f2</span>() <span class='o'>%&gt;%</span> <span class='nf'>f3</span>() <span class='o'>%&gt;%</span> <span class='nf'>f4</span>(),
 )
-<span class='c'>#&gt; + + + + + + # A tibble: 5 x 13</span>
-<span class='c'>#&gt;   expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result</span>
-<span class='c'>#&gt;   &lt;bch:expr&gt; &lt;bch:t&gt; &lt;bch:t&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt;   &lt;bch:tm&gt; &lt;list&gt;</span>
-<span class='c'>#&gt; 1 0            258ns   319ns  2808344.        0B      0   10000     0     3.56ms &lt;NULL&gt;</span>
-<span class='c'>#&gt; 2 1           59.4µs  68.9µs    13648.      280B     59.1  6004    26   439.91ms &lt;NULL&gt;</span>
-<span class='c'>#&gt; 3 2           82.6µs 101.6µs     9252.      280B     42.8  3894    18   420.87ms &lt;NULL&gt;</span>
-<span class='c'>#&gt; 4 3          106.4µs 124.7µs     7693.      280B     18.8  3690     9   479.64ms &lt;NULL&gt;</span>
-<span class='c'>#&gt; 5 4          130.9µs 156.1µs     6173.      280B     18.8  2956     9   478.84ms &lt;NULL&gt;</span>
-<span class='c'>#&gt; # … with 3 more variables: memory &lt;list&gt;, time &lt;list&gt;, gc &lt;list&gt;</span></code></pre>
+<span class='c'>#&gt;   expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc</span>
+<span class='c'>#&gt;   &lt;bch:expr&gt; &lt;bch:t&gt; &lt;bch:t&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt;</span>
+<span class='c'>#&gt; 1 1           59.4µs  68.9µs    13648.      280B     59.1  6004    26</span>
+<span class='c'>#&gt; 2 2           82.6µs 101.6µs     9252.      280B     42.8  3894    18</span>
+<span class='c'>#&gt; 3 3          106.4µs 124.7µs     7693.      280B     18.8  3690     9</span>
+<span class='c'>#&gt; 4 4          130.9µs 156.1µs     6173.      280B     18.8  2956     9</span></code></pre>
 
 </div>
 
-The new C implementation is less costly per pipe expression:
+The new implementation is about 10 times less costly per pipe expression:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>bench</span>::<span class='nf'><a href='http://bench.r-lib.org/reference/mark.html'>mark</a></span>(
-  `0` = <span class='nf'>f1</span>(<span class='kr'>NULL</span>),
   `1` = <span class='kr'>NULL</span> <span class='o'>%&gt;%</span> <span class='nf'>f1</span>(),
   `2` = <span class='kr'>NULL</span> <span class='o'>%&gt;%</span> <span class='nf'>f1</span>() <span class='o'>%&gt;%</span> <span class='nf'>f2</span>(),
   `3` = <span class='kr'>NULL</span> <span class='o'>%&gt;%</span> <span class='nf'>f1</span>() <span class='o'>%&gt;%</span> <span class='nf'>f2</span>() <span class='o'>%&gt;%</span> <span class='nf'>f3</span>(),
   `4` = <span class='kr'>NULL</span> <span class='o'>%&gt;%</span> <span class='nf'>f1</span>() <span class='o'>%&gt;%</span> <span class='nf'>f2</span>() <span class='o'>%&gt;%</span> <span class='nf'>f3</span>() <span class='o'>%&gt;%</span> <span class='nf'>f4</span>(),
 )
-<span class='c'>#&gt;   expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result</span>
-<span class='c'>#&gt;   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt;   &lt;bch:tm&gt; &lt;list&gt;</span>
-<span class='c'>#&gt; 1 0             270ns    383ns  2240689.        0B    224.   9999     1     4.46ms &lt;NULL&gt;</span>
-<span class='c'>#&gt; 2 1            4.47µs   5.95µs   159655.        0B     79.9  9995     5     62.6ms &lt;NULL&gt;</span>
-<span class='c'>#&gt; 3 2            5.97µs    8.8µs   109534.        0B     32.9  9997     3    91.27ms &lt;NULL&gt;</span>
-<span class='c'>#&gt; 4 3            8.83µs  10.63µs    89902.        0B     27.0  9997     3    111.2ms &lt;NULL&gt;</span>
-<span class='c'>#&gt; 5 4           10.99µs  13.18µs    72330.        0B     36.2  9995     5   138.19ms &lt;NULL&gt;</span></code></pre>
+<span class='c'>#&gt;   expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc</span>
+<span class='c'>#&gt;   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt;</span>
+<span class='c'>#&gt; 1 1            4.47µs   5.95µs   159655.        0B     79.9  9995     5</span>
+<span class='c'>#&gt; 2 2            5.97µs    8.8µs   109534.        0B     32.9  9997     3</span>
+<span class='c'>#&gt; 3 3            8.83µs  10.63µs    89902.        0B     27.0  9997     3</span>
+<span class='c'>#&gt; 4 4           10.99µs  13.18µs    72330.        0B     36.2  9995     5</span></code></pre>
 
 </div>
+
+We don't generally except this to have much impact on data analysis code, but it might yield meaningful speed ups if you had a pipe inside a tight loop.
 
 Towards a release
 -----------------

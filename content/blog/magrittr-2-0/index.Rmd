@@ -6,8 +6,7 @@ title: magrittr 2.0 is coming soon
 date: 2020-07-30
 author: Lionel Henry
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    A new version of the magrittr package brings laziness, better performance, and leaner backtraces for debugging errors.
 
 photo:
   url: https://unsplash.com/photos/X-NAMq6uP3Q
@@ -23,14 +22,14 @@ knitr::opts_chunk$set(collapse = T, comment = "#>")
 
 It is with unclouded exhilaration that we announce the upcoming release of [magrittr](https://magrittr.tidyverse.org/) 2.0. magrittr is the package home to the `%>%` pipe operator written by Stefan Milton Bache and used throughout the tidyverse.
 
-With this major release, we intend to bring the behaviour of the pipe closer to the base pipe `|>` that will likely be included in a future version of R. We also fixed some longstanding issues that made the pipe problematic for programming in packages.
-
-You can try this development version from github with:
+This a major rewrite which adds laziness, gives better backtraces, and has much improved performance. Our testing suggests that it should be a drop in replacement, but we'd really like you to try it out and give us some feedback before we submit to CRAN. You can try the development version from GitHub with:
 
 ```{r, eval = FALSE}
 # install.packages("remotes")
 remotes::install_github("magrittr")
 ```
+
+If you discover any issues, please let us know by posting issues on the [Github repository](https://github.com/tidyverse/magrittr) of magrittr.
 
 This blog post covers the three main changes in this new version of the magrittr pipe.
 
@@ -119,7 +118,7 @@ rlang::last_trace()
 #>  4. └─global::baz(.)
 ```
 
-Note that one consequence of having a lazy pipe is that the whole pipeline will shown on the call stack before any errors are thrown:
+Note that one consequence of having a lazy pipe is that the whole pipeline will be shown on the call stack before any errors are thrown:
 
 ```{r, eval = FALSE}
 f1 <- function(x) x
@@ -151,41 +150,37 @@ The pipe is now written in C. This greatly improves the performance. Here is a b
 
 ```{r, eval = FALSE}
 bench::mark(
-  `0` = f1(NULL),
   `1` = NULL %>% f1(),
   `2` = NULL %>% f1() %>% f2(),
   `3` = NULL %>% f1() %>% f2() %>% f3(),
   `4` = NULL %>% f1() %>% f2() %>% f3() %>% f4(),
 )
-#> + + + + + + # A tibble: 5 x 13
-#>   expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result
-#>   <bch:expr> <bch:t> <bch:t>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>
-#> 1 0            258ns   319ns  2808344.        0B      0   10000     0     3.56ms <NULL>
-#> 2 1           59.4µs  68.9µs    13648.      280B     59.1  6004    26   439.91ms <NULL>
-#> 3 2           82.6µs 101.6µs     9252.      280B     42.8  3894    18   420.87ms <NULL>
-#> 4 3          106.4µs 124.7µs     7693.      280B     18.8  3690     9   479.64ms <NULL>
-#> 5 4          130.9µs 156.1µs     6173.      280B     18.8  2956     9   478.84ms <NULL>
-#> # … with 3 more variables: memory <list>, time <list>, gc <list>
+#>   expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc
+#>   <bch:expr> <bch:t> <bch:t>     <dbl> <bch:byt>    <dbl> <int> <dbl>
+#> 1 1           59.4µs  68.9µs    13648.      280B     59.1  6004    26
+#> 2 2           82.6µs 101.6µs     9252.      280B     42.8  3894    18
+#> 3 3          106.4µs 124.7µs     7693.      280B     18.8  3690     9
+#> 4 4          130.9µs 156.1µs     6173.      280B     18.8  2956     9
 ```
 
-The new C implementation is less costly per pipe expression:
+The new implementation is about 10 times less costly per pipe expression:
 
 ```{r, eval = FALSE}
 bench::mark(
-  `0` = f1(NULL),
   `1` = NULL %>% f1(),
   `2` = NULL %>% f1() %>% f2(),
   `3` = NULL %>% f1() %>% f2() %>% f3(),
   `4` = NULL %>% f1() %>% f2() %>% f3() %>% f4(),
 )
-#>   expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result
-#>   <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>
-#> 1 0             270ns    383ns  2240689.        0B    224.   9999     1     4.46ms <NULL>
-#> 2 1            4.47µs   5.95µs   159655.        0B     79.9  9995     5     62.6ms <NULL>
-#> 3 2            5.97µs    8.8µs   109534.        0B     32.9  9997     3    91.27ms <NULL>
-#> 4 3            8.83µs  10.63µs    89902.        0B     27.0  9997     3    111.2ms <NULL>
-#> 5 4           10.99µs  13.18µs    72330.        0B     36.2  9995     5   138.19ms <NULL>
+#>   expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc
+#>   <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>
+#> 1 1            4.47µs   5.95µs   159655.        0B     79.9  9995     5
+#> 2 2            5.97µs    8.8µs   109534.        0B     32.9  9997     3
+#> 3 3            8.83µs  10.63µs    89902.        0B     27.0  9997     3
+#> 4 4           10.99µs  13.18µs    72330.        0B     36.2  9995     5
 ```
+
+We don't generally except this to have much impact on data analysis code, but it might yield meaningful speed ups if you had a pipe inside a tight loop.
 
 
 ## Towards a release
