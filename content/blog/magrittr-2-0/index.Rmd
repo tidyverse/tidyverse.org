@@ -21,7 +21,7 @@ tags: []
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 ```
 
-It is with unclouded exhilaration that we announce the impending release of [magrittr](https://magrittr.tidyverse.org/) 2.0. magrittr is the package home to the `%>%` pipe operator written by Stefan Milton Bache and used throughout the tidyverse.
+It is with unclouded exhilaration that we announce the upcoming release of [magrittr](https://magrittr.tidyverse.org/) 2.0. magrittr is the package home to the `%>%` pipe operator written by Stefan Milton Bache and used throughout the tidyverse.
 
 With this major release, we intend to bring the behaviour of the pipe closer to the base pipe `|>` that will likely be included in a future version of R. We also fixed some longstanding issues that made the pipe problematic for programming in packages.
 
@@ -49,7 +49,7 @@ ignore_arguments <- function(...) "value"
 stop("foo") %>% ignore_arguments()
 ```
 
-This has subtle implications but should be mostly backward compatible with existing code. The main source of behaviour change is that some code that previously failed may stop failing if the latter part of the pipeline specifically handle the error.
+This has subtle implications but should be backward compatible with existing pipelines that run without error. The main source of behaviour change is that some code that previously failed may stop failing if the latter part of the pipeline specifically handled the error.
 
 Similarly, warnings that were previously issued might now be suppressed by a function you're piping into. That's because the following expressions are now almost completely equivalent:
 
@@ -102,7 +102,7 @@ rlang::last_trace()
 #>  11.                 └─global::baz(.)
 ```
 
-This clutter is now completely fixed:
+This clutter is now completely resolved:
 
 ```{r, eval = FALSE}
 foo()
@@ -119,7 +119,7 @@ rlang::last_trace()
 #>  4. └─global::baz(.)
 ```
 
-Note however that one consequence of having a lazy pipe is that the whole pipeline is pushed on the stack before errors have a chance to be thrown.
+Note that one consequence of having a lazy pipe is that the whole pipeline will shown on the call stack before any errors are thrown:
 
 ```{r, eval = FALSE}
 f1 <- function(x) x
