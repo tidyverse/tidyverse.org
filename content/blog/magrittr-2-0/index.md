@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: 3e6a4f72cc843f5f
+rmd_hash: e5dd1c464b958e54
 
 ---
 
@@ -208,7 +208,7 @@ We don't generally except this to have much impact on data analysis code, but it
 Towards a release
 -----------------
 
-Though we have changed the behaviour of the pipe, none of 2600 the reverse dependencies of magrittr, purrr, tidyr, and dplyr were broken by the change. To be extra sure, we'd be grateful for any additional testing on real-life scripts with this development version.
+Though we have changed the behaviour of the pipe, none of the 2600 reverse dependencies of magrittr, purrr, tidyr, and dplyr were broken by the change. To be extra sure, we'd be grateful for any additional testing on real-life scripts with this development version.
 
 If you're interested in the design tradeoffs involved in the creation of a pipe operator in R, see the [tradeoffs](https://magrittr.tidyverse.org/articles/tradeoffs.html) vignette. Any comments about the choices we have made are welcome.
 
