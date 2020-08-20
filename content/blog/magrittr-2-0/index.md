@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: b4a48edf1d4bbe1c
+rmd_hash: 74b24662f5de4c87
 
 ---
 
@@ -148,7 +148,7 @@ We don't generally except this to have much impact on typical data analysis code
 Laziness
 --------
 
-The main user-visible change in this release is that the pipe expressions are now evaluated lazily, only when needed.
+R core has expressed their interest in adding a native pipe in the next version of R and are working on an implementation[^1]. The main user-visible change in this release makes magrittr more compatible with the behaviour of the base pipe by evaluating the expressions lazily, only when needed.
 
 <div class="highlight">
 
@@ -158,8 +158,6 @@ The main user-visible change in this release is that the pipe expressions are no
 <span class='c'>#&gt; [1] "value"</span></code></pre>
 
 </div>
-
-This change makes the magrittr pipe more consistent with a base pipe that will probably be included in the next version of R as Luke Tierney announced in [his keynote](https://youtu.be/X_eDHNVceCU?t=3099) at the useR! 2020 conference.
 
 This has subtle implications but should be backward compatible with existing pipelines that run without error. The main source of behaviour change is that some code that previously failed may stop failing if the latter part of the pipeline specifically handled the error.
 
@@ -220,4 +218,6 @@ Towards a release
 Though we have changed the behaviour of the pipe, none of the 2600 reverse dependencies of magrittr, purrr, tidyr, and dplyr were broken by the change. To be extra sure, we'd be grateful for any additional testing on real-life scripts with this development version.
 
 If you're interested in the design tradeoffs involved in the creation of a pipe operator in R, see the [tradeoffs](https://magrittr.tidyverse.org/articles/tradeoffs.html) vignette. Any comments about the choices we have made are welcome.
+
+[^1]: See Luke Tierney's [keynote](https://youtu.be/X_eDHNVceCU?t=3099) at the useR! 2020 conference
 
