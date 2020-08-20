@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: 74b24662f5de4c87
+rmd_hash: d7c16823597c6047
 
 ---
 
@@ -215,9 +215,9 @@ The last function of the pipeline is `f4()`, so that's the first one to be run. 
 Towards a release
 -----------------
 
-Though we have changed the behaviour of the pipe, none of the 2600 reverse dependencies of magrittr, purrr, tidyr, and dplyr were broken by the change. To be extra sure, we'd be grateful for any additional testing on real-life scripts with this development version.
+Though we have changed the behaviour of the pipe, there should be no impact on your user code. The laziness makes it possible to use the pipe in more situations but is not any stricter. It should only cause problems in very rare corner cases and these should be minor. To confirm our analysis, we ran reverse dependency checks for magrittr, purrr, tidyr, and dplyr. None of the 2600 packages were broken by the change but, to be extra sure, we'd be grateful for any additional testing on real-life scripts with this development version. Please let us know of any issues you find with this new version of the pipe, if any.
 
-If you're interested in the design tradeoffs involved in the creation of a pipe operator in R, see the [tradeoffs](https://magrittr.tidyverse.org/articles/tradeoffs.html) vignette. Any comments about the choices we have made are welcome.
+Finally, if you're interested in the design tradeoffs involved in the creation of a pipe operator in R, see the [tradeoffs](https://magrittr.tidyverse.org/articles/tradeoffs.html) vignette. Any comments about the choices we have made are welcome.
 
 [^1]: See Luke Tierney's [keynote](https://youtu.be/X_eDHNVceCU?t=3099) at the useR! 2020 conference
 
