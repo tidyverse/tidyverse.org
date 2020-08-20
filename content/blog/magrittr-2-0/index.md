@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: 58097f7e266847e0
+rmd_hash: b4a48edf1d4bbe1c
 
 ---
 
@@ -24,9 +24,9 @@ rmd_hash: 58097f7e266847e0
 
 It is with unclouded composure that we announce the upcoming release of [magrittr](https://magrittr.tidyverse.org/) 2.0. magrittr is the package home to the [`%>%`](https://magrittr.tidyverse.org/reference/pipe.html) pipe operator written by Stefan Milton Bache and used throughout the tidyverse.
 
-This last and final version of magrittr resolves the longstanding issues of overhead and backtrace footprint. It also makes the magrittr pipe more compatible with the likely implementation of the native pipe that will probably be included in the next version of R.
+This last and likely final version of magrittr resolves the longstanding issues of overhead and backtrace footprint. It also makes the magrittr pipe more compatible with a native pipe that will probably be included in the next version of R.
 
-This version of magrittr has been completely rewritten in C to give better backtraces and much improved performance. It also uses a different approach in order to support laziness like the future base pipe will. Our testing suggests that it should be a drop in replacement, but we'd really like you to try it out and give us some feedback before we submit to CRAN. You can install the development version from GitHub with:
+This version of magrittr has been completely rewritten in C to give better backtraces and much improved performance. It also uses a different approach in order to support laziness: this enables new uses of the pipe, and ensures magrittr is as similar as possible to the future base pipe. Our analysis and testing suggests that the new version should be a drop in replacement, but we'd really like you to try it out and give us some feedback before we submit to CRAN. You can install the development version from GitHub with:
 
 <div class="highlight">
 
@@ -158,6 +158,8 @@ The main user-visible change in this release is that the pipe expressions are no
 <span class='c'>#&gt; [1] "value"</span></code></pre>
 
 </div>
+
+This change makes the magrittr pipe more consistent with a base pipe that will probably be included in the next version of R as Luke Tierney announced in [his keynote](https://youtu.be/X_eDHNVceCU?t=3099) at the useR! 2020 conference.
 
 This has subtle implications but should be backward compatible with existing pipelines that run without error. The main source of behaviour change is that some code that previously failed may stop failing if the latter part of the pipeline specifically handled the error.
 
