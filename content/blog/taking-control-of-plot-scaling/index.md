@@ -19,7 +19,7 @@ categories: ["learn"]
 photo:
   url: https://unsplash.com/photos/6GjHwABuci4
   author: Mikael Kristenson
-rmd_hash: e0f6d223b3a5a433
+rmd_hash: 30038839d7ad22f7
 
 ---
 
@@ -234,7 +234,7 @@ Remember that the scaling factor of `3` was simply chosen to fit our presumed vi
 )
 <span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span>(<span class='k'>pngfile</span>)
 </code></pre>
-<img src="figs/unnamed-chunk-8-1/downscaling.png" width="" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-8-1/downscaling.png" width="50%" style="display: block; margin: auto;" />
 
 </div>
 
