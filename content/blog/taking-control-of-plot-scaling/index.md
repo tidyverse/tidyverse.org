@@ -1,6 +1,6 @@
 ---
 title: "Taking Control of Plot Scaling"
-date: 2020-06-24
+date: 2020-08-21
 output: hugodown::hugo_document
 
 description: > 
@@ -19,7 +19,7 @@ categories: ["learn"]
 photo:
   url: https://unsplash.com/photos/6GjHwABuci4
   author: Mikael Kristenson
-rmd_hash: b5eaeb135b979b79
+rmd_hash: 796637bc41f5299d
 
 ---
 
