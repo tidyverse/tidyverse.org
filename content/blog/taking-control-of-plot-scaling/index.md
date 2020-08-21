@@ -19,7 +19,7 @@ categories: ["learn"]
 photo:
   url: https://unsplash.com/photos/6GjHwABuci4
   author: Mikael Kristenson
-rmd_hash: 37dc2282d268dc25
+rmd_hash: e0f6d223b3a5a433
 
 ---
 
@@ -108,7 +108,12 @@ Why is that? Our plot is a mix of elements positioned and dimensioned based on b
 
 Now, how should we go about correcting this?
 
-Attempt 1: Theming
+Attempt 1: Use vector graphics
+------------------------------
+
+The discussion above is especially relevant to raster output since they don't resize gracefully and it is thus very important to get the correct dimensions and resolution when it is rendered. One way to resolve this is to not render to raster but use a vector graphic device such as [`pdf()`](https://rdrr.io/r/grDevices/pdf.html) or `svglite()`. With these you can simply render the graphic to a size where everything looks as it should and then resize the output to the physical size that you need. There are valid reasons to not want to use vector graphics, however. The look of the output may change depending on which program opens them. Custom fonts may not render correctly on other systems. Or you may have such a large amount of graphical elements that the vector graphic becomes unreasonably large and heavy to display. If none of this applies then using a vector graphic device is definitely a valid and reasonable solution. For the remainder of the post we assume that we want the output in a raster format such as png and explore how we may fix our scaling issues there.
+
+Attempt 2: Theming
 ------------------
 
 One approach to fixing this is by changing the theme settings of the plot, so that they work better for a larger size:
@@ -162,7 +167,7 @@ We can see that we are getting there, but the journey hasn't been pleasant. Espe
 
 Another issue that arises is that if we need this plot at yet another different scale, we will need to change quite a lot of code in order to get there.
 
-Attempt 2: Resolution scaling
+Attempt 3: Resolution scaling
 -----------------------------
 
 Since the resolution is the parameter that ties the pixel size and absolute size together it is possible to use it as a scaling factor, but it requires some non-obvious adjustments:
@@ -213,12 +218,29 @@ Seeing that there is no single perfect solution to fixing this with the tools at
 
 </div>
 
-As can be seen, the new argument makes it very easy to reclaim the look of the plot after resizing. Hopefully this will remove a good deal of the pain related to generating plots for papers, posters, presentations, etc.
+As can be seen, the new argument makes it very easy to reclaim the look of the plot after resizing. Hopefully this will remove a good deal of the pain related to generating plots for papers, posters, presentations, etc. You do have to remember to use the same scaling setting for all plots for them to have the same sizing, but apart from that it makes it very easy to fine tune the look for the medium your creating it for.
+
+Remember that the scaling factor of `3` was simply chosen to fit our presumed viewing distance and should not be repeated without thought. Another example would be to create a small version of the plot, e.g. for a thumbnail on a webpage. While there is no harm in manually scaling down a raster image, you may find that especially text is more readable when rendered to the desired size directly. To show this off we'll make a half-sized version of our plot as well. To spruce it up we'll use [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) instead of calling the ragg device directly:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"downscaling.png"</span>)
+<span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggsave.html'>ggsave</a></span>(
+  <span class='k'>pngfile</span>, 
+  <span class='k'>p</span>, 
+  device = <span class='k'>agg_png</span>, 
+  width = <span class='m'>10</span>, height = <span class='m'>6</span>, units = <span class='s'>"cm"</span>, res = <span class='m'>300</span>,
+  scaling = <span class='m'>0.5</span>
+)
+<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span>(<span class='k'>pngfile</span>)
+</code></pre>
+<img src="figs/unnamed-chunk-8-1/downscaling.png" width="" style="display: block; margin: auto;" />
+
+</div>
 
 Addendum
 --------
 
--   The discussion above is especially relevant to raster output since they don't resize gracefully and it is thus very important to get the correct dimensions and resolution when it is rendered. However, rendering to a pdf or svg yields some of the same issues. For the [`pdf()`](https://rdrr.io/r/grDevices/pdf.html) device the only way to correct it is to render it at the dimension where it looks good, and then manually resize it once you've imported it into wherever it needs to be. Since it is vector based the resizing will not result in quality issues. As for svgs, the next version of the svglite package will include the same scaling argument as the ragg devices, which means that the given solution is applicable there.
 -   Preparing graphics for the web presents an additional hurdle. The HTML specification assumes a screen resolution of 96ppi since that was the predominant screen resolution at the time. Modern monitors have a much higher resolution but the assumption is still in effect (though operating systems may mitigate it). This is the reason why plots may look slightly smaller when rendered through Shiny, blogdown, or hugodown. Simply set the resolution to 96ppi and use pixel dimensions for the output to make sure it has the correct scaling.
 -   Rendering images with RMarkdown requires some care as well since chunk options both take an output dimension in inches as well as a scaling factor for how big the rendered image should appear in the document. [R for Data Science](https://r4ds.had.co.nz/graphics-for-communication.html#figure-sizing) has some additional information on this
 
