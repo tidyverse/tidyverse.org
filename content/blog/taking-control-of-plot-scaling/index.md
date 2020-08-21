@@ -19,7 +19,7 @@ categories: ["learn"]
 photo:
   url: https://unsplash.com/photos/6GjHwABuci4
   author: Mikael Kristenson
-rmd_hash: 30038839d7ad22f7
+rmd_hash: b5eaeb135b979b79
 
 ---
 
@@ -220,7 +220,24 @@ Seeing that there is no single perfect solution to fixing this with the tools at
 
 As can be seen, the new argument makes it very easy to reclaim the look of the plot after resizing. Hopefully this will remove a good deal of the pain related to generating plots for papers, posters, presentations, etc. You do have to remember to use the same scaling setting for all plots for them to have the same sizing, but apart from that it makes it very easy to fine tune the look for the medium your creating it for.
 
-Remember that the scaling factor of `3` was simply chosen to fit our presumed viewing distance and should not be repeated without thought. Another example would be to create a small version of the plot, e.g. for a thumbnail on a webpage. While there is no harm in manually scaling down a raster image, you may find that especially text is more readable when rendered to the desired size directly. To show this off we'll make a half-sized version of our plot as well. To spruce it up we'll use [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) instead of calling the ragg device directly:
+Remember that the scaling factor of `3` was simply chosen to fit our presumed viewing distance and should not be repeated without thought. Another example would be to create a small version of the plot, e.g. for a thumbnail on a webpage. While there is no harm in manually scaling down a raster image, you may find that especially text is more readable when rendered to the desired size directly. To show this off we'll make a half-sized version of our plot as well. To spruce it up we'll use [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) instead of calling the ragg device directly. Let's see how it looks without using scaling first:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='k'>pngfile</span> <span class='o'>&lt;-</span> <span class='k'>fs</span>::<span class='nf'><a href='http://fs.r-lib.org/reference/path.html'>path</a></span>(<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/fig_path.html'>fig_path</a></span>(),  <span class='s'>"small"</span>)
+<span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggsave.html'>ggsave</a></span>(
+  <span class='k'>pngfile</span>, 
+  <span class='k'>p</span>, 
+  device = <span class='k'>agg_png</span>, 
+  width = <span class='m'>10</span>, height = <span class='m'>6</span>, units = <span class='s'>"cm"</span>, res = <span class='m'>300</span>
+)
+<span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span>(<span class='k'>pngfile</span>)
+</code></pre>
+<img src="figs/unnamed-chunk-8-1/small" width="50%" style="display: block; margin: auto;" />
+
+</div>
+
+As we can see, everything feels oversized for the plot, and the margins takes up way too much relative space. Using `scaling` we quickly resolve this:
 
 <div class="highlight">
 
@@ -234,7 +251,7 @@ Remember that the scaling factor of `3` was simply chosen to fit our presumed vi
 )
 <span class='k'>knitr</span>::<span class='nf'><a href='https://rdrr.io/pkg/knitr/man/include_graphics.html'>include_graphics</a></span>(<span class='k'>pngfile</span>)
 </code></pre>
-<img src="figs/unnamed-chunk-8-1/downscaling.png" width="50%" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-9-1/downscaling.png" width="50%" style="display: block; margin: auto;" />
 
 </div>
 

@@ -179,7 +179,20 @@ knitr::include_graphics(pngfile)
 
 As can be seen, the new argument makes it very easy to reclaim the look of the plot after resizing. Hopefully this will remove a good deal of the pain related to generating plots for papers, posters, presentations, etc. You do have to remember to use the same scaling setting for all plots for them to have the same sizing, but apart from that it makes it very easy to fine tune the look for the medium your creating it for.
 
-Remember that the scaling factor of `3` was simply chosen to fit our presumed viewing distance and should not be repeated without thought. Another example would be to create a small version of the plot, e.g. for a thumbnail on a webpage. While there is no harm in manually scaling down a raster image, you may find that especially text is more readable when rendered to the desired size directly. To show this off we'll make a half-sized version of our plot as well. To spruce it up we'll use `ggsave()` instead of calling the ragg device directly:
+Remember that the scaling factor of `3` was simply chosen to fit our presumed viewing distance and should not be repeated without thought. Another example would be to create a small version of the plot, e.g. for a thumbnail on a webpage. While there is no harm in manually scaling down a raster image, you may find that especially text is more readable when rendered to the desired size directly. To show this off we'll make a half-sized version of our plot as well. To spruce it up we'll use `ggsave()` instead of calling the ragg device directly. Let's see how it looks without using scaling first:
+
+```{r, message=FALSE, out.width="50%"}
+pngfile <- fs::path(knitr::fig_path(),  "small")
+ggsave(
+  pngfile, 
+  p, 
+  device = agg_png, 
+  width = 10, height = 6, units = "cm", res = 300
+)
+knitr::include_graphics(pngfile)
+```
+
+As we can see, everything feels oversized for the plot, and the margins takes up way too much relative space. Using `scaling` we quickly resolve this:
 
 ```{r, message=FALSE, out.width="50%"}
 pngfile <- fs::path(knitr::fig_path(),  "downscaling.png")
@@ -192,7 +205,6 @@ ggsave(
 )
 knitr::include_graphics(pngfile)
 ```
-
 
 ## Addendum
 - Preparing graphics for the web presents an additional hurdle. The HTML specification assumes a screen resolution of 96ppi since that was the predominant screen resolution at the time. Modern monitors have a much higher resolution but the assumption is still in effect (though operating systems may mitigate it). This is the reason why plots may look slightly smaller when rendered through Shiny, blogdown, or hugodown. Simply set the resolution to 96ppi and use pixel dimensions for the output to make sure it has the correct scaling.
