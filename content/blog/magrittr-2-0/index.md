@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: 6efceddfdc550e43
+rmd_hash: e500838c5bdf1c45
 
 ---
 
@@ -26,12 +26,12 @@ It is with unclouded composure that we announce the upcoming release of [magritt
 
 This last and likely final version of magrittr resolves the longstanding issues of overhead and backtrace footprint. It also makes the magrittr pipe more compatible with a native pipe that will probably be included in the next version of R.
 
-This version of magrittr has been completely rewritten in C to give better backtraces and much improved performance. It also uses a different approach in order to support laziness: this enables new uses of the pipe, and ensures magrittr is as similar as possible to the future base pipe. Our analysis and testing suggests that the new version should be a drop in replacement, but we'd really like you to try it out and give us some feedback before we submit to CRAN. You can install the development version from GitHub with:
+This version of magrittr has been completely rewritten in C to give better backtraces and much improved performance. It also uses a different approach in order to support laziness. This enables new uses of the pipe, and ensures magrittr is as similar as possible to the future base pipe. Our analysis and testing suggests that the new version should be a drop-in replacement, but we'd really like you to try it out and give us some feedback before we submit to CRAN. You can install the development version from GitHub with:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='c'># install.packages("remotes")</span>
-<span class='k'>remotes</span>::<span class='nf'><a href='https://remotes.r-lib.org/reference/install_github.html'>install_github</a></span>(<span class='s'>"magrittr"</span>)</code></pre>
+<span class='k'>remotes</span>::<span class='nf'><a href='https://remotes.r-lib.org/reference/install_github.html'>install_github</a></span>(<span class='s'>"tidyverse/magrittr"</span>)</code></pre>
 
 </div>
 
