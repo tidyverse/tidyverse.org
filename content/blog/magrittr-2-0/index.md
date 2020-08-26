@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: magrittr-2-0
 title: magrittr 2.0 is coming soon
-date: 2020-08-21
+date: 2020-08-26
 author: Lionel Henry
 description: >
     A new version of the magrittr package brings laziness, better performance, and leaner backtraces for debugging errors.
@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: 24094c73fa9e4a4d
+rmd_hash: 6efceddfdc550e43
 
 ---
 
@@ -215,7 +215,9 @@ The last function of the pipeline is `f4()`, so that's the first one to be run. 
 Towards a release
 -----------------
 
-Though we have changed the behaviour of the pipe, there should be no impact on your user code. The laziness makes it possible to use the pipe in more situations but is not any stricter. It should only cause problems in very rare corner cases and these should be minor. To confirm our analysis, we ran reverse dependency checks for magrittr, purrr, tidyr, and dplyr. None of the 2600 packages were broken by the change but, to be extra sure, we'd be grateful for any additional testing on real-life scripts with this development version. Please let us know of any issues you find with this new version of the pipe, if any.
+Though we have changed the behaviour of the pipe, there should be no impact on your user code. The laziness makes it possible to use the pipe in more situations but is not any stricter. It should only cause problems in very rare corner cases and these should be minor. To confirm our analysis, we ran reverse dependency checks for magrittr, purrr, tidyr, dplyr, and tidymodels. Only a dozen out of the 2800 packages were broken by the new implementation, and fixing them is generally easy (see the breaking changes section of the [NEWS file](https://github.com/tidyverse/magrittr/blob/master/NEWS.md)).
+
+We are confident that this release should be seamless for the vast majority of users. But, to be extra sure, we'd be grateful for any additional testing on real-life scripts with this development version. Please let us know of any issues you find with this new version of the pipe, if any.
 
 Finally, if you're interested in the design tradeoffs involved in the creation of a pipe operator in R, see the [tradeoffs](https://magrittr.tidyverse.org/articles/tradeoffs.html) vignette. Any comments about the choices we have made are welcome.
 
