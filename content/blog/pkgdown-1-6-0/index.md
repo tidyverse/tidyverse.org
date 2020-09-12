@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [pkgdown]
-rmd_hash: 6f5f9f597e6ff523
+rmd_hash: 8ee9fc933bcbf8ef
 
 ---
 
@@ -30,7 +30,7 @@ We're stoked to announce the release of [pkgdown](%7B%20home%20%7D) 1.6.0. pkgdo
 
 </div>
 
-This release mostly contains a bunch of minor improvements and bug fixes that you can read about in the [release notes](%7B%20github_release%20%7D). But there are two major changes:
+This release mostly contains a bunch of minor improvements and bug fixes that you can read about in the [release notes](https://pkgdown.r-lib.org/news/index.html#pkgdown-1-6-0-2020-09-07). But there are two major changes:
 
 -   The syntax highlighing and autolinking is now powered by the new [downlit](https://downlit.r-lib.org) package. There should be very little change in behaviour because the code in downlit was extracted from pkgdown, but this will make it easier to use pkgdown's nice linking/highlighting in more places.
 
