@@ -3,12 +3,12 @@ output: hugodown::hugo_document
 
 slug: pkgdown-1-6-0
 title: pkgdown 1.6.0
-date: 2020-09-07
+date: 2020-09-12
 author: Hadley Wickham
 description: >
     This release mostly contains bug fixes and minor improvements, but
-    it now use the downlit and ragg packages for syntax highlighting and
-    graphical output.
+    it now uses the downlit and ragg packages for syntax highlighting and
+    graphical output, respectively.
 
 photo:
   url: https://unsplash.com/photos/GOQ32dlahDk
@@ -17,14 +17,9 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [pkgdown]
-rmd_hash: 98fb239266b5bc52
+rmd_hash: 6f5f9f597e6ff523
 
 ---
-
-<!--
-TODO:
-* [ ] `use_tidy_thanks()`
--->
 
 We're stoked to announce the release of [pkgdown](%7B%20home%20%7D) 1.6.0. pkgdown is designed to make it quick and easy to build a website for your package. Install it with:
 
