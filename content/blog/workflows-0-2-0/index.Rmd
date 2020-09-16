@@ -1,0 +1,100 @@
+---
+output: hugodown::hugo_document
+slug: workflows-0-2-0
+title: workflows 0.2.0
+date: 2020-09-16
+author: Davis Vaughan
+description: >
+    workflows 0.2.0 is now on CRAN!
+photo:
+  url: https://unsplash.com/photos/nN5L5GXKFz8
+  author: Mark Fletcher-Brown
+categories: [package] 
+tags: [tidymodels]
+editor_options: 
+  chunk_output_type: console
+---
+
+We're excited to announce the release of [workflows](https://workflows.tidymodels.org/) 0.2.0. workflows is a [tidymodels](https://www.tidymodels.org/) package for bundling a model specification from [parsnip](https://parsnip.tidymodels.org/) with a preprocessor, such as a formula or [recipe](https://recipes.tidymodels.org/). Doing this can streamline the model fitting workflow and combines nicely with [tune](https://tune.tidymodels.org/) for performing hyperparameter tuning.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("workflows")
+```
+
+```{r setup, warning=FALSE}
+library(workflows)
+library(parsnip)
+```
+
+## Adding variables to a workflow
+
+The main change in this release of workflows is the introduction of a new preprocessor method: `add_variables()`. This adds a third method to specify model terms, in addition to `add_formula()` and `add_recipe()`. 
+
+`add_variables()` has a tidyselect interface, where `outcomes` are specified using bare column names, followed by `predictors`.
+
+```{r}
+linear_spec <- linear_reg() %>%
+  set_engine("lm")
+
+wf <- workflow() %>%
+  add_model(linear_spec) %>%
+  add_variables(outcomes = mpg, predictors = c(cyl, disp))
+
+wf
+```
+
+```{r}
+model <- fit(wf, mtcars)
+mold <- pull_workflow_mold(model)
+
+mold$predictors
+mold$outcomes
+```
+
+`outcomes` are removed before `predictors` is evaluated, which means that formula specifications like `y ~ .` can be easily reproduced as:
+
+```{r}
+workflow() %>%
+  add_variables(mpg, everything())
+```
+
+**Importantly, `add_variables()` doesn't do any preprocessing to your columns whatsoever.** This is in contrast to `add_formula()`, which uses the standard `model.matrix()` machinery from R, and `add_recipe()`, which will `recipes::prep()` the recipe for you. It is especially useful when you aren't using a recipe, but you do have S3 columns that you don't want run through `model.matrix()` for fear of losing the S3 class, like with Date columns.
+
+```{r, warning=FALSE}
+library(modeltime)
+
+arima_spec <- arima_reg() %>%
+    set_engine("arima")
+
+df <- data.frame(
+  y = sample(5),
+  date = as.Date("2019-01-01") + 0:4
+)
+
+wf <- workflow() %>%
+  add_variables(y, date) %>%
+  add_model(arima_spec)
+
+arima_model <- fit(wf, df)
+
+arima_model
+```
+
+```{r}
+mold <- pull_workflow_mold(arima_model)
+mold$predictors
+```
+
+## Tune
+
+workflows created with `add_variables()` do not work with the current CRAN version of tune (0.1.1). However, the development version of tune does have support for this, which you can install in the meantime until a new version of tune hits CRAN.
+
+```{r, eval = FALSE}
+devtools::install_github("tidymodels/tune")
+```
+
+## Acknowledgements
+
+Thanks to the three contributors that helped with this version of workflows [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;mdancho84](https://github.com/mdancho84), and [&#x0040;RaviHela](https://github.com/RaviHela)!
