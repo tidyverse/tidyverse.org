@@ -28,7 +28,7 @@ library(workflows)
 library(parsnip)
 ```
 
-## Variables
+## Adding variables to a workflow
 
 The main change in this release of workflows is the introduction of a new preprocessor method: `add_variables()`. This adds a third method to specify model terms, in addition to `add_formula()` and `add_recipe()`. 
 
@@ -40,7 +40,7 @@ linear_spec <- linear_reg() %>%
 
 wf <- workflow() %>%
   add_model(linear_spec) %>%
-  add_variables(mpg, c(cyl, disp))
+  add_variables(outcomes = mpg, predictors = c(cyl, disp))
 
 wf
 ```
@@ -60,7 +60,7 @@ workflow() %>%
   add_variables(mpg, everything())
 ```
 
-Importantly, `add_variables()` doesn't do any preprocessing to your columns whatsoever. This is in contrast to `add_formula()`, which uses the standard `model.matrix()` machinery from R, and `add_recipe()`, which will `recipes::prep()` the recipe for you. It is especially useful when you aren't using a recipe, but you do have S3 columns that you don't want run through `model.matrix()` for fear of losing the S3 class, like with Date columns.
+**Importantly, `add_variables()` doesn't do any preprocessing to your columns whatsoever.** This is in contrast to `add_formula()`, which uses the standard `model.matrix()` machinery from R, and `add_recipe()`, which will `recipes::prep()` the recipe for you. It is especially useful when you aren't using a recipe, but you do have S3 columns that you don't want run through `model.matrix()` for fear of losing the S3 class, like with Date columns.
 
 ```{r, warning=FALSE}
 library(modeltime)

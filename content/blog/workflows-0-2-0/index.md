@@ -13,7 +13,7 @@ categories: [package]
 tags: [tidymodels]
 editor_options: 
   chunk_output_type: console
-rmd_hash: b395e9e7edc0acf1
+rmd_hash: b577e46bdb781cb9
 
 ---
 
@@ -36,8 +36,8 @@ You can install it from CRAN with:
 
 </div>
 
-Variables
----------
+Adding variables to a workflow
+------------------------------
 
 The main change in this release of workflows is the introduction of a new preprocessor method: [`add_variables()`](https://workflows.tidymodels.org//reference/add_variables.html). This adds a third method to specify model terms, in addition to [`add_formula()`](https://workflows.tidymodels.org//reference/add_formula.html) and [`add_recipe()`](https://workflows.tidymodels.org//reference/add_recipe.html).
 
@@ -50,7 +50,7 @@ The main change in this release of workflows is the introduction of a new prepro
 
 <span class='k'>wf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://workflows.tidymodels.org//reference/workflow.html'>workflow</a></span>() <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://workflows.tidymodels.org//reference/add_model.html'>add_model</a></span>(<span class='k'>linear_spec</span>) <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://workflows.tidymodels.org//reference/add_variables.html'>add_variables</a></span>(<span class='k'>mpg</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='k'>cyl</span>, <span class='k'>disp</span>))
+  <span class='nf'><a href='https://workflows.tidymodels.org//reference/add_variables.html'>add_variables</a></span>(outcomes = <span class='k'>mpg</span>, predictors = <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='k'>cyl</span>, <span class='k'>disp</span>))
 
 <span class='k'>wf</span>
 
@@ -130,7 +130,7 @@ The main change in this release of workflows is the introduction of a new prepro
 
 </div>
 
-Importantly, [`add_variables()`](https://workflows.tidymodels.org//reference/add_variables.html) doesn't do any preprocessing to your columns whatsoever. This is in contrast to [`add_formula()`](https://workflows.tidymodels.org//reference/add_formula.html), which uses the standard [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html) machinery from R, and [`add_recipe()`](https://workflows.tidymodels.org//reference/add_recipe.html), which will [`recipes::prep()`](https://recipes.tidymodels.org/reference/prep.html) the recipe for you. It is especially useful when you aren't using a recipe, but you do have S3 columns that you don't want run through [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html) for fear of losing the S3 class, like with Date columns.
+**Importantly, [`add_variables()`](https://workflows.tidymodels.org//reference/add_variables.html) doesn't do any preprocessing to your columns whatsoever.** This is in contrast to [`add_formula()`](https://workflows.tidymodels.org//reference/add_formula.html), which uses the standard [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html) machinery from R, and [`add_recipe()`](https://workflows.tidymodels.org//reference/add_recipe.html), which will [`recipes::prep()`](https://recipes.tidymodels.org/reference/prep.html) the recipe for you. It is especially useful when you aren't using a recipe, but you do have S3 columns that you don't want run through [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html) for fear of losing the S3 class, like with Date columns.
 
 <div class="highlight">
 
