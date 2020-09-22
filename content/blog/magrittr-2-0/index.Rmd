@@ -39,6 +39,8 @@ This blog post covers the three main changes in this new version of the magrittr
 library(magrittr)
 ```
 
+__Update 2020-09-22:__ Some minor issues have arised from the first round of beta testing (see note on visibility and laziness below). We postponed the release to late October to give more time for potential further issues to surface before publication of magrittr 2.0 to CRAN.
+
 
 ## Backtraces
 
@@ -190,6 +192,31 @@ rlang::last_trace()
 ```
 
 The last function of the pipeline is `f4()`, so that's the first one to be run. It evaluates its argument which is provided by `f3()`, so that's the second function pushed on the stack. And so on until `f1()` needs the result of `stop("oh no")` which causes an error.
+
+__Update 2020-09-22:__ Another issue caused by laziness is that if any function in a pipeline returns invisibly, than the whole pipeline returns invisibly as well.
+
+```r
+1 %>% identity() %>% invisible()
+1 %>% invisible() %>% identity()
+1 %>% identity() %>% invisible() %>% identity()
+```
+
+This is consistent with the equivalent nested code. This behaviour can be worked around in two ways. You can force visibility by wrapping the pipeline in parentheses:
+
+```r
+my_function <- function(x) {
+  (x %>% invisible() %>% identity())
+}
+```
+
+Or by assigning the result to a variable and return it:
+
+```r
+my_function <- function(x) {
+  out <- x %>% invisible() %>% identity()
+  out
+}
+```
 
 
 ## Towards a release
