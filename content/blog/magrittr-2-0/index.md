@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: d8a7ceaa74e1839c
+rmd_hash: 7e0f4eae0236841e
 
 ---
 
@@ -255,7 +255,23 @@ Towards a release
 
 Though we have changed the behaviour of the pipe, there should be no impact on your user code. The laziness makes it possible to use the pipe in more situations but is not any stricter. It should only cause problems in very rare corner cases and these should be minor. To confirm our analysis, we ran reverse dependency checks for magrittr, purrr, tidyr, dplyr, and tidymodels. Only a dozen out of the 2800 packages were broken by the new implementation, and fixing them is generally easy (see the breaking changes section of the [NEWS file](https://github.com/tidyverse/magrittr/blob/master/NEWS.md)).
 
-We are confident that this release should be seamless for the vast majority of users. But, to be extra sure, we'd be grateful for any additional testing on real-life scripts with this development version. Please let us know of any issues you find with this new version of the pipe, if any.
+**Update 2020-09-22:** The issue you're most likely to encounter is that using [`return()`](https://rdrr.io/r/base/function.html) inside `{` inside [`%>%`](https://magrittr.tidyverse.org/reference/pipe.html) is no longer supported. If you do this, you will see this error:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='m'>1</span> <span class='o'>%&gt;%</span> <span class='o'>{</span>
+  <span class='kr'>if</span> <span class='o'>(</span><span class='nv'>.</span> <span class='o'>&gt;</span> <span class='m'>0</span><span class='o'>)</span> <span class='o'>{</span>
+    <span class='kr'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='o'>(</span><span class='nv'>.</span><span class='o'>)</span>
+  <span class='o'>}</span>
+  <span class='nv'>.</span> <span class='o'>+</span> <span class='m'>1</span>
+<span class='o'>}</span>
+
+<span class='c'>#&gt; Error in 1 %&gt;% {: no function to return from, jumping to top level</span>
+</code></pre>
+
+</div>
+
+Despite these few corner cases, we are confident that this release should be seamless for the vast majority of users. But, to be extra sure, we'd be grateful for any additional testing on real-life scripts with this development version. Please let us know of any issues you find with this new version of the pipe, if any.
 
 Finally, if you're interested in the design tradeoffs involved in the creation of a pipe operator in R, see the [tradeoffs](https://magrittr.tidyverse.org/articles/tradeoffs.html) vignette. Any comments about the choices we have made are welcome.
 
