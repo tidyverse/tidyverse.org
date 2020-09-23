@@ -39,6 +39,8 @@ This blog post covers the three main changes in this new version of the magrittr
 library(magrittr)
 ```
 
+__Update 2020-09-22:__ Some minor issues have arised from the first round of beta testing (see note on visibility and laziness below). We postponed the release to late October to give more time for potential further issues to surface before publication of magrittr 2.0 to CRAN.
+
 
 ## Backtraces
 
@@ -191,11 +193,47 @@ rlang::last_trace()
 
 The last function of the pipeline is `f4()`, so that's the first one to be run. It evaluates its argument which is provided by `f3()`, so that's the second function pushed on the stack. And so on until `f1()` needs the result of `stop("oh no")` which causes an error.
 
+__Update 2020-09-22:__ Another issue caused by laziness is that if any function in a pipeline returns invisibly, than the whole pipeline returns invisibly as well.
+
+```r
+1 %>% identity() %>% invisible()
+1 %>% invisible() %>% identity()
+1 %>% identity() %>% invisible() %>% identity()
+```
+
+This is consistent with the equivalent nested code. This behaviour can be worked around in two ways. You can force visibility by wrapping the pipeline in parentheses:
+
+```r
+my_function <- function(x) {
+  (x %>% invisible() %>% identity())
+}
+```
+
+Or by assigning the result to a variable and return it:
+
+```r
+my_function <- function(x) {
+  out <- x %>% invisible() %>% identity()
+  out
+}
+```
+
 
 ## Towards a release
 
 Though we have changed the behaviour of the pipe, there should be no impact on your user code. The laziness makes it possible to use the pipe in more situations but is not any stricter. It should only cause problems in very rare corner cases and these should be minor. To confirm our analysis, we ran reverse dependency checks for magrittr, purrr, tidyr, dplyr, and tidymodels. Only a dozen out of the 2800 packages were broken by the new implementation, and fixing them is generally easy (see the breaking changes section of the [NEWS file](https://github.com/tidyverse/magrittr/blob/master/NEWS.md)).
 
-We are confident that this release should be seamless for the vast majority of users. But, to be extra sure, we'd be grateful for any additional testing on real-life scripts with this development version. Please let us know of any issues you find with this new version of the pipe, if any.
+__Update 2020-09-22:__ The issue you're most likely to encounter is that using `return()` inside `{` inside `%>%` is no longer supported. If you do this, you will see this error:
+
+```{r, error = TRUE}
+1 %>% {
+  if (. > 0) {
+    return(.)
+  }
+  . + 1
+}
+```
+
+Despite these few corner cases, we are confident that this release should be seamless for the vast majority of users. But, to be extra sure, we'd be grateful for any additional testing on real-life scripts with this development version. Please let us know of any issues you find with this new version of the pipe, if any.
 
 Finally, if you're interested in the design tradeoffs involved in the creation of a pipe operator in R, see the [tradeoffs](https://magrittr.tidyverse.org/articles/tradeoffs.html) vignette. Any comments about the choices we have made are welcome.
