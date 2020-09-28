@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 
 slug: usemodels-0-0-1
-title: usemodels 0-0-1
+title: usemodels 0.0.1
 date: 2020-09-29
 author: Max Kuhn
 description: >
@@ -19,7 +19,7 @@ tags: [tidymodels,parsnip,recipes,tune]
 
 
 
-We're very excited to announce the first release of the [usemodels](https://usemodels.tidymodels.org/) package. usemodels creates templates for tidymodels analyses so you don't have to write as much new code. 
+We're very excited to announce the first release of the [usemodels](https://usemodels.tidymodels.org/) package. The tidymodels packages are designed to provide modeling functions that are highly flexible and modular. This is powerful, but sometimes a template or skeleton showing how to start is helpful. The usemodels package creates templates for tidymodels analyses so you don't have to write as much new code. 
 
 You can install it from CRAN with:
 
@@ -30,9 +30,9 @@ install.packages("usemodels")
 
 This blog post will show how to use the package. 
 
-Let's start with something simple: creating a glmnet linear regression model for the `mtcars` data using tidymodels. This model is usually tuned over the amount and type of regularization. In tidymodels, there are a few intermediate steps for a glmnet model: 
+Let's start by creating a glmnet linear regression model for the `mtcars` data using tidymodels. This model is usually tuned over the amount and type of regularization. In tidymodels, there are a few intermediate steps for a glmnet model: 
 
- * Create a [`parsnip` model object](https://www.tmwr.org/models.html) and define the tuning parameters that we want to optimize. 
+ * Create a [parsnip model object](https://www.tmwr.org/models.html) and define the tuning parameters that we want to optimize. 
  
  * [Create a recipe](https://www.tmwr.org/recipes.html) that, at minimum, centers and scales the predictors. For some data sets, we also need to create dummy variables from any factor-encoded predictor columns. 
  
@@ -40,9 +40,9 @@ Let's start with something simple: creating a glmnet linear regression model for
  
  * Choose a function from the [tune package](https://tune.tidymodels.org/), such as `tune_grid()`, to optimize the parameters. For grid search, we'll also need a grid of candidate parameter values (or let the function choose one for us). 
  
-We recognize that this might be more code than you would have had to write compared to a package like `caret`. However, the tidymodels ecosystem enables a wider variety of modeling techniques and has slightly higher complexity.
+We recognize that this might be more code than you would have had to write compared to a package like caret. However, the tidymodels ecosystem enables a wider variety of modeling techniques and is more versatile.
 
-usemodels automates much of this code infrastructure. For example: 
+The new usemodels package can automatically generate much of this code infrastructure. For example: 
 
 
 ```r
@@ -78,17 +78,17 @@ glmnet_tune <-
  
 This can be copied to the source window and edited. Some notes: 
 
- * For this model, it is possible to prescribe a default grid of candidate tuning parameter values that  work well about 90% of the time. For other models, the grid might be data-driven. In these cases, our functions `tune` functions can estimate an appropriate grid. 
+ * For this model, it is possible to prescribe a default grid of candidate tuning parameter values that  work well about 90% of the time. For other models, the grid might be data-driven. In these cases, the tune package functions can estimate an appropriate grid. 
  
  * The extra recipes steps are the [recommend preprocessing](https://www.tmwr.org/pre-proc-table.html) for this model. Since this varies from model-to-model, the recipe template will contain the minimal required steps. Your data might require additional operations. 
  
- * One thing that _should not be automated_ is the choice of resampling method. The code templates require the user to choose the `rsample` function that is appropriate. 
+ * One thing that _should not be automated_ is the choice of resampling method. The code templates require the user to choose the rsample function that is appropriate. 
  
 In case you are unfamiliar with the model and its preprocessing needs, a `verbose` option prints comments that explain _why_ some steps are included. For the glmnet model, the comments added to the recipe state: 
 
 > Regularization methods sum up functions of the model slope coefficients. Because of this, the predictor variables should be on the same scale. Before centering and scaling the numeric predictors, any predictors with a single unique value are filtered out. 
 
-Let's look at another example. The `ad_data` data set in the modeldata package has rows for 333 patients with a factor outcome for their level of cognitive impairment (e.g., Alzheimer's disease). There are also a categorical predictor in the data, the Apolipoprotein E genotype, which has six levels. Let's suppose the `Genotype` column was encoded as character (instead of being a factor). This might be a problem if the resampling method samples out a level from the data used to fit the model.
+Let's look at another example. The `ad_data` data set in the modeldata package has rows for 333 patients with a factor outcome for their level of cognitive impairment (e.g., Alzheimer's disease). There is also a categorical predictor in the data, the Apolipoprotein E genotype, which has six levels. Let's suppose the `Genotype` column was encoded as character (instead of being a factor). This might be a problem if the resampling method samples out a level from the data used to fit the model.
 
 Let's use a boosted tree model with the xgboost package and change the default prefix for the objects:
 
@@ -121,7 +121,7 @@ impairment_workflow <-
   add_recipe(impairment_recipe) %>% 
   add_model(impairment_spec) 
 
-set.seed(93070)
+set.seed(64393)
 impairment_tune <-
   tune_grid(impairment_workflow, resamples = stop("add your rsample object"), 
     grid = stop("add number of candidate points"))
@@ -135,7 +135,7 @@ step_string2factor(one_of(Genotype))
 
 is included in the recipe along with a step to generate one-hot encoded dummy variables. xgboost is one of the few tree ensemble implementations that requires the user to create dummy variables. This step is only added to the template when it is required for that model.
 
-Also, for this particular model, we recommend using a [space-filling design](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=space+filling+design+of+experiments) for the grid but the user must choose the number of grid points. 
+Also, for this particular model, we recommend using a [space-filling design](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=space+filling+design+of+experiments) for the grid, but the user must choose the number of grid points. 
 
 The current set of templates included in the inaugural version of the package are: 
 
