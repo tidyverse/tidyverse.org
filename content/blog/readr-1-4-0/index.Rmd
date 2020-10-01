@@ -1,0 +1,109 @@
+---
+output: hugodown::hugo_document
+
+slug: readr-1-4-0
+title: readr 1.4.0
+date: 2020-09-30
+author: Jim Hester
+description: >
+    A 2-3 sentence description of the post that appears on the articles page.
+    This can be omitted if it would just recapitulate the title.
+photo:
+  url: https://unsplash.com/photos/XOW1WqrWNKg
+  author: Anastasia Zhenina
+categories: [package]
+tags:
+  - readr
+  - tidyverse
+---
+
+[readr](http://readr.tidyverse.org) 1.4.0 is now available on CRAN! Learn more
+about readr at <https://readr.tidyverse.org>. Detailed notes are always in the
+[change log](https://readr.tidyverse.org/news/index.html#readr-1-4-0).
+
+The readr package makes it easy to get rectangular data out of comma separated
+(csv), tab separated (tsv) or fixed width files (fwf) and into R. It
+is designed to flexibly parse many types of data found in the wild, while still
+cleanly failing when data unexpectedly changes. If you are new to readr, the
+best place to start is the [data import
+chapter](https://r4ds.had.co.nz/data-import.html) in R for data science.
+
+The easiest way to install the latest version from CRAN is to install the whole tidyverse.
+
+
+```r
+install.packages("tidyverse")
+```
+
+Alternatively, install just readr from CRAN:
+
+
+```r
+install.packages("readr")
+```
+
+readr is part of the core tidyverse, so load it with:
+
+
+```{r}
+library(tidyverse)
+```
+
+## Breaking Changes
+
+### Argument name consistency
+
+The first argument to all of the `write_()` functions, like `write_csv()` had previously been `path`.
+However the first argument to all of the `read_()` functions is `file`.
+As of readr 1.4.0 the first argument to both `read_()` and `write_()` functions is `file` and `path` is now deprecated.
+
+### NaN behavior
+
+Some floating point operations can produce a `NaN` value, e.g. `0 / 0`.
+Previously `write_csv()` would output `NaN` values always as `NaN` and this could not be controlled by the `write_csv(na=)` argument.
+Now the output value of `NaN` is the same as the `NA` and can be controlled by the argument.
+This is a breaking change in that the same code would produce different output, but it should be rare in practice.
+
+## New features
+
+### Generate column specifications from datasets
+
+Using `as.col_spec()` on any `data.frame` or `tibble` object will now generate a column specification with the column types in the data.
+
+```{r}
+library(palmerpenguins)
+spec <- as.col_spec(penguins)
+spec
+```
+
+You can also convert the column specifications to a condensed textual representation with `as.character()`
+
+```{r}
+as.character(spec)
+```
+
+### Writing end of line characters
+
+Write functions now take a `eol` argument to allow control of the end of line characters.
+Previously readr only supported using a single newline (`\n`) character.
+You can now specify any number of characters, though windows linefeed newline (`\r\n`) is by far the most common alternative.
+
+### cli package is now used for messages
+
+The cli package is now used for messages.
+The most prominent place you will notice this is printing the column specifications.
+Previously these functions used `message()`, which in RStudio prints the text in red.
+
+While cli still uses message objects, they will now be more naturally colored, which hopefully will make them easier to read.
+
+### Rcpp dependency removed
+
+The Rcpp dependency has been removed in favor of [cpp11](https://cpp11.r-lib.org/).
+Compiling readr should now take less time and use less memory.
+
+## Acknowledgements
+
+As usual, there were many more additional changes and bugfixes included in this release see the [change log](https://readr.tidyverse.org/news/index.html#readr-1-4-0) for details.
+
+Thank you to the 132 contributors who made this release possible by opening issues or submitting pull requests:
+[&#x0040;adamroyjones](https://github.com/adamroyjones), [&#x0040;aetiologicCanada](https://github.com/aetiologicCanada), [&#x0040;ailich](https://github.com/ailich), [&#x0040;antoine-sachet](https://github.com/antoine-sachet), [&#x0040;archenemies](https://github.com/archenemies), [&#x0040;ashuchawla](https://github.com/ashuchawla), [&#x0040;Athanasiamo](https://github.com/Athanasiamo), [&#x0040;bastianilso](https://github.com/bastianilso), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;Ben-Cox](https://github.com/Ben-Cox), [&#x0040;bergen288](https://github.com/bergen288), [&#x0040;boshek](https://github.com/boshek), [&#x0040;bovender](https://github.com/bovender), [&#x0040;bransonf](https://github.com/bransonf), [&#x0040;brianrice2](https://github.com/brianrice2), [&#x0040;briatte](https://github.com/briatte), [&#x0040;c30saux](https://github.com/c30saux), [&#x0040;cboettig](https://github.com/cboettig), [&#x0040;cderv](https://github.com/cderv), [&#x0040;cdhowe](https://github.com/cdhowe), [&#x0040;ceresek](https://github.com/ceresek), [&#x0040;charliejhadley](https://github.com/charliejhadley), [&#x0040;chipkoziara](https://github.com/chipkoziara), [&#x0040;cwolk](https://github.com/cwolk), [&#x0040;damianooldoni](https://github.com/damianooldoni), [&#x0040;dan-reznik](https://github.com/dan-reznik), [&#x0040;DanielleQuinn](https://github.com/DanielleQuinn), [&#x0040;DarwinAwardWinner](https://github.com/DarwinAwardWinner), [&#x0040;dhmontgomery](https://github.com/dhmontgomery), [&#x0040;djbirke](https://github.com/djbirke), [&#x0040;dkahle](https://github.com/dkahle), [&#x0040;dmitrienka](https://github.com/dmitrienka), [&#x0040;dmurdoch](https://github.com/dmurdoch), [&#x0040;dpprdan](https://github.com/dpprdan), [&#x0040;dwachsmuth](https://github.com/dwachsmuth), [&#x0040;EarlGlynn](https://github.com/EarlGlynn), [&#x0040;edo91](https://github.com/edo91), [&#x0040;ellessenne](https://github.com/ellessenne), [&#x0040;Fernal73](https://github.com/Fernal73), [&#x0040;firasm](https://github.com/firasm), [&#x0040;fjuniorr](https://github.com/fjuniorr), [&#x0040;frahimov](https://github.com/frahimov), [&#x0040;frousseu](https://github.com/frousseu), [&#x0040;GegznaV](https://github.com/GegznaV), [&#x0040;georgevbsantiago](https://github.com/georgevbsantiago), [&#x0040;geotheory](https://github.com/geotheory), [&#x0040;greg-minshall](https://github.com/greg-minshall), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hidekoji](https://github.com/hidekoji), [&#x0040;huashan](https://github.com/huashan), [&#x0040;ifendo](https://github.com/ifendo), [&#x0040;ijlyttle](https://github.com/ijlyttle), [&#x0040;isaactpetersen](https://github.com/isaactpetersen), [&#x0040;jangorecki](https://github.com/jangorecki), [&#x0040;jdblischak](https://github.com/jdblischak), [&#x0040;jemunro](https://github.com/jemunro), [&#x0040;jennahamlin](https://github.com/jennahamlin), [&#x0040;jesse-ross](https://github.com/jesse-ross), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;jmarshallnz](https://github.com/jmarshallnz), [&#x0040;jmcloughlin](https://github.com/jmcloughlin), [&#x0040;jmobrien](https://github.com/jmobrien), [&#x0040;jnolis](https://github.com/jnolis), [&#x0040;jokedurnez](https://github.com/jokedurnez), [&#x0040;jpwhitney](https://github.com/jpwhitney), [&#x0040;jssa98](https://github.com/jssa98), [&#x0040;juangomezduaso](https://github.com/juangomezduaso), [&#x0040;junqi108](https://github.com/junqi108), [&#x0040;JustGitting](https://github.com/JustGitting), [&#x0040;jxu](https://github.com/jxu), [&#x0040;kainhofer](https://github.com/kainhofer), [&#x0040;katgit](https://github.com/katgit), [&#x0040;kbzsl](https://github.com/kbzsl), [&#x0040;keesdeschepper](https://github.com/keesdeschepper), [&#x0040;kiernann](https://github.com/kiernann), [&#x0040;knausb](https://github.com/knausb), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;kvittingseerup](https://github.com/kvittingseerup), [&#x0040;lambdamoses](https://github.com/lambdamoses), [&#x0040;leopoldsw](https://github.com/leopoldsw), [&#x0040;lsaravia](https://github.com/lsaravia), [&#x0040;MihaiBabiac](https://github.com/MihaiBabiac), [&#x0040;mkearney](https://github.com/mkearney), [&#x0040;mlaunois](https://github.com/mlaunois), [&#x0040;mmuurr](https://github.com/mmuurr), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;MZellou](https://github.com/MZellou), [&#x0040;nacnudus](https://github.com/nacnudus), [&#x0040;natecobb](https://github.com/natecobb), [&#x0040;NFA](https://github.com/NFA), [&#x0040;NikKrieger](https://github.com/NikKrieger), [&#x0040;njtierney](https://github.com/njtierney), [&#x0040;nogeel](https://github.com/nogeel), [&#x0040;orderlyquant](https://github.com/orderlyquant), [&#x0040;oscci](https://github.com/oscci), [&#x0040;Ozan147](https://github.com/Ozan147), [&#x0040;pcgreen7](https://github.com/pcgreen7), [&#x0040;perog](https://github.com/perog), [&#x0040;phil-grayson](https://github.com/phil-grayson), [&#x0040;pralitp](https://github.com/pralitp), [&#x0040;psychelzh](https://github.com/psychelzh), [&#x0040;QuLogic](https://github.com/QuLogic), [&#x0040;r2evans](https://github.com/r2evans), [&#x0040;Rajesh-Ramasamy](https://github.com/Rajesh-Ramasamy), [&#x0040;ralsouza](https://github.com/ralsouza), [&#x0040;rcragun](https://github.com/rcragun), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;salim-b](https://github.com/salim-b), [&#x0040;sfrenk](https://github.com/sfrenk), [&#x0040;Shians](https://github.com/Shians), [&#x0040;shrektan](https://github.com/shrektan), [&#x0040;skaltman](https://github.com/skaltman), [&#x0040;sonhan18](https://github.com/sonhan18), [&#x0040;StevenMMortimer](https://github.com/StevenMMortimer), [&#x0040;thays42](https://github.com/thays42), [&#x0040;ThePrez](https://github.com/ThePrez), [&#x0040;tmalsburg](https://github.com/tmalsburg), [&#x0040;TrentLobdell](https://github.com/TrentLobdell), [&#x0040;ttimbers](https://github.com/ttimbers), [&#x0040;vnijs](https://github.com/vnijs), [&#x0040;wch](https://github.com/wch), [&#x0040;we-hop](https://github.com/we-hop), [&#x0040;wehopkins](https://github.com/wehopkins), [&#x0040;wibeasley](https://github.com/wibeasley), [&#x0040;wolski](https://github.com/wolski), [&#x0040;wwgordon](https://github.com/wwgordon), [&#x0040;xianwenchen](https://github.com/xianwenchen), [&#x0040;xiaodaigh](https://github.com/xiaodaigh), [&#x0040;xinyue-li](https://github.com/xinyue-li), [&#x0040;yutannihilation](https://github.com/yutannihilation), [&#x0040;Zack-83](https://github.com/Zack-83), and [&#x0040;zenggyu](https://github.com/zenggyu).
