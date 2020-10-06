@@ -15,7 +15,7 @@ categories: [package]
 tags:
   - readr
   - tidyverse
-rmd_hash: 621e2c80555c3bd4
+rmd_hash: 7ac48fca3c363384
 
 ---
 
@@ -23,19 +23,13 @@ rmd_hash: 621e2c80555c3bd4
 
 The readr package makes it easy to get rectangular data out of comma separated (csv), tab separated (tsv) or fixed width files (fwf) and into R. It is designed to flexibly parse many types of data found in the wild, while still cleanly failing when data unexpectedly changes. If you are new to readr, the best place to start is the [data import chapter](https://r4ds.had.co.nz/data-import.html) in R for data science.
 
-The easiest way to install the latest version from CRAN is to install the whole tidyverse.
-
-``` r
-install.packages("tidyverse")
-```
-
-Alternatively, install just readr from CRAN:
+Install readr with
 
 ``` r
 install.packages("readr")
 ```
 
-readr is part of the core tidyverse, so load it with:
+And load it with
 
 <div class="highlight">
 
