@@ -6,7 +6,7 @@ title: readr 1.4.0
 date: 2020-10-06
 author: Jim Hester
 description: >
-    The newest release of readr brings improved argument consistentency, better
+    The newest release of readr brings improved argument consistency, better
     messages and more flexible output options.
 photo:
   url: https://unsplash.com/photos/XOW1WqrWNKg
@@ -15,7 +15,7 @@ categories: [package]
 tags:
   - readr
   - tidyverse
-rmd_hash: 7ac48fca3c363384
+rmd_hash: 570a2bc752cc493a
 
 ---
 
