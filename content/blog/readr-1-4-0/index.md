@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: readr-1-4-0
 title: readr 1.4.0
-date: 2020-09-30
+date: 2020-10-06
 author: Jim Hester
 description: >
     The newest release of readr brings improved argument consistentency, better
@@ -15,7 +15,7 @@ categories: [package]
 tags:
   - readr
   - tidyverse
-rmd_hash: 5aa42d81e5945da1
+rmd_hash: 621e2c80555c3bd4
 
 ---
 
