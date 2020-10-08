@@ -1,0 +1,178 @@
+---
+output: hugodown::hugo_document
+
+slug: waldo
+title: waldo
+date: 2020-10-08
+author: Hadley Wickham
+description: >
+    waldo is a new package that makes it easier to see the differences
+    between a pair of complex R objects.
+
+photo:
+  url: https://unsplash.com/photos/n6vS3xlnsCc
+  author: Kelley Bozarth
+
+# one of: "deep-dive", "learn", "package", "programming", or "other"
+categories: [package] 
+tags: [testthat, waldo]
+---
+
+<!--
+TODO:
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnail()`
+-->
+
+We're stoked to announce the [waldo](http://waldo.r-lib.org/) package. waldo is designed to find and concisely describe the difference between a pair of R objects. It was designed primarily to improve failure messages for `testthat::expect_equal()` but it turns out to be useful in a number of other situations.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("waldo")
+```
+
+
+
+## Atomic vectors
+
+```{r setup}
+library(waldo)
+```
+
+When comparing atomic vectors, `compare()` uses the [diffobj](https://github.com/brodieG/diffobj) package by Brodie Gaslam) to show additions, deletions, and changes:
+
+```{r}
+# addition
+compare(c("a", "b", "c"), c("a", "b"))
+
+# deletion
+compare(c("a", "b"), c("a", "b", "c"))
+
+# modification
+compare(c("a", "b", "c"), c("a", "B", "c"))
+```
+
+Large vectors with small changes only show local context around changes, not everything that's the same:
+
+```{r}
+compare(c("X", letters, letters), c(letters, letters, "X"))
+```
+
+Depending on the relative size of the differences and the width of your console you'll get one of three displays. The default display is to show the vectors one atop the other. If there's not enough room for that, the two vectors are shown side-by-side. And if there's still not enough room for side-by-side, the each element is given its own line:
+
+```{R}
+with_width <- function(width, code) {
+  withr::local_options(width = width)
+  code
+}
+
+old <- c("x", "y", "a", "b", "c")
+new <- c("y", "a", "B", "c", "d")
+
+with_width(80, compare(old, new))
+with_width(20, compare(old, new))
+with_width(10, compare(old, new))
+```
+
+## Nested objects
+
+When comparing more complex objects, waldo creates an executable code path telling you where the differences lie. Unnamed lists use positions: 
+
+```{R}
+compare(list(factor("x")), list(1L))
+```
+
+But most complex lists have names, so if they're available waldo will use them:
+
+```{r}
+compare(
+  list(x = 1, y = 2),
+  list(y = 2, x = 1)
+)
+```
+
+waldo also reports on differences in attributes:
+
+```{r}
+compare(
+  structure(1:5, a = 1),
+  structure(1:5, a = 2)
+)
+```
+
+And can recurse arbitrarily deep:
+
+```{r}
+x <- list(a = list(b = list(c = list(structure(1, e = 1)))))
+y <- list(a = list(b = list(c = list(structure(1, e = "a")))))
+compare(x, y)
+```
+
+To illustrate how you might use waldo in practice, I include two case studies below. They both come from my colleagues at RStudio, who have been trying it out prior to its public debut.
+
+## Case study: GitHub API
+
+The first case study comes from Jenny Bryan. She was trying to figure out precisely what changed when a certain request to the GitHub API was performed with and without authentication:
+
+```{r}
+# Use default auth
+x1 <- gh::gh("/repos/gaborcsardi/roxygenlabs")
+# Suppress auth
+x2 <- gh::gh("/repos/gaborcsardi/roxygenlabs", .token = "")
+
+# Strip part of the results that might expose my GitHub credentials
+attr(x1, "response") <- NULL
+attr(x1, ".send_headers") <- NULL
+attr(x2, "response") <- NULL
+attr(x2, ".send_headers") <- NULL
+```
+
+The individual objects are rather complicated!
+
+```{r}
+str(x1, list.len = 20)
+```
+
+And while `all.equal()` helps identify that there's a problem, it doesn't make it easy to see what the difference is:
+
+```{r}
+all.equal(x1, x2)
+```
+
+waldo makes it easy: the request with auth returns a new key that contains the `permissions`.
+
+```{r}
+waldo::compare(x1, x2)
+```
+
+## Case study: Spatial data
+
+The second case study comes from Joe Cheng who received a request from Roger Bivand to update map data bundled in the leaftlet package. Roger Bivand had helpfully provide the updated data, but Joe wanted to understand exactly what had changed:
+
+```{r}
+old <- readRDS("storms-old.rds")
+new <- readRDS("storms-new.rds")
+```
+
+Again, the individual objects are complicated:
+
+```{r}
+str(old, list.len = 5, max.level = 5)
+```
+
+`all.equal()` is bit more helpful here, at least getting us to the right general vicinity:
+
+```{r}
+all.equal(old, new)
+```
+
+But waldo gets us right to the change: the definition of the spatial projection.
+
+```{r}
+waldo::compare(old, new)
+```
+
+(If you read the `all.equal()` output very closely you'll notice that it reports an additional difference to `waldo::compare()`. I've fixed that buglet in the dev version of waldo.)
