@@ -104,6 +104,11 @@ test_that("tibbles print usefully", {
     print(df1)
   })
 })
+#> ── Warning (<text>:4:3): tibbles print usefully ───────────────────────────────────────────────────────
+#> Creating reference output
+#> Backtrace:
+#>  1. testthat::verify_output(...)
+#>  2. testthat:::compare_file(path, output, update = TRUE) /Users/hadley/Documents/devtools/testthat/R/verify-output.R:62:2
 ```
 
 That test yields a `test-print-dataframe.txt` containing this output:
@@ -142,6 +147,11 @@ test_that("tibbles print usefully", {
     "not yet written"
   })
 })
+#> ── Warning (<text>:2:3): tibbles print usefully ───────────────────────────────────────────────────────
+#> Creating reference output
+#> Backtrace:
+#>  1. testthat::verify_output(...)
+#>  2. testthat:::compare_file(path, output, update = TRUE) /Users/hadley/Documents/devtools/testthat/R/verify-output.R:62:2
 ```
 
 ```
