@@ -15,20 +15,17 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
-tags: []
-rmd_hash: 7ca1e80ec94ec16b
+tags: [testthat, waldo]
+rmd_hash: 8771fccdd859ddb1
 
 ---
 
 <!--
 TODO:
-* [ ] Pick category and tags (see existing with `post_tags()`)
 * [ ] Find photo & update yaml metadata
 * [ ] Create `thumbnail-sq.jpg`; height and width should be equal
 * [ ] Create `thumbnail-wd.jpg`; width should be >5x height
 * [ ] `hugodown::use_tidy_thumbnail()`
-* [ ] Add intro sentence
-* [ ] `use_tidy_thanks()`
 -->
 
 We're stoked to announce the [waldo](http://waldo.r-lib.org/) package. waldo is designed to find and concisely describe the difference between a pair of R objects. It was designed primarily to improve failure messages for [`testthat::expect_equal()`](https://testthat.r-lib.org/reference/equality-expectations.html) but it turns out to be useful in a number of other situations.
