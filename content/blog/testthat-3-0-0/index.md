@@ -17,7 +17,7 @@ photo:
 
 categories: [package] 
 tags: [testthat]
-rmd_hash: 029750c8dccd37d4
+rmd_hash: bfb8efd8d14d706d
 
 ---
 
@@ -90,7 +90,7 @@ Other improvements
 
 -   We have revamped non-interactive reporter to a better job of displaying skipped tests and written a vignette, [`vignette("skipping", package = "testthat")`](https://testthat.r-lib.org/articles/skipping.html), describing best practices (including how to test your own skip functions).
 
--   Made a number of tweaks to the various reporters that testthat uses in different places. Most importantly the reporter used by [`devtools::test()`](https://devtools.r-lib.org//reference/test.html) now display stack traces of warnings and errors that occur outside of tests making these problems substantially easier to track down. (It also gets a number of new random praise options that use emoji). There's also a new reporter for use by [`devtools::test_file()`](https://devtools.r-lib.org//reference/test.html) which displays results more compactly.
+-   Made a number of tweaks to test reporting. Most importantly the reporter used by [`devtools::test()`](https://devtools.r-lib.org//reference/test.html) now displays stack traces of warnings and errors that occur outside of tests making these problems substantially easier to track down. (It also gets a number of new random praise options that use emoji). There's also a new reporter for use by [`devtools::test_file()`](https://devtools.r-lib.org//reference/test.html) which displays results more compactly.
 
 Acknowledgements
 ----------------
