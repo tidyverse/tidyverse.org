@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: waldo
 title: waldo
-date: 2020-10-08
+date: 2020-10-10
 author: Hadley Wickham
 description: >
     waldo is a new package that makes it easier to see the differences
@@ -25,15 +25,13 @@ You can install it from CRAN with:
 install.packages("waldo")
 ```
 
-
-
-## Atomic vectors
+## waldo basics
 
 ```{r setup}
 library(waldo)
 ```
 
-When comparing atomic vectors, `compare()` uses the [diffobj](https://github.com/brodieG/diffobj) package by Brodie Gaslam) to show additions, deletions, and changes:
+There's only really one function in waldo that you'll ever use: `waldo::compare()`. It's job is to take a pair of objects and succinctly display all differences. When comparing atomic vectors, `compare()` uses the [diffobj](https://github.com/brodieG/diffobj) package by Brodie Gaslam) to show additions, deletions, and changes:
 
 ```{r}
 # addition
@@ -46,13 +44,13 @@ compare(c("a", "b"), c("a", "b", "c"))
 compare(c("a", "b", "c"), c("a", "B", "c"))
 ```
 
-Large vectors with small changes only show local context around changes, not everything that's the same:
+Large vectors with small changes only show a little context around the changes, not all the parts that are the same:
 
 ```{r}
 compare(c("X", letters, letters), c(letters, letters, "X"))
 ```
 
-Depending on the relative size of the differences and the width of your console you'll get one of three displays. The default display is to show the vectors one atop the other. If there's not enough room for that, the two vectors are shown side-by-side. And if there's still not enough room for side-by-side, the each element is given its own line:
+Depending on the size of the differences and the width of your console you'll get one of three displays. The default display shows the vectors one atop the other. If there's not enough room for that, the two vectors are shown side-by-side. And if there's still not enough room for side-by-side, the each element is shown on its own line:
 
 ```{R}
 with_width <- function(width, code) {
@@ -68,15 +66,26 @@ with_width(20, compare(old, new))
 with_width(10, compare(old, new))
 ```
 
+As you can see, in situations where colour is available, additions are coloured in blue, deletions in yellow, and changes in green.
+
 ## Nested objects
 
-When comparing more complex objects, waldo creates an executable code path telling you where the differences lie. Unnamed lists use positions: 
+For more complex objects, waldo drills down precisely to the location of differences, using R code to describe their location. Unnamed lists show the position of changes: 
 
 ```{R}
 compare(list(factor("x")), list(1L))
 ```
 
 But most complex lists have names, so if they're available waldo will use them:
+
+```{r}
+compare(
+  list(x = list(y = list(z = 3))),
+  list(x = list(y = list(z = "a")))
+)
+```
+
+If named valued are the same but with different positions, waldo just reports on the difference in names:
 
 ```{r}
 compare(
@@ -97,8 +106,8 @@ compare(
 And can recurse arbitrarily deep:
 
 ```{r}
-x <- list(a = list(b = list(c = list(structure(1, e = 1)))))
-y <- list(a = list(b = list(c = list(structure(1, e = "a")))))
+x <- list(a = list(b = list(c = structure(1, d = factor("a")))))
+y <- list(a = list(b = list(c = structure(1, d = factor("a", levels = letters[1:2])))))
 compare(x, y)
 ```
 
@@ -124,10 +133,10 @@ attr(x2, ".send_headers") <- NULL
 The individual objects are rather complicated!
 
 ```{r}
-str(x1, list.len = 20)
+str(x1, list.len = 10)
 ```
 
-And while `all.equal()` helps identify that there's a problem, it doesn't make it easy to see what the difference is:
+While `all.equal()` identifies that there is a difference, it doesn't make it easy to see what the difference is:
 
 ```{r}
 all.equal(x1, x2)
@@ -160,10 +169,8 @@ str(old, list.len = 5, max.level = 5)
 all.equal(old, new)
 ```
 
-But waldo gets us right to the change: the definition of the spatial projection.
+But waldo gets us right to the change: the definition of the spatial projection has changed, and it now contains a comment with a lot more data.
 
 ```{r}
 waldo::compare(old, new)
 ```
-
-(If you read the `all.equal()` output very closely you'll notice that it reports an additional difference to `waldo::compare()`. I've fixed that buglet in the dev version of waldo.)
