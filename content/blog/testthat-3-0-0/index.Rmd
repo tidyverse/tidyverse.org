@@ -20,7 +20,7 @@ tags: [testthat]
 ---
 
 We're tickled pink to announce the release of [testthat](http://testthat.r-lib.org/) 3.0.0.
-testthat makes it easy to turn your existing informal tests into formal automated tests that you can rerun quickly and easily.
+testthat makes it easy to turn your existing informal tests into formal, automated tests that you can rerun quickly and easily.
 testthat is the most popular unit-testing package for R, and is used by over 5,000 CRAN and Bioconductor packages.
 You can learn more about unit testing at <https://r-pkgs.org/tests.html>.
 
@@ -30,8 +30,8 @@ You can install it from CRAN with:
 install.packages("testthat")
 ```
 
-In this blog post, I want to discuss the two biggest changes: the introduction of the edition, which allows us to make breaking changes that you have to specifically opt-in to, and a new family of "snapshot" tests.
-I'll also give a quick round of the other major changes, but you might also want to look at the [release notes](%7B%20github_release%20%7D) for the full details.
+In this blog post, I want to discuss the two biggest changes: the introduction of the “edition,” which allows us to make breaking changes that you have to specifically opt-in to, and a new family of "snapshot" tests.
+I'll also give a quick round up of the other major changes, but you might want to look at the [release notes](%7B%20github_release%20%7D) for the full details.
 
 ```{r setup}
 library(testthat)
@@ -59,7 +59,7 @@ Here are the most important changes:
 
 -   `expect_identical()` and `expect_equal()` use `waldo::compare()` to compare actual and expected results.
     This should give considerably more informative output for test failures, but `waldo::compare()` is not 100% compatible with `all.equal()` (which previously powered `expect_equal()`).
-    There are a few differences due a bug in testthat's comparison of floating point values and subtle differences when comparing environments stored in attributes (common in modelling functions); see the vignette for full details.
+    There are a few differences due to a bug in testthat's comparison of floating point values and subtle differences when comparing environments stored in attributes (common in modelling functions); see the vignette for full details.
 
     `expect_equivalent()` is now deprecated because it's equivalent to `expect_equal(ignore_attr = TRUE)` (which is generally not recommended, anyway, because it's such a blunt tool).
 
@@ -70,7 +70,7 @@ Here are the most important changes:
     You'll now need to use `suppressMessages()` to hide unimportant messages or `expect_messsage()` to catch important messages.
 
 -   `test_that()` now sets a number of options and env vars to make output as reproducible as possible.
-    Many of these options were previously set in various places (including `devtools::test()`, `test_dir()`, `test_file()`, and `verify_output()`) but they now been centralised in to `local_test_context()`.
+    Many of these options were previously set in various places (including `devtools::test()`, `test_dir()`, `test_file()`, and `verify_output()`) but they have now been centralised in to `local_test_context()`.
 
 ## Snapshot testing
 
@@ -85,10 +85,10 @@ Some challenges include:
 
 -   Cases where you want to record a mix of printed output, messages, warnings, or errors.
 
--   Binary formats like plots or images, which are very difficult to describe in code: i.e. the plot looks right, the error message is useful to a human, the print method uses colour effectively.
+-   Binary formats, like plots or images, which are very difficult to describe in code: i.e. the plot looks right, the error message is useful to a human, the print method uses colour effectively.
 
 For these situations, testthat provides an alternative mechanism: snapshot tests.
-Instead of using code to describe expected output, snapshot tests (also known as [golden tests](https://ro-che.info/articles/2017-12-04-golden-tests)) record results in a separate human readable file.
+Instead of using code to describe expected output, snapshot tests (also known as [golden tests](https://ro-che.info/articles/2017-12-04-golden-tests)) record results in a separate human-readable file.
 Snapshot tests in testthat are inspired primarily by [Jest](https://jestjs.io/docs/en/snapshot-testing), thanks to a number of very useful discussions with Joe Cheng.
 
 If snapshot tests sound intriguing to you, please read the details in `vignette("snapshotting", package = "testthat").`
@@ -101,10 +101,10 @@ If snapshot tests sound intriguing to you, please read the details in `vignette(
 -   We now recommend using test fixtures rather than `setup()` and `teardown()` code.
     See details in `vignette("test-fixtures", package = "testthat")`.
 
--   We have revamped non-interactive reporter to a better job of displaying skipped tests and written a vignette, `vignette("skipping", package = "testthat")`, describing best practices (including how to test your own skip functions).
+-   We have revamped the non-interactive reporter to do a better job of displaying skipped tests, and have written a vignette, `vignette("skipping", package = "testthat")`, describing best practices (including how to test your own skip functions).
 
 -   Made a number of tweaks to test reporting.
-    Most importantly the reporter used by `devtools::test()` now displays stack traces of warnings and errors that occur outside of tests making these problems substantially easier to track down.
+    Most importantly, the reporter used by `devtools::test()` now displays stack traces of warnings and errors that occur outside of tests, making these problems substantially easier to track down.
     (It also gets a number of new random praise options that use emoji).
     There's also a new reporter for use by `devtools::test_file()` which displays results more compactly.
 
