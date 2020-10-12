@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: testthat-3-0-0
 title: testthat 3.0.0
-date: 2020-10-08
+date: 2020-10-12
 author: Hadley Wickham
 description: >
     testhat 3.0.0 brings a raft of major improvements including snapshot 
@@ -17,11 +17,11 @@ photo:
 
 categories: [package] 
 tags: [testthat]
-rmd_hash: bfb8efd8d14d706d
+rmd_hash: 60b7e3df7ebb0a60
 
 ---
 
-We're tickled pink to announce the release of [testthat](http://testthat.r-lib.org/) 3.0.0. testthat makes it easy to turn your existing informal tests into formal automated tests that you can rerun quickly and easily. testthat is the most popular unit-testing package for R, and is used by over 5,000 CRAN and Bioconductor packages. You can learn more about unit testing at <a href="https://r-pkgs.org/tests.html" class="uri">https://r-pkgs.org/tests.html</a>.
+We're tickled pink to announce the release of [testthat](http://testthat.r-lib.org/) 3.0.0. testthat makes it easy to turn your existing informal tests into formal, automated tests that you can rerun quickly and easily. testthat is the most popular unit-testing package for R, and is used by over 5,000 CRAN and Bioconductor packages. You can learn more about unit testing at <a href="https://r-pkgs.org/tests.html" class="uri">https://r-pkgs.org/tests.html</a>.
 
 You can install it from CRAN with:
 
@@ -32,7 +32,7 @@ You can install it from CRAN with:
 
 </div>
 
-In this blog post, I want to discuss the two biggest changes: the introduction of the edition, which allows us to make breaking changes that you have to specifically opt-in to, and a new family of "snapshot" tests. I'll also give a quick round of the other major changes, but you might also want to look at the [release notes](%7B%20github_release%20%7D) for the full details.
+In this blog post, I want to discuss the two biggest changes: the introduction of the "edition", which allows us to make breaking changes that you have to specifically opt-in to, and a new family of "snapshot" tests. I'll also give a quick round up of the other major changes, but you might want to look at the [release notes](%7B%20github_release%20%7D) for the full details.
 
 <div class="highlight">
 
@@ -44,7 +44,7 @@ In this blog post, I want to discuss the two biggest changes: the introduction o
 3rd edition
 -----------
 
-testthat 3.0.0 introduces the idea of an **edition**. An edition is a bundle of behaviours that you have to explicitly choose to use, allowing us to make backward incompatible changes. This is particularly important for testthat since it's used by a very large number of packages, and it includes a few design infelicities that we want to fix. Choosing to use the 3rd edition allows you to use our latest recommendations for ongoing and new work, while historical packages continue to use the old behaviour. To use it, and this line to your `DESCRIPTION`:
+testthat 3.0.0 introduces the idea of an **edition**. An edition is a bundle of behaviours that you have to explicitly choose to use, allowing us to make backward incompatible changes. This is particularly important for testthat since it's used by a very large number of packages, and the old edition includes a few design infelicities that we wanted want to fix. Choosing to use the 3rd edition allows you to use our latest recommendations for ongoing and new work, while historical packages continue to use the old behaviour. To use it, and this line to your `DESCRIPTION`:
 
     Config/testthat/edition: 3
 
@@ -54,7 +54,7 @@ The full details of the 3rd edition are described in [`vignette("third-edition",
 
 -   [`context()`](https://testthat.r-lib.org/reference/context.html) is now deprecated. It hasn't been recommended for some time since it usually duplicates data also present in the file name.
 
--   [`expect_identical()`](https://testthat.r-lib.org/reference/equality-expectations.html) and [`expect_equal()`](https://testthat.r-lib.org/reference/equality-expectations.html) use [`waldo::compare()`](https://rdrr.io/pkg/waldo/man/compare.html) to compare actual and expected results. This should give considerably more informative output for test failures, but [`waldo::compare()`](https://rdrr.io/pkg/waldo/man/compare.html) is not 100% compatible with [`all.equal()`](https://rdrr.io/r/base/all.equal.html) (which previously powered [`expect_equal()`](https://testthat.r-lib.org/reference/equality-expectations.html)). There are a few differences due a bug in testthat's comparison of floating point values and subtle differences when comparing environments stored in attributes (common in modelling functions); see the vignette for full details.
+-   [`expect_identical()`](https://testthat.r-lib.org/reference/equality-expectations.html) and [`expect_equal()`](https://testthat.r-lib.org/reference/equality-expectations.html) use [`waldo::compare()`](https://rdrr.io/pkg/waldo/man/compare.html) to compare actual and expected results. This should give considerably more informative output for test failures, but [`waldo::compare()`](https://rdrr.io/pkg/waldo/man/compare.html) is not 100% compatible with [`all.equal()`](https://rdrr.io/r/base/all.equal.html) (which previously powered [`expect_equal()`](https://testthat.r-lib.org/reference/equality-expectations.html)). There are a few differences due to a bug in testthat's comparison of floating point values and subtle differences when comparing environments stored in attributes (common in modelling functions); see the vignette for full details.
 
     [`expect_equivalent()`](https://testthat.r-lib.org/reference/expect_equivalent.html) is now deprecated because it's equivalent to [`expect_equal(ignore_attr = TRUE)`](https://testthat.r-lib.org/reference/equality-expectations.html) (which is generally not recommended, anyway, because it's such a blunt tool).
 
@@ -62,7 +62,7 @@ The full details of the 3rd edition are described in [`vignette("third-edition",
 
 -   Messages are no longer automatically silenced. You'll now need to use [`suppressMessages()`](https://rdrr.io/r/base/message.html) to hide unimportant messages or `expect_messsage()` to catch important messages.
 
--   [`test_that()`](https://testthat.r-lib.org/reference/test_that.html) now sets a number of options and env vars to make output as reproducible as possible. Many of these options were previously set in various places (including [`devtools::test()`](https://devtools.r-lib.org//reference/test.html), [`test_dir()`](https://testthat.r-lib.org/reference/test_dir.html), [`test_file()`](https://testthat.r-lib.org/reference/test_file.html), and [`verify_output()`](https://testthat.r-lib.org/reference/verify_output.html)) but they now been centralised in to [`local_test_context()`](https://testthat.r-lib.org/reference/local_test_context.html).
+-   [`test_that()`](https://testthat.r-lib.org/reference/test_that.html) now sets a number of options and env vars to make output as reproducible as possible. Many of these options were previously set in various places (including [`devtools::test()`](https://devtools.r-lib.org//reference/test.html), [`test_dir()`](https://testthat.r-lib.org/reference/test_dir.html), [`test_file()`](https://testthat.r-lib.org/reference/test_file.html), and [`verify_output()`](https://testthat.r-lib.org/reference/verify_output.html)) but they have now been centralised in to [`local_test_context()`](https://testthat.r-lib.org/reference/local_test_context.html).
 
 Snapshot testing
 ----------------
@@ -75,9 +75,9 @@ The goal of a unit test is to record the expected output of a function using cod
 
 -   Cases where you want to record a mix of printed output, messages, warnings, or errors.
 
--   Binary formats like plots or images, which are very difficult to describe in code: i.e. the plot looks right, the error message is useful to a human, the print method uses colour effectively.
+-   Binary formats, like plots or images, which are very difficult to describe in code: i.e. the plot looks right, the error message is useful to a human, the print method uses colour effectively.
 
-For these situations, testthat provides an alternative mechanism: snapshot tests. Instead of using code to describe expected output, snapshot tests (also known as [golden tests](https://ro-che.info/articles/2017-12-04-golden-tests)) record results in a separate human readable file. Snapshot tests in testthat are inspired primarily by [Jest](https://jestjs.io/docs/en/snapshot-testing), thanks to a number of very useful discussions with Joe Cheng.
+For these situations, testthat provides an alternative mechanism: snapshot tests. Instead of using code to describe expected output, snapshot tests (also known as [golden tests](https://ro-che.info/articles/2017-12-04-golden-tests)) record results in a separate human-readable file. Snapshot tests in testthat are inspired primarily by [Jest](https://jestjs.io/docs/en/snapshot-testing), thanks to a number of very useful discussions with Joe Cheng.
 
 If snapshot tests sound intriguing to you, please read the details in `vignette("snapshotting", package = "testthat").`
 
@@ -88,9 +88,9 @@ Other improvements
 
 -   We now recommend using test fixtures rather than [`setup()`](https://testthat.r-lib.org/reference/teardown.html) and [`teardown()`](https://testthat.r-lib.org/reference/teardown.html) code. See details in [`vignette("test-fixtures", package = "testthat")`](https://testthat.r-lib.org/articles/test-fixtures.html).
 
--   We have revamped non-interactive reporter to a better job of displaying skipped tests and written a vignette, [`vignette("skipping", package = "testthat")`](https://testthat.r-lib.org/articles/skipping.html), describing best practices (including how to test your own skip functions).
+-   We have revamped the non-interactive reporters to do a better job of displaying skipped tests, and have written a vignette, [`vignette("skipping", package = "testthat")`](https://testthat.r-lib.org/articles/skipping.html), describing best practices (including how to test your own skip functions).
 
--   Made a number of tweaks to test reporting. Most importantly the reporter used by [`devtools::test()`](https://devtools.r-lib.org//reference/test.html) now displays stack traces of warnings and errors that occur outside of tests making these problems substantially easier to track down. (It also gets a number of new random praise options that use emoji). There's also a new reporter for use by [`devtools::test_file()`](https://devtools.r-lib.org//reference/test.html) which displays results more compactly.
+-   Made a number of tweaks to test reporting. Most importantly, the reporter used by [`devtools::test()`](https://devtools.r-lib.org//reference/test.html) now displays stack traces of warnings and errors that occur outside of tests, making these problems substantially easier to track down. (It also gets a number of new random praise options that use emoji). There's also a new reporter for use by [`devtools::test_file()`](https://devtools.r-lib.org//reference/test.html) which displays results more compactly.
 
 Acknowledgements
 ----------------
