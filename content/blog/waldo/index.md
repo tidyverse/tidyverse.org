@@ -15,11 +15,11 @@ photo:
 
 categories: [package] 
 tags: [testthat, waldo]
-rmd_hash: 01b956e75582d21b
+rmd_hash: 3d5a7263cc5b8d21
 
 ---
 
-We're stoked to announce the [waldo](http://waldo.r-lib.org/) package. waldo is designed to find and concisely describe the difference between a pair of R objects. It was designed primarily to improve failure messages for [`testthat::expect_equal()`](https://testthat.r-lib.org/reference/equality-expectations.html) but it turns out to be useful in a number of other situations.
+We're stoked to announce the [waldo](http://waldo.r-lib.org/) package. waldo is designed to find and concisely describe the difference between a pair of R objects. It was designed primarily to improve failure messages for [`testthat::expect_equal()`](https://testthat.r-lib.org/reference/equality-expectations.html), but it turns out to be useful in a number of other situations.
 
 You can install it from CRAN with:
 
@@ -40,7 +40,7 @@ waldo basics
 
 </div>
 
-There's only really one function in waldo that you'll ever use: [`waldo::compare()`](https://rdrr.io/pkg/waldo/man/compare.html). It's job is to take a pair of objects and succinctly display all differences. When comparing atomic vectors, [`compare()`](https://rdrr.io/pkg/waldo/man/compare.html) uses the [diffobj](https://github.com/brodieG/diffobj) package by Brodie Gaslam) to show additions, deletions, and changes:
+There's really only one function in waldo that you'll ever use: [`waldo::compare()`](https://rdrr.io/pkg/waldo/man/compare.html). Its job is to take a pair of objects and succinctly display all differences. When comparing atomic vectors, [`compare()`](https://rdrr.io/pkg/waldo/man/compare.html) uses the [diffobj](https://github.com/brodieG/diffobj) package by Brodie Gaslam to show additions, deletions, and changes:
 
 <div class="highlight">
 
@@ -82,7 +82,7 @@ Large vectors with small changes only show a little context around the changes, 
 
 </div>
 
-Depending on the size of the differences and the width of your console you'll get one of three displays. The default display shows the vectors one atop the other. If there's not enough room for that, the two vectors are shown side-by-side. And if there's still not enough room for side-by-side, the each element is shown on its own line:
+Depending on the size of the differences and the width of your console you'll get one of three displays. The default display shows the vectors one atop the other. If there's not enough room for that, the two vectors are shown side-by-side. And if there's still not enough room for side-by-side, then each element is shown on its own line:
 
 <div class="highlight">
 
