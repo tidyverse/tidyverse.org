@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: waldo
 title: waldo
-date: 2020-10-10
+date: 2020-10-15
 author: Hadley Wickham
 description: >
     waldo is a new package that makes it easier to see the differences
@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [testthat, waldo]
-rmd_hash: 3d5a7263cc5b8d21
+rmd_hash: c0b0f3d3d48cdc5b
 
 ---
 
