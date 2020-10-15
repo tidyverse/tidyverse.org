@@ -17,14 +17,9 @@ photo:
 
 categories: [package] 
 tags: [dbplyr, dplyr]
-rmd_hash: 6af62ad2db2c2999
+rmd_hash: 6bcbce193b99bd0b
 
 ---
-
-<!--
-TODO:
-* [ ] `use_tidy_thanks()`
--->
 
 We're pleased to announce the release of [dbplyr](https://dbplyr.tidyverse.org/) 2.0.0. dbplyr is a database backend for [dplyr](https://dplyr.tidyverse.org/) that allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr translates it to SQL for you.
 
@@ -189,7 +184,7 @@ There were many minor improvements to SQL generation. Here are a selection of th
     </div>
 
     This translation is powered by the new [`sql_expr_matches()`](https://dbplyr.tidyverse.org/reference/db-sql.html) generic, because every database seems to have a slightly different way to express this idea.
-    Learn more at <https://modern-sql.com/feature/is-distinct-from>
+    Learn more at <https://modern-sql.com/feature/is-distinct-from>.
 
 <div class='highlight'>
 
@@ -322,4 +317,9 @@ Extensibility
 -------------
 
 Finally, dbplyr introduces a number of new generics to help tease apart the currently overly complicated relationship with dplyr. This should make creating new backends much easier, but does require some changes from existing backends. These changes should be invisible to the end user and will play out slowly over the next 12 months. See `vignette("backend-2", package = "dbplyr")` for details.
+
+Acknowledgements
+----------------
+
+A big thanks to everyone who helped with this release by reporting bugs, discussing issues, and contributing code! [@abalter](https://github.com/abalter), [@adhi-r](https://github.com/adhi-r), [@batpigandme](https://github.com/batpigandme), [@cmichaud92](https://github.com/cmichaud92), [@Daveyr](https://github.com/Daveyr), [@DavidPatShuiFong](https://github.com/DavidPatShuiFong), [@elbamos](https://github.com/elbamos), [@fh-jgutman](https://github.com/fh-jgutman), [@gregleleu](https://github.com/gregleleu), [@hadley](https://github.com/hadley), [@iangow](https://github.com/iangow), [@jkylearmstrong](https://github.com/jkylearmstrong), [@jonkeane](https://github.com/jonkeane), [@kmishra9](https://github.com/kmishra9), [@kohleth](https://github.com/kohleth), [@krlmlr](https://github.com/krlmlr), [@lorenzwalthert](https://github.com/lorenzwalthert), [@machow](https://github.com/machow), [@okhoma](https://github.com/okhoma), [@rjpat](https://github.com/rjpat), [@rlh1994](https://github.com/rlh1994), [@samssann](https://github.com/samssann), [@schradj](https://github.com/schradj), [@shosaco](https://github.com/shosaco), and [@stiberger](https://github.com/stiberger).
 
