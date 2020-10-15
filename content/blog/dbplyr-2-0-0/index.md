@@ -59,7 +59,7 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
 
 -   [`across()`](https://dplyr.tidyverse.org/reference/across.html) is now translated into individual SQL statements.
 
-<div class='highlight'>
+    <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>g <span class='o'>=</span> <span class='m'>1</span>, a <span class='o'>=</span> <span class='m'>1</span>, b <span class='o'>=</span> <span class='m'>2</span>, c <span class='o'>=</span> <span class='m'>3</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> 
@@ -71,11 +71,12 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
     <span class='c'>#&gt; FROM `df`</span>
     <span class='c'>#&gt; GROUP BY `g`</span>
     </code></pre>
+
     </div>
 
 -   [`rename()`](https://dplyr.tidyverse.org/reference/rename.html) and [`select()`](https://dplyr.tidyverse.org/reference/select.html) support dplyr 1.0.0 tidyselect syntax, apart from predicate functions which can't easily work on computed queries. You can now use [`rename_with()`](https://dplyr.tidyverse.org/reference/rename.html) to programmatically rename columns.
 
-<div class='highlight'>
+    <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>x1 <span class='o'>=</span> <span class='m'>1</span>, x2 <span class='o'>=</span> <span class='m'>2</span>, x3 <span class='o'>=</span> <span class='m'>3</span>, y1 <span class='o'>=</span> <span class='m'>4</span>, y2 <span class='o'>=</span> <span class='m'>3</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nf'><a href='https://tidyselect.r-lib.org/reference/starts_with.html'>starts_with</a></span><span class='o'>(</span><span class='s'>"x"</span><span class='o'>)</span> <span class='o'>&amp;</span> <span class='o'>!</span><span class='s'>"x3"</span><span class='o'>)</span>
@@ -96,11 +97,12 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
     <span class='c'>#&gt; SELECT `x1` AS `X1`, `x2` AS `X2`, `x3` AS `X3`, `y1` AS `Y1`, `y2` AS `Y2`</span>
     <span class='c'>#&gt; FROM `df`</span>
     </code></pre>
+
     </div>
 
 -   [`relocate()`](https://dplyr.tidyverse.org/reference/relocate.html) makes it easy to move columns around:
 
-<div class='highlight'>
+    <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>x1 <span class='o'>=</span> <span class='m'>1</span>, x2 <span class='o'>=</span> <span class='m'>2</span>, y1 <span class='o'>=</span> <span class='m'>4</span>, y2 <span class='o'>=</span> <span class='m'>3</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/relocate.html'>relocate</a></span><span class='o'>(</span><span class='nf'><a href='https://tidyselect.r-lib.org/reference/starts_with.html'>starts_with</a></span><span class='o'>(</span><span class='s'>"y"</span><span class='o'>)</span><span class='o'>)</span>
@@ -109,11 +111,12 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
     <span class='c'>#&gt; SELECT `y1`, `y2`, `x1`, `x2`</span>
     <span class='c'>#&gt; FROM `df`</span>
     </code></pre>
+
     </div>
 
 -   [`slice_min()`](https://dplyr.tidyverse.org/reference/slice.html), [`slice_max()`](https://dplyr.tidyverse.org/reference/slice.html), and slice_sample`()` are now supported, and [`slice_head()`](https://dplyr.tidyverse.org/reference/slice.html) and [`slice_tail()`](https://dplyr.tidyverse.org/reference/slice.html) throw informative error messages (since they don't make sense for databases). These all use window functions, and because you can't use a window function directly inside a `WHERE` clause, they must generate a subquery.
 
-<div class='highlight'>
+    <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>g <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>2</span>, <span class='m'>5</span><span class='o'>)</span>, x <span class='o'>=</span> <span class='m'>1</span><span class='o'>:</span><span class='m'>10</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> 
@@ -137,6 +140,7 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
     <span class='c'>#&gt; FROM `df`) `q01`</span>
     <span class='c'>#&gt; WHERE (`q01` &lt;= 10.0)</span>
     </code></pre>
+
     </div>
 
 SQL translation
@@ -148,7 +152,7 @@ There were many minor improvements to SQL generation. Here are a selection of th
 
 -   Join functions gains a `na_matches` argument that allows you to control whether or not `NA` (`NULL`) values match other `NA` values. The default is `"never"`, which is the usual behaviour in databases. You can set `na_matches = "na"` to match R's usual join behaviour.
 
-<div class='highlight'>
+    <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>df1</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='kc'>NA</span><span class='o'>)</span><span class='o'>)</span>
     <span class='nv'>df2</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='kc'>NA</span>, <span class='m'>1</span><span class='o'>)</span>, y <span class='o'>=</span> <span class='m'>1</span><span class='o'>:</span><span class='m'>2</span><span class='o'>)</span>
@@ -181,12 +185,12 @@ There were many minor improvements to SQL generation. Here are a selection of th
     <span class='c'>#&gt; <span style='color: #BCBCBC;'>1</span><span>    </span><span style='color: #BB0000;'>NA</span><span>     1</span></span>
     <span class='c'>#&gt; <span style='color: #BCBCBC;'>2</span><span>     1     2</span></span>
     </code></pre>
+
     </div>
 
-    This translation is powered by the new [`sql_expr_matches()`](https://dbplyr.tidyverse.org/reference/db-sql.html) generic, because every database seems to have a slightly different way to express this idea.
-    Learn more at <https://modern-sql.com/feature/is-distinct-from>.
+    This translation is powered by the new [`sql_expr_matches()`](https://dbplyr.tidyverse.org/reference/db-sql.html) generic, because every database seems to have a slightly different way to express this idea. Learn more at <a href="https://modern-sql.com/feature/is-distinct-from" class="uri">https://modern-sql.com/feature/is-distinct-from</a>.
 
-<div class='highlight'>
+    <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>db1</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>inner_join</a></span><span class='o'>(</span><span class='nv'>db2</span>, by <span class='o'>=</span> <span class='s'>"x"</span><span class='o'>)</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query</a></span><span class='o'>(</span><span class='o'>)</span>
 
@@ -204,11 +208,12 @@ There were many minor improvements to SQL generation. Here are a selection of th
     <span class='c'>#&gt; INNER JOIN `dbplyr_002` AS `RHS`</span>
     <span class='c'>#&gt; ON (`LHS`.`x` IS `RHS`.`x`)</span>
     </code></pre>
+
     </div>
 
 -   Subqueries no longer include an `ORDER BY` clause. This is not part of the formal SQL specification, and thus has very limited support across databases. Now such queries generate a warning suggesting that you move your [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) call later in the pipeline.
 
-<div class='highlight'>
+    <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>g <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>2</span>, each <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span>, x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>10</span><span class='o'>)</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> 
@@ -227,11 +232,12 @@ There were many minor improvements to SQL generation. Here are a selection of th
     <span class='c'>#&gt; GROUP BY `x`) `q01`</span>
     <span class='c'>#&gt; WHERE (`x` &lt; 1.0)</span>
     </code></pre>
+
     </div>
 
     As the warning suggests, there's one exception: `ORDER BY` is still generated if a `LIMIT` is present; this tends to affect the returns rows but not necessarily their order:
 
-<div class='highlight'>
+    <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>%&gt;%</span> 
       <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
@@ -249,11 +255,12 @@ There were many minor improvements to SQL generation. Here are a selection of th
     <span class='c'>#&gt; LIMIT 5) `q01`</span>
     <span class='c'>#&gt; WHERE (`x` &lt; 1.0)</span>
     </code></pre>
+
     </div>
 
 -   dbplyr includes built-in backends for Redshift (which only differs from PostgreSQL in a few places) and SAP HANA. These require the development versions of RPostgres and odbc respectively.
 
-<div class='highlight'>
+    <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='s'>"a"</span>, y <span class='o'>=</span> <span class='s'>"b"</span>, con <span class='o'>=</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/backend-redshift.html'>simulate_redshift</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>z <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>y</span><span class='o'>)</span><span class='o'>)</span>
@@ -262,13 +269,14 @@ There were many minor improvements to SQL generation. Here are a selection of th
     <span class='c'>#&gt; SELECT `x`, `y`, `x` || `y` AS `z`</span>
     <span class='c'>#&gt; FROM `df`</span>
     </code></pre>
+
     </div>
 
 There are a number of minor changes that affect the translation of individual functions. Here are a selection of the most important:
 
 -   All backends now translate [`n()`](https://dplyr.tidyverse.org/reference/context.html) to `count(*)` and support [`::`](https://rdrr.io/r/base/ns-dblcolon.html)
 
-<div class='highlight'>
+    <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>n <span class='o'>=</span> <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
 
@@ -276,11 +284,12 @@ There are a number of minor changes that affect the translation of individual fu
     <span class='c'>#&gt; SELECT COUNT(*) AS `n`</span>
     <span class='c'>#&gt; FROM `df`</span>
     </code></pre>
+
     </div>
 
 -   PostgreSQL gets translations for lubridate period functions:
 
-<div class='highlight'>
+    <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span><span class='o'>(</span><span class='o'>)</span>, con <span class='o'>=</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/backend-postgres.html'>simulate_postgres</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span>
@@ -290,11 +299,12 @@ There are a number of minor changes that affect the translation of individual fu
     <span class='c'>#&gt; SELECT `x`, `x` + CAST('1 years' AS INTERVAL) AS `year`</span>
     <span class='c'>#&gt; FROM `df`</span>
     </code></pre>
+
     </div>
 
 -   Oracle assumes 12c is available so the translation can use a simpler translation for [`head()`](https://rdrr.io/r/utils/head.html) that works in more places:
 
-<div class='highlight'>
+    <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span>, con <span class='o'>=</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/backend-oracle.html'>simulate_oracle</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='m'>5</span><span class='o'>)</span>
@@ -304,6 +314,7 @@ There are a number of minor changes that affect the translation of individual fu
     <span class='c'>#&gt; FROM (`df`) </span>
     <span class='c'>#&gt; FETCH FIRST 5 ROWS ONLY</span>
     </code></pre>
+
     </div>
 
 New logo
