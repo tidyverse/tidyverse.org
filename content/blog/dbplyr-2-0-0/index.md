@@ -12,21 +12,17 @@ description: >
     other databases.
     
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/r2A6WYI8YIg
+  author: Shawn Ang
 
 categories: [package] 
 tags: [dbplyr, dplyr]
-rmd_hash: f4249cc674994bab
+rmd_hash: 6af62ad2db2c2999
 
 ---
 
 <!--
 TODO:
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] `hugodown::use_tidy_thumbnail()`
 * [ ] `use_tidy_thanks()`
 -->
 
