@@ -17,7 +17,7 @@ photo:
 
 categories: [package] 
 tags: [dbplyr, dplyr]
-rmd_hash: 6bcbce193b99bd0b
+rmd_hash: af8d1855f2c7ba45
 
 ---
 
@@ -34,13 +34,13 @@ You can install it from CRAN with:
 
 This blog post covers the major improvements in this version:
 
--   dplyr 1.0.0 compatibility so you can use [`across()`](https://dplyr.tidyverse.org/reference/across.html), [`relocate()`](https://dplyr.tidyverse.org/reference/relocate.html), [`rename_with()`](https://dplyr.tidyverse.org/reference/rename.html), and more with databases.
+-   dplyr 1.0.0 compatibility so you can now use [`across()`](https://dplyr.tidyverse.org/reference/across.html), [`relocate()`](https://dplyr.tidyverse.org/reference/relocate.html), [`rename_with()`](https://dplyr.tidyverse.org/reference/rename.html), and more.
 
--   The most important improvements to SQL translation.
+-   The major improvements to SQL translation.
 
 -   A snazzy new logo from [Allison Horst](https://www.allisonhorst.com).
 
--   An improved system for backend authors to provide new translations.
+-   An improved extension system.
 
 Please see the [release notes](%7B%20github_release%20%7D) for a full list of changes.
 
@@ -114,7 +114,7 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
 
     </div>
 
--   [`slice_min()`](https://dplyr.tidyverse.org/reference/slice.html), [`slice_max()`](https://dplyr.tidyverse.org/reference/slice.html), and slice_sample`()` are now supported, and [`slice_head()`](https://dplyr.tidyverse.org/reference/slice.html) and [`slice_tail()`](https://dplyr.tidyverse.org/reference/slice.html) throw informative error messages (since they don't make sense for databases). These all use window functions, and because you can't use a window function directly inside a `WHERE` clause, they must generate a subquery.
+-   [`slice_min()`](https://dplyr.tidyverse.org/reference/slice.html), [`slice_max()`](https://dplyr.tidyverse.org/reference/slice.html), and [`slice_sample()`](https://dplyr.tidyverse.org/reference/slice.html) are now supported, and [`slice_head()`](https://dplyr.tidyverse.org/reference/slice.html) and [`slice_tail()`](https://dplyr.tidyverse.org/reference/slice.html) throw informative error messages (since they don't make sense for databases).
 
     <div class="highlight">
 
@@ -143,14 +143,16 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
 
     </div>
 
+    Note that these slices are translated to window functions, and because you can't use a window function directly inside a `WHERE` clause, they must be wrapped in a subquery.
+
 SQL translation
 ---------------
 
-You can now get much more details of the dbplyr SQL translation in the documentation. Now each major verb and each backend get a documentation page giving the basics of the SQL translation. This will hopefully make it much easier to learn what is and isn't supported by dbplyr. See <a href="https://dbplyr.tidyverse.org/reference/index.html" class="uri">https://dbplyr.tidyverse.org/reference/index.html</a> for details.
+The dbplyr documentation now does a much better job of providing the details of its SQL translation. Each backend and each major verb has a documentation page giving the basics of the translation. This will hopefully make it much easier to learn what is and isn't supported by dbplyr. Visit <a href="https://dbplyr.tidyverse.org/reference/index.html" class="uri">https://dbplyr.tidyverse.org/reference/index.html</a> to see the new docs.
 
-There were many minor improvements to SQL generation. Here are a selection of the most important changes:
+There were also many improvements to SQL generation. Here are a few of the most important:
 
--   Join functions gains a `na_matches` argument that allows you to control whether or not `NA` (`NULL`) values match other `NA` values. The default is `"never"`, which is the usual behaviour in databases. You can set `na_matches = "na"` to match R's usual join behaviour.
+-   Join functions gain a `na_matches` argument that allows you to control whether or not `NA` (`NULL`) values match other `NA` values. The default is `"never"`, which is the usual behaviour in databases. You can set `na_matches = "na"` to match R's usual join behaviour.
 
     <div class="highlight">
 
@@ -211,49 +213,49 @@ There were many minor improvements to SQL generation. Here are a selection of th
 
     </div>
 
--   Subqueries no longer include an `ORDER BY` clause. This is not part of the formal SQL specification, and thus has very limited support across databases. Now such queries generate a warning suggesting that you move your [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) call later in the pipeline.
+-   Subqueries no longer include an `ORDER BY` clause. This is not part of the formal SQL specification so has very limited support across databases. Now such queries generate a warning suggesting that you move your [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) call later in the pipeline.
 
     <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>g <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>2</span>, each <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span>, x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>10</span><span class='o'>)</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> 
-      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
-      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>x</span>, na.rm <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
-      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nv'>g</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
-      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>x</span> <span class='o'>&lt;</span> <span class='m'>1</span><span class='o'>)</span>
+      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>g</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>n <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/desc.html'>desc</a></span><span class='o'>(</span><span class='nv'>n</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>n</span> <span class='o'>&gt;</span> <span class='m'>1</span><span class='o'>)</span>
 
     <span class='c'>#&gt; Warning: ORDER BY is ignored in subqueries without LIMIT</span>
     <span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span><span> Do you need to move arrange() later in the pipeline or use window_order() instead?</span></span>
 
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT *</span>
-    <span class='c'>#&gt; FROM (SELECT `x`, AVG(`x`) AS `x`</span>
+    <span class='c'>#&gt; FROM (SELECT `g`, COUNT(*) AS `n`</span>
     <span class='c'>#&gt; FROM `df`</span>
-    <span class='c'>#&gt; GROUP BY `x`) `q01`</span>
-    <span class='c'>#&gt; WHERE (`x` &lt; 1.0)</span>
+    <span class='c'>#&gt; GROUP BY `g`) `q01`</span>
+    <span class='c'>#&gt; WHERE (`n` &gt; 1.0)</span>
     </code></pre>
 
     </div>
 
-    As the warning suggests, there's one exception: `ORDER BY` is still generated if a `LIMIT` is present; this tends to affect the returns rows but not necessarily their order:
+    As the warning suggests, there's one exception: `ORDER BY` is still generated if a `LIMIT` is present. Across databases, this tends to change which rows are returned, but not necessarily their order.
 
     <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>%&gt;%</span> 
-      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
-      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>x</span>, na.rm <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
-      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nv'>g</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>g</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>n <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/desc.html'>desc</a></span><span class='o'>(</span><span class='nv'>n</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
       <span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='m'>5</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
-      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>x</span> <span class='o'>&lt;</span> <span class='m'>1</span><span class='o'>)</span>
+      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>n</span> <span class='o'>&gt;</span> <span class='m'>1</span><span class='o'>)</span>
 
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT *</span>
-    <span class='c'>#&gt; FROM (SELECT `x`, AVG(`x`) AS `x`</span>
+    <span class='c'>#&gt; FROM (SELECT `g`, COUNT(*) AS `n`</span>
     <span class='c'>#&gt; FROM `df`</span>
-    <span class='c'>#&gt; GROUP BY `x`</span>
-    <span class='c'>#&gt; ORDER BY `g`</span>
+    <span class='c'>#&gt; GROUP BY `g`</span>
+    <span class='c'>#&gt; ORDER BY `n` DESC</span>
     <span class='c'>#&gt; LIMIT 5) `q01`</span>
-    <span class='c'>#&gt; WHERE (`x` &lt; 1.0)</span>
+    <span class='c'>#&gt; WHERE (`n` &gt; 1.0)</span>
     </code></pre>
 
     </div>
@@ -272,13 +274,14 @@ There were many minor improvements to SQL generation. Here are a selection of th
 
     </div>
 
-There are a number of minor changes that affect the translation of individual functions. Here are a selection of the most important:
+There are a number of minor changes that affect the translation of individual functions. Here are a few of the most important:
 
 -   All backends now translate [`n()`](https://dplyr.tidyverse.org/reference/context.html) to `count(*)` and support [`::`](https://rdrr.io/r/base/ns-dblcolon.html)
 
     <div class="highlight">
 
-    <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>n <span class='o'>=</span> <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
+    <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span><span class='o'>:</span><span class='m'>10</span><span class='o'>)</span>
+    <span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>n <span class='o'>=</span> <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
 
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT COUNT(*) AS `n`</span>
@@ -302,7 +305,7 @@ There are a number of minor changes that affect the translation of individual fu
 
     </div>
 
--   Oracle assumes 12c is available so the translation can use a simpler translation for [`head()`](https://rdrr.io/r/utils/head.html) that works in more places:
+-   Oracle assumes version 12c is available so we can use a simpler translation for [`head()`](https://rdrr.io/r/utils/head.html) that works in more places:
 
     <div class="highlight">
 

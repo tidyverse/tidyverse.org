@@ -34,13 +34,13 @@ install.packages("dbplyr")
 
 This blog post covers the major improvements in this version:
 
--   dplyr 1.0.0 compatibility so you can use `across()`, `relocate()`, `rename_with()`, and more with databases.
+-   dplyr 1.0.0 compatibility so you can now use `across()`, `relocate()`, `rename_with()`, and more.
 
--   The most important improvements to SQL translation.
+-   The major improvements to SQL translation.
 
 -   A snazzy new logo from [Allison Horst](https://www.allisonhorst.com).
 
--   An improved system for backend authors to provide new translations.
+-   An improved extension system.
 
 Please see the [release notes](%7B%20github_release%20%7D) for a full list of changes.
 
@@ -79,8 +79,7 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
     lf %>% relocate(starts_with("y"))
     ```
 
--   `slice_min()`, `slice_max()`, and slice_sample`()` are now supported, and `slice_head()` and `slice_tail()` throw informative error messages (since they don't make sense for databases).
-    These all use window functions, and because you can't use a window function directly inside a `WHERE` clause, they must generate a subquery.
+-   `slice_min()`, `slice_max()`, and `slice_sample()` are now supported, and `slice_head()` and `slice_tail()` throw informative error messages (since they don't make sense for databases).
 
     ```{r}
     lf <- lazy_frame(g = rep(1:2, 5), x = 1:10)
@@ -93,17 +92,19 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
       slice_sample(x, n = 10, with_ties = TRUE)
     ```
 
+    Note that these slices are translated to window functions, and because you can't use a window function directly inside a `WHERE` clause, they must be wrapped in a subquery.
+
 ## SQL translation
 
-You can now get much more details of the dbplyr SQL translation in the documentation.
-Now each major verb and each backend get a documentation page giving the basics of the SQL translation.
+The dbplyr documentation now does a much better job of providing the details of its SQL translation.
+Each backend and each major verb has a documentation page giving the basics of the translation.
 This will hopefully make it much easier to learn what is and isn't supported by dbplyr.
-See <https://dbplyr.tidyverse.org/reference/index.html> for details.
+Visit <https://dbplyr.tidyverse.org/reference/index.html> to see the new docs.
 
-There were many minor improvements to SQL generation.
-Here are a selection of the most important changes:
+There were also many improvements to SQL generation.
+Here are a few of the most important:
 
--   Join functions gains a `na_matches` argument that allows you to control whether or not `NA` (`NULL`) values match other `NA` values.
+-   Join functions gain a `na_matches` argument that allows you to control whether or not `NA` (`NULL`) values match other `NA` values.
     The default is `"never"`, which is the usual behaviour in databases.
     You can set `na_matches = "na"` to match R's usual join behaviour.
 
@@ -128,27 +129,28 @@ Here are a selection of the most important changes:
     ```
 
 -   Subqueries no longer include an `ORDER BY` clause.
-    This is not part of the formal SQL specification, and thus has very limited support across databases.
+    This is not part of the formal SQL specification so has very limited support across databases.
     Now such queries generate a warning suggesting that you move your `arrange()` call later in the pipeline.
 
     ```{r}
     lf <- lazy_frame(g = rep(1:2, each = 5), x = sample(1:10))
     lf %>% 
-      group_by(x) %>% 
-      summarise(x = mean(x, na.rm = TRUE)) %>% 
-      arrange(g) %>% 
-      filter(x < 1)
+      group_by(g) %>% 
+      summarise(n = n()) %>% 
+      arrange(desc(n)) %>% 
+      filter(n > 1)
     ```
 
-    As the warning suggests, there's one exception: `ORDER BY` is still generated if a `LIMIT` is present; this tends to affect the returns rows but not necessarily their order:
+    As the warning suggests, there's one exception: `ORDER BY` is still generated if a `LIMIT` is present.
+    Across databases, this tends to change which rows are returned, but not necessarily their order.
 
     ```{r}
     lf %>% 
-      group_by(x) %>% 
-      summarise(x = mean(x, na.rm = TRUE)) %>% 
-      arrange(g) %>% 
+      group_by(g) %>% 
+      summarise(n = n()) %>% 
+      arrange(desc(n)) %>% 
       head(5) %>% 
-      filter(x < 1)
+      filter(n > 1)
     ```
 
 -   dbplyr includes built-in backends for Redshift (which only differs from PostgreSQL in a few places) and SAP HANA. These require the development versions of RPostgres and odbc respectively.
@@ -159,11 +161,12 @@ Here are a selection of the most important changes:
     ```
 
 There are a number of minor changes that affect the translation of individual functions.
-Here are a selection of the most important:
+Here are a few of the most important:
 
 -   All backends now translate `n()` to `count(*)` and support `::`
 
     ```{r}
+    lf <- lazy_frame(x = 1:10)
     lf %>% summarise(n = dplyr::n())
     ```
 
@@ -175,7 +178,7 @@ Here are a selection of the most important:
       mutate(year = x + years(1))
     ```
 
--   Oracle assumes 12c is available so the translation can use a simpler translation for `head()` that works in more places:
+-   Oracle assumes version 12c is available so we can use a simpler translation for `head()` that works in more places:
 
     ```{r}
     lf <- lazy_frame(x = 1, con = simulate_oracle())
