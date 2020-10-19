@@ -2,12 +2,12 @@
 output: hugodown::hugo_document
 
 slug: recipes-0-1-14
-title: recipes 0 1 14
-date: 2020-10-18
+title: recipes 0.1.14
+date: 2020-10-20
 author: Max Kuhn
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    A new version of the recipes package contains a signficant API update and 
+    some additional features 
 
 photo:
   url: https://unsplash.com/photos/ToswmEekSFI
@@ -15,19 +15,8 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
-tags: []
+tags: [tidymodels, recipes]
 ---
-
-<!--
-TODO:
-* [ ] Pick category and tags (see existing with `post_tags()`)
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] `hugodown::use_tidy_thumbnail()`
-* [ ] Add intro sentence
-* [ ] `use_tidy_thanks()`
--->
 
 
 
