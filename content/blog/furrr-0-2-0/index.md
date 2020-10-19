@@ -13,7 +13,7 @@ categories: [package]
 tags: []
 editor_options: 
   chunk_output_type: console
-rmd_hash: 201a7e7b3282b4cf
+rmd_hash: 3fda5fd532d2f059
 
 ---
 
@@ -112,7 +112,7 @@ The above vignette regarding progress bars deserves a special mention. [Henrik B
 
 </div>
 
-progressr is a relatively new package, and this API isn't perfectly compatible with furrr and tidyverse workflows yet, but I'd encourage you to read the previously mentioned vignette about [progress notifications with progressr](https://davisvaughan.github.io/furrr/articles/articles/progress.html) to learn more. In the future, furrr will likely have an even tighter integration with progressr to make this even easier.
+progressr is a relatively new package, and its API isn't perfectly compatible with furrr and tidyverse workflows yet, but I'd encourage you to read the previously mentioned vignette about [progress notifications with progressr](https://davisvaughan.github.io/furrr/articles/articles/progress.html) to learn more. In the future, furrr will likely have an even tighter integration with progressr to make this even easier.
 
 Along those lines, once furrr and progressr become more tightly integrated, the `.progress` bar of furrr will be removed. It has not been deprecated yet, but I would encourage you to go ahead and switch to using progressr, if possible. To be completely honest, the progress bar in furrr is a bit of a hack, and progressr provides a much more robust solution.
 
