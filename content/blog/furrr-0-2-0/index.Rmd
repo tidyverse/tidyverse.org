@@ -1,0 +1,103 @@
+---
+output: hugodown::hugo_document
+slug: furrr-0-2-0
+title: furrr 0.2.0
+date: 2020-10-19
+author: Davis Vaughan
+description: >
+    furrr 0.2.0 is now on CRAN!
+photo:
+  url: https://unsplash.com/photos/0pDUGYuDYWw
+  author: Bhargava Srivari
+categories: [package] 
+tags: []
+editor_options: 
+  chunk_output_type: console
+---
+
+We're stoked to announce the release of [furrr](https://davisvaughan.github.io/furrr/) 0.2.0. furrr is a bridge between [purrr](https://purrr.tidyverse.org/)'s family of mapping functions and [future](https://cran.r-project.org/web/packages/future/index.html)'s parallel processing capabilities. It attempts to make mapping in parallel as seamless as possible.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("furrr")
+```
+
+This blog post will highlight a few of the key changes since the last release of furrr, which was over two years ago!
+
+This release of furrr is also a complete rewrite of the original version. This should make furrr more maintainable going forward, and fixed a ton of minor bugs from the original release. You can see a full list of those changes in the [release notes](https://davisvaughan.github.io/furrr/news/index.html).
+
+```{r setup, warning=FALSE, message=FALSE}
+library(furrr)
+```
+
+## Hex sticker
+
+Perhaps most importantly, furrr now has a hex sticker! A big thanks to Dan Kuhn for creating this furrry little guy.
+
+![New furrr hex sticker.](furrr.png)
+
+## future_walk()
+
+furrr now includes a parallel version of `purrr::walk()`. This was a highly requested addition, and allows you to call `.f` for its side effects, like for rendering output to the screen or for saving files to disk.
+
+```{r}
+plan(multisession, workers = 2)
+
+future_walk(1:5, ~print(paste0("Iteration: ", .x)))
+```
+
+```{r, echo=FALSE}
+plan(sequential)
+```
+
+## Vignettes
+
+There are a whopping 5 new vignettes detailing several frequently asked questions about furrr.
+
+- [Common gotchas](https://davisvaughan.github.io/furrr/articles/articles/gotchas.html)
+
+- [Learn how furrr "chunks" your input](https://davisvaughan.github.io/furrr/articles/articles/chunking.html)
+
+- [carrier - An alternative to automatic globals detection](https://davisvaughan.github.io/furrr/articles/articles/carrier.html)
+
+- [Progress notifications with progressr](https://davisvaughan.github.io/furrr/articles/articles/progress.html)
+
+- [Using furrr with remote connections](https://davisvaughan.github.io/furrr/articles/articles/remote-connections.html)
+
+## Progress bar update
+
+The above vignette regarding progress bars deserves a special mention. [Henrik Bengtsson](https://twitter.com/henrikbengtsson) (the author of the future and globals packages, which furrr would be nothing without) recently introduced a new package for generalized _progress updates_, [progressr](https://cran.r-project.org/web/packages/progressr/index.html). It has been integrated with future in such a way that it can relay near real-time progress updates from sequential, multisession, and even cluster futures (meaning that even remote connections can return live updates). This integration automatically extends to furrr, and looks a little like this:
+
+```{r, eval=FALSE}
+library(progressr)
+
+plan(multisession, workers = 2)
+
+x <- replicate(n = 10, runif(20), simplify = FALSE)
+
+with_progress({
+  p <- progressor(steps = length(x))
+  
+  result <- future_map(x, ~{
+    p()
+    Sys.sleep(.2)
+    sum(.x)
+  })
+})
+#> |=====================                                               |  20%
+```
+
+progressr is a relatively new package, and its API isn't perfectly compatible with furrr and tidyverse workflows yet, but I'd encourage you to read the previously mentioned vignette about [progress notifications with progressr](https://davisvaughan.github.io/furrr/articles/articles/progress.html) to learn more. In the future, furrr will likely have an even tighter integration with progressr to make this even easier. 
+
+Along those lines, once furrr and progressr become more tightly integrated, the `.progress` bar of furrr will be removed. It has not been deprecated yet, but I would encourage you to go ahead and switch to using progressr, if possible. To be completely honest, the progress bar in furrr is a bit of a hack, and progressr provides a much more robust solution.
+
+## Options
+
+The `future_options()` helper has been renamed in favor of `furrr_options()`. This change was made to free up this function name in case the future package requires it. Additionally, `furrr_options()` has a number of new arguments, including one that allows you to further tweak how furrr "chunks" your input, `chunk_size`. If you are curious about this, read the new vignette on [chunking](https://davisvaughan.github.io/furrr/articles/articles/chunking.html).
+
+## Acknowledgements
+
+We're very thankful to the 81 contributions that went into this release. In particular, a huge thanks to Henrik Bengtsson for his work on the future and globals packages that power furrr.
+
+[&#x0040;aaronpeikert](https://github.com/aaronpeikert), [&#x0040;adrfantini](https://github.com/adrfantini), [&#x0040;agilebean](https://github.com/agilebean), [&#x0040;al-obrien](https://github.com/al-obrien), [&#x0040;alexhallam](https://github.com/alexhallam), [&#x0040;andrjohns](https://github.com/andrjohns), [&#x0040;aornugent](https://github.com/aornugent), [&#x0040;Ax3man](https://github.com/Ax3man), [&#x0040;BChukwuSmith](https://github.com/BChukwuSmith), [&#x0040;burchill](https://github.com/burchill), [&#x0040;cipherz](https://github.com/cipherz), [&#x0040;cwickham](https://github.com/cwickham), [&#x0040;data-al](https://github.com/data-al), [&#x0040;datawookie](https://github.com/datawookie), [&#x0040;dhicks](https://github.com/dhicks), [&#x0040;draben](https://github.com/draben), [&#x0040;edavidaja](https://github.com/edavidaja), [&#x0040;edgBR](https://github.com/edgBR), [&#x0040;EdJeeOnGitHub](https://github.com/EdJeeOnGitHub), [&#x0040;edvardoss](https://github.com/edvardoss), [&#x0040;gadenbuie](https://github.com/gadenbuie), [&#x0040;Gomesdrg](https://github.com/Gomesdrg), [&#x0040;GShotwell](https://github.com/GShotwell), [&#x0040;hadley](https://github.com/hadley), [&#x0040;HanjoStudy](https://github.com/HanjoStudy), [&#x0040;HenrikBengtsson](https://github.com/HenrikBengtsson), [&#x0040;ignacio82](https://github.com/ignacio82), [&#x0040;Ilia-Kosenkov](https://github.com/Ilia-Kosenkov), [&#x0040;ivanhigueram](https://github.com/ivanhigueram), [&#x0040;JanLauGe](https://github.com/JanLauGe), [&#x0040;jmlondon](https://github.com/jmlondon), [&#x0040;joethorley](https://github.com/joethorley), [&#x0040;jschelbert](https://github.com/jschelbert), [&#x0040;julou](https://github.com/julou), [&#x0040;jzadra](https://github.com/jzadra), [&#x0040;kendonB](https://github.com/kendonB), [&#x0040;khvorov45](https://github.com/khvorov45), [&#x0040;kimip24](https://github.com/kimip24), [&#x0040;kkmann](https://github.com/kkmann), [&#x0040;klahrich](https://github.com/klahrich), [&#x0040;kurt1984](https://github.com/kurt1984), [&#x0040;leungi](https://github.com/leungi), [&#x0040;lrnv](https://github.com/lrnv), [&#x0040;marcosci](https://github.com/marcosci), [&#x0040;MatthieuStigler](https://github.com/MatthieuStigler), [&#x0040;mattocci27](https://github.com/mattocci27), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mikekaminsky](https://github.com/mikekaminsky), [&#x0040;mikkeltp](https://github.com/mikkeltp), [&#x0040;mikldk](https://github.com/mikldk), [&#x0040;MokeEire](https://github.com/MokeEire), [&#x0040;mpickard-niu](https://github.com/mpickard-niu), [&#x0040;naglemi](https://github.com/naglemi), [&#x0040;nick-youngblut](https://github.com/nick-youngblut), [&#x0040;philerooski](https://github.com/philerooski), [&#x0040;picousse](https://github.com/picousse), [&#x0040;Plebejer](https://github.com/Plebejer), [&#x0040;PMassicotte](https://github.com/PMassicotte), [&#x0040;qpmnguyen](https://github.com/qpmnguyen), [&#x0040;randomgambit](https://github.com/randomgambit), [&#x0040;rcarboni](https://github.com/rcarboni), [&#x0040;rlbarter](https://github.com/rlbarter), [&#x0040;roman-tremmel](https://github.com/roman-tremmel), [&#x0040;rossellhayes](https://github.com/rossellhayes), [&#x0040;sefabey](https://github.com/sefabey), [&#x0040;sheffe](https://github.com/sheffe), [&#x0040;ShixiangWang](https://github.com/ShixiangWang), [&#x0040;skalyan91](https://github.com/skalyan91), [&#x0040;snp](https://github.com/snp), [&#x0040;solomonsg](https://github.com/solomonsg), [&#x0040;solunsteve](https://github.com/solunsteve), [&#x0040;srvanderplas](https://github.com/srvanderplas), [&#x0040;statist-bhfz](https://github.com/statist-bhfz), [&#x0040;timvink](https://github.com/timvink), [&#x0040;tklebel](https://github.com/tklebel), [&#x0040;vincentarelbundock](https://github.com/vincentarelbundock), [&#x0040;vrontosc](https://github.com/vrontosc), [&#x0040;wenjia2018](https://github.com/wenjia2018), [&#x0040;wjchulme](https://github.com/wjchulme), [&#x0040;xiaodaigh](https://github.com/xiaodaigh), and [&#x0040;yonicd](https://github.com/yonicd).
