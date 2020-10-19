@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: furrr-0-2-0
 title: furrr 0.2.0
-date: 2020-10-15
+date: 2020-10-19
 author: Davis Vaughan
 description: >
     furrr 0.2.0 is now on CRAN!
@@ -13,7 +13,7 @@ categories: [package]
 tags: []
 editor_options: 
   chunk_output_type: console
-rmd_hash: 3fda5fd532d2f059
+rmd_hash: b7392fc976862da2
 
 ---
 
