@@ -3,11 +3,11 @@ output: hugodown::hugo_document
 
 slug: recipes-0-1-14
 title: recipes 0.1.14
-date: 2020-10-20
+date: 2020-10-22
 author: Max Kuhn
 description: >
     A new version of the recipes package contains a signficant API update and 
-    some additional features 
+    some additional features. 
 
 photo:
   url: https://unsplash.com/photos/ToswmEekSFI
@@ -42,8 +42,8 @@ We were not able to find ways to make this distinction clear for many users.
 
 How could we solve this issue? We decided to come up with a better alternative to `juice()`  that would be more intuitive. As a result,  _all_ applications of the recipe can now use `bake()`: 
 
-* `bake(recipe, new_data = some_data_set)` works as usual. 
-* `bake(recipe, new_data = NULL)` returns the preprocessed training set. 
+* `bake(recipe, new_data = some_data_set)` works as before. 
+* `bake(recipe, new_data = NULL)` now returns the preprocessed training set. 
 
 This is precedented in base R since many `predict()` methods re-predict the training set when the `newdata` argument is `NULL` or missing. Note that there is no default for `new_data`; you have to set it to `NULL` to get the training set. 
 
@@ -51,11 +51,11 @@ We felt that this was the best API change that we could make. An external poll s
 
 <img src="juice-poll.png" title="plot of chunk poll" alt="plot of chunk poll" width="80%" style="display: block; margin: auto;" />
 
-`juice()`, which is still my favorite R function name of all time, will not be removed; you can still use it. However, we will not use it in training materials or documentation. 
+`juice()`, which is still my favorite R function name of all time, will not be removed; you can still use it. However, we will not use it in training materials or most documentation. 
 
 ## Imputation with linear models
 
-Tim Zhou added a step to use linear models for imputation. This is a nice, compact method for embedding an imputation equation for numeric predictors into the recipe. The syntax is similar to the existing imputation steps. Here's an example from the Ames data: 
+Tim Zhou contributed a step to use linear models for imputation. This is a nice, compact method for adding an imputation equation for numeric predictors into the recipe. The syntax is similar to the existing imputation steps. Here's an example from the Ames data: 
 
 
 ```r
@@ -88,10 +88,10 @@ This plot shows the missing data's true values on the x-axis and their imputed v
 
 <img src="figure/plot-values-1.svg" title="plot of chunk plot-values" alt="plot of chunk plot-values" width="70%" />
 
-In future versions, we will standardize on the naming convention `step_impute_*()`. The existing functions will be soft-deprecated for a reasonable to ensure backward compatibility.  
+In future versions, we will standardize on the naming convention `step_impute_*()`. The existing functions will be soft-deprecated for a reasonable time period to ensure backward compatibility.  
 ## Other changes
 
-This version of the package has an extra option for `prep()` that will print some information on the differences in the data before and after the step was prepared: 
+This version of the package has an extra logging option for `prep()` that will print some information on the differences in the data before and after the step was prepared: 
 
 
 ```r
@@ -121,9 +121,8 @@ ames_rec <- recipe(Sale_Price ~ ., data = ames) %>%
 ##  removed (2): Longitude, Latitude
 ```
 
-Another important change was behind-the-scenes. There were problems with using PSOCK clusters on Windows because the worker processes were not aware of all the packages that should be loaded. recipes now ensures that all of the packages required by each step will be accessible in parallel. A similar change is coming to the parsnip package. 
+Another important change was behind the scenes. Before, there were problems with using PSOCK clusters on Windows because the worker processes were not aware of all the packages that should be loaded. Now, recipes ensures that all of the packages required by each step will be accessible in parallel. A similar change is coming soon to the parsnip package. 
 
 ## Acknowledgements
 
 Thanks to those users who filed issues or contributed a pull request since the previous release: [&#x0040;AndrewKostandy](https://github.com/AndrewKostandy), [&#x0040;anks7190](https://github.com/anks7190), [&#x0040;AshesITR](https://github.com/AshesITR), [&#x0040;Bijaelo](https://github.com/Bijaelo), [&#x0040;brodz](https://github.com/brodz), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dgkf](https://github.com/dgkf), [&#x0040;EllaKaye](https://github.com/EllaKaye), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;hamedbh](https://github.com/hamedbh), [&#x0040;hnagaty](https://github.com/hnagaty), [&#x0040;irkaal](https://github.com/irkaal), [&#x0040;jerome-laurent-pro](https://github.com/jerome-laurent-pro), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;karaesmen](https://github.com/karaesmen), [&#x0040;kylegilde](https://github.com/kylegilde), [&#x0040;LordRudolf](https://github.com/LordRudolf), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mpettis](https://github.com/mpettis), [&#x0040;mt-edwards](https://github.com/mt-edwards), [&#x0040;nhward](https://github.com/nhward), [&#x0040;Nilafhiosagam](https://github.com/Nilafhiosagam), [&#x0040;NRaillard](https://github.com/NRaillard), [&#x0040;Paul-Yuchao-Dong](https://github.com/Paul-Yuchao-Dong), [&#x0040;perluna](https://github.com/perluna), [&#x0040;RaminZi](https://github.com/RaminZi), [&#x0040;rorynolan](https://github.com/rorynolan), [&#x0040;Steviey](https://github.com/Steviey), [&#x0040;topepo](https://github.com/topepo), and [&#x0040;ttzhou](https://github.com/ttzhou).
-
