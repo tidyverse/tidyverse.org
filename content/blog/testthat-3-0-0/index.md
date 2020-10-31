@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: testthat-3-0-0
 title: testthat 3.0.0
-date: 2020-10-12
+date: 2020-10-31
 author: Hadley Wickham
 description: >
     testhat 3.0.0 brings a raft of major improvements including snapshot 
@@ -17,11 +17,11 @@ photo:
 
 categories: [package] 
 tags: [testthat]
-rmd_hash: 60b7e3df7ebb0a60
+rmd_hash: ba19f27309e44bc7
 
 ---
 
-We're tickled pink to announce the release of [testthat](http://testthat.r-lib.org/) 3.0.0. testthat makes it easy to turn your existing informal tests into formal, automated tests that you can rerun quickly and easily. testthat is the most popular unit-testing package for R, and is used by over 5,000 CRAN and Bioconductor packages. You can learn more about unit testing at <a href="https://r-pkgs.org/tests.html" class="uri">https://r-pkgs.org/tests.html</a>.
+We're tickled pink to announce the release of [testthat](http://testthat.r-lib.org/) 3.0.0. testthat makes it easy to turn your existing informal tests into formal, automated tests that you can rerun quickly and easily. testthat is the most popular unit-testing package for R, and is used by over 5,000 CRAN and Bioconductor packages. You can learn more about unit testing at <https://r-pkgs.org/tests.html>.
 
 You can install it from CRAN with:
 
@@ -32,7 +32,7 @@ You can install it from CRAN with:
 
 </div>
 
-In this blog post, I want to discuss the two biggest changes: the introduction of the "edition", which allows us to make breaking changes that you have to specifically opt-in to, and a new family of "snapshot" tests. I'll also give a quick round up of the other major changes, but you might want to look at the [release notes](%7B%20github_release%20%7D) for the full details.
+In this blog post, I want to discuss the two biggest changes: the introduction of the "edition", which allows us to make breaking changes that you have to specifically opt-in to, and a new family of "snapshot" tests. I'll also give a quick round up of the other major changes, but you might want to look at the [release notes](https://github.com/r-lib/testthat/releases/tag/v3.0.0) for the full details.
 
 <div class="highlight">
 
