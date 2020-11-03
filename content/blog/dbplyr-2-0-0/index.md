@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: dbplyr-2-0-0
 title: dbplyr 2.0.0
-date: 2020-10-12
+date: 2020-11-03
 author: Hadley Wickham
 description: >
     dbplyr 2.0.0 brings dplyr 1.0.0 compatibility, numeric improvements
@@ -17,7 +17,7 @@ photo:
 
 categories: [package] 
 tags: [dbplyr, dplyr]
-rmd_hash: af8d1855f2c7ba45
+rmd_hash: 6955cf6d64811608
 
 ---
 
@@ -42,7 +42,7 @@ This blog post covers the major improvements in this version:
 
 -   An improved extension system.
 
-Please see the [release notes](%7B%20github_release%20%7D) for a full list of changes.
+Please see the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.0.0) for a full list of changes.
 
 <div class="highlight">
 
@@ -138,7 +138,7 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
     <span class='c'>#&gt; SELECT `g`, `x`</span>
     <span class='c'>#&gt; FROM (SELECT `g`, `x`, ROW_NUMBER() OVER (PARTITION BY `g` ORDER BY random()) AS `q01`</span>
     <span class='c'>#&gt; FROM `df`) `q01`</span>
-    <span class='c'>#&gt; WHERE (`q01` &lt;= 10.0)</span>
+    <span class='c'>#&gt; WHERE (`q01` &lt;= 10)</span>
     </code></pre>
 
     </div>
@@ -148,7 +148,7 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
 SQL translation
 ---------------
 
-The dbplyr documentation now does a much better job of providing the details of its SQL translation. Each backend and each major verb has a documentation page giving the basics of the translation. This will hopefully make it much easier to learn what is and isn't supported by dbplyr. Visit <a href="https://dbplyr.tidyverse.org/reference/index.html" class="uri">https://dbplyr.tidyverse.org/reference/index.html</a> to see the new docs.
+The dbplyr documentation now does a much better job of providing the details of its SQL translation. Each backend and each major verb has a documentation page giving the basics of the translation. This will hopefully make it much easier to learn what is and isn't supported by dbplyr. Visit <https://dbplyr.tidyverse.org/reference/index.html> to see the new docs.
 
 There were also many improvements to SQL generation. Here are a few of the most important:
 
@@ -190,7 +190,7 @@ There were also many improvements to SQL generation. Here are a few of the most 
 
     </div>
 
-    This translation is powered by the new [`sql_expr_matches()`](https://dbplyr.tidyverse.org/reference/db-sql.html) generic, because every database seems to have a slightly different way to express this idea. Learn more at <a href="https://modern-sql.com/feature/is-distinct-from" class="uri">https://modern-sql.com/feature/is-distinct-from</a>.
+    This translation is powered by the new [`sql_expr_matches()`](https://dbplyr.tidyverse.org/reference/db-sql.html) generic, because every database seems to have a slightly different way to express this idea. Learn more at <https://modern-sql.com/feature/is-distinct-from>.
 
     <div class="highlight">
 
