@@ -36,7 +36,7 @@ This blog post covers the major improvements in this version:
 
 -   dplyr 1.0.0 compatibility so you can now use `across()`, `relocate()`, `rename_with()`, and more.
 
--   The major improvements to SQL translation.
+-   Major improvements to SQL translation.
 
 -   A snazzy new logo from [Allison Horst](https://www.allisonhorst.com).
 
@@ -62,7 +62,7 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
       summarise(across(everything(), mean, na.rm = TRUE))
     ```
 
--   `rename()` and `select()` support dplyr 1.0.0 tidyselect syntax, apart from predicate functions which can't easily work on computed queries.
+-   `rename()` and `select()` support dplyr tidyselect syntax, apart from predicate functions which can't easily work on computed queries.
     You can now use `rename_with()` to programmatically rename columns.
 
     ```{r}
@@ -92,7 +92,7 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
       slice_sample(x, n = 10, with_ties = TRUE)
     ```
 
-    Note that these slices are translated to window functions, and because you can't use a window function directly inside a `WHERE` clause, they must be wrapped in a subquery.
+    Note that these slices are translated into window functions, and because you can't use a window function directly inside a `WHERE` clause, they must be wrapped in a subquery.
 
 ## SQL translation
 
@@ -101,10 +101,10 @@ Each backend and each major verb has a documentation page giving the basics of t
 This will hopefully make it much easier to learn what is and isn't supported by dbplyr.
 Visit <https://dbplyr.tidyverse.org/reference/index.html> to see the new docs.
 
-There were also many improvements to SQL generation.
+There are also many improvements to SQL generation.
 Here are a few of the most important:
 
--   Join functions gain a `na_matches` argument that allows you to control whether or not `NA` (`NULL`) values match other `NA` values.
+-   Join functions gain an `na_matches` argument that allows you to control whether or not `NA` (`NULL`) values match other `NA` values.
     The default is `"never"`, which is the usual behaviour in databases.
     You can set `na_matches = "na"` to match R's usual join behaviour.
 
@@ -129,7 +129,7 @@ Here are a few of the most important:
     ```
 
 -   Subqueries no longer include an `ORDER BY` clause.
-    This is not part of the formal SQL specification so has very limited support across databases.
+    This is not part of the formal SQL specification so it has very limited support across databases.
     Now such queries generate a warning suggesting that you move your `arrange()` call later in the pipeline.
 
     ```{r}
@@ -153,7 +153,7 @@ Here are a few of the most important:
       filter(n > 1)
     ```
 
--   dbplyr includes built-in backends for Redshift (which only differs from PostgreSQL in a few places) and SAP HANA. These require the development versions of RPostgres and odbc respectively.
+-   dbplyr includes built-in backends for Redshift (which only differs from PostgreSQL in a few places) and SAP HANA. These require the development versions of [RPostgres](https://github.com/r-dbi/RPostgres) and [odbc](https://github.com/r-dbi/odbc) respectively.
 
     ```{r}
     lf <- lazy_frame(x = "a", y = "b", con = simulate_redshift())
@@ -200,5 +200,5 @@ See `vignette("backend-2", package = "dbplyr")` for details.
 
 ## Acknowledgements
 
-A big thanks to everyone who helped with this release by reporting bugs, discussing issues, and contributing code!
+A big thanks to everyone who helped with this release by reporting bugs, discussing issues, and contributing code:
 [\@abalter](https://github.com/abalter), [\@adhi-r](https://github.com/adhi-r), [\@batpigandme](https://github.com/batpigandme), [\@cmichaud92](https://github.com/cmichaud92), [\@Daveyr](https://github.com/Daveyr), [\@DavidPatShuiFong](https://github.com/DavidPatShuiFong), [\@elbamos](https://github.com/elbamos), [\@fh-jgutman](https://github.com/fh-jgutman), [\@gregleleu](https://github.com/gregleleu), [\@hadley](https://github.com/hadley), [\@iangow](https://github.com/iangow), [\@jkylearmstrong](https://github.com/jkylearmstrong), [\@jonkeane](https://github.com/jonkeane), [\@kmishra9](https://github.com/kmishra9), [\@kohleth](https://github.com/kohleth), [\@krlmlr](https://github.com/krlmlr), [\@lorenzwalthert](https://github.com/lorenzwalthert), [\@machow](https://github.com/machow), [\@okhoma](https://github.com/okhoma), [\@rjpat](https://github.com/rjpat), [\@rlh1994](https://github.com/rlh1994), [\@samssann](https://github.com/samssann), [\@schradj](https://github.com/schradj), [\@shosaco](https://github.com/shosaco), and [\@stiberger](https://github.com/stiberger).
