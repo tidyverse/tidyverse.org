@@ -3,21 +3,21 @@ output: hugodown::hugo_document
 
 slug: dbplyr-2-0-0
 title: dbplyr 2.0.0
-date: 2020-11-03
+date: 2020-11-04
 author: Hadley Wickham
 description: >
-    dbplyr 2.0.0 brings dplyr 1.0.0 compatibility, numeric improvements
-    to SQL translation (including new Amazon Redshift and SAP HANA 
-    backends), and an improved system for extending dbplyr to work with
-    other databases.
-    
+    dbplyr 2.0.0 adds missing features from dplyr 1.0.0, numerous
+    improvements to SQL translation (including new Amazon Redshift and 
+    SAP HANA backends), and an improved system for extending dbplyr to work
+    with other databases.
+
 photo:
   url: https://unsplash.com/photos/r2A6WYI8YIg
   author: Shawn Ang
 
 categories: [package] 
 tags: [dbplyr, dplyr]
-rmd_hash: 6955cf6d64811608
+rmd_hash: b3b481f93d8eb9df
 
 ---
 
@@ -36,7 +36,7 @@ This blog post covers the major improvements in this version:
 
 -   dplyr 1.0.0 compatibility so you can now use [`across()`](https://dplyr.tidyverse.org/reference/across.html), [`relocate()`](https://dplyr.tidyverse.org/reference/relocate.html), [`rename_with()`](https://dplyr.tidyverse.org/reference/rename.html), and more.
 
--   The major improvements to SQL translation.
+-   Major improvements to SQL translation.
 
 -   A snazzy new logo from [Allison Horst](https://www.allisonhorst.com).
 
@@ -74,7 +74,7 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
 
     </div>
 
--   [`rename()`](https://dplyr.tidyverse.org/reference/rename.html) and [`select()`](https://dplyr.tidyverse.org/reference/select.html) support dplyr 1.0.0 tidyselect syntax, apart from predicate functions which can't easily work on computed queries. You can now use [`rename_with()`](https://dplyr.tidyverse.org/reference/rename.html) to programmatically rename columns.
+-   [`rename()`](https://dplyr.tidyverse.org/reference/rename.html) and [`select()`](https://dplyr.tidyverse.org/reference/select.html) support dplyr tidyselect syntax, apart from predicate functions which can't easily work on computed queries. You can now use [`rename_with()`](https://dplyr.tidyverse.org/reference/rename.html) to programmatically rename columns.
 
     <div class="highlight">
 
@@ -143,16 +143,16 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
 
     </div>
 
-    Note that these slices are translated to window functions, and because you can't use a window function directly inside a `WHERE` clause, they must be wrapped in a subquery.
+    Note that these slices are translated into window functions, and because you can't use a window function directly inside a `WHERE` clause, they must be wrapped in a subquery.
 
 SQL translation
 ---------------
 
 The dbplyr documentation now does a much better job of providing the details of its SQL translation. Each backend and each major verb has a documentation page giving the basics of the translation. This will hopefully make it much easier to learn what is and isn't supported by dbplyr. Visit <https://dbplyr.tidyverse.org/reference/index.html> to see the new docs.
 
-There were also many improvements to SQL generation. Here are a few of the most important:
+There are also many improvements to SQL generation. Here are a few of the most important:
 
--   Join functions gain a `na_matches` argument that allows you to control whether or not `NA` (`NULL`) values match other `NA` values. The default is `"never"`, which is the usual behaviour in databases. You can set `na_matches = "na"` to match R's usual join behaviour.
+-   Join functions gain an `na_matches` argument that allows you to control whether or not `NA` (`NULL`) values match other `NA` values. The default is `"never"`, which is the usual behaviour in databases. You can set `na_matches = "na"` to match R's usual join behaviour.
 
     <div class="highlight">
 
@@ -213,7 +213,7 @@ There were also many improvements to SQL generation. Here are a few of the most 
 
     </div>
 
--   Subqueries no longer include an `ORDER BY` clause. This is not part of the formal SQL specification so has very limited support across databases. Now such queries generate a warning suggesting that you move your [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) call later in the pipeline.
+-   Subqueries no longer include an `ORDER BY` clause. This is not part of the formal SQL specification so it has very limited support across databases. Now such queries generate a warning suggesting that you move your [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) call later in the pipeline.
 
     <div class="highlight">
 
@@ -260,7 +260,7 @@ There were also many improvements to SQL generation. Here are a few of the most 
 
     </div>
 
--   dbplyr includes built-in backends for Redshift (which only differs from PostgreSQL in a few places) and SAP HANA. These require the development versions of RPostgres and odbc respectively.
+-   dbplyr includes built-in backends for Redshift (which only differs from PostgreSQL in a few places) and SAP HANA. These require the development versions of [RPostgres](https://github.com/r-dbi/RPostgres) and [odbc](https://github.com/r-dbi/odbc) respectively.
 
     <div class="highlight">
 
@@ -330,10 +330,10 @@ Thanks to the artistic talents of [Allison Horst](https://www.allisonhorst.com),
 Extensibility
 -------------
 
-Finally, dbplyr introduces a number of new generics to help tease apart the currently overly complicated relationship with dplyr. This should make creating new backends much easier, but does require some changes from existing backends. These changes should be invisible to the end user and will play out slowly over the next 12 months. See `vignette("backend-2", package = "dbplyr")` for details.
+Finally, dbplyr introduces a number of new generics to help tease apart the currently overly complicated relationship with dplyr. This should make creating new backends much easier, but does require some changes from existing backends. These changes should be invisible to the end user and will play out slowly over the next 12 months. See [`vignette("backend-2", package = "dbplyr")`](https://dbplyr.tidyverse.org/articles/backend-2.html) for details.
 
 Acknowledgements
 ----------------
 
-A big thanks to everyone who helped with this release by reporting bugs, discussing issues, and contributing code! [@abalter](https://github.com/abalter), [@adhi-r](https://github.com/adhi-r), [@batpigandme](https://github.com/batpigandme), [@cmichaud92](https://github.com/cmichaud92), [@Daveyr](https://github.com/Daveyr), [@DavidPatShuiFong](https://github.com/DavidPatShuiFong), [@elbamos](https://github.com/elbamos), [@fh-jgutman](https://github.com/fh-jgutman), [@gregleleu](https://github.com/gregleleu), [@hadley](https://github.com/hadley), [@iangow](https://github.com/iangow), [@jkylearmstrong](https://github.com/jkylearmstrong), [@jonkeane](https://github.com/jonkeane), [@kmishra9](https://github.com/kmishra9), [@kohleth](https://github.com/kohleth), [@krlmlr](https://github.com/krlmlr), [@lorenzwalthert](https://github.com/lorenzwalthert), [@machow](https://github.com/machow), [@okhoma](https://github.com/okhoma), [@rjpat](https://github.com/rjpat), [@rlh1994](https://github.com/rlh1994), [@samssann](https://github.com/samssann), [@schradj](https://github.com/schradj), [@shosaco](https://github.com/shosaco), and [@stiberger](https://github.com/stiberger).
+A big thanks to everyone who helped with this release by reporting bugs, discussing issues, and contributing code: [@abalter](https://github.com/abalter), [@adhi-r](https://github.com/adhi-r), [@batpigandme](https://github.com/batpigandme), [@cmichaud92](https://github.com/cmichaud92), [@Daveyr](https://github.com/Daveyr), [@DavidPatShuiFong](https://github.com/DavidPatShuiFong), [@elbamos](https://github.com/elbamos), [@fh-jgutman](https://github.com/fh-jgutman), [@gregleleu](https://github.com/gregleleu), [@hadley](https://github.com/hadley), [@iangow](https://github.com/iangow), [@jkylearmstrong](https://github.com/jkylearmstrong), [@jonkeane](https://github.com/jonkeane), [@kmishra9](https://github.com/kmishra9), [@kohleth](https://github.com/kohleth), [@krlmlr](https://github.com/krlmlr), [@lorenzwalthert](https://github.com/lorenzwalthert), [@machow](https://github.com/machow), [@okhoma](https://github.com/okhoma), [@rjpat](https://github.com/rjpat), [@rlh1994](https://github.com/rlh1994), [@samssann](https://github.com/samssann), [@schradj](https://github.com/schradj), [@shosaco](https://github.com/shosaco), and [@stiberger](https://github.com/stiberger).
 
