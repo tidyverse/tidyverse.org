@@ -106,7 +106,7 @@ You can still load[^1] the here package without calling [`here::i_am()`](https:/
 
 </div>
 
-Read more at `vignette("here", package = "here")`.
+Read more at [`vignette("here", package = "here")`](https://here.r-lib.org/articles/here.html).
 
 Absolute vs. relative paths
 ---------------------------
