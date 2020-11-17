@@ -74,7 +74,7 @@ There were two downsides to this approach:
 
  * Since tidymodels treats validation sets as a single resample, you can't parallel process at all. 
 
-Parallel processing is somewhat unpredictable. While you might have a lot of cores (or machines) to throw at the problem, adding more might not help. This really depends on the model and the data. 
+Parallel processing is somewhat unpredictable. While you might have a lot of cores (or machines) to throw at the problem, adding more might not help. This really depends on the model, the size of the data, and the parallel strategy used (i.e. forking vs socket). 
 
 To illustrate how this approach utilizes parallel workers, we'll use a case where there are 7 model tuning parameter values along with 5-fold cross-validation. This visualization shows how the tasks are allocated to the worker processes:
 
@@ -178,4 +178,3 @@ The primary method for parallel processing on windows computers uses a PSOCK clu
 This method works on all major operating systems. 
 
 Different parallel processing technologies work in different ways. About mid-year we started to receive a number of issue report where PSOCK clusters were failing on Windows. This was due to how parallel workers are initialized; they really don't know anything about the main R process (e.g., what packages are loaded, what data objects should have access, etc). Those problems are now solved with the most recent versions of the parsnip, recipes, and tune packages. 
-
