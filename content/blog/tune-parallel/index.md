@@ -47,12 +47,12 @@ For illustration, let's suppose that we are tuning a set of model parameters (e.
 
 
 ```r
-for (rs in resamples) {
+for (resample in resamples) {
    # Create analysis and assessment sets
    # Preprocess data (e.g. formula or recipe)
-   for (mod in configurations) {
-      # Fit model {mod} to the {rs} analysis set
-      # Predict the {rs} assessment set
+   for (model in configurations) {
+      # Fit {model} to the {resample} analysis set
+      # Predict the {resample} assessment set
    }
 }
 ```
@@ -65,7 +65,7 @@ There were two downsides to this approach:
 
  * Since tidymodels treats validation sets as a single resample, you can't parallel process at all. 
 
-Parallel processing is somewhat unpredictable. While you might have a lot of cores (or machines) to throw at the problem, adding more might not help. This really depends on the model and the data. 
+Parallel processing is somewhat unpredictable. While you might have a lot of cores (or machines) to throw at the problem, adding more might not help. This really depends on the model, the size of the data, and the parallel strategy used (i.e. forking vs socket). 
 
 To illustrate how this approach utilizes parallel workers, we'll use a case where there are 7 model tuning parameter values along with 5-fold cross-validation. This visualization shows how the tasks are allocated to the worker processes:
 
@@ -104,14 +104,16 @@ For each resample, the preprocessing is needlessly run six additional times. If 
 
 To enable this approach, the control option is set to `parallel_over = "everything"`. 
 
+## Automatic strategy detection
+
 The default for `parallel_over` is `NULL`. This allows us to check and see if there are multiple resamples. If that is the case, it uses a value of `"resamples"`; otherwise, `"everything"` is used. 
 
 ## How much faster are the computations? 
 
 As an example, we tuned a boosted tree with the `xgboost` engine on a data set of 4,000 samples. Five-fold cross-validation was used with 10 candidate models. These data required some baseline preprocessing that did not require any estimation. The preprocessing was handled three different ways:
 
-1. Preprocess the data prior to modeling using a `dplyr` pipeline (labeled is "none" in the plots below).
-2. Conduct the same preprocessing a recipe (shown as "light" preprocessing).
+1. Preprocess the data prior to modeling using a `dplyr` pipeline (labeled as "none" in the plots below).
+2. Conduct the same preprocessing using a recipe (shown as "light" preprocessing).
 3. With a recipe, add an additional step that has a high computational cost (labeled as "expensive"). 
 
 The first and second preprocessing options are designed to measure the computational cost of the recipe. The third option measures the cost of performing redundant computations with `parallel_over = "everything"`. 
@@ -134,11 +136,10 @@ With the expensive preprocessing step, there is a considerable difference in exe
 
 ## PSOCK clusters
 
-The primary method for parallel processing on windows computers uses a PSOCK cluster. From [_Parallel R_](https://www.oreilly.com/library/view/parallel-r/9781449317850/): 
+The primary method for parallel processing on Windows computers uses a PSOCK cluster. From [_Parallel R_](https://www.oreilly.com/library/view/parallel-r/9781449317850/): 
 
 > "The parallel package comes with two transports: 'PSOCK' and 'FORK'. The 'PSOCK' transport is a streamlined version of [snow](https://biostats.bepress.com/uwbiostat/paper193/)'s 'SOCK' transport. It starts workers using the Rscript command, and communicates between the master and workers using socket connections."
 
 This method works on all major operating systems. 
 
-Different parallel processing technologies work in different ways. About mid-year we started to receive a number of issue report where PSOCK clusters were failing on Windows. This was due to how parallel workers are initialized; they really don't know anything about the main R process (e.g., what packages are loaded, what data objects should have access, etc). Those problems are now solved with the most recent versions of the parsnip, recipes, and tune packages. 
-
+Different parallel processing technologies work in different ways. About mid-year we started to receive a number of issue reports where PSOCK clusters were failing on Windows. This was due to how parallel workers are initialized; they really don't know anything about the main R process (e.g., what packages are loaded, what data objects should have access, etc). Those problems are now solved with the most recent versions of the parsnip, recipes, and tune packages. 

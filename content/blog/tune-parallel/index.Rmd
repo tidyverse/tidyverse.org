@@ -56,12 +56,12 @@ In the new version of tune, there are more options related to how parallelism oc
 For illustration, let's suppose that we are tuning a set of model parameters (e.g. not recipe parameters). In tidymodels, we always use [out-of-sample predictions to measure performance](https://www.tmwr.org/resampling.html). With grid search, pseudo-code that illustrations the computations are: 
 
 ```{r eval = FALSE}
-for (rs in resamples) {
+for (resample in resamples) {
    # Create analysis and assessment sets
    # Preprocess data (e.g. formula or recipe)
-   for (mod in configurations) {
-      # Fit model {mod} to the {rs} analysis set
-      # Predict the {rs} assessment set
+   for (model in configurations) {
+      # Fit {model} to the {resample} analysis set
+      # Predict the {resample} assessment set
    }
 }
 ```
@@ -130,6 +130,8 @@ everything_times %>%
 For each resample, the preprocessing is needlessly run six additional times. If the preprocessing is fast, this might be the best approach. 
 
 To enable this approach, the control option is set to `parallel_over = "everything"`. 
+
+## Automatic strategy detection
 
 The default for `parallel_over` is `NULL`. This allows us to check and see if there are multiple resamples. If that is the case, it uses a value of `"resamples"`; otherwise, `"everything"` is used. 
 
