@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tune-parallel
 title: Parallel processing with tune 
-date: 2020-11-18
+date: 2020-11-27
 author: Max Kuhn
 description: >
     With version 0.1.2 of tune, there are more options for parallel processing.  
@@ -29,7 +29,7 @@ TODO:
 * [ ] Add intro sentence
 * [ ] `use_tidy_thanks()`
 -->
-This is the second post related to version 0.1.2 of the tune package. The [first post]() discussed various new features. This post is an excerpt from an upcoming chapter in [_Tidy Modeling with R_](https://www.tmwr.org/) and is focused on parallel processing. 
+This is the third post related to version 0.1.2 of the tune package. The [first post]() discussed various new features while the [second post]() describes sparse matrix support. This post is an excerpt from an upcoming chapter in [_Tidy Modeling with R_](https://www.tmwr.org/) and is focused on parallel processing. 
 
 Previously, the tune package allowed for parallel processing of calculations in a few different places: 
 
