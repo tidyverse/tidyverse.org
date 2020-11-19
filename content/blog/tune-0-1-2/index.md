@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tune-0-1-2
 title: tune 0.1.2
-date: 2020-11-18
+date: 2020-11-23
 author: Max Kuhn
 description: >
     A new version of the tune package contains numerous new features. 
@@ -37,13 +37,13 @@ You can install it from CRAN with:
 install.packages("tune")
 ```
 
-There is a lot to discuss! So much that this is the first of three blog posts. Here, we'll show off most of the new features. The two other blog posts will talk about improvements to parallel processing and how to exploit sparse matrices with tidymodels. 
+There is a lot to discuss! So much that this is the first of three blog posts. Here, we'll show off most of the new features. The two other blog posts will talk about how to benefit from sparse matrices with tidymodels and improvements to parallel processing. 
 
 ## Pick a class level
 
-One major pain with two-class classification models is how to define the event of interest. There is the vestigial notion that the second level of the factor is the event of interest. This is almost entirely driven by The Old Days when outcome classes were encoded as zero and one. Thankfully, we've evolved significantly since those days. tidymodels assumes that the first factor level is the event. 
+Deciding how to define the event of interest for two-class classification models is a major pain. Sometimes the second level of the factor is assumed to be the event of interest, but this is a vestigial notion almost entirely driven by how things were in The Old Days when outcome classes were encoded as zero and one. Thankfully, we've evolved significantly since those days. tidymodels assumes that the first factor level is the event as a default. 
 
-However, we want to accommodate multiple preferences. Previously, there was a global options that you could set to decide whether the first or second factor level is the event. From a technical standpoint, that was not the best idea. The new approach uses control options to make the specification. For example, `control_grid(event_level = "second")` would change the default when using `tune_grid()`. 
+However, we want to accommodate multiple preferences. Previously, there was a global option that you could set to decide whether the first or second factor level is the event. We have come to realize that this was not the best idea from a technical standpoint. The new approach uses control arguments to the tune functions to make this specification. For example, `control_grid(event_level = "second")` would change the default when using `tune_grid()`. 
 
 ## Adding variables 
 
@@ -55,7 +55,7 @@ For Bayesian optimization, you can now pass options to `GPfit::GP_fit()` through
 
 ## Augmenting `tune` objects
 
-There is now an `augment()` method for `tune_*` objects. This does not have a data argument and returns the out-of-sample predictions for the object. For object produced by `last_fit()`, the function returns the test set results. 
+There is now an [`augment()`](https://broom.tidymodels.org/articles/broom.html) method for `tune_*` objects. This method does not have a data argument and returns the _out-of-sample_ predictions for the object, different from other `augment()` methods you may have used. For objects produced by `last_fit()`, the function returns the test set results. 
 
 ## Acknowledgements
 
