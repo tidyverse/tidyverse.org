@@ -29,7 +29,7 @@ TODO:
 * [ ] Add intro sentence
 * [ ] `use_tidy_thanks()`
 -->
-This is the third post related to version 0.1.2 of the tune package. The [first post]() discussed various new features while the [second post]() describes sparse matrix support. This post is an excerpt from an upcoming chapter in [_Tidy Modeling with R_](https://www.tmwr.org/) and is focused on parallel processing. 
+This is the third post related to version 0.1.2 of the tune package. The [first post](https://www.tidyverse.org/blog/2020/11/tune-0-1-2/) discussed various new features while the [second post](https://www.tidyverse.org/blog/2020/11/tidymodels-sparse-support/) describes sparse matrix support. This post is an excerpt from an upcoming chapter in [_Tidy Modeling with R_](https://www.tmwr.org/) and is focused on parallel processing. 
 
 Previously, the tune package allowed for parallel processing of calculations in a few different places: 
 
@@ -92,7 +92,7 @@ for (iter in all_tasks) {
 }
 ```
 
-With seven models and five resamples there are a total of 35 separate tasks that can be given to the worker processes. Foe this example, that would allow up to 35 cores/machines to run simultaneously. If we had a validation step, this would also enable the model loop to run in parallel. 
+With seven models and five resamples there are a total of 35 separate tasks that can be given to the worker processes. For this example, that would allow up to 35 cores/machines to run simultaneously. If we use a validation set, this would also enable the model loop to run in parallel. 
 
 The downside to this approach is that the preprocessing is unnecessarily repeated multiple times (depending on how tasks are allocated to the worker processes). 
 
