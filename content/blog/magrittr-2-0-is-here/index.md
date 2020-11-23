@@ -1,8 +1,8 @@
 ---
 output: hugodown::hugo_document
 
-slug: magrittr-2-0-is-there
-title: magrittr 2.0 is there!
+slug: magrittr-2-0-is-here
+title: magrittr 2.0 is here!
 date: 2020-11-20
 author: Lionel Henry
 description: >
@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: b4355bea37932768
+rmd_hash: c7a778a583da314a
 
 ---
 
@@ -158,6 +158,7 @@ R core has expressed their interest in adding a native pipe in the next version 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>ignore_arguments</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>...</span><span class='o'>)</span> <span class='s'>"value"</span>
 
 <span class='kr'><a href='https://rdrr.io/r/base/stop.html'>stop</a></span><span class='o'>(</span><span class='s'>"foo"</span><span class='o'>)</span> <span class='o'>%&gt;%</span> <span class='nf'>ignore_arguments</span><span class='o'>(</span><span class='o'>)</span>
+
 <span class='c'>#&gt; [1] "value"</span>
 </code></pre>
 
@@ -236,6 +237,7 @@ The issue you're most likely to encounter is that using [`return()`](https://rdr
   <span class='o'>&#125;</span>
   <span class='nv'>.</span> <span class='o'>+</span> <span class='m'>1</span>
 <span class='o'>&#125;</span>
+
 <span class='c'>#&gt; Error in 1 %&gt;% &#123;: no function to return from, jumping to top level</span>
 </code></pre>
 
@@ -254,6 +256,7 @@ The solution to these errors is to rewrite your pipeline:
     <span class='nv'>.</span> <span class='o'>+</span> <span class='m'>1</span>
   <span class='o'>&#125;</span>
 <span class='o'>&#125;</span>
+
 <span class='c'>#&gt; [1] 1</span>
 </code></pre>
 
@@ -272,6 +275,7 @@ In this case, creating a named function will probably produce clearer code:
 <span class='o'>&#125;</span>
 
 <span class='m'>1</span> <span class='o'>%&gt;%</span> <span class='nf'>increment_negative</span><span class='o'>(</span><span class='o'>)</span>
+
 <span class='c'>#&gt; [1] 1</span>
 </code></pre>
 
@@ -284,6 +288,7 @@ A pipeline is laid out as a series of sequential steps:
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='m'>1</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://magrittr.tidyverse.org/reference/aliases.html'>add</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>)</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://magrittr.tidyverse.org/reference/aliases.html'>multiply_by</a></span><span class='o'>(</span><span class='m'>2</span><span class='o'>)</span>
+
 <span class='c'>#&gt; [1] 4</span>
 </code></pre>
 
@@ -296,6 +301,7 @@ The sequentiality may break down with a lazy implementation. The laziness of R m
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>ignore</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='kc'>NULL</span>
 
 <span class='nf'>ignore</span><span class='o'>(</span><span class='kr'><a href='https://rdrr.io/r/base/stop.html'>stop</a></span><span class='o'>(</span><span class='s'>"No error is thrown because `x` is not needed"</span><span class='o'>)</span><span class='o'>)</span>
+
 <span class='c'>#&gt; NULL</span>
 </code></pre>
 
@@ -319,9 +325,11 @@ Here is a pipeline where the arguments are not evaluated until the end:
 <span class='o'>&#125;</span>
 
 <span class='m'>1</span> <span class='o'>%&gt;%</span> <span class='nf'>f1</span><span class='o'>(</span><span class='o'>)</span> <span class='o'>%&gt;%</span> <span class='nf'>f2</span><span class='o'>(</span><span class='o'>)</span> <span class='o'>%&gt;%</span> <span class='nf'>f3</span><span class='o'>(</span><span class='o'>)</span>
+
 <span class='c'>#&gt; f3</span>
 <span class='c'>#&gt; f2</span>
 <span class='c'>#&gt; f1</span>
+
 <span class='c'>#&gt; [1] 1</span>
 </code></pre>
 
@@ -332,9 +340,11 @@ Let's rewrite the pipeline to its nested form to understand what is happening:
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>f3</span><span class='o'>(</span><span class='nf'>f2</span><span class='o'>(</span><span class='nf'>f1</span><span class='o'>(</span><span class='m'>1</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
+
 <span class='c'>#&gt; f3</span>
 <span class='c'>#&gt; f2</span>
 <span class='c'>#&gt; f1</span>
+
 <span class='c'>#&gt; [1] 1</span>
 </code></pre>
 
@@ -370,16 +380,20 @@ This forces arguments to be evaluated in order:
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='m'>1</span> <span class='o'>%&gt;%</span> <span class='nf'>f1</span><span class='o'>(</span><span class='o'>)</span> <span class='o'>%&gt;%</span> <span class='nf'>f2</span><span class='o'>(</span><span class='o'>)</span> <span class='o'>%&gt;%</span> <span class='nf'>f3</span><span class='o'>(</span><span class='o'>)</span>
+
 <span class='c'>#&gt; f1</span>
 <span class='c'>#&gt; f2</span>
 <span class='c'>#&gt; f3</span>
+
 <span class='c'>#&gt; [1] 1</span>
 
 
 <span class='nf'>f3</span><span class='o'>(</span><span class='nf'>f2</span><span class='o'>(</span><span class='nf'>f1</span><span class='o'>(</span><span class='m'>1</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
+
 <span class='c'>#&gt; f1</span>
 <span class='c'>#&gt; f2</span>
 <span class='c'>#&gt; f3</span>
+
 <span class='c'>#&gt; [1] 1</span>
 </code></pre>
 
