@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: magrittr-2-0-is-here
 title: magrittr 2.0 is here!
-date: 2020-11-20
+date: 2020-11-23
 author: Lionel Henry
 description: >
     A new version of the magrittr package brings laziness, better performance, and leaner backtraces for debugging errors.
@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: c7a778a583da314a
+rmd_hash: fc97d825c6895f41
 
 ---
 
