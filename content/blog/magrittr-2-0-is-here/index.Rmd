@@ -1,0 +1,357 @@
+---
+output: hugodown::hugo_document
+
+slug: magrittr-2-0-is-here
+title: magrittr 2.0 is here!
+date: 2020-11-23
+author: Lionel Henry
+description: >
+    A new version of the magrittr package brings laziness, better performance, and leaner backtraces for debugging errors.
+
+photo:
+  url: https://unsplash.com/photos/E4W60q8rkZs
+  author: Florian Wächter
+
+categories: [package]
+tags: []
+---
+
+```{r, echo = FALSE, message = FALSE}
+knitr::opts_chunk$set(collapse = T, comment = "#>")
+```
+
+It is with fiery joyousness that we announce the release of [magrittr](https://magrittr.tidyverse.org/) 2.0. magrittr is the package home to the `%>%` pipe operator written by Stefan Milton Bache and used throughout the tidyverse. This last and likely final version of magrittr has been completely rewritten in C to resolve the longstanding issues of overhead and backtrace footprint. It also uses a different approach to support laziness and make the magrittr pipe more compatible with the base pipe `|>` to be included in the next version of R.
+
+This blog post covers the three main changes in this new version of the magrittr pipe and how to solve compatibility issues, should they arise.  Our analysis and testing suggests that the new version should be a drop-in replacement in most cases. It is however possible that the lazy implementation causes issues with specific functions. You will find below some tips to fix these, which will also make your code compatible with `|>` in R 4.1.
+
+Install the latest version of magrittr with:
+
+```{r, eval = FALSE}
+install.packages("magrittr")
+```
+
+Attach magrittr to follow the examples:
+
+```{r setup}
+library(magrittr)
+```
+
+
+## Backtraces
+
+The R implementation of the magrittr pipe was rather costly in terms of backtrace clutter. This made it difficult to debug errors with functions using the pipe:
+
+```{r, eval = FALSE}
+foo <- function() bar()
+bar <- function() 1 %>% identity() %>% baz()
+baz <- function(x) rlang::abort("oh no")
+
+foo()
+#> Error: oh no
+
+rlang::last_trace()
+#> <error/rlang_error>
+#> oh no
+#> Backtrace:
+#>      █
+#>   1. └─global::foo()
+#>   2.   └─global::bar()
+#>   3.     └─1 %>% identity() %>% baz()
+#>   4.       ├─base::withVisible(eval(quote(`_fseq`(`_lhs`)), env, env))
+#>   5.       └─base::eval(quote(`_fseq`(`_lhs`)), env, env)
+#>   6.         └─base::eval(quote(`_fseq`(`_lhs`)), env, env)
+#>   7.           └─`_fseq`(`_lhs`)
+#>   8.             └─magrittr::freduce(value, `_function_list`)
+#>   9.               ├─base::withVisible(function_list[[k]](value))
+#>  10.               └─function_list[[k]](value)
+#>  11.                 └─global::baz(.)
+```
+
+This clutter is now completely resolved:
+
+```{r, eval = FALSE}
+foo()
+#> Error: oh no
+
+rlang::last_trace()
+#> <error/rlang_error>
+#> oh no
+#> Backtrace:
+#>     █
+#>  1. ├─global::foo()
+#>  2. │ └─global::bar()
+#>  3. │   └─1 %>% identity() %>% baz()
+#>  4. └─global::baz(.)
+```
+
+
+## Speed
+
+The pipe is now written in C to improve the performance. Here is a benchmark for the old R implementation:
+
+```{r, eval = FALSE}
+f1 <- function(x) x
+f2 <- function(x) x
+f3 <- function(x) x
+f4 <- function(x) x
+
+bench::mark(
+  `1` = NULL %>% f1(),
+  `2` = NULL %>% f1() %>% f2(),
+  `3` = NULL %>% f1() %>% f2() %>% f3(),
+  `4` = NULL %>% f1() %>% f2() %>% f3() %>% f4(),
+)
+#>   expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc
+#>   <bch:expr> <bch:t> <bch:t>     <dbl> <bch:byt>    <dbl> <int> <dbl>
+#> 1 1           59.4µs  68.9µs    13648.      280B     59.1  6004    26
+#> 2 2           82.6µs 101.6µs     9252.      280B     42.8  3894    18
+#> 3 3          106.4µs 124.7µs     7693.      280B     18.8  3690     9
+#> 4 4          130.9µs 156.1µs     6173.      280B     18.8  2956     9
+```
+
+The new implementation is less costly, especially with many pipe expressions:
+
+```{r, eval = FALSE}
+bench::mark(
+  `1` = NULL %>% f1(),
+  `2` = NULL %>% f1() %>% f2(),
+  `3` = NULL %>% f1() %>% f2() %>% f3(),
+  `4` = NULL %>% f1() %>% f2() %>% f3() %>% f4(),
+)
+#>   expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc
+#>   <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>
+#> 1 1            1.83µs   2.42µs   379343.        0B     75.9  9998     2
+#> 2 2             2.3µs   2.79µs   255363.        0B      0   10000     0
+#> 3 3            2.82µs   3.74µs   244980.        0B     24.5  9999     1
+#> 4 4            3.32µs   4.37µs   217986.        0B     21.8  9999     1
+```
+
+We don't generally except this to have much impact on typical data analysis code, but it might yield meaningful speed ups if you are using the pipe inside very tight loops.
+
+
+## Laziness
+
+R core has expressed their interest in adding a native pipe in the next version of R and are working on an implementation[^1]. The main user-visible change in this release makes magrittr more compatible with the behaviour of the base pipe by evaluating the expressions lazily, only when needed.
+
+[^1]: See Luke Tierney's [keynote](https://youtu.be/X_eDHNVceCU?t=3099) at the useR! 2020 conference
+
+```{r}
+ignore_arguments <- function(...) "value"
+
+stop("foo") %>% ignore_arguments()
+```
+
+This has subtle implications but should be backward compatible with existing pipelines that run without error. The main source of behaviour change is that some code that previously failed may stop failing if the latter part of the pipeline specifically handled the error.
+
+Similarly, warnings that were previously issued might now be suppressed by a function you're piping into. That's because the following expressions are now almost completely equivalent:
+
+```{r}
+# Piped
+warning("foo") %>% suppressWarnings()
+
+# Nested
+suppressWarnings(warning("foo"))
+```
+
+Thanks to this change, you will now be able to pipe into testthat error expectations, for instance:
+
+```{r}
+library(testthat) %>%
+  suppressMessages()
+
+{ 1 + "a" } %>%
+  expect_error("non-numeric argument")
+```
+
+Note that one consequence of having a lazy pipe is that the whole pipeline will be shown on the call stack before any errors are thrown:
+
+```{r, eval = FALSE}
+f1 <- function(x) x
+f2 <- function(x) x
+f3 <- function(x) x
+f4 <- function(x) x
+
+stop("oh no") %>% f1() %>% f2() %>% f3() %>% f4()
+#> Error in f1(.) : oh no
+
+rlang::last_trace()
+#> <error/rlang_error>
+#> oh no
+#> Backtrace:
+#>     █
+#>  1. ├─stop("oh no") %>% f1() %>% f2() %>% f3() %>% f4()
+#>  2. ├─global::f4(.)
+#>  3. ├─global::f3(.)
+#>  4. ├─global::f2(.)
+#>  5. └─global::f1(.)
+```
+
+The last function of the pipeline is `f4()`, so that's the first one to be run. It evaluates its argument which is provided by `f3()`, so that's the second function pushed on the stack. And so on until `f1()` needs the result of `stop("oh no")` which causes an error.
+
+
+## Compatibility with magrittr 2.0
+
+Though we have changed the behaviour of the pipe, there should be no impact on your user code. The laziness makes it possible to use the pipe in more situations but is not any stricter. It should only cause problems in very rare corner cases and these should be minor. To confirm our analysis, we ran reverse dependency checks for magrittr, purrr, tidyr, dplyr, and tidymodels. Only a dozen out of the 2800 packages were broken by the new implementation, and fixing them has generally been easy (see the breaking changes section of the [NEWS file](https://github.com/tidyverse/magrittr/blob/master/NEWS.md)). In this section you will find a summary of the most common problems and how to fix them.
+
+
+### Using `return()` inside `{` blocks
+
+The issue you're most likely to encounter is that using `return()` inside `{` inside `%>%` is no longer supported. If you do this, you will see this error:
+
+```{r, error = TRUE}
+1 %>% {
+  if (. >= 0) {
+    return(.)
+  }
+  . + 1
+}
+```
+
+In general, the behaviour of `return()` inside a pipeline was not clearly defined. Should it return from the enclosing function, from the current pipe expression, or from the whole pipeline? We believe returning from the current function would be the ideal behaviour but for technical reasons we can't implement it this way.
+
+The solution to these errors is to rewrite your pipeline:
+
+```{r}
+1 %>% {
+  if (. >= 0) {
+    .
+  } else {
+    . + 1
+  }
+}
+```
+
+In this case, creating a named function will probably produce clearer code:
+
+```{r}
+increment_negative <- function(x) {
+  if (x >= 0) {
+    x
+  } else {
+    x + 1
+  }
+}
+
+1 %>% increment_negative()
+```
+
+
+### Sequential evaluation
+
+A pipeline is laid out as a series of sequential steps:
+
+```{r}
+1 %>% add(1) %>% multiply_by(2)
+```
+
+The sequentiality may break down with a lazy implementation. The laziness of R means that function arguments are only evaluated when they are needed. If the function returns without touching the argument, it is never evaluated. In the example below, the user passes `stop()` to an ignored argument:
+
+```{r}
+ignore <- function(x) NULL
+
+ignore(stop("No error is thrown because `x` is not needed"))
+```
+
+Here is a pipeline where the arguments are not evaluated until the end:
+
+```{r}
+f1 <- function(x) {
+  cat("f1\n")
+  x
+}
+f2 <- function(x) {
+  cat("f2\n")
+  x
+}
+f3 <- function(x) {
+  cat("f3\n")
+  x
+}
+
+1 %>% f1() %>% f2() %>% f3()
+```
+
+Let's rewrite the pipeline to its nested form to understand what is happening:
+
+```{r}
+f3(f2(f1(1)))
+```
+
+`f3()` runs first. Because it first calls `cat()` before touching its argument, this is what runs first. Then it returns its argument, triggering evaluation of `f2()`, and so on.
+
+In general, out-of-order evaluation only matters when your function produces side effects, such as printing output. It is easy to ensure sequential evaluation by forcing evaluation of arguments early in your function:
+
+```{r}
+f1 <- function(x) {
+  force(x)
+  cat("f1\n")
+  x
+}
+f2 <- function(x) {
+  force(x)
+  cat("f2\n")
+  x
+}
+f3 <- function(x) {
+  force(x)
+  cat("f3\n")
+  x
+}
+```
+
+This forces arguments to be evaluated in order:
+
+```{r}
+1 %>% f1() %>% f2() %>% f3()
+
+f3(f2(f1(1)))
+```
+
+
+### Visibility
+
+Another issue caused by laziness is that if any function in a pipeline returns invisibly, then the whole pipeline returns invisibly as well. All these calls return invisibly:
+
+```r
+1 %>% identity() %>% invisible()
+
+1 %>% invisible() %>% identity()
+
+1 %>% identity() %>% invisible() %>% identity()
+```
+
+This is consistent with the equivalent nested code:
+
+```{r}
+invisible(identity(1))
+
+identity(invisible(1))
+
+identity(invisible(identity(1)))
+```
+
+This behaviour can be worked around in two ways. You can force visibility by wrapping the pipeline in parentheses:
+
+```r
+my_function <- function(x) {
+  (x %>% invisible() %>% identity())
+}
+```
+
+Or by assigning the result to a variable and return it:
+
+```r
+my_function <- function(x) {
+  out <- x %>% invisible() %>% identity()
+  out
+}
+```
+
+
+## Conclusion
+
+Despite these few corner cases, we are confident that this release should be seamless for the vast majority of users. It fixes longstanding issues of overhead and makes the behaviour of `%>%` interchangeable with the future `|>` pipe of base R. We will maintain magrittr on CRAN for the foreseeable future, making it possible to write pipelined code that is compatible with older versions of R. The long-term compatibility and the resolved overhead should make magrittr a good choice for writing pipelines in R packages. We also hope it will improve the experience of users until they switch to the base pipe. For all these reasons, we are very happy to bring this ultimate version of magrittr to CRAN.
+
+Many thanks to all contributors over the years:
+
+  [&#x0040;adamroyjones](https://github.com/adamroyjones), [&#x0040;ajschumacher](https://github.com/ajschumacher), [&#x0040;allswellthatsmaxwell](https://github.com/allswellthatsmaxwell), [&#x0040;annytr](https://github.com/annytr), [&#x0040;aouazad](https://github.com/aouazad), [&#x0040;ateucher](https://github.com/ateucher), [&#x0040;bakaburg1](https://github.com/bakaburg1), [&#x0040;balwierz](https://github.com/balwierz), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;bdhumb](https://github.com/bdhumb), [&#x0040;behrica](https://github.com/behrica), [&#x0040;bfgray3](https://github.com/bfgray3), [&#x0040;bkmontgom](https://github.com/bkmontgom), [&#x0040;bramtayl](https://github.com/bramtayl), [&#x0040;burchill](https://github.com/burchill), [&#x0040;burgerga](https://github.com/burgerga), [&#x0040;casallas](https://github.com/casallas), [&#x0040;cathblatter](https://github.com/cathblatter), [&#x0040;cfhammill](https://github.com/cfhammill), [&#x0040;choisy](https://github.com/choisy), [&#x0040;ClaytonJY](https://github.com/ClaytonJY), [&#x0040;cstepper](https://github.com/cstepper), [&#x0040;ctbrown](https://github.com/ctbrown), [&#x0040;danklotz](https://github.com/danklotz), [&#x0040;DarwinAwardWinner](https://github.com/DarwinAwardWinner), [&#x0040;davharris](https://github.com/davharris), [&#x0040;Deleetdk](https://github.com/Deleetdk), [&#x0040;dirkschumacher](https://github.com/dirkschumacher), [&#x0040;DroiPlatform](https://github.com/DroiPlatform), [&#x0040;dustinvtran](https://github.com/dustinvtran), [&#x0040;eddelbuettel](https://github.com/eddelbuettel), [&#x0040;egnha](https://github.com/egnha), [&#x0040;emankhalaf](https://github.com/emankhalaf), [&#x0040;Enchufa2](https://github.com/Enchufa2), [&#x0040;englianhu](https://github.com/englianhu), [&#x0040;epipping](https://github.com/epipping), [&#x0040;fabiangehring](https://github.com/fabiangehring), [&#x0040;franknarf1](https://github.com/franknarf1), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;gdkrmr](https://github.com/gdkrmr), [&#x0040;gforge](https://github.com/gforge), [&#x0040;ghost](https://github.com/ghost), [&#x0040;gwerbin](https://github.com/gwerbin), [&#x0040;hackereye](https://github.com/hackereye), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hh1985](https://github.com/hh1985), [&#x0040;HughParsonage](https://github.com/HughParsonage), [&#x0040;HuwCampbell](https://github.com/HuwCampbell), [&#x0040;iago-pssjd](https://github.com/iago-pssjd), [&#x0040;imanuelcostigan](https://github.com/imanuelcostigan), [&#x0040;jaredlander](https://github.com/jaredlander), [&#x0040;jarodmeng](https://github.com/jarodmeng), [&#x0040;jcpetkovich](https://github.com/jcpetkovich), [&#x0040;jdnewmil](https://github.com/jdnewmil), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jepusto](https://github.com/jepusto), [&#x0040;jeremyhoughton](https://github.com/jeremyhoughton), [&#x0040;jeroenjanssens](https://github.com/jeroenjanssens), [&#x0040;jerryzhujian9](https://github.com/jerryzhujian9), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;JoshOBrien](https://github.com/JoshOBrien), [&#x0040;jread-usgs](https://github.com/jread-usgs), [&#x0040;jroberayalas](https://github.com/jroberayalas), [&#x0040;jzadra](https://github.com/jzadra), [&#x0040;kbodwin](https://github.com/kbodwin), [&#x0040;kendonB](https://github.com/kendonB), [&#x0040;kevinykuo](https://github.com/kevinykuo), [&#x0040;klmr](https://github.com/klmr), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;leerssej](https://github.com/leerssej), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;MajoroMask](https://github.com/MajoroMask), [&#x0040;Make42](https://github.com/Make42), [&#x0040;mhpedersen](https://github.com/mhpedersen), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;MilesMcBain](https://github.com/MilesMcBain), [&#x0040;mitchelloharawild](https://github.com/mitchelloharawild), [&#x0040;mmuurr](https://github.com/mmuurr), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;move[bot]](https://github.com/move[bot]), [&#x0040;Mullefa](https://github.com/Mullefa), [&#x0040;nteetor](https://github.com/nteetor), [&#x0040;odeleongt](https://github.com/odeleongt), [&#x0040;peterdesmet](https://github.com/peterdesmet), [&#x0040;philchalmers](https://github.com/philchalmers), [&#x0040;pkq](https://github.com/pkq), [&#x0040;prosoitos](https://github.com/prosoitos), [&#x0040;r2evans](https://github.com/r2evans), [&#x0040;restonslacker](https://github.com/restonslacker), [&#x0040;richierocks](https://github.com/richierocks), [&#x0040;robertzk](https://github.com/robertzk), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rossholmberg](https://github.com/rossholmberg), [&#x0040;rozsoma](https://github.com/rozsoma), [&#x0040;rpruim](https://github.com/rpruim), [&#x0040;rsaporta](https://github.com/rsaporta), [&#x0040;salim-b](https://github.com/salim-b), [&#x0040;sbgraves237](https://github.com/sbgraves237), [&#x0040;SimonHeuberger](https://github.com/SimonHeuberger), [&#x0040;smbache](https://github.com/smbache), [&#x0040;stemangiola](https://github.com/stemangiola), [&#x0040;tonytonov](https://github.com/tonytonov), [&#x0040;trevorld](https://github.com/trevorld), [&#x0040;triposorbust](https://github.com/triposorbust), [&#x0040;Vlek](https://github.com/Vlek), [&#x0040;vnijs](https://github.com/vnijs), [&#x0040;vsalmendra](https://github.com/vsalmendra), [&#x0040;vspinu](https://github.com/vspinu), [&#x0040;wabarr](https://github.com/wabarr), [&#x0040;wch](https://github.com/wch), [&#x0040;westonplatter](https://github.com/westonplatter), [&#x0040;wibeasley](https://github.com/wibeasley), [&#x0040;wlandau](https://github.com/wlandau), [&#x0040;yeedle](https://github.com/yeedle), [&#x0040;yutannihilation](https://github.com/yutannihilation), [&#x0040;zeehio](https://github.com/zeehio), and [&#x0040;zerweck](https://github.com/zerweck).
