@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: tidymodels-sparse-support
 title: Sparse data structures in tidymodels
-date: 2020-11-16
+date: 2020-11-25
 author: Julia Silge
 description: >
     Sparse data is common in many domains, and now tidymodels supports using 
