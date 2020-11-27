@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: stacks-0-1-0
 title: stacks 0.1.0
-date: 2020-11-24
+date: 2020-11-30
 author: Simon Couch and Max Kuhn
 description: >
     Introducing ensemble learning to the tidymodels.
@@ -16,7 +16,7 @@ categories: [package]
 tags:
   - tidymodels
   - stacks
-rmd_hash: a3aaa14084d84ac3
+rmd_hash: 2a20527d4bfdf7f9
 
 ---
 
