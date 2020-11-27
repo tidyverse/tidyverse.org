@@ -43,7 +43,7 @@ Tuning parameters are unknown quantities of a model that cannot be directly esti
 
 Grid search is a common method to find good values for model tuning parameters. A pre-defined set of parameters are created and often resampled so that good estimates of model performance are available. The user then choses a tuning parameter value that has acceptable results. 
 
-The problem with this approach is that it requires all of the results  to make a decision. For example, if we evaluate 50 tuning parameter values on 10 resamples, 500 model fits are evaluated before any analysis of the results takes place. 
+The problem with this approach is that it requires all of the results to be able to make a decision. For example, if we evaluate 50 tuning parameter values on 10 resamples, 500 model fits are evaluated before any analysis of the results takes place. 
 
 Racing methods, devised by [Maron and Moore (1994)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Hoeffding+races%3A+Accelerating+model+selection+search+for+classification+and+function+approximation&btnG=), enables a sequential type if grid search. All model parameters are evaluated on few resamples. From these results, racing methods analyze the initial results to determine if any of the tuning parameters are unacceptable enough to discard. If the analysis discards any parameters, they are not resampled further. This process can considerably reduce the total number of model evaluations. finetune has functions `tune_race_anova()` and `tune_race_win_loss()` for this purpose (with syntax similar to `tune_grid()`). Their analysis details are described in [Kuhn (2014)](https://arxiv.org/abs/1405.6974).   
 
