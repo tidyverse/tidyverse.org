@@ -43,7 +43,7 @@ In the new version of tune, there are more options related to how parallelism oc
 
 ## Parallelizing the resampling loop
 
-For illustration, let's suppose that we are tuning a set of model parameters (e.g. not recipe parameters). In tidymodels, we always use [out-of-sample predictions to measure performance](https://www.tmwr.org/resampling.html). With grid search, pseudo-code that illustrations the computations are: 
+For illustration, let's suppose that we are tuning a set of model parameters (e.g. not recipe parameters). In tidymodels, we always use [out-of-sample predictions to measure performance](https://www.tmwr.org/resampling.html). With grid search, pseudo-code that illustrates the computations are: 
 
 
 ```r
