@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: finetune-0-0-1
 title: finetune 0.0.1
-date: 2020-11-30
+date: 2020-12-02
 author: Max Kuhn
 description: >
     finetune is a new package that adds a few more model tuning methods. 
@@ -45,7 +45,7 @@ Grid search is a common method to find good values for model tuning parameters. 
 
 The problem with this approach is that it requires all of the results to be able to make a decision. For example, if we evaluate 50 tuning parameter values on 10 resamples, 500 model fits are evaluated before any analysis of the results takes place. 
 
-Racing methods, devised by [Maron and Moore (1994)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Hoeffding+races%3A+Accelerating+model+selection+search+for+classification+and+function+approximation&btnG=), enables a sequential type of grid search. All model parameters are evaluated on a few resamples. From these results, racing methods analyze the initial results to determine if any of the tuning parameters are unacceptable enough to discard. If the analysis discards any parameters, they are not resampled further. This process can considerably reduce the total number of model evaluations. finetune has functions `tune_race_anova()` and `tune_race_win_loss()` for this purpose (with syntax similar to `tune_grid()`). Their analysis details are described in [Kuhn (2014)](https://arxiv.org/abs/1405.6974).   
+Racing methods, devised by [Maron and Moore (1994)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Hoeffding+races%3A+Accelerating+model+selection+search+for+classification+and+function+approximation&btnG=), enables a sequential type of grid search. All model parameters are evaluated on a few resamples. Racing methods analyze the initial results to determine if any of the tuning parameters are unacceptable enough to discard. If the analysis discards any parameters, they are not resampled further. This process can considerably reduce the total number of model evaluations. finetune has functions `tune_race_anova()` and `tune_race_win_loss()` for this purpose (with syntax similar to `tune_grid()`). Their analysis details are described in [Kuhn (2014)](https://arxiv.org/abs/1405.6974).   
 
 As an example, we'll tune a K nearest neighbor (KNN) model on the sonar data.  The grid will consist of 20 tuning parameters values in conjunction with 25 bootstrap resamples.  
 
@@ -145,13 +145,13 @@ sonar_sa <-
 ##  4 ♥ new best           roc_auc=0.93033	(+/-0.006978)
 ##  5 ♥ new best           roc_auc=0.93181	(+/-0.006744)
 ##  6 ◯ accept suboptimal  roc_auc=0.87504	(+/-0.009216)
-##  7 + better suboptimal  roc_auc=0.8849	  (+/-0.00875)
+##  7 + better suboptimal  roc_auc=0.8849	(+/-0.00875)
 ##  8 ♥ new best           roc_auc=0.93647	(+/-0.00611)
 ##  9 ◯ accept suboptimal  roc_auc=0.92365	(+/-0.006366)
 ## 10 ─ discard suboptimal roc_auc=0.88774	(+/-0.007586)
 ## 11 + better suboptimal  roc_auc=0.92405	(+/-0.006807)
 ## 12 ◯ accept suboptimal  roc_auc=0.92211	(+/-0.006764)
-## 13 + better suboptimal  roc_auc=0.9297	  (+/-0.006814)
+## 13 + better suboptimal  roc_auc=0.9297	(+/-0.006814)
 ## 14 ─ discard suboptimal roc_auc=0.86171	(+/-0.008326)
 ## 15 ─ discard suboptimal roc_auc=0.88501	(+/-0.007397)
 ## 16 x restart from best  roc_auc=0.92734	(+/-0.006484)
@@ -162,7 +162,7 @@ sonar_sa <-
 ## 21 ◯ accept suboptimal  roc_auc=0.92589	(+/-0.006573)
 ## 22 + better suboptimal  roc_auc=0.92809	(+/-0.006609)
 ## 23 + better suboptimal  roc_auc=0.93439	(+/-0.006754)
-## 24 ◯ accept suboptimal  roc_auc=0.9314	  (+/-0.00656)
+## 24 ◯ accept suboptimal  roc_auc=0.9314	(+/-0.00656)
 ## 25 ◯ accept suboptimal  roc_auc=0.93076	(+/-0.007003)
 ```
 
