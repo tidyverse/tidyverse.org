@@ -40,6 +40,7 @@ This blog post will describe changes in the new version. You can see a full list
 
 ```{r setup}
 library(corrr)
+library(dplyr, warn.conflicts = FALSE)
 ```
 
 ## Changes
@@ -48,7 +49,91 @@ Daryn
 
 ## `colpair_map()`
 
-James
+Doing analysis with corrr has always been about correlations, usually starting with a call to `correlate()`.
+
+```{r}
+mini_mtcars <- mtcars %>% select(mpg, cyl, disp)
+
+correlate(mini_mtcars)
+```
+
+The result is a data frame where each of the columns in the original data are compared on the basis of their correlation coefficients. But the correlation coefficient is just one possible statistic that can be used for comparing columns with one another. Correlations are also limited in their usefulness as they are only applicable to pairs of numeric columns.
+
+This version of corrr introduces `colpair_map()`, which allows you to apply your own choice of function across the columns of your data. Just like with `correlate()`, `colpair_map()` takes a data frame as its first  argument, while the second argument is for the function you wish to apply.
+
+Let's demonstrate using the `mini_mtcars` data frame we just created. Lets say we are interested in covariance values rather than correlations. These can be found by passing in `cov()` from the stats package:
+
+```{r}
+cov_df <- colpair_map(mini_mtcars, stats::cov)
+
+cov_df
+```
+
+The resulting data frame behaves just like one returned by `correlate()`, except that it is populated with covariance values rather than correlations. This means we still have access to all corrr's other tooling when working with it. We can still use `shave()` for example to remove duplication, which will set the upper triangle of values to `NA`.
+
+```{r}
+cov_df %>% 
+  shave()
+```
+
+Similarly, we can still use `stretch()` to get the resulting data frame into a longer format:
+
+```{r}
+cov_df %>% 
+  stretch()
+```
+
+The first part of the name ("colpair_") comes from the fact that we are comparing pairs of columns. The second part of the name ("_map") is designed to evoke the same ideas as in purrr's family of `map_*` functions. These iterate over a set of elements and apply a function to each of them. In this case, `colpair_map()` is iterating over each possible pair of columns and applying a function to each pairing.
+
+As such, any function passed to `colpair_map()` must accept a vector for both its first and second arguments. To illustrate, let's say we wanted to run a series t-tests to see which of our variables are significantly related to one another. We can write a function to do so as follows:
+
+```{r}
+calc_ttest_p_value <- function(vec_a, vec_b){
+  t.test(vec_a, vec_b)$p.value
+}
+```
+
+The function returns the t-test's p-value. The two arguments to the function are the two vectors being compared. Let's first run the function on each pair of columns individually.
+
+```{r}
+calc_ttest_p_value(mini_mtcars[, "mpg"], mini_mtcars[, "cyl"])
+calc_ttest_p_value(mini_mtcars[, "mpg"], mini_mtcars[, "disp"])
+calc_ttest_p_value(mini_mtcars[, "cyl"], mini_mtcars[, "disp"])
+```
+
+As you can see, this is tedious and involves a lot of repeated code. But `colpair_map()` lets us do this for all column pairings at once and the output makes the results easy to read.
+
+```{r}
+colpair_map(mini_mtcars, calc_ttest_p_value)
+```
+
+Having the ability to use arbitrary functions like this opens up intriguing possibilities for analyzing data. One limitation of using only correlations is they will only work for continuous variables. With `colpair_map()`, we have a way of comparing categorical columns with one another. Let's try this with a few categorical columns from dplyr's dataset of Star Wars characters.
+
+```{r}
+mini_star_wars <- starwars %>% select(hair_color, eye_color, skin_color)
+
+head(mini_star_wars)
+```
+
+There are a few different ways of finding the strength of the relationship 
+between two categorical variables. One useful measure is called Cramer's V, 
+which takes on values between 0 and 1 depending on how closely associated the
+variables are. The rcompanion package provides an implementation of Cramer's V
+which we can make use of.
+
+```{r}
+library(rcompanion)
+
+colpair_map(mini_star_wars, cramerV)
+```
+
+`colpair_map()` will allow you pass additional arguments to the called  function via the dots (`...`). For example, the `cramerV()` function will allow you to specify the number of decimal places to round the results using `digits`. Let's instead pass in this option via the dots:
+
+```{r}
+colpair_map(mini_star_wars, cramerV, digits = 1)
+```
+
+We are excited to see the different ways `colpair_map()` gets used by the R community. We are hopeful that it will open up new and exciting ways of conducting data analysis.
 
 ## Acknowledgements
 
