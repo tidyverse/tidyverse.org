@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: corrr-0-4-3
 title: corrr 0.4.3
-date: 2020-12-02
+date: 2020-12-09
 author: Daryn Ramsden, James Laird-Smith, Max Kuhn
 description: >
     A new version of corrr features noteworthy improvements. 
