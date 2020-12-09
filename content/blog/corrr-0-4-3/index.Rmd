@@ -1,0 +1,184 @@
+---
+output: hugodown::hugo_document
+
+slug: corrr-0-4-3
+title: corrr 0.4.3
+date: 2020-12-09
+author: Daryn Ramsden, James Laird-Smith, Max Kuhn
+description: >
+    A new version of corrr features noteworthy improvements. 
+
+photo:
+  url: https://unsplash.com/photos/MOO6k3RaiwE
+  author: Omar Flores
+
+# one of: "deep-dive", "learn", "package", "programming", or "other"
+categories: [package] 
+tags: [corrr, tidymodels, correlation]
+---
+
+<!--
+TODO:
+* [ ] Pick category and tags (see existing with `post_tags()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnail()`
+* [ ] Add intro sentence
+* [ ] `use_tidy_thanks()`
+-->
+
+We're thrilled to announce the release of [corrr](https://corrr.tidymodels.org/) 0.4.3. corrr is for exploring correlations in R. It focuses on creating and working with data frames of correlations (instead of matrices) that can be easily explored via corrr functions or by leveraging tools like those in the tidyverse. 
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("corrr")
+```
+
+This blog post will describe changes in the new version. You can see a full list of changes in the [release notes](https://corrr.tidymodels.org/news/index.html).
+
+```{r setup}
+library(corrr)
+library(dplyr, warn.conflicts = FALSE)
+```
+
+## Changes
+
+This version of corrr has a few changes in the behavior of user-facing functions as well as the introduction of a new user-facing function.
+
+There are also some internal changes that make package functions more robust. These changes don't affect how you use the package but address some edge cases where previous versions were failing inappropriately.
+
+
+New features of note are:
+
+1. The first column of a `cor_df` object is now named "term". Previously it was named "rowname". The name "term" is consistent with the output of `broom::tidy()`. **This is a breaking change**: code written to make use of the column name "rowname" will have to be amended.  
+
+2. An `.order` argument has been added to `rplot()` to allow users to choose the ordering of variables along the axes in the output plot. The default is that the output plots retain the variable ordering in the input `cor_df` object. Setting `.order` to "alphabet" orders the variables in alphabetical order in the plots.
+
+3. A new function, `colpair_map()`, allows for column comparisons using the values returned by an arbitrary function. `colpair_map()` is discussed in detail below.
+
+
+
+### New column name in `cor_df` objects
+
+
+We can create a `cor_df` object containing the pairwise correlations between a few numerical columns of the `palmerpenguins::penguins` data set to see that the first column is now named "term":  
+
+```{r message = FALSE}
+library(palmerpenguins)
+
+penguins_cor <- penguins %>% 
+  select(bill_length_mm, bill_depth_mm, flipper_length_mm) %>% 
+  correlate()
+
+penguins_cor
+```
+ 
+### Ordering variables in `rplot()` output 
+
+Previously, the default behavior of `rplot()` was that the variables were displayed in alphabetical order in the output. This was an artifact of using `ggplot2` and inheriting its behavior. The new default is to retain the ordering of variables in the input data: 
+
+```{r message = FALSE}
+rplot(penguins_cor) 
+```
+
+If alphabetical ordering is desired, set `.order` to "alphabet": 
+
+```{r message = FALSE}
+rplot(penguins_cor, .order = "alphabet")
+```
+
+
+
+## `colpair_map()`
+
+Doing analysis with corrr has always been about correlations, usually starting with a call to `correlate()`.
+
+```{r}
+mini_mtcars <- mtcars %>% select(mpg, cyl, disp)
+
+correlate(mini_mtcars)
+```
+
+The result is a data frame where each of the columns in the original data are compared on the basis of their correlation coefficients. But the correlation coefficient is just one possible statistic that can be used for comparing columns with one another. Correlations are also limited in their usefulness as they are only applicable to pairs of numeric columns.
+
+This version of corrr introduces `colpair_map()`, which allows you to apply your own choice of function across the columns of your data. Just like with `correlate()`, `colpair_map()` takes a data frame as its first  argument, while the second argument is for the function you wish to apply.
+
+Let's demonstrate using the `mini_mtcars` data frame we just created. Lets say we are interested in covariance values rather than correlations. These can be found by passing in `cov()` from the stats package:
+
+```{r}
+cov_df <- colpair_map(mini_mtcars, stats::cov)
+
+cov_df
+```
+
+The resulting data frame behaves just like one returned by `correlate()`, except that it is populated with covariance values rather than correlations. This means we still have access to all corrr's other tooling when working with it. We can still use `shave()` for example to remove duplication, which will set the upper triangle of values to `NA`.
+
+```{r}
+cov_df %>% 
+  shave()
+```
+
+Similarly, we can still use `stretch()` to get the resulting data frame into a longer format:
+
+```{r}
+cov_df %>% 
+  stretch()
+```
+
+The first part of the name ("colpair_") comes from the fact that we are comparing pairs of columns. The second part of the name ("_map") is designed to evoke the same ideas as in purrr's family of `map_*` functions. These iterate over a set of elements and apply a function to each of them. In this case, `colpair_map()` is iterating over each possible pair of columns and applying a function to each pairing.
+
+As such, any function passed to `colpair_map()` must accept a vector for both its first and second arguments. To illustrate, let's say we wanted to run a series t-tests to see which of our variables are significantly related to one another. We can write a function to do so as follows:
+
+```{r}
+calc_ttest_p_value <- function(vec_a, vec_b){
+  t.test(vec_a, vec_b)$p.value
+}
+```
+
+The function returns the t-test's p-value. The two arguments to the function are the two vectors being compared. Let's first run the function on each pair of columns individually.
+
+```{r}
+calc_ttest_p_value(mini_mtcars[, "mpg"], mini_mtcars[, "cyl"])
+calc_ttest_p_value(mini_mtcars[, "mpg"], mini_mtcars[, "disp"])
+calc_ttest_p_value(mini_mtcars[, "cyl"], mini_mtcars[, "disp"])
+```
+
+As you can see, this is tedious and involves a lot of repeated code. But `colpair_map()` lets us do this for all column pairings at once and the output makes the results easy to read.
+
+```{r}
+colpair_map(mini_mtcars, calc_ttest_p_value)
+```
+
+Having the ability to use arbitrary functions like this opens up intriguing possibilities for analyzing data. One limitation of using only correlations is they will only work for continuous variables. With `colpair_map()`, we have a way of comparing categorical columns with one another. Let's try this with a few categorical columns from dplyr's dataset of Star Wars characters.
+
+```{r}
+mini_star_wars <- starwars %>% select(hair_color, eye_color, skin_color)
+
+head(mini_star_wars)
+```
+
+There are a few different ways of finding the strength of the relationship 
+between two categorical variables. One useful measure is called Cramer's V, 
+which takes on values between 0 and 1 depending on how closely associated the
+variables are. The rcompanion package provides an implementation of Cramer's V
+which we can make use of.
+
+```{r}
+library(rcompanion)
+
+colpair_map(mini_star_wars, cramerV)
+```
+
+`colpair_map()` will allow you pass additional arguments to the called  function via the dots (`...`). For example, the `cramerV()` function will allow you to specify the number of decimal places to round the results using `digits`. Let's instead pass in this option via the dots:
+
+```{r}
+colpair_map(mini_star_wars, cramerV, digits = 1)
+```
+
+We are excited to see the different ways `colpair_map()` gets used by the R community. We are hopeful that it will open up new and exciting ways of conducting data analysis.
+
+## Acknowledgements
+
+We'd like to thank everyone who contributed to the package or filed an issue since the last release: [&#x0040;Aariq](https://github.com/Aariq), [&#x0040;antoine-sachet](https://github.com/antoine-sachet), [&#x0040;bjornerstedt](https://github.com/bjornerstedt), [&#x0040;jameslairdsmith](https://github.com/jameslairdsmith), [&#x0040;jamesMo84](https://github.com/jamesMo84), [&#x0040;juliangkr](https://github.com/juliangkr), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mwilson19](https://github.com/mwilson19), [&#x0040;norhther](https://github.com/norhther), [&#x0040;thisisdaryn](https://github.com/thisisdaryn), and [&#x0040;topepo](https://github.com/topepo).
