@@ -9,8 +9,8 @@ description: >
     A new version of corrr features noteworthy improvements. 
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/MOO6k3RaiwE
+  author: Omar Flores
 
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
@@ -28,7 +28,7 @@ TODO:
 * [ ] `use_tidy_thanks()`
 -->
 
-We're thrilled to announce the release of [corrr](https://corrr.tidymodels.org/) 0.4.2. corrr is for exploring correlations in R. It focuses on creating and working with data frames of correlations (instead of matrices) that can be easily explored via corrr functions or by leveraging tools like those in the tidyverse. 
+We're thrilled to announce the release of [corrr](https://corrr.tidymodels.org/) 0.4.3. corrr is for exploring correlations in R. It focuses on creating and working with data frames of correlations (instead of matrices) that can be easily explored via corrr functions or by leveraging tools like those in the tidyverse. 
 
 You can install it from CRAN with:
 
@@ -45,7 +45,51 @@ library(dplyr, warn.conflicts = FALSE)
 
 ## Changes
 
-Daryn
+This version of corrr has a few changes in the behavior of user-facing functions as well as the introduction of a new user-facing function.
+
+There are also some internal changes that make package functions more robust. These changes don't affect how you use the package but address some edge cases where previous versions were failing inappropriately.
+
+
+New features of note are:
+
+1. The first column of a `cor_df` object is now named "term". Previously it was named "rowname". The name "term" is consistent with the output of `broom::tidy()`. **This is a breaking change**: code written to make use of the column name "rowname" will have to be amended.  
+
+2. An `.order` argument has been added to `rplot()` to allow users to choose the ordering of variables along the axes in the output plot. The default is that the output plots retain the variable ordering in the input `cor_df` object. Setting `.order` to "alphabet" orders the variables in alphabetical order in the plots.
+
+3. A new function, `colpair_map()`, allows for column comparisons using the values returned by an arbitrary function. `colpair_map()` is discussed in detail below.
+
+
+
+### New column name in `cor_df` objects
+
+
+We can create a `cor_df` object containing the pairwise correlations between numerical columns of the `palmerpenguins::penguins` data set to see that the first column is now named "term":  
+
+```{r message = FALSE}
+library(palmerpenguins)
+
+penguins_cor <- penguins %>% 
+  select(where(is.numeric)) %>% 
+  correlate()
+
+penguins_cor
+```
+ 
+### Ordering variables in `rplot()` output 
+
+Previously, the default behavior of `rplot()` was that the variables were displayed in alphabetical order in the output. This was an artifact of using `ggplot2` and inheriting its behavior. The new default is to retain the ordering of variables in the input data: 
+
+```{r message = FALSE}
+rplot(penguins_cor) 
+```
+
+If alphabetical ordering is desired, set `.order` to "alphabet": 
+
+```{r message = FALSE}
+rplot(penguins_cor, .order = "alphabet")
+```
+
+
 
 ## `colpair_map()`
 

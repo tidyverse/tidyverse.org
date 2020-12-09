@@ -9,13 +9,13 @@ description: >
     A new version of corrr features noteworthy improvements. 
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/MOO6k3RaiwE
+  author: Omar Flores
 
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [corrr, tidymodels, correlation]
-rmd_hash: 9a8c3c97aa9f5515
+rmd_hash: 3857bbf27774d2ee
 
 ---
 
@@ -30,7 +30,7 @@ TODO:
 * [ ] `use_tidy_thanks()`
 -->
 
-We're thrilled to announce the release of [corrr](https://corrr.tidymodels.org/) 0.4.2. corrr is for exploring correlations in R. It focuses on creating and working with data frames of correlations (instead of matrices) that can be easily explored via corrr functions or by leveraging tools like those in the tidyverse.
+We're thrilled to announce the release of [corrr](https://corrr.tidymodels.org/) 0.4.3. corrr is for exploring correlations in R. It focuses on creating and working with data frames of correlations (instead of matrices) that can be easily explored via corrr functions or by leveraging tools like those in the tidyverse.
 
 You can install it from CRAN with:
 
@@ -54,7 +54,67 @@ This blog post will describe changes in the new version. You can see a full list
 Changes
 -------
 
-Daryn
+This version of corrr has a few changes in the behavior of user-facing functions as well as the introduction of a new user-facing function.
+
+There are also some internal changes that make package functions more robust. These changes don't affect how you use the package but address some edge cases where previous versions were failing inappropriately.
+
+New features of note are:
+
+1.  The first column of a `cor_df` object is now named "term". Previously it was named "rowname". The name "term" is consistent with the output of [`broom::tidy()`](https://generics.r-lib.org/reference/tidy.html). **This is a breaking change**: code written to make use of the column name "rowname" will have to be amended.
+
+2.  An `.order` argument has been added to [`rplot()`](https://corrr.tidymodels.org/reference/rplot.html) to allow users to choose the ordering of variables along the axes in the output plot. The default is that the output plots retain the variable ordering in the input `cor_df` object. Setting `.order` to "alphabet" orders the variables in alphabetical order in the plots.
+
+3.  A new function, [`colpair_map()`](https://corrr.tidymodels.org/reference/colpair_map.html), allows for column comparisons using the values returned by an arbitrary function. [`colpair_map()`](https://corrr.tidymodels.org/reference/colpair_map.html) is discussed in detail below.
+
+### New column name in `cor_df` objects
+
+We can create a `cor_df` object containing the pairwise correlations between numerical columns of the [`palmerpenguins::penguins`](https://allisonhorst.github.io/palmerpenguins/reference/penguins.html) data set to see that the first column is now named "term":
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://allisonhorst.github.io/palmerpenguins/'>palmerpenguins</a></span><span class='o'>)</span>
+
+<span class='nv'>penguins_cor</span> <span class='o'>&lt;-</span> <span class='nv'>penguins</span> <span class='o'>%&gt;%</span> 
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nf'>where</span><span class='o'>(</span><span class='nv'>is.numeric</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+  <span class='nf'><a href='https://corrr.tidymodels.org/reference/correlate.html'>correlate</a></span><span class='o'>(</span><span class='o'>)</span>
+
+<span class='nv'>penguins_cor</span>
+
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 x 6</span></span>
+<span class='c'>#&gt;   term         bill_length_mm bill_depth_mm flipper_length_… body_mass_g    year</span>
+<span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>                 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>         </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>            </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> bill_length…        </span><span style='color: #BB0000;'>NA</span><span>            -</span><span style='color: #BB0000;'>0.235</span><span>             0.656      0.595   0.054</span><span style='text-decoration: underline;'>5</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> bill_depth_…        -</span><span style='color: #BB0000;'>0.235</span><span>        </span><span style='color: #BB0000;'>NA</span><span>                -</span><span style='color: #BB0000;'>0.584</span><span>     -</span><span style='color: #BB0000;'>0.472</span><span>  -</span><span style='color: #BB0000;'>0.060</span><span style='color: #BB0000;text-decoration: underline;'>4</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>3</span><span> flipper_len…         0.656        -</span><span style='color: #BB0000;'>0.584</span><span>            </span><span style='color: #BB0000;'>NA</span><span>          0.871   0.170 </span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>4</span><span> body_mass_g          0.595        -</span><span style='color: #BB0000;'>0.472</span><span>             0.871     </span><span style='color: #BB0000;'>NA</span><span>       0.042</span><span style='text-decoration: underline;'>2</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>5</span><span> year                 0.054</span><span style='text-decoration: underline;'>5</span><span>       -</span><span style='color: #BB0000;'>0.060</span><span style='color: #BB0000;text-decoration: underline;'>4</span><span>            0.170      0.042</span><span style='text-decoration: underline;'>2</span><span> </span><span style='color: #BB0000;'>NA</span></span>
+</code></pre>
+
+</div>
+
+### Ordering variables in `rplot()` output
+
+Previously, the default behavior of [`rplot()`](https://corrr.tidymodels.org/reference/rplot.html) was that the variables were displayed in alphabetical order in the output. This was an artifact of using `ggplot2` and inheriting its behavior. The new default is to retain the ordering of variables in the input data:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://corrr.tidymodels.org/reference/rplot.html'>rplot</a></span><span class='o'>(</span><span class='nv'>penguins_cor</span><span class='o'>)</span> 
+
+</code></pre>
+<img src="figs/unnamed-chunk-3-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+If alphabetical ordering is desired, set `.order` to "alphabet":
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://corrr.tidymodels.org/reference/rplot.html'>rplot</a></span><span class='o'>(</span><span class='nv'>penguins_cor</span>, .order <span class='o'>=</span> <span class='s'>"alphabet"</span><span class='o'>)</span>
+
+</code></pre>
+<img src="figs/unnamed-chunk-4-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
 
 [`colpair_map()`](https://corrr.tidymodels.org/reference/colpair_map.html)
 ---------------
