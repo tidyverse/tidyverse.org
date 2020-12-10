@@ -1,0 +1,337 @@
+---
+output: hugodown::hugo_document
+
+slug: coro-1-0-0
+title: Coroutines for R!
+date: 2020-12-10
+author: Lionel Henry
+description: >
+    A 2-3 sentence description of the post that appears on the articles page.
+    This can be omitted if it would just recapitulate the title.
+
+photo:
+  url: https://unsplash.com/photos/n6vS3xlnsCc
+  author: Kelley Bozarth
+
+categories: [package]
+tags: []
+---
+
+<!--
+TODO:
+* [ ] Pick category and tags (see existing with `post_tags()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnail()`
+* [ ] Add intro sentence
+* [ ] `use_tidy_thanks()`
+-->
+
+It is with unabated jolliness that we announce the first release of [coro](https://coro.r-lib.org/)! coro implements coroutines for R, a kind of functions that can suspend and resume themselves before their final `return()`. Coroutines have proved to be very useful in other languages for creating complex lazy sequences (with generators) and concurrent code that is easy for humans to read and write (with async functions).
+
+You can install coro from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("coro")
+```
+
+This blog post will introduce the two sorts of coroutines implemented in coro, generators and coroutines. It will also demonstrate how to use these coroutines in your workflow for existing packages like reticulate and shiny.
+
+```{r setup}
+library(coro)
+```
+
+## Coroutines
+
+Coroutines are a special sort of functions that can suspend themselves and resume later on. There are two kinds implemented in coro:
+
+- Generators which lazily produce values for complex sequences. Here laziness means that the values are produced on demand rather than ahead of time. Because they are lazy, these sequences may be infinite or produce objects that are too large to be held in memory all at once. 
+
+- Async functions which work together with a scheduler of concurrent functions. Async functions suspend themselves when they can't make progress until some computation has finished or some event has occurred. The scheduler then launches a new concurrent computation or resumes a suspended async function that is now ready to make progress.
+
+The common property of all coroutines is that they start to perform some work, decide that they have done enough work for now, and return an object to their caller. It is the caller which decides when to call the coroutine again to do some more work. Whereas generators communicate intermediate values to you, the user, async functions exclusively communicate in the background with a scheduler of concurrent computations.
+
+
+## Generators
+
+In coro the term "generator" refers to two sorts of functions:
+
+- Generator factories
+- Generator instances
+
+`coro::generator()` creates generator factories. These factories in turn create fresh generator instances. Generator factories look like normal function definitions for the most part, except that you can `yield()` values.
+
+```{r}
+# Create a generator factory
+generate_abc <- generator(function() {
+  yield("a")
+  yield("b")
+  "c"
+})
+```
+
+The other difference with normal functions is that generator factories don't return a value immediately. They return a function object, a fresh generator _instance_.
+
+```{r}
+# Create a generator instance
+abc <- generate_abc()
+
+abc
+```
+
+A generator instance is called repeatedly, as many times as necessary. Each time, it _yields_ a value. The last value is _returned_. Once a generator has returned, it becomes stale and returns an exhaustion value when it is run again.
+
+```{r}
+abc()
+
+abc()
+
+abc()
+
+abc()
+
+abc()
+
+is_exhausted(abc())
+```
+
+Generators can `yield()` flexibly inside `if` branches, loops, or `tryCatch()` expressions. For instance we could rewrite the `abc` generator with a loop:
+
+```{r}
+generate_abc <- generator(function() {
+ for (x in letters[1:3]) {
+   yield(x)
+ }
+})
+```
+
+To make things a bit more complex, we could yield conditionally inside the loop to return only every other letter:
+
+```{r}
+generate_odd_letters <- generator(function() {
+  for (i in seq_along(letters)) {
+    if (i %% 2 != 0) {
+      yield(letters[[i]])
+    }
+ }
+})
+
+odd_letters <- generate_odd_letters()
+
+odd_letters()
+
+odd_letters()
+
+odd_letters()
+```
+
+
+### Working with iterators
+
+Technically, generator instances are __iterator functions__. Calling them repeatedly advances the iteration step by step until exhaustion. coro provides two helpers that make it easy to work with iterator functions.
+
+-   `coro::loop()` instruments `for` so that it understands how to loop over these iterators:
+
+    ```{r}
+    loop(for (x in generate_abc()) {
+      print(toupper(x))
+    })
+    ```
+
+-   `coro::collect()` loops over the iterator and collects all values in a list:
+
+    ```{r}
+    collect(generate_abc())
+    ```
+    
+    You can also supply a certain number of elements to collect:
+    
+    ```{r}
+    odd_letters <- generate_odd_letters()
+
+    collect(odd_letters, n = 3)
+
+    collect(odd_letters, n = 2)
+    ```
+
+In a generator function, all `for` loops natively understand iterators. This makes it easy to chain generators. A generator that takes other generators as input to modify their values is called an _adaptor_:
+
+```{r}
+adapt_prefix <- generator(function(it, prefix) {
+  for (x in it) {
+    yield(paste0(prefix, x))
+  }
+})
+
+library(magrittr)
+
+generate_abc() %>% adapt_prefix("foo_") %>% collect()
+```
+
+
+### Compatibility with reticulate
+
+Python iterators from the [reticulate](https://rstudio.github.io/reticulate/) package are fully compatible with coro. Let's create a Python generator for the first `n` integers:
+
+```{r}
+suppressMessages(
+  library(reticulate)
+)
+
+py_run_string("
+def first_n(n):
+    num = 1
+    while num <= n:
+        yield num
+        num += 1
+")
+```
+
+You can `loop()` over iterators created by this generator:
+
+```{r}
+first_3 <- py$first_n(3)
+
+loop(for (x in first_3) {
+  print(x * 2)
+})
+```
+
+You can `collect()` the values:
+
+```{r}
+collect(py$first_n(3))
+```
+
+And you can chain them with coro generators:
+
+```{r}
+adapt_plus <- generator(function(it, n) {
+  for (x in it) yield(x + n)
+})
+
+py$first_n(3) %>% adapt_plus(10) %>% collect()
+```
+
+
+### When should I use generators?
+
+Generators are important in Python because they provide a flexible way of creating iterators and these are at the heart of the language. However, whereas Python is scalar oriented, R is a vector oriented language. As a result, it is generally more efficient to take advantage of vectorisation when possible.
+
+Also, since R is a functional language, iterators are a bit awkward to work with because they are _stateful_. Advancing an iterator changes the state of R. To reproduce yielded values, you need to start over.
+
+For these reasons, generators are likely not the most appropriate way of solving your problems in R. In most cases it will be more efficient and natural to work with vectorised or functional idioms. On the other hand, vectorised and functional idioms do not work so well when:
+
+- The data doesn't fit in memory. Infinite sequences are an extreme case of this. When you can't work with all the data at once, it must be chunked into more manageable slices.
+
+- The sequence is complex or you don't need to compute all of it in advance.
+
+Generators are a good way of structuring computations on chunked data and lazy sequences.
+
+
+## Async functions
+
+The most useful application of generators is to create _cooperative_ concurrency. In that paradigm, generators are concurrent computations that politely yield to each other so that they can both make progress in a given lapse of time. This pattern is so useful and instinctive that it has been captured in a convenient syntax in many languages in the form of __async__ functions.
+
+An async function definition looks a bit like a generator factory except that the keyword `yield()` is replaced by `await()`:
+
+```{r}
+my_async <- async(function(url) {
+  file <- await(async_some_download(url))
+  head(file)
+})
+```
+
+`await()` takes a promise object as defined in the [promises](https://rstudio.github.io/promises/) package. It also supports objects coercible to promises, such as `future::future()`. When an async function uses `await()`, it registers itself to be called back once the promise has run to completion and a value is ready. Control is yielded to the scheduler and the next async computation that is ready to make progress is run. 
+
+All async functions are then-able because they return a promise object. You can `await()` an async function or chain it with `promises::then()`.
+
+
+### Waiting for results
+
+Your async function should use `await()` when it can no longer make progress on its own because it is waiting for a result. For example because it is downloading a file or waiting for a computation in another R process. While your async function is waiting, other concurrent functions get a chance to run.
+
+Cooperative concurrency is especially important when you are writing Shiny applications because the reactive components that update the Shiny UI are only run when R is idle. If a function doesn't give up control while it is waiting for a result, the Shiny UI stops reacting to user inputs. From the user point of view, it appears as if the app is freezing. 
+
+TODO: `future()`
+
+
+### Courtesy yields
+
+If your async function is iterating over a long loop, you may consider politely yielding to other concurrent routines by calling `await()` without argument. In this case, `await()` does not signal that you are waiting for a value, only that you would like Shiny and other concurrent functions to make progress as well after you've been busy for a while.
+
+To illustrate this, take the following function. It writes a message in a loop every 10 iterations.
+
+```{r, eval = FALSE}
+async_print_progress <- async(function(msg, n = 30) {
+  for (i in seq_len(n)) {
+    if (i %% 10 == 0) {
+      # Print message every 10 iterations
+      writeLines(msg)
+    }
+  }
+
+  writeLines("Done")
+})
+```
+
+Running two instances of this function concurrently reveals the problem. The first instance is run to completion and only then the other instance can start doing some work.
+
+```{r, eval = FALSE}
+promises::promise_all(
+  async_print_progress("foo"),
+  async_print_progress("bar")
+)
+#> foo
+#> foo
+#> foo
+#> Done
+#> bar
+#> bar
+#> bar
+#> Done
+```
+
+Calling `await()` inside the loop improves the concurrency of your function because it allows other routines to take their turn. It doesn't need to be called at each iteration. Every 1000 iterations is often sufficient because, if an iteration takes too much time, you should probably consider running it in another process to start with. In this example we yield every 10 iterations right after printing the message:
+
+```{r, eval = FALSE}
+async_print_progress <- async(function(msg, n = 30) {
+  for (i in seq_len(n)) {
+    if (i %% 10 == 0) {
+      # Print message every 10 iterations
+      writeLines(msg)
+
+      # Courtesy yield
+      await()
+    }
+  }
+
+  writeLines("Done")
+})
+```
+
+The cooperative call to `await()` allows other routines to run concurrently while the loop is making progress:
+
+```{r, eval = FALSE}
+promises::promise_all(
+  async_print_progress("foo"),
+  async_print_progress("bar")
+)
+#> foo
+#> bar
+#> foo
+#> bar
+#> foo
+#> bar
+#> Done
+#> Done
+```
+
+
+### Callback hell
+
+if + tryCatch
+
+
+## Conclusion
