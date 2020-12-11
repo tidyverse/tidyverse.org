@@ -14,7 +14,7 @@ photo:
   author: Kiana Bosman
 categories: [package] 
 tags: [devtools,r-lib,usethis]
-rmd_hash: ecfcc22f289b9f63
+rmd_hash: b6b86ce73b344ca8
 
 ---
 
@@ -97,7 +97,7 @@ In [`use_github()`](https://usethis.r-lib.org/reference/use_github.html) and [`c
 
 #### Give me your full URLs!
 
-The last point above is a nice quality-of-life improvement even when working on github.com. It means you can copy a URL straight from your browser and, as long as it points somewhere within the target repo, all will be well. If you decide to clone Matt Lincoln's clipr package, while perusing its issues, you can provide the current browser URL to [`create_from_github()`](https://usethis.r-lib.org/reference/create_from_github.html), i.e. you don't have to trim both ends to isolate `mdlincoln/clipr`.
+The last point above is a nice quality-of-life improvement even when working on github.com. It means you can copy a URL straight from your browser and, as long as it points somewhere within the target repo, all will be well. For example, if you decide to clone Matt Lincoln's clipr package while perusing its issues, you can just copy the url directly from your browser:
 
 <div class="highlight">
 
@@ -150,7 +150,7 @@ Our full recommendations for getting and configuring a PAT are in the new vignet
 
 ### Git protocol
 
-When usethis configures a new Git remote, it must choose a protocol, either HTTPS or SSH. The new default in this situation is HTTPS, because we think HTTPS is a better choice, for most users and projects (rationale is above).
+When usethis configures a new Git remote, it must choose a protocol, either HTTPS or SSH. The new default in this situation is HTTPS, because as we explained above, we think HTTPS is the best choice for most users and projects.
 
 <div class="highlight">
 
@@ -168,9 +168,7 @@ In relevant functions, such as [`use_github()`](https://usethis.r-lib.org/refere
 Pull request helpers
 --------------------
 
-The team that maintains the tidyverse and r-lib packages makes heavy use of GitHub pull requests for managing internal and external contributions. The `pr_*()` family of functions supports pull request workflows, for maintainers and contributors. This family has gained a couple of functions and some existing functions are more helpful.
-
-New pull request functions:
+The team that maintains the tidyverse and r-lib packages makes heavy use of GitHub pull requests for managing internal and external contributions. The `pr_*()` family of functions supports pull request workflows, for maintainers and contributors. This family has gained a couple of new functions and some improvements to existing functions:
 
 -   [`pr_resume()`](https://usethis.r-lib.org/reference/pull-requests.html) resumes work on an existing local PR branch. It can be called argument-less, to select a branch interactively.
 
@@ -192,7 +190,7 @@ New pull request functions:
 
 -   [`pr_forget()`](https://usethis.r-lib.org/reference/pull-requests.html) abandons a PR you initiated locally or fetched from GitHub. It only does local clean up and will never delete a remote branch or close a PR.
 
-[`pr_fetch()`](https://usethis.r-lib.org/reference/pull-requests.html) and [`pr_view()`](https://usethis.r-lib.org/reference/pull-requests.html) also present an interactive choice, when the target PR is not specified or implied.
+-   [`pr_fetch()`](https://usethis.r-lib.org/reference/pull-requests.html) and [`pr_view()`](https://usethis.r-lib.org/reference/pull-requests.html) also present an interactive choice, when the target PR is not specified or implied.
 
 Other goodies
 -------------
