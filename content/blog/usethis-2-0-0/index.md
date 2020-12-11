@@ -14,7 +14,7 @@ photo:
   author: Kiana Bosman
 categories: [package] 
 tags: [devtools,r-lib,usethis]
-rmd_hash: b6b86ce73b344ca8
+rmd_hash: 6303be9ab6b6ff7e
 
 ---
 
@@ -34,7 +34,7 @@ This is a major release, involving lots of change under the hood, and yet there 
 This blog post hits a few highlights, mostly relating to Git and GitHub functionality:
 
 -   We've switched to a new package, gert, for Git operations. This resolves some long-standing difficulties around credential-finding and provides more reliable support for both HTTPS and SSH remotes.
--   Anything that works for github.com should now work for any GitHub Enterprise deployment.
+-   Anything that works for github.com should now work for any [GitHub Enterprise](https://github.com/enterprise) deployment.
 -   GitHub personal access tokens are now handled in the same way as command line Git. This means we can all manage our tokens more securely and, for example, can have different tokens for different hosts.
 -   We've added more functionality for working with GitHub pull requests.
 -   A default branch named `main` should be fully supported.
@@ -163,7 +163,7 @@ When usethis configures a new Git remote, it must choose a protocol, either HTTP
 
 </div>
 
-In relevant functions, such as [`use_github()`](https://usethis.r-lib.org/reference/use_github.html), you can still specify the `protocol` directly. And, as always, you can specify the protocol for a session with [`use_git_protocol()`](https://usethis.r-lib.org/reference/git_protocol.html) or for all sessions via the `usethis.protocol` option. Those who prefer SSH may want to set this option in `.Rprofile` going forward.
+As always, you can specify the default protocol for a single session with [`use_git_protocol()`](https://usethis.r-lib.org/reference/git_protocol.html) or for all sessions via the `usethis.protocol` option. Those who prefer SSH may want to set this option in `.Rprofile` going forward.
 
 Pull request helpers
 --------------------
