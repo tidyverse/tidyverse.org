@@ -81,12 +81,12 @@ As a result, several functions and arguments are no longer needed and have been 
   - `create_from_github()` (`auth_token`, `credentials`)
   - `use_github()` (`auth_token`, `credentials`)
   - `use_github_links()` (`host`, `auth_token`)
-  - `use_github_labels()` (`repo_spec`, `host`, `auth_token`)
-  - `use_tidy_labels()` (`repo_spec`, `host`, `auth_token`)  
+  - `use_github_labels()`, `use_tidy_labels()`
+    (`repo_spec`, `host`, `auth_token`)
   - `use_github_release()` (`host`, `auth_token`)
 
 If you have any of these in your `.Rprofile` or muscle memory, you can let go of that now.
-(We'll say more about `host` and `auth_token` below.)
+(We'll say more about `host`, `repo_spec`, and `auth_token` below.)
   
 ### Host and GitHub Enterprise
 
@@ -95,19 +95,16 @@ It's been frustrating that many usethis functions didn't *quite* work for GHE.
 We had partial support for GHE, by adding a `host` argument to some functions, but that created new headaches around juggling personal access tokens.
 
 We've completely refactored the "GitHub host" logic in usethis and GHE should be fully supported now.
-In an existing repo, usethis consults the configured Git remotes, filters for remotes that smell like a GitHub deployment, and deduces the target `host`.
-As a result, we've deprecated the `host` argument in several functions:
-
-* `use_github_links()`
-* `use_github_labels()`, `use_tidy_labels()`
-* `use_github_release()`
+In an existing repo, usethis consults the configured Git remotes, filters for remotes that smell like a GitHub deployment, and deduces the target `host` and `repo_spec`, where applicable.
+As a result, we've deprecated those arguments in several functions (listed above). 
 
 In `use_github()` and `create_from_github()`, we still have a `host` argument, but there are also other ways to specify the `host`:
 
 * usethis no longer inserts its own opinion about the default `host`. This
   means we no longer get in the way of the existing default behaviour of the gh
   package, which is to consult the `GITHUB_API_URL` environment variable, if it
-  is set.
+  is set. GitHub Enterprise users will probably want to lean heavily on this
+  environment variable.
 * A couple functions now accept a full URL as the `repo_spec` and, if you do
   that, we discover the `host` from the URL.
 
@@ -194,6 +191,7 @@ The team that maintains the tidyverse and r-lib packages makes heavy use of GitH
 The `pr_*()` family of functions supports pull request workflows, for maintainers and contributors.
 This family has gained a couple of new functions and some improvements to existing functions:
 
+
 * `pr_resume()` resumes work on an existing local PR branch. It can be called
   argument-less, to select a branch interactively.
   
@@ -209,50 +207,13 @@ This family has gained a couple of new functions and some improvements to existi
     
     Selection: 
     ```
-
-* `pr_fetch()` and `pr_view()` now present a similar interactive choice, when
-  the target PR is not specified or implied.
+  
 * `pr_forget()` abandons a PR you initiated locally or fetched from GitHub. It
   only does local clean up and will never delete a remote branch or close a PR.
-
-Other `pr_()` functions have nice little improvements, so heavy users should definitely read the [full release notes](https://usethis.r-lib.org/news/index.html#changes-to-git-github-functionality).
+  
+* `pr_fetch()` and `pr_view()` also present an interactive choice, when the target PR is not specified or implied.
 
 ## Other goodies
-
-The `use_*_license()` functions have gotten a general overhaul and also now work for projects, not just for packages.
-This was part of a bigger effort related re-licensing some tidyverse/r-lib packages and updating the [licensing chapter of R Packages](https://r-pkgs.org/license.html) for its future second edition.
-
-`browse_package()` and `browse_project()` are new additions to the `browse_*()` family that let the user choose from a list of URLs derived from local Git remotes and DESCRIPTION (local or possibly on CRAN).
-Implementing these reminded us of how handy the `browse_*()` functions are!
-    
-```{r, eval = FALSE}
-> browse_package()
-Which URL do you want to visit? (0 to exit) 
-
-1: https://github.com/r-lib/usethis        ('origin' remote)
-2: https://github.com/avalcarcel9/usethis  ('avalcarcel9' remote)
-3: https://usethis.r-lib.org               (URL field in DESCRIPTION)
-4: https://github.com/r-lib/usethis        (URL field in DESCRIPTION)
-5: https://github.com/r-lib/usethis/issues (BugReports field in DESCRIPTION)
-
-Selection: 0
-
-> browse_package("gert")
-Which URL do you want to visit? (0 to exit) 
-
-1: https://docs.ropensci.org/gert/      (URL field in DESCRIPTION)
-2: https://github.com/r-lib/gert        (URL field in DESCRIPTION)
-3: https://libgit2.org                  (URL field in DESCRIPTION)
-4: https://github.com/r-lib/gert/issues (BugReports field in DESCRIPTION)
-
-Selection: 0
-
-> browse_cran("cowsay")
-✓ Opening URL 'https://cran.r-project.org/package=cowsay'
-
-> browse_github("cpp11")
-✓ Opening URL 'https://github.com/r-lib/cpp11'
-```
 
 Here's a selection of other new features:
 
@@ -266,8 +227,24 @@ Here's a selection of other new features:
   * usethis knows that RStudio >= 1.3 stores user preferences in a file, which
     means that `use_blank_slate()` can be used to opt in to the "never save to
     or restore `.RData`" lifestyle, globally, for a user.
-
-For a full list of changes, see the [release notes](https://usethis.r-lib.org/news/index.html#usethis-2-0-0-2020-12-10).
+  * `browse_package()` and `browse_project()` are new additions to the
+    `browse_*()` family that let the user choose from a list of URLs derived
+    from local Git remotes and DESCRIPTION (local or possibly on CRAN).
+    
+    ```{r, eval = FALSE}
+    > browse_package()
+    Which URL do you want to visit? (0 to exit) 
+    
+    1: https://github.com/r-lib/usethis        ('origin' remote)
+    2: https://github.com/avalcarcel9/usethis  ('avalcarcel9' remote)
+    3: https://usethis.r-lib.org               (URL field in DESCRIPTION)
+    4: https://github.com/r-lib/usethis        (URL field in DESCRIPTION)
+    5: https://github.com/r-lib/usethis/issues (BugReports field in DESCRIPTION)
+    
+    Selection: 
+    ```
+  * The `use_*_license()` functions have gotten a general overhaul and also now
+    work for projects, not just for packages.
 
 ## Acknowledgements
 
