@@ -222,6 +222,38 @@ Other `pr_()` functions have nice little improvements, so heavy users should def
 The `use_*_license()` functions have gotten a general overhaul and also now work for projects, not just for packages.
 This was part of a bigger effort related re-licensing some tidyverse/r-lib packages and updating the [licensing chapter of R Packages](https://r-pkgs.org/license.html) for its future second edition.
 
+`browse_package()` and `browse_project()` are new additions to the `browse_*()` family that let the user choose from a list of URLs derived from local Git remotes and DESCRIPTION (local or possibly on CRAN).
+Implementing these reminded us of how handy the `browse_*()` functions are!
+    
+```{r, eval = FALSE}
+> browse_package()
+Which URL do you want to visit? (0 to exit) 
+
+1: https://github.com/r-lib/usethis        ('origin' remote)
+2: https://github.com/avalcarcel9/usethis  ('avalcarcel9' remote)
+3: https://usethis.r-lib.org               (URL field in DESCRIPTION)
+4: https://github.com/r-lib/usethis        (URL field in DESCRIPTION)
+5: https://github.com/r-lib/usethis/issues (BugReports field in DESCRIPTION)
+
+Selection: 0
+
+> browse_package("gert")
+Which URL do you want to visit? (0 to exit) 
+
+1: https://docs.ropensci.org/gert/      (URL field in DESCRIPTION)
+2: https://github.com/r-lib/gert        (URL field in DESCRIPTION)
+3: https://libgit2.org                  (URL field in DESCRIPTION)
+4: https://github.com/r-lib/gert/issues (BugReports field in DESCRIPTION)
+
+Selection: 0
+
+> browse_cran("cowsay")
+✓ Opening URL 'https://cran.r-project.org/package=cowsay'
+
+> browse_github("cpp11")
+✓ Opening URL 'https://github.com/r-lib/cpp11'
+```
+
 Here's a selection of other new features:
 
   * A default Git branch named `main` now works. `git_branch_default()` is a new
@@ -234,22 +266,8 @@ Here's a selection of other new features:
   * usethis knows that RStudio >= 1.3 stores user preferences in a file, which
     means that `use_blank_slate()` can be used to opt in to the "never save to
     or restore `.RData`" lifestyle, globally, for a user.
-  * `browse_package()` and `browse_project()` are new additions to the
-    `browse_*()` family that let the user choose from a list of URLs derived
-    from local Git remotes and DESCRIPTION (local or possibly on CRAN).
-    
-    ```{r, eval = FALSE}
-    > browse_package()
-    Which URL do you want to visit? (0 to exit) 
-    
-    1: https://github.com/r-lib/usethis        ('origin' remote)
-    2: https://github.com/avalcarcel9/usethis  ('avalcarcel9' remote)
-    3: https://usethis.r-lib.org               (URL field in DESCRIPTION)
-    4: https://github.com/r-lib/usethis        (URL field in DESCRIPTION)
-    5: https://github.com/r-lib/usethis/issues (BugReports field in DESCRIPTION)
-    
-    Selection: 
-    ```
+
+For a full list of changes, see the [release notes](https://usethis.r-lib.org/news/index.html#usethis-2-0-0-2020-12-10).
 
 ## Acknowledgements
 

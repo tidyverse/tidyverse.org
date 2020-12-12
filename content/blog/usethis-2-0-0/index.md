@@ -14,7 +14,7 @@ photo:
   author: Kiana Bosman
 categories: [package] 
 tags: [devtools,r-lib,usethis]
-rmd_hash: a633872d94859838
+rmd_hash: 9e068e78d5b95892
 
 ---
 
@@ -199,31 +199,47 @@ Other goodies
 
 The `use_*_license()` functions have gotten a general overhaul and also now work for projects, not just for packages. This was part of a bigger effort related re-licensing some tidyverse/r-lib packages and updating the [licensing chapter of R Packages](https://r-pkgs.org/license.html) for its future second edition.
 
+[`browse_package()`](https://usethis.r-lib.org/reference/browse-this.html) and [`browse_project()`](https://usethis.r-lib.org/reference/browse-this.html) are new additions to the `browse_*()` family that let the user choose from a list of URLs derived from local Git remotes and DESCRIPTION (local or possibly on CRAN). Implementing these reminded us of how handy the `browse_*()` functions are!
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'>> browse_package()
+Which URL do you want to visit? (0 to exit) 
+
+1: https://github.com/r-lib/usethis        ('origin' remote)
+2: https://github.com/avalcarcel9/usethis  ('avalcarcel9' remote)
+3: https://usethis.r-lib.org               (URL field in DESCRIPTION)
+4: https://github.com/r-lib/usethis        (URL field in DESCRIPTION)
+5: https://github.com/r-lib/usethis/issues (BugReports field in DESCRIPTION)
+
+Selection: 0
+
+> browse_package("gert")
+Which URL do you want to visit? (0 to exit) 
+
+1: https://docs.ropensci.org/gert/      (URL field in DESCRIPTION)
+2: https://github.com/r-lib/gert        (URL field in DESCRIPTION)
+3: https://libgit2.org                  (URL field in DESCRIPTION)
+4: https://github.com/r-lib/gert/issues (BugReports field in DESCRIPTION)
+
+Selection: 0
+
+> browse_cran("cowsay")
+✓ Opening URL 'https://cran.r-project.org/package=cowsay'
+
+> browse_github("cpp11")
+✓ Opening URL 'https://github.com/r-lib/cpp11'
+</code></pre>
+
+</div>
+
 Here's a selection of other new features:
 
 -   A default Git branch named `main` now works. [`git_branch_default()`](https://usethis.r-lib.org/reference/git_branch_default.html) is a new function that tries to discover the default branch from the local or remote Git repo. Internally, it is used everywhere that we previously assumed a default branch named `master`.
-
 -   [`use_github_pages()`](https://usethis.r-lib.org/reference/use_github_pages.html) and [`use_tidy_pkgdown()`](https://usethis.r-lib.org/reference/tidyverse.html) are great for turning on GitHub Pages and for using GitHub Actions to build and deploy a pkgdown site.
-
 -   usethis knows that RStudio \>= 1.3 stores user preferences in a file, which means that [`use_blank_slate()`](https://usethis.r-lib.org/reference/use_blank_slate.html) can be used to opt in to the "never save to or restore `.RData`" lifestyle, globally, for a user.
 
--   [`browse_package()`](https://usethis.r-lib.org/reference/browse-this.html) and [`browse_project()`](https://usethis.r-lib.org/reference/browse-this.html) are new additions to the `browse_*()` family that let the user choose from a list of URLs derived from local Git remotes and DESCRIPTION (local or possibly on CRAN).
-
-    <div class="highlight">
-
-    <pre class='chroma'><code class='language-r' data-lang='r'>> browse_package()
-    Which URL do you want to visit? (0 to exit) 
-
-    1: https://github.com/r-lib/usethis        ('origin' remote)
-    2: https://github.com/avalcarcel9/usethis  ('avalcarcel9' remote)
-    3: https://usethis.r-lib.org               (URL field in DESCRIPTION)
-    4: https://github.com/r-lib/usethis        (URL field in DESCRIPTION)
-    5: https://github.com/r-lib/usethis/issues (BugReports field in DESCRIPTION)
-
-    Selection: 
-    </code></pre>
-
-    </div>
+For a full list of changes, see the [release notes](https://usethis.r-lib.org/news/index.html#usethis-2-0-0-2020-12-10).
 
 Acknowledgements
 ----------------
