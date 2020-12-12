@@ -14,7 +14,7 @@ photo:
   author: Kiana Bosman
 categories: [package] 
 tags: [devtools,r-lib,usethis]
-rmd_hash: 6303be9ab6b6ff7e
+rmd_hash: ad7105b704e65d12
 
 ---
 
@@ -195,6 +195,8 @@ The team that maintains the tidyverse and r-lib packages makes heavy use of GitH
 Other goodies
 -------------
 
+The `use_*_license()` functions have gotten a general overhaul and also now work for projects, not just for packages. This was part of a bigger effort related re-licensing some tidyverse/r-lib packages and updating the [licensing chapter of R Packages](https://r-pkgs.org/license.html) for its future second edition.
+
 Here's a selection of other new features:
 
 -   A default Git branch named `main` now works. [`git_branch_default()`](https://usethis.r-lib.org/reference/git_branch_default.html) is a new function that tries to discover the default branch from the local or remote Git repo. Internally, it is used everywhere that we previously assumed a default branch named `master`.
@@ -220,8 +222,6 @@ Here's a selection of other new features:
     </code></pre>
 
     </div>
-
--   The `use_*_license()` functions have gotten a general overhaul and also now work for projects, not just for packages.
 
 Acknowledgements
 ----------------
