@@ -150,6 +150,7 @@ You may have noticed that command line Git remembers your HTTPS credentials, aft
 Git has an internal interface for storing and retrieving HTTPS credentials from system-specific helpers, such as the macOS Keychain and Windows Credential Manager.
 This interface is exposed for use by other applications in the [`git credential`](https://git-scm.com/docs/git-credential) utility
 Both gert and gh (and, therefore, usethis) now use this utility to retrieve a PAT suitable for a specific `host`.
+It is now possible to attain Git credential nirvana, where command line Git, RStudio, and all your favourite R packages are working with the same credentials.
 
 [^credential-caching]: In our experience, on both macOS and Windows, recent Git versions come with credential caching that works out-of-the-box. If this is not your experience, it's a good reason to update Git.
 
@@ -159,12 +160,11 @@ Together, this means usethis no longer needs any explicit PAT management and fin
 This is also a major reason why GitHub Enterprise "just works" now.
 
 The new connection to the system-specific Git credential store also means we no longer need to set `GITHUB_PAT` in our `.Renviron` startup files.
-It is a better security practice anyway to avoid storing such secrets in plain text, whenever possible.
+It is a better security practice anyway to avoid storing such secrets in a plain text file, if better alternatives exist.
 
 ```
-BLAH=foo
-GITHUB_PAT=xyz  # <-- WE SUGGEST YOU REMOVE THIS LINE FROM .Renviron
 WUT=yo
+GITHUB_PAT=xyz  # <-- WE SUGGEST YOU REMOVE THIS LINE FROM .Renviron
 OTHER_WEB_SERVICE=super-secret-very-powerful-token
 ```
 
@@ -187,9 +187,11 @@ Those who prefer SSH may want to set this option in `.Rprofile` going forward.
 
 ## Pull request helpers
 
-The team that maintains the tidyverse and r-lib packages makes heavy use of GitHub pull requests for managing internal and external contributions.
+The team that maintains the tidyverse and r-lib packages makes heavy use of GitHub pull requests for managing internal and external contributions[^lots-o-prs].
 The `pr_*()` family of functions supports pull request workflows, for maintainers and contributors.
 This family has gained a couple of new functions and some improvements to existing functions:
+
+[^lots-o-prs]: In 2019, we handled over 6,000 pull requests in the >180 public package repos owned by the GitHub organisations r-dbi, r-lib, rstudio, tidymodels, and tidyverse.
 
 * `pr_resume()` resumes work on an existing local PR branch. It can be called
   argument-less, to select a branch interactively.
@@ -217,10 +219,10 @@ Other `pr_()` functions have nice little improvements, so heavy users should def
 ## Other goodies
 
 The `use_*_license()` functions have gotten a general overhaul and also now work for projects, not just for packages.
-This was part of a bigger effort related re-licensing some tidyverse/r-lib packages and updating the [licensing chapter of R Packages](https://r-pkgs.org/license.html) for its future second edition.
+This was part of a bigger effort related to re-licensing some tidyverse/r-lib packages and updating the [licensing chapter of R Packages](https://r-pkgs.org/license.html) for its future second edition.
 
 `browse_package()` and `browse_project()` are new additions to the `browse_*()` family that let the user choose from a list of URLs derived from local Git remotes and DESCRIPTION (local or possibly on CRAN).
-Implementing these reminded us of how handy the `browse_*()` functions are!
+Implementing these reminded us of how handy the existing `browse_*()` functions are!
     
 ```{r, eval = FALSE}
 > browse_package()
@@ -251,7 +253,7 @@ Selection: 0
 ✓ Opening URL 'https://github.com/r-lib/cpp11'
 ```
 
-Here's a selection of other new features:
+Here's a sampler of other new features:
 
   * A default Git branch named `main` now works. `git_branch_default()` is a new
     function that tries to discover the default branch from the local or remote

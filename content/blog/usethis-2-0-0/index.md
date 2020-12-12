@@ -14,7 +14,7 @@ photo:
   author: Kiana Bosman
 categories: [package] 
 tags: [devtools,r-lib,usethis]
-rmd_hash: 9e068e78d5b95892
+rmd_hash: d9f8690a313a70c7
 
 ---
 
@@ -74,25 +74,20 @@ This allows usethis to shed some of the workarounds we have needed in the past, 
     -   [`create_from_github()`](https://usethis.r-lib.org/reference/create_from_github.html) (`auth_token`, `credentials`)
     -   [`use_github()`](https://usethis.r-lib.org/reference/use_github.html) (`auth_token`, `credentials`)
     -   [`use_github_links()`](https://usethis.r-lib.org/reference/use_github_links.html) (`host`, `auth_token`)
-    -   [`use_github_labels()`](https://usethis.r-lib.org/reference/use_github_labels.html) (`repo_spec`, `host`, `auth_token`)
-    -   [`use_tidy_labels()`](https://usethis.r-lib.org/reference/use_github_labels.html) (`repo_spec`, `host`, `auth_token`)  
+    -   [`use_github_labels()`](https://usethis.r-lib.org/reference/use_github_labels.html), [`use_tidy_labels()`](https://usethis.r-lib.org/reference/use_github_labels.html) (`repo_spec`, `host`, `auth_token`)
     -   [`use_github_release()`](https://usethis.r-lib.org/reference/use_github_release.html) (`host`, `auth_token`)
 
-If you have any of these in your `.Rprofile` or muscle memory, you can let go of that now. (We'll say more about `host` and `auth_token` below.)
+If you have any of these in your `.Rprofile` or muscle memory, you can let go of that now. (We'll say more about `host`, `repo_spec`, and `auth_token` below.)
 
 ### Host and GitHub Enterprise
 
 Many companies and universities run their own instance of GitHub, using a pro product called GitHub Enterprise (GHE), that walks and talks just like github.com. It's been frustrating that many usethis functions didn't *quite* work for GHE. We had partial support for GHE, by adding a `host` argument to some functions, but that created new headaches around juggling personal access tokens.
 
-We've completely refactored the "GitHub host" logic in usethis and GHE should be fully supported now. In an existing repo, usethis consults the configured Git remotes, filters for remotes that smell like a GitHub deployment, and deduces the target `host`. As a result, we've deprecated the `host` argument in several functions:
-
--   [`use_github_links()`](https://usethis.r-lib.org/reference/use_github_links.html)
--   [`use_github_labels()`](https://usethis.r-lib.org/reference/use_github_labels.html), [`use_tidy_labels()`](https://usethis.r-lib.org/reference/use_github_labels.html)
--   [`use_github_release()`](https://usethis.r-lib.org/reference/use_github_release.html)
+We've completely refactored the "GitHub host" logic in usethis and GHE should be fully supported now. In an existing repo, usethis consults the configured Git remotes, filters for remotes that smell like a GitHub deployment, and deduces the target `host` and `repo_spec`, where applicable. As a result, we've deprecated those arguments in several functions (listed above).
 
 In [`use_github()`](https://usethis.r-lib.org/reference/use_github.html) and [`create_from_github()`](https://usethis.r-lib.org/reference/create_from_github.html), we still have a `host` argument, but there are also other ways to specify the `host`:
 
--   usethis no longer inserts its own opinion about the default `host`. This means we no longer get in the way of the existing default behaviour of the gh package, which is to consult the `GITHUB_API_URL` environment variable, if it is set.
+-   usethis no longer inserts its own opinion about the default `host`. This means we no longer get in the way of the existing default behaviour of the gh package, which is to consult the `GITHUB_API_URL` environment variable, if it is set. GitHub Enterprise users will probably want to lean heavily on this environment variable.
 -   A couple functions now accept a full URL as the `repo_spec` and, if you do that, we discover the `host` from the URL.
 
 #### Give me your full URLs!
@@ -133,15 +128,14 @@ This diagram shows the different ways that usethis might interact with GitHub:
 
 The cheerful orange ovals indicate why we recommend HTTPS as your Git protocol: Once you set up your GitHub personal access token (PAT), usethis, gert, and gh (and possibly other packages) will all be able to find and use this common credential. (If you are an SSH person, you need to set up a GitHub PAT for work that involves the GitHub API, in addition to the SSH keys needed for Git work.)
 
-You may have noticed that command line Git remembers your HTTPS credentials, after you've provided them once[^2]. Git has an internal interface for storing and retrieving HTTPS credentials from system-specific helpers, such as the macOS Keychain and Windows Credential Manager. This interface is exposed for use by other applications in the [`git credential`](https://git-scm.com/docs/git-credential) utility Both gert and gh (and, therefore, usethis) now use this utility to retrieve a PAT suitable for a specific `host`.
+You may have noticed that command line Git remembers your HTTPS credentials, after you've provided them once[^2]. Git has an internal interface for storing and retrieving HTTPS credentials from system-specific helpers, such as the macOS Keychain and Windows Credential Manager. This interface is exposed for use by other applications in the [`git credential`](https://git-scm.com/docs/git-credential) utility Both gert and gh (and, therefore, usethis) now use this utility to retrieve a PAT suitable for a specific `host`. It is now possible to attain Git credential nirvana, where command line Git, RStudio, and all your favourite R packages are working with the same credentials.
 
 In the previous section, we explained how the `host` is now automatically discovered from Git remotes. And we've just explained that we now look up the PAT based on the `host`. Together, this means usethis no longer needs any explicit PAT management and finishes explaining why so many credential-, token-, and host-related functions and arguments have been deprecated. This is also a major reason why GitHub Enterprise "just works" now.
 
-The new connection to the system-specific Git credential store also means we no longer need to set `GITHUB_PAT` in our `.Renviron` startup files. It is a better security practice anyway to avoid storing such secrets in plain text, whenever possible.
+The new connection to the system-specific Git credential store also means we no longer need to set `GITHUB_PAT` in our `.Renviron` startup files. It is a better security practice anyway to avoid storing such secrets in a plain text file, if better alternatives exist.
 
-    BLAH=foo
-    GITHUB_PAT=xyz  # <-- WE SUGGEST YOU REMOVE THIS LINE FROM .Renviron
     WUT=yo
+    GITHUB_PAT=xyz  # <-- WE SUGGEST YOU REMOVE THIS LINE FROM .Renviron
     OTHER_WEB_SERVICE=super-secret-very-powerful-token
 
 The `host`-specific PAT is now retrieved from the Git credential store upon first need. Note that the PAT **is** still cached in an environment variable for reuse during the remainder of the current R session.
@@ -168,7 +162,7 @@ As always, you can specify the default protocol for a single session with [`use_
 Pull request helpers
 --------------------
 
-The team that maintains the tidyverse and r-lib packages makes heavy use of GitHub pull requests for managing internal and external contributions. The `pr_*()` family of functions supports pull request workflows, for maintainers and contributors. This family has gained a couple of new functions and some improvements to existing functions:
+The team that maintains the tidyverse and r-lib packages makes heavy use of GitHub pull requests for managing internal and external contributions[^3]. The `pr_*()` family of functions supports pull request workflows, for maintainers and contributors. This family has gained a couple of new functions and some improvements to existing functions:
 
 -   [`pr_resume()`](https://usethis.r-lib.org/reference/pull-requests.html) resumes work on an existing local PR branch. It can be called argument-less, to select a branch interactively.
 
@@ -197,9 +191,9 @@ Other `pr_()` functions have nice little improvements, so heavy users should def
 Other goodies
 -------------
 
-The `use_*_license()` functions have gotten a general overhaul and also now work for projects, not just for packages. This was part of a bigger effort related re-licensing some tidyverse/r-lib packages and updating the [licensing chapter of R Packages](https://r-pkgs.org/license.html) for its future second edition.
+The `use_*_license()` functions have gotten a general overhaul and also now work for projects, not just for packages. This was part of a bigger effort related to re-licensing some tidyverse/r-lib packages and updating the [licensing chapter of R Packages](https://r-pkgs.org/license.html) for its future second edition.
 
-[`browse_package()`](https://usethis.r-lib.org/reference/browse-this.html) and [`browse_project()`](https://usethis.r-lib.org/reference/browse-this.html) are new additions to the `browse_*()` family that let the user choose from a list of URLs derived from local Git remotes and DESCRIPTION (local or possibly on CRAN). Implementing these reminded us of how handy the `browse_*()` functions are!
+[`browse_package()`](https://usethis.r-lib.org/reference/browse-this.html) and [`browse_project()`](https://usethis.r-lib.org/reference/browse-this.html) are new additions to the `browse_*()` family that let the user choose from a list of URLs derived from local Git remotes and DESCRIPTION (local or possibly on CRAN). Implementing these reminded us of how handy the existing `browse_*()` functions are!
 
 <div class="highlight">
 
@@ -233,7 +227,7 @@ Selection: 0
 
 </div>
 
-Here's a selection of other new features:
+Here's a sampler of other new features:
 
 -   A default Git branch named `main` now works. [`git_branch_default()`](https://usethis.r-lib.org/reference/git_branch_default.html) is a new function that tries to discover the default branch from the local or remote Git repo. Internally, it is used everywhere that we previously assumed a default branch named `master`.
 -   [`use_github_pages()`](https://usethis.r-lib.org/reference/use_github_pages.html) and [`use_tidy_pkgdown()`](https://usethis.r-lib.org/reference/tidyverse.html) are great for turning on GitHub Pages and for using GitHub Actions to build and deploy a pkgdown site.
@@ -249,4 +243,6 @@ A big thanks to everyone who helped with this release by reporting bugs, discuss
 [^1]: gert uses a dedicated, standalone package: <https://docs.ropensci.org/credentials/>
 
 [^2]: In our experience, on both macOS and Windows, recent Git versions come with credential caching that works out-of-the-box. If this is not your experience, it's a good reason to update Git.
+
+[^3]: In 2019, we handled over 6,000 pull requests in the \>180 public package repos owned by the GitHub organisations r-dbi, r-lib, rstudio, tidymodels, and tidyverse.
 
