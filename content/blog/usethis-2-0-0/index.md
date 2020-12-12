@@ -14,7 +14,7 @@ photo:
   author: Kiana Bosman
 categories: [package] 
 tags: [devtools,r-lib,usethis]
-rmd_hash: 981a8af09509a3ac
+rmd_hash: c960e6354a351892
 
 ---
 
@@ -256,6 +256,8 @@ For a full list of changes, see the [release notes](https://usethis.r-lib.org/ne
 
 Acknowledgements
 ----------------
+
+We're especially grateful to [Jeroen Ooms](https://github.com/jeroen) and [Gábor Csárdi](https://github.com/gaborcsardi) for a great deal of behind-the-scenes work in credentials, gert, gh, and gitcreds. This version of usethis would not be possible without coordinated development and CRAN releases across these five packages.
 
 A big thanks to everyone who helped with this release by reporting bugs, discussing issues, and contributing code: [@albersonmiranda](https://github.com/albersonmiranda), [@andrader](https://github.com/andrader), [@arashHaratian](https://github.com/arashHaratian), [@Athanasiamo](https://github.com/Athanasiamo), [@batpigandme](https://github.com/batpigandme), [@cderv](https://github.com/cderv), [@cstepper](https://github.com/cstepper), [@dmenne](https://github.com/dmenne), [@friep](https://github.com/friep), [@hadley](https://github.com/hadley), [@ijlyttle](https://github.com/ijlyttle), [@jamesmyatt](https://github.com/jamesmyatt), [@jennybc](https://github.com/jennybc), [@jeroen](https://github.com/jeroen), [@jimhester](https://github.com/jimhester), [@jtr13](https://github.com/jtr13), [@KoderKow](https://github.com/KoderKow), [@krlmlr](https://github.com/krlmlr), [@lionel-](https://github.com/lionel-), [@maelle](https://github.com/maelle), [@malcolmbarrett](https://github.com/malcolmbarrett), [@maurolepore](https://github.com/maurolepore), [@mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [@mrcaseb](https://github.com/mrcaseb), [@vinhtantran](https://github.com/vinhtantran), and [@whtns](https://github.com/whtns).
 
