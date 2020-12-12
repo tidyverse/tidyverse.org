@@ -4,7 +4,7 @@ output: hugodown::hugo_document
 slug: usethis-2-0-0
 title: usethis 2.0.0
 date: 2020-12-10
-author: Jennifer Bryan
+author: Jenny Bryan
 description: >
     This is a big release aimed at improving usability, especially around Git
     and GitHub functionality.
@@ -14,7 +14,7 @@ photo:
   author: Kiana Bosman
 categories: [package] 
 tags: [devtools,r-lib,usethis]
-rmd_hash: 359b819e0a643dc2
+rmd_hash: 6d4f00318cfb4eda
 
 ---
 
