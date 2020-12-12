@@ -14,7 +14,7 @@ photo:
   author: Kiana Bosman
 categories: [package] 
 tags: [devtools,r-lib,usethis]
-rmd_hash: 6d4f00318cfb4eda
+rmd_hash: 981a8af09509a3ac
 
 ---
 
@@ -111,7 +111,7 @@ In [`use_github()`](https://usethis.r-lib.org/reference/use_github.html) and [`c
 
 #### Give me your full URLs!
 
-The last point above is a nice quality-of-life improvement even when working on github.com. It means you can copy a URL straight from your browser and, as long as it points somewhere within the target repo, all will be well. For example, if you decide to clone Matt Lincoln's clipr package while perusing its issues, you can just copy the url directly from your browser:
+The last point above is a nice quality-of-life improvement even when working on github.com. It means you can copy a URL straight from your browser and, as long as it points somewhere within the target repo, all will be well. For example, if you decide to fork-and-clone Matt Lincoln's clipr package while perusing its issues, you can just copy the URL directly from your browser:
 
 <div class="highlight">
 
