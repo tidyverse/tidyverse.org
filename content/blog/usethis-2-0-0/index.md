@@ -14,7 +14,7 @@ photo:
   author: Kiana Bosman
 categories: [package] 
 tags: [devtools,r-lib,usethis]
-rmd_hash: d9f8690a313a70c7
+rmd_hash: 359b819e0a643dc2
 
 ---
 
@@ -60,6 +60,25 @@ We've switched from git2r to the gert package for Git operations (<https://docs.
 
 Many real-world goals can only be accomplished through a mix of Git and GitHub operations, therefore many usethis functions make use of both gert and gh. These packages, in turn, might need your credentials to prove to GitHub that you have the permission to do what you're trying to do.
 
+If you stop reading here, just know that [`gh_token_help()`](https://usethis.r-lib.org/reference/github-token.html) is a good way to assess your credential situation:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'>> gh_token_help()
+● GitHub host: 'https://github.com'
+● Host online: TRUE
+● Personal access token for 'https://github.com': '<discovered>'
+ℹ Call `gh::gh_whoami()` to see info about your token, e.g. the associated user
+ℹ To see or update the token, call `gitcreds::gitcreds_set()`
+✓ If those results are OK, you are good go to!
+ℹ Read more in the 'Managing Git(Hub) Credentials' article:
+  https://usethis.r-lib.org/articles/articles/git-credentials.html
+</code></pre>
+
+</div>
+
+You can get even more diagnostic information with [`git_sitrep()`](https://usethis.r-lib.org/reference/git_sitrep.html).
+
 ### Finding Git credentials
 
 One of the reasons we switched to the gert package is that it generally discovers the same Git credentials as command line Git, for both the HTTPS and SSH protocols, even on Windows. If things *still* go sideways, gert's approach to credential finding is mercifully explicit and debuggable[^1].
@@ -81,7 +100,7 @@ If you have any of these in your `.Rprofile` or muscle memory, you can let go of
 
 ### Host and GitHub Enterprise
 
-Many companies and universities run their own instance of GitHub, using a pro product called GitHub Enterprise (GHE), that walks and talks just like github.com. It's been frustrating that many usethis functions didn't *quite* work for GHE. We had partial support for GHE, by adding a `host` argument to some functions, but that created new headaches around juggling personal access tokens.
+Many companies and universities run their own instance of GitHub, using a pro product called [GitHub Enterprise](https://github.com/enterprise) (GHE), that walks and talks just like github.com. It's been frustrating that many usethis functions didn't *quite* work for GHE. We had partial support for GHE, by adding a `host` argument to some functions, but that created new headaches around juggling personal access tokens.
 
 We've completely refactored the "GitHub host" logic in usethis and GHE should be fully supported now. In an existing repo, usethis consults the configured Git remotes, filters for remotes that smell like a GitHub deployment, and deduces the target `host` and `repo_spec`, where applicable. As a result, we've deprecated those arguments in several functions (listed above).
 
@@ -186,7 +205,7 @@ The team that maintains the tidyverse and r-lib packages makes heavy use of GitH
 
 -   [`pr_forget()`](https://usethis.r-lib.org/reference/pull-requests.html) abandons a PR you initiated locally or fetched from GitHub. It only does local clean up and will never delete a remote branch or close a PR.
 
-Other `pr_()` functions have nice little improvements, so heavy users should definitely read the [full release notes](https://usethis.r-lib.org/news/index.html#changes-to-git-github-functionality).
+Other `pr_*()` functions have nice little improvements, so heavy users should definitely read the [full release notes](https://usethis.r-lib.org/news/index.html#changes-to-git-github-functionality).
 
 Other goodies
 -------------
