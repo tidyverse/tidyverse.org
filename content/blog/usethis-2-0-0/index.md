@@ -14,7 +14,7 @@ photo:
   author: Kiana Bosman
 categories: [package] 
 tags: [devtools,r-lib,usethis]
-rmd_hash: ad7105b704e65d12
+rmd_hash: a633872d94859838
 
 ---
 
@@ -188,9 +188,11 @@ The team that maintains the tidyverse and r-lib packages makes heavy use of GitH
 
     </div>
 
+-   [`pr_fetch()`](https://usethis.r-lib.org/reference/pull-requests.html) and [`pr_view()`](https://usethis.r-lib.org/reference/pull-requests.html) now present a similar interactive choice, when the target PR is not specified or implied.
+
 -   [`pr_forget()`](https://usethis.r-lib.org/reference/pull-requests.html) abandons a PR you initiated locally or fetched from GitHub. It only does local clean up and will never delete a remote branch or close a PR.
 
--   [`pr_fetch()`](https://usethis.r-lib.org/reference/pull-requests.html) and [`pr_view()`](https://usethis.r-lib.org/reference/pull-requests.html) also present an interactive choice, when the target PR is not specified or implied.
+Other `pr_()` functions have nice little improvements, so heavy users should definitely read the [full release notes](https://usethis.r-lib.org/news/index.html#changes-to-git-github-functionality).
 
 Other goodies
 -------------
