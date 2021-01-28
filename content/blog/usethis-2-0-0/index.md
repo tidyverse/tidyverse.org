@@ -14,7 +14,7 @@ photo:
   author: Kiana Bosman
 categories: [package] 
 tags: [devtools,r-lib,usethis]
-rmd_hash: c960e6354a351892
+rmd_hash: a7087f574ac32b7e
 
 ---
 
@@ -24,8 +24,7 @@ You can install usethis from CRAN with:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"usethis"</span><span class='o'>)</span>
-</code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"usethis"</span><span class='o'>)</span></code></pre>
 
 </div>
 
@@ -43,13 +42,11 @@ You can see a full list of changes in the [release notes](https://usethis.r-lib.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://usethis.r-lib.org'>usethis</a></span><span class='o'>)</span>
-</code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://usethis.r-lib.org'>usethis</a></span><span class='o'>)</span></code></pre>
 
 </div>
 
-Git/GitHub & credentials, hosts, and protocols
-----------------------------------------------
+## Git/GitHub & credentials, hosts, and protocols
 
 Usethis has various functions that help with Git-related tasks, which break down into two categories:
 
@@ -64,15 +61,21 @@ If you stop reading here, just know that [`gh_token_help()`](https://usethis.r-l
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'>> gh_token_help()
-● GitHub host: 'https://github.com'
-● Host online: TRUE
-● Personal access token for 'https://github.com': '<discovered>'
-ℹ Call `gh::gh_whoami()` to see info about your token, e.g. the associated user
-ℹ To see or update the token, call `gitcreds::gitcreds_set()`
-✓ If those results are OK, you are good go to!
-ℹ Read more in the 'Managing Git(Hub) Credentials' article:
-  https://usethis.r-lib.org/articles/articles/git-credentials.html
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://usethis.r-lib.org/reference/github-token.html'>gh_token_help</a></span><span class='o'>(</span><span class='o'>)</span>
+<span class='c'>#&gt; ● GitHub host: <span style='color: #0000BB;'>'https://github.com'</span></span>
+
+<span class='c'>#&gt; ● Host online: <span style='color: #0000BB;'>TRUE</span></span>
+
+<span class='c'>#&gt; ● Personal access token for <span style='color: #0000BB;'>'https://github.com'</span><span>: </span><span style='color: #0000BB;'>'&lt;discovered&gt;'</span></span>
+
+<span class='c'>#&gt; <span style='color: #BBBB00;'>ℹ</span><span> Call </span><span style='color: #555555;'>`gh::gh_whoami()`</span><span> to see info about your token, e.g. the associated user</span></span>
+
+<span class='c'>#&gt; <span style='color: #BBBB00;'>ℹ</span><span> To see or update the token, call </span><span style='color: #555555;'>`gitcreds::gitcreds_set()`</span></span>
+
+<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span><span> If those results are OK, you are good go to!</span></span>
+
+<span class='c'>#&gt; <span style='color: #BBBB00;'>ℹ</span><span> Read more in the </span><span style='color: #0000BB;'>'Managing Git(Hub) Credentials'</span><span> article:</span></span>
+<span class='c'>#&gt;   https://usethis.r-lib.org/articles/articles/git-credentials.html</span>
 </code></pre>
 
 </div>
@@ -125,8 +128,7 @@ The last point above is a nice quality-of-life improvement even when working on 
 <span class='c'>#&gt; ℹ Default branch is 'master'</span>
 <span class='c'>#&gt; ✓ Adding 'upstream' remote: 'https://github.com/mdlincoln/clipr.git'</span>
 <span class='c'>#&gt; ✓ Pulling changes from 'upstream/master' (default branch of source repo)</span>
-<span class='c'>#&gt; ✓ Setting remote tracking branch for local 'master' branch to 'upstream/master'</span>
-</code></pre>
+<span class='c'>#&gt; ✓ Setting remote tracking branch for local 'master' branch to 'upstream/master'</span></code></pre>
 
 </div>
 
@@ -168,7 +170,6 @@ When usethis configures a new Git remote, it must choose a protocol, either HTTP
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://usethis.r-lib.org/reference/git_protocol.html'>git_protocol</a></span><span class='o'>(</span><span class='o'>)</span>
-
 <span class='c'>#&gt; <span style='color: #BBBB00;'>ℹ</span><span> Defaulting to https Git protocol</span></span>
 
 <span class='c'>#&gt; [1] "https"</span>
@@ -178,28 +179,22 @@ When usethis configures a new Git remote, it must choose a protocol, either HTTP
 
 As always, you can specify the default protocol for a single session with [`use_git_protocol()`](https://usethis.r-lib.org/reference/git_protocol.html) or for all sessions via the `usethis.protocol` option. Those who prefer SSH may want to set this option in `.Rprofile` going forward.
 
-Pull request helpers
---------------------
+## Pull request helpers
 
 The team that maintains the tidyverse and r-lib packages makes heavy use of GitHub pull requests for managing internal and external contributions[^3]. The `pr_*()` family of functions supports pull request workflows, for maintainers and contributors. This family has gained a couple of new functions and some improvements to existing functions:
 
 -   [`pr_resume()`](https://usethis.r-lib.org/reference/pull-requests.html) resumes work on an existing local PR branch. It can be called argument-less, to select a branch interactively.
 
-    <div class="highlight">
+        > pr_resume()
+        ℹ No branch specified ... looking up local branches and associated PRs
+        Which branch do you want to checkout? (0 to exit) 
 
-    <pre class='chroma'><code class='language-r' data-lang='r'>> pr_resume()
-      ℹ No branch specified ... looking up local branches and associated PRs
-      Which branch do you want to checkout? (0 to exit) 
+        1: avalcarcel9-add_use_author --> #833 ('@avalcarcel9'): Add use author
+        2:                 latex-hell
+        3:                     holder
+        4:            patch-for-withr
 
-      1: avalcarcel9-add_use_author --> #833 ('@avalcarcel9'): Add use author
-      2:                 latex-hell
-      3:                     holder
-      4:            patch-for-withr
-
-      Selection: 
-      </code></pre>
-
-    </div>
+        Selection: 
 
 -   [`pr_fetch()`](https://usethis.r-lib.org/reference/pull-requests.html) and [`pr_view()`](https://usethis.r-lib.org/reference/pull-requests.html) now present a similar interactive choice, when the target PR is not specified or implied.
 
@@ -207,44 +202,38 @@ The team that maintains the tidyverse and r-lib packages makes heavy use of GitH
 
 Other `pr_*()` functions have nice little improvements, so heavy users should definitely read the [full release notes](https://usethis.r-lib.org/news/index.html#changes-to-git-github-functionality).
 
-Other goodies
--------------
+## Other goodies
 
 The `use_*_license()` functions have gotten a general overhaul and also now work for projects, not just for packages. This was part of a bigger effort related to re-licensing some tidyverse/r-lib packages and updating the [licensing chapter of R Packages](https://r-pkgs.org/license.html) for its future second edition.
 
 [`browse_package()`](https://usethis.r-lib.org/reference/browse-this.html) and [`browse_project()`](https://usethis.r-lib.org/reference/browse-this.html) are new additions to the `browse_*()` family that let the user choose from a list of URLs derived from local Git remotes and DESCRIPTION (local or possibly on CRAN). Implementing these reminded us of how handy the existing `browse_*()` functions are!
 
-<div class="highlight">
+    > browse_package()
+    Which URL do you want to visit? (0 to exit) 
 
-<pre class='chroma'><code class='language-r' data-lang='r'>> browse_package()
-Which URL do you want to visit? (0 to exit) 
+    1: https://github.com/r-lib/usethis        ('origin' remote)
+    2: https://github.com/avalcarcel9/usethis  ('avalcarcel9' remote)
+    3: https://usethis.r-lib.org               (URL field in DESCRIPTION)
+    4: https://github.com/r-lib/usethis        (URL field in DESCRIPTION)
+    5: https://github.com/r-lib/usethis/issues (BugReports field in DESCRIPTION)
 
-1: https://github.com/r-lib/usethis        ('origin' remote)
-2: https://github.com/avalcarcel9/usethis  ('avalcarcel9' remote)
-3: https://usethis.r-lib.org               (URL field in DESCRIPTION)
-4: https://github.com/r-lib/usethis        (URL field in DESCRIPTION)
-5: https://github.com/r-lib/usethis/issues (BugReports field in DESCRIPTION)
+    Selection: 0
 
-Selection: 0
+    > browse_package("gert")
+    Which URL do you want to visit? (0 to exit) 
 
-> browse_package("gert")
-Which URL do you want to visit? (0 to exit) 
+    1: https://docs.ropensci.org/gert/      (URL field in DESCRIPTION)
+    2: https://github.com/r-lib/gert        (URL field in DESCRIPTION)
+    3: https://libgit2.org                  (URL field in DESCRIPTION)
+    4: https://github.com/r-lib/gert/issues (BugReports field in DESCRIPTION)
 
-1: https://docs.ropensci.org/gert/      (URL field in DESCRIPTION)
-2: https://github.com/r-lib/gert        (URL field in DESCRIPTION)
-3: https://libgit2.org                  (URL field in DESCRIPTION)
-4: https://github.com/r-lib/gert/issues (BugReports field in DESCRIPTION)
+    Selection: 0
 
-Selection: 0
+    > browse_cran("cowsay")
+    ✓ Opening URL 'https://cran.r-project.org/package=cowsay'
 
-> browse_cran("cowsay")
-✓ Opening URL 'https://cran.r-project.org/package=cowsay'
-
-> browse_github("cpp11")
-✓ Opening URL 'https://github.com/r-lib/cpp11'
-</code></pre>
-
-</div>
+    > browse_github("cpp11")
+    ✓ Opening URL 'https://github.com/r-lib/cpp11'
 
 Here's a sampler of other new features:
 
@@ -254,8 +243,7 @@ Here's a sampler of other new features:
 
 For a full list of changes, see the [release notes](https://usethis.r-lib.org/news/index.html#usethis-2-0-0-2020-12-10).
 
-Acknowledgements
-----------------
+## Acknowledgements
 
 We're especially grateful to [Jeroen Ooms](https://github.com/jeroen) and [Gábor Csárdi](https://github.com/gaborcsardi) for a great deal of behind-the-scenes work in credentials, gert, gh, and gitcreds. This version of usethis would not be possible without coordinated development and CRAN releases across these five packages.
 
