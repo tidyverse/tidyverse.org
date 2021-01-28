@@ -6,8 +6,8 @@ title: reprex 1 0 0
 date: 2021-01-27
 author: Jennifer Bryan
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    We've never blogged about reprex before, so the release of v1.0.0 seems
+    like a good reason occasion for it.
 
 photo:
   url: https://www.flickr.com/photos/iamagenious/6251271390/sizes/o/
@@ -18,32 +18,110 @@ categories: [package]
 tags: [reprex,tidyverse]
 ---
 
-<!--
-TODO:
-* [ ] `hugodown::use_tidy_thumbnails()`
-* [ ] Add intro sentence
-* [ ] `usethis::use_tidy_thanks()`
--->
+We're exhilarated to announce the release of reprex 1.0.0 ([reprex.tidyverse.org](https://reprex.tidyverse.org)).
+reprex is a package that helps you prepare **REPR**oducible **EX**amples to share in places where people talk about code, e.g., on GitHub, on Stack Overflow, and in Slack or email messages.
 
-We're very pleased to announce the release of [reprex]({ home }) 1.0.0.9000. reprex is ... 
+You can install the current version of reprex from CRAN with[^tidyverse-install]:
 
-You can install it from CRAN with:
+[^tidyverse-install]: Another way you might get reprex is by installing the tidyverse meta-package.
+reprex is one of the packages installed by `install.packages("tidyverse")`, however it is **not** among the core packages attached by `library(tidyverse)`.
 
 ```{r, eval = FALSE}
-install.packages("{package}")
+install.packages("reprex")
 ```
 
-This blog post will ...
+It turns out we've never blogged about reprex here on [tidyverse.org](https://www.tidyverse.org), so we'll start with a general overview for newcomers, then close with a summary of recent changes of interest to existing users.
 
-You can see a full list of changes in the [release notes]({ github_release })
+You can see a full list of changes in the [release notes](https://reprex.tidyverse.org/news/index.html#reprex-1-0-0-2021-01-27).
 
-```{r setup}
-library(reprex)
+## Why reprex exists
+
+reprex is a convenience package that combines the power of R Markdown with conventional wisdom about what makes a good reproducible example.
+We believe that conversations about code are more productive with:
+
+* Code that **actually runs**
+* Code that the reader **doesn't necessarily have to run**
+* Code that the reader **can easily run**
+
+Someone new to R might be puzzled by this code and want to discuss it:
+
+```{r}
+x <- factor("Hello, ")
+y <- factor("world!")
+x
+y
+c(x, y)
 ```
 
-## Topic 1
+You, as a reader, just benefited from a few things:
 
-## Topic 2
+1. The code was actually executed by the R interpreter, because this post is
+   generated from an `.Rmd` document. I am probably not wasting your time with
+   fictional or incomplete code.
+2. You got to see the actual result without firing up R yourself and executing
+   this code locally. Many R veterans will instantly recognize what's going on
+   and be able to provide some useful explanation at this point.
+3. If you do want to execute the code yourself, you can easily copy the entire
+   chunk, paste it into R, and press enter[^reprex-clean]. Compare that with the
+   fussy edits you'd have to make with this copy/paste from the R Console
+   (removing prompts and output):
+
+    ``` r
+    > x <- factor("Hello, ")
+    > y <- factor("world!")
+    > x
+    [1] Hello, 
+    Levels: Hello, 
+    > y
+    [1] world!
+    Levels: world!
+    > c(x, y)
+    [1] 1 1
+    ```
+
+[^reprex-clean]: Since the output is commented out, its presence is harmless. But you can even use `reprex::reprex_clean()` and friends to un-reprex code, if you like.
+
+All of this is entirely possible without reprex.
+People just need to create a suitable `.R` or `.Rmd` file, render it to an appropriate output format, in a fresh R session, with working directory set to session temp directory.
+And also send me a pony!
+
+Most of us won't do this, because it's a hassle.
+`reprex::reprex()` aims to make doing the right thing so easy that people stop taking cell phone photos of their broken code.
+
+## `reprex::reprex()`
+
+`reprex::reprex()` is the main function in the package.
+It takes a little bit of R code, probably from the clipboard or current selection, and does all the fiddly things we mentioned:
+
+* Writes it to a file. By default, to a file below the session temp directory.
+* Sets various R and knitr options that are especially favorable for reprexes,
+  such as the `error = TRUE` chunk option.
+* Renders the code in a fresh R session to ruthlessly expose missing
+  `library()` calls and the use of objects that haven't been defined.
+* Ensures the output is optimized for the target venue, e.g. GitHub-flavored
+  Markdown vs. commented R code vs. Rich Text Format.
+  
+By default, the result is waiting on your clipboard and you'll also see an HTML preview of it.
+
+Here is a 50 second video that shows an entire roundtrip: copying local code, `reprex()`ing, opening a GitHub issue, copying reprex from the issue, and re-executing the code in a local R session:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/35suhGR53wQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+There are many other handy features:
+
+* Optionally include session info
+* Post a figure to imgur.com and embed its link in the reprex
+* Handy RStudio addin and gadget for even more convenience
+* More ways to provide input and get output
+
+Head over to [reprex.tidyverse.org](https://reprex.tidyverse.org) to learn more.
+
+## What's new in v1.0.0
+
+cool stuff!
 
 ## Acknowledgements
 
+We've never blogged about reprex here, so we'll take this chance to thank all 116 people who have helped get reprex to this point. There have been 47 contributors since the previous release (v0.3.0).
+
+[&#x0040;1029YanMa](https://github.com/1029YanMa), [&#x0040;Abhijitsj](https://github.com/Abhijitsj), [&#x0040;aegerton](https://github.com/aegerton), [&#x0040;alexpghayes](https://github.com/alexpghayes), [&#x0040;alistaire47](https://github.com/alistaire47), [&#x0040;andresrcs](https://github.com/andresrcs), [&#x0040;assignUser](https://github.com/assignUser), [&#x0040;atusy](https://github.com/atusy), [&#x0040;baptiste](https://github.com/baptiste), [&#x0040;barryrowlingson](https://github.com/barryrowlingson), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;blairj09](https://github.com/blairj09), [&#x0040;brshallo](https://github.com/brshallo), [&#x0040;brunocarlin](https://github.com/brunocarlin), [&#x0040;carlmorgenstern](https://github.com/carlmorgenstern), [&#x0040;cderv](https://github.com/cderv), [&#x0040;chester-gan](https://github.com/chester-gan), [&#x0040;chris-prener](https://github.com/chris-prener), [&#x0040;chsafouane](https://github.com/chsafouane), [&#x0040;coatless](https://github.com/coatless), [&#x0040;ColinFay](https://github.com/ColinFay), [&#x0040;cooknl](https://github.com/cooknl), [&#x0040;crew102](https://github.com/crew102), [&#x0040;cstepper](https://github.com/cstepper), [&#x0040;cwickham](https://github.com/cwickham), [&#x0040;daattali](https://github.com/daattali), [&#x0040;david-romano](https://github.com/david-romano), [&#x0040;davidbody](https://github.com/davidbody), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dchiu911](https://github.com/dchiu911), [&#x0040;dgrtwo](https://github.com/dgrtwo), [&#x0040;dpprdan](https://github.com/dpprdan), [&#x0040;dskard](https://github.com/dskard), [&#x0040;ellessenne](https://github.com/ellessenne), [&#x0040;emiltb](https://github.com/emiltb), [&#x0040;filipwastberg](https://github.com/filipwastberg), [&#x0040;franknarf1](https://github.com/franknarf1), [&#x0040;friendly](https://github.com/friendly), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;GegznaV](https://github.com/GegznaV), [&#x0040;gergness](https://github.com/gergness), [&#x0040;gvdr](https://github.com/gvdr), [&#x0040;hadley](https://github.com/hadley), [&#x0040;harrismcgehee](https://github.com/harrismcgehee), [&#x0040;HeidiSeibold](https://github.com/HeidiSeibold), [&#x0040;helix123](https://github.com/helix123), [&#x0040;Henrik-P](https://github.com/Henrik-P), [&#x0040;HughParsonage](https://github.com/HughParsonage), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;isteves](https://github.com/isteves), [&#x0040;j450h1](https://github.com/j450h1), [&#x0040;jasonmtroos](https://github.com/jasonmtroos), [&#x0040;jayhesselberth](https://github.com/jayhesselberth), [&#x0040;jemus42](https://github.com/jemus42), [&#x0040;jennformatics](https://github.com/jennformatics), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;JiaxiangBU](https://github.com/JiaxiangBU), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;joelgombin](https://github.com/joelgombin), [&#x0040;JohnMount](https://github.com/JohnMount), [&#x0040;jooyoungseo](https://github.com/jooyoungseo), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;jzadra](https://github.com/jzadra), [&#x0040;karawoo](https://github.com/karawoo), [&#x0040;kevinushey](https://github.com/kevinushey), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;lbusett](https://github.com/lbusett), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;lizhiwei1994](https://github.com/lizhiwei1994), [&#x0040;llrs](https://github.com/llrs), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;maelle](https://github.com/maelle), [&#x0040;marionlouveaux](https://github.com/marionlouveaux), [&#x0040;markdly](https://github.com/markdly), [&#x0040;mattfidler](https://github.com/mattfidler), [&#x0040;maurolepore](https://github.com/maurolepore), [&#x0040;mcanouil](https://github.com/mcanouil), [&#x0040;mdlincoln](https://github.com/mdlincoln), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [&#x0040;missaugustina](https://github.com/missaugustina), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;mrchypark](https://github.com/mrchypark), [&#x0040;mrdwab](https://github.com/mrdwab), [&#x0040;njtierney](https://github.com/njtierney), [&#x0040;no-reply](https://github.com/no-reply), [&#x0040;noamross](https://github.com/noamross), [&#x0040;npjc](https://github.com/npjc), [&#x0040;paleolimbot](https://github.com/paleolimbot), [&#x0040;pat-s](https://github.com/pat-s), [&#x0040;paternogbc](https://github.com/paternogbc), [&#x0040;PeteHaitch](https://github.com/PeteHaitch), [&#x0040;pgensler](https://github.com/pgensler), [&#x0040;PiotrKoller](https://github.com/PiotrKoller), [&#x0040;PMassicotte](https://github.com/PMassicotte), [&#x0040;prosoitos](https://github.com/prosoitos), [&#x0040;PublicHealthDataGeek](https://github.com/PublicHealthDataGeek), [&#x0040;r2evans](https://github.com/r2evans), [&#x0040;rcorty](https://github.com/rcorty), [&#x0040;restonslacker](https://github.com/restonslacker), [&#x0040;RLesur](https://github.com/RLesur), [&#x0040;robjhyndman](https://github.com/robjhyndman), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rpruim](https://github.com/rpruim), [&#x0040;sckott](https://github.com/sckott), [&#x0040;scottcame](https://github.com/scottcame), [&#x0040;sfirke](https://github.com/sfirke), [&#x0040;sjspielman](https://github.com/sjspielman), [&#x0040;Tugsdelger](https://github.com/Tugsdelger), [&#x0040;tungmilan](https://github.com/tungmilan), [&#x0040;uribo](https://github.com/uribo), [&#x0040;wlandau](https://github.com/wlandau), [&#x0040;yonicd](https://github.com/yonicd), [&#x0040;yutannihilation](https://github.com/yutannihilation), [&#x0040;zkamvar](https://github.com/zkamvar), and [&#x0040;zx8754](https://github.com/zx8754).
