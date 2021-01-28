@@ -63,20 +63,13 @@ If you stop reading here, just know that [`gh_token_help()`](https://usethis.r-l
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://usethis.r-lib.org/reference/github-token.html'>gh_token_help</a></span><span class='o'>(</span><span class='o'>)</span>
 <span class='c'>#&gt; ● GitHub host: <span style='color: #0000BB;'>'https://github.com'</span></span>
-
 <span class='c'>#&gt; ● Host online: <span style='color: #0000BB;'>TRUE</span></span>
-
 <span class='c'>#&gt; ● Personal access token for <span style='color: #0000BB;'>'https://github.com'</span><span>: </span><span style='color: #0000BB;'>'&lt;discovered&gt;'</span></span>
-
 <span class='c'>#&gt; <span style='color: #BBBB00;'>ℹ</span><span> Call </span><span style='color: #555555;'>`gh::gh_whoami()`</span><span> to see info about your token, e.g. the associated user</span></span>
-
 <span class='c'>#&gt; <span style='color: #BBBB00;'>ℹ</span><span> To see or update the token, call </span><span style='color: #555555;'>`gitcreds::gitcreds_set()`</span></span>
-
 <span class='c'>#&gt; <span style='color: #00BB00;'>✔</span><span> If those results are OK, you are good go to!</span></span>
-
 <span class='c'>#&gt; <span style='color: #BBBB00;'>ℹ</span><span> Read more in the </span><span style='color: #0000BB;'>'Managing Git(Hub) Credentials'</span><span> article:</span></span>
-<span class='c'>#&gt;   https://usethis.r-lib.org/articles/articles/git-credentials.html</span>
-</code></pre>
+<span class='c'>#&gt;   https://usethis.r-lib.org/articles/articles/git-credentials.html</span></code></pre>
 
 </div>
 
@@ -171,9 +164,7 @@ When usethis configures a new Git remote, it must choose a protocol, either HTTP
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://usethis.r-lib.org/reference/git_protocol.html'>git_protocol</a></span><span class='o'>(</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #BBBB00;'>ℹ</span><span> Defaulting to https Git protocol</span></span>
-
-<span class='c'>#&gt; [1] "https"</span>
-</code></pre>
+<span class='c'>#&gt; [1] "https"</span></code></pre>
 
 </div>
 
