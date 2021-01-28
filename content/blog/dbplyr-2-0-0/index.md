@@ -17,7 +17,7 @@ photo:
 
 categories: [package] 
 tags: [dbplyr, dplyr]
-rmd_hash: b3b481f93d8eb9df
+rmd_hash: 01a40c3b3863c6be
 
 ---
 
@@ -27,8 +27,7 @@ You can install it from CRAN with:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"dbplyr"</span><span class='o'>)</span>
-</code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"dbplyr"</span><span class='o'>)</span></code></pre>
 
 </div>
 
@@ -47,13 +46,11 @@ Please see the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dbplyr.tidyverse.org/'>dbplyr</a></span><span class='o'>)</span>
-<span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span>, warn.conflicts <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span>
-</code></pre>
+<span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span>, warn.conflicts <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></code></pre>
 
 </div>
 
-dplyr 1.0.0 compatibility
--------------------------
+## dplyr 1.0.0 compatibility
 
 dbplyr now supports all relevant features added in dplyr 1.0.0:
 
@@ -65,12 +62,10 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> 
       <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>g</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
       <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='o'>(</span><span class='nf'><a href='https://tidyselect.r-lib.org/reference/everything.html'>everything</a></span><span class='o'>(</span><span class='o'>)</span>, <span class='nv'>mean</span>, na.rm <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT `g`, AVG(`g`) AS `g`, AVG(`a`) AS `a`, AVG(`b`) AS `b`, AVG(`c`) AS `c`</span>
     <span class='c'>#&gt; FROM `df`</span>
-    <span class='c'>#&gt; GROUP BY `g`</span>
-    </code></pre>
+    <span class='c'>#&gt; GROUP BY `g`</span></code></pre>
 
     </div>
 
@@ -80,23 +75,17 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>x1 <span class='o'>=</span> <span class='m'>1</span>, x2 <span class='o'>=</span> <span class='m'>2</span>, x3 <span class='o'>=</span> <span class='m'>3</span>, y1 <span class='o'>=</span> <span class='m'>4</span>, y2 <span class='o'>=</span> <span class='m'>3</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nf'><a href='https://tidyselect.r-lib.org/reference/starts_with.html'>starts_with</a></span><span class='o'>(</span><span class='s'>"x"</span><span class='o'>)</span> <span class='o'>&amp;</span> <span class='o'>!</span><span class='s'>"x3"</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT `x1`, `x2`</span>
     <span class='c'>#&gt; FROM `df`</span>
-
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nf'><a href='https://tidyselect.r-lib.org/reference/starts_with.html'>ends_with</a></span><span class='o'>(</span><span class='s'>"2"</span><span class='o'>)</span> <span class='o'>|</span> <span class='nf'><a href='https://tidyselect.r-lib.org/reference/starts_with.html'>ends_with</a></span><span class='o'>(</span><span class='s'>"3"</span><span class='o'>)</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT `x2`, `y2`, `x3`</span>
     <span class='c'>#&gt; FROM `df`</span>
-
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/rename.html'>rename_with</a></span><span class='o'>(</span><span class='nv'>toupper</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT `x1` AS `X1`, `x2` AS `X2`, `x3` AS `X3`, `y1` AS `Y1`, `y2` AS `Y2`</span>
-    <span class='c'>#&gt; FROM `df`</span>
-    </code></pre>
+    <span class='c'>#&gt; FROM `df`</span></code></pre>
 
     </div>
 
@@ -106,11 +95,9 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>x1 <span class='o'>=</span> <span class='m'>1</span>, x2 <span class='o'>=</span> <span class='m'>2</span>, y1 <span class='o'>=</span> <span class='m'>4</span>, y2 <span class='o'>=</span> <span class='m'>3</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/relocate.html'>relocate</a></span><span class='o'>(</span><span class='nf'><a href='https://tidyselect.r-lib.org/reference/starts_with.html'>starts_with</a></span><span class='o'>(</span><span class='s'>"y"</span><span class='o'>)</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT `y1`, `y2`, `x1`, `x2`</span>
-    <span class='c'>#&gt; FROM `df`</span>
-    </code></pre>
+    <span class='c'>#&gt; FROM `df`</span></code></pre>
 
     </div>
 
@@ -122,31 +109,26 @@ dbplyr now supports all relevant features added in dplyr 1.0.0:
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> 
       <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>g</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
       <span class='nf'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice_min</a></span><span class='o'>(</span><span class='nv'>x</span>, prop <span class='o'>=</span> <span class='m'>0.5</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT `g`, `x`</span>
     <span class='c'>#&gt; FROM (SELECT `g`, `x`, CUME_DIST() OVER (PARTITION BY `g` ORDER BY `x`) AS `q01`</span>
     <span class='c'>#&gt; FROM `df`) `q01`</span>
     <span class='c'>#&gt; WHERE (`q01` &lt;= 0.5)</span>
 
-
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> 
       <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>g</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
       <span class='nf'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice_sample</a></span><span class='o'>(</span><span class='nv'>x</span>, n <span class='o'>=</span> <span class='m'>10</span>, with_ties <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT `g`, `x`</span>
     <span class='c'>#&gt; FROM (SELECT `g`, `x`, ROW_NUMBER() OVER (PARTITION BY `g` ORDER BY random()) AS `q01`</span>
     <span class='c'>#&gt; FROM `df`) `q01`</span>
-    <span class='c'>#&gt; WHERE (`q01` &lt;= 10)</span>
-    </code></pre>
+    <span class='c'>#&gt; WHERE (`q01` &lt;= 10)</span></code></pre>
 
     </div>
 
     Note that these slices are translated into window functions, and because you can't use a window function directly inside a `WHERE` clause, they must be wrapped in a subquery.
 
-SQL translation
----------------
+## SQL translation
 
 The dbplyr documentation now does a much better job of providing the details of its SQL translation. Each backend and each major verb has a documentation page giving the basics of the translation. This will hopefully make it much easier to learn what is and isn't supported by dbplyr. Visit <https://dbplyr.tidyverse.org/reference/index.html> to see the new docs.
 
@@ -159,34 +141,28 @@ There are also many improvements to SQL generation. Here are a few of the most i
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>df1</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='kc'>NA</span><span class='o'>)</span><span class='o'>)</span>
     <span class='nv'>df2</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='kc'>NA</span>, <span class='m'>1</span><span class='o'>)</span>, y <span class='o'>=</span> <span class='m'>1</span><span class='o'>:</span><span class='m'>2</span><span class='o'>)</span>
     <span class='nv'>df1</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>inner_join</a></span><span class='o'>(</span><span class='nv'>df2</span>, by <span class='o'>=</span> <span class='s'>"x"</span><span class='o'>)</span>
-
     <span class='c'>#&gt; <span style='color: #949494;'># A tibble: 2 x 2</span></span>
     <span class='c'>#&gt;       <span style='font-weight: bold;'>x</span><span>     </span><span style='font-weight: bold;'>y</span></span>
     <span class='c'>#&gt;   <span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span></span>
     <span class='c'>#&gt; <span style='color: #BCBCBC;'>1</span><span>     1     2</span></span>
     <span class='c'>#&gt; <span style='color: #BCBCBC;'>2</span><span>    </span><span style='color: #BB0000;'>NA</span><span>     1</span></span>
 
-
     <span class='nv'>db1</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/memdb_frame.html'>memdb_frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='kc'>NA</span><span class='o'>)</span><span class='o'>)</span>
     <span class='nv'>db2</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/memdb_frame.html'>memdb_frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='kc'>NA</span>, <span class='m'>1</span><span class='o'>)</span>, y <span class='o'>=</span> <span class='m'>1</span><span class='o'>:</span><span class='m'>2</span><span class='o'>)</span>
     <span class='nv'>db1</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>inner_join</a></span><span class='o'>(</span><span class='nv'>db2</span>, by <span class='o'>=</span> <span class='s'>"x"</span><span class='o'>)</span>
-
     <span class='c'>#&gt; <span style='color: #949494;'># Source:   lazy query [?? x 2]</span></span>
-    <span class='c'>#&gt; <span style='color: #949494;'># Database: sqlite 3.30.1 [:memory:]</span></span>
+    <span class='c'>#&gt; <span style='color: #949494;'># Database: sqlite 3.34.1 [:memory:]</span></span>
     <span class='c'>#&gt;       <span style='font-weight: bold;'>x</span><span>     </span><span style='font-weight: bold;'>y</span></span>
     <span class='c'>#&gt;   <span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span></span>
     <span class='c'>#&gt; <span style='color: #BCBCBC;'>1</span><span>     1     2</span></span>
 
-
     <span class='nv'>db1</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>inner_join</a></span><span class='o'>(</span><span class='nv'>db2</span>, by <span class='o'>=</span> <span class='s'>"x"</span>, na_matches <span class='o'>=</span> <span class='s'>"na"</span><span class='o'>)</span>
-
     <span class='c'>#&gt; <span style='color: #949494;'># Source:   lazy query [?? x 2]</span></span>
-    <span class='c'>#&gt; <span style='color: #949494;'># Database: sqlite 3.30.1 [:memory:]</span></span>
+    <span class='c'>#&gt; <span style='color: #949494;'># Database: sqlite 3.34.1 [:memory:]</span></span>
     <span class='c'>#&gt;       <span style='font-weight: bold;'>x</span><span>     </span><span style='font-weight: bold;'>y</span></span>
     <span class='c'>#&gt;   <span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span></span>
     <span class='c'>#&gt; <span style='color: #BCBCBC;'>1</span><span>    </span><span style='color: #BB0000;'>NA</span><span>     1</span></span>
-    <span class='c'>#&gt; <span style='color: #BCBCBC;'>2</span><span>     1     2</span></span>
-    </code></pre>
+    <span class='c'>#&gt; <span style='color: #BCBCBC;'>2</span><span>     1     2</span></span></code></pre>
 
     </div>
 
@@ -195,21 +171,17 @@ There are also many improvements to SQL generation. Here are a few of the most i
     <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>db1</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>inner_join</a></span><span class='o'>(</span><span class='nv'>db2</span>, by <span class='o'>=</span> <span class='s'>"x"</span><span class='o'>)</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query</a></span><span class='o'>(</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT `LHS`.`x` AS `x`, `y`</span>
     <span class='c'>#&gt; FROM `dbplyr_001` AS `LHS`</span>
     <span class='c'>#&gt; INNER JOIN `dbplyr_002` AS `RHS`</span>
     <span class='c'>#&gt; ON (`LHS`.`x` = `RHS`.`x`)</span>
-
     <span class='nv'>db1</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>inner_join</a></span><span class='o'>(</span><span class='nv'>db2</span>, by <span class='o'>=</span> <span class='s'>"x"</span>, na_matches <span class='o'>=</span> <span class='s'>"na"</span><span class='o'>)</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query</a></span><span class='o'>(</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT `LHS`.`x` AS `x`, `y`</span>
     <span class='c'>#&gt; FROM `dbplyr_001` AS `LHS`</span>
     <span class='c'>#&gt; INNER JOIN `dbplyr_002` AS `RHS`</span>
-    <span class='c'>#&gt; ON (`LHS`.`x` IS `RHS`.`x`)</span>
-    </code></pre>
+    <span class='c'>#&gt; ON (`LHS`.`x` IS `RHS`.`x`)</span></code></pre>
 
     </div>
 
@@ -223,17 +195,14 @@ There are also many improvements to SQL generation. Here are a few of the most i
       <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>n <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
       <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/desc.html'>desc</a></span><span class='o'>(</span><span class='nv'>n</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
       <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>n</span> <span class='o'>&gt;</span> <span class='m'>1</span><span class='o'>)</span>
-
     <span class='c'>#&gt; Warning: ORDER BY is ignored in subqueries without LIMIT</span>
     <span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span><span> Do you need to move arrange() later in the pipeline or use window_order() instead?</span></span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT *</span>
     <span class='c'>#&gt; FROM (SELECT `g`, COUNT(*) AS `n`</span>
     <span class='c'>#&gt; FROM `df`</span>
     <span class='c'>#&gt; GROUP BY `g`) `q01`</span>
-    <span class='c'>#&gt; WHERE (`n` &gt; 1.0)</span>
-    </code></pre>
+    <span class='c'>#&gt; WHERE (`n` &gt; 1.0)</span></code></pre>
 
     </div>
 
@@ -247,7 +216,6 @@ There are also many improvements to SQL generation. Here are a few of the most i
       <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/desc.html'>desc</a></span><span class='o'>(</span><span class='nv'>n</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
       <span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='m'>5</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
       <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>n</span> <span class='o'>&gt;</span> <span class='m'>1</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT *</span>
     <span class='c'>#&gt; FROM (SELECT `g`, COUNT(*) AS `n`</span>
@@ -255,8 +223,7 @@ There are also many improvements to SQL generation. Here are a few of the most i
     <span class='c'>#&gt; GROUP BY `g`</span>
     <span class='c'>#&gt; ORDER BY `n` DESC</span>
     <span class='c'>#&gt; LIMIT 5) `q01`</span>
-    <span class='c'>#&gt; WHERE (`n` &gt; 1.0)</span>
-    </code></pre>
+    <span class='c'>#&gt; WHERE (`n` &gt; 1.0)</span></code></pre>
 
     </div>
 
@@ -266,11 +233,9 @@ There are also many improvements to SQL generation. Here are a few of the most i
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='s'>"a"</span>, y <span class='o'>=</span> <span class='s'>"b"</span>, con <span class='o'>=</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/backend-redshift.html'>simulate_redshift</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>z <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>y</span><span class='o'>)</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT `x`, `y`, `x` || `y` AS `z`</span>
-    <span class='c'>#&gt; FROM `df`</span>
-    </code></pre>
+    <span class='c'>#&gt; FROM `df`</span></code></pre>
 
     </div>
 
@@ -282,11 +247,9 @@ There are a number of minor changes that affect the translation of individual fu
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span><span class='o'>:</span><span class='m'>10</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>n <span class='o'>=</span> <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT COUNT(*) AS `n`</span>
-    <span class='c'>#&gt; FROM `df`</span>
-    </code></pre>
+    <span class='c'>#&gt; FROM `df`</span></code></pre>
 
     </div>
 
@@ -297,11 +260,9 @@ There are a number of minor changes that affect the translation of individual fu
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span><span class='o'>(</span><span class='o'>)</span>, con <span class='o'>=</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/backend-postgres.html'>simulate_postgres</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span>
       <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>year <span class='o'>=</span> <span class='nv'>x</span> <span class='o'>+</span> <span class='nf'>years</span><span class='o'>(</span><span class='m'>1</span><span class='o'>)</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT `x`, `x` + CAST('1 years' AS INTERVAL) AS `year`</span>
-    <span class='c'>#&gt; FROM `df`</span>
-    </code></pre>
+    <span class='c'>#&gt; FROM `df`</span></code></pre>
 
     </div>
 
@@ -311,28 +272,24 @@ There are a number of minor changes that affect the translation of individual fu
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/tbl_lazy.html'>lazy_frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span>, con <span class='o'>=</span> <span class='nf'><a href='https://dbplyr.tidyverse.org/reference/backend-oracle.html'>simulate_oracle</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
     <span class='nv'>lf</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='m'>5</span><span class='o'>)</span>
-
     <span class='c'>#&gt; &lt;SQL&gt;</span>
     <span class='c'>#&gt; SELECT *</span>
     <span class='c'>#&gt; FROM (`df`) </span>
-    <span class='c'>#&gt; FETCH FIRST 5 ROWS ONLY</span>
-    </code></pre>
+    <span class='c'>#&gt; FETCH FIRST 5 ROWS ONLY</span></code></pre>
 
     </div>
 
-New logo
---------
+## New logo
 
 Thanks to the artistic talents of [Allison Horst](https://www.allisonhorst.com), dbplyr has a beautiful new logo:
 
 <img src="dbplyr.png" width="250"/>
 
-Extensibility
--------------
+## Extensibility
 
 Finally, dbplyr introduces a number of new generics to help tease apart the currently overly complicated relationship with dplyr. This should make creating new backends much easier, but does require some changes from existing backends. These changes should be invisible to the end user and will play out slowly over the next 12 months. See [`vignette("backend-2", package = "dbplyr")`](https://dbplyr.tidyverse.org/articles/backend-2.html) for details.
 
-Acknowledgements
-----------------
+## Acknowledgements
 
 A big thanks to everyone who helped with this release by reporting bugs, discussing issues, and contributing code: [@abalter](https://github.com/abalter), [@adhi-r](https://github.com/adhi-r), [@adithya604](https://github.com/adithya604), [@admoseremic](https://github.com/admoseremic), [@ahmed-alhindawi](https://github.com/ahmed-alhindawi), [@alexfun](https://github.com/alexfun), [@alexkyllo](https://github.com/alexkyllo), [@alistaire47](https://github.com/alistaire47), [@batpigandme](https://github.com/batpigandme), [@BenCarlsen](https://github.com/BenCarlsen), [@bengowan](https://github.com/bengowan), [@bersbersbers](https://github.com/bersbersbers), [@bertrandh](https://github.com/bertrandh), [@bkkkk](https://github.com/bkkkk), [@boshek](https://github.com/boshek), [@bradenkinard](https://github.com/bradenkinard), [@cderv](https://github.com/cderv), [@CerebralMastication](https://github.com/CerebralMastication), [@chris-billingham](https://github.com/chris-billingham), [@cmichaud92](https://github.com/cmichaud92), [@cole-johanson](https://github.com/cole-johanson), [@copernican](https://github.com/copernican), [@daattali](https://github.com/daattali), [@Daveyr](https://github.com/Daveyr), [@davidchall](https://github.com/davidchall), [@DavidPatShuiFong](https://github.com/DavidPatShuiFong), [@dereksonderegger](https://github.com/dereksonderegger), [@dfrankow](https://github.com/dfrankow), [@dkulp2](https://github.com/dkulp2), [@dpprdan](https://github.com/dpprdan), [@dsen6644](https://github.com/dsen6644), [@DSLituiev](https://github.com/DSLituiev), [@EarlGlynn](https://github.com/EarlGlynn), [@edgararuiz](https://github.com/edgararuiz), [@edoardomichielon](https://github.com/edoardomichielon), [@elbamos](https://github.com/elbamos), [@ericemc3](https://github.com/ericemc3), [@fahadshery](https://github.com/fahadshery), [@fh-jgutman](https://github.com/fh-jgutman), [@ftoresh](https://github.com/ftoresh), [@GrayAlex49](https://github.com/GrayAlex49), [@gregleleu](https://github.com/gregleleu), [@hadley](https://github.com/hadley), [@halpo](https://github.com/halpo), [@hannes101](https://github.com/hannes101), [@hansvancalster](https://github.com/hansvancalster), [@hrbrmstr](https://github.com/hrbrmstr), [@huelf](https://github.com/huelf), [@iangow](https://github.com/iangow), [@ianmcook](https://github.com/ianmcook), [@jakeybob](https://github.com/jakeybob), [@Janlow](https://github.com/Janlow), [@jarodmeng](https://github.com/jarodmeng), [@javierluraschi](https://github.com/javierluraschi), [@jerisalan](https://github.com/jerisalan), [@jessekps](https://github.com/jessekps), [@jimhester](https://github.com/jimhester), [@jkylearmstrong](https://github.com/jkylearmstrong), [@jmerone](https://github.com/jmerone), [@jonkeane](https://github.com/jonkeane), [@kmishra9](https://github.com/kmishra9), [@kohleth](https://github.com/kohleth), [@kondofersky](https://github.com/kondofersky), [@krlmlr](https://github.com/krlmlr), [@lionel-](https://github.com/lionel-), [@lorenzwalthert](https://github.com/lorenzwalthert), [@LukasWallrich](https://github.com/LukasWallrich), [@lukerobert](https://github.com/lukerobert), [@lymanmark](https://github.com/lymanmark), [@machow](https://github.com/machow), [@martin-a-wade](https://github.com/martin-a-wade), [@mgirlich](https://github.com/mgirlich), [@MikeJohnPage](https://github.com/MikeJohnPage), [@millerh1](https://github.com/millerh1), [@mkirzon](https://github.com/mkirzon), [@moodymudskipper](https://github.com/moodymudskipper), [@mskyttner](https://github.com/mskyttner), [@Naareman](https://github.com/Naareman), [@natbprice](https://github.com/natbprice), [@okhoma](https://github.com/okhoma), [@OssiLehtinen](https://github.com/OssiLehtinen), [@PauloJhonny](https://github.com/PauloJhonny), [@r2evans](https://github.com/r2evans), [@ramnathv](https://github.com/ramnathv), [@returnString](https://github.com/returnString), [@rjpat](https://github.com/rjpat), [@rlh1994](https://github.com/rlh1994), [@robchallen](https://github.com/robchallen), [@roboton](https://github.com/roboton), [@romainfrancois](https://github.com/romainfrancois), [@rundel](https://github.com/rundel), [@saadaslam](https://github.com/saadaslam), [@samssann](https://github.com/samssann), [@samstiyer](https://github.com/samstiyer), [@schradj](https://github.com/schradj), [@sheepworrier](https://github.com/sheepworrier), [@shosaco](https://github.com/shosaco), [@shyams80](https://github.com/shyams80), [@stiberger](https://github.com/stiberger), [@stvrd](https://github.com/stvrd), [@tarunn90](https://github.com/tarunn90), [@tedmoorman](https://github.com/tedmoorman), [@tgvaughan](https://github.com/tgvaughan), [@tonyk7440](https://github.com/tonyk7440), [@trevorcampbell](https://github.com/trevorcampbell), [@TuomoNieminen](https://github.com/TuomoNieminen), [@tvedebrink](https://github.com/tvedebrink), [@vadimus202](https://github.com/vadimus202), [@vnijs](https://github.com/vnijs), [@wangyuchen](https://github.com/wangyuchen), [@yitao-li](https://github.com/yitao-li), and [@ZahraEconomist](https://github.com/ZahraEconomist).
+

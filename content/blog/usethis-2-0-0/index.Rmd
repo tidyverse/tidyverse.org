@@ -65,16 +65,8 @@ These packages, in turn, might need your credentials to prove to GitHub that you
 
 If you stop reading here, just know that `gh_token_help()` is a good way to assess your credential situation:
 
-```{r, eval = FALSE}
-> gh_token_help()
-● GitHub host: 'https://github.com'
-● Host online: TRUE
-● Personal access token for 'https://github.com': '<discovered>'
-ℹ Call `gh::gh_whoami()` to see info about your token, e.g. the associated user
-ℹ To see or update the token, call `gitcreds::gitcreds_set()`
-✓ If those results are OK, you are good go to!
-ℹ Read more in the 'Managing Git(Hub) Credentials' article:
-  https://usethis.r-lib.org/articles/articles/git-credentials.html
+```{r}
+gh_token_help()
 ```
 
 You can get even more diagnostic information with `git_sitrep()`.
@@ -194,7 +186,7 @@ Our full recommendations for getting and configuring a PAT are in the new vignet
 When usethis configures a new Git remote, it must choose a protocol, either HTTPS or SSH.
 The new default in this situation is HTTPS, because as we explained above, we think HTTPS is the best choice for most users and projects.
 
-```{r}
+```{r, R.options = list(usethis.protocol = "unset")}
 git_protocol()
 ```
 
@@ -212,7 +204,7 @@ This family has gained a couple of new functions and some improvements to existi
 * `pr_resume()` resumes work on an existing local PR branch. It can be called
   argument-less, to select a branch interactively.
   
-    ```{r, eval = FALSE}
+    ```
     > pr_resume()
     ℹ No branch specified ... looking up local branches and associated PRs
     Which branch do you want to checkout? (0 to exit) 
@@ -240,7 +232,7 @@ This was part of a bigger effort related to re-licensing some tidyverse/r-lib pa
 `browse_package()` and `browse_project()` are new additions to the `browse_*()` family that let the user choose from a list of URLs derived from local Git remotes and DESCRIPTION (local or possibly on CRAN).
 Implementing these reminded us of how handy the existing `browse_*()` functions are!
     
-```{r, eval = FALSE}
+```
 > browse_package()
 Which URL do you want to visit? (0 to exit) 
 
