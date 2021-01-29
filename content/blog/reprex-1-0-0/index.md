@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [reprex,tidyverse]
-rmd_hash: 41238ca71531bc92
+rmd_hash: 105e6bc2fa2aa6e2
 
 ---
 
