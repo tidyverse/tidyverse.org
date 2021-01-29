@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [reprex,tidyverse]
-rmd_hash: 32a02a283f9cd1d8
+rmd_hash: 41238ca71531bc92
 
 ---
 
@@ -84,7 +84,7 @@ You, as a reader, just benefited from a few things:
 
 All of this is entirely possible without reprex. People just need to create a suitable `.R` or `.Rmd` file, render it to an appropriate output format, in a fresh R session, with working directory set to session temp directory. And also send me a pony!
 
-Most of us won't do this, because it's a hassle. [`reprex::reprex()`](https://reprex.tidyverse.org/reference/reprex.html) aims to make doing the right thing so easy that people stop taking cell phone photos of their broken code.
+For any given code snippet, this feels like way too much work. But if you read, write, and talk about R often, this problem can easily come up multiple times per day. [`reprex::reprex()`](https://reprex.tidyverse.org/reference/reprex.html) aims to make doing the right thing so easy that people stop taking cell phone photos of their broken code.
 
 ## `reprex::reprex()`
 
@@ -119,7 +119,7 @@ For those who have been using reprex for a while, here are the most exciting dev
 
 We've added `venue`-specific convenience wrappers. Instead of `reprex(..., venue = "r")`, you can now do `reprex_r(...)`. This makes non-default `venue`s easier to access with IDE autocompletion.
 
-`"slack"` is a new venue that tweaks the default Markdown output for pasting into Slack messages. Slack's markup is a frustrating variant of the Markdown we use elsewhere and it's important to remove the `r` language identifier from the opening code fence. We also simplify image links and, by default, suppress the ad. Note that `venue = "slack"` or `reprex_slack()` work best for people who opt-out of the WYSIWYG message editor[^3]. While working on this, I appreciated for the first time that the default behaviour for figures (uploading to [imgur.com](https://imgur.com) and auto-linking) actually works pretty well for Slack messages. Who knew? 🤷 This is also a good time to remind everyone that `venue = "r"` or `reprex_r()` are great ways to create larger Slack code snippets. Before you finish by clicking "Create snippet", select `R` from the "Type" dropdown to get nice syntax highlighting.
+`"slack"` is a new venue that tweaks the default Markdown output for pasting into Slack messages. Slack's markup is a frustrating variant of the Markdown we use elsewhere and it's important to remove the `r` language identifier from the opening code fence. We also simplify image links and, by default, suppress the ad. Note that `venue = "slack"` or `reprex_slack()` work best for people who opt-out of the WYSIWYG message editor[^3]. While working on this, I appreciated for the first time that the default behaviour for figures (uploading to [imgur.com](https://imgur.com) and auto-linking) actually works pretty well for Slack messages. Who knew? 🤷‍♀ This is also a good time to remind everyone that `venue = "r"` or `reprex_r()` are great ways to create larger Slack code snippets. Before you finish by clicking "Create snippet", select `R` from the "Type" dropdown to get nice syntax highlighting.
 
 Stack Overflow now supports fenced code blocks, which means that the `"so"` venue is no longer necessary. You can still request it, but it's just an alias for the default GitHub (`"gh"`) venue and we're going to tell you that every time you do it.
 
