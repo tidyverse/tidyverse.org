@@ -2,9 +2,9 @@
 output: hugodown::hugo_document
 
 slug: reprex-1-0-0
-title: reprex 1 0 0
+title: reprex 1.0.0
 date: 2021-01-27
-author: Jennifer Bryan
+author: Jenny Bryan
 description: >
     We've never blogged about reprex before, so the release of v1.0.0 seems
     like a good reason occasion for it.
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [reprex,tidyverse]
-rmd_hash: 8679718fa8140d62
+rmd_hash: 32a02a283f9cd1d8
 
 ---
 
@@ -30,7 +30,7 @@ You can install the current version of reprex from CRAN with[^1]:
 
 </div>
 
-It turns out we've never blogged about reprex here on [tidyverse.org](https://www.tidyverse.org), so we'll start with a general overview for newcomers, then close with a summary of recent changes of interest to existing users.
+It turns out we've never blogged about reprex here on [tidyverse.org](https://www.tidyverse.org), so we start with a general overview for newcomers, then close with a summary of recent changes of interest to existing users.
 
 You can see a full list of changes in the [release notes](https://reprex.tidyverse.org/news/index.html#reprex-1-0-0-2021-01-27).
 
@@ -65,7 +65,7 @@ You, as a reader, just benefited from a few things:
 
 2.  You got to see the actual result without firing up R yourself and executing this code locally. Many R veterans will instantly recognize what's going on and be able to provide some useful explanation at this point.
 
-3.  If you do want to execute the code yourself, you can easily copy the entire chunk, paste it into R, and press enter[^2]. Compare that with the fussy edits you'd have to make with this copy/paste from the R Console (removing prompts and output):
+3.  If you do want to execute the code yourself, you can easily copy the entire chunk, paste it into R, and press enter[^2]. Compare that with the fussy edits you'd have to make with this copy/paste from the R Console:
 
     ``` r
     > x <- factor("Hello, ")
@@ -79,6 +79,8 @@ You, as a reader, just benefited from a few things:
     > c(x, y)
     [1] 1 1
     ```
+
+    You need to remove the [`>`](https://rdrr.io/r/base/Comparison.html) prompts and delete all output. And don't get me started on the problem of screenshots.
 
 All of this is entirely possible without reprex. People just need to create a suitable `.R` or `.Rmd` file, render it to an appropriate output format, in a fresh R session, with working directory set to session temp directory. And also send me a pony!
 
@@ -103,15 +105,35 @@ Here is a 50 second video that shows an entire roundtrip: copying local code, `r
 There are many other handy features:
 
 -   Optionally include session info
--   Post a figure to imgur.com and embed its link in the reprex
+-   Post a figure to [imgur.com](https://imgur.com) and embed its link in the reprex
 -   Handy RStudio addin and gadget for even more convenience
 -   More ways to provide input and get output
 
-Head over to [reprex.tidyverse.org](https://reprex.tidyverse.org) to learn more.
+Head over to [reprex.tidyverse.org](https://reprex.tidyverse.org) to learn more. In addition to the articles there, reprex --- as a lifestyle 🤓 and a package 📦 --- feature in my [rstudio::global(2020) keynote about debugging](https://github.com/jennybc/debugging#readme). The reprex section starts around the 14:11 mark in [the video](https://rstudio.com/resources/rstudioconf-2020/object-of-type-closure-is-not-subsettable/).
 
 ## What's new in v1.0.0
 
-cool stuff!
+For those who have been using reprex for a while, here are the most exciting developments in v1.0.0
+
+### Venues
+
+We've added `venue`-specific convenience wrappers. Instead of `reprex(..., venue = "r")`, you can now do `reprex_r(...)`. This makes non-default `venue`s easier to access with IDE autocompletion.
+
+`"slack"` is a new venue that tweaks the default Markdown output for pasting into Slack messages. Slack's markup is a frustrating variant of the Markdown we use elsewhere and it's important to remove the `r` language identifier from the opening code fence. We also simplify image links and, by default, suppress the ad. Note that `venue = "slack"` or `reprex_slack()` work best for people who opt-out of the WYSIWYG message editor[^3]. While working on this, I appreciated for the first time that the default behaviour for figures (uploading to [imgur.com](https://imgur.com) and auto-linking) actually works pretty well for Slack messages. Who knew? 🤷 This is also a good time to remind everyone that `venue = "r"` or `reprex_r()` are great ways to create larger Slack code snippets. Before you finish by clicking "Create snippet", select `R` from the "Type" dropdown to get nice syntax highlighting.
+
+Stack Overflow now supports fenced code blocks, which means that the `"so"` venue is no longer necessary. You can still request it, but it's just an alias for the default GitHub (`"gh"`) venue and we're going to tell you that every time you do it.
+
+The experimental-but-oh-so-handy `venue = "rtf"` now works about as well on Windows as it does on macOS. It is experimental (and shall remain so) because we still shell out to the [highlight command line tool](http://www.andre-simon.de/doku/highlight/en/highlight.php), the installation of which is left as an exercise for the motivated user. This is a great way to get (un)rendered, syntax-highlighted code snippets into applications like PowerPoint, Keynote, and Word, when you aren't generating the whole document with R Markdown. This special `"venue"` is documented in [its own article](https://reprex.tidyverse.org/articles/articles/rtf.html).
+
+### Internal changes
+
+This should have no impact on most users, but `reprex()` has been internally refactored to achieve its goals by applying the new `reprex_render()` to an `.Rmd` file that uses the new `reprex_document()` output format. The motivation was mostly to make maintenance easier by using more official mechanisms for extending R Markdown and knitr.
+
+We have eagerly followed knitr's lead and use UTF-8 everywhere internally.
+
+The `tidyverse_quiet` argument and `reprex.tidyverse_quiet` option, which default to `TRUE`, also suppress startup messages from the tidymodels meta-package.
+
+Remember you can see a full list of changes in the [release notes](https://reprex.tidyverse.org/news/index.html#reprex-1-0-0-2021-01-27).
 
 ## Acknowledgements
 
@@ -122,4 +144,6 @@ We've never blogged about reprex here, so we'll take this chance to thank all 11
 [^1]: Another way you might get reprex is by installing the tidyverse meta-package. reprex is one of the packages installed by [`install.packages("tidyverse")`](https://rdrr.io/r/utils/install.packages.html), however it is **not** among the core packages attached by [`library(tidyverse)`](http://tidyverse.tidyverse.org).
 
 [^2]: Since the output is commented out, its presence is harmless. But you can even use [`reprex::reprex_clean()`](https://reprex.tidyverse.org/reference/un-reprex.html) and friends to un-reprex code, if you like.
+
+[^3]: You can disable the WYSIWYG Slack message interface in **Preferences \> Advanced**. Select the **Format messages with markup setting**. The [Slack section of The Markdown Guide](https://www.markdownguide.org/tools/slack/) is helpful for figuring out which subsets of Markdown are supported in different parts of Slack.
 
