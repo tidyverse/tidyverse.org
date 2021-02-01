@@ -5,6 +5,9 @@ slug: dplyr-1-0-4-if-any
 title: dplyr 1.0.4 if_any() and if_all()
 date: 2021-02-01
 author: Romain Francois
+description: >
+    Minor release with major performance improvements for across() and 
+    two new functions if_any() and if_all().
 
 photo:
   url: https://unsplash.com/photos/nQz49efZEFs
@@ -12,13 +15,13 @@ photo:
 
 categories: [package] 
 tags: [dplyr]
-rmd_hash: 996ee583b11a944b
+rmd_hash: 120b422e4aaf2c78
 
 ---
 
 We're happy to announce the release of [dplyr](https://dplyr.tidyverse.org) 1.0.4. dplyr is the data manipulation package of the [tidyverse](https://www.tidyverse.org).
 
-You can install it from CRAN with:
+This release dramatically improves the performance of [`across()`](https://dplyr.tidyverse.org/reference/across.html) and introduces the new functions [`if_all()`](https://dplyr.tidyverse.org/reference/across.html) and [`if_any()`](https://dplyr.tidyverse.org/reference/across.html) as companions to [`filter()`](https://dplyr.tidyverse.org/reference/filter.html). You can install it from CRAN with:
 
 <div class="highlight">
 
@@ -143,8 +146,8 @@ In the 1.0.4 release, we have redesigned [`across()`](https://dplyr.tidyverse.or
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                       process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                 </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    142ms    143ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      706ms    708ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    140ms    140ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      679ms    679ms</span></span>
 
 <span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/workout.html'>workout</a></span><span class='o'>(</span><span class='o'>&#123;</span>
   <span class='nv'>c</span> <span class='o'>&lt;-</span> <span class='nv'>mun2014</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='o'>(</span><span class='nf'>where</span><span class='o'>(</span><span class='nv'>is.character</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
@@ -154,8 +157,8 @@ In the 1.0.4 release, we have redesigned [`across()`](https://dplyr.tidyverse.or
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                                   process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                             </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    143ms    144ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      623ms    624ms</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    145ms    145ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      609ms    610ms</span></span></code></pre>
 
 </div>
 
