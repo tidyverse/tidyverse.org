@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [dplyr]
-rmd_hash: 120b422e4aaf2c78
+rmd_hash: 07da83514975daa5
 
 ---
 
@@ -146,8 +146,8 @@ In the 1.0.4 release, we have redesigned [`across()`](https://dplyr.tidyverse.or
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                       process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                 </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    140ms    140ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      679ms    679ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    139ms    139ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      694ms    695ms</span></span>
 
 <span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/workout.html'>workout</a></span><span class='o'>(</span><span class='o'>&#123;</span>
   <span class='nv'>c</span> <span class='o'>&lt;-</span> <span class='nv'>mun2014</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='o'>(</span><span class='nf'>where</span><span class='o'>(</span><span class='nv'>is.character</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
@@ -157,13 +157,15 @@ In the 1.0.4 release, we have redesigned [`across()`](https://dplyr.tidyverse.or
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                                   process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                             </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    145ms    145ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      609ms    610ms</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    146ms    147ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      611ms    612ms</span></span></code></pre>
 
 </div>
 
 Acknowledgements
 ----------------
+
+Merci to all contributors of code, issues and documentation to this release:
 
 [@abalter](https://github.com/abalter), [@cuixueqin](https://github.com/cuixueqin), [@eggrandio](https://github.com/eggrandio), [@everetr](https://github.com/everetr), [@hadley](https://github.com/hadley), [@hjohns12](https://github.com/hjohns12), [@iago-pssjd](https://github.com/iago-pssjd), [@jahonamir](https://github.com/jahonamir), [@krlmlr](https://github.com/krlmlr), [@lionel-](https://github.com/lionel-), [@lotard](https://github.com/lotard), [@luispfonseca](https://github.com/luispfonseca), [@mbcann01](https://github.com/mbcann01), [@mutahiwachira](https://github.com/mutahiwachira), [@Robinlovelace](https://github.com/Robinlovelace), [@romainfrancois](https://github.com/romainfrancois), [@rpruim](https://github.com/rpruim), [@shahronak47](https://github.com/shahronak47), [@shangguandong1996](https://github.com/shangguandong1996), [@sylvainDaubree](https://github.com/sylvainDaubree), [@tomazweiss](https://github.com/tomazweiss), [@vhorvath](https://github.com/vhorvath), [@wasdoff](https://github.com/wasdoff), and [@Yunuuuu](https://github.com/Yunuuuu).
 
