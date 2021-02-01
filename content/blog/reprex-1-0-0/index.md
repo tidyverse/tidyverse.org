@@ -3,11 +3,11 @@ output: hugodown::hugo_document
 
 slug: reprex-1-0-0
 title: reprex 1.0.0
-date: 2021-01-27
+date: 2021-02-01
 author: Jenny Bryan
 description: >
     We've never blogged about reprex before, so the release of v1.0.0 seems
-    like a good reason occasion for it.
+    like a good occasion for it.
 
 photo:
   url: https://www.flickr.com/photos/iamagenious/6251271390/sizes/o/
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [reprex,tidyverse]
-rmd_hash: 105e6bc2fa2aa6e2
+rmd_hash: fef03cd5bc60f6de
 
 ---
 
@@ -61,7 +61,7 @@ Someone new to R might be puzzled by this code and want to discuss it:
 
 You, as a reader, just benefited from a few things:
 
-1.  The code was actually executed by the R interpreter, because this post is generated from an `.Rmd` document. I am probably not wasting your time with fictional or incomplete code.
+1.  The code was actually executed by the R interpreter, because this post is generated from an `.Rmd` document. I am probably not misleading you, intentionally or by accident, with fictional or incomplete code.
 
 2.  You got to see the actual result without firing up R yourself and executing this code locally. Many R veterans will instantly recognize what's going on and be able to provide some useful explanation at this point.
 
@@ -84,7 +84,7 @@ You, as a reader, just benefited from a few things:
 
 All of this is entirely possible without reprex. People just need to create a suitable `.R` or `.Rmd` file, render it to an appropriate output format, in a fresh R session, with working directory set to session temp directory. And also send me a pony!
 
-For any given code snippet, this feels like way too much work. But if you read, write, and talk about R often, this problem can easily come up multiple times per day. [`reprex::reprex()`](https://reprex.tidyverse.org/reference/reprex.html) aims to make doing the right thing so easy that people stop taking cell phone photos of their broken code.
+For any given code snippet, this feels like way too much work. But if you read, write, and talk about R often, this problem can easily come up multiple times per day. [`reprex::reprex()`](https://reprex.tidyverse.org/reference/reprex.html) aims to make doing the right thing so easy that people stop taking photos of broken code with their cell phone.
 
 ## `reprex::reprex()`
 
@@ -109,7 +109,7 @@ There are many other handy features:
 -   Handy RStudio addin and gadget for even more convenience
 -   More ways to provide input and get output
 
-Head over to [reprex.tidyverse.org](https://reprex.tidyverse.org) to learn more. In addition to the articles there, reprex --- as a lifestyle 🤓 and a package 📦 --- feature in my [rstudio::global(2020) keynote about debugging](https://github.com/jennybc/debugging#readme). The reprex section starts around the 14:11 mark in [the video](https://rstudio.com/resources/rstudioconf-2020/object-of-type-closure-is-not-subsettable/).
+Head over to [reprex.tidyverse.org](https://reprex.tidyverse.org) to learn more. In addition to the articles there, reprex --- as a lifestyle 🤓 and a package 📦 --- features in my [rstudio::global(2020) keynote about debugging](https://github.com/jennybc/debugging#readme). The reprex section starts around the 14:11 mark in [the video](https://rstudio.com/resources/rstudioconf-2020/object-of-type-closure-is-not-subsettable/).
 
 ## What's new in v1.0.0
 
