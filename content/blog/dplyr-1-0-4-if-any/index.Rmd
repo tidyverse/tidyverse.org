@@ -85,13 +85,8 @@ penguins %>%
 
 ## Faster across()
 
-One net benefit of `across()` is that it supersedes a collection of functions, 
-namely the column wise set of functions (`summarise_at()` ...). However, up until the 
-previous release, this came with a cost in terms of performance. 
-
-In the 1.0.4 release, we have redesigned `across()` to perform better by doing less
-when possible. With these improvements, using `across()` within `summarise()` or `mutate()`
-has the same performance as the relevant column wise version. 
+One of the main motivations for across() was eliminating the need for 
+every verb to have a `_at`, `_if`, and `_all` variant. Unfortunately, however, this came with a performance cost. In this release, we have redesigned `across()` to eliminate that problem when possible. 
 
 ```{r}
 library(vroom)
@@ -101,13 +96,13 @@ mun2014 <- vroom("https://data.regardscitoyens.org/elections/2014_municipales/MN
                  col_names = FALSE, 
                  locale = locale(encoding = "WINDOWS-1252"), altrep = FALSE) 
 bench::workout({
-  a <- mun2014 %>% group_by_if( is.character )
-  b <- a %>% summarise_if( is.numeric, sum ) 
+  a <- mun2014 %>% group_by_if(is.character)
+  b <- a %>% summarise_if(is.numeric, sum)
 })
 
 bench::workout({
-  c <- mun2014 %>% group_by( across(where(is.character)))
-  d <- c %>% summarise( across(where(is.numeric), sum) ) 
+  c <- mun2014 %>% group_by(across(where(is.character)))
+  d <- c %>% summarise(across(where(is.numeric), sum)) 
 })
 ```
 

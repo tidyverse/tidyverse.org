@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [dplyr]
-rmd_hash: 2557bdb903324d34
+rmd_hash: d62f5444a9c8fef1
 
 ---
 
@@ -117,9 +117,7 @@ Although [`if_all()`](https://dplyr.tidyverse.org/reference/across.html) and [`i
 Faster across()
 ---------------
 
-One net benefit of [`across()`](https://dplyr.tidyverse.org/reference/across.html) is that it supersedes a collection of functions, namely the column wise set of functions ([`summarise_at()`](https://dplyr.tidyverse.org/reference/summarise_all.html) ...). However, up until the previous release, this came with a cost in terms of performance.
-
-In the 1.0.4 release, we have redesigned [`across()`](https://dplyr.tidyverse.org/reference/across.html) to perform better by doing less when possible. With these improvements, using [`across()`](https://dplyr.tidyverse.org/reference/across.html) within [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) or [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) has the same performance as the relevant column wise version.
+One of the main motivations for across() was eliminating the need for every verb to have a `_at`, `_if`, and `_all` variant. Unfortunately, however, this came with a performance cost. In this release, we have redesigned [`across()`](https://dplyr.tidyverse.org/reference/across.html) to eliminate that problem when possible.
 
 <div class="highlight">
 
@@ -138,25 +136,25 @@ In the 1.0.4 release, we have redesigned [`across()`](https://dplyr.tidyverse.or
 <span class='c'>#&gt; <span style='color: #555555;'>Use `spec()` to retrieve the guessed column specification</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>Pass a specification to the `col_types` argument to quiet this message</span></span>
 <span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/workout.html'>workout</a></span><span class='o'>(</span><span class='o'>&#123;</span>
-  <span class='nv'>a</span> <span class='o'>&lt;-</span> <span class='nv'>mun2014</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by_all.html'>group_by_if</a></span><span class='o'>(</span> <span class='nv'>is.character</span> <span class='o'>)</span>
-  <span class='nv'>b</span> <span class='o'>&lt;-</span> <span class='nv'>a</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise_all.html'>summarise_if</a></span><span class='o'>(</span> <span class='nv'>is.numeric</span>, <span class='nv'>sum</span> <span class='o'>)</span> 
+  <span class='nv'>a</span> <span class='o'>&lt;-</span> <span class='nv'>mun2014</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by_all.html'>group_by_if</a></span><span class='o'>(</span><span class='nv'>is.character</span><span class='o'>)</span>
+  <span class='nv'>b</span> <span class='o'>&lt;-</span> <span class='nv'>a</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise_all.html'>summarise_if</a></span><span class='o'>(</span><span class='nv'>is.numeric</span>, <span class='nv'>sum</span><span class='o'>)</span>
 <span class='o'>&#125;</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                       process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                 </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    191ms    193ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      855ms    858ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    181ms    181ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      804ms    805ms</span></span>
 
 <span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/workout.html'>workout</a></span><span class='o'>(</span><span class='o'>&#123;</span>
-  <span class='nv'>c</span> <span class='o'>&lt;-</span> <span class='nv'>mun2014</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='o'>(</span><span class='nf'>where</span><span class='o'>(</span><span class='nv'>is.character</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
-  <span class='nv'>d</span> <span class='o'>&lt;-</span> <span class='nv'>c</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='o'>(</span><span class='nf'>where</span><span class='o'>(</span><span class='nv'>is.numeric</span><span class='o'>)</span>, <span class='nv'>sum</span><span class='o'>)</span> <span class='o'>)</span> 
+  <span class='nv'>c</span> <span class='o'>&lt;-</span> <span class='nv'>mun2014</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='o'>(</span><span class='nf'>where</span><span class='o'>(</span><span class='nv'>is.character</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
+  <span class='nv'>d</span> <span class='o'>&lt;-</span> <span class='nv'>c</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='o'>(</span><span class='nf'>where</span><span class='o'>(</span><span class='nv'>is.numeric</span><span class='o'>)</span>, <span class='nv'>sum</span><span class='o'>)</span><span class='o'>)</span> 
 <span class='o'>&#125;</span><span class='o'>)</span>
 <span class='c'>#&gt; `summarise()` has grouped output by 'X2', 'X3', 'X5'. You can override using the `.groups` argument.</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                                   process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                             </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    187ms    187ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      745ms    746ms</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    153ms    154ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      597ms    598ms</span></span></code></pre>
 
 </div>
 
