@@ -15,23 +15,21 @@ photo:
 
 categories: [package] 
 tags: [dplyr]
-rmd_hash: 127345e09f382bfa
+rmd_hash: 48561d362b6f9371
 
 ---
 
 We're happy to announce the release of [dplyr](https://dplyr.tidyverse.org) 1.0.4. dplyr is the data manipulation package of the [tidyverse](https://www.tidyverse.org).
 
-This release dramatically improves the performance of [`across()`](https://dplyr.tidyverse.org/reference/across.html) and introduces the new functions [`if_all()`](https://dplyr.tidyverse.org/reference/across.html) and [`if_any()`](https://dplyr.tidyverse.org/reference/across.html) as companions to [`filter()`](https://dplyr.tidyverse.org/reference/filter.html). You can install it from CRAN with:
+This blog post will discuss the highlights of dplyr 1.0.4, which introduces the new functions [`if_all()`](https://dplyr.tidyverse.org/reference/across.html) and [`if_any()`](https://dplyr.tidyverse.org/reference/across.html) as companions to [`filter()`](https://dplyr.tidyverse.org/reference/filter.html), and dramatically improves the performance of [`across()`](https://dplyr.tidyverse.org/reference/across.html). You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
+
+You can install it from CRAN with:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"dplyr"</span><span class='o'>)</span></code></pre>
 
 </div>
-
-This blog post will discuss the two most important changes of the 1.0.4 release: the new [`if_any()`](https://dplyr.tidyverse.org/reference/across.html) and [`if_all()`](https://dplyr.tidyverse.org/reference/across.html) functions, and performance improvements for [`across()`](https://dplyr.tidyverse.org/reference/across.html).
-
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
 
 <div class="highlight">
 
@@ -146,8 +144,8 @@ In the 1.0.4 release, we have redesigned [`across()`](https://dplyr.tidyverse.or
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                       process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                 </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    187ms    187ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      843ms    844ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    161ms    161ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      818ms    819ms</span></span>
 
 <span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/workout.html'>workout</a></span><span class='o'>(</span><span class='o'>&#123;</span>
   <span class='nv'>c</span> <span class='o'>&lt;-</span> <span class='nv'>mun2014</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='o'>(</span><span class='nf'>where</span><span class='o'>(</span><span class='nv'>is.character</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
@@ -157,8 +155,8 @@ In the 1.0.4 release, we have redesigned [`across()`](https://dplyr.tidyverse.or
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                                   process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                             </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    203ms    203ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      752ms    753ms</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    179ms    179ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      714ms    715ms</span></span></code></pre>
 
 </div>
 
