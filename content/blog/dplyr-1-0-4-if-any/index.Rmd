@@ -43,11 +43,8 @@ a successful addition to dplyr. In case you missed it, `across()` lets you
 conveniently express a set of actions to be performed across a tidy selection 
 of columns. 
 
-However useful `across()` may be within `summarise()` and `mutate()`, we discovered
-that it is not optimal in the context of `filter()`, and is not sufficient in itself 
-to replace the set of column wise `filter()` variant it meant to supersede. 
-
-To fill the gap, we're introducing the two functions `if_all()` and `if_any()`. Let's 
+`across()` is very useful within `summarise()` and `mutate()`, but it can be confusing when used in `filter()` because it is not clear how the results can be combined into one logical vector. 
+So to fill the gap, we're introducing two new functions `if_all()` and `if_any()`. Let's 
 directly dive in to an example: 
 
 ```{r}
@@ -57,9 +54,11 @@ big <- function(x) {
   x > mean(x, na.rm = TRUE)
 }
 
+# keep rows if all the selected columns are "big"
 penguins %>% 
   filter(if_all(contains("bill"), big))
 
+# keep rows where at least one of the columns is "big"
 penguins %>% 
   filter(if_any(contains("bill"), big))
 ```

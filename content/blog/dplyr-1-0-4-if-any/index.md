@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [dplyr]
-rmd_hash: 61552e5d71fd2586
+rmd_hash: 2557bdb903324d34
 
 ---
 
@@ -42,9 +42,7 @@ if\_any() and if\_all()
 
 The new [`across()`](https://dplyr.tidyverse.org/reference/across.html) function introduced as part of [dplyr 1.0.0](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/) is proving to be a successful addition to dplyr. In case you missed it, [`across()`](https://dplyr.tidyverse.org/reference/across.html) lets you conveniently express a set of actions to be performed across a tidy selection of columns.
 
-However useful [`across()`](https://dplyr.tidyverse.org/reference/across.html) may be within [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) and [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html), we discovered that it is not optimal in the context of [`filter()`](https://dplyr.tidyverse.org/reference/filter.html), and is not sufficient in itself to replace the set of column wise [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) variant it meant to supersede.
-
-To fill the gap, we're introducing the two functions [`if_all()`](https://dplyr.tidyverse.org/reference/across.html) and [`if_any()`](https://dplyr.tidyverse.org/reference/across.html). Let's directly dive in to an example:
+[`across()`](https://dplyr.tidyverse.org/reference/across.html) is very useful within [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) and [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html), but it can be confusing when used in [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) because it is not clear how the results can be combined into one logical vector. So to fill the gap, we're introducing two new functions [`if_all()`](https://dplyr.tidyverse.org/reference/across.html) and [`if_any()`](https://dplyr.tidyverse.org/reference/across.html). Let's directly dive in to an example:
 
 <div class="highlight">
 
@@ -54,6 +52,7 @@ To fill the gap, we're introducing the two functions [`if_all()`](https://dplyr.
   <span class='nv'>x</span> <span class='o'>&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>x</span>, na.rm <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span>
 <span class='o'>&#125;</span>
 
+<span class='c'># keep rows if all the selected columns are "big"</span>
 <span class='nv'>penguins</span> <span class='o'>%&gt;%</span> 
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>if_all</a></span><span class='o'>(</span><span class='nf'><a href='https://tidyselect.r-lib.org/reference/starts_with.html'>contains</a></span><span class='o'>(</span><span class='s'>"bill"</span><span class='o'>)</span>, <span class='nv'>big</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 61 x 8</span></span>
@@ -71,6 +70,7 @@ To fill the gap, we're introducing the two functions [`if_all()`](https://dplyr.
 <span class='c'>#&gt; <span style='color: #555555;'>10</span><span> Chinst… Dream            51.3          19.2              193        </span><span style='text-decoration: underline;'>3</span><span>650</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 51 more rows, and 2 more variables: sex </span><span style='color: #555555;font-style: italic;'>&lt;fct&gt;</span><span style='color: #555555;'>, year </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span></span>
 
+<span class='c'># keep rows where at least one of the columns is "big"</span>
 <span class='nv'>penguins</span> <span class='o'>%&gt;%</span> 
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>if_any</a></span><span class='o'>(</span><span class='nf'><a href='https://tidyselect.r-lib.org/reference/starts_with.html'>contains</a></span><span class='o'>(</span><span class='s'>"bill"</span><span class='o'>)</span>, <span class='nv'>big</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 296 x 8</span></span>
@@ -144,8 +144,8 @@ In the 1.0.4 release, we have redesigned [`across()`](https://dplyr.tidyverse.or
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                       process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                 </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    166ms    166ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      802ms    802ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    191ms    193ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      855ms    858ms</span></span>
 
 <span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/workout.html'>workout</a></span><span class='o'>(</span><span class='o'>&#123;</span>
   <span class='nv'>c</span> <span class='o'>&lt;-</span> <span class='nv'>mun2014</span> <span class='o'>%&gt;%</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='o'>(</span><span class='nf'>where</span><span class='o'>(</span><span class='nv'>is.character</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
@@ -155,8 +155,8 @@ In the 1.0.4 release, we have redesigned [`across()`](https://dplyr.tidyverse.or
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                                   process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                             </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    170ms    171ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      749ms    751ms</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    187ms    187ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      745ms    746ms</span></span></code></pre>
 
 </div>
 
