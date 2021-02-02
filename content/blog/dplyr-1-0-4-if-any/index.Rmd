@@ -85,9 +85,12 @@ every verb to have a `_at`, `_if`, and `_all` variant. Unfortunately, however, t
 ```{r}
 library(vroom)
 
-mun2014 <- vroom("https://data.regardscitoyens.org/elections/2014_municipales/MN14_Bvot_T1_01-49.txt", 
-                 col_select = -c('X4','X9','X10','X11'), col_types = list(), col_names = FALSE, 
-                 locale = locale(encoding = "WINDOWS-1252"), altrep = FALSE) 
+mun2014 <- vroom(
+  "https://data.regardscitoyens.org/elections/2014_municipales/MN14_Bvot_T1_01-49.txt", 
+  col_select = -c('X4','X9','X10','X11'), col_types = list(), col_names = FALSE, 
+  locale = locale(encoding = "WINDOWS-1252"), altrep = FALSE
+) 
+
 bench::workout({
   a <- mun2014 %>% group_by_if(is.character)
   b <- a %>% summarise_if(is.numeric, sum)
