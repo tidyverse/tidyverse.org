@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [dplyr]
-rmd_hash: 75e60c6254db0e7e
+rmd_hash: 4382e90bbd5682ac
 
 ---
 
@@ -40,7 +40,7 @@ if\_any() and if\_all()
 
 The new `across()` function introduced as part of [dplyr 1.0.0](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/) is proving to be a successful addition to dplyr. In case you missed it, `across()` lets you conveniently express a set of actions to be performed across a tidy selection of columns.
 
-`across()` is very useful within `summarise()` and `mutate()`, but it can be confusing when used in [`filter()`](https://rdrr.io/r/stats/filter.html) because it is not clear how the results can be combined into one logical vector. So to fill the gap, we're introducing two new functions `if_all()` and `if_any()`. Let's directly dive in to an example:
+`across()` is very useful within `summarise()` and `mutate()`, but it's hard to use it with [`filter()`](https://rdrr.io/r/stats/filter.html) because it is not clear how the results would be combined into one logical vector. So to fill the gap, we're introducing two new functions `if_all()` and `if_any()`. Let's directly dive in to an example:
 
 <div class="highlight">
 
@@ -90,7 +90,7 @@ The new `across()` function introduced as part of [dplyr 1.0.0](https://www.tidy
 
 Both functions operate similarly to `across()` but go the extra mile of aggregating the results to indicate if *all* the results are true when using `if_all()`, or if *at least one* is true when using `if_any()`.
 
-Although `if_all()` and `if_any()` were designed with [`filter()`](https://rdrr.io/r/stats/filter.html) in mind, we [then discovered](https://github.com/tidyverse/dplyr/issues/5709) that they can also be useful within `mutate()` and/or `summarise()`.
+Although `if_all()` and `if_any()` were designed with [`filter()`](https://rdrr.io/r/stats/filter.html) in mind, we [then discovered](https://github.com/tidyverse/dplyr/issues/5709) that they can also be useful within `mutate()` and/or `summarise()`:
 
 <div class="highlight">
 
@@ -115,24 +115,15 @@ Although `if_all()` and `if_any()` were designed with [`filter()`](https://rdrr.
 Faster across()
 ---------------
 
-One of the main motivations for across() was eliminating the need for every verb to have a `_at`, `_if`, and `_all` variant. Unfortunately, however, this came with a performance cost. In this release, we have redesigned `across()` to eliminate that problem when possible.
+One of the main motivations for across() was eliminating the need for every verb to have a `_at`, `_if`, and `_all` variant. Unfortunately, however, this came with a performance cost. In this release, we have redesigned `across()` to eliminate that performance penalty in many cases. In the following example, you can now see that the old and new approaches take the same amount of time.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://vroom.r-lib.org'>vroom</a></span><span class='o'>)</span>
 
 <span class='nv'>mun2014</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://vroom.r-lib.org/reference/vroom.html'>vroom</a></span><span class='o'>(</span><span class='s'>"https://data.regardscitoyens.org/elections/2014_municipales/MN14_Bvot_T1_01-49.txt"</span>, 
-                 col_select <span class='o'>=</span> <span class='o'>-</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>'X4'</span>,<span class='s'>'X9'</span>,<span class='s'>'X10'</span>,<span class='s'>'X11'</span><span class='o'>)</span>,
-                 col_names <span class='o'>=</span> <span class='kc'>FALSE</span>, 
+                 col_select <span class='o'>=</span> <span class='o'>-</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>'X4'</span>,<span class='s'>'X9'</span>,<span class='s'>'X10'</span>,<span class='s'>'X11'</span><span class='o'>)</span>, col_types <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='o'>)</span>, col_names <span class='o'>=</span> <span class='kc'>FALSE</span>, 
                  locale <span class='o'>=</span> <span class='nf'><a href='https://vroom.r-lib.org/reference/locale.html'>locale</a></span><span class='o'>(</span>encoding <span class='o'>=</span> <span class='s'>"WINDOWS-1252"</span><span class='o'>)</span>, altrep <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span> 
-<span class='c'>#&gt; <span style='font-weight: bold;'>Rows:</span><span> 275,446</span></span>
-<span class='c'>#&gt; <span style='font-weight: bold;'>Columns:</span><span> 9</span></span>
-<span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span><span> ";"</span></span>
-<span class='c'>#&gt; <span style='color: #BB0000;'>chr</span><span> [4]: X2, X3, X5, X12</span></span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span><span> [5]: X1, X6, X7, X8, X13</span></span>
-<span class='c'>#&gt; </span>
-<span class='c'>#&gt; <span style='color: #555555;'>Use `spec()` to retrieve the guessed column specification</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>Pass a specification to the `col_types` argument to quiet this message</span></span>
 <span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/workout.html'>workout</a></span><span class='o'>(</span><span class='o'>&#123;</span>
   <span class='nv'>a</span> <span class='o'>&lt;-</span> <span class='nv'>mun2014</span> <span class='o'>%&gt;%</span> <span class='nf'>group_by_if</span><span class='o'>(</span><span class='nv'>is.character</span><span class='o'>)</span>
   <span class='nv'>b</span> <span class='o'>&lt;-</span> <span class='nv'>a</span> <span class='o'>%&gt;%</span> <span class='nf'>summarise_if</span><span class='o'>(</span><span class='nv'>is.numeric</span>, <span class='nv'>sum</span><span class='o'>)</span>
@@ -140,8 +131,8 @@ One of the main motivations for across() was eliminating the need for every verb
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                       process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                 </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    159ms    159ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      875ms    877ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    158ms    158ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      845ms    846ms</span></span>
 
 <span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/workout.html'>workout</a></span><span class='o'>(</span><span class='o'>&#123;</span>
   <span class='nv'>c</span> <span class='o'>&lt;-</span> <span class='nv'>mun2014</span> <span class='o'>%&gt;%</span> <span class='nf'>group_by</span><span class='o'>(</span><span class='nf'>across</span><span class='o'>(</span><span class='nf'>where</span><span class='o'>(</span><span class='nv'>is.character</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
@@ -151,8 +142,8 @@ One of the main motivations for across() was eliminating the need for every verb
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                                   process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                             </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    186ms    186ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      723ms    724ms</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    163ms    163ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      745ms    746ms</span></span></code></pre>
 
 </div>
 
