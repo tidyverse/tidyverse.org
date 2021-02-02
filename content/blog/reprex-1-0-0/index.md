@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [reprex,tidyverse]
-rmd_hash: fef03cd5bc60f6de
+rmd_hash: 622d27ac98e0c916
 
 ---
 
@@ -123,7 +123,7 @@ We've added `venue`-specific convenience wrappers. Instead of `reprex(..., venue
 
 Stack Overflow now supports fenced code blocks, which means that the `"so"` venue is no longer necessary. You can still request it, but it's just an alias for the default GitHub (`"gh"`) venue and we're going to tell you that every time you do it.
 
-The experimental-but-oh-so-handy `venue = "rtf"` now works about as well on Windows as it does on macOS. It is experimental (and shall remain so) because we still shell out to the [highlight command line tool](http://www.andre-simon.de/doku/highlight/en/highlight.php), the installation of which is left as an exercise for the motivated user. This is a great way to get (un)rendered, syntax-highlighted code snippets into applications like PowerPoint, Keynote, and Word, when you aren't generating the whole document with R Markdown. This special `"venue"` is documented in [its own article](https://reprex.tidyverse.org/articles/articles/rtf.html).
+The experimental-but-oh-so-handy `venue = "rtf"` now works about as well on Windows as it does on macOS. It is experimental (and shall remain so) because we still shell out to the [highlight command line tool](http://www.andre-simon.de/doku/highlight/en/highlight.php), the installation of which is left as an exercise for the motivated user. This is a great way to get (un)rendered, syntax-highlighted code snippets into applications like PowerPoint, Keynote, and Word, when you aren't generating the whole document with R Markdown. This special `venue` is documented in [its own article](https://reprex.tidyverse.org/articles/articles/rtf.html).
 
 ### Internal changes
 
