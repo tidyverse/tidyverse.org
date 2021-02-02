@@ -3,7 +3,7 @@ output: hugodown::md_document
 
 slug: dplyr-1-0-4-if-any
 title: "dplyr 1.0.4: if_any() and if_all()"
-date: 2021-02-01
+date: 2021-02-02
 author: Romain Francois
 description: >
     Minor release with major performance improvements for `across()` and 
@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [dplyr]
-rmd_hash: 4382e90bbd5682ac
+rmd_hash: ddddff1908befa90
 
 ---
 
@@ -131,8 +131,8 @@ One of the main motivations for across() was eliminating the need for every verb
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                       process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                 </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    158ms    158ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      845ms    846ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> a &lt;- mun2014 %&gt;% group_by_if(is.character)    152ms    152ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> b &lt;- a %&gt;% summarise_if(is.numeric, sum)      850ms    851ms</span></span>
 
 <span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/workout.html'>workout</a></span><span class='o'>(</span><span class='o'>&#123;</span>
   <span class='nv'>c</span> <span class='o'>&lt;-</span> <span class='nv'>mun2014</span> <span class='o'>%&gt;%</span> <span class='nf'>group_by</span><span class='o'>(</span><span class='nf'>across</span><span class='o'>(</span><span class='nf'>where</span><span class='o'>(</span><span class='nv'>is.character</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
@@ -142,8 +142,8 @@ One of the main motivations for across() was eliminating the need for every verb
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 3</span></span>
 <span class='c'>#&gt;   exprs                                                   process     real</span>
 <span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;bch:expr&gt;</span><span>                                             </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;bch:tm&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    163ms    163ms</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      745ms    746ms</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> c &lt;- mun2014 %&gt;% group_by(across(where(is.character)))    174ms    174ms</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> d &lt;- c %&gt;% summarise(across(where(is.numeric), sum))      753ms    754ms</span></span></code></pre>
 
 </div>
 
