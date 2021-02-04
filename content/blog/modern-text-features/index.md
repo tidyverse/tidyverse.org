@@ -233,7 +233,7 @@ Where's the catch
 
 Most of what we have shown today simply works automagically and may (depending on your prior frustrations with script support in R) seem too good to be true. Is there any catch? Not really. systemfonts, textshaping, and ragg tries to be as smart as possible about text shaping and only take additional action if required. Further everything is heavily cached. Any hit on performance is thus negligible.
 
-There is something missing though, which we haven't touched upon. Not all scripts are LtR or RtL. A few, especially Asian scripts, are top-to-bottom. Top-to-bottom scripts are sadly not yet supported. This is not due to any limitation in the underlying shaping technology, but due to limitations in the R graphic engine, which assumes horizontal text in key places of the API. This means that until the graphic engine is updated it is outside the grasp of graphic engines to support vertical text. Hopefully, this is an area that will improve in the future.
+There is something missing though, which we haven't touched upon. Not all scripts are LtR or RtL. A few, especially Asian scripts, are top-to-bottom. Top-to-bottom scripts are sadly not yet supported. This is not due to any limitation in the underlying shaping technology, but due to limitations in the R graphic engine, which assumes horizontal text in key places of the API. This means that until the graphic engine is updated it is outside the grasp of graphic devices to support vertical text. Hopefully, this is an area that will improve in the future.
 
 Wrapping up
 -----------
