@@ -1,0 +1,304 @@
+---
+output: hugodown::hugo_document
+
+slug: modern-text-features
+title: Modern Text Features in R
+date: 2021-02-06
+author: Thomas Lin Pedersen
+description: >
+  ragg has taken a major leap forward in text rendering capabilities with the
+  latest releases of systemfonts, textshaping, and ragg itself. This post will
+  go into detail with what is now possible and how it compares to the build in 
+  devices.
+
+photo:
+  url: https://unsplash.com/photos/bMybTSV7RFY
+  author: Natalia Y
+
+# one of: "deep-dive", "learn", "package", "programming", or "other"
+categories: [deep-dive] 
+tags: []
+---
+
+I'm extremely pleased to present some new functionality when it comes to text rendering and font support in R.
+This is the culmination of work that started during the development of the ragg package where I was first exposed to the intricacies of text rendering.
+The new features presented herein spans the systemfonts, textshaping, and ragg packages, but from a user point of view everything will be available simply by using the graphic devices in ragg.
+
+The features that will be discussed in the following are:
+
+1.  Support for non-Latin scripts including Right-to-Left (RtL) scripts as well as a mix between script directions (bidirectional text)
+2.  Support for OpenType features such as ligatures, glyph substitutions, etc.
+3.  Support for color fonts
+4.  Support for font fallback
+
+The tl;dr of it is that all area mentioned above now has full support in ragg out of the box, but I'd invite you to read on to learn how it works, how to control it, and what it all means for you as a user.
+
+```{r, include=FALSE}
+library(ggplot2)
+preview_devices <- function(p, title, width = 2, height = 1) {
+  os <- "macOS"
+  quartz_file <- paste0("figs/", title, "_", os, "_", "quartz.png")
+  if (!dir.exists("figs")) dir.create("figs")
+  png(quartz_file, width, height, units = 'in', res = 300, type = "quartz")
+  plot(
+    p + 
+      ggtitle(paste0("Quartz device (", os, ")")) + 
+      theme(plot.title = element_text(size = 8, hjust = 0.5), plot.title.position = 'plot')
+  )
+  dev.off()
+  cairo_file <- paste0("figs/", title, "_", os, "_", "cairo.png")
+  png(cairo_file, width, height, units = 'in', res = 300, type = "cairo")
+  plot(
+    p + 
+      ggtitle(paste0("Cairo device (", os, ")")) + 
+      theme(plot.title = element_text(size = 8, hjust = 0.5), plot.title.position = 'plot')
+  )
+  dev.off()
+  ragg_file <- paste0("figs/", title, "_", os, "_", "ragg.png")
+  ragg::agg_png(ragg_file, width, height, units = 'in', res = 300)
+  plot(
+    p + 
+      ggtitle(paste0("Ragg device (", os, ")")) + 
+      theme(plot.title = element_text(size = 8, hjust = 0.5), plot.title.position = 'plot')
+  )
+  invisible(dev.off())
+}
+get_results <- function(name) {
+  files <- sort(list.files("figs", pattern = name))
+  files <- files[order(grepl('ragg', files), decreasing = TRUE)]
+  files <- c(
+    grep("macOS", files, value = TRUE),
+    grep("Windows", files, value = TRUE),
+    grep("Linux", files, value = TRUE)
+  )
+  cat(paste(paste0("<img src=\"figs/", files, "\" width=\"33%\" style=\"display: inline;\">"), collapse = ""))
+}
+theme_set(theme_void() + theme(panel.background = element_rect('gray90', NA), plot.margin = margin(0, 2, 2, 2)))
+```
+
+## Advanced script support
+
+English, being the lingua franca of programming, has generally dominated everything related to text within programming, ranging from encoding to rendering.
+Because of this, the Latin script, which is used in most of the western world, has been the best (or often only) supported script in many text rendering pipelines.
+This has also been true in the R world where the build-in graphic devices has struggled to display scripts that differed from the standard Latin layout (the Cairo devices on Linux being the exception as we will see).
+This is not a jab at the provided graphic devices.
+ragg has handled text rendering in the exact same way up until now and the work that has gone into changing it has not been trivial.
+Technicalities aside, it is about time (overdue, actually) that the graphic system in R begins to support the display of non-Latin script and becomes more inclusive in terms of which languages can be used.
+It is thus with great joy that I can finally support it in ragg.
+
+### Right-to-Left scripts
+
+To start off we will look at a sample of different scripts that poses a problem due to their direction.
+
+```{r, eval=FALSE}
+arabic_text <- "هذا مكتوب باللغة العربية"
+hebrew_text <- "זה כתוב בעברית"
+sindhi_text <- "هي سنڌيءَ ۾ لکيو ويو آهي"
+
+p <- ggplot() + 
+  geom_text(
+    aes(x = 0, y = 3:1, label = c(arabic_text, hebrew_text, sindhi_text)), 
+    family = "Arial"
+  ) + 
+  expand_limits(y = c(0, 4))
+
+preview_devices(p, "rtl_example")
+```
+
+```{r, echo=FALSE, results='asis'}
+get_results("rtl_example")
+```
+
+As can be seen above the text support in ragg "just works".
+How is that?
+Shouldn't we have to indicate which kind of script we want to use?
+This is not necessary due to the genius of the Unicode standard which relates characters to specific scripts.
+The script, and by extension the layout, can thus simply be deduced from the provided string without needing to specify any additional information.
+One other device handles this task well, namely the Cairo device on Linux.
+How come this works, but only on one OS (Cairo on macOS and Windows performs as bad as the other native devices)?
+Cairo is a fundamental library of many Linux distributions and is usually build on top of the Pango library which handles text layouting on Linux.
+It thus have access to OS level text rendering when used on Linux, but not on the other major platforms.
+
+### Bidirectional text
+
+In the case of a mix of scripts, most importantly a mix of scripts with different direction, the string needs to be split based on the bidirectional algorithm (also defined in the Unicode standard) and each script run should then be laid out individually and combined in the end.
+
+```{r, eval=FALSE}
+bidi_text <- "The Hebrew (עִברִית) script\nis right-to-left"
+
+p <- ggplot() + 
+  geom_text(
+    aes(x = 0, y = 0, label = bidi_text), 
+    family = "Arial"
+  )
+
+preview_devices(p, "bidi_example")
+```
+
+```{r, echo=FALSE, results='asis'}
+get_results("bidi_example")
+```
+
+It comes as no surprise that the devices that struggle with RtL scripts also fail when these are mixed with Left-to-Right (LtR), so the point here is mainly that ragg (and Cairo on Linux) supports this additional complication with no additional work on the user.
+
+### Scripts with special consideration
+
+While some scripts are simple in the sense that only the text direction needs to be reversed (e.g. Hebrew), others are more demanding of the layout algorithm.
+Arabic, for example, is not only a RtL script but also relies heavily on ligatures (substitution of multiple glyphs with a single one) and position adjustments to achieve the correct look of the text.
+Such information is not encoded in the text string but are instead rules encoded in the font used to render it.
+Correctly laying out a string will thus require both figuring out the script to use, as well as converting the characters in the string to the correct set of glyphs to use based on substitution tables found in the font file.
+This is not straightforward, but is being handled in ragg (and Cairo on Linux) as they both build upon the HarfBuzz library to lay out text.
+
+## Advanced font feature support
+
+As noted above, part of supporting some scripts is to have support for ligatures.
+While ligatures is a requirement for the correct rendering of some scripts it is also an optional feature of fonts in general to support different text variations.
+More generally, the OpenType font format describes a long range of features, many optional, that defines specific glyph substitutions (both one-to-one and many-to-one) or position adjustments that can be turned on or off and will affect the look of the final rendered text.
+Some of these features are turned on automatically for specific scripts (e.g. required ligatures for Arabic), while others are left for the user to turn on at their discretion (e.g. tabular numerics).
+As part of the work to add support for non-Latin scripts the infrastructure to support all OpenType features was build.
+This, of course, requires that the font in use supports the requested feature.
+
+Some fonts uses ligatures as a main part of their appeal, and these will now work as advertised with ragg:
+
+```{r, eval=FALSE}
+code <- "x <- y != z"
+logo <- "twitter"
+p <- ggplot() + 
+  geom_text(
+    aes(x = 0, y = 2, label = code), 
+    family = "Fira Code"
+  ) + 
+  geom_text(
+    aes(x = 0, y = 1, label = logo), 
+    family = "Font Awesome 5 brands"
+  ) + 
+  expand_limits(y = c(0, 3))
+
+preview_devices(p, "def_features")
+```
+
+```{r, echo=FALSE, results='asis'}
+get_results("def_features")
+```
+
+But what about non-default features?
+The capabilities of the graphic engine in R presents a problem here.
+There is very little information that the user is able to sent along with the text to be plotted, apart from location and font (**bold** and *italic* on/off is the extend of it).
+So, having a device with support for advanced OpenType features in and off itself is nearly useless as there is no way to specify in your plot code that you want to turn a feature on or off.
+
+In order to get around this without dropping support for the standard ways one puts text in plots with R, systemfonts now allows you to register font features along with a font under a different name.
+The font registration mechanism was previously mostly used for giving access to fonts that were not installed on the system (but e.g. provided by a package), but its use has now expanded and a `register_variant()` function has been added to quickly create a new version of an existing font:
+
+```{r}
+library(systemfonts)
+register_variant(
+  name = "Montserrat Extreme", 
+  family = "Montserrat", 
+  weight = "semibold",
+  features = font_feature(ligatures = "discretionary", letters = "stylistic")
+)
+```
+
+The code above creates a new font based on Montserrat using a light weight and turning on standard ligatures and stylistic letter substitution.
+Now, in your text plotting code all you have to do is specify `"Montserrat Extreme"` as the font family and the features and weights will be used.
+It should be noted that there is no point in comparing with other devices here, since none of the others are build on top of systemfonts and will thus not have accessed to the registered font:
+
+```{r, dev="ragg_png", fig.asp=0.2}
+ggplot() + 
+  geom_text(
+    aes(x = 0, y = 1, label = "This text should definitely differ"),
+    family = "Montserrat"
+  ) + 
+  geom_text(
+    aes(x = 0, y = 0, label = "This text should definitely differ"),
+    family = "Montserrat Extreme"
+  ) + 
+  expand_limits(y = c(-1, 2))
+```
+
+We can see that by using this font registration we gain access to weights other than normal and bold, but also to glyph substitutions such as the "Th" ligature, and the stylistic variations seen with the "t", "f", "l", and "e" glyphs.
+
+While a lot of the optional OpenType features are mainly of interest to achieve a specific stylistic look of the rendered text, some have more importance for data visualizations, such as those related to how numbers are displayed.
+It is both possible to force even-width numbers, as well as correct display of fractional numbers using OpenType as long as the font supports it, so it is definitely something to look into when you want to add that final polish to your visualization.
+
+## Colour fonts
+
+A recent (in font technology terms) development is the availability of color fonts, i.e. fonts where the glyphs have designated colors.
+This development is largely driven by the ubiquity of emojis in modern text, and while it may seem that emojis have been around forever, it is recent enough that the world has yet to converge to a single standard for color fonts.
+The system emoji font on macOS, Windows, and Linux all uses different font technologies for storing the color glyphs, ranging from storing a single bitmap, to storing each glyph as an SVG.
+This, unsurprisingly, complicates things.
+To add insult to injury, emojis often gets rendered slightly larger than the surrounding text and with a slightly lowered baseline in a very OS-specific way (this does not apply to all color fonts; only emojis).
+
+Why am I telling you this?
+Well, honestly it is mostly to make you appreciate the labor that went into the fact that color fonts (and by extension, emojis) now just works.
+
+```{r, eval=FALSE}
+emojis <- "👩🏾‍💻🔥📊"
+
+p <- ggplot() + 
+  geom_label(
+    aes(x = 0, y = 0, label = emojis), 
+    family = "Apple Color Emoji"
+  )
+
+preview_devices(p, "emoji")
+```
+
+```{r, echo=FALSE, results='asis'}
+get_results("emoji")
+```
+
+As one can see the failures range from not being able to render anything, to rendering in monochrome.
+Further, it appears as if the devices have trouble figuring out the dimensions of the glyphs.
+One additional wrinkle is that some of the device capable of rendering in monochrome fails to get the correct emoji.
+This is because emojis relies heavily on ligatures, and the "dark-skinned woman at a computer" emoji is actually a ligature of the "woman", "dark skin" and "computer".
+
+## Font fallback
+
+In all of the above examples we have been very mindful in setting the font-face to a font that contains all the glyphs we need.
+This is not always practical, especially when one wants to mix emojis and regular text such as it is done normally.
+It is also an absolute requirement when mixing Latin and CJK (Chinese, Japanese, and Korean) text as it is unfeasible to include all CJK glyphs in a single font.
+However, we are used to things just working at the system level.
+No matter the font it seems that a glyph is always displayed.
+This is because the OS is employing font fallback, which is the act of figuring out an alternative font to use when a glyph is not present in the chosen font.
+Wouldn't it be great if we could have that in a graphic device?
+Well, now we have!
+
+```{r, eval=FALSE}
+fallback_text <- "This is English, この文は日本語です 🚀"
+
+p <- ggplot() + 
+  geom_text(aes(x = 0, y = 0, label = fallback_text), size = 2.5)
+
+preview_devices(p, "fallback")
+```
+
+```{r, echo=FALSE, results='asis'}
+get_results("fallback")
+```
+
+The bottom line is that with ragg, you now don't need to think about missing glyphs in any font you choose (unless you request a character that is not covered by any font on your system).
+
+## Where's the catch
+
+Most of what we have shown today simply works automagically and may (depending on your prior frustrations with script support in R) seem too good to be true.
+Is there any catch?
+Not really.
+systemfonts, textshaping, and ragg tries to be as smart as possible about text shaping and only take additional action if required.
+Further everything is heavily cached.
+Any hit on performance is thus negligible.
+
+There is something missing though, which we haven't touched upon.
+Not all scripts are LtR or RtL.
+A few, especially Asian scripts, are top-to-bottom.
+Top-to-bottom scripts are sadly not yet supported.
+This is not due to any limitation in the underlying shaping technology, but due to limitations in the R graphic engine, which assumes horizontal text in key places of the API.
+This means that until the graphic engine is updated it is outside the grasp of graphic engines to support vertical text.
+Hopefully, this is an area that will improve in the future.
+
+## Wrapping up
+
+I hope you'll appreciate the new features being described here.
+I'd like to thank everyone who have helped validate the text rendering on Twitter.
+A special thank goes out to Behdad Esfahbod (<http://behdad.org>) for his work on HarfBuzz, Fribidi, and almost everything else underlying modern font rendering.
+He has been especially gracious in his help and support.
