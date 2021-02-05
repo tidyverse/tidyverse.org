@@ -15,20 +15,19 @@ photo:
   author: Suzanne D. Williams
 
 categories: [package] 
-tags: [r-lib]
-rmd_hash: 10612cc14105f21b
+tags: [tidyverse]
+rmd_hash: a1911cf4eb291d42
 
 ---
 
 <!--
 TODO:
-* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Add intro sentence
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're exceedingly happy to announce the release of [lifecycle](http://lifecycle.r-lib.org/) 1.0.0. lifecycle is the package that we use to manage the lifecycle of functions and features within the tidyverse, and was the topic of my [rstudio::global() talk](https://rstudio.com/resources/rstudioglobal-2021/maintaining-the-house-the-tidyverse-built/):
+We're exceedingly happy to announce the release of [lifecycle](http://lifecycle.r-lib.org/) 1.0.0. The tidyverse team uses the lifecycle package to manage the lifecycle of functions and features within the tidyverse, letting you know what's still experimental and what we're moving away from in the future.
+
+If you're new to the lifecycle package, the best place to start is my [rstudio::global() talk](https://rstudio.com/resources/rstudioglobal-2021/maintaining-the-house-the-tidyverse-built/):
 
 <script src="https://fast.wistia.com/embed/medias/f7ph68edqb.jsonp" async></script>
 <script src="https://fast.wistia.com/assets/external/E-v1.js" async></script>
@@ -51,7 +50,15 @@ We're exceedingly happy to announce the release of [lifecycle](http://lifecycle.
 
 </div>
 
-While it's certainly possible for you to adopt the principles of the tidyverse lifecycle for your own package, most will experience the lifecycle
+Or if you'd prefer to read about it, the lifecycle package now contains three vignettes:
+
+-   [`vignette("stages")`](https://lifecycle.r-lib.org/articles/stages.html) describes the lifecycle stages so you know what it means for a function to be experimental, stable, deprecated, or superseded.
+
+-   [`vignette("manage")`](https://lifecycle.r-lib.org/articles/manage.html) shows you how to manage lifecycle changes in functions that you use.
+
+-   [`vignette("communicate")`](https://lifecycle.r-lib.org/articles/communicate.html) shows you how to communicate lifecycle changes in the functions you write. This documents exactly the process we follow when (e.g.) we deprecate a function.
+
+This release of the lifecycle 1.0.0 package includes a few other minor improvements, which you can read about in the release notes.
 
 ## Acknowledgements
 
