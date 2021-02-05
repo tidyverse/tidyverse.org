@@ -1,0 +1,121 @@
+---
+output: hugodown::hugo_document
+
+slug: dplyr-backends
+title: dplyr backends: multidplyr 0.1.0, dtplyr 1.1.0, dbplyr 2.1.0
+date: 2021-02-05
+author: Hadley Wickham
+description: >
+    We've recently released a bunch of improvements to dplyr backends.
+    multidplyr, which allows you to spread work across multiple cores, is
+    now on CRAN. dtplyr adds translations for functions added to dplyr 1.0.0,
+    as well as many bug fixes. dbplyr 2.1.0 includes translations for many
+    tidyr verbs and gains improved `across()` support. 
+
+photo:
+  url: https://unsplash.com/photos/n6vS3xlnsCc
+  author: Kelley Bozarth
+
+# one of: "deep-dive", "learn", "package", "programming", or "other"
+categories: [package] 
+tags: []
+---
+
+<!--
+TODO:
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We're thrilled to announce a passle of updates to our [dplyr](http://dplyr.tidyverse.org/) backends.
+One of my favourite things about dplyr is that it decouples the expression of data manipulation from its computation.
+That makes it possible to take basically the same dplyr code and execute it in radically different ways by using a different backend.
+This blog post covers some recent changes to the dplyr backends that we maintain:
+
+-   [multidplyr](https://multidplyr.tidyverse.org/) which spread computation over multiple R sessions running on different cores
+
+-   [dtplyr](https://dtplyr.tidyverse.org/) which executes your code using the wonderfully fast [data.table](https://r-datatable.com/) package.
+
+-   [dbplyr](https://dbplyr.tidyverse.org/) which converts your R code to SQL so it can be executed in database.
+
+All of the backends require dplyr to be loaded:
+
+```{r}
+library(dplyr, warn.conflicts = FALSE)
+```
+
+## multidplyr 0.1.0
+
+```{r, eval = FALSE}
+install.packages("multidplyr")
+```
+
+Create a four process cluster:
+
+```{r}
+library(multidplyr)
+cl <- new_cluster(4)
+```
+
+Alternatively, if you already have the data loaded in the main session, you can use `partition()` to automatically spread it across the workers.
+Before calling `partition()`, it's a good idea to call `group_by()` to ensure that all of the observations belonging to a group end up on the same worker.
+
+```{r}
+flight_dest <- nycflights13::flights %>% 
+  group_by(dest) %>% 
+  partition(cluster)
+flight_dest
+```
+
+Note the shards.
+
+Now you can work with it as usual, but any dplyr function will be executed on each worker individually.
+
+Once you're done, bring the results back into the current session.
+
+multidplyr is still fairly experimental, and there is some overhead transferring the commands to each individual worker.
+It's not a magic bullet.
+Best fit when the bottleneck is computational (e.g. fitting complex models).
+
+But try it out, report problems, and I'll circle back to it later and take another pass.
+
+## dtplyr 1.1.0
+
+```{r, eval = FALSE}
+install.packages("dtplyr")
+```
+
+Major documentation improvements so you can figure out exactly what is translated by looking [at the documentation](https://dtplyr.tidyverse.org/reference/index.html).
+
+Adds dplyr 1.0.0 translations:
+
+-   `across()`, `if_any()`, `if_all()` (\#154).
+-   `count()` (\#159).
+-   `relocate()` (\@smingerson, \#162).
+-   `rename_with()` (\#160)
+-   `slice_min()`, `slice_max()`, `slice_head()`, `slice_tail()`, and `slice_sample()` (\#174).
+
+Lots of other minor improvements and bug fixes that you can read about in the [release notes](https://github.com/tidyverse/dtplyr/releases/tag/v1.1.0).
+
+## dbplyr 2.1.0
+
+If you're new to using dplyr and SQL together, I highly recommend Ireve Steve's rstudio::global() talk ["The dynamic duo: SQL and R](https://rstudio.com/resources/rstudioglobal-2021/the-dynamic-duo-sql-and-r/). It discusses why you might want to use dbplyr to generate SQL *and* why you should still learn SQL.
+
+```{r, eval = FALSE}
+install.packages("dbplyr")
+```
+
+The biggest change to this release is the addition of many translations for tidyr verbs like `pivot_longer()`, `pivot_wider()`, `complete()`, `replace_na()` and more.
+These were contributed by [Maximilian Girlich](https://github.com/mgirlich), and in recognition of his sustained and substantial contributions to the package, he has been added to the authors.
+
+Major improvements to `across()` to support more common inputs.
+Most importantly you can now use it with formulas.
+
+You can see a full list of changes in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.1.0)
+
+## Acknowledgements
