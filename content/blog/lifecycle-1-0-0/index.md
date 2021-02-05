@@ -11,12 +11,12 @@ description: >
     keynote.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/VMKBFR6r_jg
+  author: Suzanne D. Williams
 
 categories: [package] 
 tags: [r-lib]
-rmd_hash: 5078291cf701eb9a
+rmd_hash: 10612cc14105f21b
 
 ---
 
@@ -24,14 +24,11 @@ rmd_hash: 5078291cf701eb9a
 TODO:
 * [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
 * [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [ ] Add intro sentence
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're exceedingly happy to announce the release of [lifecycle](http://lifecycle.r-lib.org/) 1.0.0. lifecycle is the package that we use to manage the lifecycle
+We're exceedingly happy to announce the release of [lifecycle](http://lifecycle.r-lib.org/) 1.0.0. lifecycle is the package that we use to manage the lifecycle of functions and features within the tidyverse, and was the topic of my [rstudio::global() talk](https://rstudio.com/resources/rstudioglobal-2021/maintaining-the-house-the-tidyverse-built/):
 
 <script src="https://fast.wistia.com/embed/medias/f7ph68edqb.jsonp" async></script>
 <script src="https://fast.wistia.com/assets/external/E-v1.js" async></script>
@@ -54,27 +51,7 @@ We're exceedingly happy to announce the release of [lifecycle](http://lifecycle.
 
 </div>
 
-You can install it from CRAN with:
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"&#123;package&#125;"</span><span class='o'>)</span></code></pre>
-
-</div>
-
-This blog post will ...
-
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://lifecycle.r-lib.org/'>lifecycle</a></span><span class='o'>)</span></code></pre>
-
-</div>
-
-## Topic 1
-
-## Topic 2
+While it's certainly possible for you to adopt the principles of the tidyverse lifecycle for your own package, most will experience the lifecycle
 
 ## Acknowledgements
 
