@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [deep-dive] 
 tags: []
-rmd_hash: 1d6fb362245a03bb
+rmd_hash: c239d02c76ac3d3b
 
 ---
 
@@ -35,8 +35,7 @@ The features that will be discussed in the following are:
 
 The tl;dr of it is that all area mentioned above now has full support in ragg out of the box, but I'd invite you to read on to learn how it works, how to control it, and what it all means for you as a user.
 
-Graphical tl;dr;
-----------------
+### Graphical tl;dr;
 
 With the new version of ragg you'll be able to render plots such as this and expect it to simply work:
 
