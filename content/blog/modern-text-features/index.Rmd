@@ -24,6 +24,10 @@ I'm extremely pleased to present some new functionality when it comes to text re
 This is the culmination of work that started during the development of the ragg package where I was first exposed to the intricacies of text rendering.
 The new features presented herein spans the systemfonts, textshaping, and ragg packages, but from a user point of view everything will be available simply by using the graphic devices in ragg.
 
+ragg is now in a state where it "just works", and works comparably across all major operating systems. 
+This is a first for a raster device in R and is the result of several years of dedicated work. 
+I couldn't be happier with this release!
+
 The features that will be discussed in the following are:
 
 1.  Support for non-Latin scripts including Right-to-Left (RtL) scripts as well as a mix between script directions (bidirectional text)
@@ -33,8 +37,60 @@ The features that will be discussed in the following are:
 
 The tl;dr of it is that all area mentioned above now has full support in ragg out of the box, but I'd invite you to read on to learn how it works, how to control it, and what it all means for you as a user.
 
-```{r, include=FALSE}
+## Graphical tl;dr;
+With the new version of ragg you'll be able to render plots such as this and expect it to simply work:
+
+```{r, dev="ragg_png", fig.asp=0.8}
 library(ggplot2)
+city_names <- c(
+  "Tokyo (東京)",
+  "Yokohama (横浜)",
+  "Osaka (大阪市)",
+  "Nagoya (名古屋市)",
+  "Sapporo (札幌市)",
+  "Kobe (神戸市)",
+  "Kyoto (京都市)",
+  "Fukuoka (福岡市)",
+  "Kawasaki (川崎市)",
+  "Saitama (さいたま市)"
+)
+main_cities <- data.frame(
+  name = city_names,
+  lat = c(35.690, 35.444, 34.694, 35.183, 43.067, 
+          34.69, 35.012, 33.583, 35.517, 35.861),
+  lon = c(139.692, 139.638, 135.502, 136.9, 141.35, 
+          135.196, 135.768, 130.4, 139.7, 139.646)
+)
+japan <- rnaturalearth::ne_countries(
+  scale = 10, 
+  country = "Japan", 
+  returnclass = "sf"
+)
+ggplot() + 
+  geom_sf(
+    data = japan, 
+    fill = "forestgreen", 
+    colour = "grey10", 
+    size = 0.2
+  ) + 
+  ggrepel::geom_label_repel(
+    aes(lon, lat, label = name), 
+    data = main_cities,
+    fill = "#FFFFFF88",
+    box.padding = unit(5, "mm")
+  ) + 
+  geom_point(aes(lon, lat), main_cities) +
+  ggtitle(
+    "Location of largest cities in Japan (日本) 🇯🇵"
+  ) +
+  theme_void() + 
+  theme(panel.background = element_rect("steelblue"),
+        plot.title = element_text(margin = margin(5, 0, 5, 0)))
+```
+
+Pay note to the effortless mix of text in English and Japanese, along with the inclusion of emojis in regular text strings. If this has piqued your interest, read on!
+
+```{r, include=FALSE}
 preview_devices <- function(p, title, width = 2, height = 1) {
   os <- "macOS"
   quartz_file <- paste0("figs/", title, "_", os, "_", "quartz.png")
@@ -59,7 +115,8 @@ preview_devices <- function(p, title, width = 2, height = 1) {
   plot(
     p + 
       ggtitle(paste0("Ragg device (", os, ")")) + 
-      theme(plot.title = element_text(size = 8, hjust = 0.5), plot.title.position = 'plot')
+      theme(plot.title = element_text(size = 8, hjust = 0.5), plot.title.position = 'plot',
+            plot.background = element_rect('honeydew', NA))
   )
   invisible(dev.off())
 }
@@ -71,9 +128,10 @@ get_results <- function(name) {
     grep("Windows", files, value = TRUE),
     grep("Linux", files, value = TRUE)
   )
+  files <- c(files[c(T, F, F)], files[c(F, T, F)], files[c(F, F, T)])
   cat(paste(paste0("<img src=\"figs/", files, "\" width=\"33%\" style=\"display: inline;\">"), collapse = ""))
 }
-theme_set(theme_void() + theme(panel.background = element_rect('gray90', NA), plot.margin = margin(0, 2, 2, 2)))
+theme_set(theme_void() + theme(panel.background = element_rect('gray95', NA), plot.margin = margin(0, 2, 2, 2)))
 ```
 
 ## Advanced script support
@@ -109,15 +167,21 @@ preview_devices(p, "rtl_example")
 get_results("rtl_example")
 ```
 
-As can be seen above the text support in ragg "just works".
+Now, if you are not trained in reading any of the three languages above it may be hard to see what is right and what is wrong.
+You may, however, look at how the text in the code is rendered in the browser and compare that to the device rendering. If you do that you can see that the Hebrew script is rendered in the wrong direction for all the non-ragg devices (except Cairo on Linux).
+For the other scripts it is less obvious that the direction is wrong since the text glyphs are fundamentally different due to ligature substitutions.
+Still, by comparing to the browser rendering you can see that the same devices failing on the Hebrew script fail here as well.
+A point to make is that all of this "just works" in ragg.
 How is that?
 Shouldn't we have to indicate which kind of script we want to use?
 This is not necessary due to the genius of the Unicode standard which relates characters to specific scripts.
 The script, and by extension the layout, can thus simply be deduced from the provided string without needing to specify any additional information.
-One other device handles this task well, namely the Cairo device on Linux.
+Cairo device on Linux handles this task well, as we have noted above.
 How come this works, but only on one OS (Cairo on macOS and Windows performs as bad as the other native devices)?
 Cairo is a fundamental library of many Linux distributions and is usually build on top of the Pango library which handles text layouting on Linux.
 It thus have access to OS level text rendering when used on Linux, but not on the other major platforms.
+The text rendering quality of the Cairo device on Linux is something that will be consistent through these examples and while it is very good, it is not fair to ask users to switch operating system to get modern font support.
+Even if you are already using Linux you'd have to accept that your output is not necessarily reproducible on other systems if you using the default device.
 
 ### Bidirectional text
 

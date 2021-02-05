@@ -18,11 +18,13 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [deep-dive] 
 tags: []
-rmd_hash: 2a57600c151181ef
+rmd_hash: ad37d91728e9e6d5
 
 ---
 
 I'm extremely pleased to present some new functionality when it comes to text rendering and font support in R. This is the culmination of work that started during the development of the ragg package where I was first exposed to the intricacies of text rendering. The new features presented herein spans the systemfonts, textshaping, and ragg packages, but from a user point of view everything will be available simply by using the graphic devices in ragg.
+
+ragg is now in a state where it "just works", and works comparably across all major operating systems. This is a first for a raster device in R and is the result of several years of dedicated work. I couldn't be happier with this release!
 
 The features that will be discussed in the following are:
 
@@ -32,6 +34,66 @@ The features that will be discussed in the following are:
 4.  Support for font fallback
 
 The tl;dr of it is that all area mentioned above now has full support in ragg out of the box, but I'd invite you to read on to learn how it works, how to control it, and what it all means for you as a user.
+
+Graphical tl;dr;
+----------------
+
+With the new version of ragg you'll be able to render plots such as this and expect it to simply work:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span><span class='o'>)</span>
+<span class='nv'>city_names</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span>
+  <span class='s'>"Tokyo (東京)"</span>,
+  <span class='s'>"Yokohama (横浜)"</span>,
+  <span class='s'>"Osaka (大阪市)"</span>,
+  <span class='s'>"Nagoya (名古屋市)"</span>,
+  <span class='s'>"Sapporo (札幌市)"</span>,
+  <span class='s'>"Kobe (神戸市)"</span>,
+  <span class='s'>"Kyoto (京都市)"</span>,
+  <span class='s'>"Fukuoka (福岡市)"</span>,
+  <span class='s'>"Kawasaki (川崎市)"</span>,
+  <span class='s'>"Saitama (さいたま市)"</span>
+<span class='o'>)</span>
+<span class='nv'>main_cities</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='o'>(</span>
+  name <span class='o'>=</span> <span class='nv'>city_names</span>,
+  lat <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>35.690</span>, <span class='m'>35.444</span>, <span class='m'>34.694</span>, <span class='m'>35.183</span>, <span class='m'>43.067</span>, 
+          <span class='m'>34.69</span>, <span class='m'>35.012</span>, <span class='m'>33.583</span>, <span class='m'>35.517</span>, <span class='m'>35.861</span><span class='o'>)</span>,
+  lon <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>139.692</span>, <span class='m'>139.638</span>, <span class='m'>135.502</span>, <span class='m'>136.9</span>, <span class='m'>141.35</span>, 
+          <span class='m'>135.196</span>, <span class='m'>135.768</span>, <span class='m'>130.4</span>, <span class='m'>139.7</span>, <span class='m'>139.646</span><span class='o'>)</span>
+<span class='o'>)</span>
+<span class='nv'>japan</span> <span class='o'>&lt;-</span> <span class='nf'>rnaturalearth</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/pkg/rnaturalearth/man/ne_countries.html'>ne_countries</a></span><span class='o'>(</span>
+  scale <span class='o'>=</span> <span class='m'>10</span>, 
+  country <span class='o'>=</span> <span class='s'>"Japan"</span>, 
+  returnclass <span class='o'>=</span> <span class='s'>"sf"</span>
+<span class='o'>)</span>
+<span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggsf.html'>geom_sf</a></span><span class='o'>(</span>
+    data <span class='o'>=</span> <span class='nv'>japan</span>, 
+    fill <span class='o'>=</span> <span class='s'>"forestgreen"</span>, 
+    colour <span class='o'>=</span> <span class='s'>"grey10"</span>, 
+    size <span class='o'>=</span> <span class='m'>0.2</span>
+  <span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'>ggrepel</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html'>geom_label_repel</a></span><span class='o'>(</span>
+    <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>lon</span>, <span class='nv'>lat</span>, label <span class='o'>=</span> <span class='nv'>name</span><span class='o'>)</span>, 
+    data <span class='o'>=</span> <span class='nv'>main_cities</span>,
+    fill <span class='o'>=</span> <span class='s'>"#FFFFFF88"</span>,
+    box.padding <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/grid/unit.html'>unit</a></span><span class='o'>(</span><span class='m'>5</span>, <span class='s'>"mm"</span><span class='o'>)</span>
+  <span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='o'>(</span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>lon</span>, <span class='nv'>lat</span><span class='o'>)</span>, <span class='nv'>main_cities</span><span class='o'>)</span> <span class='o'>+</span>
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle</a></span><span class='o'>(</span>
+    <span class='s'>"Location of largest cities in Japan (日本) 🇯🇵"</span>
+  <span class='o'>)</span> <span class='o'>+</span>
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_void</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='o'>(</span>panel.background <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_rect</a></span><span class='o'>(</span><span class='s'>"steelblue"</span><span class='o'>)</span>,
+        plot.title <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text</a></span><span class='o'>(</span>margin <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>margin</a></span><span class='o'>(</span><span class='m'>5</span>, <span class='m'>0</span>, <span class='m'>5</span>, <span class='m'>0</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
+
+</code></pre>
+<img src="figs/unnamed-chunk-1-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+Pay note to the effortless mix of text in English and Japanese, along with the inclusion of emojis in regular text strings. If this has piqued your interest, read on!
 
 Advanced script support
 -----------------------
@@ -62,11 +124,11 @@ To start off we will look at a sample of different scripts that poses a problem 
 
 <div class="highlight">
 
-<img src="figs/rtl_example_macOS_ragg.png" width="33%" style="display: inline;"><img src="figs/rtl_example_macOS_cairo.png" width="33%" style="display: inline;"><img src="figs/rtl_example_macOS_quartz.png" width="33%" style="display: inline;"><img src="figs/rtl_example_Windows_ragg.png" width="33%" style="display: inline;"><img src="figs/rtl_example_Windows_cairo.png" width="33%" style="display: inline;"><img src="figs/rtl_example_Windows_windows.png" width="33%" style="display: inline;"><img src="figs/rtl_example_Linux_ragg.png" width="33%" style="display: inline;"><img src="figs/rtl_example_Linux_cairo.png" width="33%" style="display: inline;">
+<img src="figs/rtl_example_macOS_ragg.png" width="33%" style="display: inline;"><img src="figs/rtl_example_Windows_ragg.png" width="33%" style="display: inline;"><img src="figs/rtl_example_Linux_ragg.png" width="33%" style="display: inline;"><img src="figs/rtl_example_macOS_cairo.png" width="33%" style="display: inline;"><img src="figs/rtl_example_Windows_cairo.png" width="33%" style="display: inline;"><img src="figs/rtl_example_Linux_cairo.png" width="33%" style="display: inline;"><img src="figs/rtl_example_macOS_quartz.png" width="33%" style="display: inline;"><img src="figs/rtl_example_Windows_windows.png" width="33%" style="display: inline;">
 
 </div>
 
-As can be seen above the text support in ragg "just works". How is that? Shouldn't we have to indicate which kind of script we want to use? This is not necessary due to the genius of the Unicode standard which relates characters to specific scripts. The script, and by extension the layout, can thus simply be deduced from the provided string without needing to specify any additional information. One other device handles this task well, namely the Cairo device on Linux. How come this works, but only on one OS (Cairo on macOS and Windows performs as bad as the other native devices)? Cairo is a fundamental library of many Linux distributions and is usually build on top of the Pango library which handles text layouting on Linux. It thus have access to OS level text rendering when used on Linux, but not on the other major platforms.
+Now, if you are not trained in reading any of the three languages above it may be hard to see what is right and what is wrong. You may, however, look at how the text in the code is rendered in the browser and compare that to the device rendering. If you do that you can see that the Hebrew script is rendered in the wrong direction for all the non-ragg devices (except Cairo on Linux). For the other scripts it is less obvious that the direction is wrong since the text glyphs are fundamentally different due to ligature substitutions. Still, by comparing to the browser rendering you can see that the same devices failing on the Hebrew script fail here as well. A point to make is that all of this "just works" in ragg. How is that? Shouldn't we have to indicate which kind of script we want to use? This is not necessary due to the genius of the Unicode standard which relates characters to specific scripts. The script, and by extension the layout, can thus simply be deduced from the provided string without needing to specify any additional information. Cairo device on Linux handles this task well, as we have noted above. How come this works, but only on one OS (Cairo on macOS and Windows performs as bad as the other native devices)? Cairo is a fundamental library of many Linux distributions and is usually build on top of the Pango library which handles text layouting on Linux. It thus have access to OS level text rendering when used on Linux, but not on the other major platforms. The text rendering quality of the Cairo device on Linux is something that will be consistent through these examples and while it is very good, it is not fair to ask users to switch operating system to get modern font support. Even if you are already using Linux you'd have to accept that your output is not necessarily reproducible on other systems if you using the default device.
 
 ### Bidirectional text
 
@@ -89,7 +151,7 @@ In the case of a mix of scripts, most importantly a mix of scripts with differen
 
 <div class="highlight">
 
-<img src="figs/bidi_example_macOS_ragg.png" width="33%" style="display: inline;"><img src="figs/bidi_example_macOS_cairo.png" width="33%" style="display: inline;"><img src="figs/bidi_example_macOS_quartz.png" width="33%" style="display: inline;"><img src="figs/bidi_example_Windows_ragg.png" width="33%" style="display: inline;"><img src="figs/bidi_example_Windows_cairo.png" width="33%" style="display: inline;"><img src="figs/bidi_example_Windows_windows.png" width="33%" style="display: inline;"><img src="figs/bidi_example_Linux_ragg.png" width="33%" style="display: inline;"><img src="figs/bidi_example_Linux_cairo.png" width="33%" style="display: inline;">
+<img src="figs/bidi_example_macOS_ragg.png" width="33%" style="display: inline;"><img src="figs/bidi_example_Windows_ragg.png" width="33%" style="display: inline;"><img src="figs/bidi_example_Linux_ragg.png" width="33%" style="display: inline;"><img src="figs/bidi_example_macOS_cairo.png" width="33%" style="display: inline;"><img src="figs/bidi_example_Windows_cairo.png" width="33%" style="display: inline;"><img src="figs/bidi_example_Linux_cairo.png" width="33%" style="display: inline;"><img src="figs/bidi_example_macOS_quartz.png" width="33%" style="display: inline;"><img src="figs/bidi_example_Windows_windows.png" width="33%" style="display: inline;">
 
 </div>
 
@@ -128,7 +190,7 @@ Some fonts uses ligatures as a main part of their appeal, and these will now wor
 
 <div class="highlight">
 
-<img src="figs/def_features_macOS_ragg.png" width="33%" style="display: inline;"><img src="figs/def_features_macOS_cairo.png" width="33%" style="display: inline;"><img src="figs/def_features_macOS_quartz.png" width="33%" style="display: inline;"><img src="figs/def_features_Windows_ragg.png" width="33%" style="display: inline;"><img src="figs/def_features_Windows_cairo.png" width="33%" style="display: inline;"><img src="figs/def_features_Windows_windows.png" width="33%" style="display: inline;"><img src="figs/def_features_Linux_ragg.png" width="33%" style="display: inline;"><img src="figs/def_features_Linux_cairo.png" width="33%" style="display: inline;">
+<img src="figs/def_features_macOS_ragg.png" width="33%" style="display: inline;"><img src="figs/def_features_Windows_ragg.png" width="33%" style="display: inline;"><img src="figs/def_features_Linux_ragg.png" width="33%" style="display: inline;"><img src="figs/def_features_macOS_cairo.png" width="33%" style="display: inline;"><img src="figs/def_features_Windows_cairo.png" width="33%" style="display: inline;"><img src="figs/def_features_Linux_cairo.png" width="33%" style="display: inline;"><img src="figs/def_features_macOS_quartz.png" width="33%" style="display: inline;"><img src="figs/def_features_Windows_windows.png" width="33%" style="display: inline;">
 
 </div>
 
@@ -165,7 +227,7 @@ The code above creates a new font based on Montserrat using a light weight and t
   <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/expand_limits.html'>expand_limits</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='o'>-</span><span class='m'>1</span>, <span class='m'>2</span><span class='o'>)</span><span class='o'>)</span>
 
 </code></pre>
-<img src="figs/unnamed-chunk-9-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -197,7 +259,7 @@ Why am I telling you this? Well, honestly it is mostly to make you appreciate th
 
 <div class="highlight">
 
-<img src="figs/emoji_macOS_ragg.png" width="33%" style="display: inline;"><img src="figs/emoji_macOS_cairo.png" width="33%" style="display: inline;"><img src="figs/emoji_macOS_quartz.png" width="33%" style="display: inline;"><img src="figs/emoji_Windows_ragg.png" width="33%" style="display: inline;"><img src="figs/emoji_Windows_cairo.png" width="33%" style="display: inline;"><img src="figs/emoji_Windows_windows.png" width="33%" style="display: inline;"><img src="figs/emoji_Linux_ragg.png" width="33%" style="display: inline;"><img src="figs/emoji_Linux_cairo.png" width="33%" style="display: inline;">
+<img src="figs/emoji_macOS_ragg.png" width="33%" style="display: inline;"><img src="figs/emoji_Windows_ragg.png" width="33%" style="display: inline;"><img src="figs/emoji_Linux_ragg.png" width="33%" style="display: inline;"><img src="figs/emoji_macOS_cairo.png" width="33%" style="display: inline;"><img src="figs/emoji_Windows_cairo.png" width="33%" style="display: inline;"><img src="figs/emoji_Linux_cairo.png" width="33%" style="display: inline;"><img src="figs/emoji_macOS_quartz.png" width="33%" style="display: inline;"><img src="figs/emoji_Windows_windows.png" width="33%" style="display: inline;">
 
 </div>
 
@@ -222,7 +284,7 @@ In all of the above examples we have been very mindful in setting the font-face 
 
 <div class="highlight">
 
-<img src="figs/fallback_macOS_ragg.png" width="33%" style="display: inline;"><img src="figs/fallback_macOS_cairo.png" width="33%" style="display: inline;"><img src="figs/fallback_macOS_quartz.png" width="33%" style="display: inline;"><img src="figs/fallback_Windows_ragg.png" width="33%" style="display: inline;"><img src="figs/fallback_Windows_cairo.png" width="33%" style="display: inline;"><img src="figs/fallback_Windows_windows.png" width="33%" style="display: inline;"><img src="figs/fallback_Linux_ragg.png" width="33%" style="display: inline;"><img src="figs/fallback_Linux_cairo.png" width="33%" style="display: inline;">
+<img src="figs/fallback_macOS_ragg.png" width="33%" style="display: inline;"><img src="figs/fallback_Windows_ragg.png" width="33%" style="display: inline;"><img src="figs/fallback_Linux_ragg.png" width="33%" style="display: inline;"><img src="figs/fallback_macOS_cairo.png" width="33%" style="display: inline;"><img src="figs/fallback_Windows_cairo.png" width="33%" style="display: inline;"><img src="figs/fallback_Linux_cairo.png" width="33%" style="display: inline;"><img src="figs/fallback_macOS_quartz.png" width="33%" style="display: inline;"><img src="figs/fallback_Windows_windows.png" width="33%" style="display: inline;">
 
 </div>
 
