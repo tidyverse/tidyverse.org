@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [deep-dive] 
 tags: []
-rmd_hash: ad37d91728e9e6d5
+rmd_hash: 1d6fb362245a03bb
 
 ---
 
@@ -128,7 +128,11 @@ To start off we will look at a sample of different scripts that poses a problem 
 
 </div>
 
-Now, if you are not trained in reading any of the three languages above it may be hard to see what is right and what is wrong. You may, however, look at how the text in the code is rendered in the browser and compare that to the device rendering. If you do that you can see that the Hebrew script is rendered in the wrong direction for all the non-ragg devices (except Cairo on Linux). For the other scripts it is less obvious that the direction is wrong since the text glyphs are fundamentally different due to ligature substitutions. Still, by comparing to the browser rendering you can see that the same devices failing on the Hebrew script fail here as well. A point to make is that all of this "just works" in ragg. How is that? Shouldn't we have to indicate which kind of script we want to use? This is not necessary due to the genius of the Unicode standard which relates characters to specific scripts. The script, and by extension the layout, can thus simply be deduced from the provided string without needing to specify any additional information. Cairo device on Linux handles this task well, as we have noted above. How come this works, but only on one OS (Cairo on macOS and Windows performs as bad as the other native devices)? Cairo is a fundamental library of many Linux distributions and is usually build on top of the Pango library which handles text layouting on Linux. It thus have access to OS level text rendering when used on Linux, but not on the other major platforms. The text rendering quality of the Cairo device on Linux is something that will be consistent through these examples and while it is very good, it is not fair to ask users to switch operating system to get modern font support. Even if you are already using Linux you'd have to accept that your output is not necessarily reproducible on other systems if you using the default device.
+Now, if you are not trained in reading any of the three languages above it may be hard to see what is right and what is wrong. You may, however, look at how the text in the code is rendered in the browser and compare that to the device rendering. If you do that you can see that the Hebrew script is rendered in the wrong direction for all the non-ragg devices (except Cairo on Linux). For the other scripts it is less obvious that the direction is wrong since the text glyphs are fundamentally different due to ligature substitutions. Still, by comparing to the browser rendering you can see that the same devices failing on the Hebrew script fail here as well.
+
+A point to make is that all of this "just works" in ragg. How is that? Shouldn't we have to indicate which kind of script we want to use? This is not necessary due to the genius of the Unicode standard which relates characters to specific scripts. The script, and by extension the layout, can thus simply be deduced from the provided string without needing to specify any additional information.
+
+The Cairo device on Linux handles this task well, as we have noted above. How come this works, but only on one OS (Cairo on macOS and Windows performs as bad as the other native devices)? Cairo is a fundamental library of many Linux distributions and is usually build on top of the Pango library which handles text layouting on Linux. It thus have access to OS level text rendering when used on Linux, but not on the other major platforms. The text rendering quality of the Cairo device on Linux is something that will be consistent through these examples and while it is very good, it is not fair to ask users to switch operating system to get modern font support. Even if you are already using Linux you'd have to accept that your output is not necessarily reproducible on other systems if you using the default device.
 
 ### Bidirectional text
 
@@ -263,12 +267,12 @@ Why am I telling you this? Well, honestly it is mostly to make you appreciate th
 
 </div>
 
-As one can see the failures range from not being able to render anything, to rendering in monochrome. Further, it appears as if the devices have trouble figuring out the dimensions of the glyphs. One additional wrinkle is that some of the device capable of rendering in monochrome fails to get the correct emoji. This is because emojis relies heavily on ligatures, and the "dark-skinned woman at a computer" emoji is actually a ligature of the "woman", "dark skin" and "computer".
+As one can see the failures range from not being able to render anything, to rendering in monochrome. Further, it appears as if the devices have trouble figuring out the dimensions of the glyphs. One additional wrinkle is that while Cairo on macOS capable of rendering in monochrome, it fails to get the correct emoji. This is because emojis relies heavily on ligatures, and the "dark-skinned woman at a computer" emoji is actually a ligature of the "woman", "dark skin" and "computer" emojis.
 
 Font fallback
 -------------
 
-In all of the above examples we have been very mindful in setting the font-face to a font that contains all the glyphs we need. This is not always practical, especially when one wants to mix emojis and regular text such as it is done normally. It is also an absolute requirement when mixing Latin and CJK (Chinese, Japanese, and Korean) text as it is unfeasible to include all CJK glyphs in a single font. However, we are used to things just working at the system level. No matter the font it seems that a glyph is always displayed. This is because the OS is employing font fallback, which is the act of figuring out an alternative font to use when a glyph is not present in the chosen font. Wouldn't it be great if we could have that in a graphic device? Well, now we have!
+In all of the above examples we have been very mindful in setting the font-face to a font that contains all the glyphs we need. This is not always practical, especially when one wants to mix emojis and regular text such as it is done normally. It is also an absolute requirement when mixing Latin and CJK (Chinese, Japanese, and Korean) text as it is unfeasible to include all CJK glyphs in a single font. However, we are used to things just working at the system level. No matter the font it seems that a glyph is always displayed in e.g. browsers and text editors. This is because the OS is employing font fallback, which is the act of figuring out an alternative font to use when a glyph is not present in the chosen font. Wouldn't it be great if we could have that in a graphic device? Well, now we have!
 
 <div class="highlight">
 
