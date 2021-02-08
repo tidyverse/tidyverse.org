@@ -18,15 +18,13 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [deep-dive] 
 tags: [graphic-device, ragg, systemfonts]
-rmd_hash: a5e419f452d9e209
+rmd_hash: de4886771cdfe5c8
 
 ---
 
-I'm extremely pleased to present the culmination of several years of work on font rendering, spanning the [systemfonts](https://github.com/r-lib/systemfonts), [textshaping](https://github.com/r-lib/textshaping), and [ragg](https://ragg.r-lib.org) packages. These releases complete our efforts to create a high-quality, performant raster graphics device that works comparably on every operating system.
+I'm extremely pleased to present the culmination of several years of work spanning the [systemfonts](https://github.com/r-lib/systemfonts), [textshaping](https://github.com/r-lib/textshaping), and [ragg](https://ragg.r-lib.org) packages. These releases complete our efforts to create a high-quality, performant raster graphics device that works the same way on every operating system.
 
-The result of the latest work is that font rendering in the ragg graphics devices now just works, regardless of what you throw at it.
-
-This includes:
+This blog post presents our improvements to ragg's font rendering so that it now "just works" regardless of what you throw at it. This includes:
 
 1.  Support for non-Latin scripts including Right-to-Left (RtL) scripts.
 2.  Support for OpenType features such as ligatures, glyph substitutions, etc.
@@ -35,7 +33,16 @@ This includes:
 
 All of the above comes in addition to the fact that ragg is able to use all of your installed fonts.
 
-The tl;dr of it is that all areas mentioned above now has full support in ragg out of the box, but I'd invite you to read on to learn how it works, how to control it, and what it all means for you as a user.
+To access these features all you need to do install the latest version of ragg:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"ragg"</span><span class='o'>)</span>
+</code></pre>
+
+</div>
+
+But I'd invite you to read on to learn how it works, how to control it, and what it all means for you as a user.
 
 ### Using ragg
 
@@ -102,7 +109,7 @@ With the new version of ragg you'll be able to render plots such as this and exp
         plot.title <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text</a></span><span class='o'>(</span>margin <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>margin</a></span><span class='o'>(</span><span class='m'>5</span>, <span class='m'>0</span>, <span class='m'>5</span>, <span class='m'>0</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
 
 </code></pre>
-<img src="figs/unnamed-chunk-1-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-2-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -240,7 +247,7 @@ The code above creates a new font based on Montserrat using a light weight and t
   <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/expand_limits.html'>expand_limits</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='o'>-</span><span class='m'>1</span>, <span class='m'>2</span><span class='o'>)</span><span class='o'>)</span>
 
 </code></pre>
-<img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
