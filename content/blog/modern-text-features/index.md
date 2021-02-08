@@ -18,15 +18,15 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [deep-dive] 
 tags: [graphic-device, ragg, systemfonts]
-rmd_hash: abf25953d7610631
+rmd_hash: a5e419f452d9e209
 
 ---
 
-I'm extremely pleased to present some new functionality when it comes to text rendering and font support in R. This is the culmination of work that started during the development of the ragg package where I was first exposed to the intricacies of text rendering. The new features presented herein spans the systemfonts, textshaping, and ragg packages, but from a user point of view everything will be available simply by using the graphic devices in ragg.
+I'm extremely pleased to present the culmination of several years of work on font rendering, spanning the [systemfonts](https://github.com/r-lib/systemfonts), [textshaping](https://github.com/r-lib/textshaping), and [ragg](https://ragg.r-lib.org) packages. These releases complete our efforts to create a high-quality, performant raster graphics device that works comparably on every operating system.
 
-ragg is now in a state where it "just works", and works comparably across all major operating systems. This is a first for a raster device in R and is the result of several years of dedicated work. I couldn't be happier with this release!
+The result of the latest work is that font rendering in the ragg graphics devices now just works, regardless of what you throw at it.
 
-The features that will be discussed in the following are:
+This includes:
 
 1.  Support for non-Latin scripts including Right-to-Left (RtL) scripts.
 2.  Support for OpenType features such as ligatures, glyph substitutions, etc.
@@ -35,7 +35,7 @@ The features that will be discussed in the following are:
 
 All of the above comes in addition to the fact that ragg is able to use all of your installed fonts.
 
-The tl;dr of it is that all area mentioned above now has full support in ragg out of the box, but I'd invite you to read on to learn how it works, how to control it, and what it all means for you as a user.
+The tl;dr of it is that all areas mentioned above now has full support in ragg out of the box, but I'd invite you to read on to learn how it works, how to control it, and what it all means for you as a user.
 
 ### Using ragg
 
