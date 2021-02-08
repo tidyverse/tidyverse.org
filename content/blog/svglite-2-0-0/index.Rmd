@@ -1,0 +1,94 @@
+---
+output: hugodown::hugo_document
+
+slug: svglite-2-0-0
+title: svglite 2.0.0
+date: 2021-02-08
+author: Thomas Lin Pedersen
+description: >
+    A 2-3 sentence description of the post that appears on the articles page.
+    This can be omitted if it would just recapitulate the title.
+
+photo:
+  url: https://unsplash.com/photos/pVoEPpLw818
+  author: Rodion Kutsaev
+
+# one of: "deep-dive", "learn", "package", "programming", or "other"
+categories: [package] 
+tags: [graphic-device, svglite]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Pick category and tags (see existing with `post_tags()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::tidy_thumbnail()`
+* [ ] Add intro sentence
+* [ ] `use_tidy_thanks()`
+-->
+```
+We're extremely happy to announce the release of [svglite](https://svglite.r-lib.org) 2.0.0.
+svglite is a graphic device that is capable of creating SVG files from R graphics.
+SVG is a vector graphic format which means that it encodes the instructions for recreating a graphic in a scale-independent way.
+This is in contrast with raster graphics such as PNG (as can be produced with the graphic devices in [ragg](https://ragg.r-lib.org)) which encodes actual pixel values and will get grainy as you zoom in.
+
+You can install the latest release of svglite from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("svglite")
+```
+
+Much time has passed since svglite had a major release and this blog post will go into detail with all the major changes.
+You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
+
+## Motivation for svglite
+
+As part of this release we have sharpened our personal motivation for creating and maintaining svglite in the face of the already existing `svg()` device provided by R.
+All of the changes that are part of this release somehows plays into these motivations and are thus grouped by it below.
+
+### Speed
+
+The defining feature at the inception of svglite was speed (as compared to `svg()`).
+At some point in the past this regressed quite considerably and this release not only brings it back to past glory, but improves further upon it.
+The combined effect of this is that you'll experience a 13x speed improvement (based on the speed test in the [readme](https://svglite.r-lib.org/index.html#speed)) using the new version over v1.2.3.
+svglite is now \~3x faster than using `svg()` based on the same benchmark:
+
+```{r}
+library(svglite)
+
+x <- runif(1e3)
+y <- runif(1e3)
+tmp1 <- tempfile()
+tmp2 <- tempfile()
+
+svglite_test <- function() {
+  svglite(tmp1)
+  plot(x, y)
+  dev.off()
+}
+svg_test <- function() {
+  svg(tmp2, onefile = TRUE)
+  plot(x, y)
+  dev.off()
+}
+
+bench::mark(svglite_test(), svg_test(), min_iterations = 250)
+```
+
+Speed is not the be-all-end-all of graphic devices but for a device based on a web-native file format it is quite important as it allows web servers based on e.g. shiny to stream dynamically created plots with low latency.
+
+The additional speed is mainly achieved by no longer ensuring that the file is valid svg *while* it is being rendered.
+If you need this you can get the old behavior (and speed) back by setting `always_valid = TRUE` when opening the device.
+
+### File size
+
+### Editability
+
+### Font support
+
+### Consistency
+
+## Acknowledgements
