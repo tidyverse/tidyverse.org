@@ -18,20 +18,9 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [deep-dive] 
 tags: [graphic-device, ragg, systemfonts]
-rmd_hash: 8b54b1ad16560eaa
+rmd_hash: abf25953d7610631
 
 ---
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://ragg.r-lib.org'>ragg</a></span><span class='o'>)</span>
-
-<span class='nf'>knitr</span><span class='nf'>::</span><span class='nv'><a href='https://rdrr.io/pkg/knitr/man/opts_chunk.html'>opts_chunk</a></span><span class='o'>$</span><span class='nf'>set</span><span class='o'>(</span>
-  dev <span class='o'>=</span> <span class='s'>"ragg_png"</span>
-<span class='o'>)</span>
-</code></pre>
-
-</div>
 
 I'm extremely pleased to present some new functionality when it comes to text rendering and font support in R. This is the culmination of work that started during the development of the ragg package where I was first exposed to the intricacies of text rendering. The new features presented herein spans the systemfonts, textshaping, and ragg packages, but from a user point of view everything will be available simply by using the graphic devices in ragg.
 
@@ -287,7 +276,7 @@ Why am I telling you this? Well, honestly it is mostly to make you appreciate th
 
 </div>
 
-As one can see the failures range from not being able to render anything, to rendering in monochrome. Further, it appears as if the devices have trouble figuring out the dimensions of the glyphs. One additional wrinkle is that while Cairo on macOS capable of rendering in monochrome, it fails to get the correct emoji. This is because emojis relies heavily on ligatures, and the "dark-skinned woman at a computer" emoji is actually a ligature of the "woman", "dark skin" and "computer" emojis.
+As one can see the failures range from not being able to render anything, to rendering in monochrome. Further, it appears as if the devices have trouble figuring out the dimensions of the glyphs. One additional wrinkle is that while Cairo on macOS is capable of rendering in monochrome, it fails to get the correct emoji. This is because emojis relies heavily on ligatures, and the "dark-skinned woman at a computer" emoji is actually a ligature of the "woman", "dark skin" and "computer" emojis.
 
 Font fallback
 -------------
