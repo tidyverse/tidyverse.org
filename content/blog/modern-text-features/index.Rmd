@@ -6,7 +6,7 @@ title: Modern Text Features in R
 date: 2021-02-06
 author: Thomas Lin Pedersen
 description: >
-  ragg has taken a major leap forward in text rendering capabilities with the
+  ragg has taken a major leap forward in text-rendering capabilities with the
   latest releases of systemfonts, textshaping, and ragg itself. This post will
   go into detail with what is now possible and how it compares to the build in 
   devices.
@@ -35,7 +35,7 @@ I'm extremely pleased to present the culmination of several years of work spanni
 
 This blog post presents our improvements to ragg's font rendering so that it now "just works" regardless of what you throw at it.  This includes:
 
-1.  Support for non-Latin scripts including Right-to-Left (RtL) scripts.
+1.  Support for non-Latin scripts including Right-to-Left (RtL) scripts
 2.  Support for OpenType features such as ligatures, glyph substitutions, etc.
 3.  Support for color fonts
 4.  Support for font fallback
@@ -52,20 +52,20 @@ But I'd invite you to read on to learn how it works, how to control it, and what
 
 ### Using ragg
 
--   ragg can be used directly in the same way as the build-in devices, such as `png()`, `jpeg()`, and `tiff()`, by opening the device, running some code that renders graphics, and closing it again when done using `dev.off()`.
+-   ragg can be used directly in the same way as the built-in devices, such as `png()`, `jpeg()`, and `tiff()`, by opening the device, running some code that renders graphics, and closing it again when done using `dev.off()`.
     The devices in ragg are prefixed with `agg_` and named by the file format they produce (e.g. `agg_png()`).
 
 -   You can use ragg with `ggsave()` by passing the device function to the `device` argument (e.g. `ggsave(device = agg_tiff)`).
 
 -   You can tell RStudio to use ragg in the *Plots* pane be setting the backend to `AGG` under *Global Options \> General \> Graphics*.
 
--   ragg can be used when knitting Rmarkdown files by setting `dev="ragg_png"` in the code chunk options
+-   ragg can be used when knitting Rmarkdown files by setting `dev="ragg_png"` in the code chunk options.
 
 Read more about using ragg in the previous release blog posts: [0.2.0](https://www.tidyverse.org/blog/2020/05/updates-to-ragg-and-systemfonts/) and [0.1.0](https://www.tidyverse.org/blog/2019/07/ragg-0-1-0/)
 
 ### Graphical tl;dr;
 
-With the new version of ragg you'll be able to render plots such as this and expect it to simply work:
+With the new version of ragg, you'll be able to render plots such as this and expect it to simply work:
 
 ```{r, fig.asp=0.8}
 library(ggplot2)
@@ -115,7 +115,7 @@ ggplot() +
         plot.title = element_text(margin = margin(5, 0, 5, 0)))
 ```
 
-Pay note to the effortless mix of text in English and Japanese, along with emoji in the title.
+Note the effortless mix of text in English and Japanese, along with emoji in the title.
 If this has piqued your interest, read on!
 
 ```{r, include=FALSE}
@@ -165,8 +165,8 @@ theme_set(theme_void() + theme(panel.background = element_rect('gray95', NA), pl
 ## Advanced script support
 
 English, the lingua franca of programming, has tended to dominate everything related to text within programming, ranging from encoding to rendering.
-This has made the Latin script, used in most of the Western world, the best (or often only) supported script in many text rendering pipelines.
-This has been true in the R world where the built-in graphic devices have struggled to display other scripts (the only exception being Cairo devices on Linux).
+This has made the Latin script, used in most of the Western world, the best (or often only) supported script in many text-rendering pipelines.
+This has been true in the R world where the built-in graphic devices have struggled to display other scripts (with the exception of Cairo devices on Linux).
 It is about time (overdue, really!) that the graphics system in R becomes more inclusive of which languages can be used.
 It is thus with great joy that I announce that ragg finally supports all scripts.
 
@@ -195,7 +195,7 @@ get_results("rtl_example")
 
 If you're not familiar with the languages above it can be hard to see what is right and what is wrong.
 You may, however, look at how the text in the code is rendered in the browser and compare that to the device rendering.
-If you do that you can see that the Hebrew script is rendered in the wrong direction for all the non-ragg devices (except Cairo on Linux).
+If you do that, you can see that the Hebrew script is rendered in the wrong direction for all the non-ragg devices (except Cairo on Linux).
 For the Arabic and Sindhi it's even harder to see what's wrong because the text looks fundamentally different.
 That's because both Arabic and Sindhi rely extensively on text substitution rules and ligatures; the way a letter is written depends critically on what letters it is next to.
 Still, by comparing to the browser rendering you can see that the same devices failing on the Hebrew script fail here as well.
@@ -232,7 +232,7 @@ Again the exception is ragg, and Cairo on Linux.
 ## Advanced font feature support
 
 A part of supporting some of the non-Latin scripts described above is to have support for ligatures (substituting multiple glyphs with a single new glyph).
-While ligatures is a requirement for the correct rendering of some scripts it is also an optional feature of fonts in general in order to support different text variations.
+While ligatures are a requirement for the correct rendering of some scripts it is also an optional feature of fonts in general in order to support different text variations.
 More generally, the OpenType font format describes a long range of features, many optional, that defines specific glyph substitutions (both one-to-one and many-to-one) or position adjustments that can be turned on or off and will affect the look of the final rendered text.
 Some of these features are turned on automatically for specific scripts (e.g. required ligatures for Arabic), while others are left for the user to turn on at their discretion (e.g. tabular numerics).
 As part of the work to add support for non-Latin scripts the infrastructure to support all OpenType features was build.
@@ -264,8 +264,8 @@ get_results("def_features")
 
 But what about non-default features?
 The capabilities of the graphic engine in R presents a problem here.
-There is very little information that the user is able to sent along with the text to be plotted, apart from location and font (**bold** and *italic* on/off is the extend of it).
-So, having a device with support for advanced OpenType features in and off itself is nearly useless as there is no way to specify in your plot code that you want to turn a feature on or off.
+There is very little information that the user is able to send along with the text to be plotted, apart from location and font (**bold** and *italic* on/off is the extent of it).
+So, having a device with support for advanced OpenType features in and of itself is nearly useless as there is no way to specify in your plot code that you want to turn a feature on or off.
 
 To work around this limitation, systemfonts now allows you to register font variants, providing a custom name that you can use to refer to a font with certain features enabled:
 
@@ -298,10 +298,10 @@ ggplot() +
   expand_limits(y = c(-1, 2))
 ```
 
-We can see that by using this font registration we gain access to weights other than normal and bold, but also to glyph substitutions such as the "Th" ligature, and the stylistic variations seen with the "t", "f", "l", and "e" glyphs.
+We can see that by using this font registration we not only gain access to weights other than normal and bold, but also to glyph substitutions such as the "Th" ligature, and the stylistic variations seen with the "t", "f", "l", and "e" glyphs.
 
 While a lot of the optional OpenType features are mainly of interest to achieve a specific stylistic look of the rendered text, some have more importance for data visualizations, such as those related to how numbers are displayed.
-It is both possible to force even-width numbers, as well as correct display of fractional numbers (using `font_feature(numbers = c("tabular", "fractions")`) using OpenType as long as the font supports it, so it is definitely something to look into when you want to add that final polish to your visualization.
+It is both possible to force even-width numbers, as well as correct display of fractional numbers (using `font_feature(numbers = c("tabular", "fractions")`) using OpenType. as long as the font supports it. So this is definitely something to look into when you want to add that final polish to your visualization.
 
 ## Color fonts
 
@@ -312,7 +312,7 @@ This, unsurprisingly, complicates things.
 To add insult to injury, emojis often gets rendered slightly larger than the surrounding text and with a slightly lowered baseline in a very OS-specific way (this does not apply to all color fonts; only emojis).
 
 Why am I telling you this?
-Well, honestly it is mostly to make you appreciate the labor that went into the fact that color fonts (and by extension, emojis) now just works:
+Well, honestly it is mostly to make you appreciate the labor that went into the fact that color fonts (and by extension, emojis) now just work:
 
 ```{r, eval=FALSE}
 emojis <- "👩🏾‍💻🔥📊"
@@ -330,19 +330,19 @@ preview_devices(p, "emoji")
 get_results("emoji")
 ```
 
-As one can see the failures range from not being able to render anything, to rendering in monochrome.
+As one can see, the failures range from not being able to render anything, to rendering in monochrome.
 Further, it appears as if the devices have trouble figuring out the dimensions of the glyphs.
 One additional wrinkle is that while Cairo on macOS is capable of rendering in monochrome, it fails to get the correct emoji.
-This is because emojis relies heavily on ligatures, and the "dark-skinned woman at a computer" emoji is actually a ligature of the "woman", "dark skin" and "computer" emojis.
+This is because emojis rely heavily on ligatures, and the "dark-skinned woman at a computer" emoji is actually a ligature of the "woman", "dark skin", and "computer" emojis.
 
 ## Font fallback
 
 In all of the above examples we have been very mindful in setting the font-face to a font that contains all the glyphs we need.
-This is not always practical, especially when you want to mix emoji and regular text.
-It is also an absolute requirement when mixing Latin and CJK (Chinese, Japanese, and Korean) text as it is infeasible to include all CJK glyphs in a single font.
+This is not always practical, especially when you want to mix emojis and regular text.
+It is also an absolute requirement when mixing Latin and CJK (Chinese, Japanese, and Korean) text, as it is infeasible to include all CJK glyphs in a single font.
 However, we are used to things just working at the system level.
 No matter the font it seems that a glyph is always displayed in e.g. browsers and text editors.
-This is because the OS is employing font fallback, which is the act of figuring out an alternative font to use when a glyph is not present in the chosen font.
+This is because the OS is employing **font fallback**, which is the act of figuring out an alternative font to use when a glyph is not present in the chosen font.
 Wouldn't it be great if we could have that in a graphic device?
 Well, now we do!
 
@@ -374,12 +374,12 @@ Not all scripts are LtR or RtL.
 A few, especially Asian scripts, are top-to-bottom.
 Top-to-bottom scripts are sadly not yet supported.
 This is not due to any limitation in the underlying shaping technology, but due to limitations in the R graphic engine, which assumes horizontal text in key places of the API.
-This means that until the graphic engine is updated it is outside the grasp of graphic devices to support vertical text.
+This means that, until the graphic engine is updated, it is outside the grasp of graphic devices to support vertical text.
 Hopefully, this is an area that will improve in the future.
 
 ## Wrapping up
 
-I hope you'll appreciate the new features being described here.
+I hope you'll appreciate the new features described here.
 I'd like to thank everyone who have helped validate the text rendering on Twitter.
-A special thank goes out to Behdad Esfahbod (<http://behdad.org>) for his work on HarfBuzz, Fribidi, and almost everything else underlying modern font rendering.
+A special thanks goes out to Behdad Esfahbod (<http://behdad.org>) for his work on HarfBuzz, Fribidi, and almost everything else underlying modern font rendering.
 He has been especially gracious in his help and support.
