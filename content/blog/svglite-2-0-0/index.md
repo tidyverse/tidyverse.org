@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [graphic-device, svglite]
-rmd_hash: caf828ea6a083db4
+rmd_hash: 474cb25b4a88068a
 
 ---
 
@@ -30,7 +30,7 @@ TODO:
 * [ ] `use_tidy_thanks()`
 -->
 
-We're extremely happy to announce the release of [svglite](https://svglite.r-lib.org) 2.0.0. svglite is a graphic device that is capable of creating SVG files from R graphics. SVG is a vector graphic format which means that it encode the instructions for recreating a graphic in a scale-independent way. This is in contrast with raster graphics such as PNG (as can be produced with the graphic devices in [ragg](https://ragg.r-lib.org)) which encodes actual pixel values and will get grainy as you zoom in.
+We're extremely happy to announce the release of [svglite](https://svglite.r-lib.org) 2.0.0. svglite is a graphic device that is capable of creating SVG files from R graphics. SVG is a vector graphic format which means that it encode the instructions for recreating a graphic in a scale-independent way. This is in contrast with raster graphics such as PNG (as can be produced with the graphic devices in [ragg](https://ragg.r-lib.org)) which encodes actual pixel values and will get pixelated as you zoom in.
 
 You can install the latest release of svglite from CRAN with:
 
