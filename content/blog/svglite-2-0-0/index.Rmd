@@ -48,6 +48,44 @@ You can see a full list of changes in the [release notes](%7B%20github_release%2
 As part of this release we have sharpened our motivation for creating and maintaining svglite given the pre-existing `svg()` device provided by R.
 All of the changes that are part of this release somehow plays into these motivations and are thus grouped by it below.
 
+### Editability
+
+The main difference between the output of `svg()` and `svglite()` is that the former encodes text as polygons, whereas the later simply encodes it as text and relies on the svg renderer (usually a browser or a vector drawing program) to figure out the look of the text.
+There are upsides and downsides to this:
+
+**Pros**
+
+-   Encoding text as text means that you can open up the resulting SVG in a vector drawing program (e.g. Inkscape or Illustrator) and do further modifications on the text, etc.
+    While R graphics is capable of producing amazing visualizations by itself, it is not uncommon that some amount of post-processing is required, and maximum editability of the file is a huge boon there.
+
+-   Encoding text as text means that the resulting file is more accessible.
+    Screen readers will be able to understand and read the text and the text is selectable and copyable.
+
+-   File size will be dramatically smaller (more on that [below])
+
+**Cons**
+
+-   Encoding text as polygons will mean that the file does not require the used fonts to be present on the system it is viewed on.
+
+-   Encoding text as text means that the final look depend on the implementation of the svg renderer as well as the fonts available on the system where it is rendered.
+    This might sound more ominous than it really is.
+    The vast majority of interactive data visualizations on the web are now based on D3.js which often renders to SVG and it all seems to behave.
+    Still, this is something to be mindful of, and a reason to use `svg()` if exactness of the rendered text is of prime importance.
+
+With this release we further improves upon the editability of the output on key points:
+
+1.  The horizontal alignment of the text is now encoded in the CSS, rather than being pre-computed and offsetted.
+    This is only possible for *left*, *center*, and *right* alignment as these are the only recognized alignment types in SVG, so setting it to something different will still give you the old offsetting behavior.
+    This change means that you can more easily modify center and right aligned text in post processing without messing up the alignment of the text block.
+
+2.  Fixing of the text width is now optional.
+    Since the text is not rendered before the SVG is opened the final width of text is unknown while it is being generated.
+    The text width is used in key places by the R graphics engine, partly for alignment offsetting (which we don't need anymore), but also by e.g. ggplot2's `geom_label()` to figure out the size of the background box.
+    svglite solves this by making a good guess at the width and using the `textLength` attribute of the `<text>` tag to force the renderer to make the text fit into that space.
+    While this works, it also means that if you modify the text in post processing the text will remain at the same width no matter what you do.
+    Since there's no single right way to handle this, we have made the fixing of text width optional using the `fix_text_size` argument.
+    It defaults to `TRUE` which is the old behavior, but if you know you are going to edit some aspect of the text in post processing you can set it to `FALSE`.
+
 ### Speed
 
 When first created, svglite was much faster than `svg()`, but at some point this regressed quite considerably so the previous release of svglite was rather slow.
@@ -82,17 +120,13 @@ bench::mark(
   labs(x = NULL, y = NULL)
 ```
 
-Speed is not the be-all-end-all of graphic devices but for a device based on a web-native file format it is quite important as it allows web servers based on e.g. shiny to stream dynamically created plots with low latency.
-
 The additional speed is mainly achieved by no longer ensuring that the file is valid svg *while* it is being rendered.
 If you need this you can get the old behavior (and speed) back by setting `always_valid = TRUE` when opening the device.
 You should however consider using `svgstring()` instead of `svglite()` if you need to continuously access the svg while it is being rendered.
 
 ### File size
 
-For more or less the same reasons as given above for rendering speed, the final file size of the rendered SVG can be very important when streaming graphics from a web server.
-Smaller files result in lower latency.
-svglite has always produced smaller files than the `svg()` device, but this has been improved on further with this release, mainly by being smarter about how to handle clipping regions in the plot.
+svglite has always produced smaller files than the `svg()` device because of the difference in how text is encoded, but this has been improved on further with this release, mainly by being smarter about how to handle clipping regions in the plot.
 Another file size related feature in the new release is build-in support for SVGZ (gzipped SVG), simply by providing a file name with an `.svgz` extension:
 
 ```{r, fig.asp=0.4}
@@ -124,32 +158,6 @@ ggplot(sizes) +
   geom_col(aes(x = size / 1024, y = device)) + 
   labs(x = "Size (Kb)", y = NULL)
 ```
-
-### Editability
-
-The main reason for the huge difference in size between the output of `svg()` and `svglite()` is that the former encodes text as polygons, whereas the later simply encodes it as text and relies on the svg renderer (usually a browser or a vector drawing program) to figure out the look of the text.
-There are several additional upsides to the latter approach, and one major downside.
-Let us get the bad out of the way first: Encoding text as text means that the final look depend on the implementation of the svg renderer as well as the fonts available on the system where it is rendered.
-This might sound more ominous than it really is.
-The vast majority of interactive data visualizations on the web are now based on D3.js which often renders to SVG and it all seems to behave.
-Still, this is something to be mindful of, and a reason to use `svg()` if exactness of the rendered text is of prime importance.
-
-Now for the good stuff, and the subject of this section.
-Encoding text as text means that you can open up the resulting SVG in a vector drawing program (e.g. Inkscape or Illustrator) and do further modifications on the text, etc.
-While R graphics is capable of producing amazing visualizations by itself, it is not uncommon that some amount of post-processing is required, and maximum editability of the file is a huge boon there.
-With this release we further improves upon the editability of the output on key points:
-
-1.  The horizontal alignment of the text is now encoded in the CSS, rather than being pre-computed and offsetted.
-    This is only possible for *left*, *center*, and *right* alignment as these are the only recognized alignment types in SVG, so setting it to something different will still give you the old offsetting behavior.
-    This change means that you can more easily modify center and right aligned text in post processing without messing up the alignment of the text block.
-
-2.  Fixing of the text width is now optional.
-    Since the text is not rendered before the SVG is opened the final width of text is unknown while it is being generated.
-    The text width is used in key places by the R graphics engine, partly for alignment offsetting (which we don't need anymore), but also by e.g. ggplot2's `geom_label()` to figure out the size of the background box.
-    svglite solves this by making a good guess at the width and using the `textLength` attribute of the `<text>` tag to force the renderer to make the text fit into that space.
-    While this works, it also means that if you modify the text in post processing the text will remain at the same width no matter what you do.
-    Since there's no single right way to handle this, we have made the fixing of text width optional using the `fix_text_size` argument.
-    It defaults to `TRUE` which is the old behavior, but if you know you are going to edit some aspect of the text in post processing you can set it to `FALSE`.
 
 ### Font support
 
@@ -242,9 +250,9 @@ Depending on your temperament these other features may also get you excited:
 
 -   Addition of `scaling` argument in line with the ragg devices.
 
-## Acknowledgements
+## Acknowledgments
 
 This release comprises the work of 15 different contributors.
 Thank you all for your thoughtful comments, patience, and hard work!
 
-[&#x0040;barrel0luck](https://github.com/barrel0luck), [&#x0040;CameronNemo](https://github.com/CameronNemo), [&#x0040;cpsievert](https://github.com/cpsievert), [&#x0040;hadley](https://github.com/hadley), [&#x0040;jeroen](https://github.com/jeroen), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;jplecavalier](https://github.com/jplecavalier), [&#x0040;kurpav00](https://github.com/kurpav00), [&#x0040;kuzmenkov111](https://github.com/kuzmenkov111), [&#x0040;nx10](https://github.com/nx10), [&#x0040;paessens](https://github.com/paessens), [&#x0040;pmur002](https://github.com/pmur002), [&#x0040;sqjin](https://github.com/sqjin), [&#x0040;svenyos](https://github.com/svenyos), and [&#x0040;thomasp85](https://github.com/thomasp85).
+[\@barrel0luck](https://github.com/barrel0luck), [\@CameronNemo](https://github.com/CameronNemo), [\@cpsievert](https://github.com/cpsievert), [\@hadley](https://github.com/hadley), [\@jeroen](https://github.com/jeroen), [\@jimhester](https://github.com/jimhester), [\@jplecavalier](https://github.com/jplecavalier), [\@kurpav00](https://github.com/kurpav00), [\@kuzmenkov111](https://github.com/kuzmenkov111), [\@nx10](https://github.com/nx10), [\@paessens](https://github.com/paessens), [\@pmur002](https://github.com/pmur002), [\@sqjin](https://github.com/sqjin), [\@svenyos](https://github.com/svenyos), and [\@thomasp85](https://github.com/thomasp85).
