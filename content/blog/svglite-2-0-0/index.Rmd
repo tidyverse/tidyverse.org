@@ -45,15 +45,13 @@ You can see a full list of changes in the [release notes](%7B%20github_release%2
 
 ## Motivation for svglite
 
-As part of this release we have sharpened our personal motivation for creating and maintaining svglite in the face of the already existing `svg()` device provided by R.
+As part of this release we have sharpened our motivation for creating and maintaining svglite given the pre-existing `svg()` device provided by R.
 All of the changes that are part of this release somehow plays into these motivations and are thus grouped by it below.
 
 ### Speed
 
-The defining feature at the inception of svglite was speed (as compared to `svg()`).
-At some point in the past this regressed quite considerably and this release not only brings it back to past glory, but improves further upon it.
-The combined effect of this is that you'll experience a 13x speed improvement (based on the speed test in the [readme](https://svglite.r-lib.org/index.html#speed)) using the new version over v1.2.3.
-svglite is now \~3x faster than using `svg()` based on the same benchmark:
+When first created, svglite was much faster than `svg()`, but at some point this regressed quite considerably so the previous release of svglite was rather slow.
+This release not only brings svglite back to its past glory, but improves further upon it: this release is \~13x faster than the previous and is \~3x faster than using `svg()` (based on admittedly simple benchmark in the [readme](https://svglite.r-lib.org/index.html#speed)).
 
 ```{r, fig.asp=0.4, message = FALSE}
 library(tidyverse)
@@ -75,9 +73,11 @@ svg_test <- function() {
   dev.off()
 }
 
-bench::mark("svglite()" = svglite_test(), 
-            "svg()" = svg_test(), 
-            min_iterations = 250) %>% 
+bench::mark(
+  "svglite()" = svglite_test(), 
+  "svg()" = svg_test(), 
+  min_iterations = 250
+) %>% 
   plot(type = "ridge") + 
   labs(x = NULL, y = NULL)
 ```
@@ -146,7 +146,7 @@ With this release we further improves upon the editability of the output on key 
 2.  Fixing of the text width is now optional.
     Since the text is not rendered before the SVG is opened the final width of text is unknown while it is being generated.
     The text width is used in key places by the R graphics engine, partly for alignment offsetting (which we don't need anymore), but also by e.g. ggplot2's `geom_label()` to figure out the size of the background box.
-    svglite has solved this by calculating a good guess at the width and using the `textLength` attribute of the `<text>` tag to force the renderer to make the text fit into that space.
+    svglite solves this by making a good guess at the width and using the `textLength` attribute of the `<text>` tag to force the renderer to make the text fit into that space.
     While this works, it also means that if you modify the text in post processing the text will remain at the same width no matter what you do.
     Since there's no single right way to handle this, we have made the fixing of text width optional using the `fix_text_size` argument.
     It defaults to `TRUE` which is the old behavior, but if you know you are going to edit some aspect of the text in post processing you can set it to `FALSE`.
