@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [graphic-device, svglite]
-rmd_hash: 3709834abd4145ad
+rmd_hash: 9385e1665975e2d3
 
 ---
 
@@ -30,7 +30,7 @@ TODO:
 * [ ] `use_tidy_thanks()`
 -->
 
-We're extremely happy to announce the release of [svglite](https://svglite.r-lib.org) 2.0.0. svglite is a graphic device that is capable of creating SVG files from R graphics. SVG is a vector graphic format which means that it encode the instructions for recreating a graphic in a scale-independent way. This is in contrast with raster graphics such as PNG (as can be produced with the graphic devices in [ragg](https://ragg.r-lib.org)) which encodes actual pixel values and will get pixelated as you zoom in.
+We're extremely happy to announce the release of [svglite](https://svglite.r-lib.org) 2.0.0. svglite is a graphic device that is capable of creating SVG files from R graphics. SVG is a vector graphic format which means that it encodes the instructions for recreating a graphic in a scale-independent way. This is in contrast with raster graphics, such as PNG (as can be produced with the graphic devices in [ragg](https://ragg.r-lib.org)), which encode actual pixel values and will get pixelated as you zoom in.
 
 You can install the latest release of svglite from CRAN with:
 
@@ -45,7 +45,7 @@ Much time has passed since svglite had a major release and this blog post will g
 Motivation for svglite
 ----------------------
 
-As part of this release we have sharpened our motivation for creating and maintaining svglite given the pre-existing [`svg()`](https://rdrr.io/r/grDevices/cairo.html) device provided by R. All of the changes that are part of this release somehow plays into these motivations and are thus grouped by it below.
+As part of this release, we have sharpened our motivation for creating and maintaining svglite given the pre-existing [`svg()`](https://rdrr.io/r/grDevices/cairo.html) device provided by R. All of the changes that are part of this release somehow plays into these motivations and are thus grouped by them below.
 
 ### Editability
 
@@ -57,7 +57,7 @@ The main difference between the output of [`svg()`](https://rdrr.io/r/grDevices/
 
 -   Encoding text as text means that the resulting file is more accessible. Screen readers will be able to understand and read the text and the text is selectable and copyable.
 
--   File size will be dramatically smaller (more on that \[below\])
+-   File size will be dramatically smaller (more on that \[below\]).
 
 **Cons**
 
@@ -65,7 +65,7 @@ The main difference between the output of [`svg()`](https://rdrr.io/r/grDevices/
 
 -   Encoding text as text means that the final look depend on the implementation of the svg renderer as well as the fonts available on the system where it is rendered. This might sound more ominous than it really is. The vast majority of interactive data visualizations on the web are now based on D3.js which often renders to SVG and it all seems to behave. Still, this is something to be mindful of, and a reason to use [`svg()`](https://rdrr.io/r/grDevices/cairo.html) if exactness of the rendered text is of prime importance.
 
-With this release we further improves upon the editability of the output on key points:
+With this release we further improve upon the editability of the output on key points:
 
 1.  The horizontal alignment of the text is now encoded in the CSS, rather than being pre-computed and offsetted. This is only possible for *left*, *center*, and *right* alignment as these are the only recognized alignment types in SVG, so setting it to something different will still give you the old offsetting behavior. This change means that you can more easily modify center and right aligned text in post processing without messing up the alignment of the text block.
 
@@ -108,11 +108,11 @@ When first created, svglite was much faster than [`svg()`](https://rdrr.io/r/grD
 
 </div>
 
-The additional speed is mainly achieved by no longer ensuring that the file is valid svg *while* it is being rendered. If you need this you can get the old behavior (and speed) back by setting `always_valid = TRUE` when opening the device. You should however consider using [`svgstring()`](https://svglite.r-lib.org/reference/svgstring.html) instead of [`svglite()`](https://svglite.r-lib.org/reference/svglite.html) if you need to continuously access the svg while it is being rendered.
+The additional speed is mainly achieved by no longer ensuring that the file is valid svg *while* it is being rendered. If you need this, you can get the old behavior (and speed) back by setting `always_valid = TRUE` when opening the device. You should however consider using [`svgstring()`](https://svglite.r-lib.org/reference/svgstring.html) instead of [`svglite()`](https://svglite.r-lib.org/reference/svglite.html) if you need to continuously access the svg while it is being rendered.
 
 ### File size
 
-svglite has always produced smaller files than the [`svg()`](https://rdrr.io/r/grDevices/cairo.html) device because of the difference in how text is encoded, but this has been improved on further with this release, mainly by being smarter about how to handle clipping regions in the plot. Another file size related feature in the new release is build-in support for SVGZ (gzipped SVG), simply by providing a file name with an `.svgz` extension:
+svglite has always produced smaller files than the [`svg()`](https://rdrr.io/r/grDevices/cairo.html) device because of the difference in how text is encoded, but this has been improved on further with this release, mainly by being smarter about how to handle clipping regions in the plot. Another file-size-related feature in the new release is built-in support for SVGZ (gzipped SVG), simply by providing a file name with an `.svgz` extension:
 
 <div class="highlight">
 
@@ -150,7 +150,7 @@ svglite has always produced smaller files than the [`svg()`](https://rdrr.io/r/g
 
 ### Font support
 
-You may remember a few days ago when we announced some major improvements to ragg (**INSERT LINK**) and its rendering of text. What about svglite? For the most part svglite has delegated its rendering of text to the svg renderer so by and large it has always supported advanced text features such as right-to-left text, font fallback, and color fonts. Some changes have spilled over though, as svglite is now also based on systemfonts and uses that for doing font lookup and text width calculations. This change means that svglite now have direct access to all your installed fonts along with whatever you have registered with [`register_font()`](https://rdrr.io/pkg/systemfonts/man/register_font.html) and [`register_variant()`](https://rdrr.io/pkg/systemfonts/man/register_variant.html). If you have registered any OpenType features or alternative weights with a font you use these will now be encoded into the CSS of the text block:
+You may remember a few days ago when we [announced some major improvements to ragg and its rendering of text](https://www.tidyverse.org/blog/2021/02/modern-text-features/). What about svglite? For the most part svglite has delegated its rendering of text to the svg renderer so by and large it has always supported advanced text features such as right-to-left text, font fallback, and color fonts. Some changes have spilled over though, as svglite is now also based on systemfonts and uses that for doing font lookup and text width calculations. This change means that svglite now have direct access to all your installed fonts along with whatever you have registered with [`register_font()`](https://rdrr.io/pkg/systemfonts/man/register_font.html) and [`register_variant()`](https://rdrr.io/pkg/systemfonts/man/register_variant.html). If you have registered any OpenType features or alternative weights with a font you use, these will now be encoded into the CSS of the text block:
 
 <div class="highlight">
 
@@ -210,11 +210,11 @@ You may remember a few days ago when we announced some major improvements to rag
 </svg>
 ```
 
-If you compare the two `<text>` tags in the end you can see that the last one has the equivalent of *semibold* (600) encoded as the weight, along with the registered font feature settings (*dlig* is the tag for discretionary ligatures and *salt* is the tag for stylistic alternatives).
+If you compare the two `<text>` tags in the end, you can see that the last one has the equivalent of *semibold* (600) encoded as the weight, along with the registered font feature settings (*dlig* is the tag for discretionary ligatures and *salt* is the tag for stylistic alternatives).
 
 The switch to using systemfonts means that two old arguments to svglite: `system_fonts` and `user_fonts` have become superseded by the font registration in systemfonts. While they work for now they will likely become deprecated in the future as we streamline the text handling among our graphics devices.
 
-The last addition to font handling in svglite is the support for embedding web font imports in the output. As we discussed in the [editability](#editability) section the output from svglite will only render correctly if the used fonts are available. This is not a given when using non-standard fonts, but CSS provides a safety net by allowing the viewer to download fonts on the fly if required. You can specify a web font in two ways:
+The last addition to font handling in svglite is the support for embedding web font imports in the output. As we discussed in the [editability](#editability) section, the output from svglite will only render correctly if the used fonts are available. This is not a given when using non-standard fonts, but CSS provides a safety net by allowing the viewer to download fonts on the fly if required. You can specify a web font in two ways:
 
 1.  As a URL (e.g. from Google Fonts) which will be used in an `@import` directive.
 
