@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 
 slug: lifecycle-1-0-0
-title: lifecycle 1 0 0
+title: lifecycle 1.0.0
 date: 2021-02-15
 author: Hadley Wickham
 description: >
@@ -16,7 +16,7 @@ photo:
 
 categories: [package] 
 tags: [tidyverse]
-rmd_hash: c3b4a46f7e115a47
+rmd_hash: dda8a225f4fd027d
 
 ---
 
