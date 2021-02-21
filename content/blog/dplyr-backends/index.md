@@ -19,14 +19,9 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [dplyr]
-rmd_hash: 4cba63de72849be3
+rmd_hash: acc22aff4ee98ed7
 
 ---
-
-<!--
-TODO:
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
--->
 
 One of my favourite things about dplyr is that it decouples the expression of data manipulation from its computation. That makes it possible to take basically the same dplyr code and execute it in radically different ways by using a different backend. This blog post covers a passel of updates to the dplyr backends that we maintain:
 
