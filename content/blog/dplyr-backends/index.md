@@ -19,19 +19,19 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [dplyr]
-rmd_hash: acc22aff4ee98ed7
+rmd_hash: e630f451bcf18384
 
 ---
 
-One of my favourite things about dplyr is that it decouples the expression of data manipulation from its computation. That makes it possible to take basically the same dplyr code and execute it in radically different ways by using a different backend. This blog post covers a passel of updates to the dplyr backends that we maintain:
+One of my favourite things about dplyr is that it decouples describing the data manipulation you want from its actual computation. That makes it possible to take basically the same dplyr code and execute it in radically different ways by using different backends. This blog post covers a passel of updates to the dplyr backends that we maintain:
 
--   [multidplyr](https://multidplyr.tidyverse.org/) spreads computation over multiple cores.
+-   [multidplyr](https://multidplyr.tidyverse.org/), which spreads computation over multiple cores, is now on CRAN!
 
--   [dtplyr](https://dtplyr.tidyverse.org/) translates your dplyr code to the wonderfully fast [data.table](https://r-datatable.com/) package.
+-   [dtplyr](https://dtplyr.tidyverse.org/), which translates your dplyr code to the wonderfully fast [data.table](https://r-datatable.com/) package, now supports all dplyr 1.0.0 features.
 
--   [dbplyr](https://dbplyr.tidyverse.org/) translates your dplyr code to SQL so it can be executed in a database.
+-   [dbplyr](https://dbplyr.tidyverse.org/), which translates your dplyr code to SQL, now also translates many tidyr verbs.
 
-You can install them all in one fell sweep with:
+You can install these packages in one fell sweep with:
 
 <div class="highlight">
 
@@ -39,7 +39,7 @@ You can install them all in one fell sweep with:
 
 </div>
 
-To use any of the backends, you need to start by loading dplyr.
+I'll explain these changes in more detail below. But to get started, we need to load dplyr.
 
 <div class="highlight">
 
@@ -49,12 +49,13 @@ To use any of the backends, you need to start by loading dplyr.
 
 ## multidplyr 0.1.0
 
-[multidplyr](https://multidplyr.tidyverse.org) creates multiple R processes and spreads computation out across all of them. This provides a simple way to take advantage of multiple cores in your computer. To use it, start by creating a cluster of R processes:
+[multidplyr](https://multidplyr.tidyverse.org) creates multiple R processes and spreads your data out across them, providing a simple way to take advantage of multiple cores. To use it, start by creating a cluster of R processes and load dplyr on them:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/tidyverse/multidplyr'>multidplyr</a></span><span class='o'>)</span>
-<span class='nv'>cluster</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/pkg/multidplyr/man/new_cluster.html'>new_cluster</a></span><span class='o'>(</span><span class='m'>4</span><span class='o'>)</span></code></pre>
+<span class='nv'>cluster</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/pkg/multidplyr/man/new_cluster.html'>new_cluster</a></span><span class='o'>(</span><span class='m'>4</span><span class='o'>)</span>
+<span class='nf'><a href='https://rdrr.io/pkg/multidplyr/man/cluster_utils.html'>cluster_library</a></span><span class='o'>(</span><span class='nv'>cluster</span>, <span class='s'>"dplyr"</span><span class='o'>)</span></code></pre>
 
 </div>
 
@@ -84,15 +85,58 @@ Then spread data across those processes using [`partition()`](https://rdrr.io/pk
 
 </div>
 
-The data is now spread across four "shards" each consisting of around 80,000 rows. I grouped the data before partitioning because this ensures that all the observations in one group end up on the same worker.
+The data is now spread across four "shards" each consisting of around 80,000 rows. Generally, you'll want to group the data before partitioning because that ensures that all observations in one group end up on the same worker.
 
-You can work with this `party_df` as if it was a data frame, but any work will be spread out across all the processes (which your operating system will usually allocate to different cores). Once you're being expensive computation, you can bring the results back to the current session with [`collect()`](https://dplyr.tidyverse.org/reference/compute.html). Learn more in [`vignette("multidplyr")`](https://cran.rstudio.com/web/packages/multidplyr/vignettes/multidplyr.html).
+You can work with this `party_df` as if it was a data frame, but any work will be spread out across all the processes (which your operating system will usually allocate to different cores).
 
-multidplyr is a good fit for problems where the bottleneck is complex non-dplyr computation (e.g. fitting models). There's some overhead initial partitioning the data and then transferring the commands to each worker, so it's not a magic bullet. multidplyr is still quite young, but please try it out and [report any problems](https://github.com/tidyverse/multidplyr/issues) that you experience.
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>mean_delay</span> <span class='o'>&lt;-</span> <span class='nv'>flight_dest</span> <span class='o'>%&gt;%</span> 
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>delay <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>arr_delay</span>, na.rm <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span>, n <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>n</span> <span class='o'>&gt;</span> <span class='m'>25</span><span class='o'>)</span>
+<span class='nv'>mean_delay</span>
+<span class='c'>#&gt; Source: party_df [96 x 3]</span>
+<span class='c'>#&gt; Shards: 4 [21--26 rows]</span>
+<span class='c'>#&gt; </span>
+<span class='c'>#&gt;   <span style='font-weight: bold;'>dest</span><span>  </span><span style='font-weight: bold;'>delay</span><span>     </span><span style='font-weight: bold;'>n</span></span>
+<span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> ABQ    4.38   254</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> AUS    6.02  </span><span style='text-decoration: underline;'>2</span><span>439</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>3</span><span> BQN    8.25   896</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>4</span><span> BTV    8.95  </span><span style='text-decoration: underline;'>2</span><span>589</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>5</span><span> BUF    8.95  </span><span style='text-decoration: underline;'>4</span><span>681</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>6</span><span> CLE    9.18  </span><span style='text-decoration: underline;'>4</span><span>573</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'># … with 90 more rows</span></span></code></pre>
+
+</div>
+
+Once you're done with expensive computation, you can bring the results back to the current session with [`collect()`](https://dplyr.tidyverse.org/reference/compute.html). Learn more in [`vignette("multidplyr")`](https://cran.rstudio.com/web/packages/multidplyr/vignettes/multidplyr.html).
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>results</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/compute.html'>collect</a></span><span class='o'>(</span><span class='nv'>mean_delay</span><span class='o'>)</span>
+<span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='nv'>results</span><span class='o'>)</span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 x 3</span></span>
+<span class='c'>#&gt;   <span style='font-weight: bold;'>dest</span><span>  </span><span style='font-weight: bold;'>delay</span><span>     </span><span style='font-weight: bold;'>n</span></span>
+<span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> ABQ    4.38   254</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> AUS    6.02  </span><span style='text-decoration: underline;'>2</span><span>439</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>3</span><span> BQN    8.25   896</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>4</span><span> BTV    8.95  </span><span style='text-decoration: underline;'>2</span><span>589</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>5</span><span> BUF    8.95  </span><span style='text-decoration: underline;'>4</span><span>681</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>6</span><span> CLE    9.18  </span><span style='text-decoration: underline;'>4</span><span>573</span></span></code></pre>
+
+</div>
+
+multidplyr is a good fit for problems where the bottleneck is complex non-dplyr computation (e.g. fitting models). There's some overhead initially partitioning the data and then transferring the commands to each worker, so it's not a magic bullet, but it is very easy to use.
+
+multidplyr is still quite young, so please try it out and [let us know](https://github.com/tidyverse/multidplyr/issues) about any problems that you experience.
 
 ## dtplyr 1.1.0
 
-[dtplyr](https://dtplyr.tidyverse.org) translates dplyr pipelines into the equivalent [data.table](http://r-datatable.com/) code. data.table is incredibly fast, so this often yields performance improvements. To use it start by creating a [`lazy_dt()`](https://rdrr.io/pkg/dtplyr/man/lazy_dt.html) object which records your dplyr actions:
+[dtplyr](https://dtplyr.tidyverse.org) translates dplyr pipelines into the equivalent [data.table](http://r-datatable.com/) code. data.table is incredibly fast, so this often yields performance improvements.
+
+To use it, start by creating a [`lazy_dt()`](https://rdrr.io/pkg/dtplyr/man/lazy_dt.html) object which records your dplyr actions:
 
 <div class="highlight">
 
@@ -125,7 +169,7 @@ You can see the translation with [`show_query()`](https://dplyr.tidyverse.org/re
 
 The big news in this release is dtplyr can now translate all features that arrived in [dplyr 1.0.0](https://www.tidyverse.org/blog/2020/06/dplyr-1-0-0/). This includes:
 
--   [`across()`](https://dplyr.tidyverse.org/reference/across.html), [`if_any()`](https://dplyr.tidyverse.org/reference/across.html), and [`if_all()`](https://dplyr.tidyverse.org/reference/across.html). Unfortunately `where()` is not currently supported is `where()` because I don't know how to figure out the column types without executing the data table code.
+-   [`across()`](https://dplyr.tidyverse.org/reference/across.html), [`if_any()`](https://dplyr.tidyverse.org/reference/across.html), and [`if_all()`](https://dplyr.tidyverse.org/reference/across.html). Unfortunately `where()` is not currently supported because I don't know how to figure out the column types without executing the pipeline (which might take a long time).
 
     <div class="highlight">
 
@@ -173,17 +217,17 @@ The big news in this release is dtplyr can now translate all features that arriv
 
     </div>
 
-Thanks to [Mark Fairbanks](https://github.com/markfairbanks), dtplyr has also gained it's first translation of a tidyr function: `pivot_wider()`, which is translated to [`dcast()`](https://Rdatatable.gitlab.io/data.table/reference/dcast.data.table.html). You can expect more tidyr translations in the next release!
+Thanks to [Mark Fairbanks](https://github.com/markfairbanks), dtplyr has also gained it's first translation of a tidyr function: `pivot_wider()`, which is translated to [`dcast()`](https://Rdatatable.gitlab.io/data.table/reference/dcast.data.table.html). You can expect more tidyr translations in the next release 😄.
 
-I also took this as an opportunity to thoroughly refresh the documentation so that all translated verbs now have [their own help pages](https://dtplyr.tidyverse.org/reference/index.html) that briefly describes how the translation works. You can read about the other minor improvements and bug fixes in the [release notes](https://github.com/tidyverse/dtplyr/releases/tag/v1.1.0).
+I also took this as an opportunity to thoroughly refresh the documentation so that all translated verbs now have [their own help pages](https://dtplyr.tidyverse.org/reference/index.html) that briefly describe how the translation works. You can read about the other minor improvements and bug fixes in the [release notes](https://github.com/tidyverse/dtplyr/releases/tag/v1.1.0).
 
 ## dbplyr 2.1.0
 
-[dbplyr](https://dbplyr.tidyverse.org) translates dplyr pipelines to their SQL equivalents. If you're new to using dplyr and SQL together, I highly recommend Ireve Steve's rstudio::global() talk [\"The dynamic duo: SQL and R](https://rstudio.com/resources/rstudioglobal-2021/the-dynamic-duo-sql-and-r/). It discusses why you might want to use dbplyr to generate SQL *and* why you should still learn SQL.
+[dbplyr](https://dbplyr.tidyverse.org) translates dplyr pipelines to their SQL equivalents. If you're new to using dplyr and SQL together, I highly recommend Ireve Steve's rstudio::global() talk [\"The dynamic duo: SQL and R](https://rstudio.com/resources/rstudioglobal-2021/the-dynamic-duo-sql-and-r/). It discusses why you might want to use dbplyr to generate SQL **and** why you should still learn SQL.
 
 The biggest change to this release is the addition of many translations for tidyr verbs like [`pivot_longer()`](https://dbplyr.tidyverse.org/reference/pivot_longer.tbl_lazy.html), [`pivot_wider()`](https://dbplyr.tidyverse.org/reference/pivot_wider.tbl_lazy.html), [`complete()`](https://dbplyr.tidyverse.org/reference/complete.tbl_lazy.html), and [`replace_na()`](https://dbplyr.tidyverse.org/reference/replace_na.tbl_lazy.html). These were contributed by [Maximilian Girlich](https://github.com/mgirlich), and in recognition of his sustained and substantial contributions to the package, he has been added as a package author.
 
-This release also includes major improvements to [`across()`](https://dplyr.tidyverse.org/reference/across.html) translation, including translation of formulas (like dtplyr, [`across()`](https://dplyr.tidyverse.org/reference/across.html) can't currently use `where()`, because I don't know of a way to figure out the column types without executing the query). The release also includes a bunch of other minor translation improvements and bug fixes, which you can read about in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.1.0).
+This release also includes major improvements to the [`across()`](https://dplyr.tidyverse.org/reference/across.html) translation, including translation of formulas (like dtplyr, [`across()`](https://dplyr.tidyverse.org/reference/across.html) can't currently use `where()`, because I don't know of a way to figure out the column types without executing the query). The release also includes a bunch of other minor translation improvements and bug fixes, which you can read about in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.1.0).
 
 ## Acknowledgements
 
