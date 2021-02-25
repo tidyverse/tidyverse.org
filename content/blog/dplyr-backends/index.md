@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: dplyr-backends
 title: "dplyr backends: multidplyr 0.1.0, dtplyr 1.1.0, dbplyr 2.1.0"
-date: 2021-02-22
+date: 2021-02-25
 author: Hadley Wickham
 description: >
     We've recently released a bunch of improvements to dplyr backends.
@@ -19,11 +19,11 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [dplyr]
-rmd_hash: e630f451bcf18384
+rmd_hash: 3db71308c192cb30
 
 ---
 
-One of my favourite things about dplyr is that it decouples describing the data manipulation you want from its actual computation. That makes it possible to take basically the same dplyr code and execute it in radically different ways by using different backends. This blog post covers a passel of updates to the dplyr backends that we maintain:
+One of my favourite things about dplyr is that it decouples describing the data manipulation you want from its actual computation. This makes it possible to take basically the same dplyr code and execute it in radically different ways by using different backends. This blog post covers a passel of updates to the dplyr backends that we maintain:
 
 -   [multidplyr](https://multidplyr.tidyverse.org/), which spreads computation over multiple cores, is now on CRAN!
 
@@ -79,13 +79,13 @@ Then spread data across those processes using [`partition()`](https://rdrr.io/pk
 <span class='c'>#&gt; <span style='color: #555555;'>4</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      602            610        -</span><span style='color: #BB0000;'>8</span><span>      812            820</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>5</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      602            605        -</span><span style='color: #BB0000;'>3</span><span>      821            805</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>6</span><span>  </span><span style='text-decoration: underline;'>2</span><span>013     1     1      611            600        11      945            931</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'># … with 336,770 more rows, and 11 more variables: </span><span style='color: #555555;font-weight: bold;'>arr_delay</span><span style='color: #555555;'> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   </span><span style='color: #555555;font-weight: bold;'>carrier</span><span style='color: #555555;'> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, </span><span style='color: #555555;font-weight: bold;'>flight</span><span style='color: #555555;'> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span style='color: #555555;'>, </span><span style='color: #555555;font-weight: bold;'>tailnum</span><span style='color: #555555;'> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, </span><span style='color: #555555;font-weight: bold;'>origin</span><span style='color: #555555;'> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, </span><span style='color: #555555;font-weight: bold;'>dest</span><span style='color: #555555;'> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   </span><span style='color: #555555;font-weight: bold;'>air_time</span><span style='color: #555555;'> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, </span><span style='color: #555555;font-weight: bold;'>distance</span><span style='color: #555555;'> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, </span><span style='color: #555555;font-weight: bold;'>hour</span><span style='color: #555555;'> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, </span><span style='color: #555555;font-weight: bold;'>minute</span><span style='color: #555555;'> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, </span><span style='color: #555555;font-weight: bold;'>time_hour</span><span style='color: #555555;'> </span><span style='color: #555555;font-style: italic;'>&lt;dttm&gt;</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'># … with 336,770 more rows, and 11 more variables: </span><span style='color: #555555;font-weight: bold;'>arr_delay</span><span style='color: #555555;'> &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   </span><span style='color: #555555;font-weight: bold;'>carrier</span><span style='color: #555555;'> &lt;chr&gt;, </span><span style='color: #555555;font-weight: bold;'>flight</span><span style='color: #555555;'> &lt;int&gt;, </span><span style='color: #555555;font-weight: bold;'>tailnum</span><span style='color: #555555;'> &lt;chr&gt;, </span><span style='color: #555555;font-weight: bold;'>origin</span><span style='color: #555555;'> &lt;chr&gt;, </span><span style='color: #555555;font-weight: bold;'>dest</span><span style='color: #555555;'> &lt;chr&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   </span><span style='color: #555555;font-weight: bold;'>air_time</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555;font-weight: bold;'>distance</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555;font-weight: bold;'>hour</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555;font-weight: bold;'>minute</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555;font-weight: bold;'>time_hour</span><span style='color: #555555;'> &lt;dttm&gt;</span></span></code></pre>
 
 </div>
 
-The data is now spread across four "shards" each consisting of around 80,000 rows. Generally, you'll want to group the data before partitioning because that ensures that all observations in one group end up on the same worker.
+The data is now spread across four "shards", each consisting of around 80,000 rows. Generally, you'll want to group the data before partitioning which ensures that all observations in one group end up on the same worker.
 
 You can work with this `party_df` as if it was a data frame, but any work will be spread out across all the processes (which your operating system will usually allocate to different cores).
 
@@ -128,13 +128,13 @@ Once you're done with expensive computation, you can bring the results back to t
 
 </div>
 
-multidplyr is a good fit for problems where the bottleneck is complex non-dplyr computation (e.g. fitting models). There's some overhead initially partitioning the data and then transferring the commands to each worker, so it's not a magic bullet, but it is very easy to use.
+multidplyr is a good fit for problems where the bottleneck is complex, non-dplyr computation (e.g. fitting models). There's some overhead initially partitioning the data and then transferring the commands to each worker, so it's not a magic bullet, but it is very easy to use.
 
-multidplyr is still quite young, so please try it out and [let us know](https://github.com/tidyverse/multidplyr/issues) about any problems that you experience.
+multidplyr is still quite young, so please try it out and [let us know](https://github.com/tidyverse/multidplyr/issues) about any problems that you encounter.
 
 ## dtplyr 1.1.0
 
-[dtplyr](https://dtplyr.tidyverse.org) translates dplyr pipelines into the equivalent [data.table](http://r-datatable.com/) code. data.table is incredibly fast, so this often yields performance improvements.
+[dtplyr](https://dtplyr.tidyverse.org) translates dplyr pipelines into equivalent [data.table](http://r-datatable.com/) code. data.table is incredibly fast, so this often yields performance improvements.
 
 To use it, start by creating a [`lazy_dt()`](https://rdrr.io/pkg/dtplyr/man/lazy_dt.html) object which records your dplyr actions:
 
@@ -223,11 +223,11 @@ I also took this as an opportunity to thoroughly refresh the documentation so th
 
 ## dbplyr 2.1.0
 
-[dbplyr](https://dbplyr.tidyverse.org) translates dplyr pipelines to their SQL equivalents. If you're new to using dplyr and SQL together, I highly recommend Ireve Steve's rstudio::global() talk [\"The dynamic duo: SQL and R](https://rstudio.com/resources/rstudioglobal-2021/the-dynamic-duo-sql-and-r/). It discusses why you might want to use dbplyr to generate SQL **and** why you should still learn SQL.
+[dbplyr](https://dbplyr.tidyverse.org) translates dplyr pipelines to their SQL equivalents. If you're new to using dplyr and SQL together, I highly recommend Irene Steve's rstudio::global() talk, [\"The dynamic duo: SQL and R](https://rstudio.com/resources/rstudioglobal-2021/the-dynamic-duo-sql-and-r/). It discusses why you might want to use dbplyr to generate SQL **and** why you should still learn SQL.
 
 The biggest change to this release is the addition of many translations for tidyr verbs like [`pivot_longer()`](https://dbplyr.tidyverse.org/reference/pivot_longer.tbl_lazy.html), [`pivot_wider()`](https://dbplyr.tidyverse.org/reference/pivot_wider.tbl_lazy.html), [`complete()`](https://dbplyr.tidyverse.org/reference/complete.tbl_lazy.html), and [`replace_na()`](https://dbplyr.tidyverse.org/reference/replace_na.tbl_lazy.html). These were contributed by [Maximilian Girlich](https://github.com/mgirlich), and in recognition of his sustained and substantial contributions to the package, he has been added as a package author.
 
-This release also includes major improvements to the [`across()`](https://dplyr.tidyverse.org/reference/across.html) translation, including translation of formulas (like dtplyr, [`across()`](https://dplyr.tidyverse.org/reference/across.html) can't currently use `where()`, because I don't know of a way to figure out the column types without executing the query). The release also includes a bunch of other minor translation improvements and bug fixes, which you can read about in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.1.0).
+This release also includes major improvements to the [`across()`](https://dplyr.tidyverse.org/reference/across.html) translation, including translation of formulas (like dtplyr, [`across()`](https://dplyr.tidyverse.org/reference/across.html) can't currently use `where()`, because I don't know of a way to figure out the column types without executing the query). There are also a bunch of other minor translation improvements and bug fixes, which you can read about in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.1.0).
 
 ## Acknowledgements
 
