@@ -1,0 +1,182 @@
+---
+output: hugodown::hugo_document
+
+slug: dplyr-backends
+title: "dplyr backends: multidplyr 0.1.0, dtplyr 1.1.0, dbplyr 2.1.0"
+date: 2021-02-25
+author: Hadley Wickham
+description: >
+    We've recently released a bunch of improvements to dplyr backends.
+    multidplyr, which allows you to spread work across multiple cores, is
+    now on CRAN. dtplyr adds translations for dplyr 1.0.0 and fixes many
+    bugs. dbplyr 2.1.0 adds translations for many tidyr verbs, gains an 
+    author, and has improved `across()` translations. 
+
+photo:
+  url: https://unsplash.com/photos/jVYnBn3M9R0
+  author: Charles Deluvio
+
+# one of: "deep-dive", "learn", "package", "programming", or "other"
+categories: [package] 
+tags: [dplyr]
+---
+
+One of my favourite things about dplyr is that it decouples describing the data manipulation you want from its actual computation.
+This makes it possible to take basically the same dplyr code and execute it in radically different ways by using different backends.
+This blog post covers a passel of updates to the dplyr backends that we maintain:
+
+-   [multidplyr](https://multidplyr.tidyverse.org/), which spreads computation over multiple cores, is now on CRAN!
+
+-   [dtplyr](https://dtplyr.tidyverse.org/), which translates your dplyr code to the wonderfully fast [data.table](https://r-datatable.com/) package, now supports all dplyr 1.0.0 features.
+
+-   [dbplyr](https://dbplyr.tidyverse.org/), which translates your dplyr code to SQL, now also translates many tidyr verbs.
+
+You can install these packages in one fell sweep with:
+
+```{r, eval = FALSE}
+install.packages(c("multidplyr", "dtplyr", "dbplyr"))
+```
+
+I'll explain these changes in more detail below.
+But to get started, we need to load dplyr.
+
+```{r}
+library(dplyr, warn.conflicts = FALSE)
+```
+
+## multidplyr 0.1.0
+
+[multidplyr](https://multidplyr.tidyverse.org) creates multiple R processes and spreads your data out across them, providing a simple way to take advantage of multiple cores.
+To use it, start by creating a cluster of R processes and load dplyr on them:
+
+```{r, message = FALSE}
+library(multidplyr)
+cluster <- new_cluster(4)
+cluster_library(cluster, "dplyr")
+```
+
+Then spread data across those processes using `partition()`:
+
+```{r}
+flight_dest <- nycflights13::flights %>% 
+  group_by(dest) %>% 
+  partition(cluster)
+flight_dest
+```
+
+The data is now spread across four "shards", each consisting of around 80,000 rows.
+Generally, you'll want to group the data before partitioning which ensures that all observations in one group end up on the same worker.
+
+You can work with this `party_df` as if it was a data frame, but any work will be spread out across all the processes (which your operating system will usually allocate to different cores).
+
+```{r}
+mean_delay <- flight_dest %>% 
+  summarise(delay = mean(arr_delay, na.rm = TRUE), n = n()) %>% 
+  filter(n > 25)
+mean_delay
+```
+
+Once you're done with expensive computation, you can bring the results back to the current session with `collect()`.
+Learn more in `vignette("multidplyr")`.
+
+```{r}
+results <- collect(mean_delay)
+head(results)
+```
+
+multidplyr is a good fit for problems where the bottleneck is complex, non-dplyr computation (e.g. fitting models).
+There's some overhead initially partitioning the data and then transferring the commands to each worker, so it's not a magic bullet, but it is very easy to use.
+
+multidplyr is still quite young, so please try it out and [let us know](https://github.com/tidyverse/multidplyr/issues) about any problems that you encounter.
+
+## dtplyr 1.1.0
+
+```{r, include = FALSE}
+# for autolinking
+library(data.table)
+```
+
+[dtplyr](https://dtplyr.tidyverse.org) translates dplyr pipelines into equivalent [data.table](http://r-datatable.com/) code.
+data.table is incredibly fast, so this often yields performance improvements.
+
+To use it, start by creating a `lazy_dt()` object which records your dplyr actions:
+
+```{r}
+library(dtplyr)
+dt <- lazy_dt(mtcars)
+
+cyl_summary <- dt %>% 
+  group_by(cyl) %>% 
+  summarise(across(disp:wt, mean))
+```
+
+You can see the translation with `show_query()` or execute the data table code by converting back to a data frame, data table, or tibble:
+
+```{r}
+cyl_summary %>% show_query()
+
+cyl_summary %>% as_tibble()
+```
+
+The big news in this release is dtplyr can now translate all features that arrived in [dplyr 1.0.0](https://www.tidyverse.org/blog/2020/06/dplyr-1-0-0/).
+This includes:
+
+-   `across()`, `if_any()`, and `if_all()`.
+    Unfortunately `where()` is not currently supported because I don't know how to figure out the column types without executing the pipeline (which might take a long time).
+
+    ```{r}
+    dt %>% 
+      filter(if_any(cyl:wt, is.na)) %>% 
+      show_query()
+    ```
+
+-   `relocate()`, which is translated to the `j` argument of `[.data.table`:
+
+    ```{r}
+    dt %>% 
+      relocate(carb, .before = mpg) %>% 
+      show_query()
+    ```
+
+-   `rename_with()`, which is translated to `setnames()`:
+
+    ```{r}
+    dt %>% 
+      rename_with(toupper) %>% 
+      show_query()
+    ```
+
+-   `slice_min()`, `slice_max()`, `slice_head()`, `slice_tail()`, and `slice_sample()` which are translated to various `i` and `j` expressions:
+
+    ```{r}
+    dt %>% group_by(cyl) %>% slice_sample(n = 5) %>% show_query()
+    dt %>% group_by(cyl) %>% slice_head(n = 1) %>% show_query()
+    dt %>% group_by(cyl) %>% slice_min(mpg, n = 1) %>% show_query()
+    ```
+
+Thanks to [Mark Fairbanks](https://github.com/markfairbanks), dtplyr has also gained it's first translation of a tidyr function: `pivot_wider()`, which is translated to `dcast()`.
+You can expect more tidyr translations in the next release 😄.
+
+I also took this as an opportunity to thoroughly refresh the documentation so that all translated verbs now have [their own help pages](https://dtplyr.tidyverse.org/reference/index.html) that briefly describe how the translation works.
+You can read about the other minor improvements and bug fixes in the [release notes](https://github.com/tidyverse/dtplyr/releases/tag/v1.1.0).
+
+## dbplyr 2.1.0
+
+[dbplyr](https://dbplyr.tidyverse.org) translates dplyr pipelines to their SQL equivalents.
+If you're new to using dplyr and SQL together, I highly recommend Irene Steve's rstudio::global() talk, ["The dynamic duo: SQL and R](https://rstudio.com/resources/rstudioglobal-2021/the-dynamic-duo-sql-and-r/). It discusses why you might want to use dbplyr to generate SQL **and** why you should still learn SQL.
+
+The biggest change to this release is the addition of many translations for tidyr verbs like [`pivot_longer()`](https://dbplyr.tidyverse.org/reference/pivot_longer.tbl_lazy.html), [`pivot_wider()`](https://dbplyr.tidyverse.org/reference/pivot_wider.tbl_lazy.html), [`complete()`](https://dbplyr.tidyverse.org/reference/complete.tbl_lazy.html), and [`replace_na()`](https://dbplyr.tidyverse.org/reference/replace_na.tbl_lazy.html).
+These were contributed by [Maximilian Girlich](https://github.com/mgirlich), and in recognition of his sustained and substantial contributions to the package, he has been added as a package author.
+
+This release also includes major improvements to the `across()` translation, including translation of formulas (like dtplyr, `across()` can't currently use `where()`, because I don't know of a way to figure out the column types without executing the query).
+There are also a bunch of other minor translation improvements and bug fixes, which you can read about in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.1.0).
+
+## Acknowledgements
+
+A big thanks to all of the contributors who helped make these releases possible:
+
+-   dbplyr: [\@abalter](https://github.com/abalter), [\@Alternikaner](https://github.com/Alternikaner), [\@andrew-schulman](https://github.com/andrew-schulman), [\@andyquinterom](https://github.com/andyquinterom), [\@awong234](https://github.com/awong234), [\@ben1787](https://github.com/ben1787), [\@bersbersbers](https://github.com/bersbersbers), [\@bwcastillo](https://github.com/bwcastillo), [\@chris-billingham](https://github.com/chris-billingham), [\@coponhub](https://github.com/coponhub), [\@DavidPatShuiFong](https://github.com/DavidPatShuiFong), [\@dcaud](https://github.com/dcaud), [\@dpprdan](https://github.com/dpprdan), [\@dstoeckel](https://github.com/dstoeckel), [\@elicit-bergmann](https://github.com/elicit-bergmann), [\@hadley](https://github.com/hadley), [\@hdplsa](https://github.com/hdplsa), [\@iangow](https://github.com/iangow), [\@Janlow](https://github.com/Janlow), [\@LukasTang](https://github.com/LukasTang), [\@McWraith](https://github.com/McWraith), [\@mfherman](https://github.com/mfherman), [\@mgirlich](https://github.com/mgirlich), [\@mr-c](https://github.com/mr-c), [\@mszefler](https://github.com/mszefler), [\@N1h1l1sT](https://github.com/N1h1l1sT), [\@nathaneastwood](https://github.com/nathaneastwood), [\@nlneas1](https://github.com/nlneas1), [\@okhoma](https://github.com/okhoma), [\@pachamaltese](https://github.com/pachamaltese), [\@peterdutey](https://github.com/peterdutey), [\@pgramme](https://github.com/pgramme), [\@robchallen](https://github.com/robchallen), [\@shearer](https://github.com/shearer), [\@sheepworrier](https://github.com/sheepworrier), [\@shosaco](https://github.com/shosaco), [\@spirosparaskevasFBB](https://github.com/spirosparaskevasFBB), [\@tonyk7440](https://github.com/tonyk7440), [\@TuomoNieminen](https://github.com/TuomoNieminen), [\@yitao-li](https://github.com/yitao-li), and [\@yiugn](https://github.com/yiugn)
+
+-   dtplyr: [\@AdrienMtgn](https://github.com/AdrienMtgn), [\@batpigandme](https://github.com/batpigandme), [\@boerjames](https://github.com/boerjames), [\@cassiel74](https://github.com/cassiel74), [\@dan-reznik](https://github.com/dan-reznik), [\@ds-jim](https://github.com/ds-jim), [\@edavidaja](https://github.com/edavidaja), [\@edgararuiz-zz](https://github.com/edgararuiz-zz), [\@engineerchange](https://github.com/engineerchange), [\@fkgruber](https://github.com/fkgruber), [\@gmonaie](https://github.com/gmonaie), [\@hadley](https://github.com/hadley), [\@hope-data-science](https://github.com/hope-data-science), [\@jasonopolis](https://github.com/jasonopolis), [\@jimhester](https://github.com/jimhester), [\@JohnMount](https://github.com/JohnMount), [\@larspijnappel](https://github.com/larspijnappel), [\@lbenz-mdsol](https://github.com/lbenz-mdsol), [\@markfairbanks](https://github.com/markfairbanks), [\@MichaelChirico](https://github.com/MichaelChirico), [\@Mitschka](https://github.com/Mitschka), [\@myoung3](https://github.com/myoung3), [\@nigeljmckernan](https://github.com/nigeljmckernan), [\@PMassicotte](https://github.com/PMassicotte), [\@pnacht](https://github.com/pnacht), [\@psanker](https://github.com/psanker), [\@rossellhayes](https://github.com/rossellhayes), [\@RudolfCardinal](https://github.com/RudolfCardinal), [\@sbashevkin](https://github.com/sbashevkin), [\@ShixiangWang](https://github.com/ShixiangWang), [\@skiamu](https://github.com/skiamu), [\@smingerson](https://github.com/smingerson), [\@sonoshah](https://github.com/sonoshah), [\@tingjhenjiang](https://github.com/tingjhenjiang), [\@tylerferguson](https://github.com/tylerferguson), [\@TysonStanley](https://github.com/TysonStanley), [\@yiugn](https://github.com/yiugn), and [\@ykaeber](https://github.com/ykaeber).
+
+-   multidplyr: [\@12tafran](https://github.com/12tafran), [\@adviksh](https://github.com/adviksh), [\@ahoho](https://github.com/ahoho), [\@baldeagle](https://github.com/baldeagle), [\@borisveytsman](https://github.com/borisveytsman), [\@brianmsm](https://github.com/brianmsm), [\@ChiWPak](https://github.com/ChiWPak), [\@cluelessgumshoe](https://github.com/cluelessgumshoe), [\@CorradoLanera](https://github.com/CorradoLanera), [\@cscheid](https://github.com/cscheid), [\@cwaldock1](https://github.com/cwaldock1), [\@damiaan](https://github.com/damiaan), [\@david-awam-jansen](https://github.com/david-awam-jansen), [\@dewoller](https://github.com/dewoller), [\@donaldRwilliams](https://github.com/donaldRwilliams), [\@dzhang32](https://github.com/dzhang32), [\@eliferden](https://github.com/eliferden), [\@FvD](https://github.com/FvD), [\@GegznaV](https://github.com/GegznaV), [\@germanium](https://github.com/germanium), [\@ghost](https://github.com/ghost), [\@guokai8](https://github.com/guokai8), [\@hadley](https://github.com/hadley), [\@huisaddison](https://github.com/huisaddison), [\@iago-pssjd](https://github.com/iago-pssjd), [\@impactanalysts](https://github.com/impactanalysts), [\@isaac-florence](https://github.com/isaac-florence), [\@javadba](https://github.com/javadba), [\@jiho](https://github.com/jiho), [\@JosiahParry](https://github.com/JosiahParry), [\@julou](https://github.com/julou), [\@kartiksubbarao](https://github.com/kartiksubbarao), [\@kyp0717](https://github.com/kyp0717), [\@lucazav](https://github.com/lucazav), [\@MarioClueless](https://github.com/MarioClueless), [\@Maschette](https://github.com/Maschette), [\@McChickenNuggets](https://github.com/McChickenNuggets), [\@miho87](https://github.com/miho87), [\@njudd](https://github.com/njudd), [\@philiporlando](https://github.com/philiporlando), [\@picarus](https://github.com/picarus), [\@samkhan1](https://github.com/samkhan1), [\@SGMStalin](https://github.com/SGMStalin), [\@stanstrup](https://github.com/stanstrup), [\@taqtiqa-mark](https://github.com/taqtiqa-mark), [\@tmstauss](https://github.com/tmstauss), [\@tsengj](https://github.com/tsengj), [\@wibeasley](https://github.com/wibeasley), [\@willtudorevans](https://github.com/willtudorevans), and [\@zhengjiji456](https://github.com/zhengjiji456).
