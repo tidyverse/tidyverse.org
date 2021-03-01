@@ -23,7 +23,11 @@ remotes::install_github("r-lib/hugodown")
 
 * To add a new post call `hugodown::use_tidy_post("short-name")`. 
   This creates `content/blog/short-name/`containing an `index.Rmd` file that 
-  tells you what to do next.
+  tells you what to do next. Patterns we use a lot for `"short-name"`:
+  
+  - Package release: `lifecycle-1-0-0`, `parsnip-0-1-2`
+  - Package (release?) and a specific topic: `dplyr-1-0-0-rowwise`, `parsnip-adjacent`, `dplyr-1-0-4-if-any`
+  - Topic: `self-cleaning-test-fixtures`, `taking-control-of-plot-scaling`
   
 * To add a new event call `hugodown::post_create("events/year-event-name")`.
 
