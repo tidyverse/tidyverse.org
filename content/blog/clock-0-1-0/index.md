@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: e80bd129f8bb218f
+rmd_hash: e56ed6a83bd28979
 
 ---
 
@@ -467,7 +467,7 @@ I recommend `"roll-forward"` or `"roll-backward"`, as these retain the *relative
 
 Unlike with invalid dates, lubridate does not provide any tools for resolving nonexistent times.
 
-There are another class of daylight saving time issues related to *ambiguous times*. You resolve them in a similar way to what was done with nonexistent times. If you're interested, you can read more about those ambiguous times [here](https://r-lib.github.io/clock/articles/articles/motivations.html#ambiguous-time-1).
+There are another class of daylight saving time issues related to *ambiguous times*. These generally result from daylight saving fallbacks, where your clock might show two 1 AM hours. You resolve them in a similar way to what was done with nonexistent times. If you're interested, you can read more about ambiguous times [here](https://r-lib.github.io/clock/articles/articles/motivations.html#ambiguous-time-1).
 
 ## Production
 
