@@ -134,22 +134,7 @@ flights %>%
   summarise(avg_delay = mean(dep_delay, na.rm = TRUE), .groups = "drop")
 ```
 
-If you instead wanted to summarize by week, starting on Wednesdays, you could use `date_shift()` to shift your date to the previous or next target weekday. This requires using one of clock's new types, weekday, to set the target to shift to.
-
-```{r}
-wed <- weekday(clock_weekdays$wednesday)
-wed
-
-flights %>%
-  select(date) %>%
-  mutate(
-    shifted = date_shift(date, wed, which = "previous"),
-    wday_date = as_weekday(date),
-    wday_shifted = as_weekday(shifted)
-  )
-```
-
-If you've used lubridate before, you would probably have done both of these summarizations with `lubridate::floor_date()`. In clock, date summarization is broken into three groups: grouping, shifting, and rounding. This separation leads to code that is both less surprising, and more powerful, giving you the ability to summarize in new ways, such as: flooring by multiple weeks, grouping by day of the quarter, and flooring by rolling sets of, say, 60 days.
+If you've used lubridate before, you would have probably used `lubridate::floor_date()` for this. In clock, date summarization is broken into three groups: grouping, shifting, and rounding. This separation leads to code that is both less surprising, and more powerful, giving you the ability to summarize in new ways, such as: flooring by multiple weeks, grouping by day of the quarter, and flooring by rolling sets of, say, 60 days.
 
 Be sure to check out the many other high-level tools for working with dates, including powerful utilities for formatting ([`date_format()`](https://r-lib.github.io/clock/reference/date_format.html)) and parsing ([`date_parse()`](https://r-lib.github.io/clock/reference/date_parse.html) and [`date_time_parse()`](https://r-lib.github.io/clock/reference/date-time-parse.html)).
 
