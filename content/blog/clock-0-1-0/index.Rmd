@@ -166,7 +166,9 @@ So, how do we handle this? Well, there are a number of things that you could do:
 
 - Overflow our invalid date into March by the number of days past the true end of February that it landed at
 
-With lubridate, you can use `add_with_rollback()` (i.e. `%m+%`) to help with the second and third bullet points.
+With lubridate, `%m+%` (i.e. `add_with_rollback()`) can help with the second and third bullets. The hardest part about `%m+%` is just remembering to use it. It is a common bug to forget to use this helper until *after* you have been bitten by an invalid date issue with an unexpected `NA`.
+
+With clock, the error message advised us to use the `invalid` argument to `add_months()`. This allows for explicitly specifying one of many invalid date resolution strategies.
 
 ```{r}
 problems <- flights %>%
@@ -175,27 +177,14 @@ problems <- flights %>%
 
 problems %>%
   mutate(
-    date2 = date + months(1),
-    date3 = date %m+% months(1),
-    date4 = add_with_rollback(date, months(1), roll_to_first = TRUE)
-  )
-```
-
-With Dates, the hardest part about `%m+%` is remembering to use it. It is a common bug to forget to use this helper until *after* you have been bitten by an invalid date issue with an unexpected `NA`.
-
-The overarching goal of clock is to protect you, the hard-working data scientist who shouldn't have to be an expert in date-times, from issues like this by erroring early and often, rather than letting this slip through unnoticed, only to cause hard to debug issues down the line.
-
-Looking at the other half of clock's error message, you're advised to use the `invalid` argument to `add_months()`. This allows you to specify one of many invalid date resolution strategies.
-
-```{r}
-problems %>%
-  mutate(
     date2 = add_months(date, 1, invalid = "previous"),
     date3 = add_months(date, 1, invalid = "next"),
     date4 = add_months(date, 1, invalid = "overflow"),
     date5 = add_months(date, 1, invalid = "NA")
   )
 ```
+
+The overarching goal of clock is to protect you from issues like invalid dates by erroring early and often, rather than letting them slip through unnoticed, only to cause hard to debug issues down the line.
 
 ## Daylight saving time
 

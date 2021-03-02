@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 2c79d5d4064fef78
+rmd_hash: 3020a1bbcdac754c
 
 ---
 
@@ -184,40 +184,7 @@ To summarize the average departure delay by month, one option is to use [`date_g
 
 </div>
 
-If you instead wanted to summarize by week, starting on Wednesdays, you could use [`date_shift()`](https://rdrr.io/pkg/clock/man/date-and-date-time-shifting.html) to shift your date to the previous or next target weekday. This requires using one of clock's new types, weekday, to set the target to shift to.
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>wed</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/weekday.html'>weekday</a></span><span class='o'>(</span><span class='nv'>clock_weekdays</span><span class='o'>$</span><span class='nv'>wednesday</span><span class='o'>)</span>
-<span class='nv'>wed</span>
-<span class='c'>#&gt; &lt;weekday[1]&gt;</span>
-<span class='c'>#&gt; [1] Wed</span>
-
-<span class='nv'>flights</span> <span class='o'>%&gt;%</span>
-  <span class='nf'>select</span><span class='o'>(</span><span class='nv'>date</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'>mutate</span><span class='o'>(</span>
-    shifted <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/date-and-date-time-shifting.html'>date_shift</a></span><span class='o'>(</span><span class='nv'>date</span>, <span class='nv'>wed</span>, which <span class='o'>=</span> <span class='s'>"previous"</span><span class='o'>)</span>,
-    wday_date <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/as_weekday.html'>as_weekday</a></span><span class='o'>(</span><span class='nv'>date</span><span class='o'>)</span>,
-    wday_shifted <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/as_weekday.html'>as_weekday</a></span><span class='o'>(</span><span class='nv'>shifted</span><span class='o'>)</span>
-  <span class='o'>)</span>
-<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 100 x 4</span></span>
-<span class='c'>#&gt;    date       shifted    wday_date wday_shifted</span>
-<span class='c'>#&gt;    <span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;weekday&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;weekday&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span><span> 2013-01-06 2013-01-02       Sun          Wed</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span><span> 2013-01-08 2013-01-02       Tue          Wed</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span><span> 2013-01-17 2013-01-16       Thu          Wed</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span><span> 2013-01-26 2013-01-23       Sat          Wed</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span><span> 2013-01-29 2013-01-23       Tue          Wed</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span><span> 2013-01-30 2013-01-30       Wed          Wed</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span><span> 2013-02-01 2013-01-30       Fri          Wed</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span><span> 2013-02-04 2013-01-30       Mon          Wed</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span><span> 2013-02-10 2013-02-06       Sun          Wed</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span><span> 2013-02-13 2013-02-13       Wed          Wed</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'># … with 90 more rows</span></span></code></pre>
-
-</div>
-
-If you've used lubridate before, you would probably have done both of these summarizations with [`lubridate::floor_date()`](http://lubridate.tidyverse.org/reference/round_date.html). In clock, date summarization is broken into three groups: grouping, shifting, and rounding. This separation leads to code that is both less surprising, and more powerful, giving you the ability to summarize in new ways, such as: flooring by multiple weeks, grouping by day of the quarter, and flooring by rolling sets of, say, 60 days.
+If you've used lubridate before, you would have probably used [`lubridate::floor_date()`](http://lubridate.tidyverse.org/reference/round_date.html) for this. In clock, date summarization is broken into three groups: grouping, shifting, and rounding. This separation leads to code that is both less surprising, and more powerful, giving you the ability to summarize in new ways, such as: flooring by multiple weeks, grouping by day of the quarter, and flooring by rolling sets of, say, 60 days.
 
 Be sure to check out the many other high-level tools for working with dates, including powerful utilities for formatting ([`date_format()`](https://r-lib.github.io/clock/reference/date_format.html)) and parsing ([`date_parse()`](https://r-lib.github.io/clock/reference/date_parse.html) and [`date_time_parse()`](https://r-lib.github.io/clock/reference/date-time-parse.html)).
 
@@ -270,7 +237,9 @@ So, how do we handle this? Well, there are a number of things that you could do:
 
 -   Overflow our invalid date into March by the number of days past the true end of February that it landed at
 
-With lubridate, you can use [`add_with_rollback()`](http://lubridate.tidyverse.org/reference/mplus.html) (i.e. [`%m+%`](http://lubridate.tidyverse.org/reference/mplus.html)) to help with the second and third bullet points.
+With lubridate, [`%m+%`](http://lubridate.tidyverse.org/reference/mplus.html) (i.e. [`add_with_rollback()`](http://lubridate.tidyverse.org/reference/mplus.html)) can help with the second and third bullets. The hardest part about [`%m+%`](http://lubridate.tidyverse.org/reference/mplus.html) is just remembering to use it. It is a common bug to forget to use this helper until *after* you have been bitten by an invalid date issue with an unexpected `NA`.
+
+With clock, the error message advised us to use the `invalid` argument to [`add_months()`](https://rdrr.io/pkg/clock/man/clock-arithmetic.html). This allows for explicitly specifying one of many invalid date resolution strategies.
 
 <div class="highlight">
 
@@ -279,28 +248,6 @@ With lubridate, you can use [`add_with_rollback()`](http://lubridate.tidyverse.o
   <span class='nf'>slice</span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>5</span>, <span class='m'>6</span><span class='o'>)</span><span class='o'>)</span>
 
 <span class='nv'>problems</span> <span class='o'>%&gt;%</span>
-  <span class='nf'>mutate</span><span class='o'>(</span>
-    date2 <span class='o'>=</span> <span class='nv'>date</span> <span class='o'>+</span> <span class='nf'><a href='https://rdrr.io/r/base/weekday.POSIXt.html'>months</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>)</span>,
-    date3 <span class='o'>=</span> <span class='nv'>date</span> <span class='o'>%m+%</span> <span class='nf'><a href='https://rdrr.io/r/base/weekday.POSIXt.html'>months</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>)</span>,
-    date4 <span class='o'>=</span> <span class='nf'><a href='http://lubridate.tidyverse.org/reference/mplus.html'>add_with_rollback</a></span><span class='o'>(</span><span class='nv'>date</span>, <span class='nf'><a href='https://rdrr.io/r/base/weekday.POSIXt.html'>months</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>)</span>, roll_to_first <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span>
-  <span class='o'>)</span>
-<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 x 4</span></span>
-<span class='c'>#&gt;   date       date2      date3      date4     </span>
-<span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>    </span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> 2013-01-29 </span><span style='color: #BB0000;'>NA</span><span>         2013-02-28 2013-03-01</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> 2013-01-30 </span><span style='color: #BB0000;'>NA</span><span>         2013-02-28 2013-03-01</span></span></code></pre>
-
-</div>
-
-With Dates, the hardest part about [`%m+%`](http://lubridate.tidyverse.org/reference/mplus.html) is remembering to use it. It is a common bug to forget to use this helper until *after* you have been bitten by an invalid date issue with an unexpected `NA`.
-
-The overarching goal of clock is to protect you, the hard-working data scientist who shouldn't have to be an expert in date-times, from issues like this by erroring early and often, rather than letting this slip through unnoticed, only to cause hard to debug issues down the line.
-
-Looking at the other half of clock's error message, you're advised to use the `invalid` argument to [`add_months()`](https://rdrr.io/pkg/clock/man/clock-arithmetic.html). This allows you to specify one of many invalid date resolution strategies.
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>problems</span> <span class='o'>%&gt;%</span>
   <span class='nf'>mutate</span><span class='o'>(</span>
     date2 <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/clock-arithmetic.html'>add_months</a></span><span class='o'>(</span><span class='nv'>date</span>, <span class='m'>1</span>, invalid <span class='o'>=</span> <span class='s'>"previous"</span><span class='o'>)</span>,
     date3 <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/clock-arithmetic.html'>add_months</a></span><span class='o'>(</span><span class='nv'>date</span>, <span class='m'>1</span>, invalid <span class='o'>=</span> <span class='s'>"next"</span><span class='o'>)</span>,
@@ -314,6 +261,8 @@ Looking at the other half of clock's error message, you're advised to use the `i
 <span class='c'>#&gt; <span style='color: #555555;'>2</span><span> 2013-01-30 2013-02-28 2013-03-01 2013-03-02 </span><span style='color: #BB0000;'>NA</span></span></code></pre>
 
 </div>
+
+The overarching goal of clock is to protect you from issues like invalid dates by erroring early and often, rather than letting them slip through unnoticed, only to cause hard to debug issues down the line.
 
 ## Daylight saving time
 
