@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: '1202679922868883'
+rmd_hash: 2c79d5d4064fef78
 
 ---
 
@@ -787,4 +787,8 @@ clock also provides its own time zone aware date-time type, the zoned-time. Conv
 </div>
 
 There isn't actually a lot you can do with zoned-times directly. Generally, zoned-times are the start or end points of an analysis meant for humans to interpret. In the middle, you'll convert to naive-time, sys-time, or to a calendar type to perform any date-time specific manipulations.
+
+<div class="highlight">
+
+</div>
 

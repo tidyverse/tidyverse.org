@@ -16,10 +16,10 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
 # Fix the TZ to America/New_York, as this is used by `as.POSIXct(<Date>)`.
-# Reset your R session to reset this to your system's default.
-Sys.setenv(TZ = "America/New_York")
+# This is reset at the end of the Rmd with `withr::deferred_run()`.
+withr::local_envvar(TZ = "America/New_York")
 ```
 
 We're thrilled to announce the first release of [clock](https://r-lib.github.io/clock/index.html). clock is a new package providing a comprehensive set of tools for working with date-times. It is packed with features, including tools for: parsing, formatting, arithmetic, rounding, and extraction/updating of individual components. Additionally, it:
@@ -490,3 +490,8 @@ naive %>%
 ```
 
 There isn't actually a lot you can do with zoned-times directly. Generally, zoned-times are the start or end points of an analysis meant for humans to interpret. In the middle, you'll convert to naive-time, sys-time, or to a calendar type to perform any date-time specific manipulations.
+
+```{r, echo=FALSE}
+# Reset `TZ` envvar
+withr::deferred_run()
+```
