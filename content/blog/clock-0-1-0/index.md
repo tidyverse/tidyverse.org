@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: e56ed6a83bd28979
+rmd_hash: 6aa657991bcc477e
 
 ---
 
@@ -621,7 +621,21 @@ The `ymd2` column directly contains the invalid dates, `2013-02-29` and `2013-02
 
 </div>
 
-The important thing is that they *eventually* get resolved. You must resolve invalid dates before converting to another calendar or to a Date / POSIXct.
+To detect which dates are invalid, use [`invalid_detect()`](https://rdrr.io/pkg/clock/man/clock-invalid.html), which returns a logical vector that can be useful for filtering:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/stats/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>invalids</span>, <span class='nf'><a href='https://rdrr.io/pkg/clock/man/clock-invalid.html'>invalid_detect</a></span><span class='o'>(</span><span class='nv'>ymd2</span><span class='o'>)</span><span class='o'>)</span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 x 3</span></span>
+<span class='c'>#&gt;   date       ymd        ymd2           </span>
+<span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;[i=3]&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> 2013-01-29 2013-01-29 2013-02-29     </span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> 2013-01-30 2013-01-30 2013-02-30     </span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>3</span><span> 2013-10-31 2013-10-31 2013-11-31</span></span></code></pre>
+
+</div>
+
+With invalid dates, the important thing is that they *eventually* get resolved. You must resolve them before converting to another calendar or to a Date / POSIXct.
 
 <div class="highlight">
 

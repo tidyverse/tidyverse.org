@@ -396,7 +396,13 @@ The `ymd2` column directly contains the invalid dates, `2013-02-29` and `2013-02
 mutate(invalids, ymd3 = set_day(ymd2, 15))
 ```
 
-The important thing is that they _eventually_ get resolved. You must resolve invalid dates before converting to another calendar or to a Date / POSIXct.
+To detect which dates are invalid, use `invalid_detect()`, which returns a logical vector that can be useful for filtering:
+
+```{r}
+filter(invalids, invalid_detect(ymd2))
+```
+
+With invalid dates, the important thing is that they _eventually_ get resolved. You must resolve them before converting to another calendar or to a Date / POSIXct.
 
 ```{r, error=TRUE}
 as.Date(invalids$ymd2)
