@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 69b4d35272772034
+rmd_hash: 4777e49b84f090b0
 
 ---
 
@@ -30,7 +30,7 @@ We're thrilled to announce the first release of [clock](https://r-lib.github.io/
 
 -   Requires explicit handling of invalid dates (e.g. what date is one month after January 31st?) and nonexistent or ambiguous times (caused by daylight saving time issues).
 
--   Is built on the C++ [date](https://github.com/HowardHinnant/date) library, which provides a correct and high-performance backend.
+-   Is built on the C++ [date](https://github.com/HowardHinnant/date) library, which provides a correct and high-performance backend. In general, operations on Dates are *much* faster with clock than with lubridate. Currently, operations on POSIXct have roughly the same performance between clock and lubridate (clock's performance with POSIXct will improve greatly in a future release, once a few upstream changes in date are accepted).
 
 You can install it from CRAN with:
 
