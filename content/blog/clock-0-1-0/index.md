@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: f8b4b63983271a3f
+rmd_hash: 8a1426d7445a2f56
 
 ---
 
@@ -22,11 +22,11 @@ rmd_hash: f8b4b63983271a3f
 
 </div>
 
-We're thrilled to announce the first release of [clock](https://r-lib.github.io/clock/index.html). clock is a new package providing a comprehensive set of tools for working with date-times. It is packed with features, including tools for: parsing, formatting, arithmetic, rounding, and extraction/updating of individual components. Additionally, it:
+We're thrilled to announce the first release of [clock](https://r-lib.github.io/clock/index.html). clock is a new package providing a comprehensive set of tools for working with date-times. It is packed with features, including utilities for: parsing, formatting, arithmetic, rounding, and extraction/updating of individual components. In addition to these tools for manipulating date-times, clock provides entirely new date-time types which are structured to reduce the agony of working with time zones as much as possible. At a high-level, clock:
 
--   Provides a new family of orthogonal date-time classes (durations, time points, zoned-times, and calendars) that partition responsibilities so that you only have to think about time zones when you need them.
+-   Provides a new family of date-time classes (durations, time points, zoned-times, and calendars) that partition responsibilities so that you only have to think about time zones when you need them.
 
--   Implements a [high level API](https://r-lib.github.io/clock/reference/index.html#section-high-level-api) for Date and POSIXct classes that lets you get productive quickly without having to learn the details of the underlying classes.
+-   Implements a [high level API](https://r-lib.github.io/clock/reference/index.html#section-high-level-api) for Date and POSIXct classes that lets you get productive quickly without having to learn the details of clock's new date-time types.
 
 -   Requires explicit handling of invalid dates (e.g. what date is one month after January 31st?) and nonexistent or ambiguous times (caused by daylight saving time issues).
 
