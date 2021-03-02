@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 3020a1bbcdac754c
+rmd_hash: e80bd129f8bb218f
 
 ---
 
@@ -311,7 +311,7 @@ We'd like to be able to add this time of day information to our `date` column. T
 
 </div>
 
-To get what we want, we need to convince the `date` column to "forget" that it is UTC, then add on the America/New_York time zone. We'll do this by going through a new intermediate type called naive-time, a date-time type with a yet-to-be-specified time zone. We'll talk more about naive-times in the Time Points section below. This retains the printed time as we expected.
+To get what we want, we need to convince the `date` column to "forget" that it is UTC, then add on the America/New_York time zone. With clock, we'll do this by going through a new intermediate type called naive-time, a date-time type with a yet-to-be-specified time zone. We'll talk more about naive-times in the Time Points section below. This retains the printed time as we expected.
 
 <div class="highlight">
 
