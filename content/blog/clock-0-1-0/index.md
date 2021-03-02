@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 8a1426d7445a2f56
+rmd_hash: cff07465629ad3d5
 
 ---
 
@@ -262,7 +262,7 @@ With clock, the error message advised us to use the `invalid` argument to [`add_
 
 </div>
 
-The overarching goal of clock is to protect you from issues like invalid dates by erroring early and often, rather than letting them slip through unnoticed, only to cause hard to debug issues down the line.
+The overarching goal of clock is to protect you from issues like invalid dates by erroring early and often, rather than letting them slip through unnoticed, only to cause hard to debug issues down the line. If you're thinking, "That would never happen to me!", consider that if you had a daily sequence of every date in a particular year, and added 1 month to each date in that sequence, you would immediately generate *7 invalid dates* (6 if you chose a leap year).
 
 ## Daylight saving time
 
@@ -468,6 +468,8 @@ I recommend `"roll-forward"` or `"roll-backward"`, as these retain the *relative
 Unlike with invalid dates, lubridate does not provide any tools for resolving nonexistent times.
 
 There are another class of daylight saving time issues related to *ambiguous times*. These generally result from daylight saving fallbacks, where your clock might show two 1 AM hours. You resolve them in a similar way to what was done with nonexistent times. If you're interested, you can read more about ambiguous times [here](https://r-lib.github.io/clock/articles/articles/motivations.html#ambiguous-time-1).
+
+Nonexistent and ambiguous times are particularly nasty issues because they occur relatively infrequently. If your time zone uses daylight saving time, these issues each come up once per year, generally for a duration of 1 hour (but not always!). This can be incredibly frustrating in production, where an analysis that has been working fine suddenly crashes on new data due to a daylight saving time issue. Which brings me to...
 
 ## Production
 
