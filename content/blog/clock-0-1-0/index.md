@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 6aa657991bcc477e
+rmd_hash: f36e0d4f9802d505
 
 ---
 
@@ -644,7 +644,7 @@ With invalid dates, the important thing is that they *eventually* get resolved. 
 
 </div>
 
-### Time points and Zoned-times
+### Time points and zoned-times
 
 The daylight saving time section of this post was complicated by the need to work around time zones. If your analysis doesn't actually require time zones, you can represent a date or date-time using a *naive-time*. This date-time type makes no assumption about the current time zone, instead assuming that there is a yet-to-be-specified time zone that hasn't been declared yet. Naive-times vary in precision from day up to nanosecond.
 
