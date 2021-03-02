@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 9f5483aeea5729b6
+rmd_hash: '1202679922868883'
 
 ---
 
@@ -368,7 +368,7 @@ To get what we want, we need to convince the `date` column to "forget" that it i
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>flights_dt</span> <span class='o'>&lt;-</span> <span class='nv'>flights_hm</span> <span class='o'>%&gt;%</span>
   <span class='nf'>mutate</span><span class='o'>(</span>
-    datetime <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/as.POSIXlt.html'>as.POSIXct</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/pkg/clock/man/as_naive.html'>as_naive</a></span><span class='o'>(</span><span class='nv'>date</span><span class='o'>)</span>, <span class='s'>"America/New_York"</span><span class='o'>)</span>,
+    datetime <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/as.POSIXlt.html'>as.POSIXct</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/pkg/clock/man/as_naive_time.html'>as_naive_time</a></span><span class='o'>(</span><span class='nv'>date</span><span class='o'>)</span>, <span class='s'>"America/New_York"</span><span class='o'>)</span>,
     .keep <span class='o'>=</span> <span class='s'>"unused"</span>,
     .before <span class='o'>=</span> <span class='m'>1</span>
   <span class='o'>)</span>
@@ -689,7 +689,7 @@ The daylight saving time section of this post was complicated by the need to wor
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>flights_nt</span> <span class='o'>&lt;-</span> <span class='nv'>flights_hm</span> <span class='o'>%&gt;%</span>
   <span class='nf'>mutate</span><span class='o'>(</span>
-    naive_day <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/as_naive.html'>as_naive</a></span><span class='o'>(</span><span class='nv'>date</span><span class='o'>)</span>,
+    naive_day <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/as_naive_time.html'>as_naive_time</a></span><span class='o'>(</span><span class='nv'>date</span><span class='o'>)</span>,
     naive_time <span class='o'>=</span> <span class='nv'>naive_day</span> <span class='o'>+</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/duration-helper.html'>duration_hours</a></span><span class='o'>(</span><span class='nv'>hour</span><span class='o'>)</span> <span class='o'>+</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/duration-helper.html'>duration_minutes</a></span><span class='o'>(</span><span class='nv'>minute</span><span class='o'>)</span>
   <span class='o'>)</span> <span class='o'>%&gt;%</span>
   <span class='nf'>select</span><span class='o'>(</span><span class='nv'>date</span>, <span class='nf'>starts_with</span><span class='o'>(</span><span class='s'>"naive"</span><span class='o'>)</span><span class='o'>)</span>
@@ -750,13 +750,13 @@ There is a second type of time point in clock, the sys-time, which works exactly
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>ymd</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/year_month_day.html'>year_month_day</a></span><span class='o'>(</span><span class='m'>2019</span>, <span class='m'>1</span>, <span class='m'>1</span><span class='o'>)</span>
 
 <span class='c'># Yet-to-be-specified time zone</span>
-<span class='nv'>naive</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/as_naive.html'>as_naive</a></span><span class='o'>(</span><span class='nv'>ymd</span><span class='o'>)</span>
+<span class='nv'>naive</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/as_naive_time.html'>as_naive_time</a></span><span class='o'>(</span><span class='nv'>ymd</span><span class='o'>)</span>
 <span class='nv'>naive</span>
 <span class='c'>#&gt; &lt;time_point&lt;naive&gt;&lt;day&gt;[1]&gt;</span>
 <span class='c'>#&gt; [1] "2019-01-01"</span>
 
 <span class='c'># UTC time zone</span>
-<span class='nv'>sys</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/as_sys.html'>as_sys</a></span><span class='o'>(</span><span class='nv'>ymd</span><span class='o'>)</span>
+<span class='nv'>sys</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/as_sys_time.html'>as_sys_time</a></span><span class='o'>(</span><span class='nv'>ymd</span><span class='o'>)</span>
 <span class='nv'>sys</span>
 <span class='c'>#&gt; &lt;time_point&lt;sys&gt;&lt;day&gt;[1]&gt;</span>
 <span class='c'>#&gt; [1] "2019-01-01"</span>
@@ -780,7 +780,7 @@ clock also provides its own time zone aware date-time type, the zoned-time. Conv
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>naive</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://rdrr.io/pkg/clock/man/clock-arithmetic.html'>add_nanoseconds</a></span><span class='o'>(</span><span class='m'>100</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://rdrr.io/pkg/clock/man/clock-arithmetic.html'>add_hours</a></span><span class='o'>(</span><span class='m'>2</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://rdrr.io/pkg/clock/man/as_zoned.html'>as_zoned</a></span><span class='o'>(</span><span class='s'>"America/New_York"</span><span class='o'>)</span>
+  <span class='nf'><a href='https://rdrr.io/pkg/clock/man/as_zoned_time.html'>as_zoned_time</a></span><span class='o'>(</span><span class='s'>"America/New_York"</span><span class='o'>)</span>
 <span class='c'>#&gt; &lt;zoned_time&lt;nanosecond&gt;&lt;America/New_York&gt;[1]&gt;</span>
 <span class='c'>#&gt; [1] "2019-01-01 02:00:00.000000100-05:00"</span></code></pre>
 

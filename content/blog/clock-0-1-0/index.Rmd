@@ -249,7 +249,7 @@ To get what we want, we need to convince the `date` column to "forget" that it i
 ```{r}
 flights_dt <- flights_hm %>%
   mutate(
-    datetime = as.POSIXct(as_naive(date), "America/New_York"),
+    datetime = as.POSIXct(as_naive_time(date), "America/New_York"),
     .keep = "unused",
     .before = 1
   )
@@ -435,7 +435,7 @@ The daylight saving time section of this post was complicated by the need to wor
 ```{r}
 flights_nt <- flights_hm %>%
   mutate(
-    naive_day = as_naive(date),
+    naive_day = as_naive_time(date),
     naive_time = naive_day + duration_hours(hour) + duration_minutes(minute)
   ) %>%
   select(date, starts_with("naive"))
@@ -464,11 +464,11 @@ There is a second type of time point in clock, the sys-time, which works exactly
 ymd <- year_month_day(2019, 1, 1)
 
 # Yet-to-be-specified time zone
-naive <- as_naive(ymd)
+naive <- as_naive_time(ymd)
 naive
 
 # UTC time zone
-sys <- as_sys(ymd)
+sys <- as_sys_time(ymd)
 sys
 
 # - Keeps printed time
@@ -486,7 +486,7 @@ clock also provides its own time zone aware date-time type, the zoned-time. Conv
 naive %>%
   add_nanoseconds(100) %>%
   add_hours(2) %>%
-  as_zoned("America/New_York")
+  as_zoned_time("America/New_York")
 ```
 
 There isn't actually a lot you can do with zoned-times directly. Generally, zoned-times are the start or end points of an analysis meant for humans to interpret. In the middle, you'll convert to naive-time, sys-time, or to a calendar type to perform any date-time specific manipulations.
