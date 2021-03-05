@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: cff07465629ad3d5
+rmd_hash: 74fd836a727f884e
 
 ---
 
@@ -55,7 +55,7 @@ This blog post will show off a few of clock's unique features. To learn more, yo
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/r-lib/clock'>clock</a></span><span class='o'>)</span>
 <span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='http://github.com/hadley/nycflights13'>nycflights13</a></span><span class='o'>)</span>
 <span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='http://tidyverse.tidyverse.org'>tidyverse</a></span><span class='o'>)</span>
-<span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='http://lubridate.tidyverse.org'>lubridate</a></span><span class='o'>)</span></code></pre>
+<span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://lubridate.tidyverse.org'>lubridate</a></span><span class='o'>)</span></code></pre>
 
 </div>
 
@@ -585,40 +585,40 @@ One of the most unique features of calendars is the ability to represent invalid
 
 <span class='nv'>invalids</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 100 x 3</span></span>
-<span class='c'>#&gt;    date       ymd        ymd2           </span>
-<span class='c'>#&gt;    <span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;[i=2]&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span><span> 2013-01-06 2013-01-06 2013-02-06     </span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span><span> 2013-01-08 2013-01-08 2013-02-08     </span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span><span> 2013-01-17 2013-01-17 2013-02-17     </span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span><span> 2013-01-26 2013-01-26 2013-02-26     </span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span><span> 2013-01-29 2013-01-29 2013-02-29     </span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span><span> 2013-01-30 2013-01-30 2013-02-30     </span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span><span> 2013-02-01 2013-02-01 2013-03-01     </span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span><span> 2013-02-04 2013-02-04 2013-03-04     </span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span><span> 2013-02-10 2013-02-10 2013-03-10     </span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span><span> 2013-02-13 2013-02-13 2013-03-13     </span></span>
+<span class='c'>#&gt;    date       ymd        ymd2      </span>
+<span class='c'>#&gt;    <span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span><span> 2013-01-06 2013-01-06 2013-02-06</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span><span> 2013-01-08 2013-01-08 2013-02-08</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span><span> 2013-01-17 2013-01-17 2013-02-17</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span><span> 2013-01-26 2013-01-26 2013-02-26</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span><span> 2013-01-29 2013-01-29 2013-02-29</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span><span> 2013-01-30 2013-01-30 2013-02-30</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span><span> 2013-02-01 2013-02-01 2013-03-01</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span><span> 2013-02-04 2013-02-04 2013-03-04</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span><span> 2013-02-10 2013-02-10 2013-03-10</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span><span> 2013-02-13 2013-02-13 2013-03-13</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 90 more rows</span></span></code></pre>
 
 </div>
 
-The `ymd2` column directly contains the invalid dates, `2013-02-29` and `2013-02-30`! You also get a note up in the header, `i=2`, letting you know that you have two invalid dates in that column. You can resolve these dates at any time using [`invalid_resolve()`](https://rdrr.io/pkg/clock/man/clock-invalid.html), providing an invalid resolution strategy like we did earlier. Or, you can ignore them if you expect them to be resolved naturally in some other way. For example, if our end goal was to add 1 month, then fix the day of the month to the 15th, then these invalid dates would naturally resolve themselves:
+The `ymd2` column directly contains the invalid dates, `2013-02-29` and `2013-02-30`! You can resolve these dates at any time using [`invalid_resolve()`](https://rdrr.io/pkg/clock/man/clock-invalid.html), providing an invalid resolution strategy like we did earlier. Or, you can ignore them if you expect them to be resolved naturally in some other way. For example, if our end goal was to add 1 month, then fix the day of the month to the 15th, then these invalid dates would naturally resolve themselves:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>mutate</span><span class='o'>(</span><span class='nv'>invalids</span>, ymd3 <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/pkg/clock/man/clock-setters.html'>set_day</a></span><span class='o'>(</span><span class='nv'>ymd2</span>, <span class='m'>15</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 100 x 4</span></span>
-<span class='c'>#&gt;    date       ymd        ymd2            ymd3      </span>
-<span class='c'>#&gt;    <span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;[i=2]&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span><span> 2013-01-06 2013-01-06 2013-02-06      2013-02-15</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span><span> 2013-01-08 2013-01-08 2013-02-08      2013-02-15</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span><span> 2013-01-17 2013-01-17 2013-02-17      2013-02-15</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span><span> 2013-01-26 2013-01-26 2013-02-26      2013-02-15</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span><span> 2013-01-29 2013-01-29 2013-02-29      2013-02-15</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span><span> 2013-01-30 2013-01-30 2013-02-30      2013-02-15</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span><span> 2013-02-01 2013-02-01 2013-03-01      2013-03-15</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span><span> 2013-02-04 2013-02-04 2013-03-04      2013-03-15</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span><span> 2013-02-10 2013-02-10 2013-03-10      2013-03-15</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span><span> 2013-02-13 2013-02-13 2013-03-13      2013-03-15</span></span>
+<span class='c'>#&gt;    date       ymd        ymd2       ymd3      </span>
+<span class='c'>#&gt;    <span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span><span> 2013-01-06 2013-01-06 2013-02-06 2013-02-15</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span><span> 2013-01-08 2013-01-08 2013-02-08 2013-02-15</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span><span> 2013-01-17 2013-01-17 2013-02-17 2013-02-15</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span><span> 2013-01-26 2013-01-26 2013-02-26 2013-02-15</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span><span> 2013-01-29 2013-01-29 2013-02-29 2013-02-15</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span><span> 2013-01-30 2013-01-30 2013-02-30 2013-02-15</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span><span> 2013-02-01 2013-02-01 2013-03-01 2013-03-15</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span><span> 2013-02-04 2013-02-04 2013-03-04 2013-03-15</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span><span> 2013-02-10 2013-02-10 2013-03-10 2013-03-15</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span><span> 2013-02-13 2013-02-13 2013-03-13 2013-03-15</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 90 more rows</span></span></code></pre>
 
 </div>
@@ -629,10 +629,10 @@ To detect which dates are invalid, use [`invalid_detect()`](https://rdrr.io/pkg/
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/stats/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>invalids</span>, <span class='nf'><a href='https://rdrr.io/pkg/clock/man/clock-invalid.html'>invalid_detect</a></span><span class='o'>(</span><span class='nv'>ymd2</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 x 3</span></span>
-<span class='c'>#&gt;   date       ymd        ymd2           </span>
-<span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;[i=3]&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> 2013-01-29 2013-01-29 2013-02-29     </span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> 2013-01-30 2013-01-30 2013-02-30     </span></span>
+<span class='c'>#&gt;   date       ymd        ymd2      </span>
+<span class='c'>#&gt;   <span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;ymd&lt;day&gt;&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span><span> 2013-01-29 2013-01-29 2013-02-29</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span><span> 2013-01-30 2013-01-30 2013-02-30</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>3</span><span> 2013-10-31 2013-10-31 2013-11-31</span></span></code></pre>
 
 </div>
