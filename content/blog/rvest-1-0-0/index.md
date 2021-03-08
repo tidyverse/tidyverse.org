@@ -6,7 +6,9 @@ title: rvest 1.0.0
 date: 2021-03-08
 author: Hadley Wickham
 description: >
-    A stable version of rvest is now available on CRAN.
+    The latest version of rvest brings new tools for extracting text,
+    a radically improved `html_table()`, and a bunch of interface changes
+    to better align rvest with the rest of the tidyverse.
 
 photo:
   url: https://unsplash.com/photos/b1FS5jQrsLo
@@ -14,14 +16,9 @@ photo:
 
 categories: [package] 
 tags: [rvest]
-rmd_hash: c7aa22da57c09466
+rmd_hash: badfb4325bedd097
 
 ---
-
-<!--
-TODO:
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
--->
 
 We're tickled pink to announce the release of [rvest](https://rvest.tidyverse.org) 1.0.0. rvest is designed to make it easy to scrape (i.e. harvest) data from HTML web pages.
 
@@ -33,11 +30,9 @@ You can install it from CRAN with:
 
 </div>
 
-This is a major release that marks rvest as [stable](https://lifecycle.r-lib.org/articles/stages.html#stable). That means we promise to avoid breaking changes as much as possible, and where they are needed, we will provided a significant deprecation cycle.
+This release includes two major improvements that make it easier to extract text and tables. I also took this opportunity to tidy up the interface to be better match the tidyverse standards that have emerged since rvest was created in 2012. This is a major release that marks rvest as [stable](https://lifecycle.r-lib.org/articles/stages.html#stable). That means we promise to avoid breaking changes as much as possible, and where they are needed, we will provided a significant deprecation cycle.
 
-This release includes two helpful improvements: [`html_text2()`](https://rvest.tidyverse.org/reference/html_text.html) extracts text from HTML in a way that is often more natural, and [`html_text()`](https://rvest.tidyverse.org/reference/html_text.html) has been rewritten from scratch. Since this was a major release, I also used this as an opportunity to tidy up the interface to be better match the tidyverse standards that have emerged since rvest was created in 2012.
-
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
+You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
 
 <div class="highlight">
 
@@ -47,9 +42,9 @@ You can see a full list of changes in the [release notes](%7B%20github_release%2
 
 ## New features
 
-Judging from the GitHub issue there have been two major sources of long-standing frustration with rvest: [`html_text()`](https://rvest.tidyverse.org/reference/html_text.html) and [`html_table()`](https://rvest.tidyverse.org/reference/html_table.html)
+It's been a while since I took a good look at rvest, and the GitHub issues suggested that there were two sources of long-standing frustration with rvest: [`html_text()`](https://rvest.tidyverse.org/reference/html_text.html) and [`html_table()`](https://rvest.tidyverse.org/reference/html_table.html).
 
-[`html_text()`](https://rvest.tidyverse.org/reference/html_text.html) was the source of much frustration because extracts the raw text that lies between tags in the HTML. It ignores HTML's line breaks (i.e. `<br>`) but preserves non-significant whitespace, making it a pain to use.
+[`html_text()`](https://rvest.tidyverse.org/reference/html_text.html) was a source of frustration because it extracts raw text from underlying HTML. It ignores HTML's line breaks (i.e. `<br>`) but preserves non-significant whitespace, making it a pain to use:
 
 <div class="highlight">
 
@@ -77,7 +72,9 @@ The new [`html_text2()`](https://rvest.tidyverse.org/reference/html_text.html) i
 
 </div>
 
-[`html_table()`](https://rvest.tidyverse.org/reference/html_table.html) was a hassle to use because it failed on many tables that contained row or column spans. It's now been re-written from scratch to more closely follow the same algorithm that browsers use. This means that there are far fewer tables for which it fails to produce some output, and the `fill` argument has been deprecated since it is no longer needed. Here's a little example with row span, column span, and a missing cell:
+[`html_table()`](https://rvest.tidyverse.org/reference/html_table.html) was frustrating because it failed on many tables that used row or column spans. I've now re-written it from scratch, closely following the algorithm that browsers use. This means that there are far fewer tables for which it fails to produce useful output, and I have deprecated the `fill` argument because it's no longer needed.
+
+Here's a little example with row span, column span, and a missing cell:
 
 <div class="highlight">
 
@@ -108,22 +105,19 @@ While it's not a major feature, its worth noting that rvest is now much smaller 
 
 Since this is the 1.0.0 release, I included a large number of API changes to make rvest more compatible with current tidyverse conventions. Older functions have been deprecated, so existing code will continue to work (albeit with a few new warnings).
 
--   rvest now imports xml2 rather than depending on it. This is cleaner because it avoids attaching all the xml2 functions that you're less likely to use. To reduce the change of breakages, rvest re-exports xml2 functions [`read_html()`](http://xml2.r-lib.org/reference/read_xml.html) and [`url_absolute()`](http://xml2.r-lib.org/reference/url_absolute.html), but your code may now need an explicit [`library(xml2)`](https://xml2.r-lib.org/).
+-   rvest now imports xml2 rather than depending on it. This is cleaner because it avoids attaching all the xml2 functions that you're probably not going to use. To reduce the change of breakages, rvest re-exports xml2 functions [`read_html()`](http://xml2.r-lib.org/reference/read_xml.html) and [`url_absolute()`](http://xml2.r-lib.org/reference/url_absolute.html); if you use other functions, your code will now need an explicit [`library(xml2)`](https://xml2.r-lib.org/).
 
--   [`html_form()`](https://rvest.tidyverse.org/reference/html_form.html) now returns an object with class `rvest_form` (instead of form). Fields within a form now have class `rvest_field`, instead of a variety of classes that were lacking the `rvest_` prefix. All functions for working with forms have a common `html_form_` prefix: [`set_values()`](https://rvest.tidyverse.org/reference/rename.html) became [`html_form_set()`](https://rvest.tidyverse.org/reference/html_form.html).
+-   [`html_form()`](https://rvest.tidyverse.org/reference/html_form.html) now returns an object with class `rvest_form`. Fields within a form now have class `rvest_field`, instead of a variety of classes that were lacking the `rvest_` prefix. All functions for working with forms have a common `html_form_` prefix, e.g. [`set_values()`](https://rvest.tidyverse.org/reference/rename.html) became [`html_form_set()`](https://rvest.tidyverse.org/reference/html_form.html).
 
-    [`submit_form()`](https://rvest.tidyverse.org/reference/rename.html) was renamed to [`session_submit()`](https://rvest.tidyverse.org/reference/session.html) because it uses a session.
+-   [`html_node()`](https://rvest.tidyverse.org/reference/rename.html) and [`html_nodes()`](https://rvest.tidyverse.org/reference/rename.html) have been superseded in favor of [`html_element()`](https://rvest.tidyverse.org/reference/html_element.html) and [`html_elements()`](https://rvest.tidyverse.org/reference/html_element.html) since they (almost) always return elements, not nodes. This vocabulary will better match what you're likely to see when learning about HTML.
 
--   [`html_node()`](https://rvest.tidyverse.org/reference/rename.html) and [`html_nodes()`](https://rvest.tidyverse.org/reference/rename.html) have been superseded in favor of [`html_element()`](https://rvest.tidyverse.org/reference/html_element.html) and [`html_elements()`](https://rvest.tidyverse.org/reference/html_element.html) since they (almost) always return elements, not nodes.
-
--   [`html_session()`](https://rvest.tidyverse.org/reference/rename.html) is now [`session()`](https://rvest.tidyverse.org/reference/session.html) and returns an object of class `rvest_session` (instead of `session`). All functions that work with session objects now have a common `session_` prefix.
+-   [`html_session()`](https://rvest.tidyverse.org/reference/rename.html) is now [`session()`](https://rvest.tidyverse.org/reference/session.html) and returns an object of class `rvest_session`. All functions that work with session objects now have a common `session_` prefix.
 
 -   Long deprecated `html()`, `html_tag()`, `xml()` functions have been removed.
 
 -   [`minimal_html()`](https://rvest.tidyverse.org/reference/minimal_html.html) (which doesn't appear to be used by any other package) has had its arguments flipped to make it more intuitive.
 
--   [`guess_encoding()`](https://rvest.tidyverse.org/reference/html_encoding_guess.html) has been renamed to [`html_encoding_guess()`](https://rvest.tidyverse.org/reference/html_encoding_guess.html) to avoid a clash with `stringr::guess_encoding()`. [`repair_encoding()`](https://rvest.tidyverse.org/reference/repair_encoding.html) was deprecated  
-    because it doesn't appear to work.
+-   [`guess_encoding()`](https://rvest.tidyverse.org/reference/html_encoding_guess.html) has been renamed to [`html_encoding_guess()`](https://rvest.tidyverse.org/reference/html_encoding_guess.html) to avoid a clash with `stringr::guess_encoding()`. [`repair_encoding()`](https://rvest.tidyverse.org/reference/repair_encoding.html) was deprecated because it doesn't appear to have ever worked.
 
 -   `pluck()` is no longer exported to avoid a clash with [`purrr::pluck()`](https://purrr.tidyverse.org/reference/pluck.html); if you need it use [`purrr::map_chr()`](https://purrr.tidyverse.org/reference/map.html) and friends instead.
 
