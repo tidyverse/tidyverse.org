@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: rvest-1-0-0
 title: rvest 1.0.0
-date: 2021-03-08
+date: 2021-03-10
 author: Hadley Wickham
 description: >
     The latest version of rvest brings new tools for extracting text,
@@ -16,11 +16,11 @@ photo:
 
 categories: [package] 
 tags: [rvest]
-rmd_hash: badfb4325bedd097
+rmd_hash: 2404ff1c57e721dc
 
 ---
 
-We're tickled pink to announce the release of [rvest](https://rvest.tidyverse.org) 1.0.0. rvest is designed to make it easy to scrape (i.e. harvest) data from HTML web pages.
+I'm tickled pink to announce the release of [rvest](https://rvest.tidyverse.org) 1.0.0. rvest is designed to make it easy to scrape (i.e. harvest) data from HTML web pages.
 
 You can install it from CRAN with:
 
@@ -32,7 +32,7 @@ You can install it from CRAN with:
 
 This release includes two major improvements that make it easier to extract text and tables. I also took this opportunity to tidy up the interface to be better match the tidyverse standards that have emerged since rvest was created in 2012. This is a major release that marks rvest as [stable](https://lifecycle.r-lib.org/articles/stages.html#stable). That means we promise to avoid breaking changes as much as possible, and where they are needed, we will provided a significant deprecation cycle.
 
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
+You can see a full list of changes in the [release notes](https://github.com/tidyverse/rvest/releases/tag/v1.0.0).
 
 <div class="highlight">
 
@@ -97,7 +97,7 @@ Here's a little example with row span, column span, and a missing cell:
 
 </div>
 
-[`html_table()`](https://rvest.tidyverse.org/reference/html_table.html) now returns a tibble rather than a data frame (to be more compatible with the rest of the tidyverse) and its performance has been considerably improved (10x for the [motivating example](https://github.com/tidyverse/rvest/issues/237)). It also gains new `na.strings` and `convert` arguments to better control how `NA`s and strings are processed. See the docs for more details.
+[`html_table()`](https://rvest.tidyverse.org/reference/html_table.html) now returns a tibble rather than a data frame (to be more compatible with the rest of the tidyverse), and its performance has been considerably improved (10x for the [motivating example](https://github.com/tidyverse/rvest/issues/237)). It also gains new `na.strings` and `convert` arguments to better control how `NA`s and strings are processed. See the docs for more details.
 
 While it's not a major feature, its worth noting that rvest is now much smaller (\~100 Kb vs \~1 Mb) thanks to a rewrite of `vignette("rvest")` and making the [SelectorGadget article](https://rvest.tidyverse.org/articles/articles/selectorgadget.html) web-only.
 
