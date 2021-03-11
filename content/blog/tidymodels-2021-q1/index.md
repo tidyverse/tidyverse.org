@@ -15,20 +15,9 @@ photo:
   author: Timo Wielink
 
 # one of: "deep-dive", "learn", "package", "programming", or "other"
-categories: [package] 
+categories: [roundup] 
 tags: [tidymodels, parsnip, rsample]
 ---
-
-<!--
-TODO:
-* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] `hugodown::use_tidy_thumbnails()`
-* [ ] Add intro sentence
-* [ ] `usethis::use_tidy_thanks()`
--->
 
 
 
