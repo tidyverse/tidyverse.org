@@ -6,8 +6,9 @@ title: Catch up with tidymodels
 date: 2021-03-10
 author: Julia Silge
 description: >
-    Recent tidymodels releases offer new functions for easier model building and
-    resampling, along with a new package for resampling spatial data.
+    Releases of tidymodels packages in Q1 of 2021 offer new functions for 
+    easier model building and resampling, along with a new package for 
+    resampling spatial data.
 
 photo:
   url: https://unsplash.com/photos/4Zk45jNyQS4
@@ -32,17 +33,16 @@ TODO:
 
 
 
-There have quite a number of updates and new developments in the [tidymodels](https://www.tidymodels.org/) ecosystem since our [last blog post in December](https://www.tidyverse.org/blog/2020/12/finetune-0-0-1/)! Since that post, tidymodels maintainers have published seven CRAN releases of existing packages:
+The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. There have quite a number of updates and new developments in the tidymodels ecosystem since our [last blog post in December](https://www.tidyverse.org/blog/2020/12/finetune-0-0-1/)! Since that post, tidymodels maintainers have published eight CRAN releases of existing packages:
 
-- [broom](https://broom.tidymodels.org/news/)
-- [butcher](https://butcher.tidymodels.org/news/)
-- [embed](https://embed.tidymodels.org/news/)
-- [parsnip](https://parsnip.tidymodels.org/news/)
-- [rsample](https://rsample.tidymodels.org/news/)
-- [rules](https://rules.tidymodels.org/news/)
-- [tune](https://tune.tidymodels.org/news/)
-
-TODO: TUNE NEWS/PKGDOWN NOT YET UPDATED
+- [broom](https://broom.tidymodels.org/news/#broom-0-7-5-2021-02-19)
+- [butcher](https://butcher.tidymodels.org/news/#butcher-0-1-3-2021-03-04)
+- [embed](https://embed.tidymodels.org/news/#embed-0-1-4-2021-01-16)
+- [parsnip](https://parsnip.tidymodels.org/news/#parsnip-0-1-5-2021-01-19)
+- [rsample](https://rsample.tidymodels.org/news/index.html#rsample-0-0-9-2021-02-17)
+- [rules](https://rules.tidymodels.org/news/#rules-0-1-1-2021-01-16)
+- [tune](https://tune.tidymodels.org/news/index.html#tune-0-1-3-2021-02-28)
+- [workflows](https://workflows.tidymodels.org/news/index.html#workflows-0-2-2-2021-03-10)
 
 We purposefully write code in small, modular packages to make them easier to maintain (for us!) and use in production systems (for you!) but this does mean that sometimes any given package release can feel a bit minor. We haven't written much about these releases yet, but we want to make sure that folks can stay up-to-date with the changes and new features available. We plan to begin regular updates every three or four months here on the tidyverse blog summarizing what's happening lately in the tidymodels ecosystem overall, as well as the focused blog posts on more major new features that we've always written. The `NEWS` files are linked above for each package, but read on for some highlights that may interest you!
 
@@ -58,7 +58,7 @@ There is now also [an `augment()` function for parsnip models](https://parsnip.t
 
 ## New functions in rsample
 
-Most of the changes in the recent release for [rsample](https://rsample.tidymodels.org/) are internal and developer-facing, made to support rsample-adjacent packages like our new package for resampling spatial data (see below! 👀) but the new `reg_intervals()` function allows you to find bootstrap confidence intervals for simple models fluently. You have always been able use rsample functions for [flexible bootstrap resampling](https://www.tidymodels.org/learn/statistics/bootstrap/) but this new convenience function reduces the steps to get confidence intervals for models like `lm()` and `glm()`.
+Most of the changes in the recent release for [rsample](https://rsample.tidymodels.org/) are internal and developer-facing, made to support rsample-adjacent packages like our new package for resampling spatial data (see below! 👀) but the new `reg_intervals()` function allows you to find bootstrap confidence intervals for simple models fluently. You have always been able to use rsample functions for [flexible bootstrap resampling](https://www.tidymodels.org/learn/statistics/bootstrap/) but this new convenience function reduces the steps to get confidence intervals for models like `lm()` and `glm()`.
 
 
 ```r
@@ -160,5 +160,4 @@ A big thanks to all of the contributors who helped make these releases possible!
 - rsample: [&#x0040;alexpghayes](https://github.com/alexpghayes), [&#x0040;apreshill](https://github.com/apreshill), [&#x0040;Athospd](https://github.com/Athospd), [&#x0040;brunocarlin](https://github.com/brunocarlin), [&#x0040;ColinConwell](https://github.com/ColinConwell), [&#x0040;cportner](https://github.com/cportner), [&#x0040;danilinares](https://github.com/danilinares), [&#x0040;DanOvando](https://github.com/DanOvando), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dchiu911](https://github.com/dchiu911), [&#x0040;Dpananos](https://github.com/Dpananos), [&#x0040;dpastling](https://github.com/dpastling), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;fbchow](https://github.com/fbchow), [&#x0040;fusaroli](https://github.com/fusaroli), [&#x0040;gcameron89777](https://github.com/gcameron89777), [&#x0040;gregrs-uk](https://github.com/gregrs-uk), [&#x0040;gtalckmin](https://github.com/gtalckmin), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;hlynurhallgrims](https://github.com/hlynurhallgrims), [&#x0040;irkaal](https://github.com/irkaal), [&#x0040;issactoast](https://github.com/issactoast), [&#x0040;JamesM131](https://github.com/JamesM131), [&#x0040;johnaeanderson](https://github.com/johnaeanderson), [&#x0040;jonkeane](https://github.com/jonkeane), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;jyuu](https://github.com/jyuu), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;kylegilde](https://github.com/kylegilde), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mdancho84](https://github.com/mdancho84), [&#x0040;msmith01](https://github.com/msmith01), [&#x0040;MxNl](https://github.com/MxNl), [&#x0040;NikolaiVogl](https://github.com/NikolaiVogl), [&#x0040;oude-gao](https://github.com/oude-gao), [&#x0040;PathosEthosLogos](https://github.com/PathosEthosLogos), [&#x0040;RMHogervorst](https://github.com/RMHogervorst), [&#x0040;sccmckenzie](https://github.com/sccmckenzie), [&#x0040;Shu-Wan](https://github.com/Shu-Wan), [&#x0040;skeller88](https://github.com/skeller88), [&#x0040;skinnider](https://github.com/skinnider), [&#x0040;sschooler](https://github.com/sschooler), [&#x0040;swt30](https://github.com/swt30), [&#x0040;tjmahr](https://github.com/tjmahr), [&#x0040;tmastny](https://github.com/tmastny), [&#x0040;topepo](https://github.com/topepo), and [&#x0040;UnclAlDeveloper](https://github.com/UnclAlDeveloper)
 - rules: [&#x0040;frequena](https://github.com/frequena), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;irkaal](https://github.com/irkaal), [&#x0040;jaredlander](https://github.com/jaredlander), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;topepo](https://github.com/topepo), and [&#x0040;vidarsumo](https://github.com/vidarsumo)
 - tune: [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;HenrikBengtsson](https://github.com/HenrikBengtsson), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;kevin-m-kent](https://github.com/kevin-m-kent), [&#x0040;kylegilde](https://github.com/kylegilde), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [&#x0040;rorynolan](https://github.com/rorynolan), [&#x0040;siegfried](https://github.com/siegfried), [&#x0040;stevenpawley](https://github.com/stevenpawley), and [&#x0040;topepo](https://github.com/topepo)
-
 
