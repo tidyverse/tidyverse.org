@@ -33,7 +33,15 @@ TODO:
 
 
 
-The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. There have quite a number of updates and new developments in the tidymodels ecosystem since our [last blog post in December](https://www.tidyverse.org/blog/2020/12/finetune-0-0-1/)! Since that post, tidymodels maintainers have published eight CRAN releases of existing packages:
+The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. There have quite a number of updates and new developments in the tidymodels ecosystem since our [last blog post in December](https://www.tidyverse.org/blog/2020/12/finetune-0-0-1/)! Since that post, tidymodels maintainers have published eight CRAN releases of existing packages. You can install these updates from CRAN with:
+
+
+```r
+install.packages(c("broom", "butcher", "embed", "parsnip",
+                   "rsample", "rules", "tune", "workflows"))
+```
+
+We purposefully write code in small, modular packages to make them easier to maintain (for us!) and use in production systems (for you!) but this does mean that sometimes any given package release can feel a bit minor. Some of the changes in these releases are small bug fixes or updates for changes in CRAN standards. However, there are also some substantively helpful new functions for modeling and resampling, and we want to make sure that folks can stay up-to-date with the changes and new features available. We plan to begin regular updates every three or four months here on the tidyverse blog summarizing what's happening lately in the tidymodels ecosystem overall, as well continuing the focused blog posts on more major new features that we've always written. The `NEWS` files are linked here for each package, but read below for more details on some highlights that may interest you!
 
 - [broom](https://broom.tidymodels.org/news/#broom-0-7-5-2021-02-19)
 - [butcher](https://butcher.tidymodels.org/news/#butcher-0-1-3-2021-03-04)
@@ -43,8 +51,6 @@ The [tidymodels](https://www.tidymodels.org/) framework is a collection of R pac
 - [rules](https://rules.tidymodels.org/news/#rules-0-1-1-2021-01-16)
 - [tune](https://tune.tidymodels.org/news/index.html#tune-0-1-3-2021-02-28)
 - [workflows](https://workflows.tidymodels.org/news/index.html#workflows-0-2-2-2021-03-10)
-
-We purposefully write code in small, modular packages to make them easier to maintain (for us!) and use in production systems (for you!) but this does mean that sometimes any given package release can feel a bit minor. We haven't written much about these releases yet, but we want to make sure that folks can stay up-to-date with the changes and new features available. We plan to begin regular updates every three or four months here on the tidyverse blog summarizing what's happening lately in the tidymodels ecosystem overall, as well as the focused blog posts on more major new features that we've always written. The `NEWS` files are linked above for each package, but read on for some highlights that may interest you!
 
 ## Choose parsnip models with an RStudio addin
 
@@ -145,7 +151,7 @@ plot_splits <- function(split) {
 walk(folds$splits, plot_splits)
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-.gif)
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-.gif)
 
 Check out the [main vignette](https://spatialsample.tidymodels.org/articles/spatialsample.html) to see how this resampling strategy can be used for modeling, and [submit an issue](https://github.com/tidymodels/spatialsample/issues) if there is a particular spatial resampling approach that you are interested in us prioritizing for future releases.
 
