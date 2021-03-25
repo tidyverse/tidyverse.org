@@ -32,7 +32,7 @@ install.packages(c("broom", "butcher", "embed", "parsnip",
 
 We purposefully write code in small, modular packages to make them easier to maintain (for us!) and use in production systems (for you!) but this does mean that sometimes any given package release can feel a bit minor. Some of the changes in these releases are small bug fixes or updates for changes in CRAN standards. However, there are also some substantively helpful new functions for modeling and resampling, and we want to make sure that folks can stay up-to-date with the changes and new features available. 
 
-We plan to begin **regular updates** every three or four months here on the tidyverse blog summarizing what's happening lately in the tidymodels ecosystem overall, as well continuing the focused blog posts on more major new features that we've always written. The `NEWS` files are linked here for each package, but read below for more details on some highlights that may interest you!
+We plan to begin **regular updates** every three or four months here on the tidyverse blog summarizing what's happening lately in the tidymodels ecosystem overall. We'll still continue the focused blog posts on more major new features that we've always written; look for one soon on a new package for creating and handling a collection of multiple modeling workflows all together. The `NEWS` files are linked here for each package, but read below for more details on some highlights that may interest you!
 
 - [broom](https://broom.tidymodels.org/news/#broom-0-7-5-2021-02-19)
 - [butcher](https://butcher.tidymodels.org/news/#butcher-0-1-3-2021-03-04)
