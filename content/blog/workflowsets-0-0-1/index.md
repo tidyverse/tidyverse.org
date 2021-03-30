@@ -3,10 +3,10 @@ output: hugodown::hugo_document
 
 slug: workflowsets-0-0-1
 title: workflowsets 0.0.1
-date: 2021-03-29
+date: 2021-03-30
 author: Max Kuhn
 description: >
-    A new package for evaluating many models at once is now on CRAN along with 
+    A new package for evaluating many models at once is now on CRAN, along with 
     a corresponding update to the tidyposterior package. 
 
 photo:
@@ -28,19 +28,19 @@ You can install it from CRAN with:
 install.packages("workflowsets")
 ```
 
-In this blog post, we'll demonstrate the utility of the package using a dimension reduction example. A new version of the tidyposterior package is paired with workflowsets and we'll also show how they can work together. 
+In this blog post, we'll demonstrate the utility of the package using a dimensionality reduction example. A new version of the tidyposterior package is paired with workflowsets so we'll show how they can work together. 
 
-The examples below will use a few of the tidymodels packages. If these are unfamiliar, take a look at [`tidymodels.org`](https://www.tidymodels.org/) or the _Tidy Models with R_ [website](https://www.tmwr.org). 
+The examples below will use a few of the tidymodels packages. If these are unfamiliar, take a look at [`tidymodels.org`](https://www.tidymodels.org/) or the _Tidy Models with R_ [website](https://www.tmwr.org). The latest version of _Tidy Models with R_ now contains an additional chapter about [workflow sets](https://www.tmwr.org/workflow-sets.html). 
 
-## A Dimension Reduction Example
+## A Dimensionality Reduction Example
 
-When a data set is very wide (i.e., many columns), a dimension reduction procedure may be able to represent the data as a smaller subset of new, artificial variables. The most common method for dimensional reduction is principal component analysis (PCA) but there are many others. [Kuhn and Johnson (2018)](https://bookdown.org/max/FES/numeric-many-to-many.html#linear-projection-methods) give an overview of several other techniques that will be used below. 
+When a data set is very wide (i.e., many columns), a dimensionality reduction procedure may be able to represent the data with a smaller number of new, artificial variables. The most common method for dimensionality reduction is principal component analysis (PCA) but there are many others. [Kuhn and Johnson (2018)](https://bookdown.org/max/FES/numeric-many-to-many.html#linear-projection-methods) give an overview of several other techniques that will be used below. 
 
 
 
-There are at least two practical uses of dimension reduction: 
+There are at least two practical uses of dimensionality reduction: 
 
-* When assessing the quality of the data, it may be difficult to view it in high dimensions. Reducing the number of columns to a more manageable set helps the user understand and identify problematic data points. 
+* When assessing the quality of the data, it can be difficult to visualize high-dimensional data. Reducing the number of columns to a more manageable set helps the user explore and understand the data, and perhaps identify problematic data points. 
 
 * Some models are less effective with a large number of predictors (relative to the number of data points). This is especially true when the predictors have a high degree of correlation with one another (e.g., multicolinearity). 
 
@@ -309,7 +309,7 @@ autoplot(meat_wflow_set, select_best = TRUE)
 
 It seems like the MARS model is doing slightly better than ordinary linear regression. The original predictors do well in terms of the mean RMSE. However, the correlation between predictors can cause instability in the results and this is reflected in the larger error bars for those models; reducing the dimensions may still be a good idea. 
 
-Once you decide on a model to keep, you can pull the workflow (or the tuning results) using [`pull_workflow()`](https://workflowsets.tidymodels.org/reference/pull_workflow_set_result.html) (or `pull_workflow_set_result()`). This can be finalized and fit on the training set as one normally would. 
+Once you decide on a model to keep, you can pull the workflow (or the tuning results) using [`pull_workflow()`](https://workflowsets.tidymodels.org/reference/pull_workflow_set_result.html) (or `pull_workflow_set_result()`). This can be [finalized and fit on the training set as one normally would](https://www.tmwr.org/grid-search.html#finalizing-the-model). 
 
 ## Contrasting Models Using Bayesian Analysis
 
@@ -331,7 +331,7 @@ rmse_mod <-
   )
 ```
 
-The `autoplot()` method for these results are a **model-based** version of the previous `autoplot()` results for the workflow set: 
+The `autoplot()` method for these results displays a **model-based** version of the previous `autoplot()` results for the workflow set: 
 
 
 ```r
@@ -340,7 +340,7 @@ autoplot(rmse_mod)
 
 <img src="figure/plot-bayes-1.svg" title="plot of chunk plot-bayes" alt="plot of chunk plot-bayes" width="100%" />
 
-The tidyposterior package enables the user to look at _practical significance_ that incorporates an effect size that is important to the user. We usually set this value prior to the analysis. It reflects the size of a RMSE change between models that is a realistic difference (this is obviously subjective). We can compute the probability that each model is _practically significant_ when compared to the numerically best model. Recall that the outcome is in units of percent water. We'll use a 0.5% difference as an effect size: 
+The tidyposterior package uses the concept of _practical significance_, incorporating an effect size that is important to the user. We usually set this value prior to the analysis (based on domain knowledge or subjective concerns), and it reflects the size of an RMSE change between models that is a realistic important difference. We can compute the probability that each model is _practically significant_ when compared to the numerically best model. Recalling that the outcome is in units of percent water, let's use a 0.5% difference as an effect size: 
 
 
 ```r
@@ -349,7 +349,7 @@ autoplot(rmse_mod, size = 0.5, type = "ROPE")
 
 <img src="figure/plot-rope-1.svg" title="plot of chunk plot-rope" alt="plot of chunk plot-rope" width="100%" />
 
-The top two models are pretty practically equivalent while the others are less likely to be considered the same. 
+The top two models are pretty close to practically equivalent, while the others are less likely to be the same. 
 
 ## Acknowledgements
 
@@ -360,4 +360,3 @@ Thanks to the contributors to workflowsets:
 as well as the latest release of tidyposterior:
 
 [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;robyjos](https://github.com/robyjos), and [&#x0040;topepo](https://github.com/topepo)
-
