@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: clock-0-1-0
 title: clock 0.1.0
-date: 2021-02-26
+date: 2021-03-31
 author: Davis Vaughan
 description: >
     Introducing, clock, a new package for working with date-times.
@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 74fd836a727f884e
+rmd_hash: 2a02bc72844f2b4a
 
 ---
 
@@ -168,7 +168,7 @@ To summarize the average departure delay by month, one option is to use [`date_g
   <span class='nf'>summarise</span><span class='o'>(</span>avg_delay <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>dep_delay</span>, na.rm <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span>, .groups <span class='o'>=</span> <span class='s'>"drop"</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 12 x 2</span></span>
 <span class='c'>#&gt;    date       avg_delay</span>
-<span class='c'>#&gt;  <span style='color: #555555;'>*</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>         </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt;    <span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>         </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'> 1</span><span> 2013-01-01     33.3 </span></span>
 <span class='c'>#&gt; <span style='color: #555555;'> 2</span><span> 2013-02-01     16   </span></span>
 <span class='c'>#&gt; <span style='color: #555555;'> 3</span><span> 2013-03-01     41.8 </span></span>
