@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 2a02bc72844f2b4a
+rmd_hash: f6de65dbfa485a9a
 
 ---
 
@@ -58,6 +58,12 @@ This blog post will show off a few of clock's unique features. To learn more, yo
 <span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://lubridate.tidyverse.org'>lubridate</a></span><span class='o'>)</span></code></pre>
 
 </div>
+
+## Logo
+
+Thanks to [Julie Jung](https://www.jungjulie.com/), clock has an amazing logo:
+
+<img src="clock.png" width="250"/> <br></br>
 
 ## What about lubridate?
 
