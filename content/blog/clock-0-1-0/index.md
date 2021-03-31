@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: e8738b759e59a04c
+rmd_hash: feab890e75f71e20
 
 ---
 
@@ -22,11 +22,11 @@ rmd_hash: e8738b759e59a04c
 
 </div>
 
-We're thrilled to announce the first release of [clock](https://r-lib.github.io/clock/index.html). clock is a new package providing a comprehensive set of tools for working with date-times. It is packed with features, including utilities for: parsing, formatting, arithmetic, rounding, and extraction/updating of individual components. In addition to these tools for manipulating date-times, clock provides entirely new date-time types which are structured to reduce the agony of working with time zones as much as possible. At a high-level, clock:
+We're thrilled to announce the first release of [clock](https://clock.r-lib.org/index.html). clock is a new package providing a comprehensive set of tools for working with date-times. It is packed with features, including utilities for: parsing, formatting, arithmetic, rounding, and extraction/updating of individual components. In addition to these tools for manipulating date-times, clock provides entirely new date-time types which are structured to reduce the agony of working with time zones as much as possible. At a high-level, clock:
 
 -   Provides a new family of date-time classes (durations, time points, zoned-times, and calendars) that partition responsibilities so that you only have to think about time zones when you need them.
 
--   Implements a [high level API](https://r-lib.github.io/clock/reference/index.html#section-high-level-api) for Date and POSIXct classes that lets you get productive quickly without having to learn the details of clock's new date-time types.
+-   Implements a [high level API](https://clock.r-lib.org/reference/index.html#section-high-level-api) for Date and POSIXct classes that lets you get productive quickly without having to learn the details of clock's new date-time types.
 
 -   Requires explicit handling of invalid dates (e.g. what date is one month after January 31st?) and nonexistent or ambiguous times (caused by daylight saving time issues).
 
@@ -42,13 +42,13 @@ You can install it from CRAN with:
 
 This blog post will show off a few of clock's unique features. To learn more, you'll want to take a look at clock's vignettes:
 
--   [Getting Started](https://r-lib.github.io/clock/articles/clock.html)
+-   [Getting Started](https://clock.r-lib.org/articles/clock.html)
 
--   [Motivations for clock](https://r-lib.github.io/clock/articles/articles/motivations.html)
+-   [Motivations for clock](https://clock.r-lib.org/articles/articles/motivations.html)
 
--   [Examples and Recipes](https://r-lib.github.io/clock/articles/recipes.html)
+-   [Examples and Recipes](https://clock.r-lib.org/articles/recipes.html)
 
--   [Frequently Asked Questions](https://r-lib.github.io/clock/articles/faq.html)
+-   [Frequently Asked Questions](https://clock.r-lib.org/articles/faq.html)
 
 <div class="highlight">
 
@@ -77,7 +77,7 @@ lubridate will never go away, and is not being deprecated or superseded. As of n
 
 ## First steps
 
-The best place to start learning about clock is by checking out the [High-Level API](https://r-lib.github.io/clock/reference/index.html#section-high-level-api). This lists all of the utilities in clock that work with R's native date (Date) and date-time (POSIXct) types. You'll notice that all of these helpers start with one of the following prefixes:
+The best place to start learning about clock is by checking out the [High-Level API](https://clock.r-lib.org/reference/index.html#section-high-level-api). This lists all of the utilities in clock that work with R's native date (Date) and date-time (POSIXct) types. You'll notice that all of these helpers start with one of the following prefixes:
 
 -   `get_*()`: Get a component
 
@@ -192,7 +192,7 @@ To summarize the average departure delay by month, one option is to use [`date_g
 
 If you've used lubridate before, you would have probably used [`lubridate::floor_date()`](http://lubridate.tidyverse.org/reference/round_date.html) for this. In clock, date summarization is broken into three groups: grouping, shifting, and rounding. This separation leads to code that is both less surprising, and more powerful, giving you the ability to summarize in new ways, such as: flooring by multiple weeks, grouping by day of the quarter, and flooring by rolling sets of, say, 60 days.
 
-Be sure to check out the many other high-level tools for working with dates, including powerful utilities for formatting ([`date_format()`](https://r-lib.github.io/clock/reference/date_format.html)) and parsing ([`date_parse()`](https://r-lib.github.io/clock/reference/date_parse.html) and [`date_time_parse()`](https://r-lib.github.io/clock/reference/date-time-parse.html)).
+Be sure to check out the many other high-level tools for working with dates, including powerful utilities for formatting ([`date_format()`](https://clock.r-lib.org/reference/date_format.html)) and parsing ([`date_parse()`](https://clock.r-lib.org/reference/date_parse.html) and [`date_time_parse()`](https://clock.r-lib.org/reference/date-time-parse.html)).
 
 As a lubridate user, none of the above should seem particularly revolutionary, and that's the entire idea of the high-level API. We've tried to make transitioning over to clock as easy as possible. In the following sections, you'll see some of the benefits you'll get from doing so.
 
@@ -469,11 +469,11 @@ Like with invalid dates, clock tries to guard you from these issues by erroring 
 
 </div>
 
-I recommend `"roll-forward"` or `"roll-backward"`, as these retain the *relative ordering* of `datetime`, an issue that you can read about [here](https://r-lib.github.io/clock/articles/articles/motivations.html#nonexistent-time-1).
+I recommend `"roll-forward"` or `"roll-backward"`, as these retain the *relative ordering* of `datetime`, an issue that you can read about [here](https://clock.r-lib.org/articles/articles/motivations.html#nonexistent-time-1).
 
 Unlike with invalid dates, lubridate does not provide any tools for resolving nonexistent times.
 
-There are another class of daylight saving time issues related to *ambiguous times*. These generally result from daylight saving fallbacks, where your clock might show two 1 AM hours. You resolve them in a similar way to what was done with nonexistent times. If you're interested, you can read more about ambiguous times [here](https://r-lib.github.io/clock/articles/articles/motivations.html#ambiguous-time-1).
+There are another class of daylight saving time issues related to *ambiguous times*. These generally result from daylight saving fallbacks, where your clock might show two 1 AM hours. You resolve them in a similar way to what was done with nonexistent times. If you're interested, you can read more about ambiguous times [here](https://clock.r-lib.org/articles/articles/motivations.html#ambiguous-time-1).
 
 Nonexistent and ambiguous times are particularly nasty issues because they occur relatively infrequently. If your time zone uses daylight saving time, these issues each come up once per year, generally for a duration of 1 hour (but not always!). This can be incredibly frustrating in production, where an analysis that has been working fine suddenly crashes on new data due to a daylight saving time issue. Which brings me to...
 
@@ -510,7 +510,7 @@ Forcing yourself to specify these arguments up front during interactive developm
 
 ## Advanced features
 
-This blog post has only scratched the surface of what clock can do. Up until now, we've only explored clock's high-level API. There exists an entire world of more powerful utilities in the low-level API that powers clock. We'll briefly explore a few of those in the next few sections, but I'd encourage checking out the rest of the [reference page](https://r-lib.github.io/clock/reference/index.html) to get a bird's-eye view of all that clock can do.
+This blog post has only scratched the surface of what clock can do. Up until now, we've only explored clock's high-level API. There exists an entire world of more powerful utilities in the low-level API that powers clock. We'll briefly explore a few of those in the next few sections, but I'd encourage checking out the rest of the [reference page](https://clock.r-lib.org/reference/index.html) to get a bird's-eye view of all that clock can do.
 
 ### Calendars
 
