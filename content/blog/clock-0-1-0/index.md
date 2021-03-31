@@ -1,7 +1,7 @@
 ---
 output: hugodown::hugo_document
 slug: clock-0-1-0
-title: clock 0.1.0
+title: Comprehensive Date-Time Handling for R
 date: 2021-03-31
 author: Davis Vaughan
 description: >
@@ -14,7 +14,7 @@ categories: [package]
 tags: ["r-lib"]
 editor_options: 
   chunk_output_type: console
-rmd_hash: f6de65dbfa485a9a
+rmd_hash: e8738b759e59a04c
 
 ---
 
