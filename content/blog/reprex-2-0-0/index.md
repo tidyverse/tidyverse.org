@@ -11,17 +11,13 @@ photo:
   url: https://unsplash.com/photos/NROHA1B-NYk
   author: Mitchell Luo
 categories: [package] 
-rmd_hash: 685110c103fc1962
+rmd_hash: 9c3dbfad97dd721b
 
 ---
 
-<!--
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
--->
+We're overjoyed to announce the release of [reprex](https://reprex.tidyverse.org) 2.0.0. reprex is a package that helps you prepare **REPR**oducible **EX**amples to share in places where people talk about code, e.g., on GitHub, on Stack Overflow, and in Slack or email messages.
 
-We're well pleased to announce the release of [reprex](https://reprex.tidyverse.org) 2.0.0. reprex is ...
-
-You can install it from CRAN with:
+You can install the current version of reprex from CRAN with[^1]:
 
 <div class="highlight">
 
@@ -29,9 +25,9 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will ...
+reprex recently had a major release ([version 1.0.0](https://www.tidyverse.org/blog/2021/02/reprex-1-0-0/)), but we've added some big features since then. Specifically, reprex has gotten much, much easier to use on RStudio Server and on RStudio Cloud (basically when you're using reprex/R/RStudio in a web browser). It's also easier to specify the working directory, if you must, and reprex plays more nicely with the [renv package](https://rstudio.github.io/renv/),
 
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
+You can see a full list of changes in the [release notes](https://reprex.tidyverse.org/news/index.html#reprex-2-0-0-2021-04-02).
 
 <div class="highlight">
 
@@ -39,13 +35,45 @@ You can see a full list of changes in the [release notes](%7B%20github_release%2
 
 </div>
 
-## Topic 1
+## When the clipboard isn't available
 
-## Topic 2
+By default, reprex accepts a code snippet via the clipboard and also puts the rendered result there, ready to paste into GitHub, Stack Overflow, Slack or an email. But when working in RStudio Server (RS) or RStudio Cloud, you're running R (and reprex) in a web browser. For very good security reasons, it's essentially impossible to access your clipboard from R in this context. Therefore, reprex needs to use other methods to remove as much friction as possible, both for input and output.
+
+When [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) is called without any code input, in RS or on Cloud, the default is now to **consult the current selection** for reprex source. Previously this was only available via the [`reprex_selection()` addin](https://reprex.tidyverse.org/reference/reprex_addin.html)[^2]. Note that this "current selection" default behaviour propagates to convenience wrappers around [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html), such as [`reprex_locale()`](https://reprex.tidyverse.org/reference/reprex_locale.html) and venue-specific functions like [`reprex_r()`](https://reprex.tidyverse.org/reference/reprex_venue.html), as well as to the [un-`reprex()` functions](https://reprex.tidyverse.org/reference/un-reprex.html), such as [`reprex_clean()`](https://reprex.tidyverse.org/reference/un-reprex.html).
+
+Finally, in RS or on Cloud, the file containing the rendered reprex is opened and its contents are selected, ready for the user to copy via Cmd/Ctrl + C.
+
+These changes also make the ["Render reprex" addin/gadget](https://reprex.tidyverse.org/reference/reprex_addin.html) much more usable on RS and on Cloud.
+
+## Filepaths
+
+`wd` is a new argument to set the reprex working directory. As a result, the `outfile` argument is deprecated and the `input` argument has new significance. Here's how to use `input` and `wd` to control reprex filepaths:
+
+-   To reprex in the current working directory,  
+    Previously: [`reprex(outfile = NA)`](https://reprex.tidyverse.org/reference/reprex.html)  
+    Now: [`reprex(wd = ".")`](https://reprex.tidyverse.org/reference/reprex.html)  
+    More generally, usage looks like [`reprex(wd = "path/to/desired/wd")`](https://reprex.tidyverse.org/reference/reprex.html).
+-   If you really care about reprex filename (and location), write your source to `path/to/stuff.R` and call [`reprex(input = "path/to/stuff.R")`](https://reprex.tidyverse.org/reference/reprex.html). When `input` is a filepath, that filepath determines the working directory and how reprex files are named and `wd` is never even consulted.
+
+Various changes mean that more users will see reprex filepaths. Therefore, we've revised them to be more self-explanatory and human-friendly. When reprex needs to invent a file name, it is now based on a random "adjective-animal" slug. Bring on the `angry-hamster`!
+
+## `.Rprofile`
+
+[`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) renders the reprex in a separate, fresh R session using [`callr::r()`](https://callr.r-lib.org/reference/r.html). As of callr 3.4.0 (released 2019-12-09), the default became [`callr::r(..., user_profile = "project")`](https://callr.r-lib.org/reference/r.html), which means that callr executes a `.Rprofile` found in current working directory. Most reprexes happen in a temp directory and there will be no such `.Rprofile`. But if the user intentionally reprexes in an existing project with a `.Rprofile`, [`callr::r()`](https://callr.r-lib.org/reference/r.html) and therefore [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) honor it. In this version of reprex:
+
+-   We explicitly make sure that the working directory of the [`callr::r()`](https://callr.r-lib.org/reference/r.html) call is the same as the effective working directory of the reprex.
+-   We alert the user that a local `.Rprofile` has been found.
+-   We indicate the usage of a local `.Rprofile` in the rendered reprex.
+
+These changes are of special interest to users of the [renv package](https://rstudio.github.io/renv/), which uses `.Rprofile` to implement a project-specific R package library. Combined with the filepath changes (described above), this means an renv user can call [`reprex(wd = ".")`](https://reprex.tidyverse.org/reference/reprex.html), to render a reprex with respect to a project-specific library.
 
 ## Acknowledgements
 
 10 contributors
 
 [@23ava](https://github.com/23ava), [@jennybc](https://github.com/jennybc), [@kiernann](https://github.com/kiernann), [@krlmlr](https://github.com/krlmlr), [@llrs](https://github.com/llrs), [@MatthieuStigler](https://github.com/MatthieuStigler), [@mcanouil](https://github.com/mcanouil), [@MilesMcBain](https://github.com/MilesMcBain), [@oharac](https://github.com/oharac), and [@remlapmot](https://github.com/remlapmot).
+
+[^1]: Another way you might get reprex is by installing the tidyverse meta-package. reprex is one of the packages installed by [`install.packages("tidyverse")`](https://rdrr.io/r/utils/install.packages.html), however it is **not** among the core packages attached by [`library(tidyverse)`](http://tidyverse.tidyverse.org).
+
+[^2]: The [`reprex_selection()` addin](https://reprex.tidyverse.org/reference/reprex_addin.html) still exists! What's new is that it has become the default behaviour on RS/Cloud. [`reprex_selection()`](https://reprex.tidyverse.org/reference/reprex_addin.html) is so handy that many reprex users wire it up to a [custom keyboard shortcut](https://support.rstudio.com/hc/en-us/articles/206382178-Customizing-Keyboard-Shortcuts), such as Cmd + Shift + R (macOS) or Ctrl + Shift + R (Windows).
 
