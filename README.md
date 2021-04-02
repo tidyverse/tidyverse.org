@@ -18,7 +18,7 @@ This repo (and resulting website) is licensed as [CC BY-SA](LICENSE.md).
 This site now uses [hugodown](http://github.com/r-lib/hugodown/issues) rather than blogdown. Install it with:
 
 ```r
-remotes::install_github("r-lib/hugodown")
+pak::pkg_install("r-lib/hugodown")
 ```
 
 * To add a new post call `hugodown::use_tidy_post("short-name")`. 
