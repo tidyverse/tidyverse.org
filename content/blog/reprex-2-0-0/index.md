@@ -11,7 +11,7 @@ photo:
   url: https://unsplash.com/photos/NROHA1B-NYk
   author: Mitchell Luo
 categories: [package] 
-rmd_hash: f8760d3b55790ef4
+rmd_hash: 345a8d65731f98a8
 
 ---
 
@@ -45,7 +45,7 @@ When [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) is called 
 
 Once your reprex has been rendered, you see the normal html preview, the file containing the rendered reprex is opened in RStudio, and its contents are selected, ready for you to copy via Cmd/Ctrl + C.
 
-These changes also make the ["Render reprex" gadget](https://reprex.tidyverse.org/reference/reprex_addin.html) much more usable in RStudio Server or Cloud.
+These changes also make the ["Render reprex" gadget](https://reprex.tidyverse.org/reference/reprex_addin.html) much more usable in RStudio Server or Cloud. reprex has always *technically* worked in the browser, but the user experience was pretty disappointing. Hopefully now it is actually pleasant!
 
 ## Working directory
 
@@ -93,7 +93,7 @@ getwd()
 
 The old way to [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) in current working directory was [`reprex(outfile =  NA)`](https://reprex.tidyverse.org/reference/reprex.html), which was not very intuitive.
 
-Another good reason to reprex in a specific working directory is for package development. Just put [`devtools::load_all(".")`](https://devtools.r-lib.org//reference/load_all.html) at the start of your reprex and then you can easily explore a code snippet in the context of an experimental version of the package. This is a nice way to create small "before vs. after" demos in the context of developing a feature or fixing a bug.
+Another good reason to reprex in a specific working directory is for package development. Just put [`devtools::load_all(".")`](https://devtools.r-lib.org//reference/load_all.html) at the start of your reprex and then you can easily explore a code snippet in the context of an experimental version of the package. This is a nice way to create small, concrete "before vs. after" demos when developing a feature or fixing a bug.
 
 ## Local `.Rprofile` and renv happiness
 
