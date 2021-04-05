@@ -19,14 +19,14 @@ reprex is a package that helps you prepare **REPR**oducible **EX**amples to shar
 You can install the current version of reprex from CRAN with[^1]:
 
 [^1]: Another way you might get reprex is by installing the tidyverse meta-package.
-reprex is one of the packages installed by `install.packages("tidyverse")`, however it is **not** among the core packages attached by `library(tidyverse)`.
+reprex is one of the packages installed by `install.packages("tidyverse")`, however it is **not** among the [core packages](https://www.tidyverse.org/packages/#core-tidyverse) attached by `library(tidyverse)`.
 
 ```{r, eval = FALSE}
 install.packages("reprex")
 ```
 
 reprex recently had a major release ([version 1.0.0](https://www.tidyverse.org/blog/2021/02/reprex-1-0-0/)), but we've added some big features since then.
-Specifically, reprex has gotten much, much easier to use on [RStudio Server](https://www.rstudio.com/products/rstudio/download-server/) and on [RStudio Cloud](https://rstudio.cloud).
+Specifically, reprex has gotten much, much easier to use on [RStudio Server](https://www.rstudio.com/products/rstudio/download-server/) and [RStudio Cloud](https://rstudio.cloud).
 It's also easier to specify the working directory, if you must, and reprex plays more nicely with the [renv package](https://rstudio.github.io/renv/).
 
 You can see a full list of changes in the [release notes](https://reprex.tidyverse.org/news/index.html#reprex-2-0-0-2021-04-02).
@@ -43,7 +43,7 @@ But when working in [RStudio Server](https://www.rstudio.com/products/rstudio/do
 For very good security reasons, it's essentially impossible to access your clipboard from R in this context.
 Therefore, reprex needs to use other methods to remove as much friction as possible, both for input and output.
 
-When `reprex()` is called without any code input, in RS or on Cloud, the default is now to **consult the current selection** for reprex source.
+When `reprex()` is called without any code input, in RStudio Server or on Cloud, the default is now to **consult the current selection** for reprex source.
 Previously this was only available via the `reprex_selection()` addin. [^2]
 Note that this "current selection" default behaviour propagates to convenience wrappers around `reprex()`, such as `reprex_locale()` and venue-specific functions `reprex_r()`, as well as to the un-`reprex()` functions, such as `reprex_clean()`.
 
@@ -57,7 +57,7 @@ These changes also make the ["Render reprex" addin/gadget](https://reprex.tidyve
 
 ## Working directory
 
-Ideally, a reprex is entirely self-contained and does not read any local files that, presumably, nobody else has.
+Ideally, a reprex is entirely self-contained and does not read any local files which, presumably, nobody else has.
 That's why, by default, `reprex()` works in an ephemeral directory created in the session temp directory.
 Run `getwd()` inside `reprex()`:
 
