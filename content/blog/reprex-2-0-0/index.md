@@ -11,7 +11,7 @@ photo:
   url: https://unsplash.com/photos/NROHA1B-NYk
   author: Mitchell Luo
 categories: [package] 
-rmd_hash: 345a8d65731f98a8
+rmd_hash: aba1b26b4755964c
 
 ---
 
@@ -39,9 +39,35 @@ You can see a full list of changes in the [release notes](https://reprex.tidyver
 
 By default, reprex accepts a code snippet via the clipboard and also puts the rendered result there, ready to paste into GitHub, Stack Overflow, Slack or an email. Removing friction around reprex input/output is one of the main reasons the package exists.
 
+<div class="highlight">
+
+<div class="figure" style="text-align: center">
+
+<img src="reprex-on-desktop.png" alt="Default input/output is the system clipboard on a desktop" width="60%" />
+<p class="caption">
+Default input/output is the system clipboard on a desktop
+</p>
+
+</div>
+
+</div>
+
 But when working in [RStudio Server](https://www.rstudio.com/products/rstudio/download-server/) or [RStudio Cloud](https://rstudio.cloud), you're running R (and reprex) in a web browser. For very good security reasons, it's essentially impossible to access your system clipboard programmatically from R in this context. Luckily, thanks to the [rstudioapi package](https://rstudio.github.io/rstudio-extensions/rstudioapi.html), we can safely control the RStudio IDE. This means we can create a smooth reprex workflow using the **current selection**, instead of the clipboard.
 
 When [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) is called without any code input, in RStudio Server or Cloud, the default is now to consult the current selection for reprex source. Previously this was only available via the [`reprex_selection()`](https://reprex.tidyverse.org/reference/reprex_addin.html) addin. [^2] Note that this "current selection" default behaviour propagates to convenience wrappers around [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html), such as [`reprex_r()`](https://reprex.tidyverse.org/reference/reprex_venue.html) and [`reprex_slack()`](https://reprex.tidyverse.org/reference/reprex_venue.html).
+
+<div class="highlight">
+
+<div class="figure" style="text-align: center">
+
+<img src="reprex-in-browser.png" alt="Default input/output is current selection in RStudio Server and Cloud" width="60%" />
+<p class="caption">
+Default input/output is current selection in RStudio Server and Cloud
+</p>
+
+</div>
+
+</div>
 
 Once your reprex has been rendered, you see the normal html preview, the file containing the rendered reprex is opened in RStudio, and its contents are selected, ready for you to copy via Cmd/Ctrl + C.
 
