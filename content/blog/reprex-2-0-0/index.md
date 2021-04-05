@@ -11,7 +11,7 @@ photo:
   url: https://unsplash.com/photos/NROHA1B-NYk
   author: Mitchell Luo
 categories: [package] 
-rmd_hash: 02c691e9f83d25b6
+rmd_hash: f8760d3b55790ef4
 
 ---
 
@@ -91,20 +91,13 @@ getwd()
 #> [1] "/Users/jenny/rrr/tidyverse.org/content/blog/reprex-2-0-0"
 ```
 
-The old way to [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) in current working directory was [`reprex(outfile =  NA)`](https://reprex.tidyverse.org/reference/reprex.html), which was not very intuitive. You're not limited to `wd = "."`; you can use `wd` with any existing path.
+The old way to [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) in current working directory was [`reprex(outfile =  NA)`](https://reprex.tidyverse.org/reference/reprex.html), which was not very intuitive.
 
-### Adjective-animal
-
-Various changes mean that more users will see reprex filepaths. Therefore, we've revised them to be more self-explanatory and human-friendly. When reprex needs to invent a file name, it is now based on a random "adjective-animal" slug. Bring on the `angry-hamster`! [^3]
-
-You actually saw one of these filepaths already, in the output of [`reprex(getwd())`](https://reprex.tidyverse.org/reference/reprex.html):
-
-``` r
-getwd()
-#> [1] "/private/tmp/RtmpXrUKXE/reprex-13063117cb6d8-alive-lark"
-```
+Another good reason to reprex in a specific working directory is for package development. Just put [`devtools::load_all(".")`](https://devtools.r-lib.org//reference/load_all.html) at the start of your reprex and then you can easily explore a code snippet in the context of an experimental version of the package. This is a nice way to create small "before vs. after" demos in the context of developing a feature or fixing a bug.
 
 ## Local `.Rprofile` and renv happiness
+
+The reprex working directory has even more significance, when you consider the implications for the callr and renv packages.
 
 [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) renders the reprex in a separate, fresh R session using [`callr::r()`](https://callr.r-lib.org/reference/r.html). We accept this default behaviour from callr:
 
@@ -118,7 +111,7 @@ which means that callr executes a `"project"`-level `.Rprofile`, if such a file 
 
 Most reprexes happen in a temp directory and there will be no such `.Rprofile`. But if the user intentionally reprexes in, say, an existing project that has `.Rprofile`, [`callr::r()`](https://callr.r-lib.org/reference/r.html) and therefore [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) both honor it. (Remember, this has gotten easier, with [`reprex(wd = ".")`](https://reprex.tidyverse.org/reference/reprex.html).)
 
-This has special significance for users of the [renv package](https://rstudio.github.io/renv/), which uses `.Rprofile` to implement a project-specific package library:
+This is especially important for users of the [renv package](https://rstudio.github.io/renv/), which uses `.Rprofile` to implement a project-specific package library:
 
 > In an renv project, [`reprex(wd = ".")`](https://reprex.tidyverse.org/reference/reprex.html) renders with respect to the project-specific library.
 
@@ -129,6 +122,17 @@ reprex v2.0.0 introduces a few features around project-specific `.Rprofile`:
 -   We explicitly make sure that the working directory of the [`callr::r()`](https://callr.r-lib.org/reference/r.html) call is the same as the effective working directory of the reprex.
 -   We alert the user that a local `.Rprofile` has been found.
 -   We indicate the usage of a local `.Rprofile` in the rendered reprex.
+
+## Adjective-animal
+
+Various changes mean that more users will see reprex filepaths. Therefore, we've revised them to be more self-explanatory and human-friendly. When reprex needs to invent a file name, it is now based on a random "adjective-animal" slug. Bring on the `angry-hamster`! [^3]
+
+You actually saw one of these filepaths already, in the output of [`reprex(getwd())`](https://reprex.tidyverse.org/reference/reprex.html):
+
+``` r
+getwd()
+#> [1] "/private/tmp/RtmpXrUKXE/reprex-13063117cb6d8-alive-lark"
+```
 
 ## Acknowledgements
 
