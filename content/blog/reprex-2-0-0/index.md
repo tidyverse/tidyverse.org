@@ -11,7 +11,7 @@ photo:
   url: https://unsplash.com/photos/NROHA1B-NYk
   author: Mitchell Luo
 categories: [package] 
-rmd_hash: 4c15645307bec76c
+rmd_hash: 02c691e9f83d25b6
 
 ---
 
@@ -25,7 +25,7 @@ You can install the current version of reprex from CRAN with[^1]:
 
 </div>
 
-reprex recently had a major release ([version 1.0.0](https://www.tidyverse.org/blog/2021/02/reprex-1-0-0/)), but we've added some big features since then. Specifically, reprex has gotten much, much easier to use on [RStudio Server](https://www.rstudio.com/products/rstudio/download-server/) and on [RStudio Cloud](https://rstudio.cloud). It's also easier to specify the working directory, if you must, and reprex plays more nicely with the [renv package](https://rstudio.github.io/renv/).
+reprex recently had a major release ([version 1.0.0](https://www.tidyverse.org/blog/2021/02/reprex-1-0-0/)), but we've added some big features since then. Specifically, reprex has gotten much, much easier to use on [RStudio Server](https://www.rstudio.com/products/rstudio/download-server/) and [RStudio Cloud](https://rstudio.cloud). It's also easier to specify the working directory, if you must, and reprex plays more nicely with the [renv package](https://rstudio.github.io/renv/).
 
 You can see a full list of changes in the [release notes](https://reprex.tidyverse.org/news/index.html#reprex-2-0-0-2021-04-02).
 
@@ -35,21 +35,21 @@ You can see a full list of changes in the [release notes](https://reprex.tidyver
 
 </div>
 
-## When the clipboard isn't available
+## Use in RStudio Server and RStudio Cloud
 
-By default, reprex accepts a code snippet via the clipboard and also puts the rendered result there, ready to paste into GitHub, Stack Overflow, Slack or an email. But when working in [RStudio Server](https://www.rstudio.com/products/rstudio/download-server/) (RS) or [RStudio Cloud](https://rstudio.cloud), you're running R (and reprex) in a web browser.
+By default, reprex accepts a code snippet via the clipboard and also puts the rendered result there, ready to paste into GitHub, Stack Overflow, Slack or an email. Removing friction around reprex input/output is one of the main reasons the package exists.
 
-For very good security reasons, it's essentially impossible to access your clipboard from R in this context. Therefore, reprex needs to use other methods to remove as much friction as possible, both for input and output.
+But when working in [RStudio Server](https://www.rstudio.com/products/rstudio/download-server/) or [RStudio Cloud](https://rstudio.cloud), you're running R (and reprex) in a web browser. For very good security reasons, it's essentially impossible to access your system clipboard programmatically from R in this context. Luckily, thanks to the [rstudioapi package](https://rstudio.github.io/rstudio-extensions/rstudioapi.html), we can safely control the RStudio IDE. This means we can create a smooth reprex workflow using the **current selection**, instead of the clipboard.
 
-When [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) is called without any code input, in RS or on Cloud, the default is now to **consult the current selection** for reprex source. Previously this was only available via the [`reprex_selection()`](https://reprex.tidyverse.org/reference/reprex_addin.html) addin. [^2] Note that this "current selection" default behaviour propagates to convenience wrappers around [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html), such as [`reprex_locale()`](https://reprex.tidyverse.org/reference/reprex_locale.html) and venue-specific functions [`reprex_r()`](https://reprex.tidyverse.org/reference/reprex_venue.html), as well as to the un-[`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) functions, such as [`reprex_clean()`](https://reprex.tidyverse.org/reference/un-reprex.html).
+When [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) is called without any code input, in RStudio Server or Cloud, the default is now to consult the current selection for reprex source. Previously this was only available via the [`reprex_selection()`](https://reprex.tidyverse.org/reference/reprex_addin.html) addin. [^2] Note that this "current selection" default behaviour propagates to convenience wrappers around [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html), such as [`reprex_r()`](https://reprex.tidyverse.org/reference/reprex_venue.html) and [`reprex_slack()`](https://reprex.tidyverse.org/reference/reprex_venue.html).
 
-Finally, in RS or on Cloud, the file containing the rendered reprex is opened and its contents are selected, ready for the user to copy via Cmd/Ctrl + C.
+Once your reprex has been rendered, you see the normal html preview, the file containing the rendered reprex is opened in RStudio, and its contents are selected, ready for you to copy via Cmd/Ctrl + C.
 
-These changes also make the ["Render reprex" addin/gadget](https://reprex.tidyverse.org/reference/reprex_addin.html) much more usable on RS and on Cloud.
+These changes also make the ["Render reprex" gadget](https://reprex.tidyverse.org/reference/reprex_addin.html) much more usable in RStudio Server or Cloud.
 
 ## Working directory
 
-Ideally, a reprex is entirely self-contained and does not read any local files that, presumably, nobody else has. That's why, by default, [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) works in an ephemeral directory created in the session temp directory. Run [`getwd()`](https://rdrr.io/r/base/getwd.html) inside [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html):
+Ideally, a reprex is entirely self-contained and does not read any local files which, presumably, nobody else has. That's why, by default, [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) works in an ephemeral directory created in the session temp directory. Run [`getwd()`](https://rdrr.io/r/base/getwd.html) inside [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html):
 
 <div class="highlight">
 
@@ -136,9 +136,9 @@ We thank these folks for contributing to this release through their issues, comm
 
 [@23ava](https://github.com/23ava), [@jennybc](https://github.com/jennybc), [@kiernann](https://github.com/kiernann), [@krlmlr](https://github.com/krlmlr), [@llrs](https://github.com/llrs), [@MatthieuStigler](https://github.com/MatthieuStigler), [@mcanouil](https://github.com/mcanouil), [@MilesMcBain](https://github.com/MilesMcBain), [@oharac](https://github.com/oharac), and [@remlapmot](https://github.com/remlapmot).
 
-[^1]: Another way you might get reprex is by installing the tidyverse meta-package. reprex is one of the packages installed by [`install.packages("tidyverse")`](https://rdrr.io/r/utils/install.packages.html), however it is **not** among the core packages attached by [`library(tidyverse)`](http://tidyverse.tidyverse.org).
+[^1]: Another way you might get reprex is by installing the tidyverse meta-package. reprex is one of the packages installed by [`install.packages("tidyverse")`](https://rdrr.io/r/utils/install.packages.html), however it is **not** among the [core packages](https://www.tidyverse.org/packages/#core-tidyverse) attached by [`library(tidyverse)`](http://tidyverse.tidyverse.org).
 
-[^2]: The [`reprex_selection()`](https://reprex.tidyverse.org/reference/reprex_addin.html) addin is alive and well! What's new is that it has become the default behaviour on RS/Cloud. [`reprex_selection()`](https://reprex.tidyverse.org/reference/reprex_addin.html) is so handy that many reprex users wire it up to a [custom keyboard shortcut](https://support.rstudio.com/hc/en-us/articles/206382178-Customizing-Keyboard-Shortcuts), such as Cmd + Shift + R (macOS) or Ctrl + Shift + R (Windows).
+[^2]: The [`reprex_selection()`](https://reprex.tidyverse.org/reference/reprex_addin.html) addin is alive and well! What's new is that it has become the default behaviour in RStudio Server or Cloud. [`reprex_selection()`](https://reprex.tidyverse.org/reference/reprex_addin.html) is so handy that many reprex users wire it up to a [custom keyboard shortcut](https://support.rstudio.com/hc/en-us/articles/206382178-Customizing-Keyboard-Shortcuts), such as Cmd + Shift + R (macOS) or Ctrl + Shift + R (Windows).
 
 [^3]: [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) draws randomly from a fixed set of adjective-animal slugs generated with the handy [ids package](https://reside-ic.github.io/ids/).
 
