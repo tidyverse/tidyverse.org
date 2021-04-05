@@ -11,7 +11,7 @@ photo:
   url: https://unsplash.com/photos/NROHA1B-NYk
   author: Mitchell Luo
 categories: [package] 
-rmd_hash: aba1b26b4755964c
+rmd_hash: e3018fac9bda63bb
 
 ---
 
@@ -60,9 +60,9 @@ When [`reprex()`](https://reprex.tidyverse.org/reference/reprex.html) is called 
 
 <div class="figure" style="text-align: center">
 
-<img src="reprex-in-browser.png" alt="Default input/output is current selection in RStudio Server and Cloud" width="60%" />
+<img src="reprex-in-browser.png" alt="Default input/output is the current selection in RStudio Server and Cloud" width="60%" />
 <p class="caption">
-Default input/output is current selection in RStudio Server and Cloud
+Default input/output is the current selection in RStudio Server and Cloud
 </p>
 
 </div>
