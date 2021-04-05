@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: reprex-2-0-0
 title: reprex 2.0.0
-date: 2021-04-02
+date: 2021-04-05
 author: Jenny Bryan
 description: >
     reprex is now much easier to use on RStudio Server and RStudio Cloud.
@@ -11,7 +11,7 @@ photo:
   url: https://unsplash.com/photos/NROHA1B-NYk
   author: Mitchell Luo
 categories: [package] 
-rmd_hash: e3018fac9bda63bb
+rmd_hash: 23d34f18f47a7b23
 
 ---
 
