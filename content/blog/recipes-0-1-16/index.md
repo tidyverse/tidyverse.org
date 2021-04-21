@@ -30,7 +30,7 @@ TODO:
 * [ ] `usethis::use_tidy_thanks()`
 -->
 
-We're tickled pink to announce the release of [recipes](https://recipes.tidymodels.org/) 0.1.16. recipes is package for preprocessing data for modeling and data analysis.  
+We're tickled pink to announce the release of [recipes](https://recipes.tidymodels.org/) 0.1.16. recipes is a package for preprocessing data for modeling and data analysis.  
 
 You can install it from CRAN with:
 
@@ -42,13 +42,13 @@ install.packages("recipes")
 
 This blog post will discuss the several improvements to the package. Before discussing new features, please note that the package license was changed from GPL-2 to MIT. 
 
-You can see a full list of changes in the [release notes](https://recipes.tidymodels.org/news/index.html#recipes-0-1-16-unreleased)
+You can see a full list of changes in the [release notes](https://recipes.tidymodels.org/news/index.html#recipes-0-1-16-unreleased).
 
 ## New column selectors
 
-We do our best to keep track of persistent issues that show up in our teaching, [StackOVerflow](https://stackoverflow.com/questions/tagged/?tagnames=r-recipes+r&sort=newest) posts, [RStudio Community](https://community.rstudio.com/tag/tidymodels) posts, the [R4DS Tidy Modeling Book Club](https://www.google.com/search?q=r4ds+tidymodels+book+club&oq=r4ds+tidymodels+book+club), and other venues. If there are persistent issues, we do our best to help make the programming interface better. 
+We do our best to keep track of persistent issues that show up in our teaching, [Stack Overflow](https://stackoverflow.com/questions/tagged/?tagnames=r-recipes+r&sort=newest) posts, [RStudio Community](https://community.rstudio.com/tag/tidymodels) posts, the [R4DS Tidy Modeling Book Club](https://www.google.com/search?q=r4ds+tidymodels+book+club&oq=r4ds+tidymodels+book+club), and other venues. If there are persistent issues, we do our best to help make the programming interface better. 
 
-[Mine Çetinkaya-Rundel](https://twitter.com/minebocek) had a good idea for one issue related to creating dummy variables. For classification data where one or more predictors are categorical, the users might accidentally capture the _outcome_ and the predictors when creating dummy variables. For example: 
+[Mine Çetinkaya-Rundel](https://twitter.com/minebocek) had a good idea for one such persistent issue related to creating dummy variables. For classification data where one or more predictors are categorical, the users might accidentally capture the _outcome_ and the predictors when creating dummy variables. For example: 
 
 
 ```r
@@ -72,7 +72,7 @@ scat_rec %>%
 ## [7] "Species_bobcat"    "Species_coyote"    "Species_gray_fox"
 ```
 
-Note that the outcome column (`Species`) was made into a binary indicators. Most classification models prefer a factor vector and this would cause errors. The fix would be to remember to remove `Species` from the step selector. 
+Note that the outcome column (`Species`) was made into binary indicators. Most classification models prefer a factor vector and this would cause errors. The fix would be to remember to remove `Species` from the step selector. 
 
 Most selectors in recipes are used to capture _predictor_ columns. The new version of recipes contains new selectors that combine the role and the data type: `all_nominal_predictors()` and `all_numeric_predictors()`. Using these: 
 
@@ -146,13 +146,13 @@ Speaking of missing data, we've decided to rename the current eight imputation s
 * `step_impute_median()` is favored over `step_medianimpute()`
 * and so on...
 
-These are a lot better since they work well with tab-complete. The old steps will go through a gradual deprecation process before being removed at some point in the future. 
+These are a lot better since they work well with tab-completion. The old steps will go through a gradual deprecation process before being removed at some point in the future. 
 
 ## Keeping columns used in other features
 
-A fair number of steps take one or more columns of the data and convert them to artificial features. For example, principal component regression represents a set of columns as artificial features that are amalgamations of the original data. In some cases, users desired top be able to keep the original columns. 
+A fair number of steps take one or more columns of the data and convert them to artificial features. For example, principal component regression represents a set of columns as artificial features that are amalgamations of the original data. In some cases, users desired to be able to keep the original columns. 
 
-The following steps have an option called `keep_original_cols`: `step_date()`, `step_dummy()`, `step_holiday()`, `step_ica()`, `step_isomap()`, `step_kpca_poly()`, `step_kpca_rbf()`, `step_nnmf()`, `step_pca()`, `step_pls()`, and `step_ratio()`. 
+The following steps now have an option called `keep_original_cols`: `step_date()`, `step_dummy()`, `step_holiday()`, `step_ica()`, `step_isomap()`, `step_kpca_poly()`, `step_kpca_rbf()`, `step_nnmf()`, `step_pca()`, `step_pls()`, and `step_ratio()`. 
 
 For example: 
 
@@ -179,4 +179,4 @@ scat_rec %>%
 
 ## Acknowledgements
 
-Thakns for everyone who contributed since the previous version: [&#x0040;AshesITR](https://github.com/AshesITR), [&#x0040;BenoitLondon](https://github.com/BenoitLondon), [&#x0040;CelloJuan](https://github.com/CelloJuan), [&#x0040;dfalbel](https://github.com/dfalbel), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;gregdenay](https://github.com/gregdenay), [&#x0040;gustavomodelli](https://github.com/gustavomodelli), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;hsbadr](https://github.com/hsbadr), [&#x0040;jake-mason](https://github.com/jake-mason), [&#x0040;jjcurtin](https://github.com/jjcurtin), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;konradsemsch](https://github.com/konradsemsch), [&#x0040;kylegilde](https://github.com/kylegilde), [&#x0040;LePeti](https://github.com/LePeti), [&#x0040;LordRudolf](https://github.com/LordRudolf), [&#x0040;lukasal](https://github.com/lukasal), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mikemc](https://github.com/mikemc), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [&#x0040;paudel-arjun](https://github.com/paudel-arjun), [&#x0040;renanxcortes](https://github.com/renanxcortes), [&#x0040;rorynolan](https://github.com/rorynolan), [&#x0040;saadaslam](https://github.com/saadaslam), [&#x0040;schoonees](https://github.com/schoonees), [&#x0040;topepo](https://github.com/topepo), [&#x0040;uriahf](https://github.com/uriahf), [&#x0040;vadimus202](https://github.com/vadimus202), and [&#x0040;zenggyu](https://github.com/zenggyu).
+Thanks to everyone who contributed since the previous version: [&#x0040;AshesITR](https://github.com/AshesITR), [&#x0040;BenoitLondon](https://github.com/BenoitLondon), [&#x0040;CelloJuan](https://github.com/CelloJuan), [&#x0040;dfalbel](https://github.com/dfalbel), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;gregdenay](https://github.com/gregdenay), [&#x0040;gustavomodelli](https://github.com/gustavomodelli), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;hsbadr](https://github.com/hsbadr), [&#x0040;jake-mason](https://github.com/jake-mason), [&#x0040;jjcurtin](https://github.com/jjcurtin), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;konradsemsch](https://github.com/konradsemsch), [&#x0040;kylegilde](https://github.com/kylegilde), [&#x0040;LePeti](https://github.com/LePeti), [&#x0040;LordRudolf](https://github.com/LordRudolf), [&#x0040;lukasal](https://github.com/lukasal), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mikemc](https://github.com/mikemc), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [&#x0040;paudel-arjun](https://github.com/paudel-arjun), [&#x0040;renanxcortes](https://github.com/renanxcortes), [&#x0040;rorynolan](https://github.com/rorynolan), [&#x0040;saadaslam](https://github.com/saadaslam), [&#x0040;schoonees](https://github.com/schoonees), [&#x0040;topepo](https://github.com/topepo), [&#x0040;uriahf](https://github.com/uriahf), [&#x0040;vadimus202](https://github.com/vadimus202), and [&#x0040;zenggyu](https://github.com/zenggyu).
