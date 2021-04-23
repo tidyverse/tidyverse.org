@@ -1,0 +1,70 @@
+---
+output: hugodown::hugo_document
+
+slug: haven-2-4-0
+title: haven 2.4.0
+date: 2021-04-23
+author: Hadley Wickham
+description: >
+    This version provides much improved `labelled_spss()` support, improved
+    date-time handling, the latest ReadStat, and a bunch of other small 
+    improvements.
+
+photo:
+  url: https://unsplash.com/photos/SHA85I0G8K4
+  author: Evgeni Tcherkasski
+
+# one of: "deep-dive", "learn", "package", "programming", or "other"
+categories: [package] 
+tags: [haven]
+---
+
+We're delighted to announce the release of [haven](https://haven.tidyverse.org) 2.4.0. haven allows you to read and write SAS, SPSS, and Stata data formats from R, thanks to the wonderful [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](https://www.evanmiller.org/).
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("haven")
+```
+
+This blog post will show off the most important changes to the package; you can see a full list of changes in the [release notes](https://github.com/tidyverse/haven/releases/tag/v2.4.0).
+
+```{r setup}
+library(haven)
+```
+
+## `labelled_spss()` and `labelled()`
+
+`labelled_spss()` gains full vctrs support thanks to the hard work of [Danny Smith](https://github.com/gorcha). This means that `labelled_spss()` objects should now work seamlessly with dplyr 1.0.0, tidyr 1.0.0.
+
+I've also made `labelled()` vectors are more permissive when concatenating. Now, output labels will be a combination of the left-hand and the right-hand side, and if there are duplicate labels, the left-hand side (first assigned) will win:
+
+```{r}
+x1 <- labelled(1, labels = c(USA = 1))
+x2 <- labelled(64, labels = c(NZ = 64))
+c(x1, x2)
+
+# It's now your responsibility to only combine things that make sense
+x3 <- labelled(c(1, 2, 5, 3, 2), labels = c(Good = 5, Bad = 1))
+c(x1, x3)
+```
+
+## Other improvements
+
+* Date-times are no longer converted to UTC. This should ensure that you *see* 
+  the same date-time in R and in Stata/SPSS/SAS. (But the underlying time point 
+  might be different because Stata/SPSS/SAS don't appear to support time zones.)
+
+* Bundleed ReadStat has been updated to version 1.1.5 from 1.1.3 so 
+  includes ReadStat improvements in 
+  [v1.1.5](https://github.com/WizardMac/ReadStat/releases/tag/v1.1.5)
+  and [v1.1.4](https://github.com/WizardMac/ReadStat/releases/tag/v1.1.4).
+  Probably the biggest improvement is support for SAS-binary (aka Ross) compression.
+
+* `write_*()` now validates file and variable metadata with ReadStat, and
+  validation failures now provide more details about the source of the problem 
+  (e.g. the column name), making it easier to track down issues.
+
+## Acknowledgements
+
+A big thanks to everyone who helped make this release possible by asking questions, providing reprexes, writing code and more! [&#x0040;Ales-G](https://github.com/Ales-G), [&#x0040;atungate](https://github.com/atungate), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;bergen288](https://github.com/bergen288), [&#x0040;bergsmat](https://github.com/bergsmat), [&#x0040;BernhardClemm](https://github.com/BernhardClemm), [&#x0040;bhaney22](https://github.com/bhaney22), [&#x0040;cimentadaj](https://github.com/cimentadaj), [&#x0040;copernican](https://github.com/copernican), [&#x0040;DanChaltiel](https://github.com/DanChaltiel), [&#x0040;DavidLukeThiessen](https://github.com/DavidLukeThiessen), [&#x0040;deschen1](https://github.com/deschen1), [&#x0040;drag05](https://github.com/drag05), [&#x0040;drevanzyl](https://github.com/drevanzyl), [&#x0040;dsteuer](https://github.com/dsteuer), [&#x0040;dswpg](https://github.com/dswpg), [&#x0040;dusadrian](https://github.com/dusadrian), [&#x0040;elfatherbrown](https://github.com/elfatherbrown), [&#x0040;gorcha](https://github.com/gorcha), [&#x0040;gowerc](https://github.com/gowerc), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hhchang0210](https://github.com/hhchang0210), [&#x0040;hjvdwijk](https://github.com/hjvdwijk), [&#x0040;iamforerunner](https://github.com/iamforerunner), [&#x0040;j-sirgo](https://github.com/j-sirgo), [&#x0040;jacciz](https://github.com/jacciz), [&#x0040;jackobailey](https://github.com/jackobailey), [&#x0040;jaydennord](https://github.com/jaydennord), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;jkhanson1970](https://github.com/jkhanson1970), [&#x0040;kambanane](https://github.com/kambanane), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;kwainfan](https://github.com/kwainfan), [&#x0040;larmarange](https://github.com/larmarange), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;MartinLBarron](https://github.com/MartinLBarron), [&#x0040;oliverbock](https://github.com/oliverbock), [&#x0040;ookiiwani](https://github.com/ookiiwani), [&#x0040;peterolejua](https://github.com/peterolejua), [&#x0040;realrbird](https://github.com/realrbird), [&#x0040;resuf](https://github.com/resuf), [&#x0040;rpruim](https://github.com/rpruim), [&#x0040;rubenarslan](https://github.com/rubenarslan), [&#x0040;sclewis23](https://github.com/sclewis23), [&#x0040;shannonpileggi](https://github.com/shannonpileggi), [&#x0040;sjkiss](https://github.com/sjkiss), [&#x0040;toerpe](https://github.com/toerpe), [&#x0040;tslumley](https://github.com/tslumley), [&#x0040;xlejx-rodsxn](https://github.com/xlejx-rodsxn), [&#x0040;xmatic](https://github.com/xmatic), and [&#x0040;zahlenzauber](https://github.com/zahlenzauber).
