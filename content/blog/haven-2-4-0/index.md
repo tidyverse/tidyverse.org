@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: haven-2-4-0
 title: haven 2.4.0
-date: 2021-04-15
+date: 2021-04-24
 author: Hadley Wickham
 description: >
     This version provides much improved `labelled_spss()` support, improved
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [haven]
-rmd_hash: 36763699ee08e49a
+rmd_hash: 8059abc5da1a509b
 
 ---
 
