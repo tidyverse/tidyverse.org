@@ -7,7 +7,7 @@ date: 2021-04-15
 author: Hadley Wickham
 description: >
     This version provides much improved `labelled_spss()` support, improved
-    date-time handling, latest ReadStat, and a bunch of other small 
+    date-time handling, the latest ReadStat, and a bunch of other small 
     improvements.
 
 photo:
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [haven]
-rmd_hash: 18e8f6749b3d056d
+rmd_hash: 36763699ee08e49a
 
 ---
 
@@ -31,7 +31,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will show off the most important changes to the package; you can see a full list of changes in the [release notes](https://github.com/tidyverse/haven/releases/tag/v2.4.0)
+This blog post will show off the most important changes to the package; you can see a full list of changes in the [release notes](https://github.com/tidyverse/haven/releases/tag/v2.4.0).
 
 <div class="highlight">
 
@@ -41,9 +41,9 @@ This blog post will show off the most important changes to the package; you can 
 
 ## `labelled_spss()` and `labelled()`
 
-[`labelled_spss()`](https://haven.tidyverse.org/reference/labelled_spss.html) gains full vctrs support thanks to the hard work of [Danny Smith](https://github.com/gorcha). This means that [`labelled_spss()`](https://haven.tidyverse.org/reference/labelled_spss.html) objects should now work seamlessly in dplyr 1.0.0, tidyr 1.0.0.
+[`labelled_spss()`](https://haven.tidyverse.org/reference/labelled_spss.html) gains full vctrs support thanks to the hard work of [Danny Smith](https://github.com/gorcha). This means that [`labelled_spss()`](https://haven.tidyverse.org/reference/labelled_spss.html) objects should now work seamlessly with dplyr 1.0.0, tidyr 1.0.0.
 
-I've also made [`labelled()`](https://haven.tidyverse.org/reference/labelled.html) vectors are more permissive when concatenating. Now output labels will be a combination of the left-hand and the right-hand side, and if there are duplicate labels the left-hand side (first assigned) will win:
+I've also made [`labelled()`](https://haven.tidyverse.org/reference/labelled.html) vectors are more permissive when concatenating. Now, output labels will be a combination of the left-hand and the right-hand side, and if there are duplicate labels, the left-hand side (first assigned) will win:
 
 <div class="highlight">
 
@@ -75,9 +75,9 @@ I've also made [`labelled()`](https://haven.tidyverse.org/reference/labelled.htm
 
 -   Date-times are no longer converted to UTC. This should ensure that you *see* the same date-time in R and in Stata/SPSS/SAS. (But the underlying time point might be different because Stata/SPSS/SAS don't appear to support time zones.)
 
--   Bundleed ReadStat has been updated to version 1.1.5 from 1.1.3 so includes ReadStat improvements in [v1.1.5](https://github.com/WizardMac/ReadStat/releases/tag/v1.1.5) and [v1.1.4](https://github.com/WizardMac/ReadStat/releases/tag/v1.1.4). Probably biggest improvement is support for SAS binary (aka Ross) compression.
+-   Bundleed ReadStat has been updated to version 1.1.5 from 1.1.3 so includes ReadStat improvements in [v1.1.5](https://github.com/WizardMac/ReadStat/releases/tag/v1.1.5) and [v1.1.4](https://github.com/WizardMac/ReadStat/releases/tag/v1.1.4). Probably the biggest improvement is support for SAS-binary (aka Ross) compression.
 
--   `write_*()` now validates file and variable metadata with ReadStat and validation failures now provide more details about the source of the problem (e.g. the column name), make it easier to track down issues.
+-   `write_*()` now validates file and variable metadata with ReadStat, and validation failures now provide more details about the source of the problem (e.g. the column name), making it easier to track down issues.
 
 ## Acknowledgements
 
