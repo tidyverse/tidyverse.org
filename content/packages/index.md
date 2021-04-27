@@ -38,6 +38,8 @@ As well as [readr](https://readr.tidyverse.org), for reading flat files, the tid
 
 * [readxl](https://readxl.tidyverse.org) for `.xls` and `.xlsx` sheets.
 
+* [googlesheets4](https://googlesheets4.tidyverse.org) for [Google Sheets](https://docs.google.com/spreadsheets/) via the [Sheets API v4](https://developers.google.com/sheets/api/).
+
 * [rvest](https://github.com/tidyverse/rvest) for web scraping.
 
 * [jsonlite](https://github.com/jeroen/jsonlite#jsonlite)
