@@ -40,6 +40,8 @@ As well as [readr](https://readr.tidyverse.org), for reading flat files, the tid
 
 * [googlesheets4](https://googlesheets4.tidyverse.org) for [Google Sheets](https://docs.google.com/spreadsheets/) via the [Sheets API v4](https://developers.google.com/sheets/api/).
 
+* [googledrive](https://googledrive.tidyverse.org) for [Google Drive](https://drive.google.com/) files.
+
 * [rvest](https://github.com/tidyverse/rvest) for web scraping.
 
 * [jsonlite](https://github.com/jeroen/jsonlite#jsonlite)
@@ -56,6 +58,13 @@ In addition to [tidyr](https://tidyr.tidyverse.org), and [dplyr](https://dplyr.t
 * [lubridate](https://lubridate.tidyverse.org) for dates and date-times.
 * [hms](https://github.com/tidyverse/hms) for time-of-day values.
 * [blob](https://github.com/tidyverse/blob) for storing blob (binary) data.
+
+### dplyr backends
+
+There are also two packages that allow you to interface with different backends using the same dplyr syntax:
+
+* [dbplyr](https://dbplyr.tidyverse.org) allows you to use remote database tables by converting converting dplyr code into SQL. 
+* [dtplyr](https://dtplyr.tidyverse.org) provides a [data.table](http://r-datatable.com) backend by automatically translating to the equivalent, but usually much faster, data.table code.  
 
 ## Program
 
