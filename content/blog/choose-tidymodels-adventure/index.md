@@ -46,6 +46,30 @@ The packages in tidymodels are designed to work together in a unified ecosystem,
 library(tidymodels)
 ```
 
+```
+## ── Attaching packages ───────────────────────────────────────────────────────────────────── tidymodels 0.1.3 ──
+```
+
+```
+## ✓ broom        0.7.6      ✓ recipes      0.1.16
+## ✓ dials        0.0.9      ✓ rsample      0.1.0 
+## ✓ dplyr        1.0.6      ✓ tibble       3.1.2 
+## ✓ ggplot2      3.3.3      ✓ tidyr        1.1.3 
+## ✓ infer        0.5.4      ✓ tune         0.1.5 
+## ✓ modeldata    0.1.0      ✓ workflows    0.2.2 
+## ✓ parsnip      0.1.5      ✓ workflowsets 0.0.2 
+## ✓ purrr        0.3.4      ✓ yardstick    0.0.8
+```
+
+```
+## ── Conflicts ──────────────────────────────────────────────────────────────────────── tidymodels_conflicts() ──
+## x purrr::discard() masks scales::discard()
+## x dplyr::filter()  masks stats::filter()
+## x dplyr::lag()     masks stats::lag()
+## x recipes::step()  masks stats::step()
+## • Use tidymodels_prefer() to resolve common conflicts.
+```
+
 We purposefully write code in small, modular packages both to make them easier to maintain and easier to use in production systems. This does mean that it can be challenging for a newcomer to know where their specific problem fits into this ecosystem. We generally recommend a couple of resources for folks just getting started:
 
 - the [**Get Started** section of tidymodels.org](https://www.tidymodels.org/start/) to get going quickly
