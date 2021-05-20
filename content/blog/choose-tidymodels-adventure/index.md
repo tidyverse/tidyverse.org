@@ -64,7 +64,7 @@ We purposefully write code in small, modular packages both to make them easier t
 
 This post takes on a more specific task for a newcomer to tidymodels; we consider several types of real-world modeling analyses and recommend ways to [choose your own adventure](https://en.wikipedia.org/wiki/Choose_Your_Own_Adventure) in the tidymodels ecosystem.
 
-## Starting with the basics
+## Starting with the basics: **parsnip**
 
 A fully featured ecosystem for modeling and machine learning requires interfaces to, well, models, and the tidymodels package that provides those functions and interfaces is [parsnip](https://parsnip.tidymodels.org/). If your modeling adventure involves small data and straightforward data preprocessing (like that provided by [R's model formula](https://www.tmwr.org/base-r.html#formula)), you may be well-served by focusing on parsnip. To learn more about how to fit and evaluate parsnip models, check out [this article at tidymodel.org's **Get Started** section](https://www.tidymodels.org/start/models/) and [this blog post (complete with screencast) by me](https://juliasilge.com/blog/student-debt/).
 
@@ -76,9 +76,9 @@ We don't believe most people using tidymodels fall into this first category, but
 
 - You may want to use [recipes](https://recipes.tidymodels.org/) for feature engineering with non-tidymodels modeling functions, as shown [here](https://smltar.com/dldnn.html).
 
-## Holistic model workflows
+## Holistic model **workflows**
 
-When you are setting off on a modeling adventure, it might be worth asking what we even mean by the word "model"; it is a word that gets overloaded really quickly! In the tidymodels ecosystem, we carefully incorporate **both** feature engineering (also called data preprocessing) that must be learned from training data **and** a model fit into a modeling workflow that is estimated together. For example, if you trained a least squares regression model with features learned from principal component analysis, the PCA preprocessing step should be considered part of the model workflow:
+When you are setting off on a modeling adventure, it might be worth asking what we even mean by the word "model"; it is a word that gets overloaded really quickly! In the tidymodels ecosystem, we carefully incorporate *both* feature engineering (also called data preprocessing) that must be learned from training data *and* a model fit into a modeling workflow that is estimated together. For example, if you trained a least squares regression model with features learned from principal component analysis, the PCA preprocessing step should be considered part of the model workflow:
 
 ![PCA preprocessing is part of the modeling process](https://www.tmwr.org/premade/proper-workflow.svg)
 
@@ -89,9 +89,9 @@ We generally expect that most people using tidymodels fall into this middle cate
 To learn more about using workflows, see them [used in action in this **Get Started** article](https://www.tidymodels.org/start/case-study/). Also, I have quite a number of blog posts and screencasts that walk through how to use workflows, such as [this one](https://juliasilge.com/blog/palmer-penguins/) that compares two approaches for the same modeling problem and [this one](https://juliasilge.com/blog/water-sources/) that trains and evaluates a single workflow (one preprocessor + model).
 
 
-## Screening many models
+## Screening many models: **workflowsets**
 
-Sometimes a modeling practitioner is in a situation where they don't want to try out just a few approaches on a given data set, but **many**: not just two or three or four, but A LOT. This is most common when a practitioner starts a new modeling project with a data set that is not well understood and there is little (or maybe no) _a priori_ knowledge about what kind of approach will work well.
+Sometimes a modeling practitioner is in a situation where they don't want to try out just a few approaches on a given data set, but *many*: not just two or three or four, but A LOT. This is most common when a practitioner starts a new modeling project with a data set that is not well understood and there is little (or maybe no) _a priori_ knowledge about what kind of approach will work well.
 
 For this kind of tidymodels adventure, we encourage users to try the [workflowsets](https://workflowsets.tidymodels.org/) package, which supports the creation, fitting, and comparison of sets of multiple workflows. Combinations of preprocessors and models can be created, and the resulting workflow set can be tuned or resampled, then evaluated (perhaps using Bayesian analysis).
 
