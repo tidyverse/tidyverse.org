@@ -18,6 +18,8 @@ categories: [learn]
 tags: [tidymodels, workflowsets, workflows, parsnip]
 ---
 
+
+
 The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. You can install the tidymodels suite of packages from CRAN with:
 
 
@@ -25,44 +27,37 @@ The [tidymodels](https://www.tidymodels.org/) framework is a collection of R pac
 install.packages("tidymodels")
 ```
 
-The packages in tidymodels are designed to work together in a unified ecosystem, but they are flexible and modular; you can use tidymodels packages for certain parts of a modeling analysis without committing to the entire ecosystem, when preferred.
+The packages in tidymodels are designed to work together in a unified ecosystem, but they are flexible and modular; you can use tidymodels packages for certain parts of a modeling analysis without committing to the entire ecosystem, when preferred. We purposefully write code in these small, modular packages both to make them easier to maintain and easier to use in production systems. This does mean that it can be challenging for a newcomer to know where their specific problem fits in this ecosystem.
 
 
 ```r
 library(tidymodels)
+#> ── Attaching packages ────────────────────────────────── tidymodels 0.1.3 ──
+#> ✓ broom        0.7.6      ✓ recipes      0.1.16
+#> ✓ dials        0.0.9      ✓ rsample      0.1.0 
+#> ✓ dplyr        1.0.6      ✓ tibble       3.1.2 
+#> ✓ ggplot2      3.3.3      ✓ tidyr        1.1.3 
+#> ✓ infer        0.5.4      ✓ tune         0.1.5 
+#> ✓ modeldata    0.1.0      ✓ workflows    0.2.2 
+#> ✓ parsnip      0.1.5      ✓ workflowsets 0.0.2 
+#> ✓ purrr        0.3.4      ✓ yardstick    0.0.8
+#> ── Conflicts ───────────────────────────────────── tidymodels_conflicts() ──
+#> x purrr::discard() masks scales::discard()
+#> x dplyr::filter()  masks stats::filter()
+#> x dplyr::lag()     masks stats::lag()
+#> x recipes::step()  masks stats::step()
+#> • Use tidymodels_prefer() to resolve common conflicts.
 ```
 
-```
-## ── Attaching packages ────────────────────────────────── tidymodels 0.1.3 ──
-```
+In general, we recommend a couple of resources for folks learning about tidymodels: the [**Get Started** section of tidymodels.org](https://www.tidymodels.org/start/) to get going quickly and our book [*Tidy Modeling with R*](https://www.tmwr.org/) to dig deeper. This post takes on a more specific task for a newcomer to tidymodels. We consider several categories of real-world modeling analyses and recommend ways to [choose your own adventure](https://en.wikipedia.org/wiki/Choose_Your_Own_Adventure) in the tidymodels ecosystem. In tidymodels, you can train: 
 
-```
-## ✓ broom        0.7.6      ✓ recipes      0.1.16
-## ✓ dials        0.0.9      ✓ rsample      0.1.0 
-## ✓ dplyr        1.0.6      ✓ tibble       3.1.2 
-## ✓ ggplot2      3.3.3      ✓ tidyr        1.1.3 
-## ✓ infer        0.5.4      ✓ tune         0.1.5 
-## ✓ modeldata    0.1.0      ✓ workflows    0.2.2 
-## ✓ parsnip      0.1.5      ✓ workflowsets 0.0.2 
-## ✓ purrr        0.3.4      ✓ yardstick    0.0.8
-```
+- a single model, 
 
-```
-## ── Conflicts ───────────────────────────────────── tidymodels_conflicts() ──
-## x purrr::discard() masks scales::discard()
-## x dplyr::filter()  masks stats::filter()
-## x dplyr::lag()     masks stats::lag()
-## x recipes::step()  masks stats::step()
-## • Use tidymodels_prefer() to resolve common conflicts.
-```
+- a workflow, or 
 
-We purposefully write code in small, modular packages both to make them easier to maintain and easier to use in production systems. This does mean that it can be challenging for a newcomer to know where their specific problem fits in this ecosystem. We generally recommend a couple of resources for folks just getting started:
+- a set of workflows.
 
-- the [**Get Started** section of tidymodels.org](https://www.tidymodels.org/start/) to get going quickly
-
-- our book [*Tidy Modeling with R*](https://www.tmwr.org/) to dig deeper
-
-This post takes on a more specific task for a newcomer to tidymodels; we consider several categories of real-world modeling analyses and recommend ways to [choose your own adventure](https://en.wikipedia.org/wiki/Choose_Your_Own_Adventure) in the tidymodels ecosystem. In tidymodels, you can train a single model, a workflow, or a set of workflows, and each of these choices is best in difference circumstances.
+Each of these choices is best in difference circumstances, and we'll consider each in the following sections.
 
 ## Starting with the basics: a **parsnip** model
 
@@ -77,12 +72,9 @@ We don't believe most people using tidymodels fall into this first category, but
 
 ```r
 linear_reg() %>% set_engine("lm")
-```
-
-```
-## Linear Regression Model Specification (regression)
-## 
-## Computational engine: lm
+#> Linear Regression Model Specification (regression)
+#> 
+#> Computational engine: lm
 ```
 
 We then `fit()` that model to data. More code is required to fit a simple model than you may be used to, but learning and using parsnip opens up the door for all the other things you can do with the same pipeline.
