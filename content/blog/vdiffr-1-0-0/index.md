@@ -5,6 +5,8 @@ slug: vdiffr-1-0-0
 title: vdiffr 1.0.0
 date: 2021-06-09
 author: Lionel Henry
+description: >
+    This major release of vdiffr includes an updated SVG engine and integrates with the snapshot management mechanism of testthat 3.
 
 photo:
   url: https://unsplash.com/photos/e8rfcKAx1Rk
@@ -12,7 +14,7 @@ photo:
 
 categories: [package] 
 tags: []
-rmd_hash: 5f443231754086ff
+rmd_hash: 8c2e199474bb2856
 
 ---
 
