@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: vdiffr-1-0-0
 title: vdiffr 1.0.0
-date: 2021-06-09
+date: 2021-06-21
 author: Lionel Henry
 description: >
     This major release of vdiffr includes an updated SVG engine and integrates with the snapshot management mechanism of testthat 3.
@@ -13,8 +13,8 @@ photo:
   author: Jakob Owens
 
 categories: [package] 
-tags: []
-rmd_hash: 8c2e199474bb2856
+tags: [ggplot2, testthat]
+rmd_hash: a756409c680ac0e0
 
 ---
 
@@ -35,22 +35,22 @@ Attach these three packages to follow the examples:
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://testthat.r-lib.org'>testthat</a></span><span class='o'>)</span>
-<span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/r-lib/vdiffr'>vdiffr</a></span><span class='o'>)</span>
+<span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://vdiffr.r-lib.org/'>vdiffr</a></span><span class='o'>)</span>
 <span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='o'>)</span></code></pre>
 
 </div>
 
 ## Regression testing for R graphics
 
-vdiffr is a [testthat](https://testthat.r-lib.org/) extension for monitoring the appearance of R plots and graphics over time. Its goals are to make it easy to test graphics, easy to review changes, and to be reproducible across platforms.
+vdiffr is a [testthat](https://testthat.r-lib.org/) extension for monitoring the appearance of R plots and graphics over time. Its goals are to make it easy to test graphics, make it easy to review changes, and to be reproducible across platforms.
 
-The only vdiffr function you will need to use is [`expect_doppelganger()`](https://rdrr.io/pkg/vdiffr/man/expect_doppelganger.html). It takes a plot title and a plot object.
+The only vdiffr function you will need to use is [`expect_doppelganger()`](https://vdiffr.r-lib.org/reference/expect_doppelganger.html). It takes a plot title and a plot object.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://testthat.r-lib.org/reference/test_that.html'>test_that</a></span><span class='o'>(</span><span class='s'>"ggplot2 histogram works"</span>, <span class='o'>&#123;</span>
   <span class='nv'>p</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span> <span class='o'>+</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_histogram.html'>geom_histogram</a></span><span class='o'>(</span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>disp</span><span class='o'>)</span><span class='o'>)</span>
-  <span class='nf'><a href='https://rdrr.io/pkg/vdiffr/man/expect_doppelganger.html'>expect_doppelganger</a></span><span class='o'>(</span><span class='s'>"default histogram"</span>, <span class='nv'>p</span><span class='o'>)</span>
+  <span class='nf'><a href='https://vdiffr.r-lib.org/reference/expect_doppelganger.html'>expect_doppelganger</a></span><span class='o'>(</span><span class='s'>"default histogram"</span>, <span class='nv'>p</span><span class='o'>)</span>
 <span class='o'>&#125;</span><span class='o'>)</span></code></pre>
 
 </div>
@@ -61,14 +61,14 @@ With base graphics you will need to use a slightly different syntax because base
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://testthat.r-lib.org/reference/test_that.html'>test_that</a></span><span class='o'>(</span><span class='s'>"base histogram works"</span>, <span class='o'>&#123;</span>
   <span class='nv'>p</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/graphics/hist.html'>hist</a></span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>$</span><span class='nv'>disp</span><span class='o'>)</span>
-  <span class='nf'><a href='https://rdrr.io/pkg/vdiffr/man/expect_doppelganger.html'>expect_doppelganger</a></span><span class='o'>(</span><span class='s'>"base histogram"</span>, <span class='nv'>p</span><span class='o'>)</span>
+  <span class='nf'><a href='https://vdiffr.r-lib.org/reference/expect_doppelganger.html'>expect_doppelganger</a></span><span class='o'>(</span><span class='s'>"base histogram"</span>, <span class='nv'>p</span><span class='o'>)</span>
 <span class='o'>&#125;</span><span class='o'>)</span></code></pre>
 
 </div>
 
-Then run [`devtools::test()`](https://devtools.r-lib.org//reference/test.html) as usual. The first time it is run, [`expect_doppelganger()`](https://rdrr.io/pkg/vdiffr/man/expect_doppelganger.html) generates a reproducible SVG file that represents the expected appearance of your plot and saves it inside your test folder. After that, the generated SVG is compared to the saved version and any mismatch is reported as a failure in the testthat output.
+Then run [`devtools::test()`](https://devtools.r-lib.org//reference/test.html) as usual. The first time it is run, [`expect_doppelganger()`](https://vdiffr.r-lib.org/reference/expect_doppelganger.html) generates a reproducible SVG file that represents the expected appearance of your plot and saves it inside your test folder. After that, the generated SVG is compared to the saved version and any mismatch is reported as a failure in the testthat output.
 
-By default though, mismatches do not cause failures on CRAN machines. That's because testing the appearance of a plot is inherently fragile. Small upstream changes (e.g. in the R graphics device or in the ggplot2 package) might cause subtle differences in the appearance of a plot that are not real failures. If every such change caused a CRAN failure this would be distracting for both you and the CRAN maintainers. This is why vdiffr expectations only report failures when they are ran locally or in your CI platform. This allows you to monitor the appearance of your plots over time without causing distracting and time-consuming failures on CRAN.
+Note that, by default, mismatches do not cause failures on CRAN machines. That's because testing the appearance of a plot is inherently fragile. Small upstream changes (e.g. in the R graphics device or in the ggplot2 package) might cause subtle differences in the appearance of a plot that are not real failures. If every such change caused a CRAN failure this would be distracting for both you and the CRAN maintainers. This is why vdiffr expectations only report failures when they are ran locally or in your CI platform. This allows you to monitor the appearance of your plots over time without causing distracting and time-consuming failures on CRAN.
 
 ## New snapshot management system via testthat 3
 
@@ -90,7 +90,7 @@ To generate reproducible snapshots, vdiffr embeds an SVG generation engine based
 
 -   The main user-visible change from this update is that points now look smaller in the new SVGs. In the old snapshots they were too large.
 
--   The computation of textbox extents is now hardcoded which allowed us to simplify the dependencies of vdiffr. It should also be less maintenance work for us in the long term.
+-   The computation of character sizes is now hardcoded which allowed us to simplify the dependencies of vdiffr. It should also be less maintenance work for us in the long term.
 
 ## Migrating existing vdiffr snapshots
 
