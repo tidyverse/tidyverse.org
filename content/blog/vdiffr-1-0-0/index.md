@@ -14,7 +14,7 @@ photo:
 
 categories: [package] 
 tags: [ggplot2, testthat]
-rmd_hash: a756409c680ac0e0
+rmd_hash: 69e5a7ea956663d2
 
 ---
 
@@ -55,7 +55,7 @@ The only vdiffr function you will need to use is [`expect_doppelganger()`](https
 
 </div>
 
-With base graphics you will need to use a slightly different syntax because base plots are created by side effects rather than a plot object as in ggplot2. In this case you can supply a function that generates the plot:
+With base graphics a slightly different syntax is needed because base plots are created by side effects rather than by constructing a plot object as in ggplot2. In this case you can supply a function that generates the plot:
 
 <div class="highlight">
 
