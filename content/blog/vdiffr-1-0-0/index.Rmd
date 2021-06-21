@@ -37,7 +37,7 @@ library(ggplot2)
 
 ## Regression testing for R graphics
 
-vdiffr is a [testthat](https://testthat.r-lib.org/) extension for monitoring the appearance of R plots and graphics over time. Its goals are to make it easy to test graphics, easy to review changes, and to be reproducible across platforms.
+vdiffr is a [testthat](https://testthat.r-lib.org/) extension for monitoring the appearance of R plots and graphics over time. Its goals are to make it easy to test graphics, make it easy to review changes, and to be reproducible across platforms.
 
 The only vdiffr function you will need to use is `expect_doppelganger()`. It takes a plot title and a plot object.
 
@@ -59,7 +59,7 @@ test_that("base histogram works", {
 
 Then run `devtools::test()` as usual. The first time it is run, `expect_doppelganger()` generates a reproducible SVG file that represents the expected appearance of your plot and saves it inside your test folder. After that, the generated SVG is compared to the saved version and any mismatch is reported as a failure in the testthat output.
 
-By default though, mismatches do not cause failures on CRAN machines. That's because testing the appearance of a plot is inherently fragile. Small upstream changes (e.g. in the R graphics device or in the ggplot2 package) might cause subtle differences in the appearance of a plot that are not real failures. If every such change caused a CRAN failure this would be distracting for both you and the CRAN maintainers. This is why vdiffr expectations only report failures when they are ran locally or in your CI platform. This allows you to monitor the appearance of your plots over time without causing distracting and time-consuming failures on CRAN.
+Note that, by default, mismatches do not cause failures on CRAN machines. That's because testing the appearance of a plot is inherently fragile. Small upstream changes (e.g. in the R graphics device or in the ggplot2 package) might cause subtle differences in the appearance of a plot that are not real failures. If every such change caused a CRAN failure this would be distracting for both you and the CRAN maintainers. This is why vdiffr expectations only report failures when they are ran locally or in your CI platform. This allows you to monitor the appearance of your plots over time without causing distracting and time-consuming failures on CRAN.
 
 
 ## New snapshot management system via testthat 3
@@ -83,7 +83,7 @@ To generate reproducible snapshots, vdiffr embeds an SVG generation engine based
 
 - The main user-visible change from this update is that points now look smaller in the new SVGs. In the old snapshots they were too large.
 
-- The computation of textbox extents is now hardcoded which allowed us to simplify the dependencies of vdiffr. It should also be less maintenance work for us in the long term.
+- The computation of character sizes is now hardcoded which allowed us to simplify the dependencies of vdiffr. It should also be less maintenance work for us in the long term.
 
 
 ## Migrating existing vdiffr snapshots
