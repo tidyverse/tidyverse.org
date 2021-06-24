@@ -290,9 +290,102 @@ Each of the auxillary functions `get_p_value()`, `get_confidence_interval()`, `v
 
 ### Alignment of theory-based methods
 
-While infer is primarily a package for randomization-based statistical inference, the package has partially supported theory-based methods in a number of ways over the years. This release introduces a principled, opinionated, and consistent interface for theory-based methods for statistical inference.
+While infer is primarily a package for randomization-based statistical inference, the package has partially supported theory-based methods in a number of ways over the years. This release introduces a principled, opinionated, and consistent interface for theory-based methods for statistical inference. The new interface is based on a new verb, `assume()`, that returns a null distribution that, once created, interfaces in the same way that simulation-based null distributions do.
 
-[more here :-)]
+As an example, we'll work through a full infer pipeline for inference on a mean using infer's `gss` dataset. Supposed that we believe the true mean number of hours worked by Americans in the past week is 40.
+
+First, calculating the observed `t`-statistic:
+
+``` r
+obs_stat <- gss %>%
+  specify(response = hours) %>%
+  hypothesize(null = "point", mu = 40) %>%
+  calculate(stat = "t")
+
+obs_stat
+#> Response: hours (numeric)
+#> Null Hypothesis: point
+#> # A tibble: 1 x 1
+#>    stat
+#>   <dbl>
+#> 1  2.09
+```
+
+The code to define the null distribution is very similar to that required to calculate a theorized observed statistic, switching out `calculate()` for `assume()` and replacing arguments as needed.
+
+``` r
+null_dist <- gss %>%
+  specify(response = hours) %>%
+  hypothesize(null = "point", mu = 40) %>%
+  assume(distribution = "t", df = nrow(gss) - 1)
+
+null_dist 
+#> A T distribution with 499 degrees of freedom.
+```
+
+This null distribution can now be interfaced with in the same way as a simulation-based null distribution elsewhere in the package. For example, calculating a p-value by juxtaposing the observed statistic and null distribution:
+
+``` r
+get_p_value(null_dist, obs_stat, direction = "both")
+#> # A tibble: 1 x 1
+#>   p_value
+#>     <dbl>
+#> 1  0.0376
+```
+
+…or visualizing the null distribution alone:
+
+``` r
+visualize(null_dist)
+```
+
+![](https://i.imgur.com/g3B5coD.png)
+
+…or juxtaposing the two visually:
+
+``` r
+visualize(null_dist) + 
+  shade_p_value(obs_stat, direction = "both")
+```
+
+![](https://i.imgur.com/3C66kgK.png)
+
+Confidence intervals lie in data space rather than the standardized scale of the theoretical distributions. Calculating a mean rather than the standardized `t`-statistic:
+
+``` r
+obs_mean <- gss %>%
+  specify(response = hours) %>%
+  calculate(stat = "mean")
+```
+
+The null distribution here just defines the spread for the standard error calculation.
+
+``` r
+ci <- 
+  get_confidence_interval(
+    null_dist,
+    level = .95,
+    point_estimate = obs_mean
+  )
+
+ci
+#> # A tibble: 1 x 2
+#>   lower_ci upper_ci
+#>      <dbl>    <dbl>
+#> 1     40.1     42.7
+```
+
+Visualizing the confidence interval results in the theoretical distribution being recentered and rescaled to align with the scale of the observed data:
+
+``` r
+visualize(null_dist) + 
+  shade_confidence_interval(ci)
+```
+
+![](https://i.imgur.com/4akSCY3.png)
+
+Previous methods for interfacing with theoretical distributions are superseded—they will continue to be supported, though documentation will forefront the `assume()` interface.
+
 
 ### Behavioral consistency
 
