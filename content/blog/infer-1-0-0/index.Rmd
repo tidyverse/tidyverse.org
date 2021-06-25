@@ -30,7 +30,7 @@ TODO:
 * [x] `usethis::use_tidy_thanks()`
 -->
 
-We're super excited announce the release of [infer](https://infer.tidymodels.org/) 1.0.0! infer is a package for statistical inference that implements an expressive statistical grammar that coheres with the tidyverse design framework. Rather than providing methods for specific statistical tests, this package consolidates the principles that are shared among common hypothesis tests into a set of four main verbs (functions), supplemented with many utilities to visualize and extract value from their outputs.
+We're super excited announce the release of [infer](https://infer.tidymodels.org/) 1.0.0! infer is a package for statistical inference that implements an expressive statistical grammar that coheres with the tidyverse design framework. Rather than providing methods for specific statistical tests, this package consolidates the principles that are shared among common hypothesis tests and confidence intervals into a set of four main verbs (functions), supplemented with many utilities to visualize and extract value from their outputs.
 
 You can install it from CRAN with:
 
@@ -38,7 +38,13 @@ You can install it from CRAN with:
 install.packages("infer")
 ```
 
-This release includes a number of major changes and new features. However, the infer package has been on CRAN since 2017, and we haven't written about the package on the tidyverse blog before. Thus, I'll start out by demonstrating the basics of the package. After, I'll highlight some of the more neat features introduced in this version of the package. You can find a full list of changes in version 1.0.0 of the package in the [release notes](https://github.com/tidymodels/infer/releases/tag/v1.0.0).
+This release includes a number of major changes and new features. Namely:
+
+* Support for multiple regression
+* Alignment of theory-based methods
+* Improvements to behavorial consistency of `calculate()`
+
+However, the infer package has been on CRAN since 2017, and we haven't written about the package on the tidyverse blog before. Thus, I'll start out by demonstrating the basics of the package. After, I'll highlight some of the more neat features introduced in this version of the package. You can find a full list of changes in version 1.0.0 of the package in the [release notes](https://github.com/tidymodels/infer/releases/tag/v1.0.0).
 
 ```{r setup}
 library(infer)
@@ -50,20 +56,20 @@ Regardless of the hypothesis test in question, an analyst asks the same kind of 
 
 The workflow of this package is designed around this idea. Starting out with some dataset,
 
-+ `specify()` allows the analyst to specify the variable, or relationship between variables, that they're interested in.
++ `specify()` allows the analyst to specify the variable, or relationship between variables, that they are interested in.
 + `hypothesize()` allows the analyst to declare the null hypothesis.
-+ `generate()` allows the analyst to generate data reflecting the null hypothesis.
++ `generate()` allows the analyst to generate data reflecting the null hypothesis or using the bootstrap.
 + `calculate()` allows the analyst to calculate summary statistics, either from
      * the observed data, to form the observed test statistic.
-     * data `generate()`d to reflect the null hypothesis, to form the randomization-based null distribution of test statistics.
+     * data `generate()`d to reflect the null hypothesis, to form a randomization-based null distribution of test statistics.
 
-As such, the ultimate output of an infer pipeline using these four functions is generally an _observed statistic_ or _null distribution_ of test statistics. These four functions are thus supplemented with many utilities to visualize and extract value from their outputs.
+As such, the ultimate output of an infer pipeline using these four functions is generally an _observed statistic_ or _null distribution_ of test statistics. These four functions are thus supplemented with several utilities to visualize and extract value from their outputs.
 
-+ `visualize()` plots the null distribution of test statistics
-     * `shade_p_value()` situates the observed statistic in the null distribution, shading the region as or more extreme 
-     * `shade_confidence_interval()` situates the confidence interval region in the null distribution, shading the region with the bounds
-+ `get_p_value` calculates a p-value via the juxtaposition of the test statistic and null distribution
-+ `get_confidence_interval` calculates a confidence interval via the juxtaposition of the test statistic and null distribution
++ `visualize()` plots the null distribution of test statistics.
+     * `shade_p_value()` situates the observed statistic in the null distribution, shading the region as or more extreme.
++ `get_p_value()` calculates a p-value via the juxtaposition of the test statistic and null distribution.
+
+The workflow outlined above can also be used for constructing confidence intervals via bootstrapping with the omission of the `hypothesize()` step in the pipeline. The resulting bootstrap distribution can then be visualized with `visualize()`, the confidence interval region can be situated in the bootstrap distribution with `shade_confidence_interval()`, and the bounds of the confidence interval can be calculated with `get_confidence_interval()`.
 
 To demonstrate, we'll walk through a typical infer pipeline step-by-step. Throughout this post, we make use of `gss`, a dataset supplied by infer containing a sample of 500 observations of 11 variables from the *General Social Survey*. 
 
@@ -147,7 +153,7 @@ gss %>%
 
 In the above example, we take 1000 bootstrap samples to form our null distribution.
 
-To generate a null distribution for the independence of two variables, we could also randomly reshuffle the pairings of explanatory and response variables to break any existing association. For instance, to generate 1000 replicates that can be used to create a null distribution under the assumption that political party affiliation is not affected by age:
+To generate a null distribution for the independence of two variables, we could randomly reshuffle the pairings of explanatory and response variables to break any existing association. For instance, to generate 1000 replicates that can be used to create a null distribution under the assumption that political party affiliation is not affected by age:
 
 ```{r generate-permute, warning = FALSE, message = FALSE}
 gss %>%
@@ -158,7 +164,7 @@ gss %>%
 
 ### calculate(): Calculating Summary Statistics
 
-Depending on whether you're carrying out computation-based inference or theory-based inference, you will either supply `calculate()` with the output of `generate()` or `hypothesize()`, respectively. The function, for one, takes in a `stat` argument, which is currently one of "mean", "median", "sum", "sd", "prop", "count", "diff in means", "diff in medians", "diff in props", "Chisq", "F", "t", "z", "slope", or "correlation". For example, continuing our example above to calculate the null distribution of mean hours worked per week:
+`calculate()` calculates summary statistics from the output of infer core functions. The function, for one, takes in a `stat` argument, which is currently one of "mean", "median", "sum", "sd", "prop", "count", "diff in means", "diff in medians", "diff in props", "Chisq", "F", "t", "z", "slope", or "correlation". For example, continuing our example above to calculate the null distribution of mean hours worked per week:
 
 ```{r calculate-point, warning = FALSE, message = FALSE}
 gss %>%
@@ -168,19 +174,17 @@ gss %>%
   calculate(stat = "mean")
 ```
 
-The output of `calculate()` here shows us the sample statistic (in this case, the mean) for each of our 1000 replicates. If you're carrying out inference on differences in means, medians, or proportions, or t and z statistics, you will need to supply an `order` argument, giving the order in which the explanatory variables should be subtracted. For instance, to find the difference in mean age of those that have a college degree and those that don't, we might write:
+The output of `calculate()` here shows us the sample statistic (in this case, the mean) for each of our 1000 replicates. To calculate the mean from the observed data, just omit the `hypothesize()` and `generate()` steps.
 
-```{r specify-diff-in-means, warning = FALSE, message = FALSE}
+```{r calculate-point2, warning = FALSE, message = FALSE}
 gss %>%
-  specify(age ~ college) %>%
-  hypothesize(null = "independence") %>%
-  generate(reps = 1000, type = "permute") %>%
-  calculate("diff in means", order = c("degree", "no degree"))
+  specify(response = hours) %>%
+  calculate(stat = "mean")
 ```
 
 ### Other Utilities
 
-infer also offers several utilities to extract the meaning out of summary statistics and null distributions---the package provides functions to visualize where a statistic is relative to a distribution (with `visualize()`), calculate p-values (with `get_p_value()`), and calculate confidence intervals (with `get_confidence_interval()`).
+infer offers several utilities to extract the meaning out of summary statistics and distributions---the package provides functions to visualize where a statistic is relative to a distribution (with `visualize()`), calculate p-values (with `get_p_value()`), and calculate confidence intervals (with `get_confidence_interval()`).
 
 To illustrate, we'll go back to the example of determining whether the mean number of hours worked per week is 40 hours.
 
@@ -190,8 +194,8 @@ point_estimate <- gss %>%
   specify(response = hours) %>%
   calculate(stat = "mean")
 
-# generate a null distribution
-null_dist <- gss %>%
+# generate a distribution of means
+dist <- gss %>%
   specify(response = hours) %>%
   hypothesize(null = "point", mu = 40) %>%
   generate(reps = 1000, type = "bootstrap") %>%
@@ -200,17 +204,17 @@ null_dist <- gss %>%
 
 Our point estimate `r point_estimate` seems *pretty* close to 40, but a little bit different. We might wonder if this difference is just due to random chance, or if the mean number of hours worked per week in the population really isn't 40.
 
-We could initially just visualize the null distribution.
+We could initially just visualize the distribution.
 
 ```{r visualize, warning = FALSE, message = FALSE}
-null_dist %>%
+dist %>%
   visualize()
 ```
 
 Where does our sample's observed statistic lie on this distribution? We can use the `obs_stat` argument to specify this.
 
 ```{r visualize2, warning = FALSE, message = FALSE}
-null_dist %>%
+dist %>%
   visualize() +
   shade_p_value(obs_stat = point_estimate, direction = "two-sided")
 ```
@@ -218,8 +222,7 @@ null_dist %>%
 Notice that infer has also shaded the regions of the null distribution that are as (or more) extreme than our observed statistic. The red bar looks like it's slightly far out on the right tail of the null distribution, so observing a sample mean of `r point_estimate` hours would be somewhat unlikely if the mean was actually 40 hours. How unlikely, though?
 
 ```{r get_p_value, warning = FALSE, message = FALSE}
-# get a two-tailed p-value
-p_value <- null_dist %>%
+p_value <- dist %>%
   get_p_value(obs_stat = point_estimate, direction = "two-sided")
 
 p_value
@@ -230,14 +233,12 @@ It looks like the p-value is `r p_value`, which is pretty small---if the true me
 To get a confidence interval around our estimate, we can write:
 
 ```{r get_conf, message = FALSE, warning = FALSE}
-# start with the null distribution
-null_dist %>%
-  # calculate the confidence interval around the point estimate
-  get_confidence_interval(point_estimate = point_estimate,
-                          # at the 95% confidence level
-                          level = .95,
-                          # using the standard error
-                          type = "se")
+dist %>%
+  get_confidence_interval(
+    point_estimate = point_estimate,
+    level = .95,
+    type = "se"
+  )
 ```
 
 As you can see, 40 hours per week is not contained in this interval, which aligns with our previous conclusion that this finding is significant at the confidence level $\alpha = .05$.
@@ -262,7 +263,7 @@ gss %>%
   fit()
 ```
 
-Note that the function returns the model coefficients as `estimate` rather than their associated `t`-statistics as `stat`.
+Note that the function returns the model coefficients as `estimate` rather than their associated $t$-statistics as `stat`.
 
 If passed a `generate()`d object, the model will be fitted to each replicate.
 
@@ -290,102 +291,76 @@ Each of the auxillary functions `get_p_value()`, `get_confidence_interval()`, `v
 
 ### Alignment of theory-based methods
 
-While infer is primarily a package for randomization-based statistical inference, the package has partially supported theory-based methods in a number of ways over the years. This release introduces a principled, opinionated, and consistent interface for theory-based methods for statistical inference. The new interface is based on a new verb, `assume()`, that returns a null distribution that, once created, interfaces in the same way that simulation-based null distributions do.
+While infer is primarily a package for randomization-based statistical inference, the package has partially supported theory-based methods in a number of ways over the years. This release introduces a principled, opinionated, and consistent interface for theory-based methods for statistical inference. The new interface is based on a new verb, `assume()`, that returns a distribution that, once created, interfaces in the same way that simulation-based distributions do.
 
-As an example, we'll work through a full infer pipeline for inference on a mean using infer's `gss` dataset. Supposed that we believe the true mean number of hours worked by Americans in the past week is 40.
+To demonstrate, we'll return to the example of inference on a mean using infer's `gss` dataset. Supposed that we believe the true mean number of hours worked by Americans in the past week is 40.
 
-First, calculating the observed `t`-statistic:
+First, calculating the observed $t$-statistic:
 
-``` r
+```{r}
 obs_stat <- gss %>%
   specify(response = hours) %>%
   hypothesize(null = "point", mu = 40) %>%
   calculate(stat = "t")
 
 obs_stat
-#> Response: hours (numeric)
-#> Null Hypothesis: point
-#> # A tibble: 1 x 1
-#>    stat
-#>   <dbl>
-#> 1  2.09
 ```
 
 The code to define the null distribution is very similar to that required to calculate a theorized observed statistic, switching out `calculate()` for `assume()` and replacing arguments as needed.
 
-``` r
-null_dist <- gss %>%
+```{r}
+dist <- gss %>%
   specify(response = hours) %>%
   hypothesize(null = "point", mu = 40) %>%
   assume(distribution = "t", df = nrow(gss) - 1)
 
-null_dist 
-#> A T distribution with 499 degrees of freedom.
+dist 
 ```
 
 This null distribution can now be interfaced with in the same way as a simulation-based null distribution elsewhere in the package. For example, calculating a p-value by juxtaposing the observed statistic and null distribution:
 
-``` r
-get_p_value(null_dist, obs_stat, direction = "both")
-#> # A tibble: 1 x 1
-#>   p_value
-#>     <dbl>
-#> 1  0.0376
+```{r}
+get_p_value(dist, obs_stat, direction = "both")
 ```
-
-…or visualizing the null distribution alone:
-
-``` r
-visualize(null_dist)
-```
-
-![](https://i.imgur.com/g3B5coD.png)
 
 …or juxtaposing the two visually:
 
-``` r
-visualize(null_dist) + 
+```{r}
+visualize(dist) + 
   shade_p_value(obs_stat, direction = "both")
 ```
 
-![](https://i.imgur.com/3C66kgK.png)
+Confidence intervals lie on the scale of the observed data rather than the standardized scale of the theoretical distributions. Calculating a mean rather than the standardized $t$-statistic:
 
-Confidence intervals lie in data space rather than the standardized scale of the theoretical distributions. Calculating a mean rather than the standardized `t`-statistic:
-
-``` r
+```{r}
 obs_mean <- gss %>%
   specify(response = hours) %>%
   calculate(stat = "mean")
+
+obs_mean
 ```
 
-The null distribution here just defines the spread for the standard error calculation.
+The distribution here just defines the spread for the standard error calculation.
 
-``` r
+```{r}
 ci <- 
   get_confidence_interval(
-    null_dist,
+    dist,
     level = .95,
     point_estimate = obs_mean
   )
 
 ci
-#> # A tibble: 1 x 2
-#>   lower_ci upper_ci
-#>      <dbl>    <dbl>
-#> 1     40.1     42.7
 ```
 
 Visualizing the confidence interval results in the theoretical distribution being recentered and rescaled to align with the scale of the observed data:
 
-``` r
-visualize(null_dist) + 
+```{r}
+visualize(dist) + 
   shade_confidence_interval(ci)
 ```
 
-![](https://i.imgur.com/4akSCY3.png)
-
 Previous methods for interfacing with theoretical distributions are superseded—they will continue to be supported, though documentation will forefront the `assume()` interface.
-
 
 ### Behavioral consistency
 
@@ -438,31 +413,10 @@ gss %>%
   calculate(stat = "Chisq")
 ```
 
-This behavorial consistency also allowed for the implementation of `observe()`, a wrapper function around `specify()`, `hypothesize()`, and `calculate()`, to calculate observed statistics. The function provides a shorthand alternative to calculating observed statistics from data:
-
-```{r}
-# calculating the observed mean number of hours worked per week
-gss %>%
-  observe(hours ~ NULL, stat = "mean")
-
-# equivalently, calculating the same statistic with the core verbs
-gss %>%
-  specify(response = hours) %>%
-  calculate(stat = "mean")
-
-# calculating a t statistic for hypothesized mu = 40 hours worked/week
-gss %>%
-  observe(hours ~ NULL, stat = "t", null = "point", mu = 40)
-
-# equivalently, calculating the same statistic with the core verbs
-gss %>%
-  specify(response = hours) %>%
-  hypothesize(null = "point", mu = 40) %>%
-  calculate(stat = "t")
-```
-
 We don't anticipate that any of these changes are "breaking" in the sense that code that previously worked will continue to, though it may now message or warn in a way that it did not used to or error with a different (and hopefully more informative) message.
 
 ## Acknowledgements
 
 This release was made possible with financial support from RStudio and the Reed College Mathematics Department. Thanks to [&#x0040;aarora79](https://github.com/aarora79), [&#x0040;acpguedes](https://github.com/acpguedes), [&#x0040;AlbertRapp](https://github.com/AlbertRapp), [&#x0040;alexpghayes](https://github.com/alexpghayes), [&#x0040;aloy](https://github.com/aloy), [&#x0040;AmeliaMN](https://github.com/AmeliaMN), [&#x0040;andrewpbray](https://github.com/andrewpbray), [&#x0040;apreshill](https://github.com/apreshill), [&#x0040;atheobold](https://github.com/atheobold), [&#x0040;beanumber](https://github.com/beanumber), [&#x0040;bigdataman2015](https://github.com/bigdataman2015), [&#x0040;bragks](https://github.com/bragks), [&#x0040;brendanhcullen](https://github.com/brendanhcullen), [&#x0040;CarlssonLeo](https://github.com/CarlssonLeo), [&#x0040;ChalkboardSonata](https://github.com/ChalkboardSonata), [&#x0040;chriscardillo](https://github.com/chriscardillo), [&#x0040;clauswilke](https://github.com/clauswilke), [&#x0040;congdanh8391](https://github.com/congdanh8391), [&#x0040;corinne-riddell](https://github.com/corinne-riddell), [&#x0040;cristianvaldez](https://github.com/cristianvaldez), [&#x0040;daranzolin](https://github.com/daranzolin), [&#x0040;davidbaniadam](https://github.com/davidbaniadam), [&#x0040;davidhodge931](https://github.com/davidhodge931), [&#x0040;doug-friedman](https://github.com/doug-friedman), [&#x0040;dshelldhillon](https://github.com/dshelldhillon), [&#x0040;dsolito](https://github.com/dsolito), [&#x0040;echasnovski](https://github.com/echasnovski), [&#x0040;EllaKaye](https://github.com/EllaKaye), [&#x0040;enricochavez](https://github.com/enricochavez), [&#x0040;gdbassett](https://github.com/gdbassett), [&#x0040;ghost](https://github.com/ghost), [&#x0040;GitHunter0](https://github.com/GitHunter0), [&#x0040;hardin47](https://github.com/hardin47), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;higgi13425](https://github.com/higgi13425), [&#x0040;instantkaffee](https://github.com/instantkaffee), [&#x0040;ismayc](https://github.com/ismayc), [&#x0040;jbourak](https://github.com/jbourak), [&#x0040;jcvall](https://github.com/jcvall), [&#x0040;jimrothstein](https://github.com/jimrothstein), [&#x0040;kennethban](https://github.com/kennethban), [&#x0040;m-berkes](https://github.com/m-berkes), [&#x0040;mikelove](https://github.com/mikelove), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [&#x0040;Minhasshazu](https://github.com/Minhasshazu), [&#x0040;msberends](https://github.com/msberends), [&#x0040;mt-edwards](https://github.com/mt-edwards), [&#x0040;muschellij2](https://github.com/muschellij2), [&#x0040;nfultz](https://github.com/nfultz), [&#x0040;nicholasjhorton](https://github.com/nicholasjhorton), [&#x0040;PirateGrunt](https://github.com/PirateGrunt), [&#x0040;PsychlytxTD](https://github.com/PsychlytxTD), [&#x0040;richierocks](https://github.com/richierocks), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rpruim](https://github.com/rpruim), [&#x0040;rudeboybert](https://github.com/rudeboybert), [&#x0040;rundel](https://github.com/rundel), [&#x0040;sastoudt](https://github.com/sastoudt), [&#x0040;sbibauw](https://github.com/sbibauw), [&#x0040;sckott](https://github.com/sckott), [&#x0040;THargreaves](https://github.com/THargreaves), [&#x0040;topepo](https://github.com/topepo), [&#x0040;torockel](https://github.com/torockel), [&#x0040;ttimbers](https://github.com/ttimbers), [&#x0040;vikram-rawat](https://github.com/vikram-rawat), [&#x0040;vladimirvrabely](https://github.com/vladimirvrabely), and [&#x0040;xiaochi-liu](https://github.com/xiaochi-liu) for their contributions to the package.
+
+[1]: GAISE College Report ASA Revision Committee, "Guidelines for Assessment and Instruction in Statistics Education College Report 2016," [http://www.amstat.org/education/gaise](http://www.amstat.org/education/gaise).

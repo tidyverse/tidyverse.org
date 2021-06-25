@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [tidymodels]
-rmd_hash: f3a2ce2335b6bbe8
+rmd_hash: 9f1aa95b6fb27a0d
 
 ---
 
@@ -32,7 +32,7 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're super excited announce the release of [infer](https://infer.tidymodels.org/) 1.0.0! infer is a package for statistical inference that implements an expressive statistical grammar that coheres with the tidyverse design framework. Rather than providing methods for specific statistical tests, this package consolidates the principles that are shared among common hypothesis tests into a set of four main verbs (functions), supplemented with many utilities to visualize and extract value from their outputs.
+We're super excited announce the release of [infer](https://infer.tidymodels.org/) 1.0.0! infer is a package for statistical inference that implements an expressive statistical grammar that coheres with the tidyverse design framework. Rather than providing methods for specific statistical tests, this package consolidates the principles that are shared among common hypothesis tests and confidence intervals into a set of four main verbs (functions), supplemented with many utilities to visualize and extract value from their outputs.
 
 You can install it from CRAN with:
 
@@ -42,7 +42,13 @@ You can install it from CRAN with:
 
 </div>
 
-This release includes a number of major changes and new features. However, the infer package has been on CRAN since 2017, and we haven't written about the package on the tidyverse blog before. Thus, I'll start out by demonstrating the basics of the package. After, I'll highlight some of the more neat features introduced in this version of the package. You can find a full list of changes in version 1.0.0 of the package in the [release notes](https://github.com/tidymodels/infer/releases/tag/v1.0.0).
+This release includes a number of major changes and new features. Namely:
+
+-   Support for multiple regression
+-   Alignment of theory-based methods
+-   Improvements to behavorial consistency of [`calculate()`](https://infer.tidymodels.org/reference/calculate.html)
+
+However, the infer package has been on CRAN since 2017, and we haven't written about the package on the tidyverse blog before. Thus, I'll start out by demonstrating the basics of the package. After, I'll highlight some of the more neat features introduced in this version of the package. You can find a full list of changes in version 1.0.0 of the package in the [release notes](https://github.com/tidymodels/infer/releases/tag/v1.0.0).
 
 <div class="highlight">
 
@@ -56,20 +62,20 @@ Regardless of the hypothesis test in question, an analyst asks the same kind of 
 
 The workflow of this package is designed around this idea. Starting out with some dataset,
 
--   [`specify()`](https://infer.tidymodels.org/reference/specify.html) allows the analyst to specify the variable, or relationship between variables, that they're interested in.
+-   [`specify()`](https://infer.tidymodels.org/reference/specify.html) allows the analyst to specify the variable, or relationship between variables, that they are interested in.
 -   [`hypothesize()`](https://infer.tidymodels.org/reference/hypothesize.html) allows the analyst to declare the null hypothesis.
--   [`generate()`](https://infer.tidymodels.org/reference/generate.html) allows the analyst to generate data reflecting the null hypothesis.
+-   [`generate()`](https://infer.tidymodels.org/reference/generate.html) allows the analyst to generate data reflecting the null hypothesis or using the bootstrap.
 -   [`calculate()`](https://infer.tidymodels.org/reference/calculate.html) allows the analyst to calculate summary statistics, either from
     -   the observed data, to form the observed test statistic.
-    -   data [`generate()`](https://infer.tidymodels.org/reference/generate.html)d to reflect the null hypothesis, to form the randomization-based null distribution of test statistics.
+    -   data [`generate()`](https://infer.tidymodels.org/reference/generate.html)d to reflect the null hypothesis, to form a randomization-based null distribution of test statistics.
 
-As such, the ultimate output of an infer pipeline using these four functions is generally an *observed statistic* or *null distribution* of test statistics. These four functions are thus supplemented with many utilities to visualize and extract value from their outputs.
+As such, the ultimate output of an infer pipeline using these four functions is generally an *observed statistic* or *null distribution* of test statistics. These four functions are thus supplemented with several utilities to visualize and extract value from their outputs.
 
--   [`visualize()`](https://infer.tidymodels.org/reference/visualize.html) plots the null distribution of test statistics
-    -   [`shade_p_value()`](https://infer.tidymodels.org/reference/shade_p_value.html) situates the observed statistic in the null distribution, shading the region as or more extreme
-    -   [`shade_confidence_interval()`](https://infer.tidymodels.org/reference/shade_confidence_interval.html) situates the confidence interval region in the null distribution, shading the region with the bounds
--   `get_p_value` calculates a p-value via the juxtaposition of the test statistic and null distribution
--   `get_confidence_interval` calculates a confidence interval via the juxtaposition of the test statistic and null distribution
+-   [`visualize()`](https://infer.tidymodels.org/reference/visualize.html) plots the null distribution of test statistics.
+    -   [`shade_p_value()`](https://infer.tidymodels.org/reference/shade_p_value.html) situates the observed statistic in the null distribution, shading the region as or more extreme.
+-   [`get_p_value()`](https://infer.tidymodels.org/reference/get_p_value.html) calculates a p-value via the juxtaposition of the test statistic and null distribution.
+
+The workflow outlined above can also be used for constructing confidence intervals via bootstrapping with the omission of the [`hypothesize()`](https://infer.tidymodels.org/reference/hypothesize.html) step in the pipeline. The resulting bootstrap distribution can then be visualized with [`visualize()`](https://infer.tidymodels.org/reference/visualize.html), the confidence interval region can be situated in the bootstrap distribution with [`shade_confidence_interval()`](https://infer.tidymodels.org/reference/shade_confidence_interval.html), and the bounds of the confidence interval can be calculated with [`get_confidence_interval()`](https://infer.tidymodels.org/reference/get_confidence_interval.html).
 
 To demonstrate, we'll walk through a typical infer pipeline step-by-step. Throughout this post, we make use of `gss`, a dataset supplied by infer containing a sample of 500 observations of 11 variables from the *General Social Survey*.
 
@@ -261,23 +267,23 @@ Continuing on with our example above, about the average number of hours worked a
 <span class='c'>#&gt; <span style='color: #555555;'># Groups:   replicate [1,000]</span></span>
 <span class='c'>#&gt;    replicate hours</span>
 <span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1 40.6 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         1 38.6 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         1 38.6 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         1 38.6 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         1  8.62</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         1 78.6 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         1 38.6 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         1 38.6 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         1  1.62</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>         1 38.6 </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1  73.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         1  38.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         1  43.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         1  58.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         1  41.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         1  22.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         1  42.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         1  12.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         1  18.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>         1  41.6</span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 499,990 more rows</span></span></code></pre>
 
 </div>
 
 In the above example, we take 1000 bootstrap samples to form our null distribution.
 
-To generate a null distribution for the independence of two variables, we could also randomly reshuffle the pairings of explanatory and response variables to break any existing association. For instance, to generate 1000 replicates that can be used to create a null distribution under the assumption that political party affiliation is not affected by age:
+To generate a null distribution for the independence of two variables, we could randomly reshuffle the pairings of explanatory and response variables to break any existing association. For instance, to generate 1000 replicates that can be used to create a null distribution under the assumption that political party affiliation is not affected by age:
 
 <div class="highlight">
 
@@ -292,23 +298,23 @@ To generate a null distribution for the independence of two variables, we could 
 <span class='c'>#&gt; <span style='color: #555555;'># Groups:   replicate [1,000]</span></span>
 <span class='c'>#&gt;    partyid   age replicate</span>
 <span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span> rep        36         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span> dem        36         1</span>
 <span class='c'>#&gt; <span style='color: #555555;'> 2</span> ind        34         1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span> ind        24         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span> rep        24         1</span>
 <span class='c'>#&gt; <span style='color: #555555;'> 4</span> dem        42         1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span> rep        31         1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span> dem        32         1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span> ind        48         1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span> ind        36         1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span> ind        30         1</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span> ind        33         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span> ind        31         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span> ind        32         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span> rep        48         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span> rep        36         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span> dem        30         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span> rep        33         1</span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 499,990 more rows</span></span></code></pre>
 
 </div>
 
 ### calculate(): Calculating Summary Statistics
 
-Depending on whether you're carrying out computation-based inference or theory-based inference, you will either supply [`calculate()`](https://infer.tidymodels.org/reference/calculate.html) with the output of [`generate()`](https://infer.tidymodels.org/reference/generate.html) or [`hypothesize()`](https://infer.tidymodels.org/reference/hypothesize.html), respectively. The function, for one, takes in a `stat` argument, which is currently one of "mean", "median", "sum", "sd", "prop", "count", "diff in means", "diff in medians", "diff in props", "Chisq", "F", "t", "z", "slope", or "correlation". For example, continuing our example above to calculate the null distribution of mean hours worked per week:
+[`calculate()`](https://infer.tidymodels.org/reference/calculate.html) calculates summary statistics from the output of infer core functions. The function, for one, takes in a `stat` argument, which is currently one of "mean", "median", "sum", "sd", "prop", "count", "diff in means", "diff in medians", "diff in props", "Chisq", "F", "t", "z", "slope", or "correlation". For example, continuing our example above to calculate the null distribution of mean hours worked per week:
 
 <div class="highlight">
 
@@ -317,52 +323,43 @@ Depending on whether you're carrying out computation-based inference or theory-b
   <span class='nf'><a href='https://infer.tidymodels.org/reference/hypothesize.html'>hypothesize</a></span><span class='o'>(</span>null <span class='o'>=</span> <span class='s'>"point"</span>, mu <span class='o'>=</span> <span class='m'>40</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/generate.html'>generate</a></span><span class='o'>(</span>reps <span class='o'>=</span> <span class='m'>1000</span>, type <span class='o'>=</span> <span class='s'>"bootstrap"</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/calculate.html'>calculate</a></span><span class='o'>(</span>stat <span class='o'>=</span> <span class='s'>"mean"</span><span class='o'>)</span>
+<span class='c'>#&gt; Response: hours (numeric)</span>
+<span class='c'>#&gt; Null Hypothesis: point</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1,000 x 2</span></span>
 <span class='c'>#&gt;    replicate  stat</span>
 <span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1  40.1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         2  40.2</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         3  40.9</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         4  40.6</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         5  40.6</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         6  40.0</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         7  39.6</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         8  40.1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         9  41.3</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>        10  42.1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1  39.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         2  38.9</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         3  39.5</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         4  41.3</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         5  41.5</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         6  38.7</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         7  39.9</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         8  39.8</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         9  40.3</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>        10  39.9</span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 990 more rows</span></span></code></pre>
 
 </div>
 
-The output of [`calculate()`](https://infer.tidymodels.org/reference/calculate.html) here shows us the sample statistic (in this case, the mean) for each of our 1000 replicates. If you're carrying out inference on differences in means, medians, or proportions, or t and z statistics, you will need to supply an `order` argument, giving the order in which the explanatory variables should be subtracted. For instance, to find the difference in mean age of those that have a college degree and those that don't, we might write:
+The output of [`calculate()`](https://infer.tidymodels.org/reference/calculate.html) here shows us the sample statistic (in this case, the mean) for each of our 1000 replicates. To calculate the mean from the observed data, just omit the [`hypothesize()`](https://infer.tidymodels.org/reference/hypothesize.html) and [`generate()`](https://infer.tidymodels.org/reference/generate.html) steps.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>gss</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/specify.html'>specify</a></span><span class='o'>(</span><span class='nv'>age</span> <span class='o'>~</span> <span class='nv'>college</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/hypothesize.html'>hypothesize</a></span><span class='o'>(</span>null <span class='o'>=</span> <span class='s'>"independence"</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/generate.html'>generate</a></span><span class='o'>(</span>reps <span class='o'>=</span> <span class='m'>1000</span>, type <span class='o'>=</span> <span class='s'>"permute"</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/calculate.html'>calculate</a></span><span class='o'>(</span><span class='s'>"diff in means"</span>, order <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"degree"</span>, <span class='s'>"no degree"</span><span class='o'>)</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1,000 x 2</span></span>
-<span class='c'>#&gt;    replicate    stat</span>
-<span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1  0.200 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         2  1.55  </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         3  1.85  </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         4  2.82  </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         5 -<span style='color: #BB0000;'>0.046</span><span style='color: #BB0000; text-decoration: underline;'>6</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         6 -<span style='color: #BB0000;'>0.434</span> </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         7  1.11  </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         8  0.385 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         9 -<span style='color: #BB0000;'>1.12</span>  </span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>        10  0.465 </span>
-<span class='c'>#&gt; <span style='color: #555555;'># … with 990 more rows</span></span></code></pre>
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/specify.html'>specify</a></span><span class='o'>(</span>response <span class='o'>=</span> <span class='nv'>hours</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/calculate.html'>calculate</a></span><span class='o'>(</span>stat <span class='o'>=</span> <span class='s'>"mean"</span><span class='o'>)</span>
+<span class='c'>#&gt; Response: hours (numeric)</span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span></span>
+<span class='c'>#&gt;    stat</span>
+<span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span>  41.4</span></code></pre>
 
 </div>
 
 ### Other Utilities
 
-infer also offers several utilities to extract the meaning out of summary statistics and null distributions---the package provides functions to visualize where a statistic is relative to a distribution (with [`visualize()`](https://infer.tidymodels.org/reference/visualize.html)), calculate p-values (with [`get_p_value()`](https://infer.tidymodels.org/reference/get_p_value.html)), and calculate confidence intervals (with [`get_confidence_interval()`](https://infer.tidymodels.org/reference/get_confidence_interval.html)).
+infer offers several utilities to extract the meaning out of summary statistics and distributions---the package provides functions to visualize where a statistic is relative to a distribution (with [`visualize()`](https://infer.tidymodels.org/reference/visualize.html)), calculate p-values (with [`get_p_value()`](https://infer.tidymodels.org/reference/get_p_value.html)), and calculate confidence intervals (with [`get_confidence_interval()`](https://infer.tidymodels.org/reference/get_confidence_interval.html)).
 
 To illustrate, we'll go back to the example of determining whether the mean number of hours worked per week is 40 hours.
 
@@ -373,8 +370,8 @@ To illustrate, we'll go back to the example of determining whether the mean numb
   <span class='nf'><a href='https://infer.tidymodels.org/reference/specify.html'>specify</a></span><span class='o'>(</span>response <span class='o'>=</span> <span class='nv'>hours</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/calculate.html'>calculate</a></span><span class='o'>(</span>stat <span class='o'>=</span> <span class='s'>"mean"</span><span class='o'>)</span>
 
-<span class='c'># generate a null distribution</span>
-<span class='nv'>null_dist</span> <span class='o'>&lt;-</span> <span class='nv'>gss</span> <span class='o'>%&gt;%</span>
+<span class='c'># generate a distribution of means</span>
+<span class='nv'>dist</span> <span class='o'>&lt;-</span> <span class='nv'>gss</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/specify.html'>specify</a></span><span class='o'>(</span>response <span class='o'>=</span> <span class='nv'>hours</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/hypothesize.html'>hypothesize</a></span><span class='o'>(</span>null <span class='o'>=</span> <span class='s'>"point"</span>, mu <span class='o'>=</span> <span class='m'>40</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/generate.html'>generate</a></span><span class='o'>(</span>reps <span class='o'>=</span> <span class='m'>1000</span>, type <span class='o'>=</span> <span class='s'>"bootstrap"</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
@@ -384,11 +381,11 @@ To illustrate, we'll go back to the example of determining whether the mean numb
 
 Our point estimate 41.382 seems *pretty* close to 40, but a little bit different. We might wonder if this difference is just due to random chance, or if the mean number of hours worked per week in the population really isn't 40.
 
-We could initially just visualize the null distribution.
+We could initially just visualize the distribution.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>null_dist</span> <span class='o'>%&gt;%</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>dist</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/visualize.html'>visualize</a></span><span class='o'>(</span><span class='o'>)</span>
 </code></pre>
 <img src="figs/visualize-1.png" width="700px" style="display: block; margin: auto;" />
@@ -399,7 +396,7 @@ Where does our sample's observed statistic lie on this distribution? We can use 
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>null_dist</span> <span class='o'>%&gt;%</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>dist</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/visualize.html'>visualize</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/shade_p_value.html'>shade_p_value</a></span><span class='o'>(</span>obs_stat <span class='o'>=</span> <span class='nv'>point_estimate</span>, direction <span class='o'>=</span> <span class='s'>"two-sided"</span><span class='o'>)</span>
 </code></pre>
@@ -411,36 +408,33 @@ Notice that infer has also shaded the regions of the null distribution that are 
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='c'># get a two-tailed p-value</span>
-<span class='nv'>p_value</span> <span class='o'>&lt;-</span> <span class='nv'>null_dist</span> <span class='o'>%&gt;%</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>p_value</span> <span class='o'>&lt;-</span> <span class='nv'>dist</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/get_p_value.html'>get_p_value</a></span><span class='o'>(</span>obs_stat <span class='o'>=</span> <span class='nv'>point_estimate</span>, direction <span class='o'>=</span> <span class='s'>"two-sided"</span><span class='o'>)</span>
 
 <span class='nv'>p_value</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span></span>
 <span class='c'>#&gt;   p_value</span>
 <span class='c'>#&gt;     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span>   0.036</span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span>   0.028</span></code></pre>
 
 </div>
 
-It looks like the p-value is 0.036, which is pretty small---if the true mean number of hours worked per week was actually 40, the probability of our sample mean being this far (1.382 hours) from 40 would be 0.036. This may or may not be statistically significantly different, depending on the significance level $\alpha$ you decided on *before* you ran this analysis. If you had set $\alpha = .05$, then this difference would be statistically significant, but if you had set $\alpha = .01$, then it would not be.
+It looks like the p-value is 0.028, which is pretty small---if the true mean number of hours worked per week was actually 40, the probability of our sample mean being this far (1.382 hours) from 40 would be 0.028. This may or may not be statistically significantly different, depending on the significance level $\alpha$ you decided on *before* you ran this analysis. If you had set $\alpha = .05$, then this difference would be statistically significant, but if you had set $\alpha = .01$, then it would not be.
 
 To get a confidence interval around our estimate, we can write:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='c'># start with the null distribution</span>
-<span class='nv'>null_dist</span> <span class='o'>%&gt;%</span>
-  <span class='c'># calculate the confidence interval around the point estimate</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/get_confidence_interval.html'>get_confidence_interval</a></span><span class='o'>(</span>point_estimate <span class='o'>=</span> <span class='nv'>point_estimate</span>,
-                          <span class='c'># at the 95% confidence level</span>
-                          level <span class='o'>=</span> <span class='m'>.95</span>,
-                          <span class='c'># using the standard error</span>
-                          type <span class='o'>=</span> <span class='s'>"se"</span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>dist</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/get_confidence_interval.html'>get_confidence_interval</a></span><span class='o'>(</span>
+    point_estimate <span class='o'>=</span> <span class='nv'>point_estimate</span>,
+    level <span class='o'>=</span> <span class='m'>.95</span>,
+    type <span class='o'>=</span> <span class='s'>"se"</span>
+  <span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 2</span></span>
 <span class='c'>#&gt;   lower_ci upper_ci</span>
 <span class='c'>#&gt;      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span>     40.1     42.7</span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span>     40.1     42.6</span></code></pre>
 
 </div>
 
@@ -474,7 +468,7 @@ If passed an `infer` object, the method will parse a formula out of the `formula
 
 </div>
 
-Note that the function returns the model coefficients as `estimate` rather than their associated `t`-statistics as `stat`.
+Note that the function returns the model coefficients as `estimate` rather than their associated $t$-statistics as `stat`.
 
 If passed a [`generate()`](https://infer.tidymodels.org/reference/generate.html)d object, the model will be fitted to each replicate.
 
@@ -487,18 +481,18 @@ If passed a [`generate()`](https://infer.tidymodels.org/reference/generate.html)
   <span class='nf'><a href='https://generics.r-lib.org/reference/fit.html'>fit</a></span><span class='o'>(</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 300 x 3</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'># Groups:   replicate [100]</span></span>
-<span class='c'>#&gt;    replicate term           estimate</span>
-<span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1 intercept     41.3     </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         1 age           -<span style='color: #BB0000;'>0.000</span><span style='color: #BB0000; text-decoration: underline;'>334</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         1 collegedegree  0.410   </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         2 intercept     39.3     </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         2 age            0.056<span style='text-decoration: underline;'>4</span>  </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         2 collegedegree -<span style='color: #BB0000;'>0.454</span>   </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         3 intercept     38.8     </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         3 age            0.070<span style='text-decoration: underline;'>7</span>  </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         3 collegedegree -<span style='color: #BB0000;'>0.767</span>   </span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>         4 intercept     42.7     </span>
+<span class='c'>#&gt;    replicate term          estimate</span>
+<span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1 intercept      39.3   </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         1 age             0.064<span style='text-decoration: underline;'>3</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         1 collegedegree  -<span style='color: #BB0000;'>1.33</span>  </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         2 intercept      43.5   </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         2 age            -<span style='color: #BB0000;'>0.043</span><span style='color: #BB0000; text-decoration: underline;'>5</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         2 collegedegree  -<span style='color: #BB0000;'>1.00</span>  </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         3 intercept      40.4   </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         3 age             0.013<span style='text-decoration: underline;'>8</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         3 collegedegree   1.10  </span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>         4 intercept      43.7   </span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 290 more rows</span></span></code></pre>
 
 </div>
@@ -514,18 +508,18 @@ If `type = "permute"`, a set of unquoted column names in the data to permute (in
   <span class='nf'><a href='https://generics.r-lib.org/reference/fit.html'>fit</a></span><span class='o'>(</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 300 x 3</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'># Groups:   replicate [100]</span></span>
-<span class='c'>#&gt;    replicate term            estimate</span>
-<span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>              <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1 intercept     41.4      </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         1 age            0.006<span style='text-decoration: underline;'>95</span>  </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         1 collegedegree -<span style='color: #BB0000;'>0.948</span>    </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         2 intercept     40.1      </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         2 age            0.036<span style='text-decoration: underline;'>1</span>   </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         2 collegedegree -<span style='color: #BB0000;'>0.360</span>    </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         3 intercept     41.0      </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         3 age           -<span style='color: #BB0000;'>0.000</span><span style='color: #BB0000; text-decoration: underline;'>094</span><span style='color: #BB0000;'>5</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         3 collegedegree  1.02     </span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>         4 intercept     40.2      </span>
+<span class='c'>#&gt;    replicate term          estimate</span>
+<span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1 intercept      40.2   </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         1 age             0.019<span style='text-decoration: underline;'>9</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         1 collegedegree   1.07  </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         2 intercept      40.6   </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         2 age             0.013<span style='text-decoration: underline;'>5</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         2 collegedegree   0.777 </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         3 intercept      38.7   </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         3 age             0.074<span style='text-decoration: underline;'>5</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         3 collegedegree  -<span style='color: #BB0000;'>1.01</span>  </span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>         4 intercept      38.7   </span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 290 more rows</span></span></code></pre>
 
 </div>
@@ -536,101 +530,114 @@ Each of the auxillary functions [`get_p_value()`](https://infer.tidymodels.org/r
 
 ### Alignment of theory-based methods
 
-While infer is primarily a package for randomization-based statistical inference, the package has partially supported theory-based methods in a number of ways over the years. This release introduces a principled, opinionated, and consistent interface for theory-based methods for statistical inference. The new interface is based on a new verb, `assume()`, that returns a null distribution that, once created, interfaces in the same way that simulation-based null distributions do.
+While infer is primarily a package for randomization-based statistical inference, the package has partially supported theory-based methods in a number of ways over the years. This release introduces a principled, opinionated, and consistent interface for theory-based methods for statistical inference. The new interface is based on a new verb, [`assume()`](https://infer.tidymodels.org/reference/assume.html), that returns a distribution that, once created, interfaces in the same way that simulation-based distributions do.
 
-As an example, we'll work through a full infer pipeline for inference on a mean using infer's `gss` dataset. Supposed that we believe the true mean number of hours worked by Americans in the past week is 40.
+To demonstrate, we'll return to the example of inference on a mean using infer's `gss` dataset. Supposed that we believe the true mean number of hours worked by Americans in the past week is 40.
 
-First, calculating the observed `t`-statistic:
+First, calculating the observed $t$-statistic:
 
-``` r
-obs_stat <- gss %>%
-  specify(response = hours) %>%
-  hypothesize(null = "point", mu = 40) %>%
-  calculate(stat = "t")
+<div class="highlight">
 
-obs_stat
-#> Response: hours (numeric)
-#> Null Hypothesis: point
-#> # A tibble: 1 x 1
-#>    stat
-#>   <dbl>
-#> 1  2.09
-```
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>obs_stat</span> <span class='o'>&lt;-</span> <span class='nv'>gss</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/specify.html'>specify</a></span><span class='o'>(</span>response <span class='o'>=</span> <span class='nv'>hours</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/hypothesize.html'>hypothesize</a></span><span class='o'>(</span>null <span class='o'>=</span> <span class='s'>"point"</span>, mu <span class='o'>=</span> <span class='m'>40</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/calculate.html'>calculate</a></span><span class='o'>(</span>stat <span class='o'>=</span> <span class='s'>"t"</span><span class='o'>)</span>
 
-The code to define the null distribution is very similar to that required to calculate a theorized observed statistic, switching out [`calculate()`](https://infer.tidymodels.org/reference/calculate.html) for `assume()` and replacing arguments as needed.
+<span class='nv'>obs_stat</span>
+<span class='c'>#&gt; Response: hours (numeric)</span>
+<span class='c'>#&gt; Null Hypothesis: point</span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span></span>
+<span class='c'>#&gt;    stat</span>
+<span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span>  2.09</span></code></pre>
 
-``` r
-null_dist <- gss %>%
-  specify(response = hours) %>%
-  hypothesize(null = "point", mu = 40) %>%
-  assume(distribution = "t", df = nrow(gss) - 1)
+</div>
 
-null_dist 
-#> A T distribution with 499 degrees of freedom.
-```
+The code to define the null distribution is very similar to that required to calculate a theorized observed statistic, switching out [`calculate()`](https://infer.tidymodels.org/reference/calculate.html) for [`assume()`](https://infer.tidymodels.org/reference/assume.html) and replacing arguments as needed.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>dist</span> <span class='o'>&lt;-</span> <span class='nv'>gss</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/specify.html'>specify</a></span><span class='o'>(</span>response <span class='o'>=</span> <span class='nv'>hours</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/hypothesize.html'>hypothesize</a></span><span class='o'>(</span>null <span class='o'>=</span> <span class='s'>"point"</span>, mu <span class='o'>=</span> <span class='m'>40</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/assume.html'>assume</a></span><span class='o'>(</span>distribution <span class='o'>=</span> <span class='s'>"t"</span>, df <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='o'>(</span><span class='nv'>gss</span><span class='o'>)</span> <span class='o'>-</span> <span class='m'>1</span><span class='o'>)</span>
+
+<span class='nv'>dist</span> 
+<span class='c'>#&gt; A T distribution with 499 degrees of freedom.</span></code></pre>
+
+</div>
 
 This null distribution can now be interfaced with in the same way as a simulation-based null distribution elsewhere in the package. For example, calculating a p-value by juxtaposing the observed statistic and null distribution:
 
-``` r
-get_p_value(null_dist, obs_stat, direction = "both")
-#> # A tibble: 1 x 1
-#>   p_value
-#>     <dbl>
-#> 1  0.0376
-```
+<div class="highlight">
 
-...or visualizing the null distribution alone:
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://infer.tidymodels.org/reference/get_p_value.html'>get_p_value</a></span><span class='o'>(</span><span class='nv'>dist</span>, <span class='nv'>obs_stat</span>, direction <span class='o'>=</span> <span class='s'>"both"</span><span class='o'>)</span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span></span>
+<span class='c'>#&gt;   p_value</span>
+<span class='c'>#&gt;     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span>  0.037<span style='text-decoration: underline;'>6</span></span></code></pre>
 
-``` r
-visualize(null_dist)
-```
-
-![](https://i.imgur.com/g3B5coD.png)
+</div>
 
 ...or juxtaposing the two visually:
 
-``` r
-visualize(null_dist) + 
-  shade_p_value(obs_stat, direction = "both")
-```
+<div class="highlight">
 
-![](https://i.imgur.com/3C66kgK.png)
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://infer.tidymodels.org/reference/visualize.html'>visualize</a></span><span class='o'>(</span><span class='nv'>dist</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/shade_p_value.html'>shade_p_value</a></span><span class='o'>(</span><span class='nv'>obs_stat</span>, direction <span class='o'>=</span> <span class='s'>"both"</span><span class='o'>)</span>
+</code></pre>
+<img src="figs/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" />
 
-Confidence intervals lie in data space rather than the standardized scale of the theoretical distributions. Calculating a mean rather than the standardized `t`-statistic:
+</div>
 
-``` r
-obs_mean <- gss %>%
-  specify(response = hours) %>%
-  calculate(stat = "mean")
-```
+Confidence intervals lie on the scale of the observed data rather than the standardized scale of the theoretical distributions. Calculating a mean rather than the standardized $t$-statistic:
 
-The null distribution here just defines the spread for the standard error calculation.
+<div class="highlight">
 
-``` r
-ci <- 
-  get_confidence_interval(
-    null_dist,
-    level = .95,
-    point_estimate = obs_mean
-  )
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>obs_mean</span> <span class='o'>&lt;-</span> <span class='nv'>gss</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/specify.html'>specify</a></span><span class='o'>(</span>response <span class='o'>=</span> <span class='nv'>hours</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/calculate.html'>calculate</a></span><span class='o'>(</span>stat <span class='o'>=</span> <span class='s'>"mean"</span><span class='o'>)</span>
 
-ci
-#> # A tibble: 1 x 2
-#>   lower_ci upper_ci
-#>      <dbl>    <dbl>
-#> 1     40.1     42.7
-```
+<span class='nv'>obs_mean</span>
+<span class='c'>#&gt; Response: hours (numeric)</span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span></span>
+<span class='c'>#&gt;    stat</span>
+<span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span>  41.4</span></code></pre>
+
+</div>
+
+The distribution here just defines the spread for the standard error calculation.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>ci</span> <span class='o'>&lt;-</span> 
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/get_confidence_interval.html'>get_confidence_interval</a></span><span class='o'>(</span>
+    <span class='nv'>dist</span>,
+    level <span class='o'>=</span> <span class='m'>.95</span>,
+    point_estimate <span class='o'>=</span> <span class='nv'>obs_mean</span>
+  <span class='o'>)</span>
+
+<span class='nv'>ci</span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 2</span></span>
+<span class='c'>#&gt;   lower_ci upper_ci</span>
+<span class='c'>#&gt;      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span>     40.1     42.7</span></code></pre>
+
+</div>
 
 Visualizing the confidence interval results in the theoretical distribution being recentered and rescaled to align with the scale of the observed data:
 
-``` r
-visualize(null_dist) + 
-  shade_confidence_interval(ci)
-```
+<div class="highlight">
 
-![](https://i.imgur.com/4akSCY3.png)
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://infer.tidymodels.org/reference/visualize.html'>visualize</a></span><span class='o'>(</span><span class='nv'>dist</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/shade_confidence_interval.html'>shade_confidence_interval</a></span><span class='o'>(</span><span class='nv'>ci</span><span class='o'>)</span>
+</code></pre>
+<img src="figs/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" />
 
-Previous methods for interfacing with theoretical distributions are superseded---they will continue to be supported, though documentation will forefront the `assume()` interface.
+</div>
+
+Previous methods for interfacing with theoretical distributions are superseded---they will continue to be supported, though documentation will forefront the [`assume()`](https://infer.tidymodels.org/reference/assume.html) interface.
 
 ### Behavioral consistency
 
@@ -669,6 +676,8 @@ or
   <span class='nf'><a href='https://infer.tidymodels.org/reference/hypothesize.html'>hypothesize</a></span><span class='o'>(</span>null <span class='o'>=</span> <span class='s'>"point"</span>, mu <span class='o'>=</span> <span class='m'>40</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/calculate.html'>calculate</a></span><span class='o'>(</span>stat <span class='o'>=</span> <span class='s'>"mean"</span><span class='o'>)</span>
 <span class='c'>#&gt; Message: The point null hypothesis `mu = 40` does not inform calculation of the observed statistic (a mean) and will be ignored.</span>
+<span class='c'>#&gt; Response: hours (numeric)</span>
+<span class='c'>#&gt; Null Hypothesis: point</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span></span>
 <span class='c'>#&gt;    stat</span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
@@ -688,6 +697,8 @@ and
     <span class='nf'><a href='https://infer.tidymodels.org/reference/calculate.html'>calculate</a></span><span class='o'>(</span>stat <span class='o'>=</span> <span class='s'>"z"</span><span class='o'>)</span>
 <span class='c'>#&gt; Warning: A z statistic requires a null hypothesis to calculate the observed statistic. </span>
 <span class='c'>#&gt; Output assumes the following null value: `p = .5`.</span>
+<span class='c'>#&gt; Response: sex (factor)</span>
+<span class='c'>#&gt; Null Hypothesis: point</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span></span>
 <span class='c'>#&gt;    stat</span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
@@ -706,51 +717,12 @@ or
 <span class='c'>#&gt; Dropping unused factor levels DK from the supplied response variable 'partyid'.</span>
 <span class='c'>#&gt; Warning: A chi-square statistic requires a null hypothesis to calculate the observed statistic. </span>
 <span class='c'>#&gt; Output assumes the following null values: `p = c(dem = 0.2, ind = 0.2, rep = 0.2, other = 0.2, DK = 0.2)`.</span>
+<span class='c'>#&gt; Response: partyid (factor)</span>
+<span class='c'>#&gt; Null Hypothesis: point</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span></span>
 <span class='c'>#&gt;    stat</span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>1</span>  334.</span></code></pre>
-
-</div>
-
-This behavorial consistency also allowed for the implementation of [`observe()`](https://infer.tidymodels.org/reference/observe.html), a wrapper function around [`specify()`](https://infer.tidymodels.org/reference/specify.html), [`hypothesize()`](https://infer.tidymodels.org/reference/hypothesize.html), and [`calculate()`](https://infer.tidymodels.org/reference/calculate.html), to calculate observed statistics. The function provides a shorthand alternative to calculating observed statistics from data:
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='c'># calculating the observed mean number of hours worked per week</span>
-<span class='nv'>gss</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/observe.html'>observe</a></span><span class='o'>(</span><span class='nv'>hours</span> <span class='o'>~</span> <span class='kc'>NULL</span>, stat <span class='o'>=</span> <span class='s'>"mean"</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span></span>
-<span class='c'>#&gt;    stat</span>
-<span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span>  41.4</span>
-
-<span class='c'># equivalently, calculating the same statistic with the core verbs</span>
-<span class='nv'>gss</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/specify.html'>specify</a></span><span class='o'>(</span>response <span class='o'>=</span> <span class='nv'>hours</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/calculate.html'>calculate</a></span><span class='o'>(</span>stat <span class='o'>=</span> <span class='s'>"mean"</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span></span>
-<span class='c'>#&gt;    stat</span>
-<span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span>  41.4</span>
-
-<span class='c'># calculating a t statistic for hypothesized mu = 40 hours worked/week</span>
-<span class='nv'>gss</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/observe.html'>observe</a></span><span class='o'>(</span><span class='nv'>hours</span> <span class='o'>~</span> <span class='kc'>NULL</span>, stat <span class='o'>=</span> <span class='s'>"t"</span>, null <span class='o'>=</span> <span class='s'>"point"</span>, mu <span class='o'>=</span> <span class='m'>40</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span></span>
-<span class='c'>#&gt;    stat</span>
-<span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span>  2.09</span>
-
-<span class='c'># equivalently, calculating the same statistic with the core verbs</span>
-<span class='nv'>gss</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/specify.html'>specify</a></span><span class='o'>(</span>response <span class='o'>=</span> <span class='nv'>hours</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/hypothesize.html'>hypothesize</a></span><span class='o'>(</span>null <span class='o'>=</span> <span class='s'>"point"</span>, mu <span class='o'>=</span> <span class='m'>40</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/calculate.html'>calculate</a></span><span class='o'>(</span>stat <span class='o'>=</span> <span class='s'>"t"</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span></span>
-<span class='c'>#&gt;    stat</span>
-<span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span>  2.09</span></code></pre>
 
 </div>
 
@@ -759,4 +731,6 @@ We don't anticipate that any of these changes are "breaking" in the sense that c
 ## Acknowledgements
 
 This release was made possible with financial support from RStudio and the Reed College Mathematics Department. Thanks to [@aarora79](https://github.com/aarora79), [@acpguedes](https://github.com/acpguedes), [@AlbertRapp](https://github.com/AlbertRapp), [@alexpghayes](https://github.com/alexpghayes), [@aloy](https://github.com/aloy), [@AmeliaMN](https://github.com/AmeliaMN), [@andrewpbray](https://github.com/andrewpbray), [@apreshill](https://github.com/apreshill), [@atheobold](https://github.com/atheobold), [@beanumber](https://github.com/beanumber), [@bigdataman2015](https://github.com/bigdataman2015), [@bragks](https://github.com/bragks), [@brendanhcullen](https://github.com/brendanhcullen), [@CarlssonLeo](https://github.com/CarlssonLeo), [@ChalkboardSonata](https://github.com/ChalkboardSonata), [@chriscardillo](https://github.com/chriscardillo), [@clauswilke](https://github.com/clauswilke), [@congdanh8391](https://github.com/congdanh8391), [@corinne-riddell](https://github.com/corinne-riddell), [@cristianvaldez](https://github.com/cristianvaldez), [@daranzolin](https://github.com/daranzolin), [@davidbaniadam](https://github.com/davidbaniadam), [@davidhodge931](https://github.com/davidhodge931), [@doug-friedman](https://github.com/doug-friedman), [@dshelldhillon](https://github.com/dshelldhillon), [@dsolito](https://github.com/dsolito), [@echasnovski](https://github.com/echasnovski), [@EllaKaye](https://github.com/EllaKaye), [@enricochavez](https://github.com/enricochavez), [@gdbassett](https://github.com/gdbassett), [@ghost](https://github.com/ghost), [@GitHunter0](https://github.com/GitHunter0), [@hardin47](https://github.com/hardin47), [@hfrick](https://github.com/hfrick), [@higgi13425](https://github.com/higgi13425), [@instantkaffee](https://github.com/instantkaffee), [@ismayc](https://github.com/ismayc), [@jbourak](https://github.com/jbourak), [@jcvall](https://github.com/jcvall), [@jimrothstein](https://github.com/jimrothstein), [@kennethban](https://github.com/kennethban), [@m-berkes](https://github.com/m-berkes), [@mikelove](https://github.com/mikelove), [@mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [@Minhasshazu](https://github.com/Minhasshazu), [@msberends](https://github.com/msberends), [@mt-edwards](https://github.com/mt-edwards), [@muschellij2](https://github.com/muschellij2), [@nfultz](https://github.com/nfultz), [@nicholasjhorton](https://github.com/nicholasjhorton), [@PirateGrunt](https://github.com/PirateGrunt), [@PsychlytxTD](https://github.com/PsychlytxTD), [@richierocks](https://github.com/richierocks), [@romainfrancois](https://github.com/romainfrancois), [@rpruim](https://github.com/rpruim), [@rudeboybert](https://github.com/rudeboybert), [@rundel](https://github.com/rundel), [@sastoudt](https://github.com/sastoudt), [@sbibauw](https://github.com/sbibauw), [@sckott](https://github.com/sckott), [@THargreaves](https://github.com/THargreaves), [@topepo](https://github.com/topepo), [@torockel](https://github.com/torockel), [@ttimbers](https://github.com/ttimbers), [@vikram-rawat](https://github.com/vikram-rawat), [@vladimirvrabely](https://github.com/vladimirvrabely), and [@xiaochi-liu](https://github.com/xiaochi-liu) for their contributions to the package.
+
+\[1\]: GAISE College Report ASA Revision Committee, "Guidelines for Assessment and Instruction in Statistics Education College Report 2016," <http://www.amstat.org/education/gaise>.
 
