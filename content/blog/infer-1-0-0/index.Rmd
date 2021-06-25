@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 
 slug: infer-1-0-0
-title: infer 1 0 0
+title: infer 1.0.0
 date: 2021-07-19
 author: Simon Couch
 description: >
@@ -30,7 +30,7 @@ TODO:
 * [x] `usethis::use_tidy_thanks()`
 -->
 
-We're super excited announce the release of [infer](https://infer.tidymodels.org/) 1.0.0! infer is a package for statistical inference that implements an expressive statistical grammar that coheres with the tidyverse design framework. Rather than providing methods for specific statistical tests, this package consolidates the principles that are shared among common hypothesis tests and confidence intervals into a set of four main verbs (functions), supplemented with many utilities to visualize and extract value from their outputs.
+We're super excited announce the release of [infer](https://infer.tidymodels.org/) 1.0.0! infer is a package for statistical inference that implements an expressive statistical grammar that adheres to the tidyverse design framework. Rather than providing methods for specific statistical tests, this package consolidates the principles that are shared among common hypothesis tests and confidence intervals into a set of four main verbs (functions), supplemented with many utilities to visualize and extract value from their outputs.
 
 You can install it from CRAN with:
 
@@ -140,7 +140,7 @@ Once we've asserted our null hypothesis using `hypothesize()`, we can construct 
 
 * `bootstrap`: A bootstrap sample will be drawn for each replicate, where a sample of size equal to the input sample size is drawn (with replacement) from the input sample data.  
 * `permute`: For each replicate, each input value will be randomly reassigned (without replacement) to a new output value in the sample.  
-* `simulate`: A value will be sampled from a theoretical distribution with parameters specified in `hypothesize()` for each replicate. (This option is currently only applicable for testing point estimates.)  
+* `draw`: A value will be sampled from a theoretical distribution with parameters specified in `hypothesize()` for each replicate. (This option is currently only applicable for testing point estimates.)  
 
 Continuing on with our example above, about the average number of hours worked a week, we might write:
 
@@ -164,7 +164,7 @@ gss %>%
 
 ### calculate(): Calculating Summary Statistics
 
-`calculate()` calculates summary statistics from the output of infer core functions. The function, for one, takes in a `stat` argument, which is currently one of "mean", "median", "sum", "sd", "prop", "count", "diff in means", "diff in medians", "diff in props", "Chisq", "F", "t", "z", "slope", or "correlation". For example, continuing our example above to calculate the null distribution of mean hours worked per week:
+`calculate()` calculates summary statistics from the output of infer core functions. The function, for one, takes in a `stat` argument, which is currently one of `"mean"`, `"median"`, `"sum"`, `"sd"`, `"prop"`, `"count"`, `"diff in means"`, `"diff in medians"`, `"diff in props"`, `"Chisq"`, `"F"`, `"t"`, `"z"`, `"slope"`, or `"correlation"`. For example, continuing our example above to calculate the null distribution of mean hours worked per week:
 
 ```{r calculate-point, warning = FALSE, message = FALSE}
 gss %>%
@@ -184,7 +184,7 @@ gss %>%
 
 ### Other Utilities
 
-infer offers several utilities to extract the meaning out of summary statistics and distributions---the package provides functions to visualize where a statistic is relative to a distribution (with `visualize()`), calculate p-values (with `get_p_value()`), and calculate confidence intervals (with `get_confidence_interval()`).
+infer offers several utilities to extract meaning from summary statistics and distributions---the package provides functions to visualize where a statistic is relative to a distribution (with `visualize()`), calculate p-values (with `get_p_value()`), and calculate confidence intervals (with `get_confidence_interval()`).
 
 To illustrate, we'll go back to the example of determining whether the mean number of hours worked per week is 40 hours.
 
@@ -369,6 +369,7 @@ Another major change to the package in this release is a set of standards for be
 * supply a consistent error when the supplied `stat` argument isn't well-defined
 for the variables `specify()`d
 
+
 ```{r, error = TRUE}
 gss %>%
   specify(response = hours) %>%
@@ -385,6 +386,7 @@ gss %>%
 
 * supply a consistent message when the user supplies unneeded information via `hypothesize()` to `calculate()` an observed statistic
 
+
 ```{r}
 # supply mu = 40 when it's not needed
 gss %>%
@@ -396,6 +398,7 @@ gss %>%
 and
 
 * supply a consistent warning and assume a reasonable null value when the user does not supply sufficient information to calculate an observed statistic
+
 
 ```{r}
 # don't hypothesize `p` when it's needed
