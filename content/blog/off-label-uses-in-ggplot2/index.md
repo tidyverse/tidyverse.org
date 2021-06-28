@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [programming] 
 tags: [ggplot2, off-label]
-rmd_hash: 674a0c4ef325684c
+rmd_hash: f4956d94e95acae8
 
 ---
 
@@ -33,11 +33,24 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-ggplot2 v3.3.4 landed on CRAN recently, and while every release of ggplot2 is cause for celebration, this was merely a patch release fixing a large number of bugs and it thus came and went without much fanfare. However, for a couple of users this release brought an unwelcome and surprise change. We feel that this is a great opportunity to talk a bit about some of the topics that Hadley discussed in his [rstudio::global(2021) keynote](https://www.rstudio.com/resources/rstudioglobal-2021/maintaining-the-house-the-tidyverse-built/) where he addresses the nature of breaking changes.
+ggplot2 v3.3.4 landed on CRAN recently, and while every release of ggplot2 is cause for celebration, this was merely a patch release fixing a large number of bugs and so it came and went without much fanfare. However, for a couple of users this release brought an unwelcome and surprising change. We feel that this is a great opportunity to talk a bit about some of the topics that Hadley discussed in his [rstudio::global(2021) keynote](https://www.rstudio.com/resources/rstudioglobal-2021/maintaining-the-house-the-tidyverse-built/), particularly the nature of breaking changes.
 
 ## The surprising use of `ggsave()`
 
-The issue we will discuss in this blog post revolves around the use of [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) which is intended as a quick way for users to save the last created ggplot. More specifically the issue is related to this use pattern:
+We designed [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) as an easy way to save a ggplot object to an image file, using the following API:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>ggplot</span><span class='o'>(</span><span class='nv'>mpg</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'>geom_point</span><span class='o'>(</span><span class='nf'>aes</span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>displ</span>, y <span class='o'>=</span> <span class='nv'>hwy</span><span class='o'>)</span><span class='o'>)</span>
+
+<span class='nf'>ggsave</span><span class='o'>(</span><span class='s'>"my_mpg_plot.png"</span><span class='o'>)</span></code></pre>
+
+</div>
+
+[`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) is designed so that it automatically picks up the last created (or rendered) plot, and coupled with automatic graphic device selection determined from the file extension it provides a very lean API.
+
+The issue we will discuss in this blog post revolves around the use of [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) in the following manner:
 
 <div class="highlight">
 
@@ -55,20 +68,9 @@ Now, if this is the first time you've seen [`ggsave()`](https://ggplot2.tidyvers
 
 If you were a user that had used this pattern for saving plots it very much felt like we had removed a feature, pulling the rug out from under your script with no warning. However, this use of [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) had never been advertised in any of the documentation and while it worked, it could not be considered a feature as such.
 
-For completeness, this is the advertised and supported use of [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html):
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>mpg</span><span class='o'>)</span> <span class='o'>+</span> 
-  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='o'>(</span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>displ</span>, y <span class='o'>=</span> <span class='nv'>hwy</span><span class='o'>)</span><span class='o'>)</span>
-
-<span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggsave.html'>ggsave</a></span><span class='o'>(</span><span class='s'>"my_mpg_plot.png"</span><span class='o'>)</span></code></pre>
-
-</div>
-
 ## Off-label saving
 
-The issue described above falls under the category of off-label use that Hadley talks about in his keynote. Off-label use of functions comprise of using functions in a way that only work *by accident*, and are thus susceptible to breakage at any point due to changes in the code. Another common word for this is "a hack", but this term can often imply that the user is full aware of the brittle nature of the setup. Off-label use can just as well be passed on between users to a point where some thinks that this is the correct, supported, way of doing things (this was certainly the case with the above issue).
+We believe that this usage of [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) is the off-label use that Hadley talks about in his keynote. Off-label use of functions comprise of using functions in a way that only work *by accident*, and are thus susceptible to breakage at any point due to changes in the code. Another common word for this is "a hack", but this term can often imply that the user is full aware of the brittle nature of the setup. Off-label use can just as well be passed on between users to a point where some thinks that this is the correct, supported, way of doing things (this was certainly the case with the above issue).
 
 In an age of the pipe it is easy to understand why this use was picked up and thought off as a real feature. [`+`](https://rdrr.io/r/base/Arithmetic.html), however, is not `%>%` (or `|>`). It is a compositional operator meant to assemble the description of a plot. There is no execution of logic (besides the assembly) going on, and thus the idea of adding [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) does not make theoretical nor practical sense. This is also the reason why we do not want to "fix" this issue and turn it into a regular feature.
 
@@ -88,7 +90,7 @@ Based on this understanding there are some interesting observations we can make:
 
 </div>
 
-Another tidbit we can get is that the perceived feature was, even when it worked, extremely brittle. Consider the following code:
+Another tidbit is that the perceived feature was extremely brittle, even when it worked. Consider the following code:
 
 <div class="highlight">
 

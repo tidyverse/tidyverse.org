@@ -35,7 +35,18 @@ ggplot2 v3.3.4 landed on CRAN recently, and while every release of ggplot2 is ca
 
 ## The surprising use of `ggsave()`
 
-The issue we will discuss in this blog post revolves around the use of `ggsave()` which is intended as a quick way for users to save the last created ggplot. More specifically the issue is related to this use pattern:
+We designed `ggsave()` as an easy way to save a ggplot object to an image file, using the following API:
+
+```{r, eval=FALSE}
+ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy))
+
+ggsave("my_mpg_plot.png")
+```
+
+`ggsave()` is designed so that it automatically picks up the last created (or rendered) plot, and coupled with automatic graphic device selection determined from the file extension it provides a very lean API.
+
+The issue we will discuss in this blog post revolves around the use of `ggsave()` in the following manner:
 
 ```{r, eval=FALSE}
 library(ggplot2)
@@ -50,15 +61,6 @@ Now, if this is the first time you've seen `ggsave()` being added to a plot, you
     Error: Can't add `ggsave("my_mpg_plot.png")` to a ggplot object.
 
 If you were a user that had used this pattern for saving plots it very much felt like we had removed a feature, pulling the rug out from under your script with no warning. However, this use of `ggsave()` had never been advertised in any of the documentation and while it worked, it could not be considered a feature as such.
-
-For completeness, this is the advertised and supported use of `ggsave()`:
-
-```{r, eval=FALSE}
-ggplot(mpg) + 
-  geom_point(aes(x = displ, y = hwy))
-
-ggsave("my_mpg_plot.png")
-```
 
 ## Off-label saving
 
