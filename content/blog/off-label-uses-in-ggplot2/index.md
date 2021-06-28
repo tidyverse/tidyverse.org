@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [programming] 
 tags: [ggplot2, off-label]
-rmd_hash: f4956d94e95acae8
+rmd_hash: a0bff7bb0e8bb757
 
 ---
 
@@ -37,7 +37,7 @@ ggplot2 v3.3.4 landed on CRAN recently, and while every release of ggplot2 is ca
 
 ## The surprising use of `ggsave()`
 
-We designed [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) as an easy way to save a ggplot object to an image file, using the following API:
+We created [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) as an easy way to save a ggplot object to an image file, using the following API:
 
 <div class="highlight">
 
