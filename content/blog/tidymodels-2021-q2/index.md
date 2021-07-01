@@ -7,7 +7,7 @@ date: 2021-07-02
 author: Julia Silge
 description: >
     Releases of tidymodels packages in Q2 of 2021 include more streamlined
-    memory footprints for feature engineering recipes, new model engine options,
+    memory footprints for feature-engineering recipes, new model engine options,
     and better support for post-processing predictions.
 
 photo:
@@ -34,9 +34,9 @@ TODO:
 * [ ] `usethis::use_tidy_thanks()`
 -->
 
-The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. Earlier this year, we [started regular updates](https://www.tidyverse.org/blog/2021/03/tidymodels-2021-q1/) here on the tidyverse blog summarizing recent developments in the tidymodels ecosystem overall. You can check out the [`tidymodels`](https://www.tidyverse.org/tags/tidymodels/) tag to find all tidymodels blog posts here, including those that focus on a single package or more major releases, but the purpose of these roundup posts is to keep you informed about any releases you may have missed and useful new functionality as we maintain these packages.
+The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. Earlier this year, we [started regular updates](https://www.tidyverse.org/blog/2021/03/tidymodels-2021-q1/) here on the tidyverse blog summarizing recent developments in the tidymodels ecosystem. You can check out the [`tidymodels` tag](https://www.tidyverse.org/tags/tidymodels/) to find all tidymodels blog posts here, including those that focus on a single package or more major releases. The purpose of these roundup posts is to keep you informed about any releases you may have missed and useful new functionality as we maintain these packages.
 
-Since our last roundup post, there have been 19 CRAN releases of 15 different packages. That might sound like a lot of change to absorb as a tidymodels user! However, we purposefully write code in small, modular packages that we can release frequently, to make models easier to deploy and our software easier to maintain. You can install these updates from CRAN with:
+Since our last roundup post, there have been 19 CRAN releases of 15 different packages. That might sound like a lot of change to absorb as a tidymodels user! However, we purposefully write code in small, modular packages that we can release frequently to make models easier to deploy and our software easier to maintain. You can install these updates from CRAN with:
 
 
 ```r
@@ -66,7 +66,7 @@ The `NEWS` files are linked here for each package; you'll notice that many of th
 
 ## Reduce the memory footprint of your recipes
 
-The [butcher](https://butcher.tidymodels.org/) package provides methods to remove (or "axe") components from model objects that are not needed for prediction. There are many methods for various kinds of models, but the most recent release updated how butcher handled _recipes_, the tidymodels' approach for preprocessing and feature engineering, for more complete and robust coverage. Let's consider a simulated churn classification data set for phone company customers:
+The [butcher](https://butcher.tidymodels.org/) package provides methods to remove (or "axe") components from model objects that are not needed for prediction. The most recent release updated how butcher handles _recipes_ (the tidymodels approach for preprocessing and feature engineering) for more complete and robust coverage. Let's consider a simulated churn-classification dataset for phone company customers:
 
 
 ```r
@@ -87,7 +87,7 @@ ggplot(churn_train, aes(y = voice_mail_plan, fill = churn)) +
 
 ![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png)
 
-For some kinds of models, we would want to create dummy or indicator variables from nominal predictors and preprocess features to be on the same scale. We can use recipes for this task:
+For some kinds of models, we would want to create dummy or indicator variables from nominal predictors, and preprocess features to be on the same scale. We can use recipes for this task:
 
 
 ```r
@@ -121,12 +121,12 @@ churn_prep
 #> Centering and scaling for total_intl_minutes, total_day_minutes, ... [trained]
 ```
 
-To remove everything from this prepped recipe not needed for applying to new data (e.g. [bake()](https://recipes.tidymodels.org/reference/bake.html) it), we can call `butcher(churn_prep)`. In some applications, modeling practitioners need to make custom functions with a feature engineering recipe. Sometimes those functions have... a lot of extra STUFF in them, stuff that is not needed for prediction.
+To remove everything from this prepped recipe not needed for applying to new data (e.g. [bake()](https://recipes.tidymodels.org/reference/bake.html) it), we can call `butcher(churn_prep)`. In some applications, modeling practitioners need to make custom functions with a feature-engineering recipe. Sometimes those functions have... a lot of extra STUFF in them, stuff that is not needed for prediction.
 
 
 ```r
 butchered_plus <- function() {
-  some_junk_in_the_environment <- runif(1e6)
+  some_stuff_in_the_environment <- runif(1e6)
   
   churn_prep <- 
     recipe(churn ~ voice_mail_plan + total_intl_minutes + 
@@ -144,6 +144,7 @@ In the old version of butcher, we did not successfully remove all that extra stu
 
 
 ```r
+# old version of butcher
 lobstr::obj_size(butcher(churn_prep))
 #> 1,835,512 B
 lobstr::obj_size(butchered_plus())
@@ -154,6 +155,7 @@ In the new version of butcher, we now successfully remove unneeded components fr
 
 
 ```r
+# new version of butcher
 lobstr::obj_size(butcher(churn_prep))
 #> 1,695,352 B
 lobstr::obj_size(butchered_plus())
@@ -164,14 +166,14 @@ There are also `butcher()` methods for `workflow()` objects, so when you `butche
 
 ## SVMs and fast logistic regression with LiblineaR
 
-Unfortunately, the `"liquidSVM"` engine for support vector machine models that parsnip supported was deprecated in the latest release, because that package was removed from CRAN. We added a new engine in the same release that allows users to fit linear SVMs with the [parsnip model `svm_linear()`](https://parsnip.tidymodels.org/reference/svm_linear.html), as well as having another option for logistic regression. This new `"LiblineaR"` engine is based on the same C++ library that is shipped with scikit-learn. We'd like to thank the [maintainers of the LiblineaR R package](https://www.dnalytics.com/software/liblinear/) for all their help as we set up this integration.
+Unfortunately, the `"liquidSVM"` engine for support vector machine models that parsnip supported was deprecated in the latest release, because that package was removed from CRAN. We added a new engine in the same release that allows users to fit linear SVMs with the [parsnip model `svm_linear()`](https://parsnip.tidymodels.org/reference/svm_linear.html), as well as having another option for logistic regression. This new `"LiblineaR"` engine is based on the same C++ library that is shipped with [scikit-learn](https://scikit-learn.org/). We'd like to thank the [maintainers of the LiblineaR R package](https://www.dnalytics.com/software/liblinear/) for all their help as we set up this integration.
 
 
 ```r
 set.seed(234)
 churn_folds <- vfold_cv(churn_train, v = 5, strata = churn)
 
-liblinear_wf <-
+liblinear_spec <-
   logistic_reg(penalty = 0.2, mixture = 1) %>%
   set_mode("classification") %>%
   set_engine("LiblineaR")
@@ -179,7 +181,7 @@ liblinear_wf <-
 liblinear_wf <-
   workflow() %>%
   add_recipe(churn_rec) %>%
-  add_model(liblinear_wf)
+  add_model(liblinear_spec)
 
 fit_resamples(liblinear_wf, resamples = churn_folds)
 #> # Resampling results
@@ -215,7 +217,7 @@ churn_post <-
   mutate(.pred = make_two_class_pred(.pred_yes, levels(churn), threshold = 0.7))
 ```
 
-The class predictions created with probably integrate well with functions from yardstick, including custom sets of metrics created with `metric_set()`.
+The class predictions created with probably integrate well with functions from yardstick, including custom sets of metrics created with [`metric_set()`](https://yardstick.tidymodels.org/reference/metric_set.html).
 
 
 ```r
@@ -233,8 +235,8 @@ churn_post %>% churn_metrics(truth = churn, estimate = .pred)
 #>   .metric  .estimator .estimate
 #>   <chr>    <chr>          <dbl>
 #> 1 accuracy binary         0.746
-#> 2 sens     binary         0.160
-#> 3 spec     binary         0.854
+#> 2 sens     binary         0.149
+#> 3 spec     binary         0.856
 ```
 
 Notice that with the default threshold of 0.5, basically no customers were classified as at risk for churn! Adjusting the threshold with `make_two_class_pred()` helps to address this issue.
