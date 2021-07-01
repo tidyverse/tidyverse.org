@@ -20,20 +20,6 @@ tags: [tidymodels, parsnip, recipes, butcher, yardstick, probably]
 ---
 
 
-
-<!--
-TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] `hugodown::use_tidy_thumbnails()`
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] `usethis::use_tidy_thanks()`
--->
-
 The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. Earlier this year, we [started regular updates](https://www.tidyverse.org/blog/2021/03/tidymodels-2021-q1/) here on the tidyverse blog summarizing recent developments in the tidymodels ecosystem. You can check out the [`tidymodels` tag](https://www.tidyverse.org/tags/tidymodels/) to find all tidymodels blog posts here, including those that focus on a single package or more major releases. The purpose of these roundup posts is to keep you informed about any releases you may have missed and useful new functionality as we maintain these packages.
 
 Since our last roundup post, there have been 19 CRAN releases of 15 different packages. That might sound like a lot of change to absorb as a tidymodels user! However, we purposefully write code in small, modular packages that we can release frequently to make models easier to deploy and our software easier to maintain. You can install these updates from CRAN with:
@@ -243,6 +229,7 @@ Notice that with the default threshold of 0.5, basically no customers were class
 
 ## Acknowledgements
 
+We'd like to extend our thanks to all of the contributors who helped make these releases during Q2 possible!
 
 - broom: [&#x0040;alexpghayes](https://github.com/alexpghayes), [&#x0040;andrewsris](https://github.com/andrewsris), [&#x0040;arcruz0](https://github.com/arcruz0), [&#x0040;bbolker](https://github.com/bbolker), [&#x0040;bgall](https://github.com/bgall), [&#x0040;cccneto](https://github.com/cccneto), [&#x0040;ddsjoberg](https://github.com/ddsjoberg), [&#x0040;DerForscher107](https://github.com/DerForscher107), [&#x0040;dikiprawisuda](https://github.com/dikiprawisuda), [&#x0040;dmenne](https://github.com/dmenne), [&#x0040;grantmcdermott](https://github.com/grantmcdermott), [&#x0040;japhir](https://github.com/japhir), [&#x0040;karldw](https://github.com/karldw), [&#x0040;kelseygonzalez](https://github.com/kelseygonzalez), [&#x0040;leejasme](https://github.com/leejasme), [&#x0040;LukasWallrich](https://github.com/LukasWallrich), [&#x0040;MatthieuStigler](https://github.com/MatthieuStigler), [&#x0040;mbac](https://github.com/mbac), [&#x0040;nt-williams](https://github.com/nt-williams), [&#x0040;pachadotdev](https://github.com/pachadotdev), [&#x0040;rpruim](https://github.com/rpruim), [&#x0040;rsbivand](https://github.com/rsbivand), [&#x0040;simonpcouch](https://github.com/simonpcouch), and [&#x0040;vincentarelbundock](https://github.com/vincentarelbundock).
 
