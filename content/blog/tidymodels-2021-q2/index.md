@@ -52,8 +52,8 @@ The `NEWS` files are linked here for each package; you'll notice that many of th
 - [discrim](https://discrim.tidymodels.org/news/index.html#discrim-0-1-2-2021-05-28)
 - [hardhat](https://hardhat.tidymodels.org/news/index.html#hardhat-0-1-4-2020-07-02)
 - [parsnip](https://parsnip.tidymodels.org/news/index.html#parsnip-0-1-6-2021-05-27)
-- [probably](https://probably.tidymodels.org/dev/news/index.html#probably-0-0-6-2020-06-05)
-- [recipes](https://recipes.tidymodels.org/dev/news/index.html)
+- [probably](https://probably.tidymodels.org/news/index.html#probably-0-0-6-2020-06-05)
+- [recipes](https://recipes.tidymodels.org/news/index.html#recipes-0-1-16-2021-04-16)
 - [rsample](https://rsample.tidymodels.org/news/index.html#rsample-0-1-0-2021-05-08)
 - [stacks](https://github.com/tidymodels/stacks/blob/main/NEWS.md#v020)
 - [themis](https://themis.tidymodels.org/dev/news/index.html#themis-0-1-4-2021-06-12)
@@ -203,11 +203,6 @@ We recently had releases of both the [yardstick](https://yardstick.tidymodels.or
 
 ```r
 library(probably)
-#> 
-#> Attaching package: 'probably'
-#> The following objects are masked from 'package:base':
-#> 
-#>     as.factor, as.ordered
 
 set.seed(123)
 churn_preds <- 
@@ -230,16 +225,16 @@ churn_post %>% churn_metrics(truth = churn, estimate = .pred_class)
 #> # A tibble: 3 x 3
 #>   .metric  .estimator .estimate
 #>   <chr>    <chr>          <dbl>
-#> 1 accuracy binary         0.878
-#> 2 sens     binary         0.112
-#> 3 spec     binary         0.999
+#> 1 accuracy binary        0.854 
+#> 2 sens     binary        0.0619
+#> 3 spec     binary        0.999
 churn_post %>% churn_metrics(truth = churn, estimate = .pred)
 #> # A tibble: 3 x 3
 #>   .metric  .estimator .estimate
 #>   <chr>    <chr>          <dbl>
-#> 1 accuracy binary         0.747
-#> 2 sens     binary         0.171
-#> 3 spec     binary         0.838
+#> 1 accuracy binary         0.746
+#> 2 sens     binary         0.160
+#> 3 spec     binary         0.854
 ```
 
 Notice that with the default threshold of 0.5, basically no customers were classified as at risk for churn! Adjusting the threshold with `make_two_class_pred()` helps to address this issue.
