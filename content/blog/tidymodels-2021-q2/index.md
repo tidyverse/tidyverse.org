@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 
 slug: tidymodels-2021-q2
-title: Q2 tidymodels digest
+title: Q2 2021 tidymodels digest
 date: 2021-07-02
 author: Julia Silge
 description: >
