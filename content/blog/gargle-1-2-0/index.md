@@ -16,7 +16,7 @@ photo:
 
 categories: [package]
 tags: [gargle, bigrquery, googledrive, googlesheets4]
-rmd_hash: 5eec96b393f368b6
+rmd_hash: 56975892ad13523a
 
 ---
 
@@ -59,7 +59,7 @@ Upon success, you see this message in the browser:
 
 The dance concludes with gargle (or a wrapper package) in possession of a [Google user token](https://developers.google.com/identity/protocols/oauth2#installed). This credential usually comes with an access token, which is valid for about an hour, and a more persistent refresh token, which can be used to get new access tokens in the future. It is nice to store this refresh token somewhere, to reduce future friction for this user. We'll refer to this "somewhere" as the *oauth token cache*.
 
-One of the original motivations for the gargle package was to depart from httr's behaviour around token caching, which defaults to the current working directory.[^1] By default, gargle caches user tokens centrally, at the user level, and their keys or labels also convey which Google identity is associated with each token. This reduces the chance of accidentally sending tokens to remote servers (like DropBox or GitHub), increases the ability to reuse tokens across multiple R projects, and makes it easier to use multiple identities within a single project.
+One of the original motivations for the gargle package was to depart from httr's behaviour around token caching, which defaults to the current working directory.[^1] By default, gargle caches user tokens centrally, at the user level, and their keys or labels also convey which Google identity is associated with each token. This reduces the chance of accidentally exposing tokens in projects that sync to remote servers (like DropBox or GitHub), increases the ability to reuse tokens across multiple R projects, and makes it easier to use multiple identities within a single project.
 
 Various incremental improvements have been made around gargle's token cache:
 
@@ -81,7 +81,7 @@ Various incremental improvements have been made around gargle's token cache:
 
 ## Rolling the built-in OAuth client
 
-User tokens created with gargle are the result of so-called "three-legged OAuth", where the three legs are the user, Google, and an OAuth client (id and secret). Each user or application potentially needs to set up their own OAuth client, in order to execute this flow.
+User tokens created with gargle are the result of the OAuth Dance mentioned above, involving three parties: the user, Google, and an OAuth client (id and secret). Each user or application potentially needs to set up their own OAuth client, in order to execute this flow.
 
 A small set of packages maintained by the tidyverse team make use of a shared, built-in OAuth client, which helps new users get started quickly, without the need to create their own client in order to do "Hello, World!". Only these specific packages are allowed to use this client and these packages do so according to a specific [privacy policy](https://www.tidyverse.org/google_privacy_policy/). The "Tidyverse API Packages" are [bigrquery](https://bigrquery.r-dbi.org/), [googledrive](https://googledrive.tidyverse.org/), and [googlesheets4](https://googlesheets4.tidyverse.org/).[^2]
 
@@ -102,7 +102,7 @@ As always, these articles explain how to take more control of auth:
 
 Workload identity federation is a new (as of April 2021) keyless authentication mechanism offered by Google. This allows applications running on a non-Google Cloud platform, such as AWS, to access Google Cloud resources without using a conventional service account token, eliminating the security problem posed by long-lived, powerful service account credential files. Basically, instead of storing sensitive information in a file that must be managed with great care, the necessary secrets are obtained on-the-fly and exchanged for short-lived tokens, with very granular control over what actions are allowed. There is a cost, of course, which is that this auth method requires substantial configuration on both the GCP and AWS sides.
 
-[`credentials_external_account()`](https://gargle.r-lib.org/reference/credentials_external_account.html) is a new function that implements workload identity federation. [`credentials_external_account()`](https://gargle.r-lib.org/reference/credentials_external_account.html) has been inserted into the default registry of credential-fetchers tried by [`token_fetch()`](https://gargle.r-lib.org/reference/token_fetch.html), which makes it automatically available in packages that use gargle for auth, such as bigrquery. [`credentials_app_default()`](https://gargle.r-lib.org/reference/credentials_app_default.html) recognizes the JSON configuration for an external account and passes such a call along to [`credentials_external_account()`](https://gargle.r-lib.org/reference/credentials_external_account.html). This means that, when placed in one of the locations searched by the Application Default Credential strategy, an external account configuration file will be automatically discovered.
+`credentials_external_account()` is a new function that implements workload identity federation. `credentials_external_account()` has been inserted into the default registry of credential-fetchers tried by `token_fetch()`, which makes it automatically available in packages that use gargle for auth, such as bigrquery. `credentials_app_default()` recognizes the JSON configuration for an external account and passes such a call along to `credentials_external_account()`. This means that, when placed in one of the locations searched by the Application Default Credential strategy, an external account configuration file will be automatically discovered.
 
 This new feature is still experimental and currently only supports AWS. This blog post provides a good high-level introduction to workload identity federation:
 
@@ -124,7 +124,7 @@ The problem is, lots of folks who need oob auth have never even heard of oob aut
 
 Instead of possibly failing with an inscrutable error, [`gargle::gargle_oob_default()`](https://gargle.r-lib.org/reference/gargle_options.html) has gotten smarter about figuring out whether oob is needed:
 
--   We now (try to) detect if we're running on RStudio Workbench, Server, or Cloud and, if so, [`gargle_oob_default()`](https://gargle.r-lib.org/reference/gargle_options.html) returns `TRUE` unconditionally.
+-   We now (try to) detect if we're running on RStudio Workbench, Server, or Cloud and, if so, `gargle_oob_default()` returns `TRUE` unconditionally.
 -   We honor the `"httr_oob_default"` option, when set, if the option `"gargle_oob_default"` is unset. Previously, we only consulted the gargle option, but it makes sense to honor httr's as well.
 
 ### Suggesting httpuv
@@ -144,7 +144,7 @@ All errors thrown by gargle now route through [`rlang::abort()`](https://rlang.r
 
 ### Verbosity
 
-Since gargle is not a user-facing package, it has very little to say and only emits messages that end users *really* need to see. But sometimes it is useful to get more information about gargle's activities, especially when trying to figure out why [`token_fetch()`](https://gargle.r-lib.org/reference/token_fetch.html) isn't working the way you expect. In the past, we used the `"gargle_quiet"` option for this, which could be `TRUE` or `FALSE`.
+Since gargle is not a user-facing package, it has very little to say and only emits messages that end users *really* need to see. But sometimes it is useful to get more information about gargle's activities, especially when trying to figure out why `token_fetch()` isn't working the way you expect. In the past, we used the `"gargle_quiet"` option for this, which could be `TRUE` or `FALSE`.
 
 The previous on/off switch has been deprecated in favor of the new `"gargle_verbosity"` option, which has three levels:
 
@@ -154,20 +154,22 @@ The previous on/off switch has been deprecated in favor of the new `"gargle_verb
 
 There are a couple of helpers around verbosity:
 
--   [`gargle_verbosity()`](https://gargle.r-lib.org/reference/gargle_options.html) reports the current verbosity level.
--   [`with_gargle_verbosity()`](https://gargle.r-lib.org/reference/gargle_options.html) and [`local_gargle_verbosity()`](https://gargle.r-lib.org/reference/gargle_options.html) are [withr-style](https://withr.r-lib.org) functions that temporarily modify the verbosity level.
+-   `gargle_verbosity()` reports the current verbosity level.
+-   `with_gargle_verbosity()` and `local_gargle_verbosity()` are [withr-style](https://withr.r-lib.org) functions that temporarily modify the verbosity level.
 
 ## Retries
 
 gargle offers some Google-specific support for forming requests and handling responses, in addition to and separate from auth.
 
-Not all wrapper packages use this functionality, but, in particular, googlesheets4 *does*. The [usage limits for the Sheets API](https://developers.google.com/sheets/api/reference/limits) are low enough that regular folks run up against them fairly often. This aggravation is somewhat specific to Sheets, i.e. we don't see similar pain with the Drive and BigQuery APIs, which have much more generous limits. When you hit the Sheets "per user" or "per project" limit, requests fail with the error code `429 RESOURCE_EXHAUSTED`.[^3]
+Not all wrapper packages use this functionality, but *googlesheets4 does*. The [usage limits for the Sheets API](https://developers.google.com/sheets/api/reference/limits) are low enough that regular folks run up against them fairly often. This aggravation is somewhat specific to Sheets, i.e. we don't see similar pain with the Drive and BigQuery APIs, which have much more generous limits. When you hit the Sheets "per user" or "per project" limit, requests fail with the error code `429 RESOURCE_EXHAUSTED`.
 
-[`request_retry()`](https://gargle.r-lib.org/reference/request_retry.html) is a drop-in substitute for [`request_make()`](https://googledrive.tidyverse.org/reference/request_make.html) that uses (modified) exponential backoff to retry requests that fail with error `429`. [`request_retry()`](https://gargle.r-lib.org/reference/request_retry.html) even has some special knowledge about the Sheets limits and, in some cases, will wait 100 seconds for the user's quota to reset.
+Sidebar: As of July 2021, there is a limit of "500 requests per 100 seconds per project". In the case of a user token, the "project" refers to the GCP project that owns the OAuth client. Everyone who uses the built-in "Tidyverse API Packages" OAuth client is sharing this "per project" quota! If you're hitting "per project" limits regularly and it upsets your workflow, the universe is telling you that it's time to configure your own OAuth client or use a different method of auth. End of sidebar.
 
-The development version of googlesheets4 already uses [`request_retry()`](https://gargle.r-lib.org/reference/request_retry.html), which will be released to CRAN soon.
+[`gargle::request_retry()`](https://gargle.r-lib.org/reference/request_retry.html) is a drop-in substitute for [`gargle::request_make()`](https://gargle.r-lib.org/reference/request_make.html) that uses (modified) exponential backoff to retry requests that fail with error `429`. `request_retry()` even has some special knowledge about Sheets-specific limits and, in some cases, will wait 100 seconds for the user's quota to reset.
 
-[`request_retry()`](https://gargle.r-lib.org/reference/request_retry.html) will support error codes beyond `429` in the next gargle release.
+The development version of googlesheets4 already uses `request_retry()`, which will be released to CRAN soon.
+
+`request_retry()` will support error codes beyond `429` in the next gargle release.
 
 ## Acknowledgements
 
@@ -175,9 +177,7 @@ We'd like to thank everyone who has furthered the development of gargle, from v0
 
 [@acroz](https://github.com/acroz), [@akgold](https://github.com/akgold), [@alanfalcaothe](https://github.com/alanfalcaothe), [@atreibs](https://github.com/atreibs), [@batpigandme](https://github.com/batpigandme), [@biol75](https://github.com/biol75), [@btrx-sreddy](https://github.com/btrx-sreddy), [@craigcitro](https://github.com/craigcitro), [@domsle](https://github.com/domsle), [@ekarsten](https://github.com/ekarsten), [@EricGoldsmith](https://github.com/EricGoldsmith), [@FedericoTrifoglio](https://github.com/FedericoTrifoglio), [@irfanalidv](https://github.com/irfanalidv), [@jayBana](https://github.com/jayBana), [@jcheng5](https://github.com/jcheng5), [@jdtrat](https://github.com/jdtrat), [@jennybc](https://github.com/jennybc), [@jimhester](https://github.com/jimhester), [@lionel-](https://github.com/lionel-), [@maelle](https://github.com/maelle), [@MarkEdmondson1234](https://github.com/MarkEdmondson1234), [@michaelquinn32](https://github.com/michaelquinn32), [@muschellij2](https://github.com/muschellij2), [@ogola89](https://github.com/ogola89), [@Ozan147](https://github.com/Ozan147), [@petrbouchal](https://github.com/petrbouchal), [@pofl](https://github.com/pofl), [@py9mrg](https://github.com/py9mrg), [@rensa](https://github.com/rensa), [@samterfa](https://github.com/samterfa), [@selesnow](https://github.com/selesnow), [@tareefk](https://github.com/tareefk), [@tstratopoulos](https://github.com/tstratopoulos), and [@vimota](https://github.com/vimota).
 
-[^1]: The successor to httr is under development and it will also cache user tokens at the user level, like gargle.
+[^1]: The successor to httr is under development and, like gargle, it will also cache user tokens at the user level: <https://httr2.r-lib.org>.
 
 [^2]: gmailr is not included here, because the Gmail scopes are so sensitive that anyone wishing to work with Gmail programmatically really must set up their own OAuth client.
-
-[^3]: There is a limit of "500 requests per 100 seconds per project". In the case of a user token, the "project" refers to the GCP project that owns the OAuth client. Everyone who uses the built-in "Tidyverse API Packages" OAuth client is sharing this "per project" quota! If you're hitting "per project" limits regularly and it upsets your workflow, the universe is telling you that it's time to configure your own OAuth client or use a different method of auth.
 

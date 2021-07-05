@@ -35,11 +35,6 @@ There have been several releases since then and this post highlights important c
 
 You can see a full list of changes in the [release notes](https://gargle.r-lib.org/news/index.html).
 
-```{r setup, include = FALSE}
-# TODO: probably delete this chunk; no one uses gargle directly
-library(gargle)
-```
-
 ## Stewarding the cache of user tokens
 
 Users who "just go with the flow" generally find themselves doing the [OAuth Dance](https://medium.com/typeforms-engineering-blog/the-beginners-guide-to-oauth-dancing-4b8f3666de10) in the browser:
@@ -61,9 +56,9 @@ We'll refer to this "somewhere" as the *oauth token cache*.
 
 One of the original motivations for the gargle package was to depart from httr's behaviour around token caching, which defaults to the current working directory.[^1]
 By default, gargle caches user tokens centrally, at the user level, and their keys or labels also convey which Google identity is associated with each token.
-This reduces the chance of accidentally sending tokens to remote servers (like DropBox or GitHub), increases the ability to reuse tokens across multiple R projects, and makes it easier to use multiple identities within a single project.
+This reduces the chance of accidentally exposing tokens in projects that sync to remote servers (like DropBox or GitHub), increases the ability to reuse tokens across multiple R projects, and makes it easier to use multiple identities within a single project.
 
-[^1]: The successor to httr is under development and it will also cache user tokens at the user level, like gargle.
+[^1]: The successor to httr is under development and, like gargle, it will also cache user tokens at the user level: <https://httr2.r-lib.org>.
 
 Various incremental improvements have been made around gargle's token cache:
 
@@ -97,7 +92,7 @@ Various incremental improvements have been made around gargle's token cache:
 
 ## Rolling the built-in OAuth client
 
-User tokens created with gargle are the result of so-called "three-legged OAuth", where the three legs are the user, Google, and an OAuth client (id and secret).
+User tokens created with gargle are the result of the OAuth Dance mentioned above, involving three parties: the user, Google, and an OAuth client (id and secret).
 Each user or application potentially needs to set up their own OAuth client, in order to execute this flow.
 
 A small set of packages maintained by the tidyverse team make use of a shared, built-in OAuth client, which helps new users get started quickly, without the need to create their own client in order to do "Hello, World!".
@@ -210,18 +205,19 @@ There are a couple of helpers around verbosity:
 
 gargle offers some Google-specific support for forming requests and handling responses, in addition to and separate from auth.
 
-Not all wrapper packages use this functionality, but, in particular, googlesheets4 *does*.
+Not all wrapper packages use this functionality, but *googlesheets4 does*.
 The [usage limits for the Sheets API](https://developers.google.com/sheets/api/reference/limits) are low enough that regular folks run up against them fairly often.
 This aggravation is somewhat specific to Sheets, i.e. we don't see similar pain with the Drive and BigQuery APIs, which have much more generous limits.
-When you hit the Sheets "per user" or "per project" limit, requests fail with the error code `429 RESOURCE_EXHAUSTED`.[^3]
+When you hit the Sheets "per user" or "per project" limit, requests fail with the error code `429 RESOURCE_EXHAUSTED`.
 
-[^3]: There is a limit of "500 requests per 100 seconds per project".
+Sidebar: As of July 2021, there is a limit of "500 requests per 100 seconds per project".
 In the case of a user token, the "project" refers to the GCP project that owns the OAuth client.
 Everyone who uses the built-in "Tidyverse API Packages" OAuth client is sharing this "per project" quota!
 If you're hitting "per project" limits regularly and it upsets your workflow, the universe is telling you that it's time to configure your own OAuth client or use a different method of auth.
+End of sidebar.
 
-`request_retry()` is a drop-in substitute for `request_make()` that uses (modified) exponential backoff to retry requests that fail with error `429`.
-`request_retry()` even has some special knowledge about the Sheets limits and, in some cases, will wait 100 seconds for the user's quota to reset.
+`gargle::request_retry()` is a drop-in substitute for `gargle::request_make()` that uses (modified) exponential backoff to retry requests that fail with error `429`.
+`request_retry()` even has some special knowledge about Sheets-specific limits and, in some cases, will wait 100 seconds for the user's quota to reset.
 
 The development version of googlesheets4 already uses `request_retry()`, which will be released to CRAN soon.
 
