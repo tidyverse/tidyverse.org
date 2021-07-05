@@ -11,12 +11,12 @@ description: >
      improved user interface, better verbosity control, and retries.
 
 photo:
-  url: https://unsplash.com/photos/ZuBaIwqbrbA
-  author: Thalia Ruiz
+  url: https://unsplash.com/photos/KDJ1TbLDoOo
+  author: Mishaal Zahed
 
 categories: [package]
 tags: [gargle, bigrquery, googledrive, googlesheets4]
-rmd_hash: 009a761ddacc3a93
+rmd_hash: c2fe6c2f6c0b3938
 
 ---
 
