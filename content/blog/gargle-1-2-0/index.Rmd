@@ -123,7 +123,7 @@ Various incremental improvements have been made around gargle's token cache:
 
 ## Rolling the built-in OAuth client
 
-User tokens created with gargle are the result of the OAuth Dance mentioned above, involving three parties: the user, Google, and an OAuth client (id and secret).
+User tokens created with gargle are the result of [the OAuth Dance mentioned above](#stewarding-the-cache-of-user-tokens), involving three parties: the user, Google, and an OAuth client (id and secret).
 Each user or application potentially needs to set up their own OAuth client, in order to execute this flow.
 
 A small set of packages maintained by the tidyverse team make use of a shared, built-in OAuth client, which helps new users get started quickly, without the need to create their own client in order to do "Hello, World!".
@@ -134,13 +134,20 @@ The "Tidyverse API Packages" are [bigrquery](https://bigrquery.r-dbi.org/), [goo
 
 As of gargle v1.0.0, released in March 2021, we have rolled the "Tidyverse API Packages" client, i.e. we are using a new one.
 Although we have not yet disabled the previous client, users should be prepared for it to stop working at any time.
-We use nicknames to keep track of the built-in client; the new one is known as "tidyverse-calliope", which is replacing the older "tidyverse-clio".
+We use nicknames to keep track of the built-in client; the new one is known as "tidyverse-clio", which is replacing the older "tidyverse-calliope".
 You might see these nicknames in the output of `gargle::gargle_oauth_sitrep()`.
+
+We anticipate disabling the older "tidyverse-calliope" client no later than December 31, 2021.
+If a specific reason arises before then, we could disable it even sooner.
+This will also be announced in a future, dedicated blog post.
 
 When gargle encounters a token created with the old built-in client, the token is deleted from the cache.
 So don't be surprised if you see some messages about cleaning out (and relocating) the cache, after you upgrade gargle.
 
 You can expect to do the interactive OAuth dance to obtain new credentials, with the new client, stored in the new token cache, approximately once per wrapper package / API.
+The consequence of credential rolling are also covered here:
+
+* <https://gargle.r-lib.org/articles/troubleshooting.html#credential-rolling>
 
 **If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call** that you should be using your own OAuth client or, quite possibly, an entirely different method of auth.
 Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.
