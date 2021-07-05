@@ -7,7 +7,7 @@ date: 2021-07-04
 author: Jenny Bryan
 description: >
     gargle has seen a lot of development over the past two years and five
-    releases: cache relocaftion, credential rolling, a new auth method, an
+    releases: cache relocation, credential rolling, a new auth method, an
      improved user interface, better verbosity control, and retries.
 
 photo:
@@ -16,7 +16,7 @@ photo:
 
 categories: [package]
 tags: [gargle, bigrquery, googledrive, googlesheets4]
-rmd_hash: c2fe6c2f6c0b3938
+rmd_hash: 9f0a094ae5a52538
 
 ---
 
