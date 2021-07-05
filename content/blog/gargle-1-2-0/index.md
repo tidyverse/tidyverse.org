@@ -3,33 +3,22 @@ output: hugodown::hugo_document
 
 slug: gargle-1-2-0
 title: gargle 1.2.0
-date: 2021-07-01
+date: 2021-07-04
 author: Jenny Bryan
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    gargle has seen a lot of development over the past two years and five
+    releases: cache relocaftion, credential rolling, a new auth method, an
+     improved user interface, better verbosity control, and retries.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/ZuBaIwqbrbA
+  author: Thalia Ruiz
 
-categories: [package] 
-rmd_hash: 2f8445471da2119c
+categories: [package]
+tags: [gargle, bigrquery, googledrive, googlesheets4]
+rmd_hash: 5eec96b393f368b6
 
 ---
-
-<!--
-TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
--->
 
 We're psyched to announce the release of [gargle](https://gargle.r-lib.org) 1.2.0. gargle is meant to take some of the pain out of working with Google APIs and is mostly aimed at the *maintainers* of R packages that call Google APIs.
 
@@ -182,7 +171,9 @@ The development version of googlesheets4 already uses [`request_retry()`](https:
 
 ## Acknowledgements
 
-*TODO*
+We'd like to thank everyone who has furthered the development of gargle, from v0.3.1 to v1.2.0, through their contributions in issues and pull requests:
+
+[@acroz](https://github.com/acroz), [@akgold](https://github.com/akgold), [@alanfalcaothe](https://github.com/alanfalcaothe), [@atreibs](https://github.com/atreibs), [@batpigandme](https://github.com/batpigandme), [@biol75](https://github.com/biol75), [@btrx-sreddy](https://github.com/btrx-sreddy), [@craigcitro](https://github.com/craigcitro), [@domsle](https://github.com/domsle), [@ekarsten](https://github.com/ekarsten), [@EricGoldsmith](https://github.com/EricGoldsmith), [@FedericoTrifoglio](https://github.com/FedericoTrifoglio), [@irfanalidv](https://github.com/irfanalidv), [@jayBana](https://github.com/jayBana), [@jcheng5](https://github.com/jcheng5), [@jdtrat](https://github.com/jdtrat), [@jennybc](https://github.com/jennybc), [@jimhester](https://github.com/jimhester), [@lionel-](https://github.com/lionel-), [@maelle](https://github.com/maelle), [@MarkEdmondson1234](https://github.com/MarkEdmondson1234), [@michaelquinn32](https://github.com/michaelquinn32), [@muschellij2](https://github.com/muschellij2), [@ogola89](https://github.com/ogola89), [@Ozan147](https://github.com/Ozan147), [@petrbouchal](https://github.com/petrbouchal), [@pofl](https://github.com/pofl), [@py9mrg](https://github.com/py9mrg), [@rensa](https://github.com/rensa), [@samterfa](https://github.com/samterfa), [@selesnow](https://github.com/selesnow), [@tareefk](https://github.com/tareefk), [@tstratopoulos](https://github.com/tstratopoulos), and [@vimota](https://github.com/vimota).
 
 [^1]: The successor to httr is under development and it will also cache user tokens at the user level, like gargle.
 
