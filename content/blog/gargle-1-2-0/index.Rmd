@@ -53,6 +53,7 @@ The dance concludes with gargle (or a wrapper package) in possession of a [Googl
 This credential usually comes with an access token, which is valid for about an hour, and a more persistent refresh token, which can be used to get new access tokens in the future.
 It is nice to store this refresh token somewhere, to reduce future friction for this user.
 We'll refer to this "somewhere" as the *oauth token cache*.
+You can get a cache "situation report" with `gargle::gargle_oauth_sitrep()`.
 
 One of the original motivations for the gargle package was to depart from httr's behaviour around token caching, which defaults to the current working directory.[^1]
 By default, gargle caches user tokens centrally, at the user level, and their keys or labels also convey which Google identity is associated with each token.
@@ -76,8 +77,38 @@ Various incremental improvements have been made around gargle's token cache:
   - In a non-interactive context, gargle will use a cached token, if it can
     find (at least) one, even if the user has not given explicit instructions.
     However, we complain noisily and urge the user to make their intent
-    unambiguous in the code. This comes up, for example, when rendering R
-    Markdown documents.
+    unambiguous in the code. This comes up, for example, when rendering an R
+    Markdown document(`.Rmd`).
+    
+    ```{r, eval = FALSE}
+    library(googledrive)
+    
+    drive_find(n_max = 1)
+    #> ℹ Suitable tokens found in the cache, associated with these emails:
+    #> • 'jane_personal@gmail.com'
+    #> • 'jane_work@example.com'
+    #>   Defaulting to the first email.
+    #> ! Using an auto-discovered, cached token.
+    #>   To suppress this message, modify your code or options to clearly consent to
+    #>   the use of a cached token.
+    #>   See gargle's "Non-interactive auth" vignette for more details:
+    #>   <https://gargle.r-lib.org/articles/non-interactive-auth.html>
+    ```
+    
+    One of several ways to suppress this scolding is to specify an email:
+    
+    ```{r, eval = FALSE}
+    library(googledrive)
+    
+    drive_auth("jane_personal@gmail.com")
+    
+    drive_find(n_max = 1)
+    #> # A tibble: 1 x 3
+    #>   name                       id                                 drive_resource  
+    #> * <chr>                      <chr>                              <list>          
+    #> 1 useR2021-Instructions_for… 11T7_aYpSObAhUzjQU6EUCHmTFQ2s0wXK… <named list [32…
+    ```
+    
   - You can now identify the token you want to use with a domain-only glob-like
     pattern. This makes it possible to successfully execute code like this,
     non-interactively, on the machines of both `alice@example.com` and
