@@ -16,13 +16,13 @@ photo:
 
 categories: [package]
 tags: [gargle, bigrquery, googledrive, googlesheets4]
-rmd_hash: 56975892ad13523a
+rmd_hash: 009a761ddacc3a93
 
 ---
 
 We're psyched to announce the release of [gargle](https://gargle.r-lib.org) 1.2.0. gargle is meant to take some of the pain out of working with Google APIs and is mostly aimed at the *maintainers* of R packages that call Google APIs.
 
-Packages that use gargle internally include [bigrquery](https://bigrquery.r-dbi.org), [gmailr](https://gmailr.r-lib.org), [googleAuthR](https://code.markedmondson.me/googleAuthR/), [googledrive](https://googledrive.tidyverse.org), and [googlesheets4](https://googlesheets4.tidyverse.org). Users of those packages, especially those who take an interest in the details around auth, may want to read on.
+Packages that use gargle internally include [bigrquery](https://bigrquery.r-dbi.org), [gmailr](https://gmailr.r-lib.org), [googleAuthR](https://code.markedmondson.me/googleAuthR/), [googledrive](https://googledrive.tidyverse.org), and [googlesheets4](https://googlesheets4.tidyverse.org). As a conservative lower bound, gargle facilitates more than 1.5 million requests per day and over 50 million requests per month. Users of these packages, especially those who take an interest in the details around auth, may want to read on.
 
 You can install gargle from CRAN with:
 
@@ -57,7 +57,7 @@ Upon success, you see this message in the browser:
 
     Authentication complete. Please close this page and return to R.
 
-The dance concludes with gargle (or a wrapper package) in possession of a [Google user token](https://developers.google.com/identity/protocols/oauth2#installed). This credential usually comes with an access token, which is valid for about an hour, and a more persistent refresh token, which can be used to get new access tokens in the future. It is nice to store this refresh token somewhere, to reduce future friction for this user. We'll refer to this "somewhere" as the *oauth token cache*.
+The dance concludes with gargle (or a wrapper package) in possession of a [Google user token](https://developers.google.com/identity/protocols/oauth2#installed). This credential usually comes with an access token, which is valid for about an hour, and a more persistent refresh token, which can be used to get new access tokens in the future. It is nice to store this refresh token somewhere, to reduce future friction for this user. We'll refer to this "somewhere" as the *OAuth token cache*. You can get a cache "situation report" with [`gargle::gargle_oauth_sitrep()`](https://gargle.r-lib.org/reference/gargle_oauth_sitrep.html).
 
 One of the original motivations for the gargle package was to depart from httr's behaviour around token caching, which defaults to the current working directory.[^1] By default, gargle caches user tokens centrally, at the user level, and their keys or labels also convey which Google identity is associated with each token. This reduces the chance of accidentally exposing tokens in projects that sync to remote servers (like DropBox or GitHub), increases the ability to reuse tokens across multiple R projects, and makes it easier to use multiple identities within a single project.
 
@@ -66,7 +66,40 @@ Various incremental improvements have been made around gargle's token cache:
 -   The default cache location has moved, to better align with general conventions around where to cache user data. After upgrading gargle, don't be surprised if you see some messages about cache relocation.
 -   Token storage relies on serialized R objects and therefore is potentially sensitive to differences in R version and operating system between when a token is created and when it is (re)used. gargle is now able to recognize and cope with the most predictable and harmless effects of moving a token across time or space.
 -   gargle is quite conservative about using cached tokens and likes to have explicit permission from the user. However, this is in tension with the desire to make things "just work". Balancing these two goals is an ongoing effort:
-    -   In a non-interactive context, gargle will use a cached token, if it can find (at least) one, even if the user has not given explicit instructions. However, we complain noisily and urge the user to make their intent unambiguous in the code. This comes up, for example, when rendering R Markdown documents.
+    -   In a non-interactive context, gargle will use a cached token, if it can find (at least) one, even if the user has not given explicit instructions. However, we complain noisily and urge the user to make their intent unambiguous in the code. This comes up, for example, when rendering an R Markdown document(`.Rmd`).
+
+        <div class="highlight">
+
+        <pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://googledrive.tidyverse.org'>googledrive</a></span><span class='o'>)</span>
+
+        <span class='nf'><a href='https://googledrive.tidyverse.org/reference/drive_find.html'>drive_find</a></span><span class='o'>(</span>n_max <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span>
+        <span class='c'>#&gt; ℹ Suitable tokens found in the cache, associated with these emails:</span>
+        <span class='c'>#&gt; • 'jane_personal@gmail.com'</span>
+        <span class='c'>#&gt; • 'jane_work@example.com'</span>
+        <span class='c'>#&gt;   Defaulting to the first email.</span>
+        <span class='c'>#&gt; ! Using an auto-discovered, cached token.</span>
+        <span class='c'>#&gt;   To suppress this message, modify your code or options to clearly consent to</span>
+        <span class='c'>#&gt;   the use of a cached token.</span>
+        <span class='c'>#&gt;   See gargle's "Non-interactive auth" vignette for more details:</span>
+        <span class='c'>#&gt;   &lt;https://gargle.r-lib.org/articles/non-interactive-auth.html&gt;</span></code></pre>
+
+        </div>
+
+        One of several ways to suppress this scolding is to specify an email:
+
+        <div class="highlight">
+
+        <pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://googledrive.tidyverse.org'>googledrive</a></span><span class='o'>)</span>
+
+        <span class='nf'><a href='https://googledrive.tidyverse.org/reference/drive_auth.html'>drive_auth</a></span><span class='o'>(</span><span class='s'>"jane_personal@gmail.com"</span><span class='o'>)</span>
+
+        <span class='nf'><a href='https://googledrive.tidyverse.org/reference/drive_find.html'>drive_find</a></span><span class='o'>(</span>n_max <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span>
+        <span class='c'>#&gt; # A tibble: 1 x 3</span>
+        <span class='c'>#&gt;   name                       id                                 drive_resource  </span>
+        <span class='c'>#&gt; * &lt;chr&gt;                      &lt;chr&gt;                              &lt;list&gt;          </span>
+        <span class='c'>#&gt; 1 useR2021-Instructions_for… 11T7_aYpSObAhUzjQU6EUCHmTFQ2s0wXK… &lt;named list [32…</span></code></pre>
+
+        </div>
 
     -   You can now identify the token you want to use with a domain-only glob-like pattern. This makes it possible to successfully execute code like this, non-interactively, on the machines of both `alice@example.com` and `bob@example.com`.
 
@@ -81,15 +114,19 @@ Various incremental improvements have been made around gargle's token cache:
 
 ## Rolling the built-in OAuth client
 
-User tokens created with gargle are the result of the OAuth Dance mentioned above, involving three parties: the user, Google, and an OAuth client (id and secret). Each user or application potentially needs to set up their own OAuth client, in order to execute this flow.
+User tokens created with gargle are the result of [the OAuth Dance mentioned above](#stewarding-the-cache-of-user-tokens), involving three parties: the user, Google, and an OAuth client (id and secret). Each user or application potentially needs to set up their own OAuth client, in order to execute this flow.
 
 A small set of packages maintained by the tidyverse team make use of a shared, built-in OAuth client, which helps new users get started quickly, without the need to create their own client in order to do "Hello, World!". Only these specific packages are allowed to use this client and these packages do so according to a specific [privacy policy](https://www.tidyverse.org/google_privacy_policy/). The "Tidyverse API Packages" are [bigrquery](https://bigrquery.r-dbi.org/), [googledrive](https://googledrive.tidyverse.org/), and [googlesheets4](https://googlesheets4.tidyverse.org/).[^2]
 
-As of gargle v1.0.0, released in March 2021, we have rolled the "Tidyverse API Packages" client, i.e. we are using a new one. Although we have not yet disabled the previous client, users should be prepared for it to stop working at any time. We use nicknames to keep track of the built-in client; the new one is known as "tidyverse-calliope", which is replacing the older "tidyverse-clio". You might see these nicknames in the output of [`gargle::gargle_oauth_sitrep()`](https://gargle.r-lib.org/reference/gargle_oauth_sitrep.html).
+As of gargle v1.0.0, released in March 2021, we have rolled the "Tidyverse API Packages" client, i.e. we are using a new one. Although we have not yet disabled the previous client, users should be prepared for it to stop working at any time. We use nicknames to keep track of the built-in client; the new one is known as "tidyverse-clio", which is replacing the older "tidyverse-calliope". You might see these nicknames in the output of [`gargle::gargle_oauth_sitrep()`](https://gargle.r-lib.org/reference/gargle_oauth_sitrep.html).
+
+We anticipate disabling the older "tidyverse-calliope" client no later than December 31, 2021. If a specific reason arises before then, we could disable it even sooner. This will also be announced in a future, dedicated blog post.
 
 When gargle encounters a token created with the old built-in client, the token is deleted from the cache. So don't be surprised if you see some messages about cleaning out (and relocating) the cache, after you upgrade gargle.
 
-You can expect to do the interactive OAuth dance to obtain new credentials, with the new client, stored in the new token cache, approximately once per wrapper package / API.
+You can expect to do the interactive OAuth dance to obtain new credentials, with the new client, stored in the new token cache, approximately once per wrapper package / API. The consequence of credential rolling are also covered here:
+
+-   <https://gargle.r-lib.org/articles/troubleshooting.html#credential-rolling>
 
 **If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call** that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.
 
@@ -110,9 +147,26 @@ This new feature is still experimental and currently only supports AWS. This blo
 
 ## Out of bound auth
 
-The browser-based OAuth dance described above is, ironically, not fully available when you are using R inside a web browser, as is the case for RStudio Workbench, Server, and Cloud. When working on these platforms, you need to use the **"out of bound" (oob)** auth flow, in which a token is made available for you to copy and paste into R.
+The [browser-based OAuth dance described above](#stewarding-the-cache-of-user-tokens) is, ironically, not fully available when you are using R inside a web browser, as is the case for RStudio Workbench, Server, and Cloud. When working on these platforms, you need to use the **"out of bound" (oob)** auth flow. After authenticating yourself and confirming permissions, a token is made available for you to copy and paste into R.
 
-gargle-using wrapper packages generally expose an argument to control this, e.g.:
+<div class="highlight">
+
+<div class="figure" style="text-align: center">
+
+<img src="oauth-dance-oob-copy-paste.png" alt="A Google Sign in process ending with &quot;Please copy this code, switch to your application and paste it there&quot;" width="40%" />
+<p class="caption">
+A Google Sign in process ending with "Please copy this code, switch to your application and paste it there"
+</p>
+
+</div>
+
+</div>
+
+Back in R, you will paste this code at the prompt and then be on your merry way:
+
+    Enter authorization code:
+
+gargle-using wrapper packages generally expose an argument to request oob auth, e.g.:
 
 <div class="highlight">
 
@@ -134,7 +188,17 @@ The slick in-browser OAuth flow described at the start of the post -- i.e., the 
 We've taken a few measures to encourage these folks to install httpuv and enjoy a happier auth life:
 
 -   Previously, httpuv was only indirectly suggested by gargle, via httr. gargle now lists httpuv in its own `Suggests` field.
+
 -   We encourage the installation of httpuv in interactive sessions, if we're about to initiate oob auth, when it seems like we don't have to.
+
+        The httpuv package enables a nicer Google auth experience, in many cases.
+        It doesn't seem to be installed.
+        Would you like to install it now?
+
+        1: Yes
+        2: No
+
+        Selection:   
 
 ## User interface
 

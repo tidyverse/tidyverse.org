@@ -53,7 +53,7 @@ Authentication complete. Please close this page and return to R.
 The dance concludes with gargle (or a wrapper package) in possession of a [Google user token](https://developers.google.com/identity/protocols/oauth2#installed).
 This credential usually comes with an access token, which is valid for about an hour, and a more persistent refresh token, which can be used to get new access tokens in the future.
 It is nice to store this refresh token somewhere, to reduce future friction for this user.
-We'll refer to this "somewhere" as the *oauth token cache*.
+We'll refer to this "somewhere" as the *OAuth token cache*.
 You can get a cache "situation report" with `gargle::gargle_oauth_sitrep()`.
 
 One of the original motivations for the gargle package was to depart from httr's behaviour around token caching, which defaults to the current working directory.[^1]
@@ -176,10 +176,21 @@ This blog post provides a good high-level introduction to workload identity fede
 
 ## Out of bound auth
 
-The browser-based OAuth dance described above is, ironically, not fully available when you are using R inside a web browser, as is the case for RStudio Workbench, Server, and Cloud.
-When working on these platforms, you need to use the **"out of bound" (oob)** auth flow, in which a token is made available for you to copy and paste into R.
+The [browser-based OAuth dance described above](#stewarding-the-cache-of-user-tokens) is, ironically, not fully available when you are using R inside a web browser, as is the case for RStudio Workbench, Server, and Cloud.
+When working on these platforms, you need to use the **"out of bound" (oob)** auth flow.
+After authenticating yourself and confirming permissions, a token is made available for you to copy and paste into R.
 
-gargle-using wrapper packages generally expose an argument to control this, e.g.:
+```{r echo = FALSE, out.width = '40%', fig.cap = 'A Google Sign in process ending with "Please copy this code, switch to your application and paste it there"'}
+knitr::include_graphics("oauth-dance-oob-copy-paste.png")
+```
+
+Back in R, you will paste this code at the prompt and then be on your merry way:
+
+```
+Enter authorization code:
+```
+
+gargle-using wrapper packages generally expose an argument to request oob auth, e.g.:
 
 ```{r, eval = FALSE}
 googledrive::drive_auth(..., use_oob = gargle::gargle_oob_default())
@@ -209,6 +220,17 @@ We've taken a few measures to encourage these folks to install httpuv and enjoy 
   gargle now lists httpuv in its own `Suggests` field.
 * We encourage the installation of httpuv in interactive sessions, if we're
   about to initiate oob auth, when it seems like we don't have to.
+
+    ```  
+    The httpuv package enables a nicer Google auth experience, in many cases.
+    It doesn't seem to be installed.
+    Would you like to install it now?
+    
+    1: Yes
+    2: No
+    
+    Selection:   
+    ```
 
 ## User interface
 
