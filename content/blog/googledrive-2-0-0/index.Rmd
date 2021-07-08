@@ -1,0 +1,167 @@
+---
+output: hugodown::hugo_document
+
+slug: googledrive-2-0-0
+title: googledrive 2.0.0
+date: 2021-07-08
+author: Jenny Bryan
+description: >
+    A 2-3 sentence description of the post that appears on the articles page.
+    This can be omitted if it would just recapitulate the title.
+
+photo:
+  url: https://unsplash.com/photos/n6vS3xlnsCc
+  author: Kelley Bozarth
+
+categories: [package]
+tags: [googledrive]
+---
+
+<!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We're jazzed to announce the release of googledrive 2.0.0 (<https://googledrive.tidyverse.org>).
+
+googledrive wraps the [Drive REST API v3](https://developers.google.com/drive/).
+The most common file operations are implemented in high-level functions designed for ease of use.
+You can find, list, create, trash, delete, rename, move, copy, browse, download, read, share and publish Drive files, including those on shared drives.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("googledrive")
+```
+
+Version 2.0.0 is mostly motivated by the need to react to changes to Google Drive and Drive API itself.
+We're also bumping the required version of the gargle package (<https://gargle.r-lib.org>), which handles everything around auth.
+
+You can see a full list of changes in the [release notes](https://googledrive.tidyverse.org/news/index.html).
+
+## Auth updates
+
+If you are generally fairly passive about googledrive auth, then you should just sit back and let things happen organically during usage.
+If you've used googledrive before, you can expect to see some messages about 
+cleaning and relocating the token cache when you first use v2.0.0.
+You can also expect to re-authenticate yourself with Google and re-authorize the "Tidyverse API Packages" to work with your files.
+This is all due to changes in gargle.
+
+If your usage requires you to be more proactive about auth, read the [blog post for gargle's recent v1.2.0 release](https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/).
+A key point is that we have rolled the built-in OAuth client, which is why those relying on it will need to re-auth.
+
+**If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call** that you should be using your own OAuth client or, quite possibly, an entirely different method of auth.
+Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.
+
+## Team Drives are dead! Long live shared drives!
+
+Google Drive has rebranded Team Drives as **shared drives**.
+While anyone can have a **My Drive**, shared drives are only available for Google Workspace (previously known as G Suite).
+This generally means a Google account you use for your employer or school, as opposed to a personal one.
+Shared drives and the files within are owned by a team or organization, as opposed to an individual.
+
+The transition from Team Drives to shared drives appears to be more about vocabulary than changes in behaviour.
+Inside googledrive, this required some housekeeping work, but users won't notice much other than changes to some function and argument names.
+
+All `team_drive_*()` functions have been deprecated, in favor of their `shared_drive_*()` successors.
+Likewise, any `team_drive` argument has been deprecated, in favor of a new `shared_drive` argument.
+The terms used to describe search collections have also changed slightly, with `"allDrives"` replacing `"all"`.
+This applies to the `corpus` argument of `drive_find()` and `drive_get()`.
+
+## Single parenting and shortcuts
+
+As of 2020-09-30, Drive no longer allows a file to be placed in multiple folders, which, frankly, is a big relief!
+Going forward, every file will have exactly 1 parent folder.
+In many cases that parent is just the top-level or root folder of your "My Drive" or of a shared drive.
+
+This change has been accompanied by the introduction of file **shortcuts**, which function much like symbolic or "soft" links.
+Shortcuts are the new way to make a file appear to be in more than one place.
+A shortcut is a special type of Drive file, characterized by the `application/vnd.google-apps.shortcut` MIME type.
+
+You can make a shortcut to any Drive file, including to a Drive folder, with `googledrive::shortcut_create()`.
+Here we're also using `googledrive::drive_example_remote()` to access one of our new persistent, world-readable example file.
+
+```{r, eval = FALSE}
+library(googledrive)
+
+# Target one of the official example files
+(src_file <- drive_example_remote("chicken.csv"))
+#> # A dribble: 1 x 3
+#>   name        id                                drive_resource   
+#>   <chr>       <drv_id>                          <list>           
+#> 1 chicken.csv 1VOh6wWbRfuQLxbLg87o58vxJt95SIiZ7 <named list [37]>
+
+sc <- src_file %>% 
+  shortcut_create(name = "chicken_sheet_shortcut")
+#> Created Drive file:
+#> • 'chicken_sheet_shortcut' <id: 1YAPexlK3b3o7Mk-xadahXMYbMGLvScea>
+#> With MIME type:
+#> • 'application/vnd.google-apps.shortcut'
+```
+
+Use `googledrive::shortcut_resolve()` to dereference a shortcut, i.e. resolve it to its target file id.
+Here we also demonstrate the new `googledrive::drive_read_string()` function that is handy for reading file content directly into R.
+
+```{r, eval = FALSE}
+sc %>% 
+  shortcut_resolve() %>%
+  drive_read_string() %>% 
+  readr::read_csv()
+#> ℹ Resolved 1 shortcut found in 1 file:
+#> • 'chicken_sheet_shortcut' <id: 1YAPexlK3b3o7Mk-xadahXMYbMGLvScea> ->
+#>   'chicken.csv' <id: 1VOh6wWbRfuQLxbLg87o58vxJt95SIiZ7>
+#> No encoding supplied: defaulting to UTF-8.
+#> # A tibble: 5 x 4
+#>   chicken            breed         sex    motto                                 
+#>   <chr>              <chr>         <chr>  <chr>                                 
+#> 1 Foghorn Leghorn    Leghorn       roost… That's a joke, ah say, that's a joke,…
+#> 2 Chicken Little     unknown       hen    The sky is falling!                   
+#> 3 Ginger             Rhode Island… hen    Listen. We'll either die free chicken…
+#> 4 Camilla the Chick… Chantecler    hen    Bawk, buck, ba-gawk.                  
+#> 5 Ernie The Giant C… Brahma        roost… Put Captain Solo in the cargo hold.
+```
+
+Drive has been migrating existing files to the one-parent state, i.e., "single parenting" them.
+Drive selects the most suitable parent folder to keep, "based on the hierarchy's properties", and replaces any other parent-child relationships with a shortcut.
+
+If you often refer to Drive files by their **filepath** (or name), as opposed to by file id, look in the release notes for more [about how shortcuts are handled within googledrive](https://googledrive.tidyverse.org/news/index.html#single-parenting-and-shortcuts).
+
+## Making googledrive shut up
+
+`googledrive_quiet` is a new option to suppress informational messages from googledrive.
+Unless it's explicitly set to `FALSE`, the default is to message.
+`googledrive::local_drive_quiet()` and `with_drive_quiet()` are [withr-style](https://withr.r-lib.org) convenience helpers for setting `googledrive_quiet = TRUE` for some limited scope.
+
+As a result, the `verbose` argument of all googledrive functions is deprecated and will be removed in a future release.
+In the current release, `verbose = FALSE` is still honored, but generates a warning.
+
+## Everything else
+
+Remember that the [release notes](https://googledrive.tidyverse.org/news/index.html) offer more information.
+
+Here are a few more changes in v2.0.0:
+
+* The user interface has gotten more stylish, thanks to the cli package (<https://cli.r-lib.org>).
+All informational messages, warnings, and errors are now emitted via cli, which uses rlang's condition functions under-the-hood.
+
+* We now share a variety of world-readable, persistent example files on Drive, for use in examples and documentation.
+These remote example files complement the local example files that were already included in googledrive.
+Access with `googledrive::drive_examples_remote()` and friends.
+
+* `drive_read_string()` and `drive_read_raw()` are new functions that read the content of a Drive file directly into R.
+
+* The `dribble` and `drive_id` classes are implemented using a more modern and effective approach from the vctrs package (<https://vctrs.r-lib.org>).
+
+## Acknowledgements
+
+We'd like to thank everyone who has furthered the development of googledrive, since the last major release (v1.0.0), through their contributions in issues and pull requests:
+
+[&#x0040;andrie](https://github.com/andrie), [&#x0040;Arf9999](https://github.com/Arf9999), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;ben519](https://github.com/ben519), [&#x0040;bllittle](https://github.com/bllittle), [&#x0040;bschilder](https://github.com/bschilder), [&#x0040;bshor](https://github.com/bshor), [&#x0040;christopherkn](https://github.com/christopherkn), [&#x0040;claytonperry](https://github.com/claytonperry), [&#x0040;cmchuter](https://github.com/cmchuter), [&#x0040;ctgrubb](https://github.com/ctgrubb), [&#x0040;DataStrategist](https://github.com/DataStrategist), [&#x0040;DavidGarciaEstaun](https://github.com/DavidGarciaEstaun), [&#x0040;Diego-MX](https://github.com/Diego-MX), [&#x0040;dollarvora](https://github.com/dollarvora), [&#x0040;douglascm](https://github.com/douglascm), [&#x0040;drwilkins](https://github.com/drwilkins), [&#x0040;enricodata](https://github.com/enricodata), [&#x0040;FedericoTrifoglio](https://github.com/FedericoTrifoglio), [&#x0040;griswomw](https://github.com/griswomw), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hideaki](https://github.com/hideaki), [&#x0040;ian-adams](https://github.com/ian-adams), [&#x0040;jcheng5](https://github.com/jcheng5), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;JMKelleher](https://github.com/JMKelleher), [&#x0040;jobdiogenes](https://github.com/jobdiogenes), [&#x0040;kongdd](https://github.com/kongdd), [&#x0040;kpmainali](https://github.com/kpmainali), [&#x0040;mehrnoushmalek](https://github.com/mehrnoushmalek), [&#x0040;MichaelTD83](https://github.com/MichaelTD83), [&#x0040;mitchelloharawild](https://github.com/mitchelloharawild), [&#x0040;muschellij2](https://github.com/muschellij2), [&#x0040;paulvern](https://github.com/paulvern), [&#x0040;pseudorational](https://github.com/pseudorational), [&#x0040;robertoromor](https://github.com/robertoromor), [&#x0040;shahab3476](https://github.com/shahab3476), [&#x0040;smingerson](https://github.com/smingerson), [&#x0040;spocks](https://github.com/spocks), [&#x0040;tklebel](https://github.com/tklebel), [&#x0040;tpbarrette](https://github.com/tpbarrette), [&#x0040;viquiff92](https://github.com/viquiff92), [&#x0040;vnijs](https://github.com/vnijs), [&#x0040;voremargot](https://github.com/voremargot), [&#x0040;wilvancleve](https://github.com/wilvancleve), [&#x0040;wuc66](https://github.com/wuc66), and [&#x0040;xgirouxb](https://github.com/xgirouxb).
