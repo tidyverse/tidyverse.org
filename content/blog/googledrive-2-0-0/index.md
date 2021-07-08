@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [googledrive]
-rmd_hash: f57038676d6e2f57
+rmd_hash: a27ef2e070b9118d
 
 ---
 
@@ -110,7 +110,7 @@ If you often refer to Drive files by their **filepath** (or name), as opposed to
 
 ## Making googledrive shut up
 
-`googledrive_quiet` is a new option to suppress informational messages from googledrive. Unless it's explicitly set to `FALSE`, the default is to message. [`local_drive_quiet()`](https://googledrive.tidyverse.org/reference/googledrive-configuration.html) and [`with_drive_quiet()`](https://googledrive.tidyverse.org/reference/googledrive-configuration.html) are [withr-style](https://withr.r-lib.org) convenience helpers for setting `googledrive_quiet = TRUE` for some limited scope.
+`googledrive_quiet` is a new option to suppress informational messages from googledrive. Unless it's explicitly set to `TRUE`, the default is to message. [`local_drive_quiet()`](https://googledrive.tidyverse.org/reference/googledrive-configuration.html) and [`with_drive_quiet()`](https://googledrive.tidyverse.org/reference/googledrive-configuration.html) are [withr-style](https://withr.r-lib.org) convenience helpers for setting `googledrive_quiet = TRUE` for some limited scope.
 
 As a result, the `verbose` argument of all googledrive functions is deprecated and will be removed in a future release. In the current release, `verbose = FALSE` is still honored, but generates a warning.
 
