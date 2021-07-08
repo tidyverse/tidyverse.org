@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [googledrive]
-rmd_hash: 42a8a4e54ee90d86
+rmd_hash: a91c87657443307e
 
 ---
 
@@ -58,9 +58,9 @@ If your usage requires you to be more proactive about auth, read the [blog post 
 
 ## Team Drives are dead! Long live shared drives!
 
-Google Drive has rebranded Team Drives as **shared drives**. While anyone can have a **My Drive**, shared drives are only available for Google Workspace (previously known as G Suite). This generally means a Google account you use for your employer or school, as opposed to a personal one. Shared drives and the files within are owned by a team or organization, as opposed to an individual.
+Google Drive has rebranded Team Drives as **shared drives**. While anyone can have a **My Drive**, shared drives are only available for Google Workspace (previously known as G Suite). This generally means a Google account you have through your employer or school, as opposed to a personal one. Shared drives and the files within are owned by a team or organization, as opposed to an individual.
 
-The transition from Team Drives to shared drives appears to be more about vocabulary than changes in behaviour. Inside googledrive, this required some housekeeping work, but users won't notice much other than changes to some function and argument names.
+The transition from Team Drives to shared drives appears to be more about vocabulary than changes in behaviour. Inside googledrive, this required some housekeeping work, but users won't notice much other than the obvious changes to function and argument names.
 
 All `team_drive_*()` functions have been deprecated, in favor of their `shared_drive_*()` successors. Likewise, any `team_drive` argument has been deprecated, in favor of a new `shared_drive` argument. The terms used to describe search collections have also changed slightly, with `"allDrives"` replacing `"all"`. This applies to the `corpus` argument of [`drive_find()`](https://googledrive.tidyverse.org/reference/drive_find.html) and [`drive_get()`](https://googledrive.tidyverse.org/reference/drive_get.html).
 
@@ -70,7 +70,7 @@ As of 2020-09-30, Drive no longer allows a file to be placed in multiple folders
 
 This change has been accompanied by the introduction of file **shortcuts**, which function much like symbolic or "soft" links. Shortcuts are the new way to make a file appear to be in more than one place. A shortcut is a special type of Drive file, characterized by the `application/vnd.google-apps.shortcut` MIME type.
 
-You can make a shortcut to any Drive file, including to a Drive folder, with [`googledrive::shortcut_create()`](https://googledrive.tidyverse.org/reference/shortcut_create.html). Here we're also using [`googledrive::drive_example_remote()`](https://googledrive.tidyverse.org/reference/drive_examples.html) to access one of our new persistent, world-readable example file.
+You can make a shortcut to any Drive file, including to a Drive folder, with [`shortcut_create()`](https://googledrive.tidyverse.org/reference/shortcut_create.html). Here we also use [`drive_example_remote()`](https://googledrive.tidyverse.org/reference/drive_examples.html) to access one of our new persistent, world-readable example files.
 
 <div class="highlight">
 
@@ -92,7 +92,7 @@ You can make a shortcut to any Drive file, including to a Drive folder, with [`g
 
 </div>
 
-Use [`googledrive::shortcut_resolve()`](https://googledrive.tidyverse.org/reference/shortcut_resolve.html) to dereference a shortcut, i.e. resolve it to its target file id. Here we also demonstrate the new [`googledrive::drive_read_string()`](https://googledrive.tidyverse.org/reference/drive_read_string.html) function that is handy for reading file content directly into R.
+Use [`shortcut_resolve()`](https://googledrive.tidyverse.org/reference/shortcut_resolve.html) to dereference a shortcut, i.e. resolve it to its target file id. Here we also demonstrate the new [`drive_read_string()`](https://googledrive.tidyverse.org/reference/drive_read_string.html) function that is handy for reading file content directly into R.
 
 <div class="highlight">
 
@@ -115,13 +115,15 @@ Use [`googledrive::shortcut_resolve()`](https://googledrive.tidyverse.org/refere
 
 </div>
 
+If you just want to see whether a file is a shortcut, use `drive_reveal(dat, "mime_type")` to add a MIME type column to any `dribble`.
+
 Drive has been migrating existing files to the one-parent state, i.e., "single parenting" them. Drive selects the most suitable parent folder to keep, "based on the hierarchy's properties", and replaces any other parent-child relationships with a shortcut.
 
 If you often refer to Drive files by their **filepath** (or name), as opposed to by file id, look in the release notes for more [about how shortcuts are handled within googledrive](https://googledrive.tidyverse.org/news/index.html#single-parenting-and-shortcuts).
 
 ## Making googledrive shut up
 
-`googledrive_quiet` is a new option to suppress informational messages from googledrive. Unless it's explicitly set to `FALSE`, the default is to message. [`googledrive::local_drive_quiet()`](https://googledrive.tidyverse.org/reference/googledrive-configuration.html) and [`with_drive_quiet()`](https://googledrive.tidyverse.org/reference/googledrive-configuration.html) are [withr-style](https://withr.r-lib.org) convenience helpers for setting `googledrive_quiet = TRUE` for some limited scope.
+`googledrive_quiet` is a new option to suppress informational messages from googledrive. Unless it's explicitly set to `FALSE`, the default is to message. [`local_drive_quiet()`](https://googledrive.tidyverse.org/reference/googledrive-configuration.html) and [`with_drive_quiet()`](https://googledrive.tidyverse.org/reference/googledrive-configuration.html) are [withr-style](https://withr.r-lib.org) convenience helpers for setting `googledrive_quiet = TRUE` for some limited scope.
 
 As a result, the `verbose` argument of all googledrive functions is deprecated and will be removed in a future release. In the current release, `verbose = FALSE` is still honored, but generates a warning.
 
@@ -133,7 +135,7 @@ Here are a few more changes in v2.0.0:
 
 -   The user interface has gotten more stylish, thanks to the cli package (<https://cli.r-lib.org>). All informational messages, warnings, and errors are now emitted via cli, which uses rlang's condition functions under-the-hood.
 
--   We now share a variety of world-readable, persistent example files on Drive, for use in examples and documentation. These remote example files complement the local example files that were already included in googledrive. Access with [`googledrive::drive_examples_remote()`](https://googledrive.tidyverse.org/reference/drive_examples.html) and friends.
+-   We now share a variety of world-readable, persistent example files on Drive, for use in examples and documentation. These remote example files complement the local example files that were already included in googledrive. Access with [`drive_examples_remote()`](https://googledrive.tidyverse.org/reference/drive_examples.html) and friends.
 
 -   [`drive_read_string()`](https://googledrive.tidyverse.org/reference/drive_read_string.html) and [`drive_read_raw()`](https://googledrive.tidyverse.org/reference/drive_read_string.html) are new functions that read the content of a Drive file directly into R.
 
