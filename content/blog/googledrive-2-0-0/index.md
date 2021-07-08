@@ -6,31 +6,18 @@ title: googledrive 2.0.0
 date: 2021-07-08
 author: Jenny Bryan
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    googledrive 2.0.0 adapts to Drive's pivot from Team Drives to shared drives
+    and its shift to a "single parent" model of file organization.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/Uf-c4u1usFQ
+  author: Tim Evans
 
 categories: [package]
 tags: [googledrive]
-rmd_hash: a91c87657443307e
+rmd_hash: f57038676d6e2f57
 
 ---
-
-<!--
-TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
--->
 
 We're jazzed to announce the release of googledrive 2.0.0 (<https://googledrive.tidyverse.org>).
 
