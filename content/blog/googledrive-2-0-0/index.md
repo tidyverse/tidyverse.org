@@ -15,13 +15,13 @@ photo:
 
 categories: [package]
 tags: [googledrive]
-rmd_hash: a27ef2e070b9118d
+rmd_hash: 902b793e7f65b5a0
 
 ---
 
 We're jazzed to announce the release of googledrive 2.0.0 (<https://googledrive.tidyverse.org>).
 
-googledrive wraps the [Drive REST API v3](https://developers.google.com/drive/). The most common file operations are implemented in high-level functions designed for ease of use. You can find, list, create, trash, delete, rename, move, copy, browse, download, read, share and publish Drive files, including those on shared drives.
+googledrive wraps the [Drive REST API v3](https://developers.google.com/drive/). The most common file operations are implemented in high-level functions designed for ease of use. You can find, list, create, trash, delete, rename, move, copy, browse, download, read, share, and publish Drive files, including those on shared drives.
 
 You can install it from CRAN with:
 
@@ -31,7 +31,7 @@ You can install it from CRAN with:
 
 </div>
 
-Version 2.0.0 is mostly motivated by the need to react to changes to Google Drive and Drive API itself. We're also bumping the required version of the gargle package (<https://gargle.r-lib.org>), which handles everything around auth.
+Version 2.0.0 is mostly motivated by the need to react to changes to Google Drive and in the Drive API itself. We're also bumping the required version of the gargle package (<https://gargle.r-lib.org>), which handles everything around auth.
 
 You can see a full list of changes in the [release notes](https://googledrive.tidyverse.org/news/index.html).
 
