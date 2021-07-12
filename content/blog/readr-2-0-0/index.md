@@ -13,7 +13,7 @@ photo:
   author: Anastasia Zhenina
 categories:
   - package
-rmd_hash: 168617e3ba38b4ee
+rmd_hash: f697bf60b4c75ef7
 
 ---
 
@@ -395,9 +395,9 @@ readr now should be much easier to install. Previous versions of readr used the 
 
 readr no longer depends on Boost or the BH package, so should compile more quickly in most cases.
 
-## Deprecated functions and features
+## Deprecated and superseded functions and features
 
--   [`melt_csv()`](https://readr.tidyverse.org/reference/melt_delim.html), [`melt_delim()`](https://readr.tidyverse.org/reference/melt_delim.html), [`melt_tsv()`](https://readr.tidyverse.org/reference/melt_delim.html) and [`melt_fwf()`](https://readr.tidyverse.org/reference/melt_fwf.html) have been deprecated. These functions rely on the first edition parsing code and would be challenging to update to the new parser. When the first edition parsing code is eventually removed from readr they will be split off into a new package.
+-   [`melt_csv()`](https://readr.tidyverse.org/reference/melt_delim.html), [`melt_delim()`](https://readr.tidyverse.org/reference/melt_delim.html), [`melt_tsv()`](https://readr.tidyverse.org/reference/melt_delim.html) and [`melt_fwf()`](https://readr.tidyverse.org/reference/melt_fwf.html) have been superseded by functions in the same name in the meltr package. The versions in readr have been deprecated. These functions rely on the first edition parsing code and would be challenging to update to the new parser. When the first edition parsing code is eventually removed from readr they will be removed.
 
 -   [`read_table2()`](https://readr.tidyverse.org/reference/read_table2.html) has been renamed to [`read_table()`](https://readr.tidyverse.org/reference/read_table.html), as most users expect [`read_table()`](https://readr.tidyverse.org/reference/read_table.html) to work like [`utils::read.table()`](https://rdrr.io/r/utils/read.table.html). If you want the previous strict behavior of the [`read_table()`](https://readr.tidyverse.org/reference/read_table.html) you can use [`read_fwf()`](https://readr.tidyverse.org/reference/read_fwf.html) with [`fwf_empty()`](https://readr.tidyverse.org/reference/read_fwf.html) directly (\#717).
 
