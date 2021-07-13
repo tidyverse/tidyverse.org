@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [tidymodels]
-rmd_hash: db97483b2a155b89
+rmd_hash: 78d91936b1a929d6
 
 ---
 
@@ -268,14 +268,14 @@ Continuing on with our example above, about the average number of hours worked a
 <span class='c'>#&gt;    replicate hours</span>
 <span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1  38.6</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         1  28.6</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         1  39.6</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         1  43.6</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         1  38.6</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         1  42.6</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         1  58.6</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         1  33.6</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         1  38.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         1  38.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         1  38.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         1  38.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         1  35.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         1  43.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         1  36.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         1  48.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         1  33.6</span>
 <span class='c'>#&gt; <span style='color: #555555;'>10</span>         1  38.6</span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 499,990 more rows</span></span></code></pre>
 
@@ -299,15 +299,15 @@ To generate a null distribution for the independence of two variables, we could 
 <span class='c'>#&gt;    partyid   age replicate</span>
 <span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'> 1</span> ind        36         1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span> ind        34         1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span> ind        24         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span> dem        34         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span> rep        24         1</span>
 <span class='c'>#&gt; <span style='color: #555555;'> 4</span> ind        42         1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span> dem        31         1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span> dem        32         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span> ind        31         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span> ind        32         1</span>
 <span class='c'>#&gt; <span style='color: #555555;'> 7</span> dem        48         1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span> rep        36         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span> dem        36         1</span>
 <span class='c'>#&gt; <span style='color: #555555;'> 9</span> rep        30         1</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span> ind        33         1</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span> dem        33         1</span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 499,990 more rows</span></span></code></pre>
 
 </div>
@@ -328,16 +328,16 @@ To generate a null distribution for the independence of two variables, we could 
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1,000 x 2</span></span>
 <span class='c'>#&gt;    replicate  stat</span>
 <span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1  40.3</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         2  40.1</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         3  40.5</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         4  40.3</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         5  40.9</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         6  39.5</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         7  40.6</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         8  40.5</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         9  40.8</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>        10  39.0</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1  40.0</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         2  39.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         3  40.2</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         4  39.5</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         5  41.2</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         6  40.4</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         7  39.0</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         8  40.1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         9  40.4</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>        10  40.5</span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 990 more rows</span></span></code></pre>
 
 </div>
@@ -415,11 +415,11 @@ Notice that infer has also shaded the regions of the null distribution that are 
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 x 1</span></span>
 <span class='c'>#&gt;   p_value</span>
 <span class='c'>#&gt;     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span>   0.038</span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span>    0.03</span></code></pre>
 
 </div>
 
-It looks like the p-value is 0.038, which is pretty small---if the true mean number of hours worked per week was actually 40, the probability of our sample mean being this far (1.382 hours) from 40 would be 0.038. This may or may not be statistically significantly different, depending on the significance level $\alpha$ you decided on *before* you ran this analysis. If you had set $\alpha = .05$, then this difference would be statistically significant, but if you had set $\alpha = .01$, then it would not be.
+It looks like the p-value is 0.03, which is pretty small---if the true mean number of hours worked per week was actually 40, the probability of our sample mean being this far (1.382 hours) from 40 would be 0.03. This may or may not be statistically significantly different, depending on the significance level $\alpha$ you decided on *before* you ran this analysis. If you had set $\alpha = .05$, then this difference would be statistically significant, but if you had set $\alpha = .01$, then it would not be.
 
 To get a confidence interval around our estimate, we can write:
 
@@ -483,43 +483,43 @@ If passed a [`generate()`](https://infer.tidymodels.org/reference/generate.html)
 <span class='c'>#&gt; <span style='color: #555555;'># Groups:   replicate [100]</span></span>
 <span class='c'>#&gt;    replicate term          estimate</span>
 <span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1 intercept     40.9    </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         1 age            0.010<span style='text-decoration: underline;'>0</span> </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         1 collegedegree  0.198  </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         2 intercept     35.9    </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         2 age            0.133  </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         2 collegedegree  0.347  </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         3 intercept     41.5    </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         3 age            0.006<span style='text-decoration: underline;'>71</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         3 collegedegree -<span style='color: #BB0000;'>1.04</span>   </span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>         4 intercept     41.3    </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1 intercept      40.1   </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         1 age             0.027<span style='text-decoration: underline;'>2</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         1 collegedegree   0.490 </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         2 intercept      39.9   </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         2 age             0.032<span style='text-decoration: underline;'>8</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         2 collegedegree   0.423 </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         3 intercept      39.5   </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         3 age             0.017<span style='text-decoration: underline;'>4</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         3 collegedegree   3.40  </span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>         4 intercept      39.8   </span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 290 more rows</span></span></code></pre>
 
 </div>
 
-If `type = "permute"`, a set of unquoted column names in the data to permute (independently of each other) can be passed via the `cols` argument to `generate`. It defaults to only the response variable.
+If `type = "permute"`, a set of unquoted column names in the data to permute (independently of each other) can be passed via the `variables` argument to `generate`. It defaults to only the response variable.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>gss</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/specify.html'>specify</a></span><span class='o'>(</span><span class='nv'>hours</span> <span class='o'>~</span> <span class='nv'>age</span> <span class='o'>+</span> <span class='nv'>college</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/hypothesize.html'>hypothesize</a></span><span class='o'>(</span>null <span class='o'>=</span> <span class='s'>"independence"</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/generate.html'>generate</a></span><span class='o'>(</span>reps <span class='o'>=</span> <span class='m'>100</span>, type <span class='o'>=</span> <span class='s'>"permute"</span>, cols <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>age</span>, <span class='nv'>college</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/generate.html'>generate</a></span><span class='o'>(</span>reps <span class='o'>=</span> <span class='m'>100</span>, type <span class='o'>=</span> <span class='s'>"permute"</span>, variables <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>age</span>, <span class='nv'>college</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://generics.r-lib.org/reference/fit.html'>fit</a></span><span class='o'>(</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 300 x 3</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'># Groups:   replicate [100]</span></span>
 <span class='c'>#&gt;    replicate term          estimate</span>
 <span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1 intercept      43.4   </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         1 age            -<span style='color: #BB0000;'>0.023</span><span style='color: #BB0000; text-decoration: underline;'>8</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         1 collegedegree  -<span style='color: #BB0000;'>2.95</span>  </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         2 intercept      38.7   </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         2 age             0.071<span style='text-decoration: underline;'>5</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         2 collegedegree  -<span style='color: #BB0000;'>0.556</span> </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         3 intercept      42.5   </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         3 age            -<span style='color: #BB0000;'>0.029</span><span style='color: #BB0000; text-decoration: underline;'>6</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         3 collegedegree   0.321 </span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>         4 intercept      41.0   </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1 intercept     37.7    </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         1 age            0.087<span style='text-decoration: underline;'>7</span> </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         1 collegedegree  0.442  </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         2 intercept     41.1    </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         2 age            0.004<span style='text-decoration: underline;'>77</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         2 collegedegree  0.335  </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         3 intercept     41.9    </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         3 age           -<span style='color: #BB0000;'>0.025</span><span style='color: #BB0000; text-decoration: underline;'>1</span> </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         3 collegedegree  1.35   </span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>         4 intercept     36.5    </span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 290 more rows</span></span></code></pre>
 
 </div>
@@ -553,14 +553,14 @@ First, calculating the observed $t$-statistic:
 
 </div>
 
-The code to define the null distribution is very similar to that required to calculate a theorized observed statistic, switching out [`calculate()`](https://infer.tidymodels.org/reference/calculate.html) for [`assume()`](https://infer.tidymodels.org/reference/assume.html) and replacing arguments as needed.
+The code to define the null distribution is very similar to that required to calculate a theorized observed statistic, switching out [`calculate()`](https://infer.tidymodels.org/reference/calculate.html) for [`assume()`](https://infer.tidymodels.org/reference/assume.html) and adjusting arguments as needed.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>dist</span> <span class='o'>&lt;-</span> <span class='nv'>gss</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/specify.html'>specify</a></span><span class='o'>(</span>response <span class='o'>=</span> <span class='nv'>hours</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
   <span class='nf'><a href='https://infer.tidymodels.org/reference/hypothesize.html'>hypothesize</a></span><span class='o'>(</span>null <span class='o'>=</span> <span class='s'>"point"</span>, mu <span class='o'>=</span> <span class='m'>40</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'><a href='https://infer.tidymodels.org/reference/assume.html'>assume</a></span><span class='o'>(</span>distribution <span class='o'>=</span> <span class='s'>"t"</span>, df <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='o'>(</span><span class='nv'>gss</span><span class='o'>)</span> <span class='o'>-</span> <span class='m'>1</span><span class='o'>)</span>
+  <span class='nf'><a href='https://infer.tidymodels.org/reference/assume.html'>assume</a></span><span class='o'>(</span>distribution <span class='o'>=</span> <span class='s'>"t"</span><span class='o'>)</span>
 
 <span class='nv'>dist</span> 
 <span class='c'>#&gt; A T distribution with 499 degrees of freedom.</span></code></pre>

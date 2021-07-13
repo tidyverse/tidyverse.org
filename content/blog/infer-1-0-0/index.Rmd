@@ -275,13 +275,13 @@ gss %>%
   fit()
 ```
 
-If `type = "permute"`, a set of unquoted column names in the data to permute (independently of each other) can be passed via the `cols` argument to `generate`. It defaults to only the response variable.
+If `type = "permute"`, a set of unquoted column names in the data to permute (independently of each other) can be passed via the `variables` argument to `generate`. It defaults to only the response variable.
 
 ```{r}
 gss %>%
   specify(hours ~ age + college) %>%
   hypothesize(null = "independence") %>%
-  generate(reps = 100, type = "permute", cols = c(age, college)) %>%
+  generate(reps = 100, type = "permute", variables = c(age, college)) %>%
   fit()
 ```
 
@@ -306,13 +306,13 @@ obs_stat <- gss %>%
 obs_stat
 ```
 
-The code to define the null distribution is very similar to that required to calculate a theorized observed statistic, switching out `calculate()` for `assume()` and replacing arguments as needed.
+The code to define the null distribution is very similar to that required to calculate a theorized observed statistic, switching out `calculate()` for `assume()` and adjusting arguments as needed.
 
 ```{r}
 dist <- gss %>%
   specify(response = hours) %>%
   hypothesize(null = "point", mu = 40) %>%
-  assume(distribution = "t", df = nrow(gss) - 1)
+  assume(distribution = "t")
 
 dist 
 ```
