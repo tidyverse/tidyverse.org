@@ -13,7 +13,7 @@ photo:
   author: Anastasia Zhenina
 categories:
   - package
-rmd_hash: f697bf60b4c75ef7
+rmd_hash: ef81a0fb1fb6b890
 
 ---
 
@@ -37,7 +37,7 @@ Alternatively, install just readr from CRAN:
 
 </div>
 
-This blog post will show off the most important changes to the package.
+This blog post will show off the most important changes to the package. These include built-in support for reading multiple files at once, lazy reading and automatic guessing of delimiters among other changes.
 
 You can see a full list of changes in the [readr release notes](https://github.com/r-lib/readr/releases) and [vroom release notes](https://github.com/r-lib/vroom/releases).
 
@@ -47,88 +47,97 @@ You can see a full list of changes in the [readr release notes](https://github.c
 
 </div>
 
-## readr edition two
+## readr 2nd edition
 
-Readr 2.0.0 is a major release of readr and introduces a new second edition parsing and writing engine implemented via the [vroom](https://vroom.r-lib.org/) package.
+readr 2.0.0 is a major release of readr and introduces a new 2nd edition parsing and writing engine implemented via the [vroom](https://vroom.r-lib.org/) package. This engine takes advantage of lazy reading, multi-threading and performance characteristics of modern SSD drives to significantly improve the performance of reading and writing compared to the 1st edition engine.
 
-This engine takes advantage of lazy reading, multi-threading and performance characteristics of modern SSD drives to significantly improve the performance of reading and writing compared to the first edition engine.
+We have done our best to ensure that the two editions parse csv files as similarly as possible, but in case there are differences that affect your code, you can use the [`with_edition()`](https://readr.tidyverse.org/reference/with_edition.html) or [`local_edition()`](https://readr.tidyverse.org/reference/with_edition.html) functions to temporarily change the edition of readr for a section of code:
 
-We will continue to support the first edition for a number of releases, but eventually this support will be first deprecated and then removed.
+-   [`with_edition(1, read_csv("my_file.csv"))`](https://readr.tidyverse.org/reference/with_edition.html) will read `my_file.csv` with the 1st edition of readr.
 
-You can use the [`with_edition()`](https://readr.tidyverse.org/reference/with_edition.html) or [`local_edition()`](https://readr.tidyverse.org/reference/with_edition.html) functions to temporarily change the edition of readr for a section of code.
+-   [`readr::local_edition(1)`](https://readr.tidyverse.org/reference/with_edition.html) placed at the top of your function or script will use the 1st edition for the rest of the function or script.
 
-e.g.
-
--   [`with_edition(1, read_csv("my_file.csv"))`](https://readr.tidyverse.org/reference/with_edition.html) will read `my_file.csv` with the first edition of readr.
-
--   [`readr::local_edition(1)`](https://readr.tidyverse.org/reference/with_edition.html) placed at the top of your function or script will use the first edition for the rest of the function or script.
+We will continue to support the 1st edition for a number of releases, but our goal is to ensure that the 2nd edition is uniformly better than the 1st edition so we plan to eventually deprecate and then remove the 1st edition code.
 
 ## Reading multiple files at once
 
-Edition two has built-in support for reading sets of files with the same columns into one output table in a single command. Just pass the filenames to be read in the same vector to the reading function.
+The 2nd edition has built-in support for reading sets of files with the same columns into one output table in a single command. Just pass the filenames to be read in the same vector to the reading function.
 
 First we generate some files to read by splitting the nycflights dataset by airline.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='http://github.com/hadley/nycflights13'>nycflights13</a></span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/hadley/nycflights13'>nycflights13</a></span><span class='o'>)</span>
 <span class='nf'>purrr</span><span class='nf'>::</span><span class='nf'><a href='https://purrr.tidyverse.org/reference/imap.html'>iwalk</a></span><span class='o'>(</span>
   <span class='nf'><a href='https://rdrr.io/r/base/split.html'>split</a></span><span class='o'>(</span><span class='nv'>flights</span>, <span class='nv'>flights</span><span class='o'>$</span><span class='nv'>carrier</span><span class='o'>)</span>,
-  <span class='o'>~</span> <span class='o'>&#123;</span> <span class='nv'>.x</span><span class='o'>$</span><span class='nv'>carrier</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span>; <span class='nf'>vroom</span><span class='nf'>::</span><span class='nf'><a href='https://vroom.r-lib.org/reference/vroom_write.html'>vroom_write</a></span><span class='o'>(</span><span class='nv'>.x</span>, <span class='nf'>glue</span><span class='nf'>::</span><span class='nf'><a href='https://glue.tidyverse.org/reference/glue.html'>glue</a></span><span class='o'>(</span><span class='s'>"flights_&#123;.y&#125;.tsv"</span><span class='o'>)</span>, delim <span class='o'>=</span> <span class='s'>"\t"</span><span class='o'>)</span> <span class='o'>&#125;</span>
+  <span class='o'>~</span> <span class='o'>&#123;</span> <span class='nv'>.x</span><span class='o'>$</span><span class='nv'>carrier</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span>; <span class='nf'>vroom</span><span class='nf'>::</span><span class='nf'><a href='https://vroom.r-lib.org/reference/vroom_write.html'>vroom_write</a></span><span class='o'>(</span><span class='nv'>.x</span>, <span class='nf'>glue</span><span class='nf'>::</span><span class='nf'><a href='https://glue.tidyverse.org/reference/glue.html'>glue</a></span><span class='o'>(</span><span class='s'>"/tmp/flights_&#123;.y&#125;.tsv"</span><span class='o'>)</span>, delim <span class='o'>=</span> <span class='s'>"\t"</span><span class='o'>)</span> <span class='o'>&#125;</span>
 <span class='o'>)</span></code></pre>
 
 </div>
 
 Then we can efficiently read them into one tibble by passing the filenames directly to readr.
 
+If the filenames contain data, such as the date when the sample was collected, use `id` argument to include the paths as a column in the data. You will likely have to post-process the paths to keep only the relevant portion for your use case.
+
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>files</span> <span class='o'>&lt;-</span> <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='http://fs.r-lib.org/reference/dir_ls.html'>dir_ls</a></span><span class='o'>(</span>glob <span class='o'>=</span> <span class='s'>"flights*tsv"</span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>files</span> <span class='o'>&lt;-</span> <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='http://fs.r-lib.org/reference/dir_ls.html'>dir_ls</a></span><span class='o'>(</span>path <span class='o'>=</span> <span class='s'>"/tmp"</span>, glob <span class='o'>=</span> <span class='s'>"*flights*tsv"</span><span class='o'>)</span>
 <span class='nv'>files</span>
-<span class='c'>#&gt; flights_9E.tsv flights_AA.tsv flights_AS.tsv flights_B6.tsv flights_DL.tsv </span>
-<span class='c'>#&gt; flights_EV.tsv flights_F9.tsv flights_FL.tsv flights_HA.tsv flights_MQ.tsv </span>
-<span class='c'>#&gt; flights_OO.tsv flights_UA.tsv flights_US.tsv flights_VX.tsv flights_WN.tsv </span>
-<span class='c'>#&gt; flights_YV.tsv</span>
-<span class='nf'>readr</span><span class='nf'>::</span><span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='nv'>files</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>336776</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>19</span></span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>────────────────────────────────────────────────────────</span></span>
+<span class='c'>#&gt; /tmp/flights_9E.tsv /tmp/flights_AA.tsv /tmp/flights_AS.tsv </span>
+<span class='c'>#&gt; /tmp/flights_B6.tsv /tmp/flights_DL.tsv /tmp/flights_EV.tsv </span>
+<span class='c'>#&gt; /tmp/flights_F9.tsv /tmp/flights_FL.tsv /tmp/flights_HA.tsv </span>
+<span class='c'>#&gt; /tmp/flights_MQ.tsv /tmp/flights_OO.tsv /tmp/flights_UA.tsv </span>
+<span class='c'>#&gt; /tmp/flights_US.tsv /tmp/flights_VX.tsv /tmp/flights_WN.tsv </span>
+<span class='c'>#&gt; /tmp/flights_YV.tsv</span>
+<span class='nf'>readr</span><span class='nf'>::</span><span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='nv'>files</span>, id <span class='o'>=</span> <span class='s'>"path"</span><span class='o'>)</span>
+<span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>336776</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>20</span></span>
+<span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>───────────────────────────────────────────────────</span></span>
 <span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> "\t"</span>
 <span class='c'>#&gt; <span style='color: #BB0000;'>chr</span>   (4): carrier, tailnum, origin, dest</span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span>  (14): year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, ...</span>
+<span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span>  (14): year, month, day, dep_time, sched_dep_time, dep_delay, arr_t...</span>
 <span class='c'>#&gt; <span style='color: #0000BB;'>dttm</span>  (1): time_hour</span>
 <span class='c'>#&gt; </span>
 <span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use <span style='color: #000000; background-color: #BBBBBB;'>`spec()`</span> to retrieve the full column specification for this data.</span>
 <span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Specify the column types or set <span style='color: #000000; background-color: #BBBBBB;'>`show_col_types = FALSE`</span> to quiet this message.</span>
-<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 336,776 x 19</span></span>
-<span class='c'>#&gt;     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time</span>
-<span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>  <span style='text-decoration: underline;'>2</span>013     1     1      810            810         0     <span style='text-decoration: underline;'>1</span>048           <span style='text-decoration: underline;'>1</span>037</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>451           <span style='text-decoration: underline;'>1</span>500        -<span style='color: #BB0000;'>9</span>     <span style='text-decoration: underline;'>1</span>634           <span style='text-decoration: underline;'>1</span>636</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>452           <span style='text-decoration: underline;'>1</span>455        -<span style='color: #BB0000;'>3</span>     <span style='text-decoration: underline;'>1</span>637           <span style='text-decoration: underline;'>1</span>639</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>454           <span style='text-decoration: underline;'>1</span>500        -<span style='color: #BB0000;'>6</span>     <span style='text-decoration: underline;'>1</span>635           <span style='text-decoration: underline;'>1</span>636</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>507           <span style='text-decoration: underline;'>1</span>515        -<span style='color: #BB0000;'>8</span>     <span style='text-decoration: underline;'>1</span>651           <span style='text-decoration: underline;'>1</span>656</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>530           <span style='text-decoration: underline;'>1</span>530         0     <span style='text-decoration: underline;'>1</span>650           <span style='text-decoration: underline;'>1</span>655</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>546           <span style='text-decoration: underline;'>1</span>540         6     <span style='text-decoration: underline;'>1</span>753           <span style='text-decoration: underline;'>1</span>748</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>550           <span style='text-decoration: underline;'>1</span>550         0     <span style='text-decoration: underline;'>1</span>844           <span style='text-decoration: underline;'>1</span>831</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>552           <span style='text-decoration: underline;'>1</span>600        -<span style='color: #BB0000;'>8</span>     <span style='text-decoration: underline;'>1</span>749           <span style='text-decoration: underline;'>1</span>757</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>554           <span style='text-decoration: underline;'>1</span>600        -<span style='color: #BB0000;'>6</span>     <span style='text-decoration: underline;'>1</span>701           <span style='text-decoration: underline;'>1</span>734</span>
-<span class='c'>#&gt; <span style='color: #555555;'># … with 336,766 more rows, and 11 more variables: arr_delay &lt;dbl&gt;,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   carrier &lt;chr&gt;, flight &lt;dbl&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 336,776 x 20</span></span>
+<span class='c'>#&gt;    path         year month   day dep_time sched_dep_time dep_delay arr_time</span>
+<span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span> /tmp/fligh…  <span style='text-decoration: underline;'>2</span>013     1     1      810            810         0     <span style='text-decoration: underline;'>1</span>048</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span> /tmp/fligh…  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>451           <span style='text-decoration: underline;'>1</span>500        -<span style='color: #BB0000;'>9</span>     <span style='text-decoration: underline;'>1</span>634</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span> /tmp/fligh…  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>452           <span style='text-decoration: underline;'>1</span>455        -<span style='color: #BB0000;'>3</span>     <span style='text-decoration: underline;'>1</span>637</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span> /tmp/fligh…  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>454           <span style='text-decoration: underline;'>1</span>500        -<span style='color: #BB0000;'>6</span>     <span style='text-decoration: underline;'>1</span>635</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span> /tmp/fligh…  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>507           <span style='text-decoration: underline;'>1</span>515        -<span style='color: #BB0000;'>8</span>     <span style='text-decoration: underline;'>1</span>651</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span> /tmp/fligh…  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>530           <span style='text-decoration: underline;'>1</span>530         0     <span style='text-decoration: underline;'>1</span>650</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span> /tmp/fligh…  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>546           <span style='text-decoration: underline;'>1</span>540         6     <span style='text-decoration: underline;'>1</span>753</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span> /tmp/fligh…  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>550           <span style='text-decoration: underline;'>1</span>550         0     <span style='text-decoration: underline;'>1</span>844</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span> /tmp/fligh…  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>552           <span style='text-decoration: underline;'>1</span>600        -<span style='color: #BB0000;'>8</span>     <span style='text-decoration: underline;'>1</span>749</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span> /tmp/fligh…  <span style='text-decoration: underline;'>2</span>013     1     1     <span style='text-decoration: underline;'>1</span>554           <span style='text-decoration: underline;'>1</span>600        -<span style='color: #BB0000;'>6</span>     <span style='text-decoration: underline;'>1</span>701</span>
+<span class='c'>#&gt; <span style='color: #555555;'># … with 336,766 more rows, and 12 more variables: sched_arr_time &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;dbl&gt;, tailnum &lt;chr&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</span></span></code></pre>
 
 </div>
 
-If the filenames contain data, such as the date when the sample was collected, use `id` argument to include the paths as a column in the data. You will likely have to post-process the paths to keep only the relevant portion for your use case.
+## Lazy reading
+
+Like vroom, the 2nd edition uses lazy reading by default. This means when you first call a `read_*()` function the delimiters and newlines throughout the entire file are found, but the data is not actually read until it is used in your program. This can provide substantial speed improvements for reading character data. It is particularly useful during interactive exploration of only a subset of a full dataset.
+
+However this also means that problematic values are not necessarily seen immediately, only when they are actually read. Because of this a warning will be issued the first time a problem is encountered, which may happen after initial reading.
+
+Run [`problems()`](https://readr.tidyverse.org/reference/problems.html) on your dataset to read the entire dataset and return all of the problems found. Run [`problems(lazy = TRUE)`](https://readr.tidyverse.org/reference/problems.html) if you only want to retrieve the problems found so far.
+
+Deleting files after reading is also impacted by laziness. On Windows open files cannot be deleted as long as a process has the file open. Because readr keeps a file open when reading lazily this means you cannot read, then immediately delete the file. readr will in most cases close the file once it has been completely read. However, if you know you want to be able to delete the file after reading it is best to pass `lazy = FALSE` when reading the file.
 
 ## Delimiter guessing
 
-Edition two supports automatic guessing of delimiters. Because of this you can now use [`read_delim()`](https://readr.tidyverse.org/reference/read_delim.html) without specifying a `delim` argument in many cases.
+The 2nd edition supports automatic guessing of delimiters. This feature is inspired by the automatic guessing in [data.table::fread()](https://rdatatable.gitlab.io/data.table/reference/fread.html), though the precise method used to perform the guessing differs. Because of this you can now use [`read_delim()`](https://readr.tidyverse.org/reference/read_delim.html) without specifying a `delim` argument in many cases.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_delim</a></span><span class='o'>(</span><span class='nf'><a href='https://readr.tidyverse.org/reference/readr_example.html'>readr_example</a></span><span class='o'>(</span><span class='s'>"mtcars.csv"</span><span class='o'>)</span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_delim</a></span><span class='o'>(</span><span class='nf'><a href='https://readr.tidyverse.org/reference/readr_example.html'>readr_example</a></span><span class='o'>(</span><span class='s'>"mtcars.csv"</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>32</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>11</span></span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>────────────────────────────────────────────────────────</span></span>
+<span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>───────────────────────────────────────────────────</span></span>
 <span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> ","</span>
 <span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span> (11): mpg, cyl, disp, hp, drat, wt, qsec, vs, am, gear, carb</span>
 <span class='c'>#&gt; </span>
@@ -139,18 +148,18 @@ Edition two supports automatic guessing of delimiters. Because of this you can n
 
 ## New column specification output
 
-On Feburary 11, 2021 we conducted a [survey on twitter](https://twitter.com/jimhester_/status/1359969288501739528) asking for the community's opinion on the column specification output. We recieved over 750 responses to the survey! It revealed some useful information.
+On February 11, 2021 we conducted a [survey on twitter](https://twitter.com/jimhester_/status/1359969288501739528) asking for the community's opinion on the column specification output in readr. We received over **750** 😲 responses to the survey and it revealed a lot of useful information
 
--   3/4 of respondents found printing the column specifications helpful.
--   2/3 of respondents preferred the edition output vs legacy output.
--   Only 1/5 of respondents correctly knew how to supress printing of the column specifications.
+-   3/4 of respondents found printing the column specifications helpful. 👍
+-   2/3 of respondents preferred the 2nd edition output vs 1st edition output. 💅
+-   Only 1/5 of respondents correctly knew how to suppress printing of the column specifications. 🤯
 
 Based on these results we have added two new ways to more easily suppress the column specification printing.
 
 -   Use [`read_csv(show_col_types = FALSE)`](https://readr.tidyverse.org/reference/read_delim.html) to disable printing for a single function call.
 -   Use [`options(readr.show_types = FALSE)`](https://rdrr.io/r/base/options.html) to disable printing for the entire session.
 
-We will also continue to print the column specifications with the new output.
+We will also continue to print the column specifications and use the new style output.
 
 Note you can still obtain the old output style by printing the column specification object directly.
 
@@ -173,12 +182,12 @@ Note you can still obtain the old output style by printing the column specificat
 
 </div>
 
-Or the new style by calling [`summary()`](https://rdrr.io/r/base/summary.html) on the specficiation object.
+Or show the new style by calling [`summary()`](https://rdrr.io/r/base/summary.html) on the specification object.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='o'>(</span><span class='nf'><a href='https://readr.tidyverse.org/reference/spec.html'>spec</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>────────────────────────────────────────────────────────</span></span>
+<span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>───────────────────────────────────────────────────</span></span>
 <span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> ","</span>
 <span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span> (11): mpg, cyl, disp, hp, drat, wt, qsec, vs, am, gear, carb</span></code></pre>
 
@@ -186,169 +195,146 @@ Or the new style by calling [`summary()`](https://rdrr.io/r/base/summary.html) o
 
 ## Column selection
 
-Edition two introduces a new argument, `col_select`, which makes selecting columns to keep (or omit) more straightforward than before.
+The 2nd edition introduces a new argument, `col_select`, which makes selecting columns to keep (or omit) more straightforward than before. `col_select` uses the same interface as [`dplyr::select()`](https://dplyr.tidyverse.org/reference/select.html), so you can perform very flexible selection operations.
 
-`col_select` uses the same interface as [`dplyr::select()`](https://dplyr.tidyverse.org/reference/select.html), so you can perform very flexible selection operations.
+-   Select with the column names directly.
+    <div class="highlight">
 
-Select with the column names directly.
+    <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"/tmp/flights_AA.tsv"</span>, col_select <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>year</span>, <span class='nv'>flight</span>, <span class='nv'>tailnum</span><span class='o'>)</span><span class='o'>)</span>
+    <span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>32729</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>3</span></span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>───────────────────────────────────────────────────</span></span>
+    <span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> "\t"</span>
+    <span class='c'>#&gt; <span style='color: #BB0000;'>chr</span> (1): tailnum</span>
+    <span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span> (2): year, flight</span>
+    <span class='c'>#&gt; </span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use <span style='color: #000000; background-color: #BBBBBB;'>`spec()`</span> to retrieve the full column specification for this data.</span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Specify the column types or set <span style='color: #000000; background-color: #BBBBBB;'>`show_col_types = FALSE`</span> to quiet this message.</span></code></pre>
 
-<div class="highlight">
+    </div>
+-   Or by numeric column.
+    <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"flights_AA.tsv"</span>, col_select <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>year</span>, <span class='nv'>flight</span>, <span class='nv'>tailnum</span><span class='o'>)</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>32729</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>3</span></span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>────────────────────────────────────────────────────────</span></span>
-<span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> "\t"</span>
-<span class='c'>#&gt; <span style='color: #BB0000;'>chr</span> (1): tailnum</span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span> (2): year, flight</span>
-<span class='c'>#&gt; </span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use <span style='color: #000000; background-color: #BBBBBB;'>`spec()`</span> to retrieve the full column specification for this data.</span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Specify the column types or set <span style='color: #000000; background-color: #BBBBBB;'>`show_col_types = FALSE`</span> to quiet this message.</span></code></pre>
+    <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"/tmp/flights_AA.tsv"</span>, col_select <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span><span class='o'>)</span><span class='o'>)</span>
+    <span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>32729</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>2</span></span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>───────────────────────────────────────────────────</span></span>
+    <span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> "\t"</span>
+    <span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span> (2): year, month</span>
+    <span class='c'>#&gt; </span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use <span style='color: #000000; background-color: #BBBBBB;'>`spec()`</span> to retrieve the full column specification for this data.</span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Specify the column types or set <span style='color: #000000; background-color: #BBBBBB;'>`show_col_types = FALSE`</span> to quiet this message.</span></code></pre>
 
-</div>
+    </div>
+-   Drop columns by name by prefixing them with [`-`](https://rdrr.io/r/base/Arithmetic.html).
+    <div class="highlight">
 
-Or by numeric column.
+    <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"/tmp/flights_AA.tsv"</span>,
+      col_select <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='o'>-</span><span class='nv'>dep_time</span>, <span class='o'>-</span><span class='o'>(</span><span class='nv'>air_time</span><span class='o'>:</span><span class='nv'>time_hour</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
+    <span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>32729</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>13</span></span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>───────────────────────────────────────────────────</span></span>
+    <span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> "\t"</span>
+    <span class='c'>#&gt; <span style='color: #BB0000;'>chr</span> (4): carrier, tailnum, origin, dest</span>
+    <span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span> (9): year, month, day, sched_dep_time, dep_delay, arr_time, sched_a...</span>
+    <span class='c'>#&gt; </span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use <span style='color: #000000; background-color: #BBBBBB;'>`spec()`</span> to retrieve the full column specification for this data.</span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Specify the column types or set <span style='color: #000000; background-color: #BBBBBB;'>`show_col_types = FALSE`</span> to quiet this message.</span></code></pre>
 
-<div class="highlight">
+    </div>
+-   Use the selection helpers such as `ends_with()`.
+    <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"flights_AA.tsv"</span>, col_select <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span><span class='o'>)</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>32729</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>2</span></span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>────────────────────────────────────────────────────────</span></span>
-<span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> "\t"</span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span> (2): year, month</span>
-<span class='c'>#&gt; </span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use <span style='color: #000000; background-color: #BBBBBB;'>`spec()`</span> to retrieve the full column specification for this data.</span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Specify the column types or set <span style='color: #000000; background-color: #BBBBBB;'>`show_col_types = FALSE`</span> to quiet this message.</span></code></pre>
+    <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"/tmp/flights_AA.tsv"</span>, col_select <span class='o'>=</span> <span class='nf'>ends_with</span><span class='o'>(</span><span class='s'>"time"</span><span class='o'>)</span><span class='o'>)</span>
+    <span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>32729</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>5</span></span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>───────────────────────────────────────────────────</span></span>
+    <span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> "\t"</span>
+    <span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span> (5): dep_time, sched_dep_time, arr_time, sched_arr_time, air_time</span>
+    <span class='c'>#&gt; </span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use <span style='color: #000000; background-color: #BBBBBB;'>`spec()`</span> to retrieve the full column specification for this data.</span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Specify the column types or set <span style='color: #000000; background-color: #BBBBBB;'>`show_col_types = FALSE`</span> to quiet this message.</span></code></pre>
 
-</div>
+    </div>
+-   Or even rename columns by using a named list.
+    <div class="highlight">
 
-Drop columns by name by prefixing them with [`-`](https://rdrr.io/r/base/Arithmetic.html).
+    <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"/tmp/flights_AA.tsv"</span>, col_select <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>plane <span class='o'>=</span> <span class='nv'>tailnum</span>, <span class='nf'>everything</span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
+    <span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>32729</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>19</span></span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>───────────────────────────────────────────────────</span></span>
+    <span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> "\t"</span>
+    <span class='c'>#&gt; <span style='color: #BB0000;'>chr</span>   (4): carrier, tailnum, origin, dest</span>
+    <span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span>  (14): year, month, day, dep_time, sched_dep_time, dep_delay, arr_t...</span>
+    <span class='c'>#&gt; <span style='color: #0000BB;'>dttm</span>  (1): time_hour</span>
+    <span class='c'>#&gt; </span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use <span style='color: #000000; background-color: #BBBBBB;'>`spec()`</span> to retrieve the full column specification for this data.</span>
+    <span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Specify the column types or set <span style='color: #000000; background-color: #BBBBBB;'>`show_col_types = FALSE`</span> to quiet this message.</span>
+    <span class='nv'>data</span>
+    <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 32,729 x 19</span></span>
+    <span class='c'>#&gt;    plane   year month   day dep_time sched_dep_time dep_delay arr_time</span>
+    <span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+    <span class='c'>#&gt; <span style='color: #555555;'> 1</span> N619AA  <span style='text-decoration: underline;'>2</span>013     1     1      542            540         2      923</span>
+    <span class='c'>#&gt; <span style='color: #555555;'> 2</span> N3ALAA  <span style='text-decoration: underline;'>2</span>013     1     1      558            600        -<span style='color: #BB0000;'>2</span>      753</span>
+    <span class='c'>#&gt; <span style='color: #555555;'> 3</span> N3DUAA  <span style='text-decoration: underline;'>2</span>013     1     1      559            600        -<span style='color: #BB0000;'>1</span>      941</span>
+    <span class='c'>#&gt; <span style='color: #555555;'> 4</span> N633AA  <span style='text-decoration: underline;'>2</span>013     1     1      606            610        -<span style='color: #BB0000;'>4</span>      858</span>
+    <span class='c'>#&gt; <span style='color: #555555;'> 5</span> N3EMAA  <span style='text-decoration: underline;'>2</span>013     1     1      623            610        13      920</span>
+    <span class='c'>#&gt; <span style='color: #555555;'> 6</span> N3BAAA  <span style='text-decoration: underline;'>2</span>013     1     1      628            630        -<span style='color: #BB0000;'>2</span>     <span style='text-decoration: underline;'>1</span>137</span>
+    <span class='c'>#&gt; <span style='color: #555555;'> 7</span> N3CYAA  <span style='text-decoration: underline;'>2</span>013     1     1      629            630        -<span style='color: #BB0000;'>1</span>      824</span>
+    <span class='c'>#&gt; <span style='color: #555555;'> 8</span> N3GKAA  <span style='text-decoration: underline;'>2</span>013     1     1      635            635         0     <span style='text-decoration: underline;'>1</span>028</span>
+    <span class='c'>#&gt; <span style='color: #555555;'> 9</span> N4WNAA  <span style='text-decoration: underline;'>2</span>013     1     1      656            700        -<span style='color: #BB0000;'>4</span>      854</span>
+    <span class='c'>#&gt; <span style='color: #555555;'>10</span> N5FMAA  <span style='text-decoration: underline;'>2</span>013     1     1      656            659        -<span style='color: #BB0000;'>3</span>      949</span>
+    <span class='c'>#&gt; <span style='color: #555555;'># … with 32,719 more rows, and 11 more variables: sched_arr_time &lt;dbl&gt;,</span></span>
+    <span class='c'>#&gt; <span style='color: #555555;'>#   arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;dbl&gt;, origin &lt;chr&gt;,</span></span>
+    <span class='c'>#&gt; <span style='color: #555555;'>#   dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;,</span></span>
+    <span class='c'>#&gt; <span style='color: #555555;'>#   time_hour &lt;dttm&gt;</span></span></code></pre>
 
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"flights_AA.tsv"</span>, col_select <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='o'>-</span><span class='nv'>dep_time</span>, <span class='o'>-</span><span class='nv'>air_time</span><span class='o'>:</span><span class='o'>-</span><span class='nv'>time_hour</span><span class='o'>)</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>32729</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>13</span></span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>────────────────────────────────────────────────────────</span></span>
-<span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> "\t"</span>
-<span class='c'>#&gt; <span style='color: #BB0000;'>chr</span> (4): carrier, tailnum, origin, dest</span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span> (9): year, month, day, sched_dep_time, dep_delay, arr_time, sched_arr_ti...</span>
-<span class='c'>#&gt; </span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use <span style='color: #000000; background-color: #BBBBBB;'>`spec()`</span> to retrieve the full column specification for this data.</span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Specify the column types or set <span style='color: #000000; background-color: #BBBBBB;'>`show_col_types = FALSE`</span> to quiet this message.</span></code></pre>
-
-</div>
-
-Use the selection helpers such as `ends_with()`.
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"flights_AA.tsv"</span>, col_select <span class='o'>=</span> <span class='nf'>ends_with</span><span class='o'>(</span><span class='s'>"time"</span><span class='o'>)</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>32729</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>5</span></span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>────────────────────────────────────────────────────────</span></span>
-<span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> "\t"</span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span> (5): dep_time, sched_dep_time, arr_time, sched_arr_time, air_time</span>
-<span class='c'>#&gt; </span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use <span style='color: #000000; background-color: #BBBBBB;'>`spec()`</span> to retrieve the full column specification for this data.</span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Specify the column types or set <span style='color: #000000; background-color: #BBBBBB;'>`show_col_types = FALSE`</span> to quiet this message.</span></code></pre>
-
-</div>
-
-Or even rename columns by using a named list.
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"flights_AA.tsv"</span>, col_select <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>plane <span class='o'>=</span> <span class='nv'>tailnum</span>, <span class='nf'>everything</span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>32729</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>19</span></span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>────────────────────────────────────────────────────────</span></span>
-<span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> "\t"</span>
-<span class='c'>#&gt; <span style='color: #BB0000;'>chr</span>   (4): carrier, tailnum, origin, dest</span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span>  (14): year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, ...</span>
-<span class='c'>#&gt; <span style='color: #0000BB;'>dttm</span>  (1): time_hour</span>
-<span class='c'>#&gt; </span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use <span style='color: #000000; background-color: #BBBBBB;'>`spec()`</span> to retrieve the full column specification for this data.</span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Specify the column types or set <span style='color: #000000; background-color: #BBBBBB;'>`show_col_types = FALSE`</span> to quiet this message.</span>
-<span class='nv'>data</span>
-<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 32,729 x 19</span></span>
-<span class='c'>#&gt;    plane   year month   day dep_time sched_dep_time dep_delay arr_time</span>
-<span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span> N619AA  <span style='text-decoration: underline;'>2</span>013     1     1      542            540         2      923</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span> N3ALAA  <span style='text-decoration: underline;'>2</span>013     1     1      558            600        -<span style='color: #BB0000;'>2</span>      753</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span> N3DUAA  <span style='text-decoration: underline;'>2</span>013     1     1      559            600        -<span style='color: #BB0000;'>1</span>      941</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span> N633AA  <span style='text-decoration: underline;'>2</span>013     1     1      606            610        -<span style='color: #BB0000;'>4</span>      858</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span> N3EMAA  <span style='text-decoration: underline;'>2</span>013     1     1      623            610        13      920</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span> N3BAAA  <span style='text-decoration: underline;'>2</span>013     1     1      628            630        -<span style='color: #BB0000;'>2</span>     <span style='text-decoration: underline;'>1</span>137</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span> N3CYAA  <span style='text-decoration: underline;'>2</span>013     1     1      629            630        -<span style='color: #BB0000;'>1</span>      824</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span> N3GKAA  <span style='text-decoration: underline;'>2</span>013     1     1      635            635         0     <span style='text-decoration: underline;'>1</span>028</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span> N4WNAA  <span style='text-decoration: underline;'>2</span>013     1     1      656            700        -<span style='color: #BB0000;'>4</span>      854</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span> N5FMAA  <span style='text-decoration: underline;'>2</span>013     1     1      656            659        -<span style='color: #BB0000;'>3</span>      949</span>
-<span class='c'>#&gt; <span style='color: #555555;'># … with 32,719 more rows, and 11 more variables: sched_arr_time &lt;dbl&gt;,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;dbl&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</span></span></code></pre>
-
-</div>
+    </div>
 
 ## Name repair
 
-Often the names of columns in the original dataset are not ideal to work with. Edition two uses the same [name_repair](https://www.tidyverse.org/articles/2019/01/tibble-2.0.1/#name-repair) argument as in the tibble package, so you can use one of the default name repair strategies or provide a custom function. One useful approach is to use the [janitor::make_clean_names()](http://sfirke.github.io/janitor/).
+Often the names of columns in the original dataset are not ideal to work with. The 2nd edition uses the same [name_repair](https://www.tidyverse.org/articles/2019/01/tibble-2.0.1/#name-repair) argument as in the tibble package, so you can use one of the default name repair strategies or provide a custom function. One useful approach is to use the [janitor::make_clean_names()](http://sfirke.github.io/janitor/) function.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"flights_AA.tsv"</span>, name_repair <span class='o'>=</span> <span class='nf'>janitor</span><span class='nf'>::</span><span class='nv'><a href='https://rdrr.io/pkg/janitor/man/make_clean_names.html'>make_clean_names</a></span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"/tmp/flights_AA.tsv"</span>, name_repair <span class='o'>=</span> <span class='nf'>janitor</span><span class='nf'>::</span><span class='nv'><a href='https://rdrr.io/pkg/janitor/man/make_clean_names.html'>make_clean_names</a></span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 32,729 x 19</span></span>
-<span class='c'>#&gt;     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time</span>
-<span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>  <span style='text-decoration: underline;'>2</span>013     1     1      542            540         2      923            850</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>  <span style='text-decoration: underline;'>2</span>013     1     1      558            600        -<span style='color: #BB0000;'>2</span>      753            745</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>  <span style='text-decoration: underline;'>2</span>013     1     1      559            600        -<span style='color: #BB0000;'>1</span>      941            910</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>  <span style='text-decoration: underline;'>2</span>013     1     1      606            610        -<span style='color: #BB0000;'>4</span>      858            910</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>  <span style='text-decoration: underline;'>2</span>013     1     1      623            610        13      920            915</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>  <span style='text-decoration: underline;'>2</span>013     1     1      628            630        -<span style='color: #BB0000;'>2</span>     <span style='text-decoration: underline;'>1</span>137           <span style='text-decoration: underline;'>1</span>140</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>  <span style='text-decoration: underline;'>2</span>013     1     1      629            630        -<span style='color: #BB0000;'>1</span>      824            810</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>  <span style='text-decoration: underline;'>2</span>013     1     1      635            635         0     <span style='text-decoration: underline;'>1</span>028            940</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>  <span style='text-decoration: underline;'>2</span>013     1     1      656            700        -<span style='color: #BB0000;'>4</span>      854            850</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>  <span style='text-decoration: underline;'>2</span>013     1     1      656            659        -<span style='color: #BB0000;'>3</span>      949            959</span>
-<span class='c'>#&gt; <span style='color: #555555;'># … with 32,719 more rows, and 11 more variables: arr_delay &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt;     year month   day dep_time sched_dep_time dep_delay arr_time</span>
+<span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>  <span style='text-decoration: underline;'>2</span>013     1     1      542            540         2      923</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>  <span style='text-decoration: underline;'>2</span>013     1     1      558            600        -<span style='color: #BB0000;'>2</span>      753</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>  <span style='text-decoration: underline;'>2</span>013     1     1      559            600        -<span style='color: #BB0000;'>1</span>      941</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>  <span style='text-decoration: underline;'>2</span>013     1     1      606            610        -<span style='color: #BB0000;'>4</span>      858</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>  <span style='text-decoration: underline;'>2</span>013     1     1      623            610        13      920</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>  <span style='text-decoration: underline;'>2</span>013     1     1      628            630        -<span style='color: #BB0000;'>2</span>     <span style='text-decoration: underline;'>1</span>137</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>  <span style='text-decoration: underline;'>2</span>013     1     1      629            630        -<span style='color: #BB0000;'>1</span>      824</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>  <span style='text-decoration: underline;'>2</span>013     1     1      635            635         0     <span style='text-decoration: underline;'>1</span>028</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>  <span style='text-decoration: underline;'>2</span>013     1     1      656            700        -<span style='color: #BB0000;'>4</span>      854</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>  <span style='text-decoration: underline;'>2</span>013     1     1      656            659        -<span style='color: #BB0000;'>3</span>      949</span>
+<span class='c'>#&gt; <span style='color: #555555;'># … with 32,719 more rows, and 12 more variables: sched_arr_time &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;dbl&gt;, tailnum &lt;chr&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</span></span>
+
+<span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"/tmp/flights_AA.tsv"</span>, name_repair <span class='o'>=</span> <span class='o'>~</span> <span class='nf'>janitor</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/pkg/janitor/man/make_clean_names.html'>make_clean_names</a></span><span class='o'>(</span><span class='nv'>.</span>, case <span class='o'>=</span> <span class='s'>"lower_camel"</span><span class='o'>)</span><span class='o'>)</span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 32,729 x 19</span></span>
+<span class='c'>#&gt;     year month   day depTime schedDepTime depDelay arrTime schedArrTime</span>
+<span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>  <span style='text-decoration: underline;'>2</span>013     1     1     542          540        2     923          850</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>  <span style='text-decoration: underline;'>2</span>013     1     1     558          600       -<span style='color: #BB0000;'>2</span>     753          745</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>  <span style='text-decoration: underline;'>2</span>013     1     1     559          600       -<span style='color: #BB0000;'>1</span>     941          910</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>  <span style='text-decoration: underline;'>2</span>013     1     1     606          610       -<span style='color: #BB0000;'>4</span>     858          910</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>  <span style='text-decoration: underline;'>2</span>013     1     1     623          610       13     920          915</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>  <span style='text-decoration: underline;'>2</span>013     1     1     628          630       -<span style='color: #BB0000;'>2</span>    <span style='text-decoration: underline;'>1</span>137         <span style='text-decoration: underline;'>1</span>140</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>  <span style='text-decoration: underline;'>2</span>013     1     1     629          630       -<span style='color: #BB0000;'>1</span>     824          810</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>  <span style='text-decoration: underline;'>2</span>013     1     1     635          635        0    <span style='text-decoration: underline;'>1</span>028          940</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>  <span style='text-decoration: underline;'>2</span>013     1     1     656          700       -<span style='color: #BB0000;'>4</span>     854          850</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>  <span style='text-decoration: underline;'>2</span>013     1     1     656          659       -<span style='color: #BB0000;'>3</span>     949          959</span>
+<span class='c'>#&gt; <span style='color: #555555;'># … with 32,719 more rows, and 11 more variables: arrDelay &lt;dbl&gt;,</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>#   carrier &lt;chr&gt;, flight &lt;dbl&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</span></span>
-
-<span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"flights_AA.tsv"</span>, name_repair <span class='o'>=</span> <span class='o'>~</span> <span class='nf'>janitor</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/pkg/janitor/man/make_clean_names.html'>make_clean_names</a></span><span class='o'>(</span><span class='nv'>.</span>, case <span class='o'>=</span> <span class='s'>"lower_camel"</span><span class='o'>)</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 32,729 x 19</span></span>
-<span class='c'>#&gt;     year month   day depTime schedDepTime depDelay arrTime schedArrTime arrDelay</span>
-<span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>  <span style='text-decoration: underline;'>2</span>013     1     1     542          540        2     923          850       33</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>  <span style='text-decoration: underline;'>2</span>013     1     1     558          600       -<span style='color: #BB0000;'>2</span>     753          745        8</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>  <span style='text-decoration: underline;'>2</span>013     1     1     559          600       -<span style='color: #BB0000;'>1</span>     941          910       31</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>  <span style='text-decoration: underline;'>2</span>013     1     1     606          610       -<span style='color: #BB0000;'>4</span>     858          910      -<span style='color: #BB0000;'>12</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>  <span style='text-decoration: underline;'>2</span>013     1     1     623          610       13     920          915        5</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>  <span style='text-decoration: underline;'>2</span>013     1     1     628          630       -<span style='color: #BB0000;'>2</span>    <span style='text-decoration: underline;'>1</span>137         <span style='text-decoration: underline;'>1</span>140       -<span style='color: #BB0000;'>3</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>  <span style='text-decoration: underline;'>2</span>013     1     1     629          630       -<span style='color: #BB0000;'>1</span>     824          810       14</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>  <span style='text-decoration: underline;'>2</span>013     1     1     635          635        0    <span style='text-decoration: underline;'>1</span>028          940       48</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>  <span style='text-decoration: underline;'>2</span>013     1     1     656          700       -<span style='color: #BB0000;'>4</span>     854          850        4</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>  <span style='text-decoration: underline;'>2</span>013     1     1     656          659       -<span style='color: #BB0000;'>3</span>     949          959      -<span style='color: #BB0000;'>10</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'># … with 32,719 more rows, and 10 more variables: carrier &lt;chr&gt;, flight &lt;dbl&gt;,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, airTime &lt;dbl&gt;, distance &lt;dbl&gt;,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, timeHour &lt;dttm&gt;</span></span></code></pre>
-
-</div>
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/base/unlink.html'>unlink</a></span><span class='o'>(</span><span class='nv'>files</span><span class='o'>)</span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>#   airTime &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   timeHour &lt;dttm&gt;</span></span></code></pre>
 
 </div>
 
 ## UTF-16 and UTF-32 support
 
-Edition two now has much better support for UTF-16 and UTF-32 multi-byte unicode encodings. When files with these encodings are read they are automatically converted to UTF-8 internally in an efficeint streaming fashion.
-
-## Lazy reading
-
-Edition two uses lazy reading by default. When you first call a `read_*()` function the delimiters and newlines throughout the entire file are found, but the data is not actually read until it is used in your program. This can provide substantial speed improvements for reading character data. It is particularly useful during interactive exploration of only a subset of a full dataset.
-
-However this also means that problematic values are not necessarily seen immediately, only when they are actually read. Because of this a warning will be issued the first time a problem is encountered, which may happen after initial reading.
-
-Run [`problems()`](https://readr.tidyverse.org/reference/problems.html) on your dataset to read the entire dataset and return all of the problems found. Run [`problems(lazy = TRUE)`](https://readr.tidyverse.org/reference/problems.html) if you only want to retrieve the problems found so far.
-
-Deleting files after reading is also impacted by laziness. On Windows open files cannot be deleted as long as a process has the file open. Because readr keeps a file open when reading lazily this means you cannot read, then immediately delete the file. readr will in most cases close the file once it has been completely read. However, if you know you want to be able to delete the file after reading it is best to pass `lazy = FALSE` when reading the file.
+The 2nd edition now has much better support for UTF-16 and UTF-32 multi-byte unicode encodings. When files with these encodings are read they are automatically converted to UTF-8 internally in an efficient streaming fashion.
 
 ## Control over quoting and escaping when writing
 
@@ -370,13 +356,13 @@ We hope these options will give people the flexibility they need when writing fi
 
 ## Literal data
 
-In edition one the reading functions treated any input with a newline in it or vectors of length \> 1 as literal data. In edition two vectors of length \> 1 are nowassumed to correspond to multiple files. Because of this we now have a more explicit way to represent literal data, by putting [`I()`](https://rdrr.io/r/base/AsIs.html) around the input.
+In the 1st edition the reading functions treated any input with a newline in it or vectors of length \> 1 as literal data. In the 2nd edition two vectors of length \> 1 are now assumed to correspond to multiple files. Because of this we now have a more explicit way to represent literal data, by putting [`I()`](https://rdrr.io/r/base/AsIs.html) around the input.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>readr</span><span class='nf'>::</span><span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_csv</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/AsIs.html'>I</a></span><span class='o'>(</span><span class='s'>"a,b\n1,2"</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>1</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>2</span></span>
-<span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>────────────────────────────────────────────────────────</span></span>
+<span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>───────────────────────────────────────────────────</span></span>
 <span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> ","</span>
 <span class='c'>#&gt; <span style='color: #00BB00;'>dbl</span> (2): a, b</span>
 <span class='c'>#&gt; </span>
@@ -397,9 +383,9 @@ readr no longer depends on Boost or the BH package, so should compile more quick
 
 ## Deprecated and superseded functions and features
 
--   [`melt_csv()`](https://readr.tidyverse.org/reference/melt_delim.html), [`melt_delim()`](https://readr.tidyverse.org/reference/melt_delim.html), [`melt_tsv()`](https://readr.tidyverse.org/reference/melt_delim.html) and [`melt_fwf()`](https://readr.tidyverse.org/reference/melt_fwf.html) have been superseded by functions in the same name in the meltr package. The versions in readr have been deprecated. These functions rely on the first edition parsing code and would be challenging to update to the new parser. When the first edition parsing code is eventually removed from readr they will be removed.
+-   [`melt_csv()`](https://readr.tidyverse.org/reference/melt_delim.html), [`melt_delim()`](https://readr.tidyverse.org/reference/melt_delim.html), [`melt_tsv()`](https://readr.tidyverse.org/reference/melt_delim.html) and [`melt_fwf()`](https://readr.tidyverse.org/reference/melt_fwf.html) have been superseded by functions in the same name in the meltr package. The versions in readr have been deprecated. These functions rely on the 1st edition parsing code and would be challenging to update to the new parser. When the 1st edition parsing code is eventually removed from readr they will be removed.
 
--   [`read_table2()`](https://readr.tidyverse.org/reference/read_table2.html) has been renamed to [`read_table()`](https://readr.tidyverse.org/reference/read_table.html), as most users expect [`read_table()`](https://readr.tidyverse.org/reference/read_table.html) to work like [`utils::read.table()`](https://rdrr.io/r/utils/read.table.html). If you want the previous strict behavior of the [`read_table()`](https://readr.tidyverse.org/reference/read_table.html) you can use [`read_fwf()`](https://readr.tidyverse.org/reference/read_fwf.html) with [`fwf_empty()`](https://readr.tidyverse.org/reference/read_fwf.html) directly (\#717).
+-   [`read_table2()`](https://readr.tidyverse.org/reference/read_table2.html) has been renamed to [`read_table()`](https://readr.tidyverse.org/reference/read_table.html) and [`read_table2()`](https://readr.tidyverse.org/reference/read_table2.html) has been deprecated. Most users seem to expect [`read_table()`](https://readr.tidyverse.org/reference/read_table.html) to work like [`utils::read.table()`](https://rdrr.io/r/utils/read.table.html), so the different names caused confusion. If you want the previous strict behavior of [`read_table()`](https://readr.tidyverse.org/reference/read_table.html) you can use [`read_fwf()`](https://readr.tidyverse.org/reference/read_fwf.html) with [`fwf_empty()`](https://readr.tidyverse.org/reference/read_fwf.html) directly (\#717).
 
 -   Normalizing newlines in files with just carriage returns `\r` is no longer supported. The last major OS to use only CR as the newline was 'classic' Mac OS, which had its final release in 2001.
 
