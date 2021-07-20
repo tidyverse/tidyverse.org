@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: readr-2-0-0
 title: readr 2.0.0
-date: 2021-07-06
+date: 2021-07-20
 author: Jim Hester
 description: |
   This major release of readr includes a new multi-threaded parsing engine powered by vroom and a 
@@ -13,7 +13,7 @@ photo:
   author: Anastasia Zhenina
 categories:
   - package
-rmd_hash: ef81a0fb1fb6b890
+rmd_hash: d275bbfba1ef2181
 
 ---
 
@@ -81,7 +81,8 @@ If the filenames contain data, such as the date when the sample was collected, u
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>files</span> <span class='o'>&lt;-</span> <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='http://fs.r-lib.org/reference/dir_ls.html'>dir_ls</a></span><span class='o'>(</span>path <span class='o'>=</span> <span class='s'>"/tmp"</span>, glob <span class='o'>=</span> <span class='s'>"*flights*tsv"</span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='o'>)</span>
+<span class='nv'>files</span> <span class='o'>&lt;-</span> <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='http://fs.r-lib.org/reference/dir_ls.html'>dir_ls</a></span><span class='o'>(</span>path <span class='o'>=</span> <span class='s'>"/tmp"</span>, glob <span class='o'>=</span> <span class='s'>"*flights*tsv"</span><span class='o'>)</span>
 <span class='nv'>files</span>
 <span class='c'>#&gt; /tmp/flights_9E.tsv /tmp/flights_AA.tsv /tmp/flights_AS.tsv </span>
 <span class='c'>#&gt; /tmp/flights_B6.tsv /tmp/flights_DL.tsv /tmp/flights_EV.tsv </span>
@@ -239,10 +240,10 @@ The 2nd edition introduces a new argument, `col_select`, which makes selecting c
     <span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Specify the column types or set <span style='color: #000000; background-color: #BBBBBB;'>`show_col_types = FALSE`</span> to quiet this message.</span></code></pre>
 
     </div>
--   Use the selection helpers such as `ends_with()`.
+-   Use the selection helpers such as [`ends_with()`](https://tidyselect.r-lib.org/reference/starts_with.html).
     <div class="highlight">
 
-    <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"/tmp/flights_AA.tsv"</span>, col_select <span class='o'>=</span> <span class='nf'>ends_with</span><span class='o'>(</span><span class='s'>"time"</span><span class='o'>)</span><span class='o'>)</span>
+    <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"/tmp/flights_AA.tsv"</span>, col_select <span class='o'>=</span> <span class='nf'><a href='https://tidyselect.r-lib.org/reference/starts_with.html'>ends_with</a></span><span class='o'>(</span><span class='s'>"time"</span><span class='o'>)</span><span class='o'>)</span>
     <span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>32729</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>5</span></span>
     <span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>───────────────────────────────────────────────────</span></span>
     <span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> "\t"</span>
@@ -255,7 +256,7 @@ The 2nd edition introduces a new argument, `col_select`, which makes selecting c
 -   Or even rename columns by using a named list.
     <div class="highlight">
 
-    <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"/tmp/flights_AA.tsv"</span>, col_select <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>plane <span class='o'>=</span> <span class='nv'>tailnum</span>, <span class='nf'>everything</span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
+    <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_tsv</a></span><span class='o'>(</span><span class='s'>"/tmp/flights_AA.tsv"</span>, col_select <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>plane <span class='o'>=</span> <span class='nv'>tailnum</span>, <span class='nf'><a href='https://tidyselect.r-lib.org/reference/everything.html'>everything</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
     <span class='c'>#&gt; <span style='font-weight: bold;'>Rows: </span><span style='color: #0000BB;'>32729</span> <span style='font-weight: bold;'>Columns: </span><span style='color: #0000BB;'>19</span></span>
     <span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Column specification</span> <span style='color: #00BBBB;'>───────────────────────────────────────────────────</span></span>
     <span class='c'>#&gt; <span style='font-weight: bold;'>Delimiter:</span> "\t"</span>
