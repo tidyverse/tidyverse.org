@@ -42,21 +42,17 @@ You can see a full list of changes in the [readr release notes](https://github.c
 library(readr)
 ```
 
-## readr edition two
+## readr 2nd edition
 
-Readr 2.0.0 is a major release of readr and introduces a new second edition parsing and writing engine implemented via the [vroom](https://vroom.r-lib.org/) package.
+readr 2.0.0 is a major release of readr and introduces a new second edition parsing and writing engine implemented via the [vroom](https://vroom.r-lib.org/) package. This engine takes advantage of lazy reading, multi-threading and performance characteristics of modern SSD drives to significantly improve the performance of reading and writing compared to the first edition engine. 
 
-This engine takes advantage of lazy reading, multi-threading and performance characteristics of modern SSD drives to significantly improve the performance of reading and writing compared to the first edition engine.
-
-We will continue to support the first edition for a number of releases, but eventually this support will be first deprecated and then removed.
-
-You can use the `with_edition()` or `local_edition()` functions to temporarily change the edition of readr for a section of code.
-
-e.g.
+We have done our best to ensure that the two editions parse csv files as similarly as possible, but in case there are differences that affect your code, you can use the `with_edition()` or `local_edition()` functions to temporarily change the edition of readr for a section of code:
 
 - `with_edition(1, read_csv("my_file.csv"))` will read `my_file.csv` with the first edition of readr.
 
 - `readr::local_edition(1)` placed at the top of your function or script will use the first edition for the rest of the function or script.
+
+We will continue to support the 1st edition for a number of releases, but our goal is to ensure that the 2nd edition is uniformly better than the 1st edition so we plan to eventually deprecate and then remove the 1st edition code. 
 
 ## Reading multiple files at once
 
@@ -145,7 +141,7 @@ data <- read_tsv("flights_AA.tsv", col_select = c(1, 2))
 
 Drop columns by name by prefixing them with `-`.
 ```{r}
-data <- read_tsv("flights_AA.tsv", col_select = c(-dep_time, -air_time:-time_hour))
+data <- read_tsv("flights_AA.tsv", col_select = c(-dep_time, -(air_time:time_hour)))
 ```
 
 Use the selection helpers such as `ends_with()`.
