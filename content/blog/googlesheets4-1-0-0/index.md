@@ -10,12 +10,12 @@ description: >
     This can be omitted if it would just recapitulate the title.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/VqYzKAviJ10
+  author: Hendri Sabri
 
 categories: [package]
-tags: [googlesheets4]
-rmd_hash: 714dc5179dc07ef8
+tags: [googlesheets4, gargle]
+rmd_hash: aeeeef893834693b
 
 ---
 
@@ -23,12 +23,6 @@ rmd_hash: 714dc5179dc07ef8
 TODO:
 * [ ] Look over / edit the post's title in the yaml
 * [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 We're over the moon to announce the release of googlesheets4, version 1.0.0 (<https://googlesheets4.tidyverse.org>).
