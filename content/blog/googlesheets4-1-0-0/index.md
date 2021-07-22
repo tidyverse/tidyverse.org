@@ -3,11 +3,11 @@ output: hugodown::hugo_document
 
 slug: googlesheets4-1-0-0
 title: googlesheets4 1.0.0
-date: 2021-07-21
+date: 2021-07-22
 author: Jenny Bryan
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    Version 1.0.0 marks the graduation of googlesheets4 from experimental to
+    stable.
 
 photo:
   url: https://unsplash.com/photos/VqYzKAviJ10
@@ -15,15 +15,9 @@ photo:
 
 categories: [package]
 tags: [googlesheets4, gargle]
-rmd_hash: aeeeef893834693b
+rmd_hash: 7b5a7033028a46a6
 
 ---
-
-<!--
-TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
--->
 
 We're over the moon to announce the release of googlesheets4, version 1.0.0 (<https://googlesheets4.tidyverse.org>).
 
