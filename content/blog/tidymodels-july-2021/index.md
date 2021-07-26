@@ -13,7 +13,7 @@ photo:
   author: Danil Shostak
 
 # one of: "deep-dive", "learn", "package", "programming", or "other"
-categories: [package] 
+categories: [roundup] 
 tags: [parsnip, tune, workflows, hardhat, discrim, finetune, workflowsets]
 ---
 
@@ -30,11 +30,13 @@ TODO:
 * [ ] `usethis::use_tidy_thanks()`
 -->
 
+The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. Earlier this year, we [started regular updates](https://www.tidyverse.org/blog/2021/03/tidymodels-2021-q1/) here on the tidyverse blog summarizing recent developments in the tidymodels ecosystem. You can check out the [`tidymodels` tag](https://www.tidyverse.org/tags/tidymodels/) to find all tidymodels blog posts here, including those that focus on a single package or more major releases. The purpose of these roundup posts is to keep you informed about any releases you may have missed and useful new functionality as we maintain these packages.
+
 Recently, we had a series of CRAN releases: [hardhat](https://hardhat.tidymodels.org/news/index.html#hardhat-0-1-6-2021-07-14), [workflows](https://workflows.tidymodels.org/news/#workflows-0-2-3-2021-07-15), [parsnip](https://parsnip.tidymodels.org/news/#parsnip-0-1-7-2021-07-21), [tune](https://tune.tidymodels.org/news/#tune-0-1-6-2021-07-21), [finetune](https://finetune.tidymodels.org/news/#finetune-0-1-0-unreleased), [workflowsets](https://workflowsets.tidymodels.org/news/#workflowsets-0-1-0-unreleased), and [discrim](https://discrim.tidymodels.org/news/#discrim-0-1-3-unreleased). These were coordinated because of some cross-package improvements. This blog post summarizes the changes. 
 
 ## Object extraction
 
-The tidymodels team decided that we needed a consistent set of APIs for extracting things from objects. For example, a parsnip model has the underlying model fit based on the engine. For example, `linear_reg()` with the `"lm"` engine contains an `lm` object. There were some existing functions to do this (mostly named `pull_*()`) but they were fairly inconsistent and were not generics. 
+The tidymodels team decided that we needed a consistent set of APIs for extracting things from objects. For example, a parsnip model contains the underlying model fit based on the engine. A `linear_reg()` model with the `"lm"` engine contains an `lm` object. There were some existing functions to do this (mostly named `pull_*()`) but they were fairly inconsistent and were not generics. 
 
 We added the following functions: `extract_fit_engine()`, `extract_fit_parsnip()`, `extract_mold()`, `extract_numeric()`, `extract_preprocessor()`, `extract_recipe()`, `extract_spec_parsnip()`, `extract_workflow()`, and `extract_workflow_set_result()`. 
 
@@ -46,7 +48,7 @@ The existing `pull_*()` methods have been soft-deprecated and will stick around 
 
 One issue that we've seen in the parsnip documentation is that there is just _so much_ on each model page. It can be intimidating and difficult to find that one piece of information that you were looking for. 
 
-We've reorganized the model pages so that there are now sub-packages for each engine. For example, when you use `?linear_reg`, the help page has a _dynamic_ list of engines from parsnip or any parsnip-adjacent package that has been loaded. Here is what the pkgdown site looks like: 
+We've reorganized the model pages so that there are now sub-packages for each engine. For example, when you use `?linear_reg`, the help page has a _dynamic_ list of engines from parsnip or any parsnip-adjacent package that has been loaded. Here is what the [pkgdown site](https://parsnip.tidymodels.org/reference/linear_reg.html) looks like: 
 
 <img src="linear_reg.png" title="plot of chunk parsnip" alt="plot of chunk parsnip" width="90%" style="display: block; margin: auto;" />
 
@@ -97,12 +99,12 @@ car_wflow <-
   workflow(linear_reg()) 
 ```  
 
-If you might be on the fence about using tiydmodels, [David's blog post](http://varianceexplained.org/r/sliced-ml/) does an excellent job encapsulating the benefits of our approach, so give it a read. 
+If you might be on the fence about using tidymodels, [David's blog post](http://varianceexplained.org/r/sliced-ml/) does an excellent job encapsulating the benefits of our approach, so give it a read. 
 
 
 ## Other changes
 
-parsnip now has a generalized additive model function [`gen_additive_mod()`](https://parsnip.tidymodels.org/reference/gen_additive_mod.html)! 
+parsnip now has a generalized additive model function [`gen_additive_mod()`](https://parsnip.tidymodels.org/reference/gen_additive_mod.html)! There is currently one engine (`mgcv`). 
 
 The tune package has better control over random numbers since, in some cases, the [RNGkind was changed](https://github.com/tidymodels/tune/issues/389) after tuning a model. 
 
