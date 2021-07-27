@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: googlesheets4-1-0-0
 title: googlesheets4 1.0.0
-date: 2021-07-22
+date: 2021-07-26
 author: Jenny Bryan
 description: >
     Version 1.0.0 marks the graduation of googlesheets4 from experimental to
@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [googlesheets4, gargle]
-rmd_hash: 7b5a7033028a46a6
+rmd_hash: 95b3cb3640b8a948
 
 ---
 
