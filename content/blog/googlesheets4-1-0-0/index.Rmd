@@ -1,0 +1,200 @@
+---
+output: hugodown::hugo_document
+
+slug: googlesheets4-1-0-0
+title: googlesheets4 1.0.0
+date: 2021-07-26
+author: Jenny Bryan
+description: >
+    Version 1.0.0 marks the graduation of googlesheets4 from experimental to
+    stable.
+
+photo:
+  url: https://unsplash.com/photos/VqYzKAviJ10
+  author: Hendri Sabri
+
+categories: [package]
+tags: [googlesheets4, gargle]
+---
+
+We're over the moon to announce the release of googlesheets4, version 1.0.0 (<https://googlesheets4.tidyverse.org>).
+
+googlesheets4 is a package to work with Google Sheets from R.
+It wraps [v4 of the Sheets API](https://developers.google.com/sheets/api/reference/rest).
+googlesheets4 is focused on spreadsheet-y tasks that require a notion of worksheets, cells, and ranges, while the companion package [googledrive](https://googledrive.tidyverse.org) handles more general file operations, such as renaming, sharing, or moving.
+
+Install googlesheets4 from CRAN like so:
+
+```{r eval = FALSE}
+install.packages("googlesheets4")
+```
+
+Then attach it for use via:
+
+```{r}
+library(googlesheets4)
+```
+
+The release of version 1.0.0 means googlesheets4 has graduated from being experimental to being stable, in terms of the [tidyverse lifecycle stages](https://lifecycle.r-lib.org/articles/stages.html). [^1]
+
+[^1]: The deprecated `sheets_*()` functions have been removed, as promised in the warning they have been throwing for over a year.
+No functionality was lost: this is just the result of the function (re-)naming scheme adopted in googlesheets4 >= 0.2.0.
+This [internal documentation](https://googlesheets4.tidyverse.org/articles/articles/function-class-names.html#previous-use-of-sheets-prefix) has a table that maps deprecated functions to their current counterparts.
+
+Since we [last blogged about it](https://www.tidyverse.org/blog/2020/05/googlesheets4-0-2-0/), googlesheets4 has seen some "quality of life" improvements, but no earthshaking changes.
+The overall interface is more polished, we automatically retry requests that yield the dreaded `429 RESOURCE_EXHAUSTED`, and there's better handling of some empty cell edge cases.
+We're also bumping the required version of the gargle package (<https://gargle.r-lib.org>), which handles everything around auth.
+
+You can see a full list of changes in the [release notes](https://googlesheets4.tidyverse.org/news/index.html).
+
+## Auth updates
+
+If you are generally fairly passive about googlesheets4 auth, then you should just sit back and let things happen organically during usage.
+If you've used googlesheets4 before, you can expect to see some messages about 
+cleaning and relocating the token cache when you first use v1.0.0.
+You can also expect to re-authenticate yourself with Google and re-authorize the "Tidyverse API Packages" to work with your files.
+This is all due to changes in gargle.
+
+If your usage requires you to be more proactive about auth, read the [blog post for gargle's recent v1.2.0 release](https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/).
+A key point is that we have rolled the built-in OAuth client, which is why those relying on it will need to re-auth.
+
+**If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call** that you should be using your own OAuth client or, quite possibly, an entirely different method of auth.
+Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.
+
+If you often use googlesheets4 together with googledrive, remember that the article [Using googlesheets4 with googledrive](https://googlesheets4.tidyverse.org/articles/articles/drive-and-sheets.html) gives some tips for how to coordinate auth.
+
+## Retries
+
+The Sheets API has [usage limits](https://developers.google.com/sheets/api/reference/limits) that are low enough even regular folks bump up against them occasionally:
+
+* 100 requests per 100 seconds per user
+* 500 requests per 100 seconds per project
+
+When you hit one of these limits, your request fails with the error code `429 RESOURCE_EXHAUSTED`.
+Thanks to a change in gargle, we now automatically retry such a request and, if it looks like you've exhausted your **user** quota, that first wait is > 100 seconds (!!).
+
+If this happens to you fairly often, you should contemplate whether your code relies on some self-defeating pattern, like hitting the Sheets API repeatedly in a tight loop.
+Here's an example of bad vs. good googlesheets4 code:
+
+```{r eval = FALSE}
+gapminder <- gs4_example("gapminder")
+sp <- sheet_properties(gapminder)
+(n <- sp$grid_rows[sp$name == "Africa"])
+#> [1] 625
+
+# this is BAD IDEA = reading individual cells in a loop
+for (i in seq_len(n)) {
+  gapminder %>%
+    range_read(sheet = "Africa", range = sprintf("C%i", i))
+}
+#> ✓ Reading from "gapminder".
+#> ✓ Range ''Africa'!C1'.
+#> ...
+#> x Request failed [429]. Retry 1 happens in 100.8 seconds ...
+#> ✓ Range ''Africa'!C28'.
+#> ...
+#> x Request failed [429]. Retry 1 happens in 100.4 seconds ...
+#> x Request failed [429]. Retry 2 happens in 8.8 seconds ...
+#> ...
+
+# this is a GOOD IDEA = reading all cells at once
+gapminder %>%
+  range_read(sheet = "Africa", range = "C:C") %>%
+  head()
+#> ✓ Reading from "gapminder".
+#> ✓ Range ''Africa'!C:C'.
+#> # A tibble: 6 x 1
+#>    year
+#>   <dbl>
+#> 1  1952
+#> 2  1957
+#> 3  1962
+#> 4  1967
+#> 5  1972
+#> 6  1977
+```
+
+Lesson: work in bulk as much as possible, as opposed to making lots of little piecemeal requests.
+
+What about the per project limit?
+If you are auth'ed as a regular user, using the built-in OAuth client, this project refers to the Tidyverse API Packages.
+Yes, that means you're sharing project-level quota with all your fellow useRs who also auth'ed this way!
+
+If you hit per project limits regularly and it upsets your workflow, the universe is telling you that it's time to configure your own OAuth client or use an entirely different method of auth, such as a service account token.
+Read more in the gargle article [How to get your own API credentials](https://gargle.r-lib.org/articles/get-api-credentials.html).
+
+Casual googlesheets4 users can go with the flow and accept that the occasional request will need an automatic retry.
+If you want to learn more, the functionality comes from `gargle::request_retry()`.
+In the development version of gargle, we retry for an even larger set of error codes (408, 429, 500, 502, and 503).
+If that appeals to you and you're willing to install a pre-release package, we'd love to hear how this works for you.
+
+## User interface
+
+The googlesheets4 user interface (UI) has gotten more stylish, thanks to the cli package (<https://cli.r-lib.org>).
+This applies to informational messages, as well as to errors.
+
+The semantic UI encouraged by cli is a great fit for googlesheets4, where it's useful to apply distinct inline styles for (spread)Sheet name, (work)sheet name, and cell range.
+Also bullets!
+Here is a fictional message that shows off some of these lovely things:
+
+```{r echo = FALSE}
+googlesheets4:::gs4_bullets(c(
+  "Hey, we're doing exciting things in the {.s_sheet chicken_sheet}!",
+  i = "Did you know it has a worksheet called {.w_sheet chicken_scratch}?",
+  x = "Uh-oh, in range {.range A1:D4}, some data appears to be encoded \\
+       in the cell color :("
+))
+```
+
+In a more technical vein, all errors thrown by googlesheets4 now route through `rlang::abort()`.
+This has various benefits, including better access to the backtrace and error data.
+All errors thrown by googlesheets4 now bear the class `"googlesheets4_error"`.
+
+`googlesheets4_quiet` is a new option to suppress informational messages from googlesheets4.
+`local_gs4_quiet()` and `with_gs4_quiet()` are [withr-style](https://withr.r-lib.org) convenience helpers for setting `googlesheets4_quiet = TRUE`.
+
+## Empty cells
+
+It's (not so) funny how much effort goes into handling the absence of data and googlesheets4 is no exception.
+We've made a few improvements to how we read or write nothing.
+
+The `na` argument of `read_sheet()` has become more capable and more consistent with readr.
+Specifically, `na = character()` (or the general lack of `""` among the `na` strings) results in cells with no data appearing as the empty string `""` within a character vector, as opposed to `NA`.
+
+```{r eval = FALSE}
+dat <- data.frame(
+  x = c("one", "", "three")
+)
+ss <- gs4_create("blog-post-blanks", sheets = dat)
+#> ✓ Creating new Sheet: "blog-post-blanks".
+
+read_sheet(ss)
+#> ✓ Reading from "blog-post-blanks".
+#> ✓ Range 'dat'.
+#> # A tibble: 3 x 1
+#>   x    
+#>   <chr>
+#> 1 one  
+#> 2 <NA> 
+#> 3 three
+
+read_sheet(ss, na = character())
+#> ✓ Reading from "blog-post-blanks".
+#> ✓ Range 'dat'.
+#> # A tibble: 3 x 1
+#>   x      
+#>   <chr>  
+#> 1 "one"  
+#> 2 ""     
+#> 3 "three"
+```
+
+Explicit `NULL`s are also now written properly, i.e. as an empty cell.
+This can come up with list-columns.
+List-columns can easily creep in when working with Sheets edited by humans, who tend to create mixed columns by accident, i.e. mixing numbers and text.
+
+## Acknowledgements
+
+We'd like to thank everyone who has helped to shape googlesheets4, since the release of v0.2.0, through their contributions in issues and pull requests:
+
+[&#x0040;aaronmams](https://github.com/aaronmams), [&#x0040;ajjitn](https://github.com/ajjitn), [&#x0040;akgold](https://github.com/akgold), [&#x0040;AvinaHunjan](https://github.com/AvinaHunjan), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;bwganblack](https://github.com/bwganblack), [&#x0040;cmichaud92](https://github.com/cmichaud92), [&#x0040;comicalequation](https://github.com/comicalequation), [&#x0040;CorradoLanera](https://github.com/CorradoLanera), [&#x0040;cpilat97](https://github.com/cpilat97), [&#x0040;daattali](https://github.com/daattali), [&#x0040;davidski](https://github.com/davidski), [&#x0040;devu123](https://github.com/devu123), [&#x0040;dgmdevelopment](https://github.com/dgmdevelopment), [&#x0040;douglascm](https://github.com/douglascm), [&#x0040;dulearnaux](https://github.com/dulearnaux), [&#x0040;ericcrandall](https://github.com/ericcrandall), [&#x0040;ericpgreen](https://github.com/ericpgreen), [&#x0040;featherduino](https://github.com/featherduino), [&#x0040;felixetorres](https://github.com/felixetorres), [&#x0040;ferguskeatinge](https://github.com/ferguskeatinge), [&#x0040;ghost](https://github.com/ghost), [&#x0040;Helena-D](https://github.com/Helena-D), [&#x0040;jasonboots](https://github.com/jasonboots), [&#x0040;jcheng5](https://github.com/jcheng5), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;JimboMahoney](https://github.com/JimboMahoney), [&#x0040;johnbde](https://github.com/johnbde), [&#x0040;jpawlata](https://github.com/jpawlata), [&#x0040;lpevzner](https://github.com/lpevzner), [&#x0040;marcusbrito](https://github.com/marcusbrito), [&#x0040;MateusMaiaDS](https://github.com/MateusMaiaDS), [&#x0040;mathlete76](https://github.com/mathlete76), [&#x0040;mattle24](https://github.com/mattle24), [&#x0040;mikegunn](https://github.com/mikegunn), [&#x0040;milamyslov](https://github.com/milamyslov), [&#x0040;MonkmanMH](https://github.com/MonkmanMH), [&#x0040;nicholailidow](https://github.com/nicholailidow), [&#x0040;nikosbosse](https://github.com/nikosbosse), [&#x0040;nilescbn](https://github.com/nilescbn), [&#x0040;OmarGonD](https://github.com/OmarGonD), [&#x0040;paulvern](https://github.com/paulvern), [&#x0040;pschloss](https://github.com/pschloss), [&#x0040;py9mrg](https://github.com/py9mrg), [&#x0040;rhamo](https://github.com/rhamo), [&#x0040;rhgof](https://github.com/rhgof), [&#x0040;robitalec](https://github.com/robitalec), [&#x0040;RussBowdrey](https://github.com/RussBowdrey), [&#x0040;sacrevert](https://github.com/sacrevert), [&#x0040;sanjmeh](https://github.com/sanjmeh), [&#x0040;SebastianJHM](https://github.com/SebastianJHM), [&#x0040;timothoms](https://github.com/timothoms), [&#x0040;TMax66](https://github.com/TMax66), [&#x0040;tomcardoso](https://github.com/tomcardoso), [&#x0040;uhhiitsphilia](https://github.com/uhhiitsphilia), and [&#x0040;YlanAllouche](https://github.com/YlanAllouche).
