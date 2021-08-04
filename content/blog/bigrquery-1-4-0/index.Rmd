@@ -32,7 +32,53 @@ You can see a full list of changes in the [release notes](https://bigrquery.r-db
 
 ## `bq_table_download()` bug fix
 
-*to write*
+`bq_table_download()` is a good way to bring small-to-medium data out of BigQuery and into R, in the form of a tibble.
+
+Under the hood, `bq_table_download()` retrieves the data in chunks, using several simultaneous connections to BigQuery servers, then parses and reassembles it.
+The use of concurrent requests has a substantial performance benefit, which we think is absolutely worth it.
+We ask for these chunks in terms of specific rows, but if the server determines the response will be too large, it sends fewer-than-expected rows (plus a token that can be used to pick up where things left off).
+
+The bug is that `bq_table_download()` previously did not account for this and silently returned a tibble with the requested shape but, potentially, with lots of missing data.
+Many users and datasets are unaffected, because all chunks are received in their entirety.
+But the problem has been seen with datasets with many columns and where data complexity and sparsity mean that different slices of rows have a very different memory footprint.
+
+`bq_table_download()` has been heavily refactored to make this phenomenon much less likely and to detect it when it happens:
+
+* The default value of `page_size` is no longer fixed and, instead, is determined empirically. Users are strongly recommended to let bigrquery select `page_size` automatically, unless there's a specific reason to do otherwise.
+* If one of our so-called chunks does not fit on a BigQuery page, `bq_table_download()` now throws an error with some advice about `page_size`.
+* The `max_results` argument has been deprecated in favor of `n_max`, which better reflects what we actually do with this number and is consistent with the `n_max` argument elsewhere, e.g., `readr::read_csv()`.
+
+Here's a look at the new and improved `bq_table_download()`:
+
+```{r eval = FALSE}
+library(bigrquery)
+
+dat <- bq_table_download(
+  "bigquery-public-data.chicago_taxi_trips.taxi_trips",
+  n_max = 100000,
+  bigint = "integer64"
+)
+#> Downloading first chunk of data.
+#> Received 29,221 rows in the first chunk.
+#> Downloading the remaining 70,779 rows in 4 chunks of (up to) 21,915 rows.
+
+tail(dat)
+#> # A tibble: 6 x 23
+#>   unique_key    taxi_id     trip_start_timesta… trip_end_timestamp  trip_seconds
+#>   <chr>         <chr>       <dttm>              <dttm>                   <int64>
+#> 1 1ad3f7df79d3… 0caf3d04eb… 2013-12-27 12:45:00 2013-12-27 13:00:00          840
+#> 2 3c982851afee… d7f7e8e4b0… 2014-01-25 19:45:00 2014-01-25 20:00:00          720
+#> 3 da7428c5329e… 46e168456e… 2014-01-06 17:45:00 2014-01-06 18:00:00          540
+#> 4 b0bb177ea839… 8d1222551a… 2014-01-08 11:45:00 2014-01-08 12:00:00          540
+#> 5 eee61e8e6c6d… ac39a2b21a… 2014-01-07 20:45:00 2014-01-07 21:00:00          540
+#> 6 4cc0ba56e6de… 25c1126afa… 2013-12-16 22:45:00 2013-12-16 22:45:00          420
+#> # … with 18 more variables: trip_miles <dbl>, pickup_census_tract <int64>,
+#> #   dropoff_census_tract <int64>, pickup_community_area <int64>,
+#> #   dropoff_community_area <int64>, fare <dbl>, tips <dbl>, tolls <dbl>,
+#> #   extras <dbl>, trip_total <dbl>, payment_type <chr>, company <chr>,
+#> #   pickup_latitude <dbl>, pickup_longitude <dbl>, pickup_location <chr>,
+#> #   dropoff_latitude <dbl>, dropoff_longitude <dbl>, dropoff_location <chr>
+```
 
 ## Auth updates
 
@@ -55,10 +101,6 @@ Basically, instead of storing sensitive information in a file that must be manag
 There is a cost, of course, which is that this auth method requires substantial configuration on both the GCP and AWS sides.
 
 See the [gargle v1.2.0 blog post](https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/) and the docs for `gargle::credentials_external_account()` to learn more.
-
-```{r setup}
-library(bigrquery)
-```
 
 ## Acknowledgements
 
