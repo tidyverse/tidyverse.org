@@ -7,7 +7,8 @@ bq_auth("jenny@rstudio.com")
 dat <- bq_table_download(
   "bigquery-public-data.chicago_taxi_trips.taxi_trips",
   n_max = 100000,
-  bigint = "integer64"
+  bigint = "integer64",
+  quiet = FALSE
 )
 
 tail(dat)
