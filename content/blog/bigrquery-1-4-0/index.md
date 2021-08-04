@@ -14,7 +14,7 @@ photo:
 
 categories: [package] 
 tags: [bigrquery, gargle, dbplyr, databases]
-rmd_hash: d3978393380be2df
+rmd_hash: ee905c9b8e515192
 
 ---
 
@@ -28,19 +28,31 @@ You can install bigrquery from CRAN with:
 
 </div>
 
-This blog post will ...
+This release is mostly to fix a bug in [`bq_table_download()`](https://bigrquery.r-dbi.org/reference/bq_table_download.html). We're also bumping the required version of the gargle package (<https://gargle.r-lib.org>), which handles everything around auth.
 
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
+You can see a full list of changes in the [release notes](https://bigrquery.r-dbi.org/news/index.html).
+
+## `bq_table_download()` bug fix
+
+*to write*
+
+## Auth updates
+
+If you are generally fairly passive about bigrquery auth, then you should just sit back and let things happen organically during usage. If you've used bigrquery before, you can expect to see some messages about cleaning and relocating the token cache when you first use v1.4.0. You can also expect to re-authenticate yourself with Google and re-authorize the "Tidyverse API Packages" to work with your files. This is all due to changes in gargle.
+
+If your usage requires you to be more proactive about auth, read the [blog post for gargle's recent v1.2.0 release](https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/). A key point is that we have rolled the built-in OAuth client, which is why those relying on it will need to re-auth.
+
+**If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call** that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.
+
+gargle v1.2.0 offers support for a new method of auth that is especially relevant to bigrquery users: *workload identity federation*. This is a new (as of April 2021) keyless authentication mechanism offered by Google. Identity federation allows applications running on a non-Google Cloud platform, such as AWS, to access Google Cloud resources without using a conventional service account token, eliminating the security problem posed by long-lived, powerful service account credential files. Basically, instead of storing sensitive information in a file that must be managed with great care, the necessary secrets are obtained on-the-fly and exchanged for short-lived tokens, with very granular control over what actions are allowed. There is a cost, of course, which is that this auth method requires substantial configuration on both the GCP and AWS sides.
+
+See the [gargle v1.2.0 blog post](https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/) and the docs for [`gargle::credentials_external_account()`](https://gargle.r-lib.org/reference/credentials_external_account.html) to learn more.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://bigrquery.r-dbi.org'>bigrquery</a></span><span class='o'>)</span></code></pre>
 
 </div>
-
-## Topic 1
-
-## Topic 2
 
 ## Acknowledgements
 
