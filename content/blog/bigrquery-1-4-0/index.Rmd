@@ -1,0 +1,109 @@
+---
+output: hugodown::hugo_document
+
+slug: bigrquery-1-4-0
+title: bigrquery 1.4.0
+date: 2021-08-04
+author: Jenny Bryan
+description: >
+    bigrquery 1.4.0 fixes a bug in `bq_table_download()`.
+
+photo:
+  url: https://unsplash.com/photos/uzw4MvfG5ps
+  author: Henry & Co.
+
+categories: [package] 
+tags: [bigrquery, gargle, dbplyr, databases]
+---
+
+We're gratified to announce the release of [bigrquery](https://bigrquery.r-dbi.org) 1.4.0.
+bigrquery makes it easy to work with data stored in [Google BigQuery](https://developers.google.com/bigquery/), a hosted database for big data.
+
+You can install bigrquery from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("bigrquery")
+```
+
+This release is mostly to fix a bug in `bq_table_download()`.
+We're also bumping the required version of the gargle package (<https://gargle.r-lib.org>), which handles everything around auth.
+
+You can see a full list of changes in the [release notes](https://bigrquery.r-dbi.org/news/index.html).
+
+## `bq_table_download()` bug fix
+
+`bq_table_download()` is a good way to bring small-to-medium data out of BigQuery and into R, in the form of a tibble.
+
+Under the hood, `bq_table_download()` retrieves the data in chunks, using several simultaneous connections to BigQuery servers, then parses and reassembles it.
+The use of concurrent requests has a substantial performance benefit, which we think is absolutely worth it.
+We ask for these chunks in terms of specific rows, but if the server determines the response will be too large, it sends fewer-than-expected rows (plus a token that can be used to pick up where things left off).
+
+The bug is that `bq_table_download()` previously did not account for this and silently returned a tibble with the requested shape but, potentially, with lots of missing data.
+Many users and datasets are unaffected, because all chunks are received in their entirety.
+But the problem has been seen with datasets with many columns and where data complexity and sparsity mean that different slices of rows have a very different memory footprint.
+
+`bq_table_download()` has been heavily refactored to make this phenomenon much less likely and to detect it when it happens:
+
+* The default value of `page_size` is no longer fixed and, instead, is determined empirically. Users are strongly recommended to let bigrquery select `page_size` automatically, unless there's a specific reason to do otherwise.
+* If one of our so-called chunks does not fit on a BigQuery page, `bq_table_download()` now throws an error with some advice about `page_size`.
+* The `max_results` argument has been deprecated in favor of `n_max`, which better reflects what we actually do with this number and is consistent with the `n_max` argument elsewhere, e.g., `readr::read_csv()`.
+
+Here's a look at the new and improved `bq_table_download()`:
+
+```{r eval = FALSE}
+library(bigrquery)
+
+dat <- bq_table_download(
+  "bigquery-public-data.chicago_taxi_trips.taxi_trips",
+  n_max = 100000,
+  bigint = "integer64"
+)
+#> Downloading first chunk of data.
+#> Received 29,221 rows in the first chunk.
+#> Downloading the remaining 70,779 rows in 4 chunks of (up to) 21,915 rows.
+
+tail(dat)
+#> # A tibble: 6 x 23
+#>   unique_key    taxi_id     trip_start_timesta… trip_end_timestamp  trip_seconds
+#>   <chr>         <chr>       <dttm>              <dttm>                   <int64>
+#> 1 1ad3f7df79d3… 0caf3d04eb… 2013-12-27 12:45:00 2013-12-27 13:00:00          840
+#> 2 3c982851afee… d7f7e8e4b0… 2014-01-25 19:45:00 2014-01-25 20:00:00          720
+#> 3 da7428c5329e… 46e168456e… 2014-01-06 17:45:00 2014-01-06 18:00:00          540
+#> 4 b0bb177ea839… 8d1222551a… 2014-01-08 11:45:00 2014-01-08 12:00:00          540
+#> 5 eee61e8e6c6d… ac39a2b21a… 2014-01-07 20:45:00 2014-01-07 21:00:00          540
+#> 6 4cc0ba56e6de… 25c1126afa… 2013-12-16 22:45:00 2013-12-16 22:45:00          420
+#> # … with 18 more variables: trip_miles <dbl>, pickup_census_tract <int64>,
+#> #   dropoff_census_tract <int64>, pickup_community_area <int64>,
+#> #   dropoff_community_area <int64>, fare <dbl>, tips <dbl>, tolls <dbl>,
+#> #   extras <dbl>, trip_total <dbl>, payment_type <chr>, company <chr>,
+#> #   pickup_latitude <dbl>, pickup_longitude <dbl>, pickup_location <chr>,
+#> #   dropoff_latitude <dbl>, dropoff_longitude <dbl>, dropoff_location <chr>
+```
+
+## Auth updates
+
+If you are generally fairly passive about bigrquery auth, then you should just sit back and let things happen organically during usage.
+If you've used bigrquery before, you can expect to see some messages about 
+cleaning and relocating the token cache when you first use v1.4.0.
+You can also expect to re-authenticate yourself with Google and re-authorize the "Tidyverse API Packages" to work with your files.
+This is all due to changes in gargle.
+
+If your usage requires you to be more proactive about auth, read the [blog post for gargle's recent v1.2.0 release](https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/).
+A key point is that we have rolled the built-in OAuth client, which is why those relying on it will need to re-auth.
+
+**If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call** that you should be using your own OAuth client or, quite possibly, an entirely different method of auth.
+Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.
+
+gargle v1.2.0 offers support for a new method of auth that is especially relevant to bigrquery users: *workload identity federation*.
+This is a new (as of April 2021) keyless authentication mechanism offered by Google.
+Identity federation allows applications running on a non-Google Cloud platform, such as AWS, to access Google Cloud resources without using a conventional service account token, eliminating the security problem posed by long-lived, powerful service account credential files.
+Basically, instead of storing sensitive information in a file that must be managed with great care, the necessary secrets are obtained on-the-fly and exchanged for short-lived tokens, with very granular control over what actions are allowed.
+There is a cost, of course, which is that this auth method requires substantial configuration on both the GCP and AWS sides.
+
+See the [gargle v1.2.0 blog post](https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/) and the docs for `gargle::credentials_external_account()` to learn more.
+
+## Acknowledgements
+
+We'd like to thank everyone who has furthered the development of bigrquery, since the last major release (v1.0.0), through their contributions in issues and pull requests:
+
+[&#x0040;414theodore](https://github.com/414theodore), [&#x0040;abalter](https://github.com/abalter), [&#x0040;acvelozo](https://github.com/acvelozo), [&#x0040;adhi-r](https://github.com/adhi-r), [&#x0040;afalcioni](https://github.com/afalcioni), [&#x0040;ahmohamed](https://github.com/ahmohamed), [&#x0040;ajhindle](https://github.com/ajhindle), [&#x0040;AlekseyBuzmakov](https://github.com/AlekseyBuzmakov), [&#x0040;analyse9823](https://github.com/analyse9823), [&#x0040;andirey](https://github.com/andirey), [&#x0040;ArbenKqiku](https://github.com/ArbenKqiku), [&#x0040;arvhug](https://github.com/arvhug), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;bbrewington](https://github.com/bbrewington), [&#x0040;bhargavimoorthyrao](https://github.com/bhargavimoorthyrao), [&#x0040;btrx-sreddy](https://github.com/btrx-sreddy), [&#x0040;byapparov](https://github.com/byapparov), [&#x0040;carbocation](https://github.com/carbocation), [&#x0040;CartWill](https://github.com/CartWill), [&#x0040;chrisherold](https://github.com/chrisherold), [&#x0040;ChrisJohnsonUMG](https://github.com/ChrisJohnsonUMG), [&#x0040;cpcgoogle](https://github.com/cpcgoogle), [&#x0040;danny-molamola](https://github.com/danny-molamola), [&#x0040;deflaux](https://github.com/deflaux), [&#x0040;dmoimpact](https://github.com/dmoimpact), [&#x0040;downloaderfan](https://github.com/downloaderfan), [&#x0040;dsolito](https://github.com/dsolito), [&#x0040;dujm](https://github.com/dujm), [&#x0040;eamcvey](https://github.com/eamcvey), [&#x0040;eddelbuettel](https://github.com/eddelbuettel), [&#x0040;edgararuiz-zz](https://github.com/edgararuiz-zz), [&#x0040;eduardodrc](https://github.com/eduardodrc), [&#x0040;evandropp10](https://github.com/evandropp10), [&#x0040;everron](https://github.com/everron), [&#x0040;geotheory](https://github.com/geotheory), [&#x0040;gikis1](https://github.com/gikis1), [&#x0040;gjuggler](https://github.com/gjuggler), [&#x0040;gkmuralimech](https://github.com/gkmuralimech), [&#x0040;grantmcdermott](https://github.com/grantmcdermott), [&#x0040;guillaumed90](https://github.com/guillaumed90), [&#x0040;hadley](https://github.com/hadley), [&#x0040;HarlanH](https://github.com/HarlanH), [&#x0040;hlynurhallgrims](https://github.com/hlynurhallgrims), [&#x0040;htappen](https://github.com/htappen), [&#x0040;Iuiu1234](https://github.com/Iuiu1234), [&#x0040;izzetagoren](https://github.com/izzetagoren), [&#x0040;j450h1](https://github.com/j450h1), [&#x0040;janejuenyang](https://github.com/janejuenyang), [&#x0040;jayBana](https://github.com/jayBana), [&#x0040;jberninger](https://github.com/jberninger), [&#x0040;jcheng5](https://github.com/jcheng5), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jimmyg3g](https://github.com/jimmyg3g), [&#x0040;joetortorelli](https://github.com/joetortorelli), [&#x0040;jordanwebb10](https://github.com/jordanwebb10), [&#x0040;jpryda](https://github.com/jpryda), [&#x0040;jrecasens](https://github.com/jrecasens), [&#x0040;Ka2wei](https://github.com/Ka2wei), [&#x0040;KarimZaoui](https://github.com/KarimZaoui), [&#x0040;kesnalawrence](https://github.com/kesnalawrence), [&#x0040;kevinwang09](https://github.com/kevinwang09), [&#x0040;kkmann](https://github.com/kkmann), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;Kvit](https://github.com/Kvit), [&#x0040;ldanai](https://github.com/ldanai), [&#x0040;leemc-data-ed](https://github.com/leemc-data-ed), [&#x0040;LukasWallrich](https://github.com/LukasWallrich), [&#x0040;maelle](https://github.com/maelle), [&#x0040;mapinas](https://github.com/mapinas), [&#x0040;mauricioita](https://github.com/mauricioita), [&#x0040;meystingray](https://github.com/meystingray), [&#x0040;meztez](https://github.com/meztez), [&#x0040;mr2dark](https://github.com/mr2dark), [&#x0040;mwilson19](https://github.com/mwilson19), [&#x0040;paleolimbot](https://github.com/paleolimbot), [&#x0040;paulsendavidjay](https://github.com/paulsendavidjay), [&#x0040;philbrierley](https://github.com/philbrierley), [&#x0040;ras44](https://github.com/ras44), [&#x0040;rasmusab](https://github.com/rasmusab), [&#x0040;reliscu](https://github.com/reliscu), [&#x0040;riccardopinosio](https://github.com/riccardopinosio), [&#x0040;Saikri5hna](https://github.com/Saikri5hna), [&#x0040;samudzi](https://github.com/samudzi), [&#x0040;santic113](https://github.com/santic113), [&#x0040;saptarshiguha](https://github.com/saptarshiguha), [&#x0040;Schumzy](https://github.com/Schumzy), [&#x0040;SeagleLiu](https://github.com/SeagleLiu), [&#x0040;selcukakbas](https://github.com/selcukakbas), [&#x0040;selesnow](https://github.com/selesnow), [&#x0040;siroros](https://github.com/siroros), [&#x0040;skydavis435](https://github.com/skydavis435), [&#x0040;spgarbet](https://github.com/spgarbet), [&#x0040;spiddy69](https://github.com/spiddy69), [&#x0040;srkpratap](https://github.com/srkpratap), [&#x0040;stelsemeyer](https://github.com/stelsemeyer), [&#x0040;stevecondylios](https://github.com/stevecondylios), [&#x0040;svmakarovv](https://github.com/svmakarovv), [&#x0040;tchaithonov](https://github.com/tchaithonov), [&#x0040;tdsmith](https://github.com/tdsmith), [&#x0040;theclue](https://github.com/theclue), [&#x0040;tinoater](https://github.com/tinoater), [&#x0040;valentas-kurauskas](https://github.com/valentas-kurauskas), [&#x0040;valentinumbach](https://github.com/valentinumbach), [&#x0040;victorz-ca](https://github.com/victorz-ca), [&#x0040;warnes](https://github.com/warnes), [&#x0040;YuanyuanZhang1986](https://github.com/YuanyuanZhang1986), [&#x0040;zacdav](https://github.com/zacdav), [&#x0040;ZainRizvi](https://github.com/ZainRizvi), [&#x0040;zerobytes](https://github.com/zerobytes), and [&#x0040;zoews](https://github.com/zoews).
