@@ -41,16 +41,22 @@ install.packages("infer")
 This release includes a number of major changes and new features. Namely:
 
 * Support for multiple regression
-* Alignment of theory-based methods
+* Alignment of theory-based methods with their simulation-based counterparts
 * Improvements to behavorial consistency of `calculate()`
 
-However, the infer package has been on CRAN since 2017, and we haven't written about the package on the tidyverse blog before. Thus, I'll start out by demonstrating the basics of the package. After, I'll highlight some of the more neat features introduced in this version of the package. You can find a full list of changes in version 1.0.0 of the package in the [release notes](https://github.com/tidymodels/infer/releases/tag/v1.0.0).
+The infer package has been on CRAN since 2017. However, we haven't written about the package on the tidyverse blog before. Thus, I'll start out by demonstrating the basics of the package. After, I'll highlight some of the more neat features introduced in this version of the package. You can find a full list of changes in version 1.0.0 of the package in the [release notes](https://github.com/tidymodels/infer/releases/tag/v1.0.0).
 
 ```{r setup}
 library(infer)
 ```
 
-## Getting to Know infer
+We also load the tidyverse collection of packages to help with data exploration and manipulation.
+
+```{r setup-tidyverse}
+library(tidyverse)
+```
+
+## Getting to know infer
 
 Regardless of the hypothesis test in question, an analyst asks the same kind of question when conducting statistical inference: is the effect/difference in the observed data real, or due to random chance? To answer this question, the analyst begins by assuming that the effect in the observed data was simply due to random chance, and calls this assumption the *null hypothesis*. (In reality, they might not believe in the null hypothesis at all---the null hypothesis is in opposition to the *alternate hypothesis*, which supposes that the effect present in the observed data is actually due to the fact that "something is going on.") The analyst then calculates a *test statistic* from the data that describes the observed effect. They can use this test statistic to calculate a *p-value* via juxtaposition with a *null distribution*, giving the probability that the observed data could come about if the null hypothesis were true. If this probability is below some pre-defined *significance level* $\alpha$, then the analyst can reject the null hypothesis.
 
@@ -60,8 +66,9 @@ The workflow of this package is designed around this idea. Starting out with som
 + `hypothesize()` allows the analyst to declare the null hypothesis.
 + `generate()` allows the analyst to generate data reflecting the null hypothesis or using the bootstrap.
 + `calculate()` allows the analyst to calculate summary statistics, either from
-     * the observed data, to form the observed test statistic.
-     * data `generate()`d to reflect the null hypothesis, to form a randomization-based null distribution of test statistics.
+     * the observed data, to form the observed statistic.
+     * data `generate()`d to reflect the null hypothesis, to form a randomization-based null distribution of statistics.
+     * data `generate()`d to form a bootstrap distribution of statistics
 
 As such, the ultimate output of an infer pipeline using these four functions is generally an _observed statistic_ or _null distribution_ of test statistics. These four functions are thus supplemented with several utilities to visualize and extract value from their outputs.
 
@@ -74,16 +81,13 @@ The workflow outlined above can also be used for constructing confidence interva
 To demonstrate, we'll walk through a typical infer pipeline step-by-step. Throughout this post, we make use of `gss`, a dataset supplied by infer containing a sample of 500 observations of 11 variables from the *General Social Survey*. 
 
 ```{r load-gss, warning = FALSE, message = FALSE}
-# load in the dataset
-data(gss)
-
 # take a look at its structure
-str(gss)
+glimpse(gss)
 ```
 
 Each row is an individual survey response, containing some basic demographic information on the respondent as well as some additional variables. See `?gss` for more information on the variables included and their source.
 
-### specify(): Specifying Response (and Explanatory) Variables
+### specify(): Specifying response (and explanatory) variables
 
 The `specify()` function can be used to specify which of the variables in the dataset you're interested in. If you're only interested in, say, the `age` of the respondents, you might write:
 
@@ -92,7 +96,7 @@ gss %>%
   specify(response = age)
 ```
 
-On the front-end, the output of `specify()` just looks like it selects off the columns in the dataframe that you've specified. Checking the class of this object, though:
+On the front end, the output of `specify()` just looks like it selects off the columns in the dataframe that you've specified. Checking the class of this object, though:
 
 ```{r specify-one, warning = FALSE, message = FALSE}
 gss %>%
@@ -114,7 +118,7 @@ gss %>%
   specify(response = age, explanatory = partyid)
 ```
 
-### hypothesize(): Declaring the Null Hypothesis
+### hypothesize(): Declaring the null hypothesis
 
 The next step in an infer pipeline is often to declare a null hypothesis using `hypothesize()`. The first step is to supply one of "independence" or "point" to the `null` argument. If your null hypothesis assumes independence between two variables, then this is all you need to supply to `hypothesize()`:
 
@@ -132,15 +136,15 @@ gss %>%
   hypothesize(null = "point", mu = 40)
 ```
 
-Again, from the front-end, the dataframe outputted from `hypothesize()` looks almost exactly the same as it did when it came out of `specify()`, but infer now "knows" your null hypothesis.
+Again, on the front end, the dataframe outputted from `hypothesize()` looks almost exactly the same as it did when it came out of `specify()`, but infer now "knows" your null hypothesis.
 
-### generate(): Generating the Null Distribution
+### generate(): Generating the simulated distribution
 
 Once we've asserted our null hypothesis using `hypothesize()`, we can construct a null distribution based on this hypothesis. We can do this using one of several methods, supplied in the `type` argument:
 
-* `bootstrap`: A bootstrap sample will be drawn for each replicate, where a sample of size equal to the input sample size is drawn (with replacement) from the input sample data.  
 * `permute`: For each replicate, each input value will be randomly reassigned (without replacement) to a new output value in the sample.  
 * `draw`: A value will be sampled from a theoretical distribution with parameters specified in `hypothesize()` for each replicate. (This option is currently only applicable for testing point estimates.)  
+* `bootstrap`: A bootstrap sample will be drawn for each replicate, where a sample of size equal to the input sample size is drawn (with replacement) from the input sample data. The bootstrap is most commonly used in the context of constructing a confidence interval, omitting infer's `hypothesize()` step.
 
 Continuing on with our example above, about the average number of hours worked a week, we might write:
 
@@ -162,7 +166,7 @@ gss %>%
   generate(reps = 1000, type = "permute")
 ```
 
-### calculate(): Calculating Summary Statistics
+### calculate(): Calculating summary statistics
 
 `calculate()` calculates summary statistics from the output of infer core functions. The function, for one, takes in a `stat` argument, which is currently one of `"mean"`, `"median"`, `"sum"`, `"sd"`, `"prop"`, `"count"`, `"diff in means"`, `"diff in medians"`, `"diff in props"`, `"Chisq"`, `"F"`, `"t"`, `"z"`, `"slope"`, or `"correlation"`. For example, continuing our example above to calculate the null distribution of mean hours worked per week:
 
@@ -182,7 +186,7 @@ gss %>%
   calculate(stat = "mean")
 ```
 
-### Other Utilities
+### Other utilities
 
 infer offers several utilities to extract meaning from summary statistics and distributions---the package provides functions to visualize where a statistic is relative to a distribution (with `visualize()`), calculate p-values (with `get_p_value()`), and calculate confidence intervals (with `get_confidence_interval()`).
 
@@ -228,7 +232,7 @@ p_value <- dist %>%
 p_value
 ```
 
-It looks like the p-value is `r p_value`, which is pretty small---if the true mean number of hours worked per week was actually 40, the probability of our sample mean being this far (`r abs(point_estimate-40)` hours) from 40 would be `r p_value`. This may or may not be statistically significantly different, depending on the significance level $\alpha$ you decided on *before* you ran this analysis. If you had set $\alpha = .05$, then this difference would be statistically significant, but if you had set $\alpha = .01$, then it would not be.
+It looks like the p-value is `r p_value`, which is pretty small---if the true mean number of hours worked per week was actually 40, the probability of our sample mean being this far (`r abs(point_estimate-40)` hours) from 40 would be `r p_value`. This may or may not be statistically significantly different, depending on the significance level $\alpha$ you decided on *before* you ran this analysis. If you had set $\alpha = 0.05$, then this difference would be statistically significant, but if you had set $\alpha = 0.01$, then it would not be.
 
 To get a confidence interval around our estimate, we can write:
 
@@ -236,14 +240,14 @@ To get a confidence interval around our estimate, we can write:
 dist %>%
   get_confidence_interval(
     point_estimate = point_estimate,
-    level = .95,
+    level = 0.95,
     type = "se"
   )
 ```
 
-As you can see, 40 hours per week is not contained in this interval, which aligns with our previous conclusion that this finding is significant at the confidence level $\alpha = .05$.
+As you can see, 40 hours per week is not contained in this interval, which aligns with our previous conclusion that this finding is significant at the confidence level $\alpha = 0.05$.
 
-## What's New?
+## What's new?
 
 There are a number of improvements and new features in this release that resolve longstanding gaps in the package's functionality. We'll highlight three:
 
@@ -346,7 +350,7 @@ The distribution here just defines the spread for the standard error calculation
 ci <- 
   get_confidence_interval(
     dist,
-    level = .95,
+    level = 0.95,
     point_estimate = obs_mean
   )
 
