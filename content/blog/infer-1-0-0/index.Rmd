@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: infer-1-0-0
 title: infer 1.0.0
-date: 2021-08-16
+date: 2021-08-17
 author: Simon Couch
 description: >
     The first major release of infer, a package implementing a unified approach
@@ -30,7 +30,7 @@ TODO:
 * [x] `usethis::use_tidy_thanks()`
 -->
 
-We're super excited announce the release of [infer](https://infer.tidymodels.org/) 1.0.0! infer is a package for statistical inference that implements an expressive statistical grammar that adheres to the tidyverse design framework. Rather than providing methods for specific statistical tests, this package consolidates the principles that are shared among common hypothesis tests and confidence intervals into a set of four main verbs (functions), supplemented with many utilities to visualize and extract value from their outputs.
+We're super excited announce the release of [infer](https://infer.tidymodels.org/) 1.0.0! infer is a package for statistical inference that implements an expressive statistical grammar that adheres to the tidyverse design framework. Rather than providing methods for specific statistical tests, this package consolidates the principles that are shared among common hypothesis tests and confidence intervals into a set of four main verbs (functions), supplemented with many utilities to visualize and extract value from their outputs. The expressive grammar is specifically designed to allow users to make explicit connections between the computational procedures and the theory of statistical inference, making this package particularly well suited for teaching this topic. 
 
 You can install it from CRAN with:
 
@@ -374,51 +374,51 @@ Another major change to the package in this release is a set of standards for be
 for the variables `specify()`d
 
 
-```{r, error = TRUE}
-gss %>%
-  specify(response = hours) %>%
-  calculate(stat = "diff in means")
-```
-
-or
-
-```{r, error = TRUE}
-gss %>%
-  specify(college ~ partyid, success = "degree") %>%
-  calculate(stat = "diff in props")
-```
+    ```{r, error = TRUE}
+    gss %>%
+      specify(response = hours) %>%
+      calculate(stat = "diff in means")
+    ```
+    
+    or
+    
+    ```{r, error = TRUE}
+    gss %>%
+      specify(college ~ partyid, success = "degree") %>%
+      calculate(stat = "diff in props")
+    ```
 
 * supply a consistent message when the user supplies unneeded information via `hypothesize()` to `calculate()` an observed statistic
 
 
-```{r}
-# supply mu = 40 when it's not needed
-gss %>%
-  specify(response = hours) %>%
-  hypothesize(null = "point", mu = 40) %>%
-  calculate(stat = "mean")
-```
+    ```{r}
+    # supply mu = 40 when it's not needed
+    gss %>%
+      specify(response = hours) %>%
+      hypothesize(null = "point", mu = 40) %>%
+      calculate(stat = "mean")
+    ```
 
 and
 
 * supply a consistent warning and assume a reasonable null value when the user does not supply sufficient information to calculate an observed statistic
 
 
-```{r}
-# don't hypothesize `p` when it's needed
-gss %>%
-    specify(response = sex, success = "female") %>%
-    calculate(stat = "z")
-```
-
-or
-
-```{r}
-# don't hypothesize `p` when it's needed
-gss %>%
-  specify(response = partyid) %>%
-  calculate(stat = "Chisq")
-```
+    ```{r}
+    # don't hypothesize `p` when it's needed
+    gss %>%
+        specify(response = sex, success = "female") %>%
+        calculate(stat = "z")
+    ```
+    
+    or
+    
+    ```{r}
+    # don't hypothesize `p` when it's needed
+    gss %>%
+      specify(response = partyid) %>%
+      calculate(stat = "Chisq")
+    ```
 
 We don't anticipate that any of these changes are "breaking" in the sense that code that previously worked will continue to, though it may now message or warn in a way that it did not used to or error with a different (and hopefully more informative) message.
 
