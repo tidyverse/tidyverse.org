@@ -11,27 +11,27 @@ description: >
     comparisons.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/E9tFH39iRPE
+  author: NordWood Themes
 
 # one of: "deep-dive", "learn", "package", "programming", or "other"
-categories: [package] 
+categories: [package, programming] 
 tags: [testthat, waldo]
-rmd_hash: 94ed37fba86ef5d4
+rmd_hash: 0f7f57695bd3ff50
 
 ---
 
 <!--
 TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 We're delighted to announce the release of [waldo](https://waldo.r-lib.org) 0.3.0. waldo is designed to find and concisely describe the difference between a pair of R objects. It was designed primarily to improve failure messages for [`testthat::expect_equal()`](https://testthat.r-lib.org/reference/equality-expectations.html), but it turns out to be useful in a number of other situations.
@@ -44,7 +44,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post highlights the two biggest changes in this release: a new display format for data frame differences, and a new attribute that waldo can use to control the details of comparison. You can see a full list of changes in the [release notes](https://github.com/r-lib/waldo/blob/master/NEWS.md)
+This blog post highlights the two biggest changes in this release: a new display format for data frame differences and new tools for package developers to control the details of comparison. You can see a full list of changes in the [release notes](https://github.com/r-lib/waldo/blob/master/NEWS.md)
 
 <div class="highlight">
 
@@ -54,7 +54,7 @@ This blog post highlights the two biggest changes in this release: a new display
 
 ## Data frame differences
 
-waldo 0.2.0 treated data frames in the same way as lists, which was useful if a column changed, but wasn't exactly informative if a row changed. In 0.3.0, data frames get a new method that summarise the changes in a row-oriented form:
+waldo 0.2.0 treated data frames in the same way as lists, which worked fine if a column changed, but wasn't terribly informative if a row changed. In 0.3.0, data frames get a new row-oriented comparison:
 
 <div class="highlight">
 
@@ -81,12 +81,20 @@ waldo 0.2.0 treated data frames in the same way as lists, which was useful if a 
 
 </div>
 
-You'll notice that you still get the per column comparison as well. This is important for cases where the data frame print identically, but the underlying data is different. Here's a simple example:
+You'll notice that you still get the column comparison as well. This is important because the row-oriented comparison relies on the printed representation of the data frames, and there are important cases where data frames look the same but are actually different. The most important case is probably strings vs factors: example:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>df1</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"b"</span>, <span class='s'>"c"</span><span class='o'>)</span>, stringsAsFactors <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span>
-<span class='nv'>df2</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"b"</span>, <span class='s'>"c"</span><span class='o'>)</span>, stringsAsFactors <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='o'>(</span><span class='nv'>df1</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"b"</span>, <span class='s'>"c"</span><span class='o'>)</span>, stringsAsFactors <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span><span class='o'>)</span>
+<span class='c'>#&gt;   x</span>
+<span class='c'>#&gt; 1 a</span>
+<span class='c'>#&gt; 2 b</span>
+<span class='c'>#&gt; 3 c</span>
+<span class='o'>(</span><span class='nv'>df2</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"b"</span>, <span class='s'>"c"</span><span class='o'>)</span>, stringsAsFactors <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span><span class='o'>)</span>
+<span class='c'>#&gt;   x</span>
+<span class='c'>#&gt; 1 a</span>
+<span class='c'>#&gt; 2 b</span>
+<span class='c'>#&gt; 3 c</span>
 <span class='nf'><a href='https://waldo.r-lib.org/reference/compare.html'>compare</a></span><span class='o'>(</span><span class='nv'>df1</span>, <span class='nv'>df2</span><span class='o'>)</span>
 <span class='c'>#&gt; `old$x` is <span style='color: #00BB00;'>an S3 object of class &lt;factor&gt;, an integer vector</span></span>
 <span class='c'>#&gt; `new$x` is <span style='color: #00BB00;'>a character vector</span> ('a', 'b', 'c')</span></code></pre>
@@ -95,7 +103,7 @@ You'll notice that you still get the per column comparison as well. This is impo
 
 ## Control of comparison
 
-When developing new data structures, you often need to be able to control the details of the comparisons that waldo performs. For example, take the xml2 package, which uses the [libxml](http://xmlsoft.org) C library to work with xml. When you parse xml with xml2, it looks like it's just represented as a string:
+When developing new data structures, you often need to be able to control the details of waldo's comparisons. For example, take the xml2 package, which uses the [libxml](http://xmlsoft.org) C library to parse and process XML. When you print XML that's been parsed with xml2 it looks like a string:
 
 <div class="highlight">
 
@@ -107,7 +115,7 @@ When developing new data structures, you often need to be able to control the de
 
 </div>
 
-But behind the scenes, it's actually two pointers to C data structures created by libxml:
+But behind the scenes, it's actually two pointers to C data structures:
 
 <div class="highlight">
 
@@ -125,20 +133,20 @@ This means that a naive comparison isn't very useful:
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>x2</span> <span class='o'>&lt;-</span> <span class='nf'>xml2</span><span class='nf'>::</span><span class='nf'><a href='http://xml2.r-lib.org/reference/read_xml.html'>read_xml</a></span><span class='o'>(</span><span class='s'>"&lt;a&gt;2&lt;/a&gt;"</span><span class='o'>)</span>
 <span class='nf'><a href='https://waldo.r-lib.org/reference/compare.html'>compare</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>x1</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>x2</span><span class='o'>)</span><span class='o'>)</span>
-<span class='c'>#&gt; `old$node` is &lt;pointer: 0x7fde08c17fa0&gt;</span>
-<span class='c'>#&gt; `new$node` is &lt;pointer: 0x7fddc8c417b0&gt;</span>
+<span class='c'>#&gt; `old$node` is &lt;pointer: 0x7fdfb490e790&gt;</span>
+<span class='c'>#&gt; `new$node` is &lt;pointer: 0x7fdfc1d5dea0&gt;</span>
 <span class='c'>#&gt; </span>
-<span class='c'>#&gt; `old$doc` is &lt;pointer: 0x7fde08c17ef0&gt;</span>
-<span class='c'>#&gt; `new$doc` is &lt;pointer: 0x7fddc8c2a770&gt;</span></code></pre>
+<span class='c'>#&gt; `old$doc` is &lt;pointer: 0x7fdfb490e6e0&gt;</span>
+<span class='c'>#&gt; `new$doc` is &lt;pointer: 0x7fdfc1d25300&gt;</span></code></pre>
 
 </div>
 
-To resolve this problem waldo provides the [`compare_proxy()`](https://waldo.r-lib.org/reference/compare_proxy.html) generic which is called on every S3 object. You can use it to transform your object into something that's more easily compared. And waldo includes a built-in `compare_proxy.xml_node()` method that converts the C data structures back to strings:
+To resolve this problem, waldo provides the [`compare_proxy()`](https://waldo.r-lib.org/reference/compare_proxy.html) generic. This is called on every S3 object prior to comparison so you can transform your objects into equivalent data structures that waldo can more easily compare. For example, waldo includes a built-in `compare_proxy.xml_node()` method that converts the C data structures back to strings:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://waldo.r-lib.org/reference/compare.html'>compare</a></span><span class='o'>(</span><span class='nv'>x1</span>, <span class='nv'>x2</span><span class='o'>)</span>
-<span class='c'>#&gt; lines(as.character(old)[[1]]) vs lines(as.character(new)[[1]])</span>
+<span class='c'>#&gt; lines(as.character(old)) vs lines(as.character(new))</span>
 <span class='c'>#&gt; <span style='color: #555555;'>  "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;"</span></span>
 <span class='c'>#&gt; <span style='color: #BBBB00;'>- "&lt;a&gt;1&lt;/a&gt;"</span></span>
 <span class='c'>#&gt; <span style='color: #0000BB;'>+ "&lt;a&gt;2&lt;/a&gt;"</span></span>
@@ -146,9 +154,9 @@ To resolve this problem waldo provides the [`compare_proxy()`](https://waldo.r-l
 
 </div>
 
-(You could also imagine converting the xml structure to some richer tree structure in R, but I didn't take the time to do so.)
+(You could imagine converting the XML structure to a tree data structure in R to get even more informative comparisons, but I didn't take the time to do so.)
 
-This method has existed for some time, but waldo 0.3.0 generalised it so as well as returning the modifying object, it also returns a modifed "path" that describes how the object has been transformed:
+[`compare_proxy()`](https://waldo.r-lib.org/reference/compare_proxy.html) has existed for some time, but waldo 0.3.0 generalised it so as well as returning the modifying object, it also returns a modified "path" that describes how the object has been transformed:
 
 <div class="highlight">
 
@@ -156,16 +164,14 @@ This method has existed for some time, but waldo 0.3.0 generalised it so as well
 <span class='c'>#&gt; function(x, path) &#123;</span>
 <span class='c'>#&gt;   list(object = as.character(x), path = paste0("as.character(", path, ")"))</span>
 <span class='c'>#&gt; &#125;</span>
-<span class='c'>#&gt; &lt;bytecode: 0x7fddaa83c870&gt;</span>
+<span class='c'>#&gt; &lt;bytecode: 0x7fdf6387a408&gt;</span>
 <span class='c'>#&gt; &lt;environment: namespace:waldo&gt;</span></code></pre>
 
 </div>
 
-This means that if the comparison fails, you get a clear path to the root cause.
+This means that when comparison fails, you get a clear path to the root cause.
 
-Creating a new S3 method is reasonably heavy (and requires a little gymnastics in your package to correctly register without taking a hard dependency on waldo), so thanks to [Duncan Murdoch](http://github.com/dmurdoch) waldo 0.3.0 gains a new way of controlling comparisons: the `waldo_opts` attribute.
-
-The `waldo_opts` attribute is a list with the same names and valid values as the arguments to [`compare()`](https://waldo.r-lib.org/reference/compare.html), and it will override the default arguments. This is a powerful tool because you can inject these attributes at any level of the object hierarchy, no matter how deep.
+Creating a new S3 method is reasonably heavy (and requires a little gymnastics in your package to correctly register without taking a hard dependency on waldo), so thanks to [Duncan Murdoch](http://github.com/dmurdoch) waldo 0.3.0 gains a new way of controlling comparisons: the `waldo_opts` attribute. This attribute is a list with the same names as the arguments to [`compare()`](https://waldo.r-lib.org/reference/compare.html), where the values are used override the default values of [`compare()`](https://waldo.r-lib.org/reference/compare.html). This is a powerful tool because you can inject these attributes at any level of the object hierarchy, no matter how deep.
 
 For example, take these two lists which contain the same data but in different order:
 
@@ -186,7 +192,7 @@ Usually waldo will report these to be different:
 
 </div>
 
-But with the new `list_as_map` arugment (also thanks to an idea from Duncan Murdoch), you can request that the list be compared purely as mappings between names and values:
+With the new `list_as_map` arugment (also thanks to an idea from Duncan Murdoch), you can request that the list be compared purely as mappings between names and values:
 
 <div class="highlight">
 
@@ -200,10 +206,12 @@ This is great if you want this comparison to happen at the top level of the obje
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/base/attr.html'>attr</a></span><span class='o'>(</span><span class='nv'>x1</span>, <span class='s'>"waldo_opts"</span><span class='o'>)</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>list_as_map <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span>
-<span class='nf'><a href='https://waldo.r-lib.org/reference/compare.html'>compare</a></span><span class='o'>(</span><span class='nv'>x1</span>, <span class='nv'>x2</span><span class='o'>)</span>
+<span class='nf'><a href='https://waldo.r-lib.org/reference/compare.html'>compare</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='nv'>x1</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='nv'>x2</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> No differences</span></code></pre>
 
 </div>
 
 ## Acknowledgements
+
+Thanks to all 14 folks who contributed to this release by filing issues, discussion ideas, and creating pull requests: [@adamhsparks](https://github.com/adamhsparks), [@batpigandme](https://github.com/batpigandme), [@bhogan-mitre](https://github.com/bhogan-mitre), [@Bisaloo](https://github.com/Bisaloo), [@brodieG](https://github.com/brodieG), [@dmurdoch](https://github.com/dmurdoch), [@ericnewkirk](https://github.com/ericnewkirk), [@hadley](https://github.com/hadley), [@krlmlr](https://github.com/krlmlr), [@mgirlich](https://github.com/mgirlich), [@michaelquinn32](https://github.com/michaelquinn32), [@mpettis](https://github.com/mpettis), [@paleolimbot](https://github.com/paleolimbot), and [@tmwdr](https://github.com/tmwdr).
 
