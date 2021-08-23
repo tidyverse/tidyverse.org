@@ -1,0 +1,137 @@
+---
+output: hugodown::hugo_document
+
+slug: waldo-0-3-0
+title: waldo 0.3.0
+date: 2021-08-20
+author: Hadley Wickham
+description: >
+    waldo 0.3.0 improves the display of data frames differences, and gives the 
+    objects being compared the ability to control the detail of their 
+    comparisons.
+
+photo:
+  url: https://unsplash.com/photos/n6vS3xlnsCc
+  author: Kelley Bozarth
+
+# one of: "deep-dive", "learn", "package", "programming", or "other"
+categories: [package] 
+tags: [testthat, waldo]
+---
+
+<!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We're delighted to announce the release of [waldo](https://waldo.r-lib.org) 0.3.0. waldo is designed to find and concisely describe the difference between a pair of R objects. It was designed primarily to improve failure messages for `testthat::expect_equal()`, but it turns out to be useful in a number of other situations.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("waldo")
+```
+
+This blog post highlights the two biggest changes in this release: a new display format for data frame differences, and a new attribute that waldo can use to control the details of comparison. You can see a full list of changes in the [release notes](https://github.com/r-lib/waldo/blob/master/NEWS.md)
+
+```{r setup}
+library(waldo)
+```
+
+## Data frame differences
+
+waldo 0.2.0 treated data frames in the same way as lists, which was useful if a column changed, but wasn't exactly informative if a row changed. In 0.3.0, data frames get a new method that summarise the changes in a row-oriented form:
+
+```{r}
+df1 <- data.frame(x = c(1, 2, 3, 4, 5), y = c("a", "b", "c", "d", "e"))
+df2 <- data.frame(x = c(1, 2, 3, 10, 4, 5), y = c("a", "b", "c", "X", "d", "e"))
+compare(df1, df2)
+```
+
+You'll notice that you still get the per column comparison as well. This is important for cases where the data frame print identically, but the underlying data is different. Here's a simple example:
+
+```{r}
+df1 <- data.frame(x = c("a", "b", "c"), stringsAsFactors = TRUE)
+df2 <- data.frame(x = c("a", "b", "c"), stringsAsFactors = FALSE)
+compare(df1, df2)
+```
+
+## Control of comparison
+
+When developing new data structures, you often need to be able to control the details of the comparisons that waldo performs. For example, take the xml2 package, which uses the [libxml](http://xmlsoft.org) C library to work with xml. When you parse xml with xml2, it looks like it's just represented as a string:
+
+```{r}
+library(xml2)
+x1 <- xml2::read_xml("<a>1</a>")
+x1
+```
+
+But behind the scenes, it's actually two pointers to C data structures created by libxml:
+
+```{r}
+str(x1)
+```
+
+This means that a naive comparison isn't very useful:
+
+```{r}
+x2 <- xml2::read_xml("<a>2</a>")
+compare(unclass(x1), unclass(x2))
+```
+
+To resolve this problem waldo provides the `compare_proxy()` generic which is called on every S3 object. You can use it to transform your object into something that's more easily compared. And waldo includes a built-in `compare_proxy.xml_node()` method that converts the C data structures back to strings:
+
+```{r}
+compare(x1, x2)
+```
+
+(You could also imagine converting the xml structure to some richer tree structure in R, but I didn't take the time to do so.)
+
+This method has existed for some time, but waldo 0.3.0 generalised it so as well as returning the modifying object, it also returns a modifed "path" that describes how the object has been transformed:
+
+```{r}
+waldo:::compare_proxy.xml_node
+```
+
+This means that if the comparison fails, you get a clear path to the root cause.
+
+Creating a new S3 method is reasonably heavy (and requires a little gymnastics in your package to correctly register without taking a hard dependency on waldo), so thanks to [Duncan Murdoch](http://github.com/dmurdoch) waldo 0.3.0 gains a new way of controlling comparisons: the `waldo_opts` attribute.
+
+The `waldo_opts` attribute is a list with the same names and valid values as the arguments to `compare()`, and it will override the default arguments. This is a powerful tool because you can inject these attributes at any level of the object hierarchy, no matter how deep. 
+
+For example, take these two lists which contain the same data but in different order:
+
+```{r}
+x1 <- list(a = 1, b = 2)
+x2 <- list(b = 2, a = 1)
+```
+
+Usually waldo will report these to be different:
+
+```{r}
+compare(x1, x2)
+```
+
+But with the new `list_as_map` arugment (also thanks to an idea from Duncan Murdoch), you can request that the list be compared purely as mappings between names and values:
+
+```{r}
+compare(x1, x2, list_as_map = TRUE)
+```
+
+This is great if you want this comparison to happen at the top level of the object, but what if the difference is buried deep within a list of lists, and you only want `list_as_map` to affect one small part of the object? Well, now you can add the `waldo_opts` attribute:
+
+```{r}
+attr(x1, "waldo_opts") <- list(list_as_map = TRUE)
+compare(x1, x2)
+```
+
+## Acknowledgements
+
