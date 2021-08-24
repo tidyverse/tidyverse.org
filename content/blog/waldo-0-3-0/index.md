@@ -3,10 +3,10 @@ output: hugodown::hugo_document
 
 slug: waldo-0-3-0
 title: waldo 0.3.0
-date: 2021-08-20
+date: 2021-08-24
 author: Hadley Wickham
 description: >
-    waldo 0.3.0 improves the display of data frames differences, and gives the 
+    waldo 0.3.0 improves the display of data frame differences, and gives the 
     objects being compared the ability to control the detail of their 
     comparisons.
 
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package, programming] 
 tags: [testthat, waldo]
-rmd_hash: 0f7f57695bd3ff50
+rmd_hash: 16015fb1482f2860
 
 ---
 
@@ -44,7 +44,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post highlights the two biggest changes in this release: a new display format for data frame differences and new tools for package developers to control the details of comparison. You can see a full list of changes in the [release notes](https://github.com/r-lib/waldo/blob/master/NEWS.md)
+This blog post highlights the two biggest changes in this release: a new display format for data frame differences, and new tools for package developers to control the details of comparison. You can see a full list of changes in the [release notes](https://github.com/r-lib/waldo/blob/master/NEWS.md)
 
 <div class="highlight">
 
@@ -81,7 +81,7 @@ waldo 0.2.0 treated data frames in the same way as lists, which worked fine if a
 
 </div>
 
-You'll notice that you still get the column comparison as well. This is important because the row-oriented comparison relies on the printed representation of the data frames, and there are important cases where data frames look the same but are actually different. The most important case is probably strings vs factors: example:
+You'll notice that you still get the column comparison as well. This is important because the row-oriented comparison relies on the printed representation of the data frames, and there are cases where data frames look the same but are actually different. The most important case is probably strings vs factors: example:
 
 <div class="highlight">
 
@@ -127,17 +127,17 @@ But behind the scenes, it's actually two pointers to C data structures:
 
 </div>
 
-This means that a naive comparison isn't very useful:
+This means that a naïve comparison isn't very useful:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>x2</span> <span class='o'>&lt;-</span> <span class='nf'>xml2</span><span class='nf'>::</span><span class='nf'><a href='http://xml2.r-lib.org/reference/read_xml.html'>read_xml</a></span><span class='o'>(</span><span class='s'>"&lt;a&gt;2&lt;/a&gt;"</span><span class='o'>)</span>
 <span class='nf'><a href='https://waldo.r-lib.org/reference/compare.html'>compare</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>x1</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>x2</span><span class='o'>)</span><span class='o'>)</span>
-<span class='c'>#&gt; `old$node` is &lt;pointer: 0x7fdfb490e790&gt;</span>
-<span class='c'>#&gt; `new$node` is &lt;pointer: 0x7fdfc1d5dea0&gt;</span>
+<span class='c'>#&gt; `old$node` is &lt;pointer: 0x7fbc824876b0&gt;</span>
+<span class='c'>#&gt; `new$node` is &lt;pointer: 0x7fbc52557dd0&gt;</span>
 <span class='c'>#&gt; </span>
-<span class='c'>#&gt; `old$doc` is &lt;pointer: 0x7fdfb490e6e0&gt;</span>
-<span class='c'>#&gt; `new$doc` is &lt;pointer: 0x7fdfc1d25300&gt;</span></code></pre>
+<span class='c'>#&gt; `old$doc` is &lt;pointer: 0x7fbc82487600&gt;</span>
+<span class='c'>#&gt; `new$doc` is &lt;pointer: 0x7fbc52544cc0&gt;</span></code></pre>
 
 </div>
 
@@ -156,15 +156,17 @@ To resolve this problem, waldo provides the [`compare_proxy()`](https://waldo.r-
 
 (You could imagine converting the XML structure to a tree data structure in R to get even more informative comparisons, but I didn't take the time to do so.)
 
-[`compare_proxy()`](https://waldo.r-lib.org/reference/compare_proxy.html) has existed for some time, but waldo 0.3.0 generalised it so as well as returning the modifying object, it also returns a modified "path" that describes how the object has been transformed:
+[`compare_proxy()`](https://waldo.r-lib.org/reference/compare_proxy.html) has existed for some time, but waldo 0.3.0 generalised it so, as well as returning the modifying object, it also returns a modified "path" that describes how the object has been transformed:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>waldo</span><span class='nf'>:::</span><span class='nv'>compare_proxy.xml_node</span>
-<span class='c'>#&gt; function(x, path) &#123;</span>
-<span class='c'>#&gt;   list(object = as.character(x), path = paste0("as.character(", path, ")"))</span>
+<span class='c'>#&gt; function (x, path) </span>
+<span class='c'>#&gt; &#123;</span>
+<span class='c'>#&gt;     list(object = as.character(x), path = paste0("as.character(", </span>
+<span class='c'>#&gt;         path, ")"))</span>
 <span class='c'>#&gt; &#125;</span>
-<span class='c'>#&gt; &lt;bytecode: 0x7fdf6387a408&gt;</span>
+<span class='c'>#&gt; &lt;bytecode: 0x7fbc633408d8&gt;</span>
 <span class='c'>#&gt; &lt;environment: namespace:waldo&gt;</span></code></pre>
 
 </div>
