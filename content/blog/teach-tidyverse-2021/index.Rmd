@@ -235,30 +235,21 @@ If you're interested in learning more about these packages, I recommend the foll
 ## Building on the tidyverse framework for modeling with tidymodels
 
 The **tidymodels** framework is a collection of packages for modeling and machine learning using tidyverse principles.
+If you're introducing your students to data science with the tidyverse, a great next step to consider is using tidymodels when it comes to modeling and inference.
 
 ```{r}
 library(tidymodels)
 ```
 
-The motivations for tidymodels include
+From a pedagogical perspective, tidymodels has three main advantages: the framework provides similar interfaces to models, model outputs are straightforward to interact with for learners who already know how to wrangle and visualize data stored in tibbles, and it helps users avoid common machine learning pitfalls.
 
--   providing similar interfaces to models,
--   helping users avoid common machine learning pitfalls, and
--   pedagogical advantages.
-
-### Provide similar interfaces to models
-
-Consider the question "How do you define the the number of trees when fitting a random forest model?" The answer is generally "depends on the package: `randomForest::randomForest()` uses `ntree`, `ranger::ranger()` uses `num.trees`, Spark's `sparklyr::ml_random_forest()` uses `num_trees`".
-The answer with tidymodels is "using the `trees` argument in the `rand_forest()` package, regardless of the engine being used to fit the model.
-
-### Help users avoid common machine learning pitfalls
-
-All tidymodels pipelines start with splitting data into training and testing sets, and the tidymodels framework facilitates keeping the training and testing sets separate since this framework is opioniated about which functions can be applied to testing data.
-
-### Pedagogical advantages
+Let's start with the first one --- providing similar interfaces to models.
+Consider the question "*How do you define the the number of trees when fitting a random forest model?"* The answer is generally *"depends on the package: `randomForest::randomForest()` uses `ntree`, `ranger::ranger()` uses `num.trees`, Spark's `sparklyr::ml_random_forest()` uses `num_trees`"*.
+The answer with tidymodels is a bit simpler though: *"using the `trees` argument in the `rand_forest()` package, regardless of the engine being used to fit the model"*.
+This can allow new learners to focus on what "trees" mean and how one decides how many to use, instead of the precise syntax needed by the various packages that can fit random forest models.
 
 The pedagogical advantages of teaching modeling with the full tidymodels framework may not be clear for fitting simple models with `lm()`.
-The simple example belows fitting a linear regression model with a single predictor using base R and using tidymodels.
+For example, below we fit a simple linear regression model with a single predictor, using base R first and then using tidymodels.
 
 ```{r}
 # base R
@@ -273,14 +264,14 @@ linear_reg() %>%
 ```
 
 The tidymodels approach takes a few more steps, and for a simple model like this, the only advantage is likely in the summarisation step.
-With `tidy()` we get the model output as a tibble, which is more straightforward to interact with programmatically and which, by default, omits the significant stars.
+With `tidy()`, we get the model output as a tibble, which is more straightforward to interact with programmatically and which, by default, omits the significant stars.
 
 ```{r}
 lm(hwy ~ cty, data = mpg) %>%
   tidy()
 ```
 
-The pedagogical advantages for the consistent API of the framework are more clear when we move on to different models.
+The pedagogical advantages for the consistent API of the framework become more clear when we move on to fitting different models.
 Below you can see examples of how we can fit models using various engines or using the same engine, but different modes.
 
 ```{r eval = FALSE}
@@ -311,27 +302,31 @@ svm_linear() %>%
   set_mode("classification")
 ```
 
+I should note that fitting a bunch of models to the same data and picking the one you like the results of the best is not a good approach.
+So one would rarely see code as it appears in the chunk above in a single R script.
+Students learning about these models would likely encounter these pipelines over the course of a semester, each in a slightly different data context.
+
 Another pedagogical advantage, particularly for teaching tidymodels after tidyverse, is the syntax that resembles dplyr pipelines to build recipes.
-In the following example we first provide a dplyr pipeline for data wrangling, and then show how a similar set of transformations can be achieved using **recipes**.
-The example uses the `email` dataset from the **openintro** package.
+In the following example we first provide a dplyr pipeline for data wrangling, and then show how a similar set of transformations can be achieved using **recipes** for feature engineering.
+The example uses the `email` dataset from the **openintro** package, which has variables like when the email was sent and received, how many people were cc'ed, number of attachments, etc.
 
 ```{r eval = FALSE}
 # dplyr for data wrangling
 openintro::email %>%
   select(-from, -sent_email) %>%
   mutate(
-    day_of_week = lubridate::wday(time),
-    month = lubridate::month(time)
+    day_of_week = lubridate::wday(time),    # new variable: day of week
+    month = lubridate::month(time)          # new variable: month
   ) %>%
   select(-time) %>%
   mutate(
-    cc = cut(cc, breaks = c(0, 1)),
-    attach = cut(attach, breaks = c(0, 1)),
-    dollar = cut(dollar, breaks = c(0, 1))
+    cc = cut(cc, breaks = c(0, 1)),         # discretize cc
+    attach = cut(attach, breaks = c(0, 1)), # discretize attach
+    dollar = cut(dollar, breaks = c(0, 1))  # discretize dollar
   ) %>%
   mutate(
-    inherit = cut(inherit, breaks = c(0, 1, 5, 10, 20)),
-    password = cut(password, breaks = c(0, 1, 5, 10, 20))
+    inherit = cut(inherit, breaks = c(0, 1, 5, 10, 20)),  # discretize inherit
+    password = cut(password, breaks = c(0, 1, 5, 10, 20)) # discretize password
   )
 
 # recipes for data preprocessing and feature engineering
@@ -353,6 +348,24 @@ recipe(spam ~ ., data = openintro::email) %>%
     inherit, 
     password, breaks = c(0, 1, 5, 10, 20)
     )
+```
+
+So far the examples I've provided have been in a modeling context, but many statistics and data science courses also teach statistical inference, particularly parameter estimation using confidence intervals and hypothesis testing.
+The [**infer**](http://infer.tidymodels.org/) package, which is part of the tidymodels ecosystem, is designed to perform statistical inference using an expressive statistical grammar that cohered with the tidyverse design framework.
+With recent updates in infer, it is now possible to carry out both theoretical (Central Limit Theorem based) and simulation-based statistical inference using a similar workflow.
+For example, below we show first the pipeline for building a bootstrap distribution for a mean using a simulation-based approach (with `generate()` and then `calculate()` and then we show we define the sampling distribution (with `assume()`) if we were to build the confidence interval using a theoretical approach.
+
+```{r}
+# simulation-based
+gss %>%
+  specify(response = hours) %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "mean")
+
+# theoretical
+gss %>%
+  specify(response = hours) %>%
+  assume(distribution = "t")
 ```
 
 ### Learning and teaching tidymodels

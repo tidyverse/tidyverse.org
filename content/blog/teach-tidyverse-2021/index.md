@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: fa4e2db0b976f968
+rmd_hash: 41d5dadfa396e801
 
 ---
 
@@ -428,18 +428,18 @@ Another pedagogical advantage, particularly for teaching tidymodels after tidyve
 <span class='nf'>openintro</span><span class='nf'>::</span><span class='nv'><a href='https://openintrostat.github.io/openintro/reference/email.html'>email</a></span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='o'>-</span><span class='nv'>from</span>, <span class='o'>-</span><span class='nv'>sent_email</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>
-    day_of_week <span class='o'>=</span> <span class='nf'>lubridate</span><span class='nf'>::</span><span class='nf'><a href='http://lubridate.tidyverse.org/reference/day.html'>wday</a></span><span class='o'>(</span><span class='nv'>time</span><span class='o'>)</span>,
-    month <span class='o'>=</span> <span class='nf'>lubridate</span><span class='nf'>::</span><span class='nf'><a href='http://lubridate.tidyverse.org/reference/month.html'>month</a></span><span class='o'>(</span><span class='nv'>time</span><span class='o'>)</span>
+    day_of_week <span class='o'>=</span> <span class='nf'>lubridate</span><span class='nf'>::</span><span class='nf'><a href='http://lubridate.tidyverse.org/reference/day.html'>wday</a></span><span class='o'>(</span><span class='nv'>time</span><span class='o'>)</span>,    <span class='c'># new variable: day of week</span>
+    month <span class='o'>=</span> <span class='nf'>lubridate</span><span class='nf'>::</span><span class='nf'><a href='http://lubridate.tidyverse.org/reference/month.html'>month</a></span><span class='o'>(</span><span class='nv'>time</span><span class='o'>)</span>          <span class='c'># new variable: month</span>
   <span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='o'>-</span><span class='nv'>time</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>
-    cc <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/cut.html'>cut</a></span><span class='o'>(</span><span class='nv'>cc</span>, breaks <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span>,
-    attach <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/cut.html'>cut</a></span><span class='o'>(</span><span class='nv'>attach</span>, breaks <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span>,
-    dollar <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/cut.html'>cut</a></span><span class='o'>(</span><span class='nv'>dollar</span>, breaks <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span>
+    cc <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/cut.html'>cut</a></span><span class='o'>(</span><span class='nv'>cc</span>, breaks <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span>,         <span class='c'># discretize cc</span>
+    attach <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/cut.html'>cut</a></span><span class='o'>(</span><span class='nv'>attach</span>, breaks <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span>, <span class='c'># discretize attach</span>
+    dollar <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/cut.html'>cut</a></span><span class='o'>(</span><span class='nv'>dollar</span>, breaks <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span>  <span class='c'># discretize dollar</span>
   <span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>
-    inherit <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/cut.html'>cut</a></span><span class='o'>(</span><span class='nv'>inherit</span>, breaks <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>1</span>, <span class='m'>5</span>, <span class='m'>10</span>, <span class='m'>20</span><span class='o'>)</span><span class='o'>)</span>,
-    password <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/cut.html'>cut</a></span><span class='o'>(</span><span class='nv'>password</span>, breaks <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>1</span>, <span class='m'>5</span>, <span class='m'>10</span>, <span class='m'>20</span><span class='o'>)</span><span class='o'>)</span>
+    inherit <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/cut.html'>cut</a></span><span class='o'>(</span><span class='nv'>inherit</span>, breaks <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>1</span>, <span class='m'>5</span>, <span class='m'>10</span>, <span class='m'>20</span><span class='o'>)</span><span class='o'>)</span>,  <span class='c'># discretize inherit</span>
+    password <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/cut.html'>cut</a></span><span class='o'>(</span><span class='nv'>password</span>, breaks <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>1</span>, <span class='m'>5</span>, <span class='m'>10</span>, <span class='m'>20</span><span class='o'>)</span><span class='o'>)</span> <span class='c'># discretize password</span>
   <span class='o'>)</span>
 
 <span class='c'># recipes for data preprocessing and feature engineering</span>
@@ -474,15 +474,22 @@ I recommend the following resources for getting started with tidymodels:
 
 For teaching with tidymodels, Data Science in a Box ([datasciencebox.org](https://datasciencebox.org/)) contains slides, application exercises, computing labs, and homework assignments on modelling and inference with tidymodels:
 
+**TO DO:** Trim down the resources listed?
+
 -   Slides and application exercises:
+
     -   [Modelling data](https://datasciencebox.org/making-rigorous-conclusions.html#modelling-data)
     -   [Classification and model building](https://datasciencebox.org/making-rigorous-conclusions.html#classification-and-model-building)
     -   [Model validation](https://datasciencebox.org/making-rigorous-conclusions.html#model-validation)
     -   [Uncertainty quantification](https://datasciencebox.org/making-rigorous-conclusions.html#uncertainty-quantification)
+
 -   [Labs](https://datasciencebox.org/making-rigorous-conclusions.html#labs-2)
+
     -   Grading the professor: Fitting and interpreting simple linear regression models
     -   Smoking while pregnant: Constructing confidence intervals, conducting hypothesis tests, and interpreting results in context of the data
+
 -   [Homework assignments](https://datasciencebox.org/making-rigorous-conclusions.html#homework-assignments-1):
+
     -   Bike rentals in DC: Exploratory data analysis and fitting and interpreting models
     -   Exploring the GSS: Fitting and interpreting models
     -   Modelling the GSS: Model validation and inference
