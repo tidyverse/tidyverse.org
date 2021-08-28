@@ -235,13 +235,18 @@ If you're interested in learning more about these packages, I recommend the foll
 ## Building on the tidyverse framework for modeling with tidymodels
 
 The **tidymodels** framework is a collection of packages for modeling and machine learning using tidyverse principles.
+This framework has been around since 2017, and over the past year many of the packages within tidymodels have become stable and gained lots of documentation, making them attractive choices for teaching.
 If you're introducing your students to data science with the tidyverse, a great next step to consider is using tidymodels when it comes to modeling and inference.
 
 ```{r}
 library(tidymodels)
 ```
 
-From a pedagogical perspective, tidymodels has three main advantages: the framework provides similar interfaces to models, model outputs are straightforward to interact with for learners who already know how to wrangle and visualize data stored in tibbles, and it helps users avoid common machine learning pitfalls.
+From a pedagogical perspective, tidymodels has three main advantages:
+
+1.  Similar interfaces to different models.
+2.  Model outputs as tibbles, which are straightforward to interact with for learners who already know how to wrangle and visualize data stored in this format.
+3.  Features that help users avoid common machine learning pitfalls.
 
 Let's start with the first one --- providing similar interfaces to models.
 Consider the question "*How do you define the the number of trees when fitting a random forest model?"* The answer is generally *"depends on the package: `randomForest::randomForest()` uses `ntree`, `ranger::ranger()` uses `num.trees`, Spark's `sparklyr::ml_random_forest()` uses `num_trees`"*.
@@ -350,6 +355,9 @@ recipe(spam ~ ., data = openintro::email) %>%
     )
 ```
 
+You might be thinking "Why do I need the **recipes** `step_*()` functions when I can express the same steps with dplyr?" This brings us back to the "features that avoid common machine learning pitfalls".
+The advantage of this approach is that once recipe steps are developed with the training data, they can be applied to the testing data with ease.
+
 So far the examples I've provided have been in a modeling context, but many statistics and data science courses also teach statistical inference, particularly parameter estimation using confidence intervals and hypothesis testing.
 The [**infer**](http://infer.tidymodels.org/) package, which is part of the tidymodels ecosystem, is designed to perform statistical inference using an expressive statistical grammar that cohered with the tidyverse design framework.
 With recent updates in infer, it is now possible to carry out both theoretical (Central Limit Theorem based) and simulation-based statistical inference using a similar workflow.
@@ -368,37 +376,26 @@ gss %>%
   assume(distribution = "t")
 ```
 
-### Learning and teaching tidymodels
+Other recent updates to infer include support for doing inference for multiple regression as well as behavioral consistency of `calculate()`.
 
-I recommend the following resources for getting started with tidymodels:
+If you're new to the tidymodels ecosystem, I recommend the following resources for getting started
 
--   [Get started with tidymodels](https://www.tidymodels.org/start/)
--   [Learn more and go further](https://www.tidymodels.org/learn/)
--   [Tidy Modeling with R](https://www.tmwr.org/)
+-   Expanded documentation:
 
-For teaching with tidymodels, Data Science in a Box ([datasciencebox.org](https://datasciencebox.org/)) contains slides, application exercises, computing labs, and homework assignments on modelling and inference with tidymodels:
+    -   [Get started with tidymodels](https://www.tidymodels.org/start/)
+    -   [Learn more and go further](https://www.tidymodels.org/learn/)
 
-**TO DO:** Trim down the resources listed?
+-   Book: [Tidy Modeling with R](https://www.tmwr.org/) by Max Kuhn and Julia Silge
 
--   Slides and application exercises:
+-   Blog posts:
 
-    -   [Modelling data](https://datasciencebox.org/making-rigorous-conclusions.html#modelling-data)
-    -   [Classification and model building](https://datasciencebox.org/making-rigorous-conclusions.html#classification-and-model-building)
-    -   [Model validation](https://datasciencebox.org/making-rigorous-conclusions.html#model-validation)
-    -   [Uncertainty quantification](https://datasciencebox.org/making-rigorous-conclusions.html#uncertainty-quantification)
+    -   [Choose your own tidymodels adventure](Choose your own tidymodels adventure)
+    -   [infer 1.0.0](https://www.tidyverse.org/blog/2021/08/infer-1-0-0/)
 
--   [Labs](https://datasciencebox.org/making-rigorous-conclusions.html#labs-2)
+If you're new to teaching tidymodels, the following resources can be helpful:
 
-    -   Grading the professor: Fitting and interpreting simple linear regression models
-    -   Smoking while pregnant: Constructing confidence intervals, conducting hypothesis tests, and interpreting results in context of the data
-
--   [Homework assignments](https://datasciencebox.org/making-rigorous-conclusions.html#homework-assignments-1):
-
-    -   Bike rentals in DC: Exploratory data analysis and fitting and interpreting models
-    -   Exploring the GSS: Fitting and interpreting models
-    -   Modelling the GSS: Model validation and inference
-
-**TO DO:** Need to add infer: <https://www.tidyverse.org/blog/2021/08/infer-1-0-0/>
+-   USCOTS 2021 Breakout session: [Tidy up your models](https://bit.ly/tidymodels-uscots21/) (developed and presented with [Debbie Yuster](https://www.ramapo.edu/tas/faculty/debbie-yuster/))
+-   [Data Science in a Box](https://datasciencebox.org/making-rigorous-conclusions.html): Slides, application exercises, computing labs, and homework assignments on modelling and inference with tidymodels.
 
 ## cheatsheets
 

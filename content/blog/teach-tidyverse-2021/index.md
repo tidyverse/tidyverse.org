@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: 41d5dadfa396e801
+rmd_hash: 455635344af3186e
 
 ---
 
@@ -291,7 +291,7 @@ If you're interested in learning more about these packages, I recommend the foll
 
 ## Building on the tidyverse framework for modeling with tidymodels
 
-The **tidymodels** framework is a collection of packages for modeling and machine learning using tidyverse principles.
+The **tidymodels** framework is a collection of packages for modeling and machine learning using tidyverse principles. This framework has been around since 2017, and over the past year many of the packages within tidymodels have become stable and gained lots of documentation, making them attractive choices for teaching. If you're introducing your students to data science with the tidyverse, a great next step to consider is using tidymodels when it comes to modeling and inference.
 
 <div class="highlight">
 
@@ -319,23 +319,15 @@ The **tidymodels** framework is a collection of packages for modeling and machin
 
 </div>
 
-The motivations for tidymodels include
+From a pedagogical perspective, tidymodels has three main advantages:
 
--   providing similar interfaces to models,
--   helping users avoid common machine learning pitfalls, and
--   pedagogical advantages.
+1.  Similar interfaces to different models.
+2.  Model outputs as tibbles, which are straightforward to interact with for learners who already know how to wrangle and visualize data stored in this format.
+3.  Features that help users avoid common machine learning pitfalls.
 
-### Provide similar interfaces to models
+Let's start with the first one --- providing similar interfaces to models. Consider the question "*How do you define the the number of trees when fitting a random forest model?\"* The answer is generally *\"depends on the package: `randomForest::randomForest()` uses `ntree`, `ranger::ranger()` uses `num.trees`, Spark's `sparklyr::ml_random_forest()` uses `num_trees`\"*. The answer with tidymodels is a bit simpler though: *\"using the `trees` argument in the `rand_forest()` package, regardless of the engine being used to fit the model\"*. This can allow new learners to focus on what"trees\" mean and how one decides how many to use, instead of the precise syntax needed by the various packages that can fit random forest models.
 
-Consider the question "How do you define the the number of trees when fitting a random forest model?" The answer is generally "depends on the package: `randomForest::randomForest()` uses `ntree`, `ranger::ranger()` uses `num.trees`, Spark's `sparklyr::ml_random_forest()` uses `num_trees`". The answer with tidymodels is \"using the `trees` argument in the `rand_forest()` package, regardless of the engine being used to fit the model.
-
-### Help users avoid common machine learning pitfalls
-
-All tidymodels pipelines start with splitting data into training and testing sets, and the tidymodels framework facilitates keeping the training and testing sets separate since this framework is opioniated about which functions can be applied to testing data.
-
-### Pedagogical advantages
-
-The pedagogical advantages of teaching modeling with the full tidymodels framework may not be clear for fitting simple models with [`lm()`](https://rdrr.io/r/stats/lm.html). The simple example belows fitting a linear regression model with a single predictor using base R and using tidymodels.
+The pedagogical advantages of teaching modeling with the full tidymodels framework may not be clear for fitting simple models with [`lm()`](https://rdrr.io/r/stats/lm.html). For example, below we fit a simple linear regression model with a single predictor, using base R first and then using tidymodels.
 
 <div class="highlight">
 
@@ -374,7 +366,7 @@ The pedagogical advantages of teaching modeling with the full tidymodels framewo
 
 </div>
 
-The tidymodels approach takes a few more steps, and for a simple model like this, the only advantage is likely in the summarisation step. With `tidy()` we get the model output as a tibble, which is more straightforward to interact with programmatically and which, by default, omits the significant stars.
+The tidymodels approach takes a few more steps, and for a simple model like this, the only advantage is likely in the summarisation step. With `tidy()`, we get the model output as a tibble, which is more straightforward to interact with programmatically and which, by default, omits the significant stars.
 
 <div class="highlight">
 
@@ -388,7 +380,7 @@ The tidymodels approach takes a few more steps, and for a simple model like this
 
 </div>
 
-The pedagogical advantages for the consistent API of the framework are more clear when we move on to different models. Below you can see examples of how we can fit models using various engines or using the same engine, but different modes.
+The pedagogical advantages for the consistent API of the framework become more clear when we move on to fitting different models. Below you can see examples of how we can fit models using various engines or using the same engine, but different modes.
 
 <div class="highlight">
 
@@ -420,7 +412,9 @@ The pedagogical advantages for the consistent API of the framework are more clea
 
 </div>
 
-Another pedagogical advantage, particularly for teaching tidymodels after tidyverse, is the syntax that resembles dplyr pipelines to build recipes. In the following example we first provide a dplyr pipeline for data wrangling, and then show how a similar set of transformations can be achieved using **recipes**. The example uses the `email` dataset from the **openintro** package.
+I should note that fitting a bunch of models to the same data and picking the one you like the results of the best is not a good approach. So one would rarely see code as it appears in the chunk above in a single R script. Students learning about these models would likely encounter these pipelines over the course of a semester, each in a slightly different data context.
+
+Another pedagogical advantage, particularly for teaching tidymodels after tidyverse, is the syntax that resembles dplyr pipelines to build recipes. In the following example we first provide a dplyr pipeline for data wrangling, and then show how a similar set of transformations can be achieved using **recipes** for feature engineering. The example uses the `email` dataset from the **openintro** package, which has variables like when the email was sent and received, how many people were cc'ed, number of attachments, etc.
 
 <div class="highlight">
 
@@ -464,37 +458,61 @@ Another pedagogical advantage, particularly for teaching tidymodels after tidyve
 
 </div>
 
-### Learning and teaching tidymodels
+You might be thinking "Why do I need the **recipes** `step_*()` functions when I can express the same steps with dplyr?" This brings us back to the "features that avoid common machine learning pitfalls". The advantage of this approach is that once recipe steps are developed with the training data, they can be applied to the testing data with ease.
 
-I recommend the following resources for getting started with tidymodels:
+So far the examples I've provided have been in a modeling context, but many statistics and data science courses also teach statistical inference, particularly parameter estimation using confidence intervals and hypothesis testing. The [**infer**](http://infer.tidymodels.org/) package, which is part of the tidymodels ecosystem, is designed to perform statistical inference using an expressive statistical grammar that cohered with the tidyverse design framework. With recent updates in infer, it is now possible to carry out both theoretical (Central Limit Theorem based) and simulation-based statistical inference using a similar workflow. For example, below we show first the pipeline for building a bootstrap distribution for a mean using a simulation-based approach (with `generate()` and then `calculate()` and then we show we define the sampling distribution (with `assume()`) if we were to build the confidence interval using a theoretical approach.
 
--   [Get started with tidymodels](https://www.tidymodels.org/start/)
--   [Learn more and go further](https://www.tidymodels.org/learn/)
--   [Tidy Modeling with R](https://www.tmwr.org/)
+<div class="highlight">
 
-For teaching with tidymodels, Data Science in a Box ([datasciencebox.org](https://datasciencebox.org/)) contains slides, application exercises, computing labs, and homework assignments on modelling and inference with tidymodels:
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='c'># simulation-based</span>
+<span class='nv'>gss</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'>specify</span><span class='o'>(</span>response <span class='o'>=</span> <span class='nv'>hours</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'>generate</span><span class='o'>(</span>reps <span class='o'>=</span> <span class='m'>1000</span>, type <span class='o'>=</span> <span class='s'>"bootstrap"</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'>calculate</span><span class='o'>(</span>stat <span class='o'>=</span> <span class='s'>"mean"</span><span class='o'>)</span>
+<span class='c'>#&gt; Response: hours (numeric)</span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1,000 × 2</span></span>
+<span class='c'>#&gt;    replicate  stat</span>
+<span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1  41.1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         2  41.3</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         3  41.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         4  40.5</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         5  41.9</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         6  41.1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         7  41.2</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         8  40.7</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         9  41.0</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>        10  42.5</span>
+<span class='c'>#&gt; <span style='color: #555555;'># … with 990 more rows</span></span>
 
-**TO DO:** Trim down the resources listed?
+<span class='c'># theoretical</span>
+<span class='nv'>gss</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'>specify</span><span class='o'>(</span>response <span class='o'>=</span> <span class='nv'>hours</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'>assume</span><span class='o'>(</span>distribution <span class='o'>=</span> <span class='s'>"t"</span><span class='o'>)</span>
+<span class='c'>#&gt; A T distribution with 499 degrees of freedom.</span></code></pre>
 
--   Slides and application exercises:
+</div>
 
-    -   [Modelling data](https://datasciencebox.org/making-rigorous-conclusions.html#modelling-data)
-    -   [Classification and model building](https://datasciencebox.org/making-rigorous-conclusions.html#classification-and-model-building)
-    -   [Model validation](https://datasciencebox.org/making-rigorous-conclusions.html#model-validation)
-    -   [Uncertainty quantification](https://datasciencebox.org/making-rigorous-conclusions.html#uncertainty-quantification)
+Other recent updates to infer include support for doing inference for multiple regression as well as behavioral consistency of `calculate()`.
 
--   [Labs](https://datasciencebox.org/making-rigorous-conclusions.html#labs-2)
+If you're new to the tidymodels ecosystem, I recommend the following resources for getting started
 
-    -   Grading the professor: Fitting and interpreting simple linear regression models
-    -   Smoking while pregnant: Constructing confidence intervals, conducting hypothesis tests, and interpreting results in context of the data
+-   Expanded documentation:
 
--   [Homework assignments](https://datasciencebox.org/making-rigorous-conclusions.html#homework-assignments-1):
+    -   [Get started with tidymodels](https://www.tidymodels.org/start/)
+    -   [Learn more and go further](https://www.tidymodels.org/learn/)
 
-    -   Bike rentals in DC: Exploratory data analysis and fitting and interpreting models
-    -   Exploring the GSS: Fitting and interpreting models
-    -   Modelling the GSS: Model validation and inference
+-   Book: [Tidy Modeling with R](https://www.tmwr.org/) by Max Kuhn and Julia Silge
 
-**TO DO:** Need to add infer: <https://www.tidyverse.org/blog/2021/08/infer-1-0-0/>
+-   Blog posts:
+
+    -   [Choose your own tidymodels adventure](Choose%20your%20own%20tidymodels%20adventure)
+    -   [infer 1.0.0](https://www.tidyverse.org/blog/2021/08/infer-1-0-0/)
+
+If you're new to teaching tidymodels, the following resources can be helpful:
+
+-   USCOTS 2021 Breakout session: [Tidy up your models](https://bit.ly/tidymodels-uscots21/) (developed and presented with [Debbie Yuster](https://www.ramapo.edu/tas/faculty/debbie-yuster/))
+-   [Data Science in a Box](https://datasciencebox.org/making-rigorous-conclusions.html): Slides, application exercises, computing labs, and homework assignments on modelling and inference with tidymodels.
 
 ## cheatsheets
 
