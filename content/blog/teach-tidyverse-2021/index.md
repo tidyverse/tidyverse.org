@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: e4def20c3203eac7
+rmd_hash: e477868c7f26a394
 
 ---
 
@@ -41,7 +41,7 @@ Specifically, I'll discuss
 -   [New teaching and learning resources](#new-teaching-and-learning-resources)
 -   [Lifecycle stages](#lifecycle-stages)
 -   [Making reproducible examples with **reprex**](#making-reproducible-examples-with-reprex)
--   [Building on the tidyverse for modeling with **tidymodels**](https://deploy-preview-530--tidyverse-org.netlify.app/blog/2021/08/teach-tidyverse-2021/#building-on-tidyverse-for-modeling-with-tidymodels)
+-   [Building on the tidyverse for modeling with **tidymodels**](#building-on-tidyverse-for-modeling-with-tidymodels)
 -   [Reading data with **readr**](#reading-data-with-readr)
 -   [Web scraping with **rvest**](#web-scraping-with-rvest)
 -   [SQL and data.table translations with **dbplyr** and **dtplyr**](#sql-and-datatable-translations-with-dbplyr-and-dtplyr)
