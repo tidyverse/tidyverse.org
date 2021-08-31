@@ -6,7 +6,9 @@ title: Teaching the tidyverse in 2021
 date: 2021-08-31
 author: Mine Çetinkaya-Rundel
 description: >
-    Recommendations for teaching the tidyverse in 2021, summarizing package updates most relevant for teaching data science with the tidyverse, particularly to new learners.
+    Recommendations for teaching the tidyverse in 2021, summarizing 
+    package updates most relevant for teaching data science with the 
+    tidyverse, particularly to new learners.
 
 photo:
   url: https://unsplash.com/photos/lj5ALRcon4g
@@ -15,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: 961380e1c18747fb
+rmd_hash: 595ca09c9a7f4d5c
 
 ---
 
@@ -25,14 +27,24 @@ TODO:
 * [ x ] Edit (or delete) the description; note this appears in the Twitter card
 * [ x ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
 * [ x ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [ x ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ x ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ x ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ x ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html) -- not applicable
 -->
 
 Last summer I wrote a series of blog posts titled [teaching the tidyverse in 2020](https://education.rstudio.com/blog/2020/07/teaching-the-tidyverse-in-2020-part-4-when-to-purrr/). As we quickly approach the end of the summer (in the northern hemisphere) and the start of a new academic year, it seems like a good time to provide a new update for teaching the tidyverse, in 2021. The main audience for this post is educators who teach the tidyverse and who might want to bring their teaching materials up to date with updates to the tidyverse that happened over the past year. Much of what is discussed here has already been covered in package update posts on this blog, but my goal is to summarize the highlights that are most relevant to teaching data science with the tidyverse, particularly to new learners.
+
+Specifically, I'll discuss
+
+-   New teaching and learning resources
+-   Lifecycle stages
+-   Making reproducible examples with **reprex**
+-   Building on the tidyverse for modeling with **tidymodels**
+-   Reading data with **readr**
+-   Web scraping with **rvest**
+-   SQL and data.table translations with **dbplyr** and **dtplyr**
 
 Let's get started!
 
@@ -50,37 +62,40 @@ Let's get started!
 
 </div>
 
+## New teaching and learning resources
+
+Before we dive into specific package functionality updates, I'd like to highlight two new teaching and learning resources:
+
+-   **Cheatsheets:** Some of the most popular learning resources for tidyverse are the cheatsheets and many of these cheatsheets have recently been updated. Huge thanks to our intern [Averi Perny](https://twitter.com/avperny) on her fantastic work on this project! You can read more about the updates [here](https://blog.rstudio.com/2021/08/23/cheat-sheet-updates/) and find the new cheatsheets [here](https://www.rstudio.com/resources/cheatsheets/).
+-   **ggplot2 FAQ:** A new resource that might be useful for learners is the FAQ we've recently developed for ggplot2, which you can access [here](https://ggplot2.tidyverse.org/articles/). These were compiled based on popular questions on StackOverflow and RStudio Community. Each question is accompanied with a short answer as well as an expanded example.
+
 ## Lifecycle stages
 
-The [**lifecycle**](https://lifecycle.r-lib.org/) package is used to manage the lifecycle of functions and features within the tidyverse, with clear messaging about what is still experimental and what the tidyverse team is moving away from in the future.
-
-The lifecycle stages you might encounter on functions or packages are experimental, stable, deprecated, and superseded. It's helpful to be aware of the stages (and their associated badges) as you review and revise your teaching materials or as you consider incorporating new tooling into your teaching.
+The lifecycle stages are a useful guide for teaching because they help you see what the tidyverse is moving forward and what it's moving away from. The [**lifecycle**](https://lifecycle.r-lib.org/) package is used to manage the lifecycle of functions and features within the tidyverse, with clear messaging about what is still experimental and what the tidyverse team is moving away from in the future. But instead of focusing on the package that implements this concept, when teaching I recommend focusing on the stages of the lifecycle instead. These are *experimental*, *stable*, *deprecated*, and *superseded*. It's helpful to be aware of the stages (and their associated badges) as you review and revise your teaching materials or as you consider incorporating new tooling into your teaching.
 
 ![A diagram showing the transitions between the four main stages: experimental can become stable and stable can become deprecated or superseded.](lifecycle.png)
 
--   <img src="lifecycle-stable.svg" alt="Stable" style="vertical-align:middle"/> Stable indicates that breaking changes will be avoided where possible, and they're only made if the long term benefit of such a change exceeds the short term pain of changing existing code. If breaking changes are needed, they will occur gradually. Note that this badge is generally not shown as it applies to a huge majority of functions. Teaching tip: teach away any stable functions, they're here to stay for the long run!
+-   <img src="lifecycle-stable.svg" alt="Stable" style="vertical-align:middle"/> Stable indicates that breaking changes will be avoided where possible, and they're only made if the long term benefit of such a change exceeds the short term pain of changing existing code. If breaking changes are needed, they will occur gradually. This is the default state for most functions in the tidyverse and hence the badge is generally not shown. Teaching tip: teach away any stable functions, they're here to stay for the long run!
 
 -   <img src="lifecycle-deprecated.svg" alt="Deprecated" style="vertical-align:middle"/> If a function is noted as deprecated, this means a better alternative is available and this function is scheduled for removal. Generally functions will first be soft deprecated and then deprecated. Very important functions that become deprecated might next be defunct, which means that function continues to exist but the deprecation warning turns into an error. An example of a deprecated function is [`tibble::data_frame()`](https://tibble.tidyverse.org/reference/deprecated.html), with the preferred alternative [`tibble::tibble()`](https://tibble.tidyverse.org/reference/tibble.html). Arguments to functions can also be deprecated, e.g., in [`tidyr::nest()`](https://tidyr.tidyverse.org/reference/nest.html) the new argument `new_col` makes the former `.key` argument not needed, and hence `.key` is deprecated. You should avoid teaching functions that are deprecated and correct their usage in your students' code by suggesting the preferred alternative.
 
 -   <img src="lifecycle-superseded.svg" alt="Superseded" style="vertical-align:middle"/> Superseded indicates that there is a known better alternative for the function, but it's not going away. Some examples include the following:
 
-    -   [`tidyr::spread()`](https://tidyr.tidyverse.org/reference/spread.html) / [`tidyr::gather()`](https://tidyr.tidyverse.org/reference/gather.html) vs. [`tidyr::pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) / [`tidyr::pivot_wider()`](https://tidyr.tidyverse.org/reference/pivot_wider.html)
+    -   [`tidyr::pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) / [`tidyr::pivot_wider()`](https://tidyr.tidyverse.org/reference/pivot_wider.html) for reshaping data supersede [`tidyr::spread()`](https://tidyr.tidyverse.org/reference/spread.html) / [`tidyr::gather()`](https://tidyr.tidyverse.org/reference/gather.html) (More on these [here](https://www.tidyverse.org/blog/2019/09/tidyr-1-0-0/) and [here](https://tidyr.tidyverse.org/articles/pivot.html))
 
-    -   Scoped verbs (e.g., [`dplyr::mutate_if()`](https://dplyr.tidyverse.org/reference/mutate_all.html), [`dplyr::select_at()`](https://dplyr.tidyverse.org/reference/select_all.html), [`dplyr::rename_all()`](https://dplyr.tidyverse.org/reference/select_all.html), etc.) vs. [`dplyr::across()`](https://dplyr.tidyverse.org/reference/across.html)
+    -   [`dplyr::across()`](https://dplyr.tidyverse.org/reference/across.html) for working across columns supersedes scoped verbs such as [`dplyr::mutate_if()`](https://dplyr.tidyverse.org/reference/mutate_all.html), [`dplyr::select_at()`](https://dplyr.tidyverse.org/reference/select_all.html), [`dplyr::rename_all()`](https://dplyr.tidyverse.org/reference/select_all.html), etc. (More on this [here](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/) and [here](https://dplyr.tidyverse.org/articles/colwise.html))
 
-    -   [`dplyr::sample_n()`](https://dplyr.tidyverse.org/reference/sample_n.html) / [`dplyr::sample_frac()`](https://dplyr.tidyverse.org/reference/sample_n.html) vs. [`dplyr::slice_sample()`](https://dplyr.tidyverse.org/reference/slice.html) with `n` and `prop` arguments
+    -   [`dplyr::slice_sample()`](https://dplyr.tidyverse.org/reference/slice.html) with `n` and `prop` arguments supersedes [`dplyr::sample_n()`](https://dplyr.tidyverse.org/reference/sample_n.html) / [`dplyr::sample_frac()`](https://dplyr.tidyverse.org/reference/sample_n.html) (More on this [here](https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/#superseded-functions))
 
-    I would recommend not teaching superseded functions to new learners, and for learners who might be aware of them already, I would recommend discouraging their use (though not correcting, i.e., no point deductions on a formative assessment), and suggesting an alternative.
+    I don't recommend teaching superseded functions to new learners, and for learners who might be aware of them already, I would recommend discouraging their use (though not correcting, i.e., no point deductions on a formative assessment), and suggesting an alternative.
 
--   <img src="lifecycle-experimental.svg" alt="Experimental" style="vertical-align:middle"/> Experimental functions are made available so the community can try them out and provide feedback, however they come with no promises for long term stability. Some examples include the following:
-
-    -   [`dplyr::group_trim()`](https://dplyr.tidyverse.org/reference/group_trim.html) to drop unused levels of all factors that are used as grouping variables
+-   <img src="lifecycle-experimental.svg" alt="Experimental" style="vertical-align:middle"/> Experimental functions are made available so the community can try them out and provide feedback, however they come with no promises for long term stability. For example, the following have been labeled experimental for a while and have received improvements based on community feedback (and are very likely to graduate to stable in the next dplyr release):
 
     -   in [`dplyr::summarize()`](https://dplyr.tidyverse.org/reference/summarise.html): `.groups` argument to define the grouping structure of the result
 
     -   in [`dplyr::mutate()`](https://dplyr.tidyverse.org/reference/mutate.html): `.before` and `.after` arguments to control where new columns should appear
 
-    I would recommend teaching experimental functions with caution, particularly to new learners with whom you might not formally discuss the concept of a "lifecycle". However there is no reason to discourage use of these functions -- if students have stumbled upon a solution that involves an experimental function or argument and has used it correctly on their own, this is likely a good indication that the experiment is working!
+    I recommend teaching experimental functions with caution, particularly to new learners with whom you might not formally discuss the concept of a "lifecycle". However there is no reason to discourage use of these functions -- if students have stumbled upon a solution that involves an experimental function or argument and has used it correctly on their own, this is likely a good indication that the experiment is working!
 
 If you'd like to learn more about the tidyverse lifecycle, I recommend the following resources:
 
@@ -89,7 +104,7 @@ If you'd like to learn more about the tidyverse lifecycle, I recommend the follo
 
 ## Making reproducible examples with reprex
 
-The [**reprex**](https://reprex.tidyverse.org/) package helps users create **repr**oducible **ex**amples for posting to GitHub issues, StackOverflow, in Slack messages or snippets, or even to paste into PowerPoint or Keynote slides by placing the code to be shared in your clipboard. There has been [many](https://reprex.tidyverse.org/news/index.html#reprex-1-0-0-2021-01-27) [exciting](https://reprex.tidyverse.org/news/index.html#reprex-2-0-0-2021-04-02) developments in reprex over the year. The one that is perhaps most relevant to teaching are improvements that make it easier to use reprex when working in [RStudio Server](https://www.rstudio.com/products/rstudio/#rstudio-server) and [RStudio Cloud](https://rstudio.cloud/) as well as those that allow using local data when creating a reprex.
+The [**reprex**](https://reprex.tidyverse.org/) package helps users create **repr**oducible **ex**amples for posting to GitHub issues, StackOverflow, in Slack messages or snippets, or even to paste into PowerPoint or Keynote slides by placing the code to be shared in your clipboard. I find reprex very useful when teaching because it helps my students provide me with broken code in a way that makes it as easy as possible for me (and for other students in the class) to help them. There has been [many](https://reprex.tidyverse.org/news/index.html#reprex-1-0-0-2021-01-27) [exciting](https://reprex.tidyverse.org/news/index.html#reprex-2-0-0-2021-04-02) developments in reprex over the year. The one that is perhaps most relevant to teaching are improvements that make it easier to use reprex when working in [RStudio Server](https://www.rstudio.com/products/rstudio/#rstudio-server) and [RStudio Cloud](https://rstudio.cloud/) as well as those that allow using local data when creating a reprex.
 
 Many courses teache R using RStudio Server or RStudio Cloud since this approach circumvents the need for students to install software and allows the instructor to have full control over the R environment their students are learning in. When working in these environments, the R code is running in a web browser and for security reasons it's not possible for reprex to place code on your system clipboard. When creating a reprex in these environments, you can now simply select the relevant code, and run `reprex()`. This will create a `.md` file containing the contents of the reprex, ready for you to copy via Cmd/Ctrl+C.
 
@@ -97,7 +112,7 @@ Many courses teache R using RStudio Server or RStudio Cloud since this approach 
 
 Another development that will help students, particularly those working on an assignment involving a local data file, create reprexes is the new `wd` argument to set working directory of the reprex.[^2] Writing a reproducible example with a minimal dataset is better practice, but this can be quite difficult for new learners. Being able to easily use local data will make it easier for them to benefit from other aspects of reprex earlier on.
 
-Being able to create a reprex in the current working directory means you can also benefit from a project-level `.Rprofile` if you happen to have one in your project. This is likely not going to have implications for new learners, for whom this would be an advanced concept, but it can be helpful for instructors who teach with a different suite of packages than what they locally have installed (e.g., CRAN versions for teaching vs. development versions for personal use). If this describes you, I recommend using [**renv**](https://rstudio.github.io/renv/index.html) in projects where you keep teaching materials, which uses `.Rprofile` to implement a project-specific package library. Then, `reprex(wd = ".")` can be used to render using the project-specific library.
+Being able to create a reprex in the current working directory means you can also benefit from a project-level `.Rprofile` if you happen to have one in your project. This is likely not going to have implications for new learners, for whom this would be an advanced concept, but it can be helpful for instructors who teach with a different suite of packages than what they locally have installed (e.g., CRAN versions for teaching vs. development versions for personal use). If this describes you, I recommend using [**renv**](https://rstudio.github.io/renv/index.html) in projects where you keep teaching materials, which uses `.Rprofile` to implement a project-specific package library. Then, `reprex(wd = ".")` will create a reprex using the packages in that library.
 
 For more on updates in reprex, read the blog posts for the [1.0.0](https://www.tidyverse.org/blog/2021/02/reprex-1-0-0/) and [2.0.0](https://www.tidyverse.org/blog/2021/04/reprex-2-0-0/) releases. And if you're new to reprex, start [here](https://reprex.tidyverse.org/articles/articles/learn-reprex.html).
 
@@ -133,7 +148,7 @@ From a pedagogical perspective, tidymodels has three main advantages:
 
 1.  Similar interfaces to different models.
 2.  Model outputs as tibbles, which are straightforward to interact with for learners who already know how to wrangle and visualize data stored in this format.
-3.  Features that help users avoid common machine learning pitfalls.
+3.  Features that help users avoid common machine learning pitfalls such as safeguards in functions that avoid over-fitting by making the test-training split a fundamental part of the modeling process.
 
 Let's start with the first one --- providing similar interfaces to models. Consider the question "*How do you define the the number of trees when fitting a random forest model?\"* The answer is generally *\"depends on the package: `randomForest::randomForest()` uses `ntree`, `ranger::ranger()` uses `num.trees`, Spark's `sparklyr::ml_random_forest()` uses `num_trees`\"*. The answer with tidymodels is a bit simpler though: *\"using the `trees` argument in the `rand_forest()` package, regardless of the engine being used to fit the model\"*. This can allow new learners to focus on what"trees\" mean and how one decides how many to use, instead of the precise syntax needed by the various packages that can fit random forest models.
 
@@ -222,9 +237,9 @@ The pedagogical advantages for the consistent API of the framework become more c
 
 </div>
 
-I should note that fitting a bunch of models to the same data and picking the one you like the results of the best is not a good approach. So one would rarely see code as it appears in the chunk above in a single R script. Students learning about these models would likely encounter these pipelines over the course of a semester, each in a slightly different data context.
+Fitting a bunch of models to the same data and picking the one you like the results of the best is not a good approach, so one would rarely see code as it appears in the chunk above in a single R script. Students will encounter these pipelines over the course of a semester, each in a slightly different data context. Because the syntax is uniform, it's easier to focus on the details of the model, not how to fit the darn thing in R.
 
-Another pedagogical advantage, particularly for teaching tidymodels after tidyverse, is the syntax that resembles dplyr pipelines to build recipes. In the following example we first provide a dplyr pipeline for data wrangling, and then show how a similar set of transformations can be achieved using **recipes** for feature engineering. The example uses the `email` dataset from the **openintro** package, which has variables like when the email was sent and received, how many people were cc'ed, number of attachments, etc.
+Another pedagogical advantage, particularly for teaching tidymodels after tidyverse, is the syntax to build recipes for feature engineering resembles dplyr pipelines for data wrangling. In the following example we first provide a dplyr pipeline for data wrangling, and then show how a similar set of transformations can be achieved using **recipes** for feature engineering. The example uses the `email` dataset from the **openintro** package, which has variables like when the email was sent and received, how many people were cc'ed, number of attachments, etc.
 
 <div class="highlight">
 
@@ -268,7 +283,7 @@ Another pedagogical advantage, particularly for teaching tidymodels after tidyve
 
 </div>
 
-You might be thinking "Why do I need the **recipes** `step_*()` functions when I can express the same steps with dplyr?" This brings us back to the "features that avoid common machine learning pitfalls". The advantage of this approach is that once recipe steps are developed with the training data, they can be applied to the testing data with ease.
+You might be thinking "Why do I need the **recipes** `step_*()` functions when I can express the same steps with dplyr?" This brings us back to the "features that avoid common machine learning pitfalls". The advantage of this approach is that once recipe steps are developed with the training data, they can be automatically applied to the testing data for final model assessment.
 
 So far the examples I've provided have been in a modeling context, but many statistics and data science courses also teach statistical inference, particularly parameter estimation using confidence intervals and hypothesis testing. The [**infer**](http://infer.tidymodels.org/) package, which is part of the tidymodels ecosystem, is designed to perform statistical inference using an expressive statistical grammar that cohered with the tidyverse design framework. With recent updates in infer, it is now possible to carry out both theoretical (Central Limit Theorem based) and simulation-based statistical inference using a similar workflow. For example, below we show first the pipeline for building a bootstrap distribution for a mean using a simulation-based approach (with `generate()` and then `calculate()` and then we show we define the sampling distribution (with `assume()`) if we were to build the confidence interval using a theoretical approach.
 
@@ -283,16 +298,16 @@ So far the examples I've provided have been in a modeling context, but many stat
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1,000 × 2</span></span>
 <span class='c'>#&gt;    replicate  stat</span>
 <span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1  40.7</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         2  41.3</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         3  41.6</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         4  41.2</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         5  41.5</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         6  40.5</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         7  41.5</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         8  41.0</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         9  43.3</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>        10  41.7</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1  40.8</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         2  41.2</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         3  42.0</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         4  41.9</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         5  41.3</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         6  40.8</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         7  40.5</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>         8  41.9</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         9  41.8</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>        10  41.9</span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 990 more rows</span></span>
 
 <span class='c'># theoretical</span>
@@ -326,7 +341,7 @@ If you're new to teaching tidymodels, the following resources can be helpful:
 
 ## Reading data with readr
 
-A new version of [**readr**](https://www.tidyverse.org/blog/2021/07/readr-2-0-0/#reading-multiple-files-at-once) was recently released, with lots of updates outlined in [this blog post](https://www.tidyverse.org/blog/2021/07/readr-2-0-0/). I think the update that is most relevant to teaching is the new functionality for reading in multiple files at once, or more specifically, reading sets of files with the same columns into one output table in a single command.
+A new version of [**readr**](https://www.tidyverse.org/blog/2021/07/readr-2-0-0/#reading-multiple-files-at-once) was recently released, with lots of updates outlined in [this blog post](https://www.tidyverse.org/blog/2021/07/readr-2-0-0/). The update most relevant to teaching is the new functionality for reading in multiple files at once, or more specifically, reading sets of files with the same columns into one output table in a single command.
 
 Suppose in your `data/` folder you have two files, one for sales in August and the other for sales in September. Each of the files contain two variables: `brand` for brand ID, and `n` for number of items sold with that brand ID.
 
@@ -414,6 +429,8 @@ Since this change involves the addition of a new function without changing behav
 
 Another important update is that [`html_node()`](https://rvest.tidyverse.org/reference/rename.html) and [`html_nodes()`](https://rvest.tidyverse.org/reference/rename.html) (functions that undoubtedly show up in any lesson on web scraping with rvest) have been superseded in favor of [`html_element()`](https://rvest.tidyverse.org/reference/html_element.html) and [`html_elements()`](https://rvest.tidyverse.org/reference/html_element.html). The motivation behind this update is to better match what learners see when they're first learning about HTML. When updating teaching materials you should be able to use [`html_element()`](https://rvest.tidyverse.org/reference/html_element.html) and [`html_elements()`](https://rvest.tidyverse.org/reference/html_element.html) as drop in replacements for [`html_node()`](https://rvest.tidyverse.org/reference/rename.html) and [`html_nodes()`](https://rvest.tidyverse.org/reference/rename.html), respectively.
 
+Finally, if [`html_table()`](https://rvest.tidyverse.org/reference/html_table.html) didn't work for you in the past, it's worth trying again since it's been rewritten from scratch to more closely match how browsers display tables with merged cells.
+
 For more on updates in rvest, read the [rvest 1.0.0. blog post](https://www.tidyverse.org/blog/2021/03/rvest-1-0-0/) and review the updated [rvest vignette](https://rvest.tidyverse.org/articles/rvest.html).
 
 ## SQL and data.table translations with dbplyr and dtplyr
@@ -448,7 +465,7 @@ dtplyr translates dplyr pipelines into equivalent data.table code. To start, we 
 
 </div>
 
-With recent updates, dtplyr can also translate some tidyr functions to data.table as well, e.g., [`pivot_wider()`](https://tidyr.tidyverse.org/reference/pivot_wider.html). In the following example the process is the same: start with [`lazy_dt()`](https://rdrr.io/pkg/dtplyr/man/lazy_dt.html), write a data transformation step using tidyverse code, view the resut with [`as_tibble()`](https://tibble.tidyverse.org/reference/as_tibble.html), and view the query with [`show_query()`](https://dplyr.tidyverse.org/reference/explain.html).
+With recent updates, dtplyr can also translate some tidyr functions to data.table, e.g., [`pivot_wider()`](https://tidyr.tidyverse.org/reference/pivot_wider.html). In the following example the process is the same: start with [`lazy_dt()`](https://rdrr.io/pkg/dtplyr/man/lazy_dt.html), write a data transformation step using tidyverse code, view the resut with [`as_tibble()`](https://tibble.tidyverse.org/reference/as_tibble.html), and view the query with [`show_query()`](https://dplyr.tidyverse.org/reference/explain.html).
 
 <div class="highlight">
 
@@ -543,13 +560,6 @@ I recommend the following resources to get started with these packages:
 -   [Blog post on dplyr backends](https://www.tidyverse.org/blog/2021/02/dplyr-backends/)
 -   [dtplyr translation vignette](https://dtplyr.tidyverse.org/articles/translation.html)
 -   [Introduction to dbplyr vignette](https://dbplyr.tidyverse.org/articles/dbplyr.html)
-
-## Other teaching and learning resources
-
-I'd like to highlight two more teaching and learning resources before I wrap up this post:
-
--   **Cheatsheets:** Some of the most popular learning resources for tidyverse are the cheatsheets and many of these cheatsheets have recently been updated! You can read more about the updates [here](https://blog.rstudio.com/2021/08/23/cheat-sheet-updates/) and find the new cheatsheets [here](https://www.rstudio.com/resources/cheatsheets/).
--   **ggplot2 FAQ:** A new resource that might be useful for learners is the FAQ we've recently developed for ggplot2, which you can access [here](https://ggplot2.tidyverse.org/articles/). These were compiled based on popular questions on StackOverflow and RStudio Community. Each question is accompanied with a short answer as well as an expanded example.
 
 [^1]: I think this talk would also be a good resource for software development courses on the topic of maintaining open source software and communicating updates and changes to users.
 
