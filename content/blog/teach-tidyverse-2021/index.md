@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: e477868c7f26a394
+rmd_hash: 0fd402ec8b17e336
 
 ---
 
@@ -66,14 +66,18 @@ Let's get started!
 
 Before we dive into specific package functionality updates, I'd like to highlight two new teaching and learning resources:
 
--   **Cheatsheets:** Some of the most popular learning resources for tidyverse are the cheatsheets and many of these cheatsheets have recently been updated. Huge thanks to our intern [Averi Perny](https://twitter.com/avperny) on her fantastic work on this project! You can read more about the updates [here](https://blog.rstudio.com/2021/08/23/cheat-sheet-updates/) and find the new cheatsheets [here](https://www.rstudio.com/resources/cheatsheets/).
+-   **Cheatsheets:** Some of the most popular learning resources for tidyverse are the cheatsheets and many of which have recently been updated. Huge thanks to our intern [Averi Perny](https://twitter.com/avperny) on her fantastic work on this project! You can read more about the updates [here](https://blog.rstudio.com/2021/08/23/cheat-sheet-updates/) and find the new cheatsheets [here](https://www.rstudio.com/resources/cheatsheets/).
 -   **ggplot2 FAQ:** A new resource that might be useful for learners is the FAQ we've recently developed for ggplot2, which you can access [here](https://ggplot2.tidyverse.org/articles/). These were compiled based on popular questions on StackOverflow and RStudio Community. Each question is accompanied with a short answer as well as an expanded example.
 
 ## Lifecycle stages
 
-The lifecycle stages are a useful guide for teaching because they help you see what the tidyverse is moving forward and what it's moving away from. The [**lifecycle**](https://lifecycle.r-lib.org/) package is used to manage the lifecycle of functions and features within the tidyverse, with clear messaging about what is still experimental and what the tidyverse team is moving away from in the future. But instead of focusing on the package that implements this concept, when teaching I recommend focusing on the stages of the lifecycle instead. These are *experimental*, *stable*, *deprecated*, and *superseded*. It's helpful to be aware of the stages (and their associated badges) as you review and revise your teaching materials or as you consider incorporating new tooling into your teaching.
+The [**lifecycle**](https://lifecycle.r-lib.org/) package is used to manage the lifecycle of functions and features within the tidyverse, with clear messaging about what is still experimental and what the tidyverse team is moving away from in the future. But instead of focusing on the package that implements this concept, when teaching I recommend focusing on the stages of the lifecycle instead. These are *experimental*, *stable*, *deprecated*, and *superseded*. The lifecycle stages are a useful guide for teaching because they help you see what the tidyverse is moving forward and what it's moving away from. Being aware of the lifecycle stages (and their associated badges) can be helpful as you review and revise your teaching materials or as you consider incorporating new tooling into your teaching.
+
+The diagram below depicts the lifecycle of the various stages of functions and packages in the tidyverse.
 
 ![A diagram showing the transitions between the four main stages: experimental can become stable and stable can become deprecated or superseded.](lifecycle.png)
+
+Let's discuss each of these stages in detail, along with recommendations on how you might consider them in the context of teaching:
 
 -   <img src="lifecycle-stable.svg" alt="Stable" style="vertical-align:middle"/> Stable indicates that breaking changes will be avoided where possible, and they're only made if the long term benefit of such a change exceeds the short term pain of changing existing code. If breaking changes are needed, they will occur gradually. This is the default state for most functions in the tidyverse and hence the badge is generally not shown. Teaching tip: teach away any stable functions, they're here to stay for the long run!
 
@@ -104,7 +108,9 @@ If you'd like to learn more about the tidyverse lifecycle, I recommend the follo
 
 ## Making reproducible examples with reprex
 
-The [**reprex**](https://reprex.tidyverse.org/) package helps users create **repr**oducible **ex**amples for posting to GitHub issues, StackOverflow, in Slack messages or snippets, or even to paste into PowerPoint or Keynote slides by placing the code to be shared in your clipboard. I find reprex very useful when teaching because it helps my students provide me with broken code in a way that makes it as easy as possible for me (and for other students in the class) to help them. There has been [many](https://reprex.tidyverse.org/news/index.html#reprex-1-0-0-2021-01-27) [exciting](https://reprex.tidyverse.org/news/index.html#reprex-2-0-0-2021-04-02) developments in reprex over the year. The one that is perhaps most relevant to teaching are improvements that make it easier to use reprex when working in [RStudio Server](https://www.rstudio.com/products/rstudio/#rstudio-server) and [RStudio Cloud](https://rstudio.cloud/) as well as those that allow using local data when creating a reprex.
+The [**reprex**](https://reprex.tidyverse.org/) package helps users create **repr**oducible **ex**amples for posting to GitHub issues, StackOverflow, in Slack messages or snippets, or even to paste into PowerPoint or Keynote slides by placing the code to be shared in your clipboard. I find reprex very useful when teaching because it helps my students provide me with broken code in a way that makes it as easy as possible for me (and for other students in the class) to help them.
+
+There has been [many](https://reprex.tidyverse.org/news/index.html#reprex-1-0-0-2021-01-27) [exciting](https://reprex.tidyverse.org/news/index.html#reprex-2-0-0-2021-04-02) developments in reprex over the year. The one that is perhaps most relevant to teaching are improvements that make it easier to use reprex when working in [RStudio Server](https://www.rstudio.com/products/rstudio/#rstudio-server) and [RStudio Cloud](https://rstudio.cloud/) as well as those that allow using local data when creating a reprex.
 
 Many courses teache R using RStudio Server or RStudio Cloud since this approach circumvents the need for students to install software and allows the instructor to have full control over the R environment their students are learning in. When working in these environments, the R code is running in a web browser and for security reasons it's not possible for reprex to place code on your system clipboard. When creating a reprex in these environments, you can now simply select the relevant code, and run `reprex()`. This will create a `.md` file containing the contents of the reprex, ready for you to copy via Cmd/Ctrl+C.
 
