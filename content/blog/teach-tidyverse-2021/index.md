@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: 595ca09c9a7f4d5c
+rmd_hash: 2c35f817fd35840d
 
 ---
 
@@ -38,13 +38,13 @@ Last summer I wrote a series of blog posts titled [teaching the tidyverse in 202
 
 Specifically, I'll discuss
 
--   New teaching and learning resources
--   Lifecycle stages
--   Making reproducible examples with **reprex**
--   Building on the tidyverse for modeling with **tidymodels**
--   Reading data with **readr**
--   Web scraping with **rvest**
--   SQL and data.table translations with **dbplyr** and **dtplyr**
+-   [New teaching and learning resources](#new-teaching-and-learning-resources)
+-   [Lifecycle stages](#lifecycle-stages)
+-   [Making reproducible examples with **reprex**](#making-reproducible-examples-with-reprex)
+-   [Building on the tidyverse for modeling with **tidymodels**](https://deploy-preview-530--tidyverse-org.netlify.app/blog/2021/08/teach-tidyverse-2021/#building-on-tidyverse-for-modeling-with-tidymodels)
+-   [Reading data with **readr**](#reading-data-with-readr)
+-   [Web scraping with **rvest**](#web-scraping-with-rvest)
+-   [SQL and data.table translations with **dbplyr** and **dtplyr**](#sql-and-datatable-translations-with-dbplyr-and-dtplyr)
 
 Let's get started!
 
@@ -298,16 +298,16 @@ So far the examples I've provided have been in a modeling context, but many stat
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1,000 × 2</span></span>
 <span class='c'>#&gt;    replicate  stat</span>
 <span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1  40.8</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         2  41.2</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         3  42.0</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         4  41.9</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         5  41.3</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         6  40.8</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         7  40.5</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>         1  41.5</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>         2  41.0</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>         3  41.1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>         4  42.6</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>         5  41.1</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>         6  41.0</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>         7  41.3</span>
 <span class='c'>#&gt; <span style='color: #555555;'> 8</span>         8  41.9</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         9  41.8</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>        10  41.9</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>         9  41.2</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>        10  41.6</span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 990 more rows</span></span>
 
 <span class='c'># theoretical</span>
