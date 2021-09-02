@@ -31,7 +31,7 @@ pak::pkg_install("r-lib/hugodown")
   
 * To add a new event call `hugodown::post_create("events/year-event-name")`.
 
-* Knit to `.Rmd` to generate a `.md`.
+* Knit `index.Rmd` to generate `index.md`.
 
 * To preview the site (i.e. turn `.md` into `.html`), call 
   `hugodown::hugo_start()` (you only need to do this once per session as it
