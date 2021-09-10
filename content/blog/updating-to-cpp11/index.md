@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: updating-to-cpp11
 title: Pathway to success - updating your package to cpp11
-date: 2021-09-02
+date: 2021-09-10
 author: Shelby Bearrows
 description: >
     The cpp11 summer intern reviews the process they used to convert readxl to using 
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [cpp11, internship]
-rmd_hash: f5633f57f07b205d
+rmd_hash: c97d52976db62c55
 
 ---
 
@@ -51,7 +51,7 @@ After I finished converting a file, I recompiled, ran my tests and fixed any com
 
 ## Almost done
 
-Then, when I converted all the objects to cpp11, I removed any stray \#include "Rcpp.h" directives and ran devtools::check() to check for any other updates that might be required, like in the DESCRIPTION files. And that's it!
+Then, when I converted all the objects to cpp11, I removed any stray #include "Rcpp.h" directives and ran devtools::check() to check for any other updates that might be required, like in the DESCRIPTION files. And that's it!
 
 I had so much fun working with the tidyverse team. And a big thank you to Jim for all the support over the summer and to Jenny for their help on readxl! RStudio is a great place to look for summer internship opportunities. They had a variety of opportunities this summer and I'd encourage anyone looking for summer internships to apply for 2022!
 
