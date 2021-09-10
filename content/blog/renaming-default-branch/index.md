@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [usethis, devtools]
-rmd_hash: ccdc678dccb71f58
+rmd_hash: 30949baab6aa93de
 
 ---
 
@@ -54,7 +54,11 @@ Ideally, we would publish this post at the very same moment we rename our branch
 
 Coordinated change is going to work best for repos that are part of an organization-wide effort, because each organization has at least one person with the necessary superpowers. But things are more complicated for the one-off repos. If there's a repo you care about, that has an open issue about branch renaming, and yet the change doesn't seem to be happening? Feel free to give us a gentle nudge by commenting in the issue thread.
 
-## Nothing below here is written yet
+## usethis x.y.z has functions to help
+
+The recently released x.y.z. version of usethis has some new functions to support changes in the default branch. To be clear, you don't *need* usethis to do adapt to change in the default branch. The work can be done via command line Git and/or in a web browser, if that's how you roll.
+
+But the new `git_default_branch*()` family of functions can make this process more pleasant, for those who enjoy using devtools/usethis, especially for Git and GitHub tasks.
 
 You can install the newest version of usethis from CRAN with:
 
@@ -64,11 +68,49 @@ You can install the newest version of usethis from CRAN with:
 
 </div>
 
+You can make usethis available in your R session with either of these commands:
+
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://usethis.r-lib.org'>usethis</a></span><span class='o'>)</span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://usethis.r-lib.org'>usethis</a></span><span class='o'>)</span>
+
+<span class='c'># devtools Depends on usethis, so attaching it also attaches usethis</span>
+<span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://devtools.r-lib.org/'>devtools</a></span><span class='o'>)</span></code></pre>
 
 </div>
+
+If you'd like usethis to help with you with Git/GitHub, please read the article [Managing Git(Hub) Credentials](https://usethis.r-lib.org/articles/articles/git-credentials.html).
+
+## How to update clones and forks after default branch renaming
+
+As mentioned above, our bulk renaming involves FILL IN THIS NUMBER GitHub repos, which are associated with FILL IN THIS NUMBER forks. It's impossible to say how many non-fork clones there may be. Undoubtedly, many of these forks and clones are inactive, but it's also clear that our branch renaming potentially affects lots of people.
+
+### How will I know I have a problem?
+
+Let's show what it looks like when you try to pull from a remote repo in a project that used to use `master`, but now uses `main`, but you haven't updated your local repo yet.
+
+-   Example with [`usethis::pr_merge_main()`](https://usethis.r-lib.org/reference/pull-requests.html):
+
+        ✓ Pulling changes from 'origin/master' (default branch of source repo)
+        Error in libgit2::git_annotated_commit_from_revspec : 
+          revspec 'origin/master' not found
+
+-   Example with command line `git pull` (which is essentially what RStudio's Git pane does):
+
+        Your configuration specifies to merge with the ref 'refs/heads/master'
+        from the remote, but no such ref was fetched.
+
+Both messages are telling you the same thing:
+
+> We're trying to pull changes from the remote `master` branch, but the remote does not have a `master` branch.
+
+TODO: update this as usethis gets smarter and more proactive about detecting this. As it is, I only got the usethis error by first calling `gert::git_fetch(prune = TRUE)`. Without that, usethis doesn't surface the problem in an obvious way. It just silently fetches a nonexistent ref and the merge leads to "Already up to date, nothing to merge" (which we suppress, which is neither here nor there).
+
+## How to rename default branch in your own existing repos
+
+## How to change your "default default" branch for the future
+
+## Nothing below here is written yet
 
 ## Acknowledgements
 
