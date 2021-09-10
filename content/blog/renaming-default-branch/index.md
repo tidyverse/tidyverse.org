@@ -1,13 +1,14 @@
 ---
 output: hugodown::hugo_document
 
-slug: rename-default-branch
-title: rename default branch
+slug: renaming-default-branch
+title: Renaming the default branch
 date: 2021-09-10
 author: Jenny Bryan
 description: >
-    We are renaming the default branch of many repos and this post explains how
-    contributors can adapt, using some new functionality in usethis.
+    We are renaming the default branch of many Git(Hub) repositories and this
+    post explains how contributors can adapt, using new functionality in
+    usethis.
 
 photo:
   url: https://unsplash.com/photos/jA264x_MkCI
@@ -16,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [usethis, devtools]
-rmd_hash: fb5e2e9b491a67ff
+rmd_hash: 6d9581fac6191927
 
 ---
 
