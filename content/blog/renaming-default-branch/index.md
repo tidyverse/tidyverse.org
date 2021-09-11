@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [usethis, devtools]
-rmd_hash: 30949baab6aa93de
+rmd_hash: 763e388cf9f4084a
 
 ---
 
@@ -106,11 +106,67 @@ Both messages are telling you the same thing:
 
 TODO: update this as usethis gets smarter and more proactive about detecting this. As it is, I only got the usethis error by first calling `gert::git_fetch(prune = TRUE)`. Without that, usethis doesn't surface the problem in an obvious way. It just silently fetches a nonexistent ref and the merge leads to "Already up to date, nothing to merge" (which we suppress, which is neither here nor there).
 
+### Can I just burn it all down?
+
+Yes, yes you can!
+
+If there's nothing precious in your local clone of our repo or in your fork, it's perfectly reasonable to delete them and just start over. Locally, you just delete the folder. On GitHub, in your fork, go to *Settings* and scroll down to the *Danger Zone* to *Delete this repository*.
+
+Then you could do a fresh fork-and-clone of, for example, dplyr:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://usethis.r-lib.org/reference/create_from_github.html'>create_from_github</a></span><span class='o'>(</span><span class='s'>"tidyverse/dplyr"</span><span class='o'>)</span></code></pre>
+
+</div>
+
+### How do I update my stuff to reflect the new default branch?
+
+If you don't want to burn it all down, you can call `usethis::git_default_branch_rediscover()` to *rediscover* the default branch from the **source repo**.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>git_default_branch_rediscover</span><span class='o'>(</span><span class='o'>)</span>
+<span class='c'>#&gt; ✓ Rediscovering the default branch from source repo.</span>
+<span class='c'>#&gt; ✓ Setting active project to '/Users/jenny/tmp/aaa'</span>
+<span class='c'>#&gt; ℹ GitHub remote configuration type: 'ours'</span>
+<span class='c'>#&gt; ℹ Read more about GitHub remote configurations at:</span>
+<span class='c'>#&gt;   'https://happygitwithr.com/common-remote-setups.html'</span>
+<span class='c'>#&gt; ℹ Source repo is 'jennybc/aaa' and its current default branch is 'main'.</span>
+<span class='c'>#&gt; The local branch 'master' appears to play the role of the default branch.</span>
+<span class='c'>#&gt; Do you confirm?</span>
+<span class='c'>#&gt; </span>
+<span class='c'>#&gt; 1: yes</span>
+<span class='c'>#&gt; 2: no</span>
+<span class='c'>#&gt; </span>
+<span class='c'>#&gt; Selection: 1</span>
+<span class='c'>#&gt; ✓ Moving local 'master' branch to 'main'.</span>
+<span class='c'>#&gt; ✓ Setting remote tracking branch for local 'main' branch to 'origin/main'.</span></code></pre>
+
+</div>
+
+Above, you see usethis updating the local repository to match the source repo. If we detect that you also have a fork of this repo, usethis will rename its default branch as well.
+
+usethis is very opinionated and conservative about which GitHub setups it's willing to manage, because we don't want to barge in and mess with something we don't understand. These standard setups and what we mean by, e.g., **source repo** are all described at <https://happygitwithr.com/common-remote-setups.html>.
+
+TODO: get rid of this note in Happy Git "2020-10 note: this currently refers to features in a development version of usethis. These features will appear in usethis v2.0.0."
+
+GitHub provides official instructions for [updating a local clone after a branch name changes](https://docs.github.com/en/github/administering-a-repository/managing-branches-in-your-repository/renaming-a-branch#updating-a-local-clone-after-a-branch-name-changes), using only command line Git:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'>$ git branch -m OLD-BRANCH-NAME NEW-BRANCH-NAME
+$ git fetch origin
+$ git branch -u origin/NEW-BRANCH-NAME NEW-BRANCH-NAME
+$ git remote set-head origin -a</code></pre>
+
+</div>
+
+Depending on your setup, above you might need to substitute `upstream` for `origin`. `OLD-BRANCH-NAME` is probably `master` and `NEW-BRANCH-NAME` is probably `main`.
+
 ## How to rename default branch in your own existing repos
 
 ## How to change your "default default" branch for the future
-
-## Nothing below here is written yet
 
 ## Acknowledgements
 
