@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [usethis, devtools]
-rmd_hash: 763e388cf9f4084a
+rmd_hash: 2ef1b9d6c6963fd9
 
 ---
 
@@ -27,7 +27,7 @@ Historically, `master` has been the most common name for the default branch, but
 
 -   [Regarding Git and Branch Naming](https://sfconservancy.org/news/2020/jun/23/gitbranchname/), statement from the Git project and the Software Freedom Conservancy regarding the new `init.defaultBranch` configuration option
 -   [Renaming the default branch from`master`](https://github.com/github/renaming#readme), GitHub's roadmap for supporting the shift away from `master`
--   [The new Git default branch name](https://about.gitlab.com/blog/2021/03/10/new-git-default-branch-name/), same but for GitLab
+-   [The new Git default branch name](https://about.gitlab.com/blog/2021/03/10/new-git-default-branch-name/), same, but for GitLab
 
 Folks at RStudio maintain hundreds of public repositories on GitHub, spread out over various organizations and user accounts. Some individual repos had already moved away from `master` in the past year, but many of us had not made the change, just due to inertia. We've decided it tackle this switch proactively and in bulk, for any interested individual or team, hopefully reducing the pain for everyone.
 
@@ -38,11 +38,24 @@ The purpose of this blog post is to:
 -   Explain how you can make the `master` to `main` switch in your own Git life.
 -   Advertise new functions in the usethis package that help with the above.
 
+## TL;DR
+
+These are the key bits of code shown below.
+
+| Function                                   | Purpose                                                                                                 |
+|--------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| `usethis::git_default_branch()`            | Reveals the default branch of the current project.                                                      |
+| `usethis::git_default_branch_rediscover()` | Helps a contributor detect when a project's default branch has changed and makes the necessary updates. |
+| `usethis::git_default_branch_rename()`     | Helps a maintainer change the default branch in a repo they administer.                                 |
+| `usethis::git_default_branch_configure()`  | Changes the default name of the initial branch in new Git repos, going forward.                         |
+
+Read on for more context.
+
 ## Which repositories are affected?
 
-The transition from `master` to `main` is happening organization-wide for specific GitHub organizations (e.g. [tidyverse](https://github.com/tidyverse), [r-lib](https://github.com/r-lib), [tidymodels](https://github.com/tidymodels), and [sol-eng](https://github.com/sol-eng)). However, several teams maintain repos across multiple organizations and several organizations host repos for multiple teams and purposes. The organization-driven approach is a poor fit, in these cases. Therefore, several hundred additional "one-off" repos are also part of this effort.
+The transition from `master` to `main` is happening organization-wide for specific GitHub organizations (e.g. [tidyverse](https://github.com/tidyverse), [r-lib](https://github.com/r-lib), [tidymodels](https://github.com/tidymodels), and [sol-eng](https://github.com/sol-eng)). However, several teams maintain repos across multiple organizations and several organizations host repos for multiple teams and purposes. The organization-wide approach doesn't work well for these cases. Therefore, several hundred additional "one-off" repos are also part of this effort.
 
-All told, we're coordinating the `master` to `main` switch for FILL IN THIS NUMBER repositories.
+In total, we're coordinating the `master` to `main` switch for FILL IN THIS NUMBER repositories.
 
 In each case, we opened a GitHub issue announcing the coming change, several weeks in advance. These issues all look something like this: <https://github.com/tidyverse/dplyr/issues/6006>.
 
@@ -52,13 +65,13 @@ In each case, we opened a GitHub issue announcing the coming change, several wee
 
 Ideally, we would publish this post at the very same moment we rename our branches. But that's not possible for a variety of reasons, chiefly because no single person has the necessary permissions for all of the affected repos.
 
-Coordinated change is going to work best for repos that are part of an organization-wide effort, because each organization has at least one person with the necessary superpowers. But things are more complicated for the one-off repos. If there's a repo you care about, that has an open issue about branch renaming, and yet the change doesn't seem to be happening? Feel free to give us a gentle nudge by commenting in the issue thread.
+Coordinated change is going to work best for repos that are part of an organization-wide effort, because each organization has at least one person with the necessary superpowers. But things are more complicated for the one-off repos. Is there a repo you care about, that has an open issue about branch renaming, and yet the change doesn't seem to be happening? Feel free to give us a gentle nudge by commenting in the issue thread.
 
 ## usethis x.y.z has functions to help
 
-The recently released x.y.z. version of usethis has some new functions to support changes in the default branch. To be clear, you don't *need* usethis to do adapt to change in the default branch. The work can be done via command line Git and/or in a web browser, if that's how you roll.
+The recently released x.y.z. version of usethis has some new functions to support changes in the default branch. To be clear, you don't *need* usethis to adapt to change in the default branch. On a small scale, the work can be done through some combination of command line Git and actions in a web browser, if that's how you roll.
 
-But the new `git_default_branch*()` family of functions can make this process more pleasant, for those who enjoy using devtools/usethis, especially for Git and GitHub tasks.
+But the new `git_default_branch*()` family of functions can make this process more pleasant, for those who enjoy using devtools/usethis, especially for Git and GitHub tasks. These functions also help us do this work programmatically for hundreds of repositories at a time.
 
 You can install the newest version of usethis from CRAN with:
 
@@ -87,7 +100,7 @@ As mentioned above, our bulk renaming involves FILL IN THIS NUMBER GitHub repos,
 
 ### How will I know I have a problem?
 
-Let's show what it looks like when you try to pull from a remote repo in a project that used to use `master`, but now uses `main`, but you haven't updated your local repo yet.
+Here's what it looks like when you try to pull from a remote repo in a project that used to use `master`, but now uses `main`, but you haven't updated your local repo yet.
 
 -   Example with [`usethis::pr_merge_main()`](https://usethis.r-lib.org/reference/pull-requests.html):
 
@@ -95,7 +108,7 @@ Let's show what it looks like when you try to pull from a remote repo in a proje
         Error in libgit2::git_annotated_commit_from_revspec : 
           revspec 'origin/master' not found
 
--   Example with command line `git pull` (which is essentially what RStudio's Git pane does):
+-   Example with command line `git pull` (which is what RStudio's blue "down" arrow does):
 
         Your configuration specifies to merge with the ref 'refs/heads/master'
         from the remote, but no such ref was fetched.
@@ -104,15 +117,17 @@ Both messages are telling you the same thing:
 
 > We're trying to pull changes from the remote `master` branch, but the remote does not have a `master` branch.
 
+You need to tell your local repo about the switch from `master` to `main`.
+
 TODO: update this as usethis gets smarter and more proactive about detecting this. As it is, I only got the usethis error by first calling `gert::git_fetch(prune = TRUE)`. Without that, usethis doesn't surface the problem in an obvious way. It just silently fetches a nonexistent ref and the merge leads to "Already up to date, nothing to merge" (which we suppress, which is neither here nor there).
 
 ### Can I just burn it all down?
 
 Yes, yes you can!
 
-If there's nothing precious in your local clone of our repo or in your fork, it's perfectly reasonable to delete them and just start over. Locally, you just delete the folder. On GitHub, in your fork, go to *Settings* and scroll down to the *Danger Zone* to *Delete this repository*.
+If there's nothing precious in your local clone of our repo or in your fork, it's perfectly reasonable to delete them and just start over. Locally, you delete the folder corresponding to the repo. On GitHub, in your fork, go to *Settings* and scroll down to the *Danger Zone* to *Delete this repository*.
 
-Then you could do a fresh fork-and-clone of, for example, dplyr:
+Then you can do a fresh fork-and-clone of, for example, dplyr:
 
 <div class="highlight">
 
