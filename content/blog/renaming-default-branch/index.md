@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [usethis, devtools]
-rmd_hash: 2ef1b9d6c6963fd9
+rmd_hash: d78d9bff94a4e10c
 
 ---
 
@@ -94,7 +94,24 @@ You can make usethis available in your R session with either of these commands:
 
 If you'd like usethis to help with you with Git/GitHub, please read the article [Managing Git(Hub) Credentials](https://usethis.r-lib.org/articles/articles/git-credentials.html).
 
-## How to update clones and forks after default branch renaming
+usethis is very opinionated and conservative about which GitHub setups it's willing to manage, because we don't want to barge in and mess with something we don't understand. These standard setups and what we mean by, e.g., **source repo** are all described at <https://happygitwithr.com/common-remote-setups.html>.
+
+<div class="highlight">
+
+<div class="figure" style="text-align: center">
+
+<img src="six-configs.png" alt="Six common GitHub setups" width="100%" />
+<p class="caption">
+Six common GitHub setups
+</p>
+
+</div>
+
+</div>
+
+TODO: get rid of this note in Happy Git "2020-10 note: this currently refers to features in a development version of usethis. These features will appear in usethis v2.0.0."
+
+## How to update your clones and forks
 
 As mentioned above, our bulk renaming involves FILL IN THIS NUMBER GitHub repos, which are associated with FILL IN THIS NUMBER forks. It's impossible to say how many non-fork clones there may be. Undoubtedly, many of these forks and clones are inactive, but it's also clear that our branch renaming potentially affects lots of people.
 
@@ -162,10 +179,6 @@ If you don't want to burn it all down, you can call `usethis::git_default_branch
 
 Above, you see usethis updating the local repository to match the source repo. If we detect that you also have a fork of this repo, usethis will rename its default branch as well.
 
-usethis is very opinionated and conservative about which GitHub setups it's willing to manage, because we don't want to barge in and mess with something we don't understand. These standard setups and what we mean by, e.g., **source repo** are all described at <https://happygitwithr.com/common-remote-setups.html>.
-
-TODO: get rid of this note in Happy Git "2020-10 note: this currently refers to features in a development version of usethis. These features will appear in usethis v2.0.0."
-
 GitHub provides official instructions for [updating a local clone after a branch name changes](https://docs.github.com/en/github/administering-a-repository/managing-branches-in-your-repository/renaming-a-branch#updating-a-local-clone-after-a-branch-name-changes), using only command line Git:
 
 <div class="highlight">
@@ -180,6 +193,30 @@ $ git remote set-head origin -a</code></pre>
 Depending on your setup, above you might need to substitute `upstream` for `origin`. `OLD-BRANCH-NAME` is probably `master` and `NEW-BRANCH-NAME` is probably `main`.
 
 ## How to rename default branch in your own existing repos
+
+You can rename the default branch for repos that you effectively own. This is a straightforward task for a repo that only exists on your computer. We're more concerned about the trickier case where the project is also on GitHub.
+
+You can call `usethis::git_default_branch_rename()` to *rename* (or move) the default branch in the **source repo**. For this to work, you must either own the source repo personally or, if it's organization-owned, you must have `admin` permission. This is a higher level of permission than `write`, which is what's needed to push. `git_default_branch_rename()` checks this pre-requisite and exits early, without doing anything, if you are not going to be successful.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>git_default_branch_rename</span><span class='o'>(</span><span class='o'>)</span>
+<span class='c'>#&gt; ✓ Renaming (a.k.a. "moving") the default branch for 'aaaa'.</span>
+<span class='c'>#&gt; ℹ GitHub remote configuration type: 'ours'</span>
+<span class='c'>#&gt; ℹ Read more about GitHub remote configurations at:</span>
+<span class='c'>#&gt;   'https://happygitwithr.com/common-remote-setups.html'</span>
+<span class='c'>#&gt; ℹ Source repo is 'jennybc/aaaa' and its current default branch is 'master'.</span>
+<span class='c'>#&gt; ✓ Renaming 'master' branch to 'main' in the source repo 'jennybc/aaaa'.</span>
+<span class='c'>#&gt; ✓ Rediscovering the default branch from source repo.</span>
+<span class='c'>#&gt; ℹ Source repo is 'jennybc/aaaa' and its current default branch is 'main'.</span>
+<span class='c'>#&gt; ✓ Moving local 'master' branch to 'main'.</span>
+<span class='c'>#&gt; ✓ Setting remote tracking branch for local 'main' branch to 'origin/main'.</span></code></pre>
+
+</div>
+
+Once the default branch is successfully renamed in the source repo on GitHub, `git_default_branch_rename()` makes an internal call to `git_default_branch_rediscover()` to finish the job. This makes any necessary local changes or, more rarely, changes in a personal fork.
+
+If you don't want to use usethis, you can rename the default branch from a web browser. On GitHub, in your repo, go to *Settings*, then *Branches*, and edit the *Default branch*. Then follow the command line instructions from the previous section, emulating what we do in `git_default_branch_rename()`.
 
 ## How to change your "default default" branch for the future
 
