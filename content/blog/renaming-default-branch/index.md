@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [usethis, devtools]
-rmd_hash: 59e90562c893504a
+rmd_hash: 25aaadcab34867d0
 
 ---
 
@@ -71,7 +71,7 @@ Coordinated change is going to work best for repos that are part of an organizat
 
 The recently released x.y.z. version of usethis has some new functions to support changes in the default branch. To be clear, you don't *need* usethis to adapt to change in the default branch. On a small scale, the work can be done through some combination of command line Git and actions in a web browser, if that's how you roll.
 
-But the new `git_default_branch*()` family of functions can make this process more pleasant, for those who enjoy using devtools/usethis, especially for Git and GitHub tasks. These functions also help us do this work programmatically for hundreds of repositories at a time.
+But the new `git_default_branch*()` family of functions can make this process more pleasant, for those who enjoy using devtools/usethis, especially for Git and GitHub tasks. These functions also help us do this work programmatically for hundreds of repositories at once.
 
 You can install the newest version of usethis from CRAN with:
 
@@ -194,7 +194,7 @@ Depending on your setup, above you might need to substitute `upstream` for `orig
 
 ## How to rename default branch in your own existing repos
 
-You can rename the default branch for repos that you effectively own. This is a straightforward task for a repo that only exists on your computer. We're more concerned about the trickier case where the project is also on GitHub.
+You can rename the default branch for repos that you effectively own. This is a straightforward task for a repo that only exists on your computer. [^1] We're more concerned about the trickier case where the project is also on GitHub.
 
 You can call `usethis::git_default_branch_rename()` to *rename* (or move) the default branch in the **source repo**. For this to work, you must either own the source repo personally or, if it's organization-owned, you must have `admin` permission. This is a higher level of permission than `write`, which is what's needed to push. `git_default_branch_rename()` checks this pre-requisite and exits early, without doing anything, if you are not going to be successful.
 
@@ -252,4 +252,6 @@ Although it is more rare to first create repos on a host like GitHub or GitLab, 
 ## Acknowledgements
 
 Thanks to Jeroen Ooms ([@jeroen](https://github.com/jeroen)), maintainer of gert, for adding [`gert::git_branch_move()`](https://docs.ropensci.org/gert/reference/git_branch.html). And thanks to everyone at RStudio helping with this effort, especially the champions from other teams/organizations: Barret Schloerke ([@schloerke](https://github.com/schloerke), Shiny), Ian Flores Siaca ([@ian-flores](https://github.com/ian-flores), Solutions Engineering), Julia Silge ([@juliasilge](https://github.com/juliasilge), tidymodels), Mine Çetinkaya-Rundel ([@mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), Education).
+
+[^1]: `usethis::git_default_branch_rename()` **does** handle the special case of `"no_github"`. Internally, it calls [`gert::git_branch_move()`](https://docs.ropensci.org/gert/reference/git_branch.html). With command line Git, use `git branch -m OLD-BRANCH-NAME NEW-BRANCH-NAME`.
 

@@ -89,7 +89,7 @@ To be clear, you don't _need_ usethis to adapt to change in the default branch.
 On a small scale, the work can be done through some combination of command line Git and actions in a web browser, if that's how you roll.
 
 But the new `git_default_branch*()` family of functions can make this process more pleasant, for those who enjoy using devtools/usethis, especially for Git and GitHub tasks.
-These functions also help us do this work programmatically for hundreds of repositories at a time.
+These functions also help us do this work programmatically for hundreds of repositories at once.
 
 You can install the newest version of usethis from CRAN with:
 
@@ -205,8 +205,10 @@ Depending on your setup, above you might need to substitute `upstream` for `orig
 ## How to rename default branch in your own existing repos
 
 You can rename the default branch for repos that you effectively own.
-This is a straightforward task for a repo that only exists on your computer.
+This is a straightforward task for a repo that only exists on your computer. [^1]
 We're more concerned about the trickier case where the project is also on GitHub.
+
+[^1]: `usethis::git_default_branch_rename()` **does** handle the special case of `"no_github"`. Internally, it calls `gert::git_branch_move()`. With command line Git, use `git branch -m OLD-BRANCH-NAME NEW-BRANCH-NAME`.
 
 You can call `usethis::git_default_branch_rename()` to _rename_ (or move) the default branch in the **source repo**.
 For this to work, you must either own the source repo personally or, if it's organization-owned, you must have `admin` permission.
