@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [usethis, devtools]
-rmd_hash: d78d9bff94a4e10c
+rmd_hash: 59e90562c893504a
 
 ---
 
@@ -218,7 +218,38 @@ Once the default branch is successfully renamed in the source repo on GitHub, `g
 
 If you don't want to use usethis, you can rename the default branch from a web browser. On GitHub, in your repo, go to *Settings*, then *Branches*, and edit the *Default branch*. Then follow the command line instructions from the previous section, emulating what we do in `git_default_branch_rename()`.
 
-## How to change your "default default" branch for the future
+## How to change the default name of your default branch, for the future
+
+The way most repos end up with `master` as their default branch is that Git itself defaults to `master` when it creates the very first branch, with the very first commit, of a new repo. As of Git 2.28 (released 2020-07-27), this became configurable, so it's one of those things you can customize in your global, i.e. user-level, Git config file. usethis does all of its Git work via the [gert package](https://docs.ropensci.org/gert/) and the underlying library libgit2 library gained similar support in version 1.1 (released 2020-10-12).
+
+The new configuration option is `init.defaultBranch`.
+
+There are various ways to set your preferred initial branch name to, e.g., `main`:
+
+-   With usethis, using a special-purpose function:
+    <div class="highlight">
+
+    <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>git_default_branch_configure</span><span class='o'>(</span><span class='o'>)</span>
+      <span class='c'>#&gt; ✓ Configuring init.defaultBranch as 'main'.</span>
+      <span class='c'>#&gt; ℹ Remember: this only affects repos you create in the future.</span></code></pre>
+
+    </div>
+-   With usethis, using the general function to modify your Git configuration:
+    <div class="highlight">
+
+    <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://usethis.r-lib.org/reference/use_git_config.html'>use_git_config</a></span><span class='o'>(</span>init.defaultBranch <span class='o'>=</span> <span class='s'>"main"</span><span class='o'>)</span></code></pre>
+
+    </div>
+-   With command line Git:
+    <div class="highlight">
+
+    <pre class='chroma'><code class='language-r' data-lang='r'>git config --global init.defaultBranch main</code></pre>
+
+    </div>
+
+Although it is more rare to first create repos on a host like GitHub or GitLab, this certainly comes up from time to time. All the major providers now support user configuration of the initial branch name and, in the absence of user or organization preferences, all default to `main`.
 
 ## Acknowledgements
+
+Thanks to Jeroen Ooms ([@jeroen](https://github.com/jeroen)), maintainer of gert, for adding [`gert::git_branch_move()`](https://docs.ropensci.org/gert/reference/git_branch.html). And thanks to everyone at RStudio helping with this effort, especially the champions from other teams/organizations: Barret Schloerke ([@schloerke](https://github.com/schloerke), Shiny), Ian Flores Siaca ([@ian-flores](https://github.com/ian-flores), Solutions Engineering), Julia Silge ([@juliasilge](https://github.com/juliasilge), tidymodels), Mine Çetinkaya-Rundel ([@mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), Education).
 
