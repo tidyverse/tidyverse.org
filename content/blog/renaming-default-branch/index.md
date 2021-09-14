@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [usethis, devtools]
-rmd_hash: 25aaadcab34867d0
+rmd_hash: 1c276dc364a833b8
 
 ---
 
@@ -55,7 +55,7 @@ Read on for more context.
 
 The transition from `master` to `main` is happening organization-wide for specific GitHub organizations (e.g. [tidyverse](https://github.com/tidyverse), [r-lib](https://github.com/r-lib), [tidymodels](https://github.com/tidymodels), and [sol-eng](https://github.com/sol-eng)). However, several teams maintain repos across multiple organizations and several organizations host repos for multiple teams and purposes. The organization-wide approach doesn't work well for these cases. Therefore, several hundred additional "one-off" repos are also part of this effort.
 
-In total, we're coordinating the `master` to `main` switch for FILL IN THIS NUMBER repositories.
+In total, we're coordinating the `master` to `main` switch for around 350 UPDATE THIS NUMBER repositories.
 
 In each case, we opened a GitHub issue announcing the coming change, several weeks in advance. These issues all look something like this: <https://github.com/tidyverse/dplyr/issues/6006>.
 
@@ -113,7 +113,7 @@ TODO: get rid of this note in Happy Git "2020-10 note: this currently refers to 
 
 ## How to update your clones and forks
 
-As mentioned above, our bulk renaming involves FILL IN THIS NUMBER GitHub repos, which are associated with FILL IN THIS NUMBER forks. It's impossible to say how many non-fork clones there may be. Undoubtedly, many of these forks and clones are inactive, but it's also clear that our branch renaming potentially affects lots of people.
+As mentioned above, our bulk renaming involves UPDATE THIS NUMBER around 350 GitHub repos, which are associated with UPDATE THESE NUMBERS \>33K forks, \>9K open issues, \>87K watchers, and \>87K stars. It's impossible to say how many non-fork clones are out there. Undoubtedly, many of these forks and clones are inactive, but it's also clear that our branch renaming potentially affects lots of people.
 
 ### How will I know I have a problem?
 
@@ -251,7 +251,7 @@ Although it is more rare to first create repos on a host like GitHub or GitLab, 
 
 ## Acknowledgements
 
-Thanks to Jeroen Ooms ([@jeroen](https://github.com/jeroen)), maintainer of gert, for adding [`gert::git_branch_move()`](https://docs.ropensci.org/gert/reference/git_branch.html). And thanks to everyone at RStudio helping with this effort, especially the champions from other teams/organizations: Barret Schloerke ([@schloerke](https://github.com/schloerke), Shiny), Ian Flores Siaca ([@ian-flores](https://github.com/ian-flores), Solutions Engineering), Julia Silge ([@juliasilge](https://github.com/juliasilge), tidymodels), Mine Çetinkaya-Rundel ([@mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), Education).
+Thanks to Jeroen Ooms ([@jeroen](https://github.com/jeroen)), maintainer of gert, for adding [`gert::git_branch_move()`](https://docs.ropensci.org/gert/reference/git_branch.html). And thanks to everyone at RStudio helping with this effort, especially the champions from other teams: Barret Schloerke ([@schloerke](https://github.com/schloerke), Shiny), Ian Flores Siaca ([@ian-flores](https://github.com/ian-flores), Solutions Engineering), Julia Silge ([@juliasilge](https://github.com/juliasilge), tidymodels), Mine Çetinkaya-Rundel ([@mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), Education), Sigrid Keydana ([@skeydan](https://github.com/skeydan), machine learning), Alison Presmanes Hill ([@apreshill](https://github.com/apreshill), R markdown).
 
 [^1]: `usethis::git_default_branch_rename()` **does** handle the special case of `"no_github"`. Internally, it calls [`gert::git_branch_move()`](https://docs.ropensci.org/gert/reference/git_branch.html). With command line Git, use `git branch -m OLD-BRANCH-NAME NEW-BRANCH-NAME`.
 
