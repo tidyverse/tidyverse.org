@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [usethis, devtools]
-rmd_hash: 1c276dc364a833b8
+rmd_hash: 964bb7c4c9b16ed6
 
 ---
 
@@ -251,7 +251,7 @@ Although it is more rare to first create repos on a host like GitHub or GitLab, 
 
 ## Acknowledgements
 
-Thanks to Jeroen Ooms ([@jeroen](https://github.com/jeroen)), maintainer of gert, for adding [`gert::git_branch_move()`](https://docs.ropensci.org/gert/reference/git_branch.html). And thanks to everyone at RStudio helping with this effort, especially the champions from other teams: Barret Schloerke ([@schloerke](https://github.com/schloerke), Shiny), Ian Flores Siaca ([@ian-flores](https://github.com/ian-flores), Solutions Engineering), Julia Silge ([@juliasilge](https://github.com/juliasilge), tidymodels), Mine Çetinkaya-Rundel ([@mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), Education), Sigrid Keydana ([@skeydan](https://github.com/skeydan), machine learning), Alison Presmanes Hill ([@apreshill](https://github.com/apreshill), R markdown).
+Thanks to Jeroen Ooms ([@jeroen](https://github.com/jeroen)), maintainer of gert, for adding [`gert::git_branch_move()`](https://docs.ropensci.org/gert/reference/git_branch.html). And thanks to everyone at RStudio helping with this effort, especially the champions from other teams: Barret Schloerke ([@schloerke](https://github.com/schloerke), Shiny), Ian Flores Siaca ([@ian-flores](https://github.com/ian-flores), Solutions Engineering), Julia Silge ([@juliasilge](https://github.com/juliasilge), tidymodels), Mine Çetinkaya-Rundel ([@mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), Education), Sigrid Keydana ([@skeydan](https://github.com/skeydan), Machine Learning), Alison Presmanes Hill ([@apreshill](https://github.com/apreshill), Data Science Communication).
 
 [^1]: `usethis::git_default_branch_rename()` **does** handle the special case of `"no_github"`. Internally, it calls [`gert::git_branch_move()`](https://docs.ropensci.org/gert/reference/git_branch.html). With command line Git, use `git branch -m OLD-BRANCH-NAME NEW-BRANCH-NAME`.
 
