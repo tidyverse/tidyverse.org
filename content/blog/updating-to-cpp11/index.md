@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [cpp11, internship]
-rmd_hash: a029ef6846bf00d8
+rmd_hash: f4f90aeab25d81a6
 
 ---
 
@@ -33,7 +33,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-Over the summer I had the pleasure of working with Jim Hester on the [cpp11 package](https://cpp11.r-lib.org/) as a tidyverse summer intern. The cpp11 package is a header-only R package that helps R package developers handle R objects with C++ code. Its goals and syntax are similar to the excellent Rcpp package. During most of my internship, I worked on triaging issues, fixing bugs, and adding new features to cpp11. Near the end of the summer, I got to work with Jenny Bryan on converting the [readxl](https://github.com/tidyverse/readxl/pull/659) package from using Rcpp to using cpp11. Jim has written a [great post](https://cpp11.r-lib.org/articles/converting.html) about converting packages from Rcpp to cpp11, which I heavily referenced during the process. But there were still some challenges I encountered. To help others going through a similar process, I wanted to review the workflows and tools we used to make this easier.
+Over the summer I had the pleasure of working with Jim Hester on the [cpp11 package](https://cpp11.r-lib.org/) as a tidyverse summer intern. The cpp11 package is a header-only R package that helps R package developers handle R objects with C++ code. Its goals and syntax are similar to the excellent Rcpp package. During most of my internship, I worked on triaging issues, fixing bugs, and adding new features to cpp11. Near the end of the summer, I got to work with Jenny Bryan on [converting readxl to using cpp11](https://github.com/tidyverse/readxl/pull/659). Jim has written a [great post](https://cpp11.r-lib.org/articles/converting.html) about converting packages from Rcpp to cpp11, which I heavily referenced during the process. But there were still some challenges I encountered. To help others going through a similar process, I wanted to review the workflows and tools we used to make this easier.
 
 The entire process took about a week. Using both Rcpp and cpp11 at the same time in a package is okay for short term work like this, so I didn't feel rushed. To get started, I followed the initial set-up steps outlined in Jim's article and then recompiled, to confirm it was successful. Next, I needed to include either the `cpp11/R.hpp` header or the macros `R_NO_REMAP` and `STRICT_R_HEADERS`. I found it easier to include the macros since the header file needs to come before any headers that use Rcpp.
 
@@ -53,5 +53,5 @@ For the nitty-gritty details of converting the code, I definitely took advantage
 
 When I had finished converting all the objects to cpp11, I removed the macros `R_NO_REMAP` and `STRICT_R_HEADERS` and any stray `#include "Rcpp.h"` directives. Finally, to check for any other updates that might be required, such as in the DESCRIPTION file, I also ran `devtools::check()`. And that's it!
 
-I had so much fun working with the tidyverse team. And a big thank you to Jim for all the support over the summer and to Jenny for their help on readxl! If you're looking for more examples of updating packages to using cpp11, Jim has also gone through the process with [readr](https://github.com/tidyverse/readr/pull/1109). RStudio is a great place to look for summer internship opportunities. They had a variety of opportunities this summer and I'd encourage anyone looking for summer internships to apply for 2022!
+I had so much fun working with the tidyverse team. And a big thank you to Jim for all the support over the summer and to Jenny for their help on readxl! If you're looking for more examples of updating packages to using cpp11, Jim has also gone through the process of [converting readr to using cpp11](https://github.com/tidyverse/readr/pull/1109). RStudio is a great place to look for summer internship opportunities. They had a variety of opportunities this summer and I'd encourage anyone looking for summer internships to apply for 2022!
 
