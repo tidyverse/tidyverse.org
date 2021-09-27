@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: testthat-3-1
 title: testthat 3.1.0
-date: 2021-09-22
+date: 2021-10-01
 author: Hadley Wickham
 description: >
     testthat 3.1.0 brings improvements to snapshot testing and one breaking
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [testthat]
-rmd_hash: 91f605a4af3560c5
+rmd_hash: ff8b01ebb22a1a51
 
 ---
 
