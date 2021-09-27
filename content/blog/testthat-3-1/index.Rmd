@@ -28,7 +28,7 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] `hugodown::use_tidy_thumbnails()`
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [ ] `usethis::use_tidy_thanks()`
+* [x] `usethis::use_tidy_thanks()`
 -->
 
 We're stoked to announce the release of [testthat](http://testthat.r-lib.org/) 3.1.0.
@@ -42,8 +42,8 @@ You can install testthat from CRAN with:
 install.packages("{package}")
 ```
 
-This release of testthat includes a bunch of minor improvements to snapshotting as well as one breaking change to the 3rd edition.
-You can see a full list of changes in the [release notes](https://github.com/r-lib/testthat/blob/master/NEWS.md)
+This release of testthat includes a bunch of minor improvements to snapshotting as well as one breaking change (which only applies if you're using the 3rd edition).
+You can see a full list of changes in the [release notes](https://github.com/r-lib/testthat/blob/master/NEWS.md).
 
 ```{r setup}
 library(testthat)
@@ -51,41 +51,68 @@ library(testthat)
 
 ## Snapshot tests
 
-While this release includes a bunch of minor improvements (and one breaking change, more on that below), most of the effort has gone in to `expect_snapshot()` and friends.
-`expect_snapshot()` is used to create snapshot tests, a new feature in testthat 3.0.0.
-Instead of using code to describe expected output, snapshot tests (also known as [golden tests](https://ro-che.info/articles/2017-12-04-golden-tests)) record results in a separate human-readable file.
-You can learn more about them in `vignette("snapshotting.html", package = "testthat")`.
-
-We have been using snapshot tests across many tidyverse packages and they have been working well.
-I don't anticipate any major changes (although we may continue to add new features) so the snapshot functions have moved from experimental to stable.
+Most of the effort in this release has gone in [snapshot tests](https://testthat.r-lib.org/articles/snapshotting.html), a new feature in testthat 3.0.0.
+snapshot tests (also known as [golden tests](https://ro-che.info/articles/2017-12-04-golden-tests)) record expect output in a separate human-readable file Instead of using code to describe expected output.
+Since the release of testthat 3.0.0, we've started using snapshot tests across a bunch of tidyverse packages and they've been working out really well.
+I don't anticipate any major changes (although we may continue to add new features) so the snapshot functions have changed lifecycle stages from experimental to **stable**.
 
 This release also includes two new features that help you use snapshot tests in more places:
 
 -   `expect_snapshot()` gains a `transform` argument, which should be a function that takes a character vector of lines and returns a modified character vector of lines.
-    This makes it easy to remove sensitive (e.g. API keys) or stochastic (e.g. random temporary directory names) from snapshot output.
+    This makes it easy to remove sensitive (e.g. API keys) or stochastic (e.g. random temporary directory names) data from snapshot output.
+
+    ```{r}
+    get_info <- function() {
+      list(
+        name = "Hadley", 
+        password = "sssh-its-a-secret"
+      )
+    }
+
+    hide_password <- function(x) {
+      is_password <- grepl("password", x)
+      ifelse(is_password, "<REDACTED>", x)
+    }
+
+    test_that("info retruns name and password", {
+      local_edition(3)
+      expect_snapshot(str(get_info()), transform = hide_password)
+    })
+    ```
+
+    If you need `transform`, I recommend designing your printing methods so the output can be easily manipulated with regexps.
 
 -   `expect_snapshot()` and friends gets an experimental new `variant` argument which causes the snapshot to be saved in `_snaps/{variant}/{test}.md` instead of `_snaps/{test}.md`.
     This allows you to generate (and compare) unique snapshots for different scenarios where the output is otherwise out of your control, like differences across operating systems or R versions.
 
-By default snapshot tests are not run on CRAN because they require a human to confirm whether or not a change is a breakage, so you shouldn't rely only on snapshot tests (you can set `cran = TRUE`, to run on CRAN, but generally snapshot tests are vulnerable to minor changes that probably don't merit breaking R CMD check on CRAN.)
+    ```{r, eval = FALSE}
+    r_version <- function() paste0("R", getRversion()[, 1:2])
+
+    test_that("can capture version nickname", {
+      expect_snapshot(version$nickname, variant = r_version())
+    })
+    ```
+
+Remember that snapshot tests are not run on CRAN by default because they require a human to confirm whether or not a change is a breakage, so you shouldn't rely only on snapshot tests to ensure that your code is correct.
+While it is possible to set `cran = TRUE`, to force snapshot tests to run on CRAN, I don't generally recommend it as snapshots are often vulnerable to minor changes that don't merit breaking your released package.
 
 ## Breaking changes
 
-We made one breaking change that affects code that uses [testthat 3e](https://testthat.r-lib.org/articles/third-edition.html).
-Previously, `expect_message()`, `expect_warning()` and `expect_error()` returned the value of the first argument, unless that was `NULL` in which case they returned the condition object.
+We made one breaking change that affects the [third edition](https://testthat.r-lib.org/articles/third-edition.html).
+Previously, `expect_message()`, `expect_warning()` and `expect_error()` returned the value of the first argument, unless that was `NULL`, when they instead returned the condition object.
 This meant you could write code like this:
 
 ```{r, eval = FALSE}
 expect_equal(expect_warning(f(), "warning"), "value")
 ```
 
-Now you need to flip the order of the expectations:
+Now `expect_message()`, `expect_warning()` and `expect_error()` always return the condition object so you need to flip the order of the expectations:
 
 ```{r, eval = FALSE}
 expect_warning(expect_equal(f(), "value"), "warning")
 ```
 
-Which (IMO) is a little easier to read with the pipe:
+This (IMO) is a little easier to read with the pipe:
 
 ```{r, eval = FALSE}
 # Or use the pipe:
@@ -102,10 +129,10 @@ expect_equal(value, "value")
 ```
 
 As with any breaking change, we made this change with great care.
-Fortunately it only affects the 3rd edition, which relatively few packages use, and we submitted PRs to all affected CRAN packages.
-We made this change because it makes testthat more consistent and makes it easier to inspect both the value and the warning.
+Fortunately it only affects the 3rd edition, which relatively few packages use, and we submitted PRs to all affected packages on CRAN.
 
-This is important because it makes it easier to test functions that produce richer error objects that themselves contain meaningful data:
+We made this change because it makes testthat more consistent and makes it easier to inspect both the value and the warning.
+This is important because it makes it easier to test functions that produce [custom error objects](https://adv-r.hadley.nz/conditions.html#custom-conditions) that themselves contain meaningful data:
 
 ```{r, eval = FALSE}
 library(rlang)
@@ -127,4 +154,4 @@ You're unlikely to see them directly, but we're using them as part of a general 
 
 ## Acknowledgements
 
-A big thanks to all 104 contributors who filed issues and contributed code to this and the last few patch releases: [&#x0040;Aariq](https://github.com/Aariq), [&#x0040;Aehmlo](https://github.com/Aehmlo), [&#x0040;aguynamedryan](https://github.com/aguynamedryan), [&#x0040;ahjota](https://github.com/ahjota), [&#x0040;akersting](https://github.com/akersting), [&#x0040;Akirathan](https://github.com/Akirathan), [&#x0040;arnaud-feldmann](https://github.com/arnaud-feldmann), [&#x0040;aronatkins](https://github.com/aronatkins), [&#x0040;Bisaloo](https://github.com/Bisaloo), [&#x0040;boennecd](https://github.com/boennecd), [&#x0040;BS1125](https://github.com/BS1125), [&#x0040;byoung](https://github.com/byoung), [&#x0040;cboettig](https://github.com/cboettig), [&#x0040;clauswilke](https://github.com/clauswilke), [&#x0040;ColinFay](https://github.com/ColinFay), [&#x0040;CorradoLanera](https://github.com/CorradoLanera), [&#x0040;dagola](https://github.com/dagola), [&#x0040;DanChaltiel](https://github.com/DanChaltiel), [&#x0040;david-barnett](https://github.com/david-barnett), [&#x0040;david-cortes](https://github.com/david-cortes), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dmenne](https://github.com/dmenne), [&#x0040;dpprdan](https://github.com/dpprdan), [&#x0040;egonulates](https://github.com/egonulates), [&#x0040;espinielli](https://github.com/espinielli), [&#x0040;eveyp](https://github.com/eveyp), [&#x0040;FBartos](https://github.com/FBartos), [&#x0040;federicomarini](https://github.com/federicomarini), [&#x0040;flying-sheep](https://github.com/flying-sheep), [&#x0040;franzbischoff](https://github.com/franzbischoff), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hamstr147](https://github.com/hamstr147), [&#x0040;harell](https://github.com/harell), [&#x0040;harsh9898](https://github.com/harsh9898), [&#x0040;helix123](https://github.com/helix123), [&#x0040;hongooi73](https://github.com/hongooi73), [&#x0040;hsloot](https://github.com/hsloot), [&#x0040;jeffreyhanson](https://github.com/jeffreyhanson), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jeroen](https://github.com/jeroen), [&#x0040;jesterxd](https://github.com/jesterxd), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;kevinushey](https://github.com/kevinushey), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;lcougnaud](https://github.com/lcougnaud), [&#x0040;linusheinz](https://github.com/linusheinz), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;llrs](https://github.com/llrs), [&#x0040;lutzgruber-quantco](https://github.com/lutzgruber-quantco), [&#x0040;maelle](https://github.com/maelle), [&#x0040;maia-sh](https://github.com/maia-sh), [&#x0040;malcolmbarrett](https://github.com/malcolmbarrett), [&#x0040;MarkEdmondson1234](https://github.com/MarkEdmondson1234), [&#x0040;marko-stojovic](https://github.com/marko-stojovic), [&#x0040;mattfidler](https://github.com/mattfidler), [&#x0040;maxachis](https://github.com/maxachis), [&#x0040;maxheld83](https://github.com/maxheld83), [&#x0040;mbojan](https://github.com/mbojan), [&#x0040;mcol](https://github.com/mcol), [&#x0040;MechantRouquin](https://github.com/MechantRouquin), [&#x0040;mem48](https://github.com/mem48), [&#x0040;mgirlich](https://github.com/mgirlich), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;michaelquinn32](https://github.com/michaelquinn32), [&#x0040;mihaiconstantin](https://github.com/mihaiconstantin), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;MilesMcBain](https://github.com/MilesMcBain), [&#x0040;mjskay](https://github.com/mjskay), [&#x0040;mllg](https://github.com/mllg), [&#x0040;Mosk915](https://github.com/Mosk915), [&#x0040;ms609](https://github.com/ms609), [&#x0040;multimeric](https://github.com/multimeric), [&#x0040;nbenn](https://github.com/nbenn), [&#x0040;neonira](https://github.com/neonira), [&#x0040;nicholasproietti](https://github.com/nicholasproietti), [&#x0040;njtierney](https://github.com/njtierney), [&#x0040;nkehrein](https://github.com/nkehrein), [&#x0040;pat-s](https://github.com/pat-s), [&#x0040;pbarber](https://github.com/pbarber), [&#x0040;pkrog](https://github.com/pkrog), [&#x0040;przmv](https://github.com/przmv), [&#x0040;r2evans](https://github.com/r2evans), [&#x0040;raphael-lorenzdelaigue](https://github.com/raphael-lorenzdelaigue), [&#x0040;rfaelens](https://github.com/rfaelens), [&#x0040;rjnb50](https://github.com/rjnb50), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rwhetten](https://github.com/rwhetten), [&#x0040;salim-b](https://github.com/salim-b), [&#x0040;schloerke](https://github.com/schloerke), [&#x0040;sigmafelix](https://github.com/sigmafelix), [&#x0040;srfall](https://github.com/srfall), [&#x0040;strengejacke](https://github.com/strengejacke), [&#x0040;SubieG](https://github.com/SubieG), [&#x0040;thebioengineer](https://github.com/thebioengineer), [&#x0040;thisisnic](https://github.com/thisisnic), [&#x0040;tiQu](https://github.com/tiQu), [&#x0040;torbjorn](https://github.com/torbjorn), [&#x0040;ttimbers](https://github.com/ttimbers), [&#x0040;tzakharko](https://github.com/tzakharko), [&#x0040;vspinu](https://github.com/vspinu), [&#x0040;wch](https://github.com/wch), [&#x0040;weiyaw](https://github.com/weiyaw), and [&#x0040;yasushm](https://github.com/yasushm).
+A big thanks to all 104 contributors who filed issues and contributed code to this and the last few patch releases: [\@Aariq](https://github.com/Aariq), [\@Aehmlo](https://github.com/Aehmlo), [\@aguynamedryan](https://github.com/aguynamedryan), [\@ahjota](https://github.com/ahjota), [\@akersting](https://github.com/akersting), [\@Akirathan](https://github.com/Akirathan), [\@arnaud-feldmann](https://github.com/arnaud-feldmann), [\@aronatkins](https://github.com/aronatkins), [\@Bisaloo](https://github.com/Bisaloo), [\@boennecd](https://github.com/boennecd), [\@BS1125](https://github.com/BS1125), [\@byoung](https://github.com/byoung), [\@cboettig](https://github.com/cboettig), [\@clauswilke](https://github.com/clauswilke), [\@ColinFay](https://github.com/ColinFay), [\@CorradoLanera](https://github.com/CorradoLanera), [\@dagola](https://github.com/dagola), [\@DanChaltiel](https://github.com/DanChaltiel), [\@david-barnett](https://github.com/david-barnett), [\@david-cortes](https://github.com/david-cortes), [\@DavisVaughan](https://github.com/DavisVaughan), [\@dmenne](https://github.com/dmenne), [\@dpprdan](https://github.com/dpprdan), [\@egonulates](https://github.com/egonulates), [\@espinielli](https://github.com/espinielli), [\@eveyp](https://github.com/eveyp), [\@FBartos](https://github.com/FBartos), [\@federicomarini](https://github.com/federicomarini), [\@flying-sheep](https://github.com/flying-sheep), [\@franzbischoff](https://github.com/franzbischoff), [\@gaborcsardi](https://github.com/gaborcsardi), [\@hadley](https://github.com/hadley), [\@hamstr147](https://github.com/hamstr147), [\@harell](https://github.com/harell), [\@harsh9898](https://github.com/harsh9898), [\@helix123](https://github.com/helix123), [\@hongooi73](https://github.com/hongooi73), [\@hsloot](https://github.com/hsloot), [\@jeffreyhanson](https://github.com/jeffreyhanson), [\@jennybc](https://github.com/jennybc), [\@jeroen](https://github.com/jeroen), [\@jesterxd](https://github.com/jesterxd), [\@jimhester](https://github.com/jimhester), [\@kevinushey](https://github.com/kevinushey), [\@krlmlr](https://github.com/krlmlr), [\@lcougnaud](https://github.com/lcougnaud), [\@linusheinz](https://github.com/linusheinz), [\@lionel-](https://github.com/lionel-), [\@llrs](https://github.com/llrs), [\@lutzgruber-quantco](https://github.com/lutzgruber-quantco), [\@maelle](https://github.com/maelle), [\@maia-sh](https://github.com/maia-sh), [\@malcolmbarrett](https://github.com/malcolmbarrett), [\@MarkEdmondson1234](https://github.com/MarkEdmondson1234), [\@marko-stojovic](https://github.com/marko-stojovic), [\@mattfidler](https://github.com/mattfidler), [\@maxachis](https://github.com/maxachis), [\@maxheld83](https://github.com/maxheld83), [\@mbojan](https://github.com/mbojan), [\@mcol](https://github.com/mcol), [\@MechantRouquin](https://github.com/MechantRouquin), [\@mem48](https://github.com/mem48), [\@mgirlich](https://github.com/mgirlich), [\@MichaelChirico](https://github.com/MichaelChirico), [\@michaelquinn32](https://github.com/michaelquinn32), [\@mihaiconstantin](https://github.com/mihaiconstantin), [\@mikemahoney218](https://github.com/mikemahoney218), [\@MilesMcBain](https://github.com/MilesMcBain), [\@mjskay](https://github.com/mjskay), [\@mllg](https://github.com/mllg), [\@Mosk915](https://github.com/Mosk915), [\@ms609](https://github.com/ms609), [\@multimeric](https://github.com/multimeric), [\@nbenn](https://github.com/nbenn), [\@neonira](https://github.com/neonira), [\@nicholasproietti](https://github.com/nicholasproietti), [\@njtierney](https://github.com/njtierney), [\@nkehrein](https://github.com/nkehrein), [\@pat-s](https://github.com/pat-s), [\@pbarber](https://github.com/pbarber), [\@pkrog](https://github.com/pkrog), [\@przmv](https://github.com/przmv), [\@r2evans](https://github.com/r2evans), [\@raphael-lorenzdelaigue](https://github.com/raphael-lorenzdelaigue), [\@rfaelens](https://github.com/rfaelens), [\@rjnb50](https://github.com/rjnb50), [\@romainfrancois](https://github.com/romainfrancois), [\@rwhetten](https://github.com/rwhetten), [\@salim-b](https://github.com/salim-b), [\@schloerke](https://github.com/schloerke), [\@sigmafelix](https://github.com/sigmafelix), [\@srfall](https://github.com/srfall), [\@strengejacke](https://github.com/strengejacke), [\@SubieG](https://github.com/SubieG), [\@thebioengineer](https://github.com/thebioengineer), [\@thisisnic](https://github.com/thisisnic), [\@tiQu](https://github.com/tiQu), [\@torbjorn](https://github.com/torbjorn), [\@ttimbers](https://github.com/ttimbers), [\@tzakharko](https://github.com/tzakharko), [\@vspinu](https://github.com/vspinu), [\@wch](https://github.com/wch), [\@weiyaw](https://github.com/weiyaw), and [\@yasushm](https://github.com/yasushm).
