@@ -17,21 +17,6 @@ categories: [roundup]
 tags: [tidymodels, dials, modeldata, recipes]
 ---
 
-<!--
-TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] `hugodown::use_tidy_thumbnails()`
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] `usethis::use_tidy_thanks()`
--->
-
-
-
 The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. We now publish [regular updates](https://www.tidyverse.org/categories/roundup/) here on the tidyverse blog summarizing recent developments in the tidymodels ecosystem. You can check out the [`tidymodels` tag](https://www.tidyverse.org/tags/tidymodels/) to find all tidymodels blog posts here, including those that focus on a single package or more major releases. The purpose of these roundup posts is to keep you informed about any releases you may have missed and useful new functionality as we maintain these packages.
 
 Since [our last roundup post](https://www.tidyverse.org/blog/2021/07/tidymodels-july-2021/), there have been 8 CRAN releases of tidymodels packages. You can install these updates from CRAN with:
@@ -50,7 +35,7 @@ The `NEWS` files are linked here for each package; you'll notice that many of th
 - [dials](https://dials.tidymodels.org/news/index.html#dials-0-0-10-2021-09-10)
 - [modeldata](https://github.com/tidymodels/modeldata/blob/master/NEWS.md#modeldata-011)
 - [poissonreg](https://poissonreg.tidymodels.org/news/index.html#poissonreg-0-1-1-2021-08-07)
-- [recipes]()
+- [recipes](https://recipes.tidymodels.org/news/index.html#recipes-0-1-17-2021-09-27)
 - [rules](https://rules.tidymodels.org/news/index.html#rules-0-1-2-2021-08-07)
 - [stacks](https://github.com/tidymodels/stacks/blob/main/NEWS.md#v021)
 - [textrecipes](https://textrecipes.tidymodels.org/news/index.html#textrecipes-0-4-1-2021-07-11)
@@ -64,7 +49,21 @@ One of the new parameters in this release is [`stop_iter()`](https://dials.tidym
 
 ```r
 library(tidymodels)
-
+#> ── Attaching packages ──────────────────────────── tidymodels 0.1.3 ──
+#> ✓ broom        0.7.9      ✓ rsample      0.1.0 
+#> ✓ dials        0.0.10     ✓ tibble       3.1.4 
+#> ✓ dplyr        1.0.7      ✓ tidyr        1.1.3 
+#> ✓ infer        1.0.0      ✓ tune         0.1.6 
+#> ✓ modeldata    0.1.1      ✓ workflows    0.2.3 
+#> ✓ parsnip      0.1.7      ✓ workflowsets 0.1.0 
+#> ✓ purrr        0.3.4      ✓ yardstick    0.0.8 
+#> ✓ recipes      0.1.17
+#> ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──
+#> x purrr::discard() masks scales::discard()
+#> x dplyr::filter()  masks stats::filter()
+#> x dplyr::lag()     masks stats::lag()
+#> x recipes::step()  masks stats::step()
+#> • Use tidymodels_prefer() to resolve common conflicts.
 stop_iter()
 #> # Iterations Before Stopping (quantitative)
 #> Range: [3, 20]
@@ -103,14 +102,14 @@ show_best(early_stop_rs, "roc_auc")
 #> # A tibble: 5 × 8
 #>    mtry stop_iter .metric .estimator  mean     n std_err .config      
 #>   <int>     <int> <chr>   <chr>      <dbl> <int>   <dbl> <chr>        
-#> 1     2        15 roc_auc hand_till  0.889    10 0.00568 Preprocessor…
-#> 2     5        18 roc_auc hand_till  0.886    10 0.00636 Preprocessor…
-#> 3     3        13 roc_auc hand_till  0.886    10 0.00674 Preprocessor…
-#> 4     2        11 roc_auc hand_till  0.885    10 0.00607 Preprocessor…
-#> 5     4         9 roc_auc hand_till  0.885    10 0.00639 Preprocessor…
+#> 1     3        13 roc_auc hand_till  0.887    10 0.00337 Preprocessor…
+#> 2     2        11 roc_auc hand_till  0.887    10 0.00414 Preprocessor…
+#> 3     2        15 roc_auc hand_till  0.886    10 0.00342 Preprocessor…
+#> 4     4         7 roc_auc hand_till  0.885    10 0.00365 Preprocessor…
+#> 5     4         9 roc_auc hand_till  0.884    10 0.00353 Preprocessor…
 ```
 
-In this case, the best value for the early stopping parameter is 15.
+In this case, the best value for the early stopping parameter is 13.
 
 [This recent screencast demonstrates](https://youtu.be/aXAafzOFyjk) how to tune early stopping for xgboost as well.
 
@@ -118,7 +117,7 @@ Several of the new parameter objects in this version of dials are prep work for 
 
 ## Improvements to recipes
 
-The most recent release of recipes is a robust one, including new recipe steps, bug fixes, documentation improvements, and better performance. You can dig into the [NEWS file]() for more details, but check out a few of the most important changes.
+The most recent release of recipes is a robust one, including new recipe steps, bug fixes, documentation improvements, and better performance. You can dig into the [NEWS file](https://recipes.tidymodels.org/news/index.html) for more details, but check out a few of the most important changes.
 
 We added a new recipe step for creating sine and cosine features, [`step_harmonic()`](https://recipes.tidymodels.org/reference/step_harmonic.html). We can use this to analyze data with periodic features, like [the annual number of sunspots](https://en.wikipedia.org/wiki/Solar_cycle). The `sunspot.year` dataset has an observation every year, and the solar cycle is about 11 years long.
 
@@ -183,7 +182,7 @@ Looks like there have been [more sunspots in recent decades](https://en.wikipedi
 
 Another new recipe step is [`step_dummy_multi_choice()`](https://recipes.tidymodels.org/reference/step_dummy_multi_choice.html), while [`step_kpca()`](https://recipes.tidymodels.org/reference/step_kpca.html) was "un-deprecated" and [`step_spatialsign()`](https://recipes.tidymodels.org/reference/step_spatialsign.html) and [`step_geodist()`](https://recipes.tidymodels.org/reference/step_geodist.html) were improved.
 
-If you build your own recipe steps, the new `recipes_eval_select()` function is now available, powering the tidyselect semantics specific to recipes. The older `terms_select()` function is now deprecated in favor of this new helper.
+If you [build your own recipe steps](https://www.tidymodels.org/learn/develop/recipes/), the new [`recipes_eval_select()`](https://recipes.tidymodels.org/reference/recipes_eval_select.html) function is now available, powering the tidyselect semantics specific to recipes. The older `terms_select()` function is now deprecated in favor of this new helper.
 
 The recipes package is fairly extensive, and we have recently invested time and energy in refining [the documentation](https://recipes.tidymodels.org/reference/) to make it more navigable and clear, as well as easier to maintain and contribute to. Specific documentation pages with recent updates you may find helpful include:
 
@@ -197,7 +196,7 @@ One of the tidymodels packages is [modeldata](https://modeldata.tidymodels.org/)
 
 This dataset was sourced from [Kim and Escobedo-Land (2015)](https://doi.org/10.1080/26939169.2021.1924516). Permission to use this dataset was explicitly granted by OkCupid, but since that time, concerns have been raised about the ethics of using this or similar data sets, for example to identify individuals. [Xiao and Ma (2021)](https://doi.org/10.1080/26939169.2021.1930812) specifically address the possible misuse of this particular dataset, and we now agree that it isn't a good option to use for examples or teaching. In the most recent release of modeldata, we have marked these datasets as deprecated. We have removed them from the [development version of the package on GitHub](https://github.com/tidymodels/modeldata/), and they will be removed entirely in the _next_ CRAN release. We especially want to thank Albert Kim, one of the authors of the original paper, for his [thoughtful and helpful discussion](https://github.com/tidymodels/modeldata/issues/10).
 
-One of the reasons we found the OkCupid dataset useful was that it included multiple text columns per observation, so removing these two motivated us to look for a new option to include instead. We landed on [metadata for modern artwork from the Tate Gallery](https://modeldata.tidymodels.org/reference/tate_text.html); if you used `okc_text` in the past, we recommend switching to `tate_text`. For example, we can count how many of these examples of artwork involve paper or canvas.
+One of the reasons we found the OkCupid dataset useful was that it included multiple text columns per observation, so removing these two datasets motivated us to look for a new option to include instead. We landed on [metadata for modern artwork from the Tate Gallery](https://modeldata.tidymodels.org/reference/tate_text.html); if you used `okc_text` in the past, we recommend switching to `tate_text`. For example, we can count how many of these examples of artwork involve paper or canvas.
 
 
 ```r
