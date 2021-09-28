@@ -19,7 +19,7 @@ tags: [tidymodels, dials, modeldata, recipes]
 
 The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. We now publish [regular updates](https://www.tidyverse.org/categories/roundup/) here on the tidyverse blog summarizing recent developments in the tidymodels ecosystem. You can check out the [`tidymodels` tag](https://www.tidyverse.org/tags/tidymodels/) to find all tidymodels blog posts here, including those that focus on a single package or more major releases. The purpose of these roundup posts is to keep you informed about any releases you may have missed and useful new functionality as we maintain these packages.
 
-Since [our last roundup post](https://www.tidyverse.org/blog/2021/07/tidymodels-july-2021/), there have been 8 CRAN releases of tidymodels packages. You can install these updates from CRAN with:
+Since [our last roundup post](https://www.tidyverse.org/blog/2021/07/tidymodels-july-2021/), there have been 9 CRAN releases of tidymodels packages. You can install these updates from CRAN with:
 
 
 ```r
