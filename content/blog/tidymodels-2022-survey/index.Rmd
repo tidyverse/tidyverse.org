@@ -10,8 +10,8 @@ description: >
     feedback!
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/ChUHmPPTnLQ
+  author: Djim Loic
 
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [other] 
