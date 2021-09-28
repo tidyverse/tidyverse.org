@@ -1,0 +1,255 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-2021-q3
+title: "Q3 2021 tidymodels roundup"
+date: 2021-09-28
+author: Julia Silge
+description: >
+    Use new tuning parameters, new recipe steps, and a new example dataset!
+
+photo:
+  url: https://unsplash.com/photos/QA2clzv9E8c
+  author: CHUTTERSNAP
+
+# one of: "deep-dive", "learn", "package", "programming", or "other"
+categories: [roundup] 
+tags: [tidymodels, dials, modeldata, recipes]
+---
+
+The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. We now publish [regular updates](https://www.tidyverse.org/categories/roundup/) here on the tidyverse blog summarizing recent developments in the tidymodels ecosystem. You can check out the [`tidymodels` tag](https://www.tidyverse.org/tags/tidymodels/) to find all tidymodels blog posts here, including those that focus on a single package or more major releases. The purpose of these roundup posts is to keep you informed about any releases you may have missed and useful new functionality as we maintain these packages.
+
+Since [our last roundup post](https://www.tidyverse.org/blog/2021/07/tidymodels-july-2021/), there have been 9 CRAN releases of tidymodels packages. You can install these updates from CRAN with:
+
+
+```r
+install.packages(c("baguette", "broom", "dials", 
+                   "modeldata", "poissonreg", "recipes", 
+                   "rules", "stacks", "textrecipes"))
+```
+
+The `NEWS` files are linked here for each package; you'll notice that many of these releases involve small updates for CRAN policy or changes that are not user-facing. We write code in these smaller, modular packages that we can release frequently to make models easier to deploy and our software easier to maintain, but it can be a lot to keep up with as a user! We want to take the opportunity here to highlight a couple of more important changes in these releases.
+
+- [baguette](https://baguette.tidymodels.org/news/index.html#baguette-0-1-1-2021-07-14)
+- [broom](https://broom.tidymodels.org/news/index.html#broom-0-7-9-2021-07-27)
+- [dials](https://dials.tidymodels.org/news/index.html#dials-0-0-10-2021-09-10)
+- [modeldata](https://github.com/tidymodels/modeldata/blob/master/NEWS.md#modeldata-011)
+- [poissonreg](https://poissonreg.tidymodels.org/news/index.html#poissonreg-0-1-1-2021-08-07)
+- [recipes](https://recipes.tidymodels.org/news/index.html#recipes-0-1-17-2021-09-27)
+- [rules](https://rules.tidymodels.org/news/index.html#rules-0-1-2-2021-08-07)
+- [stacks](https://github.com/tidymodels/stacks/blob/main/NEWS.md#v021)
+- [textrecipes](https://textrecipes.tidymodels.org/news/index.html#textrecipes-0-4-1-2021-07-11)
+
+## New parameter objects
+
+The [dials](https://dials.tidymodels.org/) package is one that you might not have thought much about yet, even if you are a regular tidymodels user. It is an infrastructure package for creating and managing [hyperparameters](https://www.tmwr.org/tuning.html#tuning-params-tidymodels) as well as grids (both [regular and non-regular](https://www.tmwr.org/grid-search.html#grids)) of hyperparameters. The most recent release of dials includes several new parameters, and [Hannah Frick](https://www.frick.ws/) is now the package maintainer.
+
+One of the new parameters in this release is [`stop_iter()`](https://dials.tidymodels.org/reference/stop_iter.html), the number of iterations without improvement before ["early stopping"](https://en.wikipedia.org/wiki/Early_stopping).
+
+
+```r
+library(tidymodels)
+#> ── Attaching packages ──────────────────────────── tidymodels 0.1.3 ──
+#> ✓ broom        0.7.9      ✓ rsample      0.1.0 
+#> ✓ dials        0.0.10     ✓ tibble       3.1.4 
+#> ✓ dplyr        1.0.7      ✓ tidyr        1.1.3 
+#> ✓ infer        1.0.0      ✓ tune         0.1.6 
+#> ✓ modeldata    0.1.1      ✓ workflows    0.2.3 
+#> ✓ parsnip      0.1.7      ✓ workflowsets 0.1.0 
+#> ✓ purrr        0.3.4      ✓ yardstick    0.0.8 
+#> ✓ recipes      0.1.17
+#> ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──
+#> x purrr::discard() masks scales::discard()
+#> x dplyr::filter()  masks stats::filter()
+#> x dplyr::lag()     masks stats::lag()
+#> x recipes::step()  masks stats::step()
+#> • Use tidymodels_prefer() to resolve common conflicts.
+stop_iter()
+#> # Iterations Before Stopping (quantitative)
+#> Range: [3, 20]
+```
+
+You don't typically use parameters from dials like this, though. Instead, the infrastructure these parameters provide is what allows us to fluently tune our hyperparameters. For example, we can use data on high-performance computing jobs to predict the class of those jobs with xgboost, choosing to try out different values for early stopping (along with another hyperparameter `mtry`).
+
+
+```r
+data(hpc_data)
+hpc_folds <- vfold_cv(hpc_data, strata = class)
+hpc_formula <- class ~ compounds + input_fields + iterations + num_pending + hour
+
+stopping_spec <-
+  boost_tree(
+    trees = 500,
+    learn_rate = 0.02,
+    mtry = tune(),
+    stop_iter = tune()
+  ) %>%
+  set_engine("xgboost", validation = 0.2) %>%
+  set_mode("classification")
+
+early_stop_wf <- workflow(hpc_formula, stopping_spec)
+```
+
+We can now tune this `workflow()` over the resamples `hpc_folds` and find out which values for the hyperparameters turned out best.
+
+
+```r
+doParallel::registerDoParallel()
+set.seed(123)
+early_stop_rs <- tune_grid(early_stop_wf, hpc_folds)
+#> i Creating pre-processing data to finalize unknown parameter: mtry
+show_best(early_stop_rs, "roc_auc")
+#> # A tibble: 5 × 8
+#>    mtry stop_iter .metric .estimator  mean     n std_err .config      
+#>   <int>     <int> <chr>   <chr>      <dbl> <int>   <dbl> <chr>        
+#> 1     3        13 roc_auc hand_till  0.887    10 0.00337 Preprocessor…
+#> 2     2        11 roc_auc hand_till  0.887    10 0.00414 Preprocessor…
+#> 3     2        15 roc_auc hand_till  0.886    10 0.00342 Preprocessor…
+#> 4     4         7 roc_auc hand_till  0.885    10 0.00365 Preprocessor…
+#> 5     4         9 roc_auc hand_till  0.884    10 0.00353 Preprocessor…
+```
+
+In this case, the best value for the early stopping parameter is 13.
+
+[This recent screencast demonstrates](https://youtu.be/aXAafzOFyjk) how to tune early stopping for xgboost as well.
+
+Several of the new parameter objects in this version of dials are prep work for supporting more options in tidymodels, such as tuning yet more hyperparameters of xgboost (like L1 and L2 penalties and whether to balance classes), generalized additive models, discriminant analysis models, recursively partitioned models, and a recipe step for sparse PCA. Stay tuned for more on these new options!
+
+## Improvements to recipes
+
+The most recent release of recipes is a robust one, including new recipe steps, bug fixes, documentation improvements, and better performance. You can dig into the [NEWS file](https://recipes.tidymodels.org/news/index.html) for more details, but check out a few of the most important changes.
+
+We added a new recipe step for creating sine and cosine features, [`step_harmonic()`](https://recipes.tidymodels.org/reference/step_harmonic.html). We can use this to analyze data with periodic features, like [the annual number of sunspots](https://en.wikipedia.org/wiki/Solar_cycle). The `sunspot.year` dataset has an observation every year, and the solar cycle is about 11 years long.
+
+
+```r
+data(sunspot.year)
+sunspots <-
+  tibble(year = 1700:1988,
+         n_sunspot = sunspot.year)
+
+sun_split <- initial_time_split(sunspots)
+sun_train <- training(sun_split)
+sun_test  <- testing(sun_split)
+
+sunspots_rec <- 
+  recipe(n_sunspot ~ year, data = sun_train) %>%
+  step_harmonic(year, frequency = 1 / 11, cycle_size = 1, 
+                role = "predictor",
+                keep_original_cols = FALSE) 
+
+lm_spec <- linear_reg()
+sunspots_wf <- workflow(sunspots_rec, lm_spec)
+
+sunspots_fit <- fit(sunspots_wf, sun_train)
+sunspots_fit
+#> ══ Workflow [trained] ════════════════════════════════════════════════
+#> Preprocessor: Recipe
+#> Model: linear_reg()
+#> 
+#> ── Preprocessor ──────────────────────────────────────────────────────
+#> 1 Recipe Step
+#> 
+#> • step_harmonic()
+#> 
+#> ── Model ─────────────────────────────────────────────────────────────
+#> 
+#> Call:
+#> stats::lm(formula = ..y ~ ., data = data)
+#> 
+#> Coefficients:
+#> (Intercept)   year_sin_1   year_cos_1  
+#>      42.904        9.691       20.504
+```
+
+We can now predict with this fitted linear model on the most recent years.
+
+
+```r
+sunspots_fit %>%
+  augment(sun_test) %>%
+  select(year, n_sunspot, .pred) %>%
+  pivot_longer(-year) %>%
+  ggplot(aes(year, value, color = name)) +
+  geom_line(alpha = 0.8, size = 1.2) +
+  theme_minimal() +
+  labs(x = NULL, y = "Number of sunspots", color = NULL)
+```
+
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png)
+
+Looks like there have been [more sunspots in recent decades](https://en.wikipedia.org/wiki/Solar_cycle#Cycle_history) compared to the past!
+
+Another new recipe step is [`step_dummy_multi_choice()`](https://recipes.tidymodels.org/reference/step_dummy_multi_choice.html), while [`step_kpca()`](https://recipes.tidymodels.org/reference/step_kpca.html) was "un-deprecated" and [`step_spatialsign()`](https://recipes.tidymodels.org/reference/step_spatialsign.html) and [`step_geodist()`](https://recipes.tidymodels.org/reference/step_geodist.html) were improved.
+
+If you [build your own recipe steps](https://www.tidymodels.org/learn/develop/recipes/), the new [`recipes_eval_select()`](https://recipes.tidymodels.org/reference/recipes_eval_select.html) function is now available, powering the tidyselect semantics specific to recipes. The older `terms_select()` function is now deprecated in favor of this new helper.
+
+The recipes package is fairly extensive, and we have recently invested time and energy in refining [the documentation](https://recipes.tidymodels.org/reference/) to make it more navigable and clear, as well as easier to maintain and contribute to. Specific documentation pages with recent updates you may find helpful include:
+
+- [how to create a `recipe()`](https://recipes.tidymodels.org/reference/recipe.html)
+- [selecting variables for recipe steps](https://recipes.tidymodels.org/reference/selections.html)
+- [tidying recipes and recipe steps](https://recipes.tidymodels.org/reference/tidy.recipe.html)
+
+## Reexamining example datasets
+
+One of the tidymodels packages is [modeldata](https://modeldata.tidymodels.org/), where we keep example datasets for vignettes, examples, and other similar uses. We have included two datasets, `okc` and `okc_text`, in modeldata based on real user data from the dating website OkCupid.
+
+This dataset was sourced from [Kim and Escobedo-Land (2015)](https://doi.org/10.1080/26939169.2021.1924516). Permission to use this dataset was explicitly granted by OkCupid, but since that time, concerns have been raised about the ethics of using this or similar data sets, for example to identify individuals. [Xiao and Ma (2021)](https://doi.org/10.1080/26939169.2021.1930812) specifically address the possible misuse of this particular dataset, and we now agree that it isn't a good option to use for examples or teaching. In the most recent release of modeldata, we have marked these datasets as deprecated. We have removed them from the [development version of the package on GitHub](https://github.com/tidymodels/modeldata/), and they will be removed entirely in the _next_ CRAN release. We especially want to thank Albert Kim, one of the authors of the original paper, for his [thoughtful and helpful discussion](https://github.com/tidymodels/modeldata/issues/10).
+
+One of the reasons we found the OkCupid dataset useful was that it included multiple text columns per observation, so removing these two datasets motivated us to look for a new option to include instead. We landed on [metadata for modern artwork from the Tate Gallery](https://modeldata.tidymodels.org/reference/tate_text.html); if you used `okc_text` in the past, we recommend switching to `tate_text`. For example, we can count how many of these examples of artwork involve paper or canvas.
+
+
+```r
+data(tate_text)
+
+library(textrecipes)
+paper_or_canvas <- c("paper", "canvas")
+
+recipe(~ ., data = tate_text) %>%
+  step_tokenize(medium) %>%
+  step_stopwords(medium, custom_stopword_source = paper_or_canvas, keep = TRUE) %>%
+  step_tf(medium) %>%
+  prep() %>%
+  bake(new_data = NULL) %>%
+  select(artist, year, starts_with("tf"))
+#> # A tibble: 4,284 × 4
+#>    artist              year tf_medium_canvas tf_medium_paper
+#>    <fct>              <dbl>            <dbl>           <dbl>
+#>  1 Absalon             1990                0               0
+#>  2 Auerbach, Frank     1990                0               1
+#>  3 Auerbach, Frank     1990                0               1
+#>  4 Auerbach, Frank     1990                0               1
+#>  5 Auerbach, Frank     1990                1               0
+#>  6 Ayres, OBE Gillian  1990                1               0
+#>  7 Barlow, Phyllida    1990                0               1
+#>  8 Baselitz, Georg     1990                0               1
+#>  9 Beattie, Basil      1990                1               0
+#> 10 Beuys, Joseph       1990                0               1
+#> # … with 4,274 more rows
+```
+
+This artwork metadata was a [Tidy Tuesday dataset](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-01-12/readme.md) earlier this year.
+
+## Acknowledgements
+
+We’d like to extend our thanks to all of the contributors who helped make these releases during Q3 possible!
+
+- baguette: [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;juliasilge](https://github.com/juliasilge), and [&#x0040;topepo](https://github.com/topepo)
+
+- broom: [&#x0040;bcallaway11](https://github.com/bcallaway11), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;brshallo](https://github.com/brshallo), [&#x0040;corybrunson](https://github.com/corybrunson), [&#x0040;crsh](https://github.com/crsh), [&#x0040;gregmacfarlane](https://github.com/gregmacfarlane), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;ilapros](https://github.com/ilapros), [&#x0040;jamesrrae](https://github.com/jamesrrae), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jthomasmock](https://github.com/jthomasmock), [&#x0040;kaseyzapatka](https://github.com/kaseyzapatka), [&#x0040;krivit](https://github.com/krivit), [&#x0040;LukasWallrich](https://github.com/LukasWallrich), [&#x0040;oskasf](https://github.com/oskasf), [&#x0040;simonpcouch](https://github.com/simonpcouch), and [&#x0040;tarensanders](https://github.com/tarensanders)
+
+- dials: [&#x0040;camroberts](https://github.com/camroberts), [&#x0040;driapitek](https://github.com/driapitek), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;joeycouse](https://github.com/joeycouse), [&#x0040;Steviey](https://github.com/Steviey), [&#x0040;tonyk7440](https://github.com/tonyk7440), and [&#x0040;topepo](https://github.com/topepo)
+
+- modeldata: [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;juliasilge](https://github.com/juliasilge), and [&#x0040;topepo](https://github.com/topepo)
+
+- poissonreg: [&#x0040;jennybc](https://github.com/jennybc), and [&#x0040;topepo](https://github.com/topepo)
+
+- recipes: [&#x0040;AndrewKostandy](https://github.com/AndrewKostandy), [&#x0040;asiripanich](https://github.com/asiripanich), [&#x0040;atusy](https://github.com/atusy), [&#x0040;avrenli2](https://github.com/avrenli2), [&#x0040;czopluoglu](https://github.com/czopluoglu), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;DesmondChoy](https://github.com/DesmondChoy), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;felipeangelimvieira](https://github.com/felipeangelimvieira), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;joeycouse](https://github.com/joeycouse), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;kadyb](https://github.com/kadyb), [&#x0040;mmp3](https://github.com/mmp3), [&#x0040;MrFlick](https://github.com/MrFlick), [&#x0040;NikKrieger](https://github.com/NikKrieger), [&#x0040;PathosEthosLogos](https://github.com/PathosEthosLogos), [&#x0040;simonschoe](https://github.com/simonschoe), [&#x0040;SlowMo24](https://github.com/SlowMo24), [&#x0040;topepo](https://github.com/topepo), [&#x0040;vspinu](https://github.com/vspinu), and [&#x0040;yyhyun64](https://github.com/yyhyun64)
+
+- rules: [&#x0040;jennybc](https://github.com/jennybc), and [&#x0040;topepo](https://github.com/topepo)
+
+- stacks: [&#x0040;bensoltoff](https://github.com/bensoltoff), [&#x0040;dgrtwo](https://github.com/dgrtwo), [&#x0040;JoeSydlowski](https://github.com/JoeSydlowski), [&#x0040;PathosEthosLogos](https://github.com/PathosEthosLogos), and [&#x0040;simonpcouch](https://github.com/simonpcouch)
+
+- textrecipes: [&#x0040;dgrtwo](https://github.com/dgrtwo), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;jcragy](https://github.com/jcragy), [&#x0040;jennybc](https://github.com/jennybc), and [&#x0040;topepo](https://github.com/topepo)
+
+
