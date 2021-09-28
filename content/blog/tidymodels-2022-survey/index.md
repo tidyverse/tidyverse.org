@@ -48,4 +48,6 @@ The current slate of priorities:
 
 * **Better serialization tools**: A lot of models (e.g keras, xgboost, and others) store there models in memory. If you save the associated R object, you loose the model results. This project would have better tools for saving and reloading model objects. 
 
+* **future package for parallel processing**: We currently use the foreach package for parallelization. This project adds additional support for futures. 
+
 Give it a look and tell us what you think!
