@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [testthat]
-rmd_hash: ff8b01ebb22a1a51
+rmd_hash: bd5370cc7b8ad5b3
 
 ---
 
@@ -43,7 +43,7 @@ You can install testthat from CRAN with:
 
 </div>
 
-This release of testthat includes a bunch of minor improvements to snapshotting as well as one breaking change (which only applies if you're using the 3rd edition). You can see a full list of changes in the [release notes](https://github.com/r-lib/testthat/blob/master/NEWS.md).
+This release of testthat includes a bunch of minor improvements to snapshotting, as well as one breaking change (which only applies if you're using the 3rd edition). You can see a full list of changes in the [release notes](https://github.com/r-lib/testthat/blob/master/NEWS.md).
 
 <div class="highlight">
 
@@ -53,7 +53,7 @@ This release of testthat includes a bunch of minor improvements to snapshotting 
 
 ## Snapshot tests
 
-Most of the effort in this release has gone in [snapshot tests](https://testthat.r-lib.org/articles/snapshotting.html), a new feature in testthat 3.0.0. snapshot tests (also known as [golden tests](https://ro-che.info/articles/2017-12-04-golden-tests)) record expect output in a separate human-readable file Instead of using code to describe expected output. Since the release of testthat 3.0.0, we've started using snapshot tests across a bunch of tidyverse packages and they've been working out really well. I don't anticipate any major changes (although we may continue to add new features) so the snapshot functions have changed lifecycle stages from experimental to **stable**.
+Most of the effort in this release has gone into [snapshot tests](https://testthat.r-lib.org/articles/snapshotting.html), a new feature in testthat 3.0.0. snapshot tests (also known as [golden tests](https://ro-che.info/articles/2017-12-04-golden-tests)) record expected output in a separate human-readable file instead of using code to describe what the expected output looks like. Since the release of testthat 3.0.0, we've started using snapshot tests across a bunch of tidyverse packages and they've been working out really well. I don't anticipate any major changes (although we may continue to add new features), so the snapshot functions have changed lifecycle stages from experimental to **stable**.
 
 This release also includes two new features that help you use snapshot tests in more places:
 
@@ -93,7 +93,7 @@ This release also includes two new features that help you use snapshot tests in 
 
     If you need `transform`, I recommend designing your printing methods so the output can be easily manipulated with regexps.
 
--   [`expect_snapshot()`](https://testthat.r-lib.org/reference/expect_snapshot.html) and friends gets an experimental new `variant` argument which causes the snapshot to be saved in `_snaps/{variant}/{test}.md` instead of `_snaps/{test}.md`. This allows you to generate (and compare) unique snapshots for different scenarios where the output is otherwise out of your control, like differences across operating systems or R versions.
+-   [`expect_snapshot()`](https://testthat.r-lib.org/reference/expect_snapshot.html) and friends get an experimental new `variant` argument which causes the snapshot to be saved in `_snaps/{variant}/{test}.md` instead of `_snaps/{test}.md`. This allows you to generate (and compare) unique snapshots for different scenarios where the output is otherwise out of your control, like differences across operating systems or R versions.
 
     <div class="highlight">
 
@@ -109,7 +109,7 @@ Remember that snapshot tests are not run on CRAN by default because they require
 
 ## Breaking changes
 
-We made one breaking change that affects the [third edition](https://testthat.r-lib.org/articles/third-edition.html). Previously, [`expect_message()`](https://testthat.r-lib.org/reference/expect_error.html), [`expect_warning()`](https://testthat.r-lib.org/reference/expect_error.html) and [`expect_error()`](https://testthat.r-lib.org/reference/expect_error.html) returned the value of the first argument, unless that was `NULL`, when they instead returned the condition object. This meant you could write code like this:
+We made one breaking change that affects the [third edition](https://testthat.r-lib.org/articles/third-edition.html). Previously, [`expect_message()`](https://testthat.r-lib.org/reference/expect_error.html) and [`expect_warning()`](https://testthat.r-lib.org/reference/expect_error.html) returned the value of the first argument, unless that was `NULL`, when they instead returned the condition object. This meant you could write code like this:
 
 <div class="highlight">
 
@@ -117,7 +117,7 @@ We made one breaking change that affects the [third edition](https://testthat.r-
 
 </div>
 
-Now [`expect_message()`](https://testthat.r-lib.org/reference/expect_error.html), [`expect_warning()`](https://testthat.r-lib.org/reference/expect_error.html) and [`expect_error()`](https://testthat.r-lib.org/reference/expect_error.html) always return the condition object so you need to flip the order of the expectations:
+Now [`expect_message()`](https://testthat.r-lib.org/reference/expect_error.html) and [`expect_warning()`](https://testthat.r-lib.org/reference/expect_error.html) always return the condition object so you need to flip the order of the expectations:
 
 <div class="highlight">
 
@@ -147,7 +147,7 @@ Or with an intermediate object:
 
 As with any breaking change, we made this change with great care. Fortunately it only affects the 3rd edition, which relatively few packages use, and we submitted PRs to all affected packages on CRAN.
 
-We made this change because it makes testthat more consistent and makes it easier to inspect both the value and the warning. This is important because it makes it easier to test functions that produce [custom error objects](https://adv-r.hadley.nz/conditions.html#custom-conditions) that themselves contain meaningful data:
+We made this change because it makes [`expect_message()`](https://testthat.r-lib.org/reference/expect_error.html) and [`expect_warning()`](https://testthat.r-lib.org/reference/expect_error.html) more consistent with [`expect_error()`](https://testthat.r-lib.org/reference/expect_error.html), while make it easier to inspect both the value and the mesasge/warning. This is important because it makes it easier to test functions that produce [custom condition objects](https://adv-r.hadley.nz/conditions.html#custom-conditions) that themselves contain meaningful data:
 
 <div class="highlight">
 
@@ -166,7 +166,7 @@ We made this change because it makes testthat more consistent and makes it easie
 
 </div>
 
-Richer conditions are tool that we use within the tidyverse to provide more context in error message. You're unlikely to see them directly, but we're using them as part of a general effort to make more actionable error messages.
+Richer conditions are a tool that we use within the tidyverse to provide more context in errors, warnings, and messages. You're unlikely to see them directly, but we're using them as part of our general effort to make more actionable error messages.
 
 ## Acknowledgements
 
