@@ -99,14 +99,14 @@ While it is possible to set `cran = TRUE`, to force snapshot tests to run on CRA
 ## Breaking changes
 
 We made one breaking change that affects the [third edition](https://testthat.r-lib.org/articles/third-edition.html).
-Previously, `expect_message()`, `expect_warning()` and `expect_error()` returned the value of the first argument, unless that was `NULL`, when they instead returned the condition object.
+Previously, `expect_message()` and `expect_warning()` returned the value of the first argument, unless that was `NULL`, when they instead returned the condition object.
 This meant you could write code like this:
 
 ```{r, eval = FALSE}
 expect_equal(expect_warning(f(), "warning"), "value")
 ```
 
-Now `expect_message()`, `expect_warning()` and `expect_error()` always return the condition object so you need to flip the order of the expectations:
+Now `expect_message()` and `expect_warning()` always return the condition object so you need to flip the order of the expectations:
 
 ```{r, eval = FALSE}
 expect_warning(expect_equal(f(), "value"), "warning")
@@ -131,8 +131,8 @@ expect_equal(value, "value")
 As with any breaking change, we made this change with great care.
 Fortunately it only affects the 3rd edition, which relatively few packages use, and we submitted PRs to all affected packages on CRAN.
 
-We made this change because it makes testthat more consistent and makes it easier to inspect both the value and the warning.
-This is important because it makes it easier to test functions that produce [custom error objects](https://adv-r.hadley.nz/conditions.html#custom-conditions) that themselves contain meaningful data:
+We made this change because it makes `expect_message()` and `expect_warning()` more consistent with `expect_error()`, while make it easier to inspect both the value and the mesasge/warning.
+This is important because it makes it easier to test functions that produce [custom condition objects](https://adv-r.hadley.nz/conditions.html#custom-conditions) that themselves contain meaningful data:
 
 ```{r, eval = FALSE}
 library(rlang)
@@ -149,8 +149,8 @@ expect_equal(err$name, "patrice")
 expect_equal(err$number, 17)
 ```
 
-Richer conditions are tool that we use within the tidyverse to provide more context in errors, warnings, and messages.
-You're unlikely to see them directly, but we're using them as part of a general effort to make more actionable error messages.
+Richer conditions are a tool that we use within the tidyverse to provide more context in errors, warnings, and messages.
+You're unlikely to see them directly, but we're using them as part of our general effort to make more actionable error messages.
 
 ## Acknowledgements
 
