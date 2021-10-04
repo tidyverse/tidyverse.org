@@ -39,13 +39,13 @@ library(censored)
 ```
 
 
-Survival analysis is an important field in modelling and there are many R packages available which implement various models, from "classic" parametric models to boosted trees. While they cover a great variety of model types, they also come with considerable amounts of heterogeneity in syntax and levels of documentation. The tidymodels framework is a collection of R packages for modeling and machine learning using tidyverse principles. It provides a consistent interface to a variety of modelling functions along with tools for resampling, assessing performance, and hyperparameter tuning.
+Survival analysis is an important field in modeling and there are many R packages available which implement various models, from "classic" parametric models to boosted trees. While they cover a great variety of model types, they also come with considerable amounts of heterogeneity in syntax and levels of documentation. The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. It provides a consistent interface to a variety of modelling functions along with tools for resampling, assessing performance, and hyperparameter tuning.
 
 In terms of survival analysis, however, tidymodels so far hasn't been as feature-rich as we'd like it to be, e.g., the available models only covered parametric survival models. With this post we'd like to provide an update on recent work to extend the tooling for survival analysis in tidymodels and gather feedback on future plans.
 
 Making survival analysis a first-class citizen in tidymodels requires touching several aspects across the collection of packages:
 
-- Pre-processing which accommodates the data structure of censored data.
+- Pre-processing to accommodate the data structure of censored data.
 - A bigger selection of models which can be specified, fitted, and used for prediction.
 - Additional performance metrics tailored to survival data.
 
@@ -54,8 +54,8 @@ Our focus so far has been on model specification, fitting, and prediction so let
 
 ### Model specification
 
-Several engines can be used for multiple purposes with the same model type, e.g. the `rpart` engine for `decision_tree()` can be used for classification or regression. This distinction can be made in parsnip by specifying the mode of a model.
-We have now introduced a new mode `"censored regression"` in parsnip for models which can be used for survival analysis. The aforementioned `decision_tree()` with the `rpart` engine can also be used to fit a survival decision tree:
+Some model types can be used for multiple purposes with the same computation engine, e.g. a `decision_tree()` model can be used for either classification or regression with the `rpart` engine. This distinction is made in parsnip by [specifying the mode of a model](https://parsnip.tidymodels.org/articles/parsnip_Intro.html#motivation).
+We have now introduced a new `"censored regression"` mode in parsnip for models which can be used for survival analysis. The aforementioned `decision_tree()` with the `rpart` engine can also be used to fit a survival decision tree:
 
 ```{r new-mode}
 library(censored)
@@ -66,7 +66,7 @@ decision_tree() %>%
 
 ```
 
-You may notice a new package name here, `censored`. The number of models supported in tidymodels is growing. The core models live in parsnip, however there are several parsnip-adjacent extension packages with additional models such as [discrim](https://discrim.tidymodels.org/) for discriminant analysis models, [poissonreg](https://poissonreg.tidymodels.org/) for Poisson regression models, and [baguette](https://baguette.tidymodels.org/) for ensemble models via bagging. The [censored](https://tidymodels.github.io/censored/) package is the extension package for censored regression. 
+You may notice a new package name here, `censored`. The number of models supported in tidymodels is growing. The core models live in parsnip, and there are several parsnip-adjacent extension packages with additional models such as [discrim](https://discrim.tidymodels.org/) for discriminant analysis models, [poissonreg](https://poissonreg.tidymodels.org/) for Poisson regression models, and [baguette](https://baguette.tidymodels.org/) for ensemble models via bagging. The [censored](https://tidymodels.github.io/censored/) package is the extension package for censored regression. 
 
 Previously we kept the code for the model specifications and their engines in the relevant extension package. While this looks like a straightforward solution to keep code modular and maintainable, we are now reaching such richness in available models that we ran into the following: If the model specification for a `bag_tree()` lives in baguette but we want to add an engine for the new "censored regression" mode in censored, censored has to depend on both parsnip and baguette. To avoid such dependency structures, we are now moving towards keeping all model specifications in parsnip and the extensions packages contain the engine code. 
 
@@ -83,13 +83,13 @@ A formula also let's us specify stratification for a proportional hazards model.
 </div>
 
 
-The glmnet package, which powers the `glmnet` engine, does not have a formula interface. It requires us to specify the strata by stratifying the response via `stratifySurv(y, s)`. The response is typically a `Surv` object, so you could end up with a formula like this:
+Sine other package can fit this model, we can try another; let's use the glmnet package. However, `glmnet::glmnet()`, does not have a formula interface and it requires us to specify the strata by stratifying the response via `stratifySurv(y, s)`. The response is typically a `Surv` object, so you could end up with a formula like this:
 
 <div align="center">
   `stratifySurv(Surv(time, event), strata) ~ x`.
 </div>
 
-This works for fitting the model but the syntax is rather convoluted on the left-hand side of the formula. The specification of the stratification is inconsistent with the approach taken by the survival package. Additionally, without further modification, prediction fails because variables on the left-hand side of the formula are treated as response variables by parsnip and not available at prediction time.
+This works for fitting the model but the syntax is rather convoluted on the left-hand side of the formula. The specification of the stratification is inconsistent with the approach taken by the survival package. Additionally, without further modification, prediction fails because variables on the left-hand side of the formula are treated as response variables by parsnip and are not available at prediction time.
 
 We already need to translate from formula interface to matrix interface for this engine, and we like interfaces to be as consistent as possible here in tidymodels so we decided to go with the specification of stratification through a `strata()` term on the right-hand side of the formula for proportional hazards models, regardless of the engine.
 
@@ -122,9 +122,9 @@ f_pred
 f_pred$.pred[[1]]
 ```
 
-Usually, the linear predictor is the linear combination of the predictors, weighted with the coefficients, often denoted as $x^{T} \beta$. This is what is being returned by the `glmnet` engine for `proportional_hazards()` models and by the `mboost` engine for `boost_tree()` models (e.g., with mode `"censored regression"`). For proportional hazards models, the linear predictor describes _relative_ risk, i.e., it refers to a pair of observations: the observation $x$ and a reference observation with value 0. The survival package by default centers the observation with the mean to allow for an interpretation of risk relative to a "standard" observation. For consistency with other engines, prediction of type `linear_pred` from `proportional_hazards()` models with engine `survival` also do not center the predictors.
+Usually, the linear predictor is the linear combination of the predictors, weighted with the coefficients, often denoted as $x^{T} \beta$. This is what is being returned by the `glmnet` engine for `proportional_hazards()` models and by the `mboost` engine for `boost_tree()` models (e.g., with mode `"censored regression"`). For proportional hazards models, the linear predictor describes _relative_ risk, i.e., it refers to a pair of observations: the observation $x$ and a reference observation with value 0. The survival package by default centers the observation with the mean to allow for an interpretation of risk relative to a "standard" observation. For consistency with other engines, predictions of type `linear_pred` from `proportional_hazards()` models with engine `survival` also do not center the predictors.
 
-The prodlim package let's us simulate survival data with two covariates `X1` (binary) and `X2` (numeric) which both have an effect of $exp(1)$ on the hazard of the unobserved event time.
+The prodlim package lets us simulate survival data with two covariates `X1` (binary) and `X2` (numeric) which both have an effect of $exp(1)$ on the hazard of the unobserved event time.
 
 ```{r, simulate}
 library(tidymodels)
