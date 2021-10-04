@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [testthat]
-rmd_hash: 4bda9d3d66aaea91
+rmd_hash: d8eb2b71ef07e8d3
 
 ---
 
@@ -147,7 +147,7 @@ Or with an intermediate object:
 
 As with any breaking change, we made this change with great care. Fortunately it only affects the 3rd edition, which relatively few packages use, and we submitted PRs to all affected packages on CRAN.
 
-We made this change because it makes [`expect_message()`](https://testthat.r-lib.org/reference/expect_error.html) and [`expect_warning()`](https://testthat.r-lib.org/reference/expect_error.html) more consistent with [`expect_error()`](https://testthat.r-lib.org/reference/expect_error.html), while make it easier to inspect both the value and the mesasge/warning. This is important because it makes it easier to test functions that produce [custom condition objects](https://adv-r.hadley.nz/conditions.html#custom-conditions) that themselves contain meaningful data:
+We made this change because it makes [`expect_message()`](https://testthat.r-lib.org/reference/expect_error.html) and [`expect_warning()`](https://testthat.r-lib.org/reference/expect_error.html) more consistent with [`expect_error()`](https://testthat.r-lib.org/reference/expect_error.html), while make it easier to inspect both the value and the message/warning. This is important because it makes it easier to test functions that produce [custom condition objects](https://adv-r.hadley.nz/conditions.html#custom-conditions) that themselves contain meaningful data:
 
 <div class="highlight">
 
