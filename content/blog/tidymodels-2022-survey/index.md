@@ -2,11 +2,11 @@
 output: hugodown::hugo_document
 
 slug: tidymodels-2022-survey
-title: tidymodels 2022 developer survey
+title: Take the tidymodels survey for 2022 priorities
 date: 2021-09-27
 author: Max Kuhn
 description: >
-    We are conducting our second tidymodels devleoper survey. Please give us your
+    We are conducting our second tidymodels priorities survey. Please give us your
     feedback!
 
 photo:
@@ -18,36 +18,32 @@ categories: [other]
 tags: [survey,tidymodels]
 ---
 
-In 2020, we created a developer survey to get community impact on how we prioritize our projects. [The results](https://connect.rstudioservices.com/tidymodels-priorities-survey/README.html) gave us a good sense of which items people were most interested in. The top three requests were:
+In 2020, we created a survey to get community input on how we prioritize our projects. [The results](https://connect.rstudioservices.com/tidymodels-priorities-survey/README.html) gave us a good sense of which items people were most interested in. The top three requests were:
 
-* Model stacking! This ended up resulting in the [award](https://twitter.com/simonpcouch/status/1347288263472553984) winning [stacks package](https://stacks.tidymodels.org/) by our intern Simon Couch. 
-* Model Operations (deploying and monitoring models) was important. We _might_ be working on this from [multiple fronts](https://twitter.com/juliasilge/status/1440784933576851456?s=20). 
-* Adaptive resampling and better parallel processing. The [finetune package](https://finetune.tidymodels.org/) solved the first part and some work [on the tune package](https://github.com/tidymodels/tune/pull/305) resolved the second.  
+* **Model stacking!** This ended up resulting in the [award](https://twitter.com/simonpcouch/status/1347288263472553984)-winning [stacks package](https://stacks.tidymodels.org/) by our intern Simon Couch. 
+* **Model ops (deploying and monitoring models).** We are currently working on this from [multiple fronts](https://twitter.com/juliasilge/status/1440784933576851456?s=20). 
+* **Adaptive resampling and better parallel processing.** The [finetune package](https://finetune.tidymodels.org/) solved the first part and some work [on the tune package](https://github.com/tidymodels/tune/pull/305) resolved the second.  
 
-Almost everything on the list has been finalized or is currently in-progress. 
+Almost everything that respondents prioritized highly last year has either been completed or is currently in progress. Most of our time right now is spent on model ops, survival analysis, and case weights. That work will take us through the end of the year (at least). Since this survey seemed to work well last year, we've decided to use it again to prioritize features for next year.
 
-Most of our time right now is spent on model operations, survival analysis, and case weights. That work will proceed through the end of the year (at least). It's time to get more feedback on new features for next year. 
+## Looking toward 2022
 
-## The 2022 Survey
+**Take a look at [our survey for next year's priorities](https://conjoint.qualtrics.com/jfe/form/SV_3gtKaK8G1Z1JC50?Q_CHL=social&Q_SocialSource=tidyverseblog)** and let us know what you think. There are some items we've put "on the menu" but you can write in other items that you are interested in. 
 
-**Take a look at [the 2022 survey]()** to let us know what you think. There are some items "on the menu" but you can write-in other items that you are interested in. 
-
-The current slate of priorities: 
+The current slate of our possibile priorities include: 
 
 * **Model fairness analysis and metrics**: Techniques to measure if there are biases in model predictions that treat groups or individuals unfairly.  
 
 * **Supervised feature selection**: This includes basic supervised filtering methods as well as techniques such as recursive feature elimination. 
 
-* **h2o integration**: We'd like for users to be able to have fully featured access to the excellent [h2o](https://www.h2o.ai/products/h2o/) platform via a tidymodels interface. 
+* **H2O integration**: We'd like for users to be able to have fully featured access to the excellent [H2O](https://www.h2o.ai/products/h2o/) platform via a tidymodels interface. 
 
-* **Post modeling probability calibration**: Methods to characterize (and correct) probability predictions to make sure that the probability estimates reflect the observed event rate(s).
+* **Post modeling probability calibration**: Methods to characterize (and correct) probability predictions to make sure that probability estimates reflect the observed event rate(s).
 
 * **Probability cut point optimization** (for two class models): Maybe a 50% probability threshold is not optimal for your application. We'd like to be able to optimize this in the same way as the tuning parameters associated with models and recipes.
 
-* **Spatial analysis models and methods**: We have started to work on [spatial resampling](https://spatialsample.tidymodels.org/) but want to have more comprehensive support for spatial modeling. 
+* **Spatial analysis models and methods**: We have started to work on [spatial resampling](https://spatialsample.tidymodels.org/) but want to include more comprehensive support for spatial modeling. 
 
-* **Better serialization tools**: A lot of models (e.g keras, xgboost, and others) store there models in memory. If you save the associated R object, you loose the model results. This project would have better tools for saving and reloading model objects. 
+* **Better serialization tools**: Some frameworks (e.g keras, xgboost, and others) store their models in memory. If you save the associated R object, you lose the model results. This project would create better tools for saving and reloading model objects. 
 
-* **future package for parallel processing**: We currently use the foreach package for parallelization. This project adds additional support for futures. 
-
-Give it a look and tell us what you think!
+[Check out our survey](https://conjoint.qualtrics.com/jfe/form/SV_3gtKaK8G1Z1JC50?Q_CHL=social&Q_SocialSource=tidyverseblog) and tell us what your priorities are!
