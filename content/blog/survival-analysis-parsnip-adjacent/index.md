@@ -6,17 +6,18 @@ title: Survival Analysis in tidymodels
 date: 2021-09-28
 author: Hannah Frick
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    We are working on extending support for survival analysis in tidymodels. We
+    are looking for early adopters to try out the new package called censored 
+    and give feedback.
 
 photo:
   url: https://unsplash.com/photos/n6vS3xlnsCc
   author: Kelley Bozarth
 
 # one of: "deep-dive", "learn", "package", "programming", or "other"
-categories: [other] 
-tags: []
-rmd_hash: 57742b40eb5295f1
+categories: [deep-dive] 
+tags: [tidymodels, parnsip]
+rmd_hash: 9fe2bd81ec80e8ba
 
 ---
 
@@ -33,21 +34,29 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-Survival analysis is an important field in modelling and there are many R packages available which implement various models, from "classic" parametric models to boosted trees. While they cover a great variety of model types, they also come with considerable amounts of heterogeneity in syntax and levels of documentation. The tidymodels framework is a collection of R packages for modeling and machine learning using tidyverse principles. It provides a consistent interface to a variety of modelling functions along with tools for resampling, assessing performance, and hyperparameter tuning.
+Survival analysis is an important field in modeling and there are many R packages available which implement various models, from "classic" parametric models to boosted trees. While they cover a great variety of model types, they also come with considerable amounts of heterogeneity in syntax and levels of documentation. The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. It provides a consistent interface to a variety of modelling functions along with tools for resampling, assessing performance, and hyperparameter tuning.
 
 In terms of survival analysis, however, tidymodels so far hasn't been as feature-rich as we'd like it to be, e.g., the available models only covered parametric survival models. With this post we'd like to provide an update on recent work to extend the tooling for survival analysis in tidymodels and gather feedback on future plans.
 
 Making survival analysis a first-class citizen in tidymodels requires touching several aspects across the collection of packages:
 
--   Pre-processing which accommodates the data structure of censored data.
+-   Pre-processing to accommodate the data structure of censored data.
 -   A bigger selection of models which can be specified, fitted, and used for prediction.
 -   Additional performance metrics tailored to survival data.
 
-Our focus so far has been on model specification, fitting, and prediction so let's dive in and see what's new!
+<!-- Our focus so far has been on model specification, fitting, and prediction so let's dive in and see what's new! -->
 
-### Model specification
+The new [censored](https://tidymodels.github.io/censored/) package along with [parsnip](https://parsnip.tidymodels.org/) offers several new models, engines, and prediction types. The censored package is not on CRAN yet but we are looking for early adopters to try it out and give us feedback! You can install it via
 
-Several engines can be used for multiple purposes with the same model type, e.g. the `rpart` engine for [`decision_tree()`](https://parsnip.tidymodels.org/reference/decision_tree.html) can be used for classification or regression. This distinction can be made in parsnip by specifying the mode of a model. We have now introduced a new mode `"censored regression"` in parsnip for models which can be used for survival analysis. The aforementioned [`decision_tree()`](https://parsnip.tidymodels.org/reference/decision_tree.html) with the `rpart` engine can also be used to fit a survival decision tree:
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>devtools</span><span class='nf'>::</span><span class='nf'><a href='https://devtools.r-lib.org//reference/remote-reexports.html'>install_github</a></span><span class='o'>(</span><span class='s'>"tidymodels/censored"</span><span class='o'>)</span></code></pre>
+
+</div>
+
+### A new mode for parsnip
+
+Some model types can be used for multiple purposes with the same computation engine, e.g. a [`decision_tree()`](https://parsnip.tidymodels.org/reference/decision_tree.html) model can be used for either classification or regression with the `rpart` engine. This distinction is made in parsnip by [specifying the mode of a model](https://parsnip.tidymodels.org/articles/parsnip_Intro.html#motivation). We have now introduced a new `"censored regression"` mode in parsnip for models which can be used for survival analysis. The aforementioned [`decision_tree()`](https://parsnip.tidymodels.org/reference/decision_tree.html) with the `rpart` engine can also be used to fit a survival decision tree:
 
 <div class="highlight">
 
@@ -62,10 +71,6 @@ Several engines can be used for multiple purposes with the same model type, e.g.
 
 </div>
 
-You may notice a new package name here, `censored`. The number of models supported in tidymodels is growing. The core models live in parsnip, however there are several parsnip-adjacent extension packages with additional models such as [discrim](https://discrim.tidymodels.org/) for discriminant analysis models, [poissonreg](https://poissonreg.tidymodels.org/) for Poisson regression models, and [baguette](https://baguette.tidymodels.org/) for ensemble models via bagging. The [censored](https://tidymodels.github.io/censored/) package is the extension package for censored regression.
-
-Previously we kept the code for the model specifications and their engines in the relevant extension package. While this looks like a straightforward solution to keep code modular and maintainable, we are now reaching such richness in available models that we ran into the following: If the model specification for a `bag_tree()` lives in baguette but we want to add an engine for the new "censored regression" mode in censored, censored has to depend on both parsnip and baguette. To avoid such dependency structures, we are now moving towards keeping all model specifications in parsnip and the extensions packages contain the engine code.
-
 ### Model fitting
 
 For fitting a model, parsnip typically supports a formula and a matrix interface, regardless of the interface of the engine. For censored regression models, we are currently only supporting a formula interface. Most engines already support this type of interface, and a formula allows us to specify the outcome via the standard [`survival::Surv()`](https://rdrr.io/pkg/survival/man/Surv.html) function, tying together event time and status.
@@ -74,19 +79,19 @@ A formula also let's us specify stratification for a proportional hazards model.
 
 <div align="center">
 
-`Surv(time, event) ~ x + z + strata(s)`.
+`Surv(time, event) ~ x + z + strata(s)`
 
 </div>
 
-The glmnet package, which powers the `glmnet` engine, does not have a formula interface. It requires us to specify the strata by stratifying the response via `stratifySurv(y, s)`. The response is typically a `Surv` object, so you could end up with a formula like this:
+Some other packages can fit this model, let's use the glmnet package. However, [`glmnet::glmnet()`](https://glmnet.stanford.edu/reference/glmnet.html), does not have a formula interface and it requires us to specify the strata by stratifying the response via `stratifySurv(y, s)`. The response is typically a `Surv` object, so you could end up with a formula like this:
 
 <div align="center">
 
-`stratifySurv(Surv(time, event), strata) ~ x`.
+`stratifySurv(Surv(time, event), strata) ~ x`
 
 </div>
 
-This works for fitting the model but the syntax is rather convoluted on the left-hand side of the formula. The specification of the stratification is inconsistent with the approach taken by the survival package. Additionally, without further modification, prediction fails because variables on the left-hand side of the formula are treated as response variables by parsnip and not available at prediction time.
+This works for fitting the model but the syntax is rather convoluted on the left-hand side of the formula. The specification of the stratification is inconsistent with the approach taken by the survival package. Additionally, without further modification, prediction fails because variables on the left-hand side of the formula are treated as response variables by parsnip and are not available at prediction time.
 
 We already need to translate from formula interface to matrix interface for this engine, and we like interfaces to be as consistent as possible here in tidymodels so we decided to go with the specification of stratification through a [`strata()`](https://rdrr.io/pkg/survival/man/strata.html) term on the right-hand side of the formula for proportional hazards models, regardless of the engine.
 
@@ -108,36 +113,64 @@ We already need to translate from formula interface to matrix interface for this
 
 ### Prediction
 
-We have introduced several new prediction types: time to event (`time`), linear predictor (`linear_pred`), survival probability (`survival`), and hazard (`hazard`). Some of these types are time-dependent, e.g., the survival probability is the probability to survive beyond a certain time point. In keeping with the tidymodels design principle that each row of the data set you're predicting on should give you exactly one row in the dataset of predictions, `predict(type = "survival", time)` returns a nested tibble if `time` contains multiple time points.
+We have introduced several new prediction types: time to event (`time`), linear predictor (`linear_pred`), survival probability (`survival`), and hazard (`hazard`). Some of these types are time-dependent, e.g., the survival probability is the probability to survive beyond a certain time point. In keeping with the tidymodels design principle that each row of the data set you're predicting on should give you exactly one row in the dataset of predictions, `predict(type = "survival", time)` returns a nested tibble if `time` contains multiple time points. This can be used to generate survival curves.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>f_pred</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='o'>(</span><span class='nv'>f_fit</span>, new_data <span class='o'>=</span> <span class='nv'>bladder_test</span>,
-                  type <span class='o'>=</span> <span class='s'>"survival"</span>, time <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>5</span>, <span class='m'>10</span>, <span class='m'>15</span>, <span class='m'>20</span><span class='o'>)</span><span class='o'>)</span>
+                  type <span class='o'>=</span> <span class='s'>"survival"</span>, time <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>20</span>, <span class='m'>0.5</span><span class='o'>)</span><span class='o'>)</span>
 
-<span class='c'># 3 rows for 3 observations</span>
-<span class='nv'>f_pred</span> 
-<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 1</span></span>
-<span class='c'>#&gt;   .pred           </span>
-<span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;tibble [4 × 2]&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span> <span style='color: #555555;'>&lt;tibble [4 × 2]&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>3</span> <span style='color: #555555;'>&lt;tibble [4 × 2]&gt;</span></span>
-<span class='c'># 4 rows for 4 time points</span>
-<span class='nv'>f_pred</span><span class='o'>$</span><span class='nv'>.pred</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span>
-<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 2</span></span>
-<span class='c'>#&gt;   .time .pred_survival</span>
-<span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span>     5          0.710</span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span>    10          0.610</span>
-<span class='c'>#&gt; <span style='color: #555555;'>3</span>    15          0.583</span>
-<span class='c'>#&gt; <span style='color: #555555;'>4</span>    20          0.513</span></code></pre>
+<span class='nv'>f_pred</span> <span class='o'>&lt;-</span> <span class='nv'>f_pred</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'>mutate</span><span class='o'>(</span>id <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'>unnest</span><span class='o'>(</span>cols <span class='o'>=</span> <span class='nv'>.pred</span><span class='o'>)</span>
+
+<span class='nv'>f_pred</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'>ggplot</span><span class='o'>(</span><span class='nf'>aes</span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>.time</span>, y <span class='o'>=</span> <span class='nv'>.pred_survival</span>, col <span class='o'>=</span> <span class='nv'>id</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span>
+  <span class='nf'>geom_line</span><span class='o'>(</span><span class='o'>)</span>
+</code></pre>
+<img src="figs/predict-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
-Usually, the linear predictor is the linear combination of the predictors, weighted with the coefficients, often denoted as $x^{T} \beta$. This is what is being returned by the `glmnet` engine for [`proportional_hazards()`](https://rdrr.io/pkg/censored/man/proportional_hazards.html) models and by the `mboost` engine for [`boost_tree()`](https://parsnip.tidymodels.org/reference/boost_tree.html) models (e.g., with mode `"censored regression"`). For proportional hazards models, the linear predictor describes *relative* risk, i.e., it refers to a pair of observations: the observation $x$ and a reference observation with value 0. The survival package by default centers the observation with the mean to allow for an interpretation of risk relative to a "standard" observation. For consistency with other engines, prediction of type `linear_pred` from [`proportional_hazards()`](https://rdrr.io/pkg/censored/man/proportional_hazards.html) models with engine `survival` also do not center the predictors.
+FIXME: alternatively a random forest on a different dataset
 
-The prodlim package let's us simulate survival data with two covariates `X1` (binary) and `X2` (numeric) which both have an effect of $exp(1)$ on the hazard of the unobserved event time.
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='nv'>pbc</span><span class='o'>)</span>
+<span class='nv'>pbc</span> <span class='o'>&lt;-</span> <span class='nv'>pbc</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'><a href='https://rdrr.io/r/stats/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>status</span> <span class='o'>!=</span> <span class='m'>2</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'>select</span><span class='o'>(</span><span class='o'>-</span><span class='nv'>id</span><span class='o'>)</span>
+<span class='nv'>pbc_train</span> <span class='o'>&lt;-</span> <span class='nv'>pbc</span><span class='o'>[</span><span class='o'>-</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span><span class='o'>)</span>, <span class='o'>]</span>
+<span class='nv'>pbc_test</span> <span class='o'>&lt;-</span> <span class='nv'>pbc</span><span class='o'>[</span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span>,<span class='o'>]</span>
+
+<span class='nv'>rf_spec</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://parsnip.tidymodels.org/reference/rand_forest.html'>rand_forest</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://parsnip.tidymodels.org/reference/set_engine.html'>set_engine</a></span><span class='o'>(</span><span class='s'>"party"</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'><a href='https://parsnip.tidymodels.org/reference/set_args.html'>set_mode</a></span><span class='o'>(</span><span class='s'>"censored regression"</span><span class='o'>)</span>
+    
+<span class='nv'>rf_fit</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://generics.r-lib.org/reference/fit.html'>fit</a></span><span class='o'>(</span><span class='nv'>rf_spec</span>,
+             <span class='nf'><a href='https://rdrr.io/pkg/survival/man/Surv.html'>Surv</a></span><span class='o'>(</span><span class='nv'>time</span>, <span class='nv'>status</span><span class='o'>)</span> <span class='o'>~</span><span class='nv'>.</span>,
+             data <span class='o'>=</span> <span class='nv'>pbc_train</span><span class='o'>)</span>
+
+<span class='nv'>rf_pred</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='o'>(</span><span class='nv'>rf_fit</span>, new_data <span class='o'>=</span> <span class='nv'>pbc_test</span>,
+                   type <span class='o'>=</span> <span class='s'>"survival"</span>, time <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='o'>(</span><span class='m'>600</span>, <span class='m'>2600</span>, <span class='m'>100</span><span class='o'>)</span><span class='o'>)</span>
+
+<span class='nv'>rf_pred</span> <span class='o'>&lt;-</span> <span class='nv'>rf_pred</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'>mutate</span><span class='o'>(</span>id <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'>unnest</span><span class='o'>(</span>cols <span class='o'>=</span> <span class='nv'>.pred</span><span class='o'>)</span>
+
+<span class='nv'>rf_pred</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'>ggplot</span><span class='o'>(</span><span class='nf'>aes</span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>.time</span>, y <span class='o'>=</span> <span class='nv'>.pred_survival</span>, col <span class='o'>=</span> <span class='nv'>id</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span>
+  <span class='nf'>geom_line</span><span class='o'>(</span><span class='o'>)</span>
+</code></pre>
+<img src="figs/predict-rf-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+Usually, the linear predictor is the linear combination of the predictors, weighted with the coefficients, often denoted as $x^{T} \beta$. This is what is being returned by the `glmnet` engine for [`proportional_hazards()`](https://rdrr.io/pkg/censored/man/proportional_hazards.html) models and by the `mboost` engine for [`boost_tree()`](https://parsnip.tidymodels.org/reference/boost_tree.html) models (e.g., with mode `"censored regression"`). For proportional hazards models, the linear predictor describes *relative* risk, i.e., it refers to a pair of observations: the observation $x$ and a reference observation of predictors with value 0.
+
+The survival package implements different choices for the reference observation. As a default it uses the mean predictor, i.e., the observation $x$ is centered with the mean predictor before the usual weighted linear combination is calculated. What makes a useful reference observation is context-dependent and can be more complex than just 0 or the average. In a medical setting with predictors age and drug concentration, one might be interested in the effect relative to mean age but a drug concentration of 0 (the control group). While we think through a more general approach to specifying such a reference observation or baseline hazard, we ensure that all engines in censored use the same approach: a reference observation of 0.
+
+Let's illustrate the difference in (default) predictions derived from the survival and censored packages and their relationship with the linear predictor. The prodlim package lets us simulate survival data with two predictors `X1` (binary) and `X2` (numeric) which both have an effect of $exp(1)$ on the hazard of the unobserved event time.
 
 <div class="highlight">
 
@@ -181,7 +214,7 @@ We can compare the value of the linear predictor using the true coefficients of 
 
 </div>
 
-As part of the modelling workflow, we may want to use these predictions with a performance metric such as concordance. This metric captures the probability that the prediction goes in the same direction as the actual data. While the data captures *survival* time, the linear predictor for a proportional hazards model is a factor on the *risk*. The predicted survival time is longer if the linear predictor is lower. To make the prediction and the observation go in the same direction, we flip the sign of the prediction. This may be opposite to the sign of predictions obtained using the underlying engine directly.
+Measuring performance is a key element of predictive modelling. Our design philosophy in tidymodels is that the calculation of performance metrics should be agnostic to ancillary information such as the model type or the training set. Essentially all you need are the observations and the predictions. For proportional hazards models, the observation and the prediction actually describe different aspects of survival: the observation is the survival time while the prediction describes the risk; the two have an inverse relationship. To help us standardize the assessment modules, we change the sign of the linear predictor. This may be opposite to the sign of predictions obtained using the underlying engine directly.
 
 <div class="highlight">
 
@@ -228,9 +261,15 @@ Currently, censored contains the following models, engine, and prediction types 
 
 ### What's next?
 
-We want survival analysis to be a first-class citizen in tidymodels which means having access to preprocessing, resampling, models, metrics, and tuning. The next steps on that path are a role for censoring indicator columns and a step `step_surv()` in recipes as well as a new ROC metric for survival models in yardstick. An adaption of workflows and tune is to follow after that. Additionally, we are in the process of figuring out how different types of censoring and time-dependent effects fit into our API.
+We want survival analysis to be a first-class citizen in tidymodels which means having access to preprocessing, resampling, models, metrics, and tuning. The next steps on that path are:
+
+-   A role for censoring indicator columns and a step `step_surv()` in recipes.
+-   A new ROC metric for survival models in yardstick.
+-   An adaption of workflows and tune is to follow after that.
+
+Additionally, we are in the process of figuring out how different types of censoring and time-dependent effects fit into our API.
 
 We'd love to hear from you! Some questions we have include: Would you find this useful? Are there particular models/methods you'd like to see? Do you use time-dependent effects? Do you use interactions? Which types of censoring do you use?
 
-We'd greatly appreciate feedback, ideally in form of an [issue on censored](https://github.com/tidymodels/censored/issues)!
+We'd greatly appreciate feedback, ideally in form of FIXME!
 

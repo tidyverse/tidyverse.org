@@ -6,16 +6,17 @@ title: Survival Analysis in tidymodels
 date: 2021-09-28
 author: Hannah Frick
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    We are working on extending support for survival analysis in tidymodels. We
+    are looking for early adopters to try out the new package called censored 
+    and give feedback.
 
 photo:
   url: https://unsplash.com/photos/n6vS3xlnsCc
   author: Kelley Bozarth
 
 # one of: "deep-dive", "learn", "package", "programming", or "other"
-categories: [other] 
-tags: []
+categories: [deep-dive] 
+tags: [tidymodels, parnsip]
 ---
 
 <!--
@@ -31,11 +32,12 @@ TODO:
 * [ ] `usethis::use_tidy_thanks()`
 -->
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidymodels)
 library(censored)
+theme_set(theme_minimal())
 ```
 
 
@@ -49,10 +51,14 @@ Making survival analysis a first-class citizen in tidymodels requires touching s
 - A bigger selection of models which can be specified, fitted, and used for prediction.
 - Additional performance metrics tailored to survival data.
 
-Our focus so far has been on model specification, fitting, and prediction so let's dive in and see what's new!
+<!-- Our focus so far has been on model specification, fitting, and prediction so let's dive in and see what's new! -->
+The new [censored](https://tidymodels.github.io/censored/) package along with [parsnip](https://parsnip.tidymodels.org/) offers several new models, engines, and prediction types. The censored package is not on CRAN yet but we are looking for early adopters to try it out and give us feedback! You can install it via 
 
+```{r eval = FALSE}
+devtools::install_github("tidymodels/censored")
+```
 
-### Model specification
+### A new mode for parsnip
 
 Some model types can be used for multiple purposes with the same computation engine, e.g. a `decision_tree()` model can be used for either classification or regression with the `rpart` engine. This distinction is made in parsnip by [specifying the mode of a model](https://parsnip.tidymodels.org/articles/parsnip_Intro.html#motivation).
 We have now introduced a new `"censored regression"` mode in parsnip for models which can be used for survival analysis. The aforementioned `decision_tree()` with the `rpart` engine can also be used to fit a survival decision tree:
@@ -63,12 +69,7 @@ library(censored)
 decision_tree() %>% 
   set_engine("rpart") %>% 
   set_mode("censored regression")
-
 ```
-
-You may notice a new package name here, `censored`. The number of models supported in tidymodels is growing. The core models live in parsnip, and there are several parsnip-adjacent extension packages with additional models such as [discrim](https://discrim.tidymodels.org/) for discriminant analysis models, [poissonreg](https://poissonreg.tidymodels.org/) for Poisson regression models, and [baguette](https://baguette.tidymodels.org/) for ensemble models via bagging. The [censored](https://tidymodels.github.io/censored/) package is the extension package for censored regression. 
-
-Previously we kept the code for the model specifications and their engines in the relevant extension package. While this looks like a straightforward solution to keep code modular and maintainable, we are now reaching such richness in available models that we ran into the following: If the model specification for a `bag_tree()` lives in baguette but we want to add an engine for the new "censored regression" mode in censored, censored has to depend on both parsnip and baguette. To avoid such dependency structures, we are now moving towards keeping all model specifications in parsnip and the extensions packages contain the engine code. 
 
 
 ### Model fitting
@@ -79,14 +80,14 @@ For fitting a model, parsnip typically supports a formula and a matrix interface
 A formula also let's us specify stratification for a proportional hazards model. For the `survival::coxph()` function, which powers the `survival` engine for `proportional_hazards()`, this may look like 
 
 <div align="center">
-  `Surv(time, event) ~ x + z + strata(s)`.
+  `Surv(time, event) ~ x + z + strata(s)`
 </div>
 
 
-Sine other package can fit this model, we can try another; let's use the glmnet package. However, `glmnet::glmnet()`, does not have a formula interface and it requires us to specify the strata by stratifying the response via `stratifySurv(y, s)`. The response is typically a `Surv` object, so you could end up with a formula like this:
+Some other packages can fit this model, let's use the glmnet package. However, `glmnet::glmnet()`, does not have a formula interface and it requires us to specify the strata by stratifying the response via `stratifySurv(y, s)`. The response is typically a `Surv` object, so you could end up with a formula like this:
 
 <div align="center">
-  `stratifySurv(Surv(time, event), strata) ~ x`.
+  `stratifySurv(Surv(time, event), strata) ~ x`
 </div>
 
 This works for fitting the model but the syntax is rather convoluted on the left-hand side of the formula. The specification of the stratification is inconsistent with the approach taken by the survival package. Additionally, without further modification, prediction fails because variables on the left-hand side of the formula are treated as response variables by parsnip and are not available at prediction time.
@@ -110,21 +111,56 @@ f_fit <- fit(cox_spec,
 
 ### Prediction 
 
-We have introduced several new prediction types: time to event (`time`), linear predictor (`linear_pred`), survival probability (`survival`), and hazard (`hazard`). Some of these types are time-dependent, e.g., the survival probability is the probability to survive beyond a certain time point. In keeping with the tidymodels design principle that each row of the data set you're predicting on should give you exactly one row in the dataset of predictions, `predict(type = "survival", time)` returns a nested tibble if `time` contains multiple time points.
+We have introduced several new prediction types: time to event (`time`), linear predictor (`linear_pred`), survival probability (`survival`), and hazard (`hazard`). Some of these types are time-dependent, e.g., the survival probability is the probability to survive beyond a certain time point. In keeping with the tidymodels design principle that each row of the data set you're predicting on should give you exactly one row in the dataset of predictions, `predict(type = "survival", time)` returns a nested tibble if `time` contains multiple time points. This can be used to generate survival curves.
 
 ```{r predict}
 f_pred <- predict(f_fit, new_data = bladder_test,
-                  type = "survival", time = c(5, 10, 15, 20))
+                  type = "survival", time = seq(0, 20, 0.5))
 
-# 3 rows for 3 observations
-f_pred 
-# 4 rows for 4 time points
-f_pred$.pred[[1]]
+f_pred <- f_pred %>% 
+  mutate(id = factor(1:3)) %>% 
+  unnest(cols = .pred)
+
+f_pred %>% 
+  ggplot(aes(x = .time, y = .pred_survival, col = id)) +
+  geom_line()
 ```
 
-Usually, the linear predictor is the linear combination of the predictors, weighted with the coefficients, often denoted as $x^{T} \beta$. This is what is being returned by the `glmnet` engine for `proportional_hazards()` models and by the `mboost` engine for `boost_tree()` models (e.g., with mode `"censored regression"`). For proportional hazards models, the linear predictor describes _relative_ risk, i.e., it refers to a pair of observations: the observation $x$ and a reference observation with value 0. The survival package by default centers the observation with the mean to allow for an interpretation of risk relative to a "standard" observation. For consistency with other engines, predictions of type `linear_pred` from `proportional_hazards()` models with engine `survival` also do not center the predictors.
+FIXME: alternatively a random forest on a different dataset
+```{r predict-rf}
+data(pbc)
+pbc <- pbc %>% 
+  filter(status != 2) %>% 
+  select(-id)
+pbc_train <- pbc[-c(1:3), ]
+pbc_test <- pbc[1:3,]
 
-The prodlim package lets us simulate survival data with two covariates `X1` (binary) and `X2` (numeric) which both have an effect of $exp(1)$ on the hazard of the unobserved event time.
+rf_spec <- rand_forest() %>%
+  set_engine("party") %>% 
+  set_mode("censored regression")
+    
+rf_fit <- fit(rf_spec,
+             Surv(time, status) ~.,
+             data = pbc_train)
+
+rf_pred <- predict(rf_fit, new_data = pbc_test,
+                   type = "survival", time = seq(600, 2600, 100))
+
+rf_pred <- rf_pred %>% 
+  mutate(id = factor(1:3)) %>% 
+  unnest(cols = .pred)
+
+rf_pred %>% 
+  ggplot(aes(x = .time, y = .pred_survival, col = id)) +
+  geom_line()
+```
+
+
+Usually, the linear predictor is the linear combination of the predictors, weighted with the coefficients, often denoted as $x^{T} \beta$. This is what is being returned by the `glmnet` engine for `proportional_hazards()` models and by the `mboost` engine for `boost_tree()` models (e.g., with mode `"censored regression"`). For proportional hazards models, the linear predictor describes _relative_ risk, i.e., it refers to a pair of observations: the observation $x$ and a reference observation of predictors with value 0. 
+
+The survival package implements different choices for the reference observation. As a default it uses the mean predictor, i.e., the observation $x$ is centered with the mean predictor before the usual weighted linear combination is calculated. What makes a useful reference observation is context-dependent and can be more complex than just 0 or the average. In a medical setting with predictors age and drug concentration, one might be interested in the effect relative to mean age but a drug concentration of 0 (the control group). While we think through a more general approach to specifying such a reference observation or baseline hazard, we ensure that all engines in censored use the same approach: a reference observation of 0. 
+
+Let's illustrate the difference in (default) predictions derived from the survival and censored packages and their relationship with the linear predictor. The prodlim package lets us simulate survival data with two predictors `X1` (binary) and `X2` (numeric) which both have an effect of $exp(1)$ on the hazard of the unobserved event time.
 
 ```{r, simulate}
 library(tidymodels)
@@ -159,7 +195,7 @@ pred %>%
   geom_abline(slope = 1, intercept = 0)
 ```
 
-As part of the modelling workflow, we may want to use these predictions with a performance metric such as concordance. This metric captures the probability that the prediction goes in the same direction as the actual data. While the data captures _survival_ time, the linear predictor for a proportional hazards model is a factor on the _risk_. The predicted survival time is longer if the linear predictor is lower. To make the prediction and the observation go in the same direction, we flip the sign of the prediction. This may be opposite to the sign of predictions obtained using the underlying engine directly.
+Measuring performance is a key element of predictive modelling. Our design philosophy in tidymodels is that the calculation of performance metrics should be agnostic to ancillary information such as the model type or the training set. Essentially all you need are the observations and the predictions. For proportional hazards models, the observation and the prediction actually describe different aspects of survival: the observation is the survival time while the prediction describes the risk; the two have an inverse relationship. To help us standardize the assessment modules, we change the sign of the linear predictor. This may be opposite to the sign of predictions obtained using the underlying engine directly.
 
 ```{r, lp-sign}
 fit_censored <- proportional_hazards() %>% 
@@ -220,8 +256,14 @@ bind_rows(done, to_do) %>%
 
 ### What's next?
 
-We want survival analysis to be a first-class citizen in tidymodels which means having access to preprocessing, resampling, models, metrics, and tuning. The next steps on that path are a role for censoring indicator columns and a step `step_surv()` in recipes as well as a new ROC metric for survival models in yardstick. An adaption of workflows and tune is to follow after that. Additionally, we are in the process of figuring out how different types of censoring and time-dependent effects fit into our API.
+We want survival analysis to be a first-class citizen in tidymodels which means having access to preprocessing, resampling, models, metrics, and tuning. The next steps on that path are:
+
+* A role for censoring indicator columns and a step `step_surv()` in recipes.
+* A new ROC metric for survival models in yardstick.
+* An adaption of workflows and tune is to follow after that. 
+
+Additionally, we are in the process of figuring out how different types of censoring and time-dependent effects fit into our API.
 
 We'd love to hear from you! Some questions we have include: Would you find this useful? Are there particular models/methods you'd like to see? Do you use time-dependent effects? Do you use interactions? Which types of censoring do you use?
 
-We'd greatly appreciate feedback, ideally in form of an [issue on censored](https://github.com/tidymodels/censored/issues)!
+We'd greatly appreciate feedback, ideally in form of FIXME!
