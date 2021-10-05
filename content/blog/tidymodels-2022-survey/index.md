@@ -44,6 +44,6 @@ The current slate of our possibile priorities include:
 
 * **Spatial analysis models and methods**: We have started to work on [spatial resampling](https://spatialsample.tidymodels.org/) but want to include more comprehensive support for spatial modeling. 
 
-* **Better serialization tools**: Some frameworks (e.g keras, xgboost, and others) store their models in memory. If you save the associated R object, you lose the model results. This project would create better tools for saving and reloading model objects. 
+* **Better serialization tools**: Some frameworks (e.g. keras, xgboost, and others) store their models in memory. If you save the associated R object, you lose the model results. This project would create better tools for saving and reloading model objects. 
 
 [Check out our survey](https://conjoint.qualtrics.com/jfe/form/SV_3gtKaK8G1Z1JC50?Q_CHL=social&Q_SocialSource=tidyverseblog) and tell us what your priorities are!
