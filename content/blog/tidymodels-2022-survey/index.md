@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2022-survey
 title: Take the tidymodels survey for 2022 priorities
-date: 2021-09-27
+date: 2021-10-06
 author: Max Kuhn
 description: >
     We are conducting our second tidymodels priorities survey. Please give us your
