@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: renaming-default-branch
 title: Renaming the default branch
-date: 2021-09-27
+date: 2021-10-17
 author: Jenny Bryan
 description: >
     We are renaming the default branch of many Git(Hub) repositories and this
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn] 
 tags: [usethis, devtools]
-rmd_hash: 413a069254be5ed1
+rmd_hash: 609d08fcc8f1d0e9
 
 ---
 
@@ -112,11 +112,9 @@ Six common GitHub setups
 
 </div>
 
-TODO: get rid of this note in Happy Git "2020-10 note: this currently refers to features in a development version of usethis. These features will appear in usethis v2.0.0."
-
 ## How to update your clones and forks
 
-As mentioned above, our bulk renaming involves around 350 GitHub repos, which are associated with approximately 34K forks, 9K open issues, 1K open pull requests, and 87K watchers. It's impossible to say how many non-fork clones are out there. One thing that's clear: our branch renaming potentially affects lots of people.
+As mentioned above, our bulk renaming involves around 350 GitHub repos, which are associated with approximately 88K watchers, 34K forks, 9.5K open issues, and 1K open pull requests. It's impossible to say how many non-fork clones are out there. One thing that's clear: our branch renaming potentially affects lots of people.
 
 ### How will I know I have a problem?
 
@@ -181,10 +179,10 @@ GitHub provides official instructions for [updating a local clone after a branch
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'>$ git branch -m OLD-BRANCH-NAME NEW-BRANCH-NAME
-$ git fetch origin
-$ git branch -u origin/NEW-BRANCH-NAME NEW-BRANCH-NAME
-$ git remote set-head origin -a</code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'>git branch -m OLD-BRANCH-NAME NEW-BRANCH-NAME
+git fetch origin
+git branch -u origin/NEW-BRANCH-NAME NEW-BRANCH-NAME
+git remote set-head origin -a</code></pre>
 
 </div>
 
