@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: renaming-default-branch
 title: Renaming the default branch
-date: 2021-10-17
+date: 2021-10-26
 author: Jenny Bryan
 description: >
     We are renaming the default branch of many Git(Hub) repositories and this
@@ -15,9 +15,9 @@ photo:
   author: Natalie Chaney
 
 # one of: "deep-dive", "learn", "package", "programming", or "other"
-categories: [learn] 
+categories: [learn, package] 
 tags: [usethis, devtools]
-rmd_hash: 609d08fcc8f1d0e9
+rmd_hash: 52791a89873f64f6
 
 ---
 
@@ -36,26 +36,26 @@ The purpose of this blog post is to:
 -   Give our community a heads-up about this change.
 -   Explain how this affects people who have cloned or forked our repositories.
 -   Explain how you can make the `master` to `main` switch in your own Git life.
--   Advertise new functions in the usethis package that help with the above.
+-   Advertise new functions in version 2.1.2. of the usethis package that help with the above.
 
 ## TL;DR
 
 These are the key bits of code shown below.
 
-**NOTE: you will need to update to usethis 2.1.0 to get this functionality!**
+**NOTE: you will need to update to usethis 2.1.2 to get this functionality!**
 
-| Function                                   | Purpose                                                                                                 |
-|--------------------------------------------|---------------------------------------------------------------------------------------------------------|
-| [`usethis::git_default_branch()`](https://usethis.r-lib.org/reference/git-default-branch.html)            | Reveals the default branch of the current project.                                                      |
-| [`usethis::git_default_branch_rediscover()`](https://usethis.r-lib.org/reference/git-default-branch.html) | Helps a contributor detect when a project's default branch has changed and makes the necessary updates. |
-| [`usethis::git_default_branch_rename()`](https://usethis.r-lib.org/reference/git-default-branch.html)     | Helps a maintainer change the default branch in a repo they administer.                                 |
-| [`usethis::git_default_branch_configure()`](https://usethis.r-lib.org/reference/git-default-branch.html)  | Changes the default name of the initial branch in new Git repos, going forward.                         |
+| Function                                   | Purpose                                                                                                                                                       |
+|--------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`usethis::git_default_branch()`](https://usethis.r-lib.org/reference/git-default-branch.html)            | Reveals the default branch of the current project.                                                                                                            |
+| [`usethis::git_default_branch_rediscover()`](https://usethis.r-lib.org/reference/git-default-branch.html) | Detects when a project's default branch has changed on GitHub and makes the necessary updates to your Git environment. Primarily for use by **contributors**. |
+| [`usethis::git_default_branch_rename()`](https://usethis.r-lib.org/reference/git-default-branch.html)     | Changes the default branch on GitHub and makes any necessary local updates. Aimed at **maintainers** who have admin permissions.                              |
+| [`usethis::git_default_branch_configure()`](https://usethis.r-lib.org/reference/git-default-branch.html)  | Changes the default name of the initial branch in new Git repos, going forward.                                                                               |
 
 Read on for more context.
 
 ## Which repositories are affected?
 
-The transition from `master` to `main` is happening organization-wide for specific GitHub organizations (e.g. [tidyverse](https://github.com/tidyverse), [r-lib](https://github.com/r-lib), [tidymodels](https://github.com/tidymodels), and [sol-eng](https://github.com/sol-eng)). However, several teams maintain repos across multiple organizations and several organizations host repos for multiple teams and purposes. The organization-wide approach doesn't work well for these cases. Therefore, several hundred additional "one-off" repos are also part of this effort.
+The transition from `master` to `main` is happening organization-wide for specific GitHub organizations (e.g. [tidyverse](https://github.com/tidyverse), [r-lib](https://github.com/r-lib), [tidymodels](https://github.com/tidymodels), and [sol-eng](https://github.com/sol-eng)). However, several teams maintain repos across multiple organizations and several organizations host repos for multiple teams and purposes. The organization-wide approach doesn't work well for these cases. Therefore, many additional "one-off" repos are also part of this effort.
 
 In total, we're coordinating the `master` to `main` switch for around 350 repositories.
 
@@ -69,9 +69,9 @@ Ideally, we would publish this post at the very same moment we rename our branch
 
 Is there a repo you care about, that has an open issue about branch renaming, and yet the change doesn't seem to be happening? Feel free to give us a gentle nudge by commenting in the issue thread.
 
-## usethis 2.1.0 has functions to help
+## usethis 2.1.2 has functions to help
 
-The recently released 2.1.0 version of usethis has some new functions to support changes in the default branch. To be clear, you don't *need* usethis to adapt to change in the default branch. On a small scale, the work can be done through some combination of command line Git and actions in a web browser, if that's how you roll.
+The recently released 2.1.2 version of usethis has some new functions to support changes in the default branch. To be clear, you don't *need* usethis to adapt to change in the default branch. On a small scale, the work can be done through some combination of command line Git and actions in a web browser, if that's how you roll.
 
 But the new `git_default_branch*()` family of functions can make this process more pleasant, for those who enjoy using devtools/usethis, especially for Git and GitHub tasks. These functions also help us do this work programmatically for hundreds of repositories at once.
 
@@ -114,13 +114,13 @@ Six common GitHub setups
 
 ## How to update your clones and forks
 
-As mentioned above, our bulk renaming involves around 350 GitHub repos, which are associated with approximately 88K watchers, 34K forks, 9.5K open issues, and 1K open pull requests. It's impossible to say how many non-fork clones are out there. One thing that's clear: our branch renaming potentially affects lots of people.
+As mentioned above, our bulk renaming involves around 350 GitHub repos, which are associated with approximately 90K watchers, 34K forks, 9.5K open issues, and 1K open pull requests. It's impossible to say how many non-fork clones are out there. One thing that's clear: our branch renaming potentially affects lots of people.
 
 ### How will I know I have a problem?
 
 Here's what it looks like when you try to pull from a remote repo in a project that used to use `master`, but now uses `main`, but you haven't updated your local repo yet.
 
--   Example with [`usethis::pr_merge_main()`](https://usethis.r-lib.org/reference/pull-requests.html) **with usethis 2.1.0**:
+-   Example with [`usethis::pr_merge_main()`](https://usethis.r-lib.org/reference/pull-requests.html) **with usethis 2.1.2**:
 
         pr_merge_main()
         #> Error: Default branch mismatch between local repo and remote.
@@ -139,9 +139,9 @@ Both messages are telling you the same thing:
 
 You need to tell your local repo about the switch from `master` to `main`.
 
-TODO: Say something about what this looks like with usethis \< 2.1.0?
+In usethis v2.0.1 and earlier, we were not proactively on the lookout for a change to the default branch name in the source repository. Implicitly, we assumed that the user was responsible for staying current with such changes. The recent usethis release (v2.1.2) tries much harder to alert the user if the default branch name changes and to provide an easy way to sync up.
 
-### Can I just burn it all down?
+### 🔥 Can I just burn it all down? 🔥
 
 Yes, yes you can!
 
@@ -162,14 +162,8 @@ If you don't want to burn it all down, you can call [`usethis::git_default_branc
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://usethis.r-lib.org/reference/git-default-branch.html'>git_default_branch_rediscover</a></span><span class='o'>(</span><span class='o'>)</span>
-<span class='c'>#&gt; ✓ Rediscovering the default branch from source repo.</span>
-<span class='c'>#&gt; ℹ GitHub remote configuration type: 'ours'</span>
-<span class='c'>#&gt; ℹ Read more about GitHub remote configurations at:</span>
-<span class='c'>#&gt;   'https://happygitwithr.com/common-remote-setups.html'</span>
-<span class='c'>#&gt; ℹ Source repo is 'jennybc/qwerty' and its current default branch is 'main'.</span>
-<span class='c'>#&gt; ✓ Local branch 'master' appears to play the role of the default branch.</span>
-<span class='c'>#&gt; ✓ Moving local 'master' branch to 'main'.</span>
-<span class='c'>#&gt; ✓ Setting remote tracking branch for local 'main' branch to 'origin/main'.</span></code></pre>
+<span class='c'>#&gt; ℹ Default branch of the source repo 'jennybc/happy-git-with-r': 'main'</span>
+<span class='c'>#&gt; ✓ Default branch of local repo has moved: 'master' --&gt; 'main'</span></code></pre>
 
 </div>
 
@@ -197,22 +191,12 @@ You can call [`usethis::git_default_branch_rename()`](https://usethis.r-lib.org/
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://usethis.r-lib.org/reference/git-default-branch.html'>git_default_branch_rename</a></span><span class='o'>(</span><span class='o'>)</span>
-<span class='c'>#&gt; ✓ Renaming (a.k.a. "moving") the default branch for 'qwerty'.</span>
-<span class='c'>#&gt; ℹ GitHub remote configuration type: 'ours'</span>
-<span class='c'>#&gt; ℹ Read more about GitHub remote configurations at:</span>
-<span class='c'>#&gt;   'https://happygitwithr.com/common-remote-setups.html'</span>
-<span class='c'>#&gt; ℹ Source repo is 'jennybc/qwerty' and its current default branch is 'master'.</span>
-<span class='c'>#&gt; ✓ Local branch 'master' appears to play the role of the default branch.</span>
-<span class='c'>#&gt; ✓ Renaming 'master' branch to 'main' in the source repo 'jennybc/qwerty'.</span>
+<span class='c'>#&gt; ✓ Default branch of the source repo 'jennybc/myrepo' has moved: 'master' --&gt; 'main'</span>
 <span class='c'>#&gt; • Be sure to update files that refer to the default branch by name.</span>
 <span class='c'>#&gt;   Consider searching within your project for 'master'.</span>
-<span class='c'>#&gt;   We might call out some obvious candidates below.</span>
 <span class='c'>#&gt; x Some badges may refer to the old default branch 'master':</span>
 <span class='c'>#&gt;   - 'README.md'</span>
-<span class='c'>#&gt; ✓ Rediscovering the default branch from source repo.</span>
-<span class='c'>#&gt; ℹ Source repo is 'jennybc/qwerty' and its current default branch is 'main'.</span>
-<span class='c'>#&gt; ✓ Moving local 'master' branch to 'main'.</span>
-<span class='c'>#&gt; ✓ Setting remote tracking branch for local 'main' branch to 'origin/main'.</span></code></pre>
+<span class='c'>#&gt; ✓ Default branch of local repo has moved: 'master' --&gt; 'main'</span></code></pre>
 
 </div>
 
@@ -230,7 +214,7 @@ The new configuration option is `init.defaultBranch`.
 
 There are various ways to set your preferred initial branch name to, e.g., `main`:
 
--   With usethis 2.1.0, using a special-purpose function:
+-   With usethis 2.1.2, using a special-purpose function:
     <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://usethis.r-lib.org/reference/git-default-branch.html'>git_default_branch_configure</a></span><span class='o'>(</span><span class='o'>)</span>
@@ -251,7 +235,7 @@ There are various ways to set your preferred initial branch name to, e.g., `main
 
     </div>
 
-Although it is more rare to first create repos on a host like GitHub or GitLab, this certainly comes up from time to time. All the major providers now support configuration of the initial branch name and, in the absence of user or organization preferences, all default to `main`.
+Although it is more rare to first create repos on a host like GitHub or GitLab, this certainly comes up from time to time. All the major providers now support configuration of the initial branch name and, in the absence of a user or organization preference, all default to `main`.
 
 ## Acknowledgements
 
