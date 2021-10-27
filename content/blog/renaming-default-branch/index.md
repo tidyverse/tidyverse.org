@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: renaming-default-branch
 title: Renaming the default branch
-date: 2021-10-26
+date: 2021-10-27
 author: Jenny Bryan
 description: >
     We are renaming the default branch of many Git(Hub) repositories and this
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [learn, package] 
 tags: [usethis, devtools]
-rmd_hash: 52791a89873f64f6
+rmd_hash: 90501ab6a3ad81ef
 
 ---
 
@@ -36,13 +36,13 @@ The purpose of this blog post is to:
 -   Give our community a heads-up about this change.
 -   Explain how this affects people who have cloned or forked our repositories.
 -   Explain how you can make the `master` to `main` switch in your own Git life.
--   Advertise new functions in version 2.1.2. of the usethis package that help with the above.
+-   Advertise new functions in usethis >= 2.1.2 that help with the above.
 
 ## TL;DR
 
 These are the key bits of code shown below.
 
-**NOTE: you will need to update to usethis 2.1.2 to get this functionality!**
+**NOTE: you will need to update to usethis 2.1.2 or higher to get this functionality!**
 
 | Function                                   | Purpose                                                                                                                                                       |
 |--------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -69,9 +69,9 @@ Ideally, we would publish this post at the very same moment we rename our branch
 
 Is there a repo you care about, that has an open issue about branch renaming, and yet the change doesn't seem to be happening? Feel free to give us a gentle nudge by commenting in the issue thread.
 
-## usethis 2.1.2 has functions to help
+## usethis has functions to help
 
-The recently released 2.1.2 version of usethis has some new functions to support changes in the default branch. To be clear, you don't *need* usethis to adapt to change in the default branch. On a small scale, the work can be done through some combination of command line Git and actions in a web browser, if that's how you roll.
+The recent release of usethis has some new functions to support changes in the default branch. Specifically, you want version 2.1.2 or higher. To be clear, you don't *need* usethis to adapt to change in the default branch. On a small scale, the work can be done through some combination of command line Git and actions in a web browser, if that's how you roll.
 
 But the new `git_default_branch*()` family of functions can make this process more pleasant, for those who enjoy using devtools/usethis, especially for Git and GitHub tasks. These functions also help us do this work programmatically for hundreds of repositories at once.
 
@@ -120,7 +120,7 @@ As mentioned above, our bulk renaming involves around 350 GitHub repos, which ar
 
 Here's what it looks like when you try to pull from a remote repo in a project that used to use `master`, but now uses `main`, but you haven't updated your local repo yet.
 
--   Example with [`usethis::pr_merge_main()`](https://usethis.r-lib.org/reference/pull-requests.html) **with usethis 2.1.2**:
+-   Example with [`usethis::pr_merge_main()`](https://usethis.r-lib.org/reference/pull-requests.html) **with usethis >= 2.1.2**:
 
         pr_merge_main()
         #> Error: Default branch mismatch between local repo and remote.
@@ -139,7 +139,7 @@ Both messages are telling you the same thing:
 
 You need to tell your local repo about the switch from `master` to `main`.
 
-In usethis v2.0.1 and earlier, we were not proactively on the lookout for a change to the default branch name in the source repository. Implicitly, we assumed that the user was responsible for staying current with such changes. The recent usethis release (v2.1.2) tries much harder to alert the user if the default branch name changes and to provide an easy way to sync up.
+In usethis v2.0.1 and earlier, we were not proactively on the lookout for a change to the default branch name in the source repository. Implicitly, we assumed that the user was responsible for staying current with such changes. The recent usethis release (>= 2.1.2) tries much harder to alert the user if the default branch name changes and to provide an easy way to sync up.
 
 ### 🔥 Can I just burn it all down? 🔥
 
@@ -214,7 +214,7 @@ The new configuration option is `init.defaultBranch`.
 
 There are various ways to set your preferred initial branch name to, e.g., `main`:
 
--   With usethis 2.1.2, using a special-purpose function:
+-   With usethis >= 2.1.2, using a special-purpose function:
     <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://usethis.r-lib.org/reference/git-default-branch.html'>git_default_branch_configure</a></span><span class='o'>(</span><span class='o'>)</span>
