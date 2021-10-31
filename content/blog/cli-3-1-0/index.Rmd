@@ -1,0 +1,235 @@
+---
+output: hugodown::hugo_document
+
+slug: cli-3-1-0
+title: cli 3.1.0
+date: 2021-10-31
+author: Gábor Csárdi
+description: >
+    cli 3.1.0 introduces customizable color palettes plus it
+    comes with a number of other smaller improvements. 
+
+photo:
+  url: https://www.pexels.com/photo/colorful-hot-air-balloon-3580627
+  author: Yumi
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: []
+
+editor_options:
+  markdown:
+    wrap: sentence
+---
+
+We're very chuffed to announce the release of [cli](https://cli.r-lib.org "cli homepage") 3.1.0.
+cli helps you create a consistent and convenient command line interface.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("cli")
+```
+
+You can see a full list of changes in the [release notes](https://github.com/r-lib/cli/releases/tag/v3.1.0).
+
+## Color palettes
+
+### Built-in palettes
+
+```{r setup}
+library(cli)
+```
+
+This release of cli adds support for ANSI color customization.
+Now the 16 foreground colors, created via the `col_*()` functions, and the 16 background colors, created via the `bg_*()` functions, can be customized with the `cli.palette` option.
+
+You can set `cli.palette` to one of the built-in cli palettes, or you can create your own palette.
+See all built-in palettes at the [cli homepage](https://cli.r-lib.org/articles/palettes.html).
+You can also look at the `ansi_palettes` object, which is a data frame of RGB colors, with one row for each palette.
+To look at a single palette, run `ansi_palette_show()`.
+It shows the current palette by default:
+
+```{r include = FALSE}
+options(cli.num_colors = cli::truecolor)
+asciicast::init_knitr_engine(
+  startup = quote({
+    library(cli)
+    set.seed(1) }),
+  echo = TRUE,
+  echo_input = FALSE,
+  options = list(
+    asciicast_theme = list(background = c(255, 255, 255, 0), text = c(51, 51, 51)),
+    asciicast_cols = 80
+  ))
+```
+
+```{r eval = FALSE}
+ansi_palette_show()
+```
+
+```{asciicast, default, echo = FALSE}
+ansi_palette_show()
+```
+
+To use a built-in palette, set `cli.palette` to the palette name.
+To make this permanent, put this setting into your `.Rprofile`:
+
+```{r}
+options(cli.palette = "dichro")
+```
+
+```{r eval = FALSE}
+ansi_palette_show()
+```
+
+```{asciicast, dichro, echo = FALSE}
+options(cli.palette = "dichro")
+ansi_palette_show()
+```
+
+To set the default palette again, set `cli.palette` to `NULL`:
+
+```{r}
+options(cli.palette = NULL)
+```
+
+### Custom palettes
+
+To create a custom palette, set the `cli.palette` option to a named list where the names are the same as the column names in `ansi_palettes`.
+Colors can be specified with RGB color strings of the `#rrggbb` form or R color names (see the output of `grDevices::colors()`).
+For example:
+
+```{r eval = FALSE}
+options(cli.palette = list(
+  black    = "#010101", red        = "#de382b",
+  green    = "#39b54a", yellow     = "#ffc706",
+  blue     = "#006fb8", magenta    = "#762671",
+  cyan     = "#2cb5e9", white      = "#cccccc",
+  br_black = "#808080", br_red     = "#ff0000", 
+  br_green = "#00ff00", br_yellow  = "#ffff00", 
+  br_blue  = "#0000ff", br_magenta = "#ff00ff", 
+  br_cyan  = "#00ffff", br_white   = "#ffffff"
+))
+```
+
+### Color interpolation
+
+For color palettes your terminal or IDE needs to support at least 256 ANSI colors.
+On terminals with true color ANSI support cli will use the exact colors, as specified in the `cli.palette` option.
+On consoles with 256 ANSI colors, e.g. the RStudio console, cli will interpolate the specified colors to the closest ANSI-256 color.
+This means that the actual output will probably look slightly different from the specified RGB colors on these displays.
+
+### What about the crayon package?
+
+crayon is an older package than cli, with a smaller scope: adding ANSI colors to your display.
+More than 300 packages use crayon, so to make sure that cli palettes are respected in these packages as well, we added palette support to the latest release of crayon.
+Specifying the `cli.palette` option changes the colors in cli and in crayon as well, the same way.
+
+This said, cli does have some additional features compared to crayon, e.g. the support of bright colors.
+Our focus will be on improving the cli package in the future, and crayon will only receive important bug fixes.
+If you already use both cli and crayon, then it might make sense to completely switch to cli.
+
+### Palettes in terminals
+
+Many modern terminal emulators, e.g. iTerm on macOS, already allow the customization of ANSI colors, and some also support themes with custom ANSI palettes.
+If you already use this method to customize ANSI colors, then you don't need to set the `cli.palette` option.
+If you use both terminals and RStudio then you can set it only in RStudio:
+
+```{r eval = FALSE}
+if (Sys.getenv("RSTUDIO")=="1") options(cli.palette = "dichro")
+```
+
+## Other improvements
+
+### Bright ANSI colors
+
+cli now has a new set of functions to create the bright version of the 8 base ANSI colors.
+The `col_br_*()` functions set the foreground and the `bg_br_*()` functions set the background colors of strings:
+
+```{r eval = FALSE}
+cli::col_blue("This is blue.")
+cli::col_br_blue("This is bright blue.")
+```
+
+```{asciicast bright, echo = FALSE}
+cli::col_blue("This is blue.")
+cli::col_br_blue("This is bright blue.")
+```
+
+### True color ANSI
+
+cli now supports true color ANSI consoles better.
+Now custom styles made with `make_ansi_style()` will not interpolate the specified color on these displays:
+
+```{r eval = FALSE}
+orange <- make_ansi_style("#eb6123")
+orange("This will be halloween orange.")
+```
+
+```{asciicast orange, echo = FALSE}
+orange <- make_ansi_style("#eb6123")
+orange("This will be halloween orange.")
+```
+
+### Unicode graphemes
+
+cli's `ansi_*()` functions and the new `utf8_*()` functions now handle Unicode graphemes properly.
+For example `ansi_nchar()` and `utf8_nchar()` count graphemes by default, and `ansi_substr()` and `utf8_substr()` will break the input strings at grapheme boundaries.
+
+Consider this Unicode grapheme: 👷🏽‍♀️ (female construction worker, medium skin tone).
+It consists of five Unicode code points:
+
+-   `\U{1f477}`, construction worker,
+-   `\U{1f3fd}`, emoji modifier Fitzpatrick type-4, for the skin tone,
+-   `\u200d`, zero width joiner,
+-   `\u2640`, female sign,
+-   `\ufe0f`, variation selector-16, to specify that the preceding character should be displayed as an emoji.
+
+cli functions handle this grapheme properly:
+
+```{r}
+wrk <- "👷🏽‍♀️"
+as.hexmode(utf8ToInt(wrk))
+```
+
+```{r}
+# graphemes by default
+utf8_nchar(wrk)
+# code points
+utf8_nchar(wrk, type = "codepoints")
+# correct display width
+utf8_nchar(wrk, type = "width")
+```
+
+### Syntax highlight R code
+
+The new `code_highlight()` function parses and syntax highlights R code using ANSI colors and styles.
+You can use `deparse()` to highlight the code of an existing function:
+
+```{r eval = FALSE}
+writeLines(code_highlight(deparse(cli::hash_emoji)))
+```
+
+```{asciicast code, echo = FALSE}
+writeLines(code_highlight(deparse(cli::hash_emoji)))
+```
+
+### Human readable hash functions
+
+Sometimes it is convenient to create a short hash of a string, that is easy to compare to other hashes.
+The new `hash_emoji()` function creates a very short emoji hash of a string.
+The new `hash_animal()` function uses a short expression with one or more adjectives and an animal name:
+
+```{r}
+txt <- "Hash this string please!"
+hash_emoji(txt)$hash
+hash_emoji(txt)$text
+hash_animal(txt)$hash
+```
+
+## Acknowledgements
+
+A big thanks to all 76 contributors who filed issues and contributed code to this and past cli releases:
+
+[\@aedobbyn](https://github.com/aedobbyn), [\@AkhilGNair](https://github.com/AkhilGNair), [\@AlbertRapp](https://github.com/AlbertRapp), [\@assignUser](https://github.com/assignUser), [\@batpigandme](https://github.com/batpigandme), [\@brodieG](https://github.com/brodieG), [\@bwiernik](https://github.com/bwiernik), [\@cderv](https://github.com/cderv), [\@cfhammill](https://github.com/cfhammill), [\@cjyetman](https://github.com/cjyetman), [\@ColinFay](https://github.com/ColinFay), [\@combiz](https://github.com/combiz), [\@cpsievert](https://github.com/cpsievert), [\@danielvartan](https://github.com/danielvartan), [\@datafj](https://github.com/datafj), [\@DavisVaughan](https://github.com/DavisVaughan), [\@dchiu911](https://github.com/dchiu911), [\@dfalbel](https://github.com/dfalbel), [\@dgkf](https://github.com/dgkf), [\@elinw](https://github.com/elinw), [\@flying-sheep](https://github.com/flying-sheep), [\@fmichonneau](https://github.com/fmichonneau), [\@fmmattioni](https://github.com/fmmattioni), [\@gaborcsardi](https://github.com/gaborcsardi), [\@gavinsimpson](https://github.com/gavinsimpson), [\@GjjvdBurg](https://github.com/GjjvdBurg), [\@gregleleu](https://github.com/gregleleu), [\@GregorDeCillia](https://github.com/GregorDeCillia), [\@gwd999](https://github.com/gwd999), [\@hadley](https://github.com/hadley), [\@IndrajeetPatil](https://github.com/IndrajeetPatil), [\@jennybc](https://github.com/jennybc), [\@jimhester](https://github.com/jimhester), [\@jonkeane](https://github.com/jonkeane), [\@jonocarroll](https://github.com/jonocarroll), [\@juniperlsimonis](https://github.com/juniperlsimonis), [\@krlmlr](https://github.com/krlmlr), [\@lazappi](https://github.com/lazappi), [\@leeper](https://github.com/leeper), [\@lionel-](https://github.com/lionel-), [\@llrs](https://github.com/llrs), [\@lorenzwalthert](https://github.com/lorenzwalthert), [\@MarkEdmondson1234](https://github.com/MarkEdmondson1234), [\@markwsac](https://github.com/markwsac), [\@mattfidler](https://github.com/mattfidler), [\@matthiaskaeding](https://github.com/matthiaskaeding), [\@mgirlich](https://github.com/mgirlich), [\@MilesMcBain](https://github.com/MilesMcBain), [\@MislavSag](https://github.com/MislavSag), [\@mjsteinbaugh](https://github.com/mjsteinbaugh), [\@MLopez-Ibanez](https://github.com/MLopez-Ibanez), [\@mrcaseb](https://github.com/mrcaseb), [\@ms609](https://github.com/ms609), [\@nfancy](https://github.com/nfancy), [\@nick-komick](https://github.com/nick-komick), [\@overmar](https://github.com/overmar), [\@pat-s](https://github.com/pat-s), [\@paul-sheridan](https://github.com/paul-sheridan), [\@QuLogic](https://github.com/QuLogic), [\@ramiromagno](https://github.com/ramiromagno), [\@rrodrigueznt](https://github.com/rrodrigueznt), [\@rundel](https://github.com/rundel), [\@salim-b](https://github.com/salim-b), [\@sgibb](https://github.com/sgibb), [\@ShixiangWang](https://github.com/ShixiangWang), [\@sthibaul](https://github.com/sthibaul), [\@tentacles-from-outer-space](https://github.com/tentacles-from-outer-space), [\@thothal](https://github.com/thothal), [\@topepo](https://github.com/topepo), [\@torfason](https://github.com/torfason), [\@trestletech](https://github.com/trestletech), [\@tzakharko](https://github.com/tzakharko), [\@wngrtn](https://github.com/wngrtn), [\@x1o](https://github.com/x1o), [\@yutannihilation](https://github.com/yutannihilation), and [\@zachary-foster](https://github.com/zachary-foster).
