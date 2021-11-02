@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [deep-dive] 
 tags: [tidymodels, parsnip]
-rmd_hash: 1e71a8c9e98ce01a
+rmd_hash: 7dcf89dac3a303d0
 
 ---
 
@@ -222,5 +222,5 @@ Additionally, we are in the process of figuring out how different types of censo
 
 We'd love to hear from you! Some questions we have include: Would you find this useful? Are there particular models/methods you'd like to see? Do you use time-dependent effects? Do you use interactions? Which types of censoring do you use?
 
-We'd greatly appreciate feedback, ideally in the replies to the [corresponding post on RStudio Community](FIXME)!
+We'd greatly appreciate feedback, ideally in the replies to the [corresponding post on RStudio Community](https://community.rstudio.com/t/feedback-on-the-censored-package-for-survival-analysis-with-tidymodels/119674)!
 
