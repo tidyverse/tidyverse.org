@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: survival-analysis-parsnip-adjacent
 title: Survival Analysis in tidymodels
-date: 2021-09-28
+date: 2021-11-02
 author: Hannah Frick
 description: >
     We are working on extending support for survival analysis in tidymodels. We
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [deep-dive] 
 tags: [tidymodels, parsnip]
-rmd_hash: f3d9caf3765fc23e
+rmd_hash: 1e71a8c9e98ce01a
 
 ---
 
@@ -72,7 +72,7 @@ Some other packages can fit this model, let's use the glmnet package. However, [
 
 <div align="center">
 
-`stratifySurv(Surv(time, event), strata) ~ x`
+`stratifySurv(Surv(time, event), strata) ~ x + z`
 
 </div>
 
@@ -145,7 +145,7 @@ We can compare the value of the linear predictor using the true coefficients of 
 <span class='nv'>pred_survival</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='o'>(</span><span class='nv'>fit_survival</span>, newdata <span class='o'>=</span> <span class='nv'>test_pred</span><span class='o'>)</span>
 
 <span class='nv'>pred</span> <span class='o'>&lt;-</span> <span class='nf'>bind_cols</span><span class='o'>(</span>
-  <span class='nv'>test_pred</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'>mutate</span><span class='o'>(</span>linear_pred <span class='o'>=</span> <span class='nv'>X1</span> <span class='o'>*</span> <span class='m'>1</span>  <span class='o'>+</span> <span class='nv'>X2</span> <span class='o'>*</span> <span class='m'>1</span><span class='o'>)</span>,
+  <span class='nv'>test_pred</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'>mutate</span><span class='o'>(</span>linear_pred <span class='o'>=</span> <span class='nv'>X1</span> <span class='o'>*</span> <span class='m'>1</span> <span class='o'>+</span> <span class='nv'>X2</span> <span class='o'>*</span> <span class='m'>1</span><span class='o'>)</span>,
   <span class='nf'>tibble</span><span class='o'>(</span>pred_survival <span class='o'>=</span> <span class='nv'>pred_survival</span><span class='o'>)</span>
 <span class='o'>)</span>
 

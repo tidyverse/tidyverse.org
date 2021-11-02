@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: survival-analysis-parsnip-adjacent
 title: Survival Analysis in tidymodels
-date: 2021-09-28
+date: 2021-11-02
 author: Hannah Frick
 description: >
     We are working on extending support for survival analysis in tidymodels. We
@@ -72,7 +72,7 @@ A formula also let's us specify stratification for a proportional hazards model.
 Some other packages can fit this model, let's use the glmnet package. However, `glmnet::glmnet()`, does not have a formula interface and it requires us to specify the strata by stratifying the response via `stratifySurv(y, s)`. The response is typically a `Surv` object, so you could end up with a formula like this:
 
 <div align="center">
-  `stratifySurv(Surv(time, event), strata) ~ x`
+  `stratifySurv(Surv(time, event), strata) ~ x + z`
 </div>
 
 This works for fitting the model but the syntax is rather convoluted on the left-hand side of the formula. The specification of the stratification is inconsistent with the approach taken by the survival package. Additionally, without further modification, prediction fails because variables on the left-hand side of the formula are treated as response variables by parsnip and are not available at prediction time.
@@ -136,7 +136,7 @@ fit_survival <- coxph(Surv(time, status) ~ X1 + X2, data = train_dat)
 pred_survival <- predict(fit_survival, newdata = test_pred)
 
 pred <- bind_cols(
-  test_pred %>% mutate(linear_pred = X1 * 1  + X2 * 1),
+  test_pred %>% mutate(linear_pred = X1 * 1 + X2 * 1),
   tibble(pred_survival = pred_survival)
 )
 
