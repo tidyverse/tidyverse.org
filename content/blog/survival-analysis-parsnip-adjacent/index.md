@@ -17,22 +17,9 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [deep-dive] 
 tags: [tidymodels, parsnip]
-rmd_hash: 0930dda6624db4ec
+rmd_hash: f3d9caf3765fc23e
 
 ---
-
-<!--
-TODO:
-* [x] Look over / edit the post's title in the yaml
-* [x] Edit (or delete) the description; note this appears in the Twitter card
-* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [x] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
--->
 
 Survival analysis is an important field in modeling and there are many R packages available which implement various models, from "classic" parametric models to boosted trees. While they cover a great variety of model types, they also come with considerable amounts of heterogeneity in syntax and levels of documentation. The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. It provides a consistent interface to a variety of modelling functions along with tools for resampling, assessing performance, and hyperparameter tuning.
 
