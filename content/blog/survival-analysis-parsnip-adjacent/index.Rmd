@@ -11,8 +11,8 @@ description: >
     and give feedback.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/A-fubu9QJxE
+  author: Luca Bravo
 
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [deep-dive] 
@@ -21,10 +21,10 @@ tags: [tidymodels, parsnip]
 
 <!--
 TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
-* [ ] Find photo & update yaml metadata
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
 * [ ] Create `thumbnail-sq.jpg`; height and width should be equal
 * [ ] Create `thumbnail-wd.jpg`; width should be >5x height
 * [ ] `hugodown::use_tidy_thumbnails()`
@@ -51,8 +51,7 @@ Making survival analysis a first-class citizen in tidymodels requires touching s
 - A bigger selection of models which can be specified, fitted, and used for prediction.
 - Additional performance metrics tailored to survival data.
 
-<!-- Our focus so far has been on model specification, fitting, and prediction so let's dive in and see what's new! -->
-The new [censored](https://tidymodels.github.io/censored/) package along with [parsnip](https://parsnip.tidymodels.org/) offers several new models, engines, and prediction types. The censored package is not on CRAN yet but we are looking for early adopters to try it out and give us feedback! You can install it via 
+The new [censored](https://censored.tidymodels.org/) package along with [parsnip](https://parsnip.tidymodels.org/) offers several new models, engines, and prediction types. The censored package is not on CRAN yet but we are looking for early adopters to try it out and give us feedback! You can install it via 
 
 ```{r eval = FALSE}
 devtools::install_github("tidymodels/censored")
@@ -126,36 +125,6 @@ f_pred %>%
   geom_line()
 ```
 
-FIXME: alternatively a random forest on a different dataset
-```{r predict-rf}
-data(pbc)
-pbc <- pbc %>% 
-  filter(status != 2) %>% 
-  select(-id)
-pbc_train <- pbc[-c(1:3), ]
-pbc_test <- pbc[1:3,]
-
-rf_spec <- rand_forest() %>%
-  set_engine("party") %>% 
-  set_mode("censored regression")
-    
-rf_fit <- fit(rf_spec,
-             Surv(time, status) ~.,
-             data = pbc_train)
-
-rf_pred <- predict(rf_fit, new_data = pbc_test,
-                   type = "survival", time = seq(600, 2600, 100))
-
-rf_pred <- rf_pred %>% 
-  mutate(id = factor(1:3)) %>% 
-  unnest(cols = .pred)
-
-rf_pred %>% 
-  ggplot(aes(x = .time, y = .pred_survival, col = id)) +
-  geom_line()
-```
-
-
 Usually, the linear predictor is the linear combination of the predictors, weighted with the coefficients, often denoted as $x^{T} \beta$. This is what is being returned by the `glmnet` engine for `proportional_hazards()` models and by the `mboost` engine for `boost_tree()` models (e.g., with mode `"censored regression"`). For proportional hazards models, the linear predictor describes _relative_ risk, i.e., it refers to a pair of observations: the observation $x$ and a reference observation of predictors with value 0. 
 
 The survival package implements different choices for the reference observation. As a default it uses the mean predictor, i.e., the observation $x$ is centered with the mean predictor before the usual weighted linear combination is calculated. What makes a useful reference observation is context-dependent and can be more complex than just 0 or the average. In a medical setting with predictors age and drug concentration, one might be interested in the effect relative to mean age but a drug concentration of 0 (the control group). While we think through a more general approach to specifying such a reference observation or baseline hazard, we ensure that all engines in censored use the same approach: a reference observation of 0. 
@@ -195,7 +164,7 @@ pred %>%
   geom_abline(slope = 1, intercept = 0)
 ```
 
-Measuring performance is a key element of predictive modelling. Our design philosophy in tidymodels is that the calculation of performance metrics should be agnostic to ancillary information such as the model type or the training set. Essentially all you need are the observations and the predictions. For proportional hazards models, the observation and the prediction actually describe different aspects of survival: the observation is the survival time while the prediction describes the risk; the two have an inverse relationship. To help us standardize the assessment modules, we change the sign of the linear predictor. This may be opposite to the sign of predictions obtained using the underlying engine directly.
+Measuring performance is a key element of predictive modelling. Our design philosophy in tidymodels is that the calculation of performance metrics should be agnostic to ancillary information such as the model type or the training set. Essentially all you need are the observations and the predictions. For proportional hazards models, the observation and the prediction actually describe different aspects of survival: the observation is the survival time while the prediction describes the risk; the two have an inverse relationship. To help us standardize the assessment modules, we change the sign of the linear predictor. This may be opposite to the sign of predictions obtained using the underlying engine directly. You can opt out of this by setting the `increasing` argument of `predict()` to `FALSE`.
 
 ```{r, lp-sign}
 fit_censored <- proportional_hazards() %>% 
@@ -266,4 +235,4 @@ Additionally, we are in the process of figuring out how different types of censo
 
 We'd love to hear from you! Some questions we have include: Would you find this useful? Are there particular models/methods you'd like to see? Do you use time-dependent effects? Do you use interactions? Which types of censoring do you use?
 
-We'd greatly appreciate feedback, ideally in form of FIXME!
+We'd greatly appreciate feedback, ideally in the replies to the [corresponding post on RStudio Community](FIXME)!
