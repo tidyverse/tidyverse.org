@@ -52,11 +52,11 @@ Use [`archive()`](https://archive.r-lib.org/reference/archive.html) to return a 
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 3</span></span>
 <span class='c'>#&gt;   path                       size date               </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                     <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dttm&gt;</span>             </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> nycflights13/airlines.csv   386 2021-11-04 <span style='color: #555555;'>15:06:31</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span> nycflights13/airports.csv <span style='text-decoration: underline;'>71</span>209 2021-11-04 <span style='color: #555555;'>15:06:31</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>3</span> nycflights13/flights.csv  <span style='text-decoration: underline;'>90</span>886 2021-11-04 <span style='color: #555555;'>15:06:32</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>4</span> nycflights13/planes.csv   <span style='text-decoration: underline;'>72</span>927 2021-11-04 <span style='color: #555555;'>15:06:32</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>5</span> nycflights13/weather.csv  <span style='text-decoration: underline;'>86</span>753 2021-11-04 <span style='color: #555555;'>15:06:32</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> nycflights13/airlines.csv   386 2021-11-04 <span style='color: #555555;'>15:09:55</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span> nycflights13/airports.csv <span style='text-decoration: underline;'>71</span>209 2021-11-04 <span style='color: #555555;'>15:09:55</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>3</span> nycflights13/flights.csv  <span style='text-decoration: underline;'>90</span>886 2021-11-04 <span style='color: #555555;'>15:09:56</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>4</span> nycflights13/planes.csv   <span style='text-decoration: underline;'>72</span>927 2021-11-04 <span style='color: #555555;'>15:09:56</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>5</span> nycflights13/weather.csv  <span style='text-decoration: underline;'>86</span>753 2021-11-04 <span style='color: #555555;'>15:09:56</span></span></code></pre>
 
 </div>
 
@@ -132,9 +132,9 @@ Here we create a new zip archive containing the file `mtcars.csv`.
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 3</span></span>
 <span class='c'>#&gt;   path            size date               </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dttm&gt;</span>             </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> iris.csv        <span style='text-decoration: underline;'>3</span>716 2021-11-04 <span style='color: #555555;'>15:06:33</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span> mtcars.csv      <span style='text-decoration: underline;'>1</span>281 2021-11-04 <span style='color: #555555;'>15:06:33</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>3</span> airquality.csv  <span style='text-decoration: underline;'>2</span>890 2021-11-04 <span style='color: #555555;'>15:06:33</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> iris.csv        <span style='text-decoration: underline;'>3</span>716 2021-11-04 <span style='color: #555555;'>15:09:57</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span> mtcars.csv      <span style='text-decoration: underline;'>1</span>281 2021-11-04 <span style='color: #555555;'>15:09:57</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>3</span> airquality.csv  <span style='text-decoration: underline;'>2</span>890 2021-11-04 <span style='color: #555555;'>15:09:57</span></span></code></pre>
 
 </div>
 
