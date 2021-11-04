@@ -1,0 +1,129 @@
+---
+output: hugodown::hugo_document
+
+slug: archive-1-1-0
+title: archive 1 1 0
+date: 2021-11-04
+author: Jim Hester
+description: >
+    archive 1.1.0 is now on CRAN! archive lets you work with file archives, such as ZIP, tar, 7-Zip and RAR and compression formats like gzip, bzip2, XZ and Zstandard.
+
+photo:
+  url: https://unsplash.com/photos/IEiAmhXehwE
+  author: Nana Smirnova
+  
+
+# one of: "deep-dive", "learn", "package", "programming", or "other"
+categories: [package] 
+tags: [r-lib]
+---
+
+[archive](https://archive.r-lib.org/) 1.1.0 is now on CRAN. archive lets you work with file archives, such as [ZIP](https://en.wikipedia.org/wiki/ZIP_(file_format)), [tar](https://en.wikipedia.org/wiki/Tar_(computing)), [7-Zip](https://en.wikipedia.org/wiki/7-Zip) and [RAR](https://en.wikipedia.org/wiki/RAR_(file_format)) and compression formats like [gzip](https://en.wikipedia.org/wiki/Gzip), [bzip2](https://en.wikipedia.org/wiki/Bzip2), [XZ](https://en.wikipedia.org/wiki/XZ_Utils) and [Zstandard](https://en.wikipedia.org/wiki/Zstandard).
+It does this by building on top of the [libarchive](https://www.libarchive.org/) C library.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("archive")
+```
+
+This blog post will explain the main functions of archive, and show how you can use them to read from and write to archives.
+
+You can see a full list of changes in the [release notes](https://archive.r-lib.org/news/index.html)
+
+```{r setup}
+library(archive)
+my_dir <- fs::file_temp() |> fs::dir_create()
+knitr::opts_knit$set(root.dir = my_dir)
+```
+
+## Displaying archive contents
+
+Use `archive()` to return a tibble of the files contained in a given archive.
+
+```{r, include = FALSE}
+library(nycflights13)
+fs::dir_create("nycflights13")
+for (data in data(package="nycflights13")$results[,"Item"]) {
+  readr::write_csv(head(get(data), n = 1000), fs::path("nycflights13", data, ext = "csv"))
+}
+archive_write_files("nycflights13.zip", fs::dir_ls("nycflights13"))
+```
+
+```{r}
+archive("nycflights13.zip")
+```
+
+## Reading single files from an archive
+
+`archive_read()` is used to read a single file from an archive. This function returns an R connection, which can be passed to many R functions that take a connection object as input. All base R file system functions use connections, as well as some packages like readr.
+
+The `file=` argument accepts numeric positions in the archive, or filenames as input.
+
+```{r}
+con1 <- archive_read("nycflights13.zip", file = 2)
+readLines(con1, n = 5)
+close(con1)
+
+con2 <- archive_read("nycflights13.zip", file = "nycflights13/planes.csv")
+readLines(con2, n = 5)
+close(con2)
+```
+
+## Writing single files to an archive
+
+Similarly `archive_write()` is used to write a single file to an archive. Again this creates a writable R connection. Like reading, many base R functions work with writable connections, as well as some packages like readr.
+
+The archive and compression formats are automatically guessed based on the output filename file extensions. However you can also specify them explicity with the `format` and `filter` options.
+
+Here we create a new zip archive containing the file `mtcars.csv`.
+```{r}
+readr::write_csv(mtcars, archive_write("my-cars.zip", "mtcars.csv"))
+
+archive("my-cars.zip")
+```
+
+## Writing multiple files to an archive
+
+`archive_write_files()` writes multiple files to a new archive. In this case the files to be added to the archive should already be written on disk.
+
+`archive_write_dir()` is a helper to archive all the files in a given directory.
+
+```{r}
+library(readr)
+
+# Write a few files to the temp directory
+write_csv(iris, "iris.csv")
+write_csv(mtcars, "mtcars.csv")
+write_csv(airquality, "airquality.csv")
+
+# Add them to a new XZ compressed tar archive
+archive_write_files("data.tar.xz",
+                    c("iris.csv", "mtcars.csv", "airquality.csv"))
+
+# View archive contents
+archive("data.tar.xz")
+```
+
+## Extracting multiple files from an archive
+
+`archive_extract()` allows you to extract one or more files to disk from an archive.
+
+Note the archive and compression formats will be automatically detected.
+
+```{r}
+# Create a new directory
+my_dir <- fs::file_temp() |> fs::dir_create()
+
+# Extract two of the files in the archive to that directory
+archive_extract("data.tar.xz", dir = my_dir, files = c("iris.csv", "mtcars.csv"))
+
+# Show the extracted files
+fs::dir_ls(my_dir) |> fs::path_file()
+```
+```{r cleanup, include = FALSE}
+unlink(my_dir, recursive = TRUE)
+```
+## Acknowledgements
+
+Thanks to the following users who have tried out the development versions of archive and opened issues and feature suggestions to improve it! [&#x0040;cboettig](https://github.com/cboettig), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jeroen](https://github.com/jeroen), and [&#x0040;JMcrocs](https://github.com/JMcrocs).
