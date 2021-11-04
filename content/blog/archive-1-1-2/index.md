@@ -16,11 +16,11 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [r-lib]
-rmd_hash: 10960aeb46e6ed06
+rmd_hash: 27198b311947ed78
 
 ---
 
-[archive](https://archive.r-lib.org/) 1.1.0 is now on CRAN. archive lets you work with file archives, such as [ZIP](https://en.wikipedia.org/wiki/ZIP_(file_format)), [tar](https://en.wikipedia.org/wiki/Tar_(computing)), [7-Zip](https://en.wikipedia.org/wiki/7-Zip) and [RAR](https://en.wikipedia.org/wiki/RAR_(file_format)) and compression formats like [gzip](https://en.wikipedia.org/wiki/Gzip), [bzip2](https://en.wikipedia.org/wiki/Bzip2), [XZ](https://en.wikipedia.org/wiki/XZ_Utils) and [Zstandard](https://en.wikipedia.org/wiki/Zstandard). It does this by building on top of the [libarchive](https://www.libarchive.org/) C library.
+[archive](https://archive.r-lib.org/) 1.1.2 is now on CRAN. archive lets you work with file archives, such as [ZIP](https://en.wikipedia.org/wiki/ZIP_(file_format)), [tar](https://en.wikipedia.org/wiki/Tar_(computing)), [7-Zip](https://en.wikipedia.org/wiki/7-Zip) and [RAR](https://en.wikipedia.org/wiki/RAR_(file_format)) and compression formats like [gzip](https://en.wikipedia.org/wiki/Gzip), [bzip2](https://en.wikipedia.org/wiki/Bzip2), [XZ](https://en.wikipedia.org/wiki/XZ_Utils) and [Zstandard](https://en.wikipedia.org/wiki/Zstandard). It does this by building on top of the [libarchive](https://www.libarchive.org/) C library.
 
 You can install it from CRAN with:
 
@@ -52,11 +52,11 @@ Use [`archive()`](https://archive.r-lib.org/reference/archive.html) to return a 
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 3</span></span>
 <span class='c'>#&gt;   path                       size date               </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                     <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dttm&gt;</span>             </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> nycflights13/airlines.csv   386 2021-11-04 <span style='color: #555555;'>15:09:55</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span> nycflights13/airports.csv <span style='text-decoration: underline;'>71</span>209 2021-11-04 <span style='color: #555555;'>15:09:55</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>3</span> nycflights13/flights.csv  <span style='text-decoration: underline;'>90</span>886 2021-11-04 <span style='color: #555555;'>15:09:56</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>4</span> nycflights13/planes.csv   <span style='text-decoration: underline;'>72</span>927 2021-11-04 <span style='color: #555555;'>15:09:56</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>5</span> nycflights13/weather.csv  <span style='text-decoration: underline;'>86</span>753 2021-11-04 <span style='color: #555555;'>15:09:56</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> nycflights13/airlines.csv   386 2021-11-04 <span style='color: #555555;'>15:14:15</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span> nycflights13/airports.csv <span style='text-decoration: underline;'>71</span>209 2021-11-04 <span style='color: #555555;'>15:14:15</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>3</span> nycflights13/flights.csv  <span style='text-decoration: underline;'>90</span>886 2021-11-04 <span style='color: #555555;'>15:14:16</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>4</span> nycflights13/planes.csv   <span style='text-decoration: underline;'>72</span>927 2021-11-04 <span style='color: #555555;'>15:14:16</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>5</span> nycflights13/weather.csv  <span style='text-decoration: underline;'>86</span>753 2021-11-04 <span style='color: #555555;'>15:14:16</span></span></code></pre>
 
 </div>
 
@@ -132,9 +132,9 @@ Here we create a new zip archive containing the file `mtcars.csv`.
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 3</span></span>
 <span class='c'>#&gt;   path            size date               </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dttm&gt;</span>             </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> iris.csv        <span style='text-decoration: underline;'>3</span>716 2021-11-04 <span style='color: #555555;'>15:09:57</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span> mtcars.csv      <span style='text-decoration: underline;'>1</span>281 2021-11-04 <span style='color: #555555;'>15:09:57</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>3</span> airquality.csv  <span style='text-decoration: underline;'>2</span>890 2021-11-04 <span style='color: #555555;'>15:09:57</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> iris.csv        <span style='text-decoration: underline;'>3</span>716 2021-11-04 <span style='color: #555555;'>15:14:17</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span> mtcars.csv      <span style='text-decoration: underline;'>1</span>281 2021-11-04 <span style='color: #555555;'>15:14:17</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>3</span> airquality.csv  <span style='text-decoration: underline;'>2</span>890 2021-11-04 <span style='color: #555555;'>15:14:17</span></span></code></pre>
 
 </div>
 
