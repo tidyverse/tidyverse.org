@@ -1,12 +1,12 @@
 ---
 output: hugodown::hugo_document
 
-slug: archive-1-0-0
-title: archive 1 0 0
-date: 2021-08-23
+slug: archive-1-1-0
+title: archive 1 1 0
+date: 2021-11-04
 author: Jim Hester
 description: >
-    archive 1.1.0 is now on CRAN!
+    archive 1.1.0 is now on CRAN! archive lets you work with file archives, such as ZIP, tar, 7-Zip and RAR and compression formats like gzip, bzip2, XZ and Zstandard.
 
 photo:
   url: https://unsplash.com/photos/IEiAmhXehwE
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [package] 
 tags: [r-lib]
-rmd_hash: 46f61f3223838134
+rmd_hash: 131c4b3f24a98b37
 
 ---
 
@@ -36,7 +36,7 @@ You can see a full list of changes in the [release notes](https://archive.r-lib.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://r-lib.github.io/archive/'>archive</a></span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://archive.r-lib.org/'>archive</a></span><span class='o'>)</span>
 <span class='nv'>my_dir</span> <span class='o'>&lt;-</span> <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='http://fs.r-lib.org/reference/file_temp.html'>file_temp</a></span><span class='o'>(</span><span class='o'>)</span> |&gt; <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='http://fs.r-lib.org/reference/create.html'>dir_create</a></span><span class='o'>(</span><span class='o'>)</span>
 <span class='nf'>knitr</span><span class='nf'>::</span><span class='nv'><a href='https://rdrr.io/pkg/knitr/man/opts_knit.html'>opts_knit</a></span><span class='o'>$</span><span class='nf'>set</span><span class='o'>(</span>root.dir <span class='o'>=</span> <span class='nv'>my_dir</span><span class='o'>)</span></code></pre>
 
@@ -52,37 +52,39 @@ Use [`archive()`](https://archive.r-lib.org/reference/archive.html) to return a 
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 3</span></span>
 <span class='c'>#&gt;   path                       size date               </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                     <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dttm&gt;</span>             </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> nycflights13/airlines.csv   386 2021-09-29 <span style='color: #555555;'>16:32:53</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span> nycflights13/airports.csv <span style='text-decoration: underline;'>71</span>209 2021-09-29 <span style='color: #555555;'>16:32:53</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>3</span> nycflights13/flights.csv  <span style='text-decoration: underline;'>90</span>886 2021-09-29 <span style='color: #555555;'>16:32:55</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>4</span> nycflights13/planes.csv   <span style='text-decoration: underline;'>72</span>927 2021-09-29 <span style='color: #555555;'>16:32:55</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>5</span> nycflights13/weather.csv  <span style='text-decoration: underline;'>86</span>753 2021-09-29 <span style='color: #555555;'>16:32:55</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> nycflights13/airlines.csv   386 2021-11-04 <span style='color: #555555;'>14:49:03</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span> nycflights13/airports.csv <span style='text-decoration: underline;'>71</span>209 2021-11-04 <span style='color: #555555;'>14:49:03</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>3</span> nycflights13/flights.csv  <span style='text-decoration: underline;'>90</span>886 2021-11-04 <span style='color: #555555;'>14:49:04</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>4</span> nycflights13/planes.csv   <span style='text-decoration: underline;'>72</span>927 2021-11-04 <span style='color: #555555;'>14:49:04</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>5</span> nycflights13/weather.csv  <span style='text-decoration: underline;'>86</span>753 2021-11-04 <span style='color: #555555;'>14:49:04</span></span></code></pre>
 
 </div>
 
 ## Reading single files from an archive
 
-[`archive_read()`](https://archive.r-lib.org/reference/archive_read.html) is used to read a single file from an archive. This function returns an R connection, which can be passed to many R functions that takes a connection object as input. All base R file system functions use connections, as well as some packages like readr.
+[`archive_read()`](https://archive.r-lib.org/reference/archive_read.html) is used to read a single file from an archive. This function returns an R connection, which can be passed to many R functions that take a connection object as input. All base R file system functions use connections, as well as some packages like readr.
 
 The `file=` argument accepts numeric positions in the archive, or filenames as input.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/base/readLines.html'>readLines</a></span><span class='o'>(</span><span class='nf'><a href='https://archive.r-lib.org/reference/archive_read.html'>archive_read</a></span><span class='o'>(</span><span class='s'>"nycflights13.zip"</span>, file <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span>,
-          n <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>con1</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://archive.r-lib.org/reference/archive_read.html'>archive_read</a></span><span class='o'>(</span><span class='s'>"nycflights13.zip"</span>, file <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span>
+<span class='nf'><a href='https://rdrr.io/r/base/readLines.html'>readLines</a></span><span class='o'>(</span><span class='nv'>con1</span>, n <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span>
 <span class='c'>#&gt; [1] "faa,name,lat,lon,alt,tz,dst,tzone"                                                </span>
 <span class='c'>#&gt; [2] "04G,Lansdowne Airport,41.1304722,-80.6195833,1044,-5,A,America/New_York"          </span>
 <span class='c'>#&gt; [3] "06A,Moton Field Municipal Airport,32.4605722,-85.6800278,264,-6,A,America/Chicago"</span>
 <span class='c'>#&gt; [4] "06C,Schaumburg Regional,41.9893408,-88.1012428,801,-6,A,America/Chicago"          </span>
 <span class='c'>#&gt; [5] "06N,Randall Airport,41.431912,-74.3915611,523,-5,A,America/New_York"</span>
-<span class='nf'><a href='https://rdrr.io/r/base/readLines.html'>readLines</a></span><span class='o'>(</span><span class='nf'><a href='https://archive.r-lib.org/reference/archive_read.html'>archive_read</a></span><span class='o'>(</span><span class='s'>"nycflights13.zip"</span>,
-                       file <span class='o'>=</span> <span class='s'>"nycflights13/planes.csv"</span><span class='o'>)</span>,
-          n <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span>
+<span class='nf'><a href='https://rdrr.io/r/base/connections.html'>close</a></span><span class='o'>(</span><span class='nv'>con1</span><span class='o'>)</span>
+
+<span class='nv'>con2</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://archive.r-lib.org/reference/archive_read.html'>archive_read</a></span><span class='o'>(</span><span class='s'>"nycflights13.zip"</span>, file <span class='o'>=</span> <span class='s'>"nycflights13/planes.csv"</span><span class='o'>)</span>
+<span class='nf'><a href='https://rdrr.io/r/base/readLines.html'>readLines</a></span><span class='o'>(</span><span class='nv'>con2</span>, n <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span>
 <span class='c'>#&gt; [1] "tailnum,year,type,manufacturer,model,engines,seats,speed,engine"                 </span>
 <span class='c'>#&gt; [2] "N10156,2004,Fixed wing multi engine,EMBRAER,EMB-145XR,2,55,NA,Turbo-fan"         </span>
 <span class='c'>#&gt; [3] "N102UW,1998,Fixed wing multi engine,AIRBUS INDUSTRIE,A320-214,2,182,NA,Turbo-fan"</span>
 <span class='c'>#&gt; [4] "N103US,1999,Fixed wing multi engine,AIRBUS INDUSTRIE,A320-214,2,182,NA,Turbo-fan"</span>
-<span class='c'>#&gt; [5] "N104UW,1999,Fixed wing multi engine,AIRBUS INDUSTRIE,A320-214,2,182,NA,Turbo-fan"</span></code></pre>
+<span class='c'>#&gt; [5] "N104UW,1999,Fixed wing multi engine,AIRBUS INDUSTRIE,A320-214,2,182,NA,Turbo-fan"</span>
+<span class='nf'><a href='https://rdrr.io/r/base/connections.html'>close</a></span><span class='o'>(</span><span class='nv'>con2</span><span class='o'>)</span></code></pre>
 
 </div>
 
@@ -130,9 +132,9 @@ Here we create a new zip archive containing the file `mtcars.csv`.
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 3</span></span>
 <span class='c'>#&gt;   path            size date               </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dttm&gt;</span>             </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> iris.csv        <span style='text-decoration: underline;'>3</span>716 2021-09-29 <span style='color: #555555;'>16:32:55</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span> mtcars.csv      <span style='text-decoration: underline;'>1</span>281 2021-09-29 <span style='color: #555555;'>16:32:55</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>3</span> airquality.csv  <span style='text-decoration: underline;'>2</span>890 2021-09-29 <span style='color: #555555;'>16:32:55</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> iris.csv        <span style='text-decoration: underline;'>3</span>716 2021-11-04 <span style='color: #555555;'>14:49:05</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span> mtcars.csv      <span style='text-decoration: underline;'>1</span>281 2021-11-04 <span style='color: #555555;'>14:49:05</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>3</span> airquality.csv  <span style='text-decoration: underline;'>2</span>890 2021-11-04 <span style='color: #555555;'>14:49:05</span></span></code></pre>
 
 </div>
 

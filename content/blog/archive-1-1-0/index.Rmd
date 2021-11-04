@@ -61,15 +61,13 @@ archive("nycflights13.zip")
 The `file=` argument accepts numeric positions in the archive, or filenames as input.
 
 ```{r}
-readLines(
-  archive_read("nycflights13.zip", file = 2),
-  n = 5
-)
+con1 <- archive_read("nycflights13.zip", file = 2)
+readLines(con1, n = 5)
+close(con1)
 
-readLines(
-  archive_read("nycflights13.zip", file = "nycflights13/planes.csv"),
-  n = 5
-)
+con2 <- archive_read("nycflights13.zip", file = "nycflights13/planes.csv")
+readLines(con2, n = 5)
+close(con2)
 ```
 
 ## Writing single files to an archive
