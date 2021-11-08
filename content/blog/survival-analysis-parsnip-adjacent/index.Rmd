@@ -100,7 +100,7 @@ We have introduced several new prediction types: time to event (`time`), linear 
 
 ```{r predict}
 f_pred <- predict(f_fit, new_data = bladder_test,
-                  type = "survival", time = seq(0, 20, 0.5))
+                  type = "survival", time = seq(0, 20, 1))
 
 f_pred <- f_pred %>% 
   mutate(id = factor(1:3)) %>% 
@@ -108,7 +108,7 @@ f_pred <- f_pred %>%
 
 f_pred %>% 
   ggplot(aes(x = .time, y = .pred_survival, col = id)) +
-  geom_line()
+  geom_step()
 ```
 
 Usually, the linear predictor is the linear combination of the predictors, weighted with the coefficients, often denoted as $x^{T} \beta$. This is what is being returned by the `glmnet` engine for `proportional_hazards()` models and by the `mboost` engine for `boost_tree()` models (e.g., with mode `"censored regression"`). For proportional hazards models, the linear predictor describes _relative_ risk, i.e., it refers to a pair of observations: the observation $x$ and a reference observation of predictors with value 0. 

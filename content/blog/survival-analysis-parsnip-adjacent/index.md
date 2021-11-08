@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [deep-dive] 
 tags: [tidymodels, parsnip]
-rmd_hash: 27c728640473f1a8
+rmd_hash: c180583753f3af16
 
 ---
 
@@ -103,7 +103,7 @@ We have introduced several new prediction types: time to event (`time`), linear 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>f_pred</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='o'>(</span><span class='nv'>f_fit</span>, new_data <span class='o'>=</span> <span class='nv'>bladder_test</span>,
-                  type <span class='o'>=</span> <span class='s'>"survival"</span>, time <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>20</span>, <span class='m'>0.5</span><span class='o'>)</span><span class='o'>)</span>
+                  type <span class='o'>=</span> <span class='s'>"survival"</span>, time <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>20</span>, <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span>
 
 <span class='nv'>f_pred</span> <span class='o'>&lt;-</span> <span class='nv'>f_pred</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='nf'>mutate</span><span class='o'>(</span>id <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
@@ -111,7 +111,7 @@ We have introduced several new prediction types: time to event (`time`), linear 
 
 <span class='nv'>f_pred</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
   <span class='nf'>ggplot</span><span class='o'>(</span><span class='nf'>aes</span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>.time</span>, y <span class='o'>=</span> <span class='nv'>.pred_survival</span>, col <span class='o'>=</span> <span class='nv'>id</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span>
-  <span class='nf'>geom_line</span><span class='o'>(</span><span class='o'>)</span>
+  <span class='nf'>geom_step</span><span class='o'>(</span><span class='o'>)</span>
 </code></pre>
 <img src="figs/predict-1.png" width="700px" style="display: block; margin: auto;" />
 
