@@ -2,11 +2,11 @@
 output: hugodown::hugo_document
 
 slug: readr-2-1-0-lazy
-title: Lazy reading in readr 2.1.0
+title: Eager vs lazy reading in readr 2.1.0
 date: 2021-11-10
 author: Jim Hester
 description: >
-    readr 2.1.0 is now on CRAN. This release changes the default reading behavior to eager rather than lazy.
+    readr 2.1.0 is now on CRAN. This post explains the change for default reading to be eager rather than lazy.
 
 photo:
   url: https://unsplash.com/photos/ilRuQcu9czw
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [readr]
-rmd_hash: 20a7471b3c5f400d
+rmd_hash: d03f0ddde771e8fa
 
 ---
 
@@ -104,11 +104,11 @@ We were aware of this issue, however we underestimated the prevalence of situati
 
 ## Decision to change the default
 
-Upon release of readr 2.0 most of the reaction was positive. However a number of people opened issues related to locked files and the use of lazy reading. Many of these cases occurred when users tried to opening files in other programs like Excel or view it in the RStudio IDE, but there was another case we hadn't considered in detail.
+Upon release of readr 2.0 most of the reaction was positive. However a number of people opened issues related to locked files and the use of lazy reading. Many of these cases occurred when users tried to open files in other programs like Excel or view it in the RStudio IDE, but there was another case we hadn't considered in detail.
 
 A number of users had workflows where they read in a file, cleaned the data in R, and then wrote back to that same file name in the same R session. vroom and readr's writing functions had code in them to ensure if users did this with a lazily read data frame the data would be first fully read eagerly (and the file handle closed) before writing. However other functions we don't control (like [`utils::write.csv`](https://rdrr.io/r/utils/write.table.html), [`data.table::fread()`](https://Rdatatable.gitlab.io/data.table/reference/fread.html), etc.) would have no notion of this problem and would therefore fail to work. In addition this failure is hard to reason about unless you have a good mental model of how lazy reading works *and* happened to know that readr 2.0 now used lazy reading by default.
 
-Because of the prevalence of these issues we started to consider changing the default to eager rather than lazy reading. But to get a better sense of the communities' opinion we [conducted a survey](https://twitter.com/jimhester_/status/1446173748579770375) about this issue. We received over 250 responses to the survey (thanks to everyone who responded!) and the results were very conclusive.
+Because of the prevalence of these issues we started to consider changing the default to eager rather than lazy reading. But to get a better sense of the community's opinion we [conducted a survey](https://twitter.com/jimhester_/status/1446173748579770375) about this issue. We received over 250 responses to the survey (thanks to everyone who responded!) and the results were very conclusive.
 
 -   \~1/2 of the respondents used Windows
 -   \~3/4 of users overall would prefer `lazy = FALSE` as the default.
