@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 
 slug: readr-2-1-0-lazy
-title: readr 2.1.0 lazy reading
+title: Lazy reading in readr 2.1.0
 date: 2021-11-10
 author: Jim Hester
 description: >
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [readr]
-rmd_hash: 4ae4cc0e7b183f07
+rmd_hash: 20a7471b3c5f400d
 
 ---
 
@@ -92,23 +92,23 @@ This idea, first explored in the [vroom](https://vroom.r-lib.org/) package, can 
 
 ## The problems with lazy reading
 
-vroom was first released to CRAN in May 2019, and not added to readr until 2 years later in July 2021. Unfortunately usage of vroom was still dwarfed by that of readr and because of this the pool of users using it in practice remained small. In particular the number of users using vroom on Windows seemed much smaller than the general R population.
+vroom was first released to CRAN in May 2019, and not added to readr until 2 years later in July 2021. Unfortunately usage of vroom was dwarfed by that of readr and the overall pool of users using vroom remained small. In particular the proportion of Windows users using vroom was much lower than those using readr. Crucially the behavior of lazy reading on Windows suffers due to how Windows works with file handles.
 
-One major downside to lazy reading is that the program needs to keep a file handle open to the file. File handles are the low level way computer programs read to or write to a file. How they work varies by the operating system. POSIX (Portable Operating System Interface) systems like macOS and linux allow multiple processes to have read only file handles to the same file. In contrast on Windows the situation is different, once a process opens a file handle that file is locked from other processes opening it for as long as the handle is open. If on you have ever seen a message like
+One major downside to lazy reading is that the program needs to keep a file handle open to the file. File handles are the low level way computer programs read to or write to a file. How they work varies by the operating system. POSIX (Portable Operating System Interface) systems like macOS and linux allow multiple processes to hold read only file handles to the same file. In contrast on Windows the situation is different, once a process opens a file handle that file is locked from other processes opening it for as long as the handle is open. If you have ever encountered a message like
 
 > File/Folder in Use. The action can't be completed because the file is open in another program. Close the folder or file and try again.
 
-Then this locking behavior is the likely cause. You are trying to open a file that another program also has open.
+Then this file handle locking behavior is the likely cause. You are trying to open a file in program A that program B also has open.
 
-We were aware of this issue, however what we underestimated was the prevalence of situations where users would run into this problem and amount of user confusion this would entail.
+We were aware of this issue, however we underestimated the prevalence of situations where users would run into this problem and amount of user confusion this would entail.
 
 ## Decision to change the default
 
-Upon release of readr 2.0 most of the reaction was positive. However a number of people opened issues related to locked files and the use of lazy reading. Many of these cases were when users tried to opening files in other programs like Excel or even view it in the RStudio IDE, but there was another case we hadn't considered in detail.
+Upon release of readr 2.0 most of the reaction was positive. However a number of people opened issues related to locked files and the use of lazy reading. Many of these cases occurred when users tried to opening files in other programs like Excel or view it in the RStudio IDE, but there was another case we hadn't considered in detail.
 
-A number of users had workflows where they read in a file, cleaned the data in R, and then wrote back to that same file name in the same R session. vroom and readr's writing functions had code in them to ensure if users did this with a lazily read data frame the data would be first fully read eagerly (and the file handle closed) before writing. However other functions we don't control (like [`utils::write.csv`](https://rdrr.io/r/utils/write.table.html), [`data.table::fread()`](https://Rdatatable.gitlab.io/data.table/reference/fread.html), etc.) clearly would have no notion of this problem and would therefore fail to work. In addition this failure is hard to reason about unless you have a good mental model of how lazy reading works *and* happened to know that readr 2.0 now used lazy reading by default.
+A number of users had workflows where they read in a file, cleaned the data in R, and then wrote back to that same file name in the same R session. vroom and readr's writing functions had code in them to ensure if users did this with a lazily read data frame the data would be first fully read eagerly (and the file handle closed) before writing. However other functions we don't control (like [`utils::write.csv`](https://rdrr.io/r/utils/write.table.html), [`data.table::fread()`](https://Rdatatable.gitlab.io/data.table/reference/fread.html), etc.) would have no notion of this problem and would therefore fail to work. In addition this failure is hard to reason about unless you have a good mental model of how lazy reading works *and* happened to know that readr 2.0 now used lazy reading by default.
 
-Because of the prevalence of these issues we started to consider changing the default to eager rather than lazy reading. But to get a better sense of the communities opinion we [conducted a survey](https://twitter.com/jimhester_/status/1446173748579770375) about this issue. We received over 250 responses to the survey (thanks to everyone who responded!) and the results were very conclusive.
+Because of the prevalence of these issues we started to consider changing the default to eager rather than lazy reading. But to get a better sense of the communities' opinion we [conducted a survey](https://twitter.com/jimhester_/status/1446173748579770375) about this issue. We received over 250 responses to the survey (thanks to everyone who responded!) and the results were very conclusive.
 
 -   \~1/2 of the respondents used Windows
 -   \~3/4 of users overall would prefer `lazy = FALSE` as the default.
@@ -122,7 +122,7 @@ Aside from changing the default to `lazy = FALSE` readr 2.1 also gives users a w
 
     options(readr.read_lazy = TRUE)
 
-This will change the default back to lazy by default for the current R session. Note that this can have unintended consequences, code in downstream packages you are using may be using readr without your knowledge, and changing the default will also change their usage. The surest way to ensure consistency in your own code is to explicitly set either `lazy = FALSE` or `lazy = TRUE` when you call a [`read_csv()`](https://readr.tidyverse.org/reference/read_delim.html) function.
+This will change the default value back to lazy by default for the current R session. Note that this can have unintended consequences, code in downstream packages you are using may be using readr without your knowledge, and changing the default will also change their usage. The surest way to ensure consistency in your own code is to explicitly set either `lazy = FALSE` or `lazy = TRUE` when you call a [`read_csv()`](https://readr.tidyverse.org/reference/read_delim.html) function.
 
 ## Lessons learned
 
