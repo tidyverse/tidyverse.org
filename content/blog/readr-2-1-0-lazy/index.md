@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [readr]
-rmd_hash: 6ce87f8c03515739
+rmd_hash: 2b3ff7197f605fac
 
 ---
 
@@ -52,7 +52,7 @@ Alternatively, install just readr from CRAN:
 
 This blog post will discuss the recent change in readr 2.0 to lazy reading by default, and the recent change back to eager reading in readr 2.1.
 
-You can see a full list of changes in the [readr release notes](https://github.com/r-lib/readr/releases).
+You can see a full list of changes in the [readr release notes](https://github.com/tidyverse/readr/releases).
 
 <div class="highlight">
 
