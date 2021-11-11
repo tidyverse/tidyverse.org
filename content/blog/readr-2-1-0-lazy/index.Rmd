@@ -1,0 +1,132 @@
+---
+output: hugodown::hugo_document
+
+slug: readr-2-1-0-lazy
+title: Eager vs lazy reading in readr 2.1.0
+date: 2021-11-11
+author: Jim Hester
+description: >
+    readr 2.1.0 is now on CRAN. This post explains the change for default reading to be eager rather than lazy.
+
+photo:
+  url: https://unsplash.com/photos/ilRuQcu9czw
+  author: June
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [readr]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We're pleased to announce the release of [readr](https://readr.tidyverse.org/) 2.1.0.
+The readr package makes it easy to get rectangular data out of comma separated
+(csv), tab separated (tsv) or fixed width files (fwf) and into R. It
+is designed to flexibly parse many types of data found in the wild, while still
+cleanly failing when data unexpectedly changes.
+
+The easiest way to install the latest version from CRAN is to install the whole tidyverse.
+
+```{r eval = FALSE}
+install.packages("tidyverse")
+```
+
+Alternatively, install just readr from CRAN:
+
+```{r eval = FALSE}
+install.packages("readr")
+```
+
+This blog post will discuss the recent change in readr 2.0 to lazy reading by default, and the recent change back to eager reading in readr 2.1.
+
+You can see a full list of changes in the [readr release notes](https://github.com/r-lib/readr/releases).
+
+```{r setup}
+library(readr)
+```
+
+## The advantages of Lazy reading
+
+readr 2.0 introduced 'lazy' reading by default. The idea of lazy reading is that instead of reading all the data in a CSV file up front you instead read it only on-demand.
+
+For example the following code reads the column headers, filters based on column `hp` then computes the mean of the filtered column `mpg`.
+
+```{r, message = FALSE}
+library(tidyverse)
+
+df <- read_csv(readr_example("mtcars.csv"), lazy = TRUE)
+
+df |>
+  filter(hp > 200) |>
+  summarise(mean(mpg))
+```  
+
+When you run this example readr would then only read the data in the orange colored parts of the file.
+
+![lazy diagram](lazy.png)
+
+The long orange strip at the top is the column headers, the vertical bar is the data in the `hp` column, and the dotted parts are the filtered `mpg` values used to calculate the mean. As you can see depending on what you are doing with the file using lazy reading can drastically reduce the amount of the total file you end up needing to access.
+
+This idea, first explored in the [vroom](https://vroom.r-lib.org/) package, can result in considerable speed improvements depending on the size of the file and what parts you are interested in. readr 2.0 used vroom under the hood to provide this type of lazy reading by default.
+
+## The problems with lazy reading
+
+vroom was first released to CRAN in May 2019, and not added to readr until 2 years later in July 2021. Unfortunately usage of vroom was dwarfed by that of readr and the overall pool of users using vroom remained small. In particular the proportion of Windows users using vroom was much lower than those using readr. Crucially the behavior of lazy reading on Windows suffers due to how Windows works with file handles.
+
+One major downside to lazy reading is that the program needs to keep a file handle open to the file. File handles are the low level way computer programs read to or write to a file. How they work varies by the operating system. POSIX (Portable Operating System Interface) systems like macOS and linux allow multiple processes to hold read only file handles to the same file. In contrast on Windows the situation is different, once a process opens a file handle that file is locked from other processes opening it for as long as the handle is open. If you have ever encountered a message like
+
+> File/Folder in Use. The action can’t be completed because the file is open in another program. Close the folder or file and try again.
+
+Then this file handle locking behavior is the likely cause. You are trying to open a file in program A that program B also has open.
+
+We were aware of this issue, however we underestimated the prevalence of situations where users would run into this problem and amount of user confusion this would entail.
+
+## Decision to change the default
+
+Upon release of readr 2.0 most of the reaction was positive. However a number of people opened issues related to locked files and the use of lazy reading. Many of these cases occurred when users tried to open files in other programs like Excel or view it in the RStudio IDE, but there was another case we hadn't considered in detail.
+
+A number of users had workflows where they read in a file, cleaned the data in R, and then wrote back to that same file name in the same R session. vroom and readr's writing functions had code in them to ensure if users did this with a lazily read data frame the data would be first fully read eagerly (and the file handle closed) before writing. However other functions we don't control (like `utils::write.csv`, `data.table::fread()`, etc.) would have no notion of this problem and would therefore fail to work. In addition this failure is hard to reason about unless you have a good mental model of how lazy reading works _and_ happened to know that readr 2.0 now used lazy reading by default.
+
+Because of the prevalence of these issues we started to consider changing the default to eager rather than lazy reading. But to get a better sense of the community's opinion we [conducted a survey](https://twitter.com/jimhester_/status/1446173748579770375) about this issue.
+We received over 250 responses to the survey (thanks to everyone who responded!) and the results were very conclusive.
+
+- ~1/2 of the respondents used Windows
+- ~3/4 of users overall would prefer `lazy = FALSE` as the default.
+- ~9/10 of Windows users would prefer `lazy = FALSE` as the default.
+
+This reinforced our intuition that changing the default to `lazy = FALSE` was the right choice for the community going forward.
+
+## Controlling the default yourself
+
+Aside from changing the default to `lazy = FALSE` readr 2.1 also gives users a way to control the lazy default themselves. 
+
+```
+options(readr.read_lazy = TRUE)
+```
+
+This will change the default value back to lazy by default for the current R session. Note that this can have unintended consequences, code in downstream packages you are using may be using readr without your knowledge, and changing the default will also change their usage. The surest way to ensure consistency in your own code is to explicitly set either `lazy = FALSE` or `lazy = TRUE` when you call a `read_csv()` function.
+
+## Lessons learned
+
+Reaching a more representative cross section of users and having them experiment with a new package is a challenge. As mentioned above, vroom was on CRAN for more than two years, and had significant performance advantages to readr, but even so only a small fraction of the community ended up using it. Crucially this usage did not reveal a complete enough picture of the challenges associated with lazy reading.
+
+Most R users seem to prefer something which 'just works' for _all_ use cases, even at the cost of reduced default performance.
+
+Community surveys continue to be the best way to gauge the overall opinion of the community. In hindsight, we should have conducted the survey prior to the release of readr 2.0, though the full scope of the issue was not well known then.
+
+Thank you to everyone who has used readr, opened an issue about this topic, or responded to the survey. Open source software is written to serve the community and your input is crucial to make sure we are making the best decisions. We apologize if this issue affected your work negatively and hope this article helps explain our rational for the initial behavior and change back. We hope readr will continue to make you more productive in the future.
+
+Also a special thank you to all the 81 contributors who opened issues or contributed code since the readr 2.0 release, without your input readr would be a less useful package.
+
+[&#x0040;a-hurst](https://github.com/a-hurst), [&#x0040;alon-sarid](https://github.com/alon-sarid), [&#x0040;anonsmoose](https://github.com/anonsmoose), [&#x0040;AshesITR](https://github.com/AshesITR), [&#x0040;bersbersbers](https://github.com/bersbersbers), [&#x0040;boshek](https://github.com/boshek), [&#x0040;chrbknudsen](https://github.com/chrbknudsen), [&#x0040;christopherkenny](https://github.com/christopherkenny), [&#x0040;cwby](https://github.com/cwby), [&#x0040;damianooldoni](https://github.com/damianooldoni), [&#x0040;Darxor](https://github.com/Darxor), [&#x0040;DizzyLimit](https://github.com/DizzyLimit), [&#x0040;djnavarro](https://github.com/djnavarro), [&#x0040;dongzhuoer](https://github.com/dongzhuoer), [&#x0040;dzhang32](https://github.com/dzhang32), [&#x0040;eutwt](https://github.com/eutwt), [&#x0040;fernandovmacedo](https://github.com/fernandovmacedo), [&#x0040;garrettgman](https://github.com/garrettgman), [&#x0040;garthtarr](https://github.com/garthtarr), [&#x0040;ggrothendieck](https://github.com/ggrothendieck), [&#x0040;gorkang](https://github.com/gorkang), [&#x0040;hadley](https://github.com/hadley), [&#x0040;HakuShuu](https://github.com/HakuShuu), [&#x0040;HedvigS](https://github.com/HedvigS), [&#x0040;HenrikBengtsson](https://github.com/HenrikBengtsson), [&#x0040;hidekoji](https://github.com/hidekoji), [&#x0040;hongyuanjia](https://github.com/hongyuanjia), [&#x0040;huixinz2](https://github.com/huixinz2), [&#x0040;ibombonato](https://github.com/ibombonato), [&#x0040;jcarbaut](https://github.com/jcarbaut), [&#x0040;jeffeaton](https://github.com/jeffeaton), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;jimmyday12](https://github.com/jimmyday12), [&#x0040;jkeuskamp](https://github.com/jkeuskamp), [&#x0040;jmbarbone](https://github.com/jmbarbone), [&#x0040;jmobrien](https://github.com/jmobrien), [&#x0040;JoshuaSturm](https://github.com/JoshuaSturm), [&#x0040;jpquast](https://github.com/jpquast), [&#x0040;kiernann](https://github.com/kiernann), [&#x0040;knokknok](https://github.com/knokknok), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;l-gorman](https://github.com/l-gorman), [&#x0040;lindsayplatt](https://github.com/lindsayplatt), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;lukeholman](https://github.com/lukeholman), [&#x0040;MilesMcBain](https://github.com/MilesMcBain), [&#x0040;mkvasnicka](https://github.com/mkvasnicka), [&#x0040;nigeljmckernan](https://github.com/nigeljmckernan), [&#x0040;nik-humphries](https://github.com/nik-humphries), [&#x0040;nstjhp](https://github.com/nstjhp), [&#x0040;oharac](https://github.com/oharac), [&#x0040;palderman](https://github.com/palderman), [&#x0040;peterdesmet](https://github.com/peterdesmet), [&#x0040;pfreese](https://github.com/pfreese), [&#x0040;PierreStevenin](https://github.com/PierreStevenin), [&#x0040;pieterjanvc](https://github.com/pieterjanvc), [&#x0040;pschloss](https://github.com/pschloss), [&#x0040;rbufba](https://github.com/rbufba), [&#x0040;rdinnager](https://github.com/rdinnager), [&#x0040;richelbilderbeek](https://github.com/richelbilderbeek), [&#x0040;rvalieris](https://github.com/rvalieris), [&#x0040;s-andrews](https://github.com/s-andrews), [&#x0040;saulo1305](https://github.com/saulo1305), [&#x0040;sbachstein](https://github.com/sbachstein), [&#x0040;sdevine188](https://github.com/sdevine188), [&#x0040;ShinyFabio](https://github.com/ShinyFabio), [&#x0040;slodge](https://github.com/slodge), [&#x0040;snaut](https://github.com/snaut), [&#x0040;stephenturner](https://github.com/stephenturner), [&#x0040;svraka](https://github.com/svraka), [&#x0040;tarheel](https://github.com/tarheel), [&#x0040;TCLamnidis](https://github.com/TCLamnidis), [&#x0040;thackl](https://github.com/thackl), [&#x0040;timothy-barry](https://github.com/timothy-barry), [&#x0040;timothyslau](https://github.com/timothyslau), [&#x0040;tmelliott](https://github.com/tmelliott), [&#x0040;Tonyynot14](https://github.com/Tonyynot14), [&#x0040;UrsineWelles](https://github.com/UrsineWelles), [&#x0040;xinyu-zheng](https://github.com/xinyu-zheng), and [&#x0040;yogat3ch](https://github.com/yogat3ch).
