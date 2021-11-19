@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: cli-3-1-0
 title: cli 3.1.0
-date: 2021-10-31
+date: 2021-11-19
 author: Gábor Csárdi
 description: >
     cli 3.1.0 introduces customizable color palettes plus it
@@ -20,7 +20,7 @@ tags: []
 editor_options:
   markdown:
     wrap: sentence
-rmd_hash: a42a9d30300ccb5c
+rmd_hash: 5ec5e0417073e221
 ---
 
 We're very chuffed to announce the release of [cli](https://cli.r-lib.org "cli homepage") 3.1.0. cli helps you create a consistent and convenient command line interface.
