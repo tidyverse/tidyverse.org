@@ -20,8 +20,7 @@ tags: []
 editor_options:
   markdown:
     wrap: sentence
-rmd_hash: 0110b752b6aba2a2
-
+rmd_hash: a42a9d30300ccb5c
 ---
 
 We're very chuffed to announce the release of [cli](https://cli.r-lib.org "cli homepage") 3.1.0. cli helps you create a consistent and convenient command line interface.
@@ -33,6 +32,8 @@ You can install it from CRAN with:
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"cli"</span><span class='o'>)</span></code></pre>
 
 </div>
+
+This release of cli comes with an important feature for end users: the ability to select or define their preferred palettes. The selected palette is respected by every package that relies on either cli or the crayon package. We also show some other improvements in this post, these are mainly aimed at developers.
 
 You can see a full list of changes in the [release notes](https://github.com/r-lib/cli/releases/tag/v3.1.0).
 
@@ -232,6 +233,8 @@ Sometimes it is convenient to create a short hash of a string, that is easy to c
 <span class='c'>#&gt; [1] "deadsmooth anaemic bighorn"</span></code></pre>
 
 </div>
+
+If you are using the new version of the [sessioninfo](https://r-lib.github.io/sessioninfo/) package, then you already see an emoji hash on top of the [`sessioninfo::session_info()`](https://r-lib.github.io/sessioninfo/reference/session_info.html) output. This makes trivial to decide if `session_info()` outputs are the same or not, without comparing them line by line.
 
 ## Acknowledgements
 
