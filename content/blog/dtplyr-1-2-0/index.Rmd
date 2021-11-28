@@ -1,0 +1,103 @@
+---
+output: hugodown::hugo_document
+
+slug: dtplyr-1-2-0
+title: dtplyr 1.2.0
+date: 2021-11-28
+author: Hadley Wickham
+description: >
+    dtplyr 1.2.0 adds two new authors, a bunch of tidyr translations,
+    new join translations, and many minor translation improvements.
+    
+photo:
+  url: https://unsplash.com/photos/uRQlCmfOCRg
+  author: Zdeněk Macháček
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [dplyr]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're thrilled to announce that [dtplyr](https://dtplyr.tidyverse.org) 1.0.0 is now on CRAN. dtplyr gives you the speed of [data.table](http://r-datatable.com/) with the syntax of dplyr; you write dplyr (and tidyr) code and dtplyr translates it to the data.table equivalent.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("dtplyr")
+```
+
+I'll discuss three major changes in this blog post:
+
+* New authors
+* New tidyr translations
+* Improvements to join translations
+
+There are also over 20 minor improvements to the quality of translations. You can see a full list of changes in the [release notes](https://github.com/tidyverse/dtplyr/blob/main/NEWS.md)
+
+```{r setup}
+library(dtplyr)
+
+library(dplyr, warn.conflicts = FALSE)
+library(tidyr)
+```
+
+## New authors
+
+The biggest news in this release is the addition of two new [authors](https://github.com/tidyverse/tidyups/blob/main/004-governance.md#authors): [Mark Fairbanks](https://github.com/markfairbanks) and [Maximilian Girlich](https://github.com/mgirlich) are now dtplyr authors in recognition of their significant and sustained contributions. Along with @eutwt, they implemented the bulk of the improvements in this release!
+
+## tidyr translations
+
+Thanks to Mark and Maximilian, dtplyr gains translations for many more tidyr verbs including `complete()`, `drop_na()`, `expand()`, `fill()`, `nest()`, `pivot_longer()`, `replace_na()` and `separate()`. A few examples are shown below:
+
+```{r}
+dt <- lazy_dt(data.frame(x = c(NA, "x.y", "x.z", "y.z")))
+dt %>% 
+  separate(x, c("A", "B"), sep = "\\.", remove = FALSE) %>% 
+  show_query()
+
+dt <- lazy_dt(data.frame(x = c(1, NA, NA, 2, NA)))
+dt %>% 
+  fill(x) %>% 
+  show_query()
+
+dt %>% 
+  replace_na(list(x = 99)) %>% 
+  show_query()
+
+dt <- lazy_dt(relig_income)
+dt %>%
+  pivot_longer(!religion, names_to = "income", values_to = "count") %>% 
+  show_query()
+```
+
+## Improvements to joins
+
+The join functions have been overhauled: `inner_join()`, `left_join()`, and `right_join()` now all produce a call to `[`, rather than to `merge()`:
+
+```{r}
+dt1 <- lazy_dt(data.frame(x = 1:3))
+dt2 <- lazy_dt(data.frame(x = 2:3, y = c("a", "b")))
+
+dt1 %>% inner_join(dt2, by = "x") %>% show_query()
+dt1 %>% left_join(dt2, by = "x") %>% show_query()
+dt2 %>% right_join(dt1, by = "x") %>% show_query()
+```
+
+This can make the translation a little longer for simple joins, but simplifies the underlying code base. This simplification has made it easier to more closely match dplyr behaviour for column order, handling of named `by`, Cartesian joins (`by = character()`), and dealing with duplicated variables names.
+
+## Acknowledgements
+
+As always, tidyverse packages wouldn't be possible with the community, so a big thanks goes out to all 35 folks who helped to make this release a reality: [&#x0040;akr-source](https://github.com/akr-source), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;bguillod](https://github.com/bguillod), [&#x0040;cgoo4](https://github.com/cgoo4), [&#x0040;chenx2018](https://github.com/chenx2018), [&#x0040;D-Se](https://github.com/D-Se), [&#x0040;eutwt](https://github.com/eutwt), [&#x0040;hadley](https://github.com/hadley), [&#x0040;jatherrien](https://github.com/jatherrien), [&#x0040;jdmoralva](https://github.com/jdmoralva), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jtlandis](https://github.com/jtlandis), [&#x0040;kmishra9](https://github.com/kmishra9), [&#x0040;lutzgruber](https://github.com/lutzgruber), [&#x0040;lutzgruber-quantco](https://github.com/lutzgruber-quantco), [&#x0040;markfairbanks](https://github.com/markfairbanks), [&#x0040;mgirlich](https://github.com/mgirlich), [&#x0040;mrcaseb](https://github.com/mrcaseb), [&#x0040;nassuphis](https://github.com/nassuphis), [&#x0040;nigeljmckernan](https://github.com/nigeljmckernan), [&#x0040;NZambranoc](https://github.com/NZambranoc), [&#x0040;PMassicotte](https://github.com/PMassicotte), [&#x0040;psads-git](https://github.com/psads-git), [&#x0040;quid-agis](https://github.com/quid-agis), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;roni-fultheim](https://github.com/roni-fultheim), [&#x0040;samlipworth](https://github.com/samlipworth), [&#x0040;sanjmeh](https://github.com/sanjmeh), [&#x0040;sbashevkin](https://github.com/sbashevkin), [&#x0040;StatsGary](https://github.com/StatsGary), [&#x0040;torema-ed](https://github.com/torema-ed), [&#x0040;verajosemanuel](https://github.com/verajosemanuel), [&#x0040;Waldi73](https://github.com/Waldi73), [&#x0040;wurli](https://github.com/wurli), and [&#x0040;yiugn](https://github.com/yiugn).
