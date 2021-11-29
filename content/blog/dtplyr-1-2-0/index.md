@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr]
-rmd_hash: d2c8abb8900bf670
+rmd_hash: cebe9784ada37415
 
 ---
 
@@ -25,17 +25,17 @@ TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
 * [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're thrilled to announce the release of [dtplyr](https://dtplyr.tidyverse.org) 1.0.0 is now on CRAN. dtplyr gives you the speed of [data.table](http://r-datatable.com/) with the syntax of dplyr; you write dplyr (and tidyr) code and dtplyr translate it to the data.table equivalent.
+We're thrilled to announce that [dtplyr](https://dtplyr.tidyverse.org) 1.0.0 is now on CRAN. dtplyr gives you the speed of [data.table](http://r-datatable.com/) with the syntax of dplyr; you write dplyr (and tidyr) code and dtplyr translates it to the data.table equivalent.
 
-You can install it from CRAN with:
+You can install dtplyr from CRAN with:
 
 <div class="highlight">
 
@@ -116,7 +116,7 @@ The join functions have been overhauled: [`inner_join()`](https://dplyr.tidyvers
 
 </div>
 
-This can make the translation a little longer for simple joins, but simplifies the underlying code base. This simplification has made it easier to more closely match dplyr behaviour for column order, handling of named `by`, Cartesian joins (`by = character()`), and dealing with duplicated variables names.
+This can make the translation a little longer for simple joins, but it greatly simplifies the underlying code. This simplification has made it easier to more closely match dplyr behaviour for column order, handling named `by` specifications, Cartesian joins with `by = character()`, and managing duplicated variable names.
 
 ## Acknowledgements
 
