@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [pkgdown, devtools]
-rmd_hash: cced69e57d6a2c6b
+rmd_hash: 24221af0409b57e4
 
 ---
 
@@ -46,12 +46,12 @@ This is a massive release that brings a major visual refresh and a huge number o
 
 There are way too many changes to describe individually here, so this post will focus on the most important new features:
 
--   The new template that uses bootstrap 5.
+-   The new template that uses Bootstrap 5.
 -   The most important new ways to customise your site.
 -   Some of the biggest changes to code display.
 -   A grab bag of other cool features.
 
-See the [release notes](https://github.com/r-lib/pkgdown/blob/main/NEWS.md) for a complete list of everything that's changed.
+See the [release notes](https://pkgdown.r-lib.org/news/index.html) for a complete list of everything that's changed.
 
 <div class="highlight">
 
@@ -61,14 +61,14 @@ See the [release notes](https://github.com/r-lib/pkgdown/blob/main/NEWS.md) for 
 
 ## Bootstrap 5
 
-pkgdown comes with a refreshed template that uses [Bootstrap 5](https://getbootstrap.com/docs/5.1/getting-started/introduction/), an major update over the previous [Bootstrap 3](https://getbootstrap.com/docs/3.4/). Because this is a major change, you'll need to opt-in by setting the `boostrap` version in your `_pkgdown.yml`:
+pkgdown comes with a refreshed template that uses [Bootstrap 5](https://getbootstrap.com/docs/5.1/getting-started/introduction/), an major update over the previous [Bootstrap 3](https://getbootstrap.com/docs/3.4/). (Bootstrap is the collection of HTML, CSS, and JS files that give pkgdown sites their basic style). Because this is a major change, you'll need to opt-in by setting the `boostrap` version in your `_pkgdown.yml`:
 
 ``` yaml
 template:
   bootstrap: 5
 ```
 
-(The old bootstrap 3 template is superseded; it will continue to work for some time, but it won't gain any new features and we encourage you to switch to the new template the next time you're working on your package.)
+(The old Bootstrap 3 template is superseded; it will continue to work for some time, but it won't gain any new features and we encourage you to switch to the new template the next time you're working on your package.)
 
 The new theme includes:
 
@@ -84,7 +84,7 @@ As an added incentive to upgrade your template to Bootstrap 5, you'll get site s
 
 The new template is also much easier to customise. A few of the most important features are noted below to whet your appetite; learn more in `vignette("customise")`.
 
--   You can now easily change the overall visual appearance by picking a bootswatch theme:
+-   You can now easily change the overall visual appearance by picking a Bootswatch theme:
 
     ``` yaml
     template:
@@ -92,7 +92,7 @@ The new template is also much easier to customise. A few of the most important f
       bootswatch: cyborg
     ```
 
-    Or by selectively overriding the "bslib" variables used to generate the CSS:
+    Or by selectively overriding the "[bslib](https://rstudio.github.io/bslib/)" variables used to generate the CSS:
 
     ``` yaml
     template:
@@ -112,13 +112,15 @@ The new template is also much easier to customise. A few of the most important f
       theme: arrow-dark
     ```
 
+    If any of these options sound intriguing, read `vignette("customise")` to get the full details!
+
 -   You can now translate the English text that pkgdown contributes to each page. This means that if you've written your package documentation in another language, you can ensure that language is also used on every part of the page. Activate the translations by setting the `lang` field in `_pkgdown.yaml`, e.g.:
 
     ``` yaml
     lang: fr
     ```
 
-    pkgdown includes translations for Spanish (es), German (de), French (fr), Portuguese (pt), Turkish (tr) and Chinese (zh_CN). A big thanks to my colleagues who provided the initial translations, and to @dieghernan, @rivaquiroga, @jplecavalier who supplied additional improvements. If you're interested in adding translations for your language please [file an issue](https://github.com/r-lib/pkgdown/issues) and we'll help you get started.
+    pkgdown includes translations for Spanish (es), German (de), French (fr), Portuguese (pt), Turkish (tr) and Chinese (zh_CN). A big thanks to my colleagues who provided the initial translations, and to [@dieghernan](https://github.com/dieghernan), [@rivaquiroga](https://github.com/rivaquiroga), [@jplecavalier](https://github.com/jplecavalier) who supplied additional improvements. If you're interested in adding translations for your language please [file an issue](https://github.com/r-lib/pkgdown/issues) and we'll help you get started.
 
 -   You can add arbitrary HTML to every page with the new `includes` parameter. This makes it easy to add analytics to your site, e.g. to use [plausible.io](https://plausible.io):
 
@@ -129,7 +131,9 @@ The new template is also much easier to customise. A few of the most important f
           <script defer data-domain="{YOUR DOMAIN}" src="https://plausible.io/js/plausible.js"></script>
     ```
 
--   The author, sidebar, and footer configuration is much more flexible allowing you to customise individual components while keeping most of the defaults (previously customisation was mostly all or nothing). See `?build_home()` and `?build_site()` for details.
+    Learn more in [`?build_site`](https://pkgdown.r-lib.org/reference/build_site.html).
+
+-   The author, sidebar, and footer configuration is much more flexible allowing you to customise individual components while keeping most of the defaults (previously customisation was mostly all or nothing). See [`?build_home`](https://pkgdown.r-lib.org/reference/build_home.html) and [`?build_site`](https://pkgdown.r-lib.org/reference/build_site.html) for details.
 
 ## Code display
 
