@@ -3,10 +3,10 @@ output: hugodown::hugo_document
 
 slug: pkgdown-2-0-0
 title: pkgdown 2.0.0
-date: 2021-11-29
+date: 2021-12-01
 author: Hadley Wickham
 description: >
-    usethis 2.0.0 includes a major refresh of the default template (now 
+    pkgdown 2.0.0 includes a major refresh of the default template (now 
     using bootstrap 5), many new ways to customise your site, improvements
     to code styling, and much, much, more.
     
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [pkgdown, devtools]
-rmd_hash: 24221af0409b57e4
+rmd_hash: b130730f1d7f8c76
 
 ---
 
@@ -42,12 +42,12 @@ We're very chuffed to announce the release of [pkgdown](https://pkgdown.r-lib.or
 
 </div>
 
-This is a massive release that brings a major visual refresh and a huge number of improvements. This release would not have been possible without pkgdown's newest author [Maëlle Salmon](https://masalmon.eu), who was the powerhouse behind many of the improvements in this release, particularly the switch to bootstrap 5, improved customisation, and implementation of local search.
+This is a massive release that brings a major visual refresh and a huge number of improvements. This release would not have been possible without pkgdown's newest author, [Maëlle Salmon](https://masalmon.eu), who was the powerhouse behind many of the improvements in this release, particularly the switch to Bootstrap 5, improved customisation, and implementation of local search.
 
 There are way too many changes to describe individually here, so this post will focus on the most important new features:
 
 -   The new template that uses Bootstrap 5.
--   The most important new ways to customise your site.
+-   The exciting new ways to customise your site.
 -   Some of the biggest changes to code display.
 -   A grab bag of other cool features.
 
@@ -61,28 +61,28 @@ See the [release notes](https://pkgdown.r-lib.org/news/index.html) for a complet
 
 ## Bootstrap 5
 
-pkgdown comes with a refreshed template that uses [Bootstrap 5](https://getbootstrap.com/docs/5.1/getting-started/introduction/), an major update over the previous [Bootstrap 3](https://getbootstrap.com/docs/3.4/). (Bootstrap is the collection of HTML, CSS, and JS files that give pkgdown sites their basic style). Because this is a major change, you'll need to opt-in by setting the `boostrap` version in your `_pkgdown.yml`:
+pkgdown comes with a refreshed template that uses [Bootstrap 5](https://getbootstrap.com/docs/5.1/getting-started/introduction/), a major update over the previous [Bootstrap 3](https://getbootstrap.com/docs/3.4/). (Bootstrap is the collection of HTML, CSS, and JS files that give pkgdown sites their basic style). Because this is a major change, you'll need to opt-in by setting the `boostrap` version in your `_pkgdown.yml`:
 
 ``` yaml
 template:
   bootstrap: 5
 ```
 
-(The old Bootstrap 3 template is superseded; it will continue to work for some time, but it won't gain any new features and we encourage you to switch to the new template the next time you're working on your package.)
+The old Bootstrap 3 template is superseded; it will continue to work for some time, but it won't gain any new features and we encourage you to switch to the new template the next time you're working on your package.
 
 The new theme includes:
 
--   A number of minor improvements to accessibility, including a larger font size, greater use of `aria` attributes, and [accessible syntax highlighting colour scheme](https://apreshill.github.io/rmda11y/arrow.html), designed by Alison Hill.
+-   A number of minor improvements to accessibility, including a larger font size, greater use of `aria` attributes, and an [accessible syntax highlighting colour scheme](https://apreshill.github.io/rmda11y/arrow.html), designed by Alison Hill.
 
 -   Support for new features like in-line footnotes and [tabsets in articles](https://bookdown.org/yihui/rmarkdown-cookbook/html-tabs.html).
 
 -   Since so many packages have lovely logos, the package logo is now displayed on every page and made even more prominent on the home page.
 
-As an added incentive to upgrade your template to Bootstrap 5, you'll get site search for "free": pkgdown now supports searching with no external dependencies and no set-up. Learn more in `vignette("search")`.
+As an added incentive to upgrade your template to Bootstrap 5, you'll get site search for "free": pkgdown now supports searching with no external dependencies and no setup. Learn more in [`vignette("search")`](https://pkgdown.r-lib.org/articles/search.html).
 
 ## Customisation
 
-The new template is also much easier to customise. A few of the most important features are noted below to whet your appetite; learn more in `vignette("customise")`.
+The new template is also much easier to customise. A few of the most important features are noted below to whet your appetite; learn more in [`vignette("customise")`](https://pkgdown.r-lib.org/articles/customise.html).
 
 -   You can now easily change the overall visual appearance by picking a Bootswatch theme:
 
@@ -112,7 +112,7 @@ The new template is also much easier to customise. A few of the most important f
       theme: arrow-dark
     ```
 
-    If any of these options sound intriguing, read `vignette("customise")` to get the full details!
+    If any of these options sound intriguing, read [`vignette("customise")`](https://pkgdown.r-lib.org/articles/customise.html) to get the full details!
 
 -   You can now translate the English text that pkgdown contributes to each page. This means that if you've written your package documentation in another language, you can ensure that language is also used on every part of the page. Activate the translations by setting the `lang` field in `_pkgdown.yaml`, e.g.:
 
@@ -133,7 +133,7 @@ The new template is also much easier to customise. A few of the most important f
 
     Learn more in [`?build_site`](https://pkgdown.r-lib.org/reference/build_site.html).
 
--   The author, sidebar, and footer configuration is much more flexible allowing you to customise individual components while keeping most of the defaults (previously customisation was mostly all or nothing). See [`?build_home`](https://pkgdown.r-lib.org/reference/build_home.html) and [`?build_site`](https://pkgdown.r-lib.org/reference/build_site.html) for details.
+-   The author, sidebar, and footer configuration is much more flexible, allowing you to customise individual components while keeping most of the defaults (previously customisation was mostly all or nothing). See [`?build_home`](https://pkgdown.r-lib.org/reference/build_home.html) and [`?build_site`](https://pkgdown.r-lib.org/reference/build_site.html) for details.
 
 ## Code display
 
