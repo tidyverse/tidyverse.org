@@ -6,7 +6,7 @@ title: dtplyr 1.2.0
 date: 2021-11-28
 author: Hadley Wickham
 description: >
-    dtplyr 1.2.0 adds two new authors, a bunch of tidyr translations,
+    dtplyr 1.2.0 adds three new authors, a bunch of tidyr translations,
     new join translations, and many minor translation improvements.
     
 photo:
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr]
-rmd_hash: cebe9784ada37415
+rmd_hash: 52b27e0934d3b582
 
 ---
 
@@ -49,7 +49,7 @@ I'll discuss three major changes in this blog post:
 -   New tidyr translations
 -   Improvements to join translations
 
-There are also over 20 minor improvements to the quality of translations. You can see a full list of changes in the [release notes](https://github.com/tidyverse/dtplyr/blob/main/NEWS.md)
+There are also over 20 minor improvements to the quality of translations; you can see a full list of changes in the [release notes](https://github.com/tidyverse/dtplyr/blob/main/NEWS.md)
 
 <div class="highlight">
 
@@ -62,11 +62,11 @@ There are also over 20 minor improvements to the quality of translations. You ca
 
 ## New authors
 
-The biggest news in this release is the addition of two new [authors](https://github.com/tidyverse/tidyups/blob/main/004-governance.md#authors): [Mark Fairbanks](https://github.com/markfairbanks) and [Maximilian Girlich](https://github.com/mgirlich) are now dtplyr authors in recognition of their significant and sustained contributions. Along with @eutwt, they implemented the bulk of the improvements in this release!
+The biggest news in this release is the addition of three new [authors](https://github.com/tidyverse/tidyups/blob/main/004-governance.md#authors): [Mark Fairbanks](https://github.com/markfairbanks), [Maximilian Girlich](https://github.com/mgirlich), and [Ryan Dickerson](https://github.com/eutwt) are now dtplyr authors in recognition of their significant and sustained contributions. In fact, they implemented the bulk of the improvements in this release!
 
 ## tidyr translations
 
-Thanks to Mark and Maximilian, dtplyr gains translations for many more tidyr verbs including [`complete()`](https://tidyr.tidyverse.org/reference/complete.html), [`drop_na()`](https://tidyr.tidyverse.org/reference/drop_na.html), [`expand()`](https://tidyr.tidyverse.org/reference/expand.html), [`fill()`](https://tidyr.tidyverse.org/reference/fill.html), [`nest()`](https://tidyr.tidyverse.org/reference/nest.html), [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html), [`replace_na()`](https://tidyr.tidyverse.org/reference/replace_na.html) and [`separate()`](https://tidyr.tidyverse.org/reference/separate.html). A few examples are shown below:
+dtplyr gains translations for many more tidyr verbs including [`complete()`](https://tidyr.tidyverse.org/reference/complete.html), [`drop_na()`](https://tidyr.tidyverse.org/reference/drop_na.html), [`expand()`](https://tidyr.tidyverse.org/reference/expand.html), [`fill()`](https://tidyr.tidyverse.org/reference/fill.html), [`nest()`](https://tidyr.tidyverse.org/reference/nest.html), [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html), [`replace_na()`](https://tidyr.tidyverse.org/reference/replace_na.html) and [`separate()`](https://tidyr.tidyverse.org/reference/separate.html). A few examples are shown below:
 
 <div class="highlight">
 
