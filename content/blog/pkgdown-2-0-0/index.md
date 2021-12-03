@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: pkgdown-2-0-0
 title: pkgdown 2.0.0
-date: 2021-12-01
+date: 2021-12-03
 author: Hadley Wickham
 description: >
     pkgdown 2.0.0 includes a major refresh of the default template (now 
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [pkgdown, devtools]
-rmd_hash: b130730f1d7f8c76
+rmd_hash: 0670522e07b374c3
 
 ---
 
