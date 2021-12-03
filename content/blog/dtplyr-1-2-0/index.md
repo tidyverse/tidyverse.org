@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: dtplyr-1-2-0
 title: dtplyr 1.2.0
-date: 2021-11-28
+date: 2021-12-03
 author: Hadley Wickham
 description: >
     dtplyr 1.2.0 adds three new authors, a bunch of tidyr translations,
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr]
-rmd_hash: 52b27e0934d3b582
+rmd_hash: 3680bbbf3ab6f7d0
 
 ---
 
@@ -49,7 +49,7 @@ I'll discuss three major changes in this blog post:
 -   New tidyr translations
 -   Improvements to join translations
 
-There are also over 20 minor improvements to the quality of translations; you can see a full list of changes in the [release notes](https://github.com/tidyverse/dtplyr/blob/main/NEWS.md)
+There are also over 20 minor improvements to the quality of translations; you can see a full list in the [release notes](https://github.com/tidyverse/dtplyr/blob/main/NEWS.md).
 
 <div class="highlight">
 
@@ -66,7 +66,7 @@ The biggest news in this release is the addition of three new [authors](https://
 
 ## tidyr translations
 
-dtplyr gains translations for many more tidyr verbs including [`complete()`](https://tidyr.tidyverse.org/reference/complete.html), [`drop_na()`](https://tidyr.tidyverse.org/reference/drop_na.html), [`expand()`](https://tidyr.tidyverse.org/reference/expand.html), [`fill()`](https://tidyr.tidyverse.org/reference/fill.html), [`nest()`](https://tidyr.tidyverse.org/reference/nest.html), [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html), [`replace_na()`](https://tidyr.tidyverse.org/reference/replace_na.html) and [`separate()`](https://tidyr.tidyverse.org/reference/separate.html). A few examples are shown below:
+dtplyr gains translations for many more tidyr verbs including [`complete()`](https://tidyr.tidyverse.org/reference/complete.html), [`drop_na()`](https://tidyr.tidyverse.org/reference/drop_na.html), [`expand()`](https://tidyr.tidyverse.org/reference/expand.html), [`fill()`](https://tidyr.tidyverse.org/reference/fill.html), [`nest()`](https://tidyr.tidyverse.org/reference/nest.html), [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html), [`replace_na()`](https://tidyr.tidyverse.org/reference/replace_na.html), and [`separate()`](https://tidyr.tidyverse.org/reference/separate.html). A few examples are shown below:
 
 <div class="highlight">
 
