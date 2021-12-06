@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr]
-rmd_hash: 5035288eb831bc73
+rmd_hash: 10c6a693a983481f
 
 ---
 
@@ -33,7 +33,7 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're thrilled to announce that [dtplyr](https://dtplyr.tidyverse.org) 1.0.0 is now on CRAN. dtplyr gives you the speed of [data.table](http://r-datatable.com/) with the syntax of dplyr; you write dplyr (and tidyr) code and dtplyr translates it to the data.table equivalent.
+We're thrilled to announce that [dtplyr](https://dtplyr.tidyverse.org) 1.2.0 is now on CRAN. dtplyr gives you the speed of [data.table](http://r-datatable.com/) with the syntax of dplyr; you write dplyr (and tidyr) code and dtplyr translates it to the data.table equivalent.
 
 You can install dtplyr from CRAN with:
 
