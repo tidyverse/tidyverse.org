@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: dtplyr-1-2-0
 title: dtplyr 1.2.0
-date: 2021-12-03
+date: 2021-12-06
 author: Hadley Wickham
 description: >
     dtplyr 1.2.0 adds three new authors, a bunch of tidyr translations,
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr]
-rmd_hash: 3680bbbf3ab6f7d0
+rmd_hash: 5035288eb831bc73
 
 ---
 
