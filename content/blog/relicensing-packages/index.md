@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other] 
 tags: []
-rmd_hash: e4a5136826d5665a
+rmd_hash: d532fce0d2eaacc1
 
 ---
 
@@ -32,19 +32,17 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-Across the tidyverse, tidymodels, and r-lib we have packages that originated in many different ways. This is great! So many different perspectives! Where it wasn't great, though, was around consistency in licenses.[^1]
+The tidyverse (including tidymodels and r-lib) includes packages that have been written over the course of 15 years. Unfortunately this has lead to a diversity of licenses [^1]. It is fundamentally important that software has a license, because without it no one knows how they can use it. While our packages already had open source licenses, when we looked at them holistically, we realised that we used a rather large variety of licenses, including MIT, BSD, GPL (versions 2 and 3), and more! While nothing is wrong with any of these licenses individually, the collective variety makes things confusing, particularly for people or organizations who want to use multiple packages together.
 
-It is fundamentally important that software has a license, because without it no one knows how they can use anything. Our packages in tidyverse, tidymodels and r-lib already had appropriate open source licenses, but when we looked at them holistically, we realised that we used a rather large variety of licenses, including MIT, BSD, GPL (versions 2 and 3), and more! While nothing is wrong with any of these licenses individually, the collective variety makes things confusing, particularly for people or organizations who want to use multiple packages together.
+To reduce this confusion and make it clear that our packages are an unconditional gift that can be freely used without reciprocal obligation, we embarked on a journey to apply the same license to as many of our packages as possible (we couldn't apply the same license to every package because some packages bundled code with incompatible licenses). No license is perfect, but we had to choose one, and after much discussion we decided on [the MIT License](https://spdx.org/licenses/MIT). The MIT License is short (171 words), widespread, relatively easy to understand (see lawyer/programmer Kyle E. Mitchell's ["The MIT License, Line by Line"](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) for details), and very permissive. MIT is not "copyleft" or "hereditary"[^2] which require that derivative works[^3] must be licensed under the same license (e.g. GPL) and be subject to (aka "inherit") all of its restrictions .
 
-To reduce this confusion and make it clear that our packages are an unconditional gift that can be freely used without reciprocal obligation, we embarked on a journey to apply the same license to as many of our packages as possible (we couldn't apply the same license to every package because some packages bundled code with incompatible licenses). No license is perfect, but we had to choose one, and after much internal discussion we decided on [the MIT License](https://spdx.org/licenses/MIT). The MIT License is short (171 words), widespread, relatively easy to understand (see lawyer/programmer Kyle E. Mitchell's ["The MIT License, Line by Line"](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) for details), and very permissive. MIT is not "copyleft" or "hereditary"[^2] which require that derivative works[^3] must be licensed under the same license (e.g. GPL) and be subject to (aka "inherit") all of its restrictions.
+Once we decided on the MIT license, we needed to check with all the authors of the code to make sure it was OK to relicense it. This involved several steps. We started by reviewing all commits made by non-RStudio contributors[^4] to each package. We then contacted all (\~500) contributors whose changes could constitute a copyrightable contribution (i.e. anything other than minor edits, such as typo fixes) via GitHub, e-mail, or (in a limited number of cases) personal communication requesting their statement of agreement[^5] .
 
-Once we decided on the MIT license, we needed to check with the authors of the code to make sure it was OK to relicense it. This involved several steps. We started by reviewing all commits made by non-RStudio contributors[^4] to each package. We then contacted all (\~500) contributors whose changes could constitute a copyrightable contribution (i.e. anything other than minor edits, such as typo fixes) via GitHub, e-mail, or (in a limited number of cases) personal communication requesting their statement of agreement.[^5]
-
-You can see an example of the process in [the re-licensing issue for purrr](https://github.com/tidyverse/purrr/issues/805). The re-licensing generated some discussion but we were grateful to receive unanimous agreement to re-license, thus avoiding the need to re-implement any existing code.[^6]
+You can see an example of the process in [the re-licensing issue for purrr](https://github.com/tidyverse/purrr/issues/805). The re-licensing generated some discussion but we were grateful to receive unanimous agreement to re-license, thus avoiding the need to re-implement any existing code[^6].
 
 The bulk of our packages are now under MIT, which means they're consistent (yay!), and you can continue to use them as you were before (especially since we didn't think there was any problem using them for any reason under their previous licenses).
 
-This blog post has been a very long time coming, and is being released under what should be considered (at best) mild duress, given the necessarily reductive summaries of nuanced topics. If you'd like to learn more about copyright and intellectual-property law as it pertains to open-source software, I recommend the following four books:
+This blog post has been a long time coming gives a very reductive summaries of nuanced topics. If you'd like to learn more about copyright and intellectual-property law as it pertains to open-source software, I recommend the following four books:
 
 -   **Open Source Licensing: Software Freedom and Intellectual Property Law** by Lawrence Rosen (2004). Available from Rosen free online at <http://www.rosenlaw.com/oslbook.htm>.
 
@@ -54,13 +52,9 @@ This blog post has been a very long time coming, and is being released under wha
 
 -   **The Open Source Alternative: Understanding Risks and Leveraging Opportunities** by Heather J. Meeker (2008).
 
-If, out of perverse curiosity, you'd like to see my somewhat unhinged, decidedly incomplete, and occasionally incoherent notes taken throughout this endeavor, those are available [here](https://colorado.rstudio.com/rsc/relicensing-the-notes/the-notes.html).
+You can also check out the research notes that I (Mara) made [while working on this post](https://colorado.rstudio.com/rsc/relicensing-the-notes/the-notes.html).
 
-## Acknowledgements
-
-The list of contributors to all of our packages is too long to include here. However, we are extremely grateful to everyone for their contributions, and help with this endeavor.
-
-[^1]: ​​A license is an agreement in which a licensee is given permission to use the property by the property holder. The licensee's use is conditional on the grant, scope, and reservation of rights of the granted permission.
+[^1]: A license is an agreement in which a licensee is given permission to use the property by the property holder. The licensee's use is conditional on the grant, scope, and reservation of rights of the granted permission.
 
 [^2]: Term used in Heather J. Meeker's *The Open Source Alternative: Understanding Risks and Leveraging Opportunities*, 2008.
 
@@ -70,5 +64,5 @@ The list of contributors to all of our packages is too long to include here. How
 
 [^5]: "Prior art" includes the re-licensing of the Bootstrap framework, the details of which are nicely documented in this [StackExchange thread](https://opensource.stackexchange.com/questions/6097/how-does-bootstrap-v4-mit-deal-with-contributions-made-under-v3-apache-2-0/6099#6099).
 
-[^6]: This follows what is known as the "idea-expression" dichotomy in copyright law, codified in 17 U.S.C. § 102 under which "protection is given only to the expression of the idea-not the idea itself" *Mazer v. Stein*, 347 U.S. 201 (1954) at 217.
+[^6]: This is permitted under what is known as the "idea-expression" dichotomy in copyright law, codified in 17 U.S.C. § 102 under which "protection is given only to the expression of the idea-not the idea itself" *Mazer v. Stein*, 347 U.S. 201 (1954) at 217.
 
