@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other] 
 tags: []
-rmd_hash: 4b1ed2a8d08c5def
+rmd_hash: e4a5136826d5665a
 
 ---
 
@@ -27,9 +27,9 @@ TODO:
 * [x] Find photo & update yaml metadata
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [x] [`usethis::use_tidy_thanks()`](https://rdrr.io/pkg/usethis/man/use_tidy_thanks.html)
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 Across the tidyverse, tidymodels, and r-lib we have packages that originated in many different ways. This is great! So many different perspectives! Where it wasn't great, though, was around consistency in licenses.[^1]
