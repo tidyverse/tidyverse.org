@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other] 
 tags: []
-rmd_hash: d532fce0d2eaacc1
+rmd_hash: 07fe296135ffdd6b
 
 ---
 
@@ -29,7 +29,7 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] [`usethis::use_tidy_thanks()`](https://rdrr.io/pkg/usethis/man/use_tidy_thanks.html)
 -->
 
 The tidyverse (including tidymodels and r-lib) includes packages that have been written over the course of 15 years. Unfortunately this has lead to a diversity of licenses [^1]. It is fundamentally important that software has a license, because without it no one knows how they can use it. While our packages already had open source licenses, when we looked at them holistically, we realised that we used a rather large variety of licenses, including MIT, BSD, GPL (versions 2 and 3), and more! While nothing is wrong with any of these licenses individually, the collective variety makes things confusing, particularly for people or organizations who want to use multiple packages together.
@@ -42,7 +42,7 @@ You can see an example of the process in [the re-licensing issue for purrr](http
 
 The bulk of our packages are now under MIT, which means they're consistent (yay!), and you can continue to use them as you were before (especially since we didn't think there was any problem using them for any reason under their previous licenses).
 
-This blog post has been a long time coming gives a very reductive summaries of nuanced topics. If you'd like to learn more about copyright and intellectual-property law as it pertains to open-source software, I recommend the following four books:
+This blog post has been a long time coming, and (by necessity) gives a reductive summaries of nuanced topics. If you'd like to learn more about copyright and intellectual-property law as it pertains to open-source software, I recommend the following four books:
 
 -   **Open Source Licensing: Software Freedom and Intellectual Property Law** by Lawrence Rosen (2004). Available from Rosen free online at <http://www.rosenlaw.com/oslbook.htm>.
 
@@ -52,7 +52,7 @@ This blog post has been a long time coming gives a very reductive summaries of n
 
 -   **The Open Source Alternative: Understanding Risks and Leveraging Opportunities** by Heather J. Meeker (2008).
 
-You can also check out the research notes that I (Mara) made [while working on this post](https://colorado.rstudio.com/rsc/relicensing-the-notes/the-notes.html).
+You can also check out the [research notes](https://colorado.rstudio.com/rsc/relicensing-the-notes/the-notes.html) that I (Mara) made while working on this project.
 
 [^1]: A license is an agreement in which a licensee is given permission to use the property by the property holder. The licensee's use is conditional on the grant, scope, and reservation of rights of the granted permission.
 
