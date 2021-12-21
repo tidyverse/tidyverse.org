@@ -1,0 +1,179 @@
+---
+output: hugodown::hugo_document
+
+slug: rlang-1-0-0-errors
+title: New error style coming up in rlang 1.0.0
+date: 2021-12-22
+author: Lionel Henry
+description: >
+    rlang 1.0.0 is near and introduces a new style of error display. Feedback welcome!
+
+photo:
+  url: https://unsplash.com/photos/-eDpBjt6UL0
+  author: Bryan Goff
+
+categories: [package]
+tags: []
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [/] `usethis::use_tidy_thanks()`
+-->
+
+[rlang](https://rlang.r-lib.org/) 1.0.0 is getting ready for release and we'd like to get your feedback on the new style of error messages featured in this release.
+
+The rlang package provides several low-level frameworks for the tidyverse. The 1.0 release focuses on one of these frameworks, __rlang errors__. This set of tools to signal and display errors gets a substantial overhaul. The three main changes to rlang errors that we'll review in this blog post are:
+
+1. Fully committing to the display of errors as bullet lists
+1. Including the erroring function call by default, as in base R
+1. Embracing chained errors to represent contextual information
+
+If you'd like to try the new error style on your computer, install the development versions of rlang and dplyr (the latter needs to be adapted to the new error style) from github with:
+
+```{r, eval = FALSE}
+pak::pkg_install(c("r-lib/rlang", "tidyverse/dplyr"))
+```
+```{r setup, message = FALSE}
+library(rlang)
+library(dplyr)
+```
+
+
+## Displaying errors as bullet lists
+
+`rlang::abort()` makes it easy to structure error messages as a __bullet list__. We believe that errors should be both informative about the context of the error and easy to skim. A bullet list arrangement that lays out important pieces of information line by line provides the right trade off for this:
+
+```{r, error = TRUE}
+abort(c(
+  "This is the error message.",
+  "*" = "This is a bullet.",
+  "*" = "This is another bullet."
+))
+```
+
+The bullet symbol can be customised to provide a clue about the kind of information contained in the bullet. Use "ℹ" bullets to provide contextual information or hints, and "✖" bullets to state a problematic input or state.
+
+```{r, error = TRUE}
+abort(c(
+  "This is the error message.",
+  "x" = "Can't do this.",
+  "i" = "You could do that instead."
+))
+```
+
+Here is a dplyr example of an informative error message structured as a bullet list:
+
+```{r, error = TRUE}
+mtcars %>%
+  group_by(cyl) %>%
+  mutate(new = rep(am, 2))
+```
+
+In all bullet lists, the main error message (the error header in rlang terms) is indicated with a "!" sign. This makes it easy to skim for error headers in a stuffy R output.
+
+
+## Displaying the erroring function
+
+By default, `base::stop()` shows the function in which it was called:
+
+```{r, error = TRUE}
+add1 <- function(x) {
+  if (!is.numeric(x)) {
+    stop("`x` must be numeric.")
+  }
+  x + 1
+}
+
+add1("foo")
+```
+
+In rlang, we initially decided to turn off that feature because quite often the erroring function is unrelated to the function called by the user. This happens for instance when `stop()` or `abort()` are called from a helper function:
+
+```{r, error = TRUE}
+add1 <- function(x) {
+  check_numeric(x)
+  x + 1
+}
+
+check_numeric <- function(x) {
+  if (!is.numeric(x)) {
+    stop("`x` must be numeric.")
+  }
+}
+
+add1("foo")
+```
+
+To avoid distracting users with irrelevant information, `abort()` just didn't include a call in the error. However, we were missing out on contextual information that could help users understand the origin of an error without having to look at backtrace.
+
+To improve on the situation, we added a `call` argument to `abort()` that makes it easy to throw an error on the behalf of another function. If you call `abort()` from a helper function, pass the caller environment to automatically pick up the corresponding function call:
+
+```{r, error = TRUE}
+check_numeric <- function(x) {
+  if (!is.numeric(x)) {
+    abort("`x` must be numeric.", call = parent.frame())
+  }
+}
+
+add1("foo")
+```
+
+We have started to adapt our packages to pass the correct function call to `abort()` but there is still a lot of work to do on that front. If you find a function call that looks off in an error message, please let us know by filing an issue.
+
+
+## Chained errors
+
+Chained errors are another important feature of rlang 1.0. This feature was somewhat hidden in previous versions because it only impacted the appearance of backtraces. In this release, we have decided to show the whole chain of messages to the user, making error chaining much more useful.
+
+One important use case for chaining errors is as a scaffholding for displaying contextual information when the user provides computations nested in a particular step, such as a dplyr verb or a ggplot geom.
+
+```{r, error = TRUE}
+mtcars %>%
+  group_by(cyl) %>%
+  mutate(
+    out1 = add1(am),
+    out2 = add1("foo")
+  )
+```
+
+In this example, dplyr combines all three features (bullet lists, the display of erroring functions, and chained errors) to structure the error message in a hierarchy. At the topmost level, the `mutate()` error provides information about the current expression being evaluated, as well as the current group. The chained error then displays the function that errored within `mutate()` as well as the full error message.
+
+Currenty only the development version of dplyr takes advantage of chained errors. We hope to implement them in other tidyverse and tidymodels packages in the coming year to make it easier to detect failing steps in large pipelines.
+
+
+## Use rlang style errors globally
+
+Normally, only the errors thrown with `abort()` use the new display. Add a call to `global_handle()` in your RProfile to use the rlang style globally, including base errors.
+
+```{r, eval = FALSE}
+# In RProfile
+rlang::global_handle()
+```
+
+```{r, eval = FALSE, include = FALSE}
+1 + "foo"
+```
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'>
+<span class='m'>1</span> <span class='o'>+</span> <span class='s'>"foo"</span>
+<span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in </span><span style='font-weight: bold; font-weight: 100;'>`1 + "foo"`:</span></span>
+<span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> non-numeric argument to binary operator</span>
+</code></pre>
+
+</div>
+
+
+## Taking feedback
+
+Given the scope of the changes, we felt it appropriate to delay the release of rlang 1.0 until late January to get more feedback on the new display of errors. Please reach out on twitter (my handle is [_lionelhenry](https://twitter.com/_lionelhenry/)) or file an [issue on github](https://github.com/r-lib/rlang) if you have any comments.
