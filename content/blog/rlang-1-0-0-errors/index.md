@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: 6f068a7661c7376a
+rmd_hash: d4257e1bd4354c31
 
 ---
 
@@ -229,7 +229,7 @@ Normally, only the errors thrown with [`abort()`](https://rlang.r-lib.org/refere
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='c'># In RProfile</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='c'># In .Rprofile</span>
 <span class='nf'>rlang</span><span class='nf'>::</span><span class='nf'>global_handle</span><span class='o'>(</span><span class='o'>)</span></code></pre>
 
 </div>
