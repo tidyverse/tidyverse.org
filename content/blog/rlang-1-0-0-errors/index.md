@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: ed22f7741191759c
+rmd_hash: 9d55f118b753cdab
 
 ---
 
@@ -39,18 +39,53 @@ The rlang package provides several low-level frameworks, like tidy evaluation, f
 2.  Including the erroring function call by default, as in base R
 3.  Embracing chained errors to represent contextual information
 
-If you'd like to try the new error style on your computer, install the development versions of rlang and dplyr (the latter needs to be adapted to the new error style) from github with:
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>pak</span><span class='nf'>::</span><span class='nf'><a href='http://pak.r-lib.org/reference/pkg_install.html'>pkg_install</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"r-lib/rlang"</span>, <span class='s'>"tidyverse/dplyr"</span><span class='o'>)</span><span class='o'>)</span></code></pre>
-
-</div>
+Attach these packages to follow the examples in the blog post:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://rlang.r-lib.org'>rlang</a></span><span class='o'>)</span>
 <span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='o'>)</span></code></pre>
+
+</div>
+
+Here is how a typical rlang error looked before:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>add1</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='m'>1</span> <span class='o'>+</span> <span class='nv'>x</span>
+
+<span class='nv'>mtcars</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>cyl</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>new <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/stats/add1.html'>add1</a></span><span class='o'>(</span><span class='s'>"foo"</span><span class='o'>)</span><span class='o'>)</span>
+<span class='c'>#&gt; Error: Problem with `mutate()` column `new`.</span>
+<span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span> `new = add1("foo")`.</span>
+<span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> non-numeric argument to binary operator</span>
+<span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span> The error occurred in group 1: cyl = 4.</span></code></pre>
+
+</div>
+
+And here is how the same error looks with the next versions of rlang and dplyr:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>mtcars</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>cyl</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>new <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/stats/add1.html'>add1</a></span><span class='o'>(</span><span class='s'>"foo"</span><span class='o'>)</span><span class='o'>)</span>
+<span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in </span><span style='font-weight: bold; font-weight: 100;'>`mutate()`:</span></span>
+<span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Problem while computing `new = add1("foo")`.</span>
+<span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> The error occurred in group 1: cyl = 4.</span>
+<span class='c'>#&gt; <span style='font-weight: bold;'>Caused by error in </span><span style='font-weight: bold; font-weight: 100;'>`1 + x`:</span></span>
+<span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> non-numeric argument to binary operator</span></code></pre>
+
+</div>
+
+For RStudio users, another change is that the error message no longer appears in red but instead uses terminal colours and boldness to style the different parts of the error message.
+
+If you'd like to try the new error style on your computer, install the development versions of rlang and dplyr (the latter needs to be adapted to the new error style) from github with:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>pak</span><span class='nf'>::</span><span class='nf'><a href='http://pak.r-lib.org/reference/pkg_install.html'>pkg_install</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"r-lib/rlang"</span>, <span class='s'>"tidyverse/dplyr"</span><span class='o'>)</span><span class='o'>)</span></code></pre>
 
 </div>
 

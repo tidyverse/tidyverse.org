@@ -37,16 +37,48 @@ The rlang package provides several low-level frameworks, like tidy evaluation, f
 1. Including the erroring function call by default, as in base R
 1. Embracing chained errors to represent contextual information
 
-If you'd like to try the new error style on your computer, install the development versions of rlang and dplyr (the latter needs to be adapted to the new error style) from github with:
+Attach these packages to follow the examples in the blog post:
 
-```{r, eval = FALSE}
-pak::pkg_install(c("r-lib/rlang", "tidyverse/dplyr"))
-```
 ```{r setup, message = FALSE}
 library(rlang)
 library(dplyr)
 ```
 
+Here is how a typical rlang error looked before:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>add1</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='m'>1</span> <span class='o'>+</span> <span class='nv'>x</span>
+
+<span class='nv'>mtcars</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>cyl</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>new <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/stats/add1.html'>add1</a></span><span class='o'>(</span><span class='s'>"foo"</span><span class='o'>)</span><span class='o'>)</span>
+<span class='c'>#&gt; Error: Problem with `mutate()` column `new`.</span>
+<span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span> `new = add1("foo")`.</span>
+<span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> non-numeric argument to binary operator</span>
+<span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span> The error occurred in group 1: cyl = 4.</span></code></pre>
+
+</div>
+
+
+And here is how the same error looks with the next versions of rlang and dplyr:
+
+```{r, include = FALSE}
+add1 <- function(x) 1 + x
+```
+```{r, error = TRUE}
+mtcars %>%
+  group_by(cyl) %>%
+  mutate(new = add1("foo"))
+```
+
+For RStudio users, another change is that the error message no longer appears in red but instead uses terminal colours and boldness to style the different parts of the error message.
+
+If you'd like to try the new error style on your computer, install the development versions of rlang and dplyr (the latter needs to be adapted to the new error style) from github with:
+
+```{r, eval = FALSE}
+pak::pkg_install(c("r-lib/rlang", "tidyverse/dplyr"))
+```
 
 ## Displaying errors as bullet lists
 
