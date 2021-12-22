@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: 165239f0e3e658f3
+rmd_hash: ed22f7741191759c
 
 ---
 
@@ -26,16 +26,16 @@ TODO:
 * [x] Find photo & update yaml metadata
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [/] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 [rlang](https://rlang.r-lib.org/) 1.0.0 is getting ready for release and we'd like to get your feedback on the new style of error messages featured in this release.
 
-The rlang package provides several low-level frameworks for the tidyverse. The 1.0 release focuses on one of these frameworks, **rlang errors**. This set of tools to signal and display errors gets a substantial overhaul. The three main changes to rlang errors that we'll review in this blog post are:
+The rlang package provides several low-level frameworks, like tidy evaluation, for the tidyverse. The 1.0.0 release focuses on one of these frameworks, **rlang errors**. This set of tools to signal and display errors gets a substantial overhaul. The three main changes to rlang errors that we'll review in this blog post are:
 
-1.  Fully committing to the display of errors as bullet lists
+1.  Fully committing to the display of errors as bulleted lists
 2.  Including the erroring function call by default, as in base R
 3.  Embracing chained errors to represent contextual information
 
@@ -102,7 +102,7 @@ Here is a dplyr example of an informative error message structured as a bullet l
 
 </div>
 
-In all bullet lists, the main error message (the error header in rlang terms) is indicated with a "!" sign. This makes it easy to skim for error headers in a stuffy R output.
+In all bullet lists, the main error message (the error header in rlang terms) is indicated with a "!" sign. This makes it easy to skim for error headers in a long R output.
 
 ## Displaying the erroring function
 
@@ -142,7 +142,7 @@ In rlang, we initially decided to turn off that feature because quite often the 
 
 </div>
 
-To avoid distracting users with irrelevant information, [`abort()`](https://rlang.r-lib.org/reference/abort.html) just didn't include a call in the error. However, we were missing out on contextual information that could help users understand the origin of an error without having to look at backtrace.
+To avoid distracting users with irrelevant information, [`abort()`](https://rlang.r-lib.org/reference/abort.html) just didn't include a call in the error. However, we were missing out on contextual information that could help users understand the origin of an error without having to look at the backtrace, and that context is particularly important in a long pipeline of function calls.
 
 To improve on the situation, we added a `call` argument to [`abort()`](https://rlang.r-lib.org/reference/abort.html) that makes it easy to throw an error on the behalf of another function. If you call [`abort()`](https://rlang.r-lib.org/reference/abort.html) from a helper function, pass the caller environment to automatically pick up the corresponding function call:
 
@@ -190,7 +190,7 @@ Currenty only the development version of dplyr takes advantage of chained errors
 
 ## Use rlang style errors globally
 
-Normally, only the errors thrown with [`abort()`](https://rlang.r-lib.org/reference/abort.html) use the new display. Add a call to `global_handle()` in your RProfile to use the rlang style globally, including base errors.
+Normally, only the errors thrown with [`abort()`](https://rlang.r-lib.org/reference/abort.html) use the new display. Add a call to `global_handle()` in your `.RProfile` to use the rlang style globally, including base errors.
 
 <div class="highlight">
 

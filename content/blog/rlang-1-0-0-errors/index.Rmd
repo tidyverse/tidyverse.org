@@ -31,9 +31,9 @@ TODO:
 
 [rlang](https://rlang.r-lib.org/) 1.0.0 is getting ready for release and we'd like to get your feedback on the new style of error messages featured in this release.
 
-The rlang package provides several low-level frameworks for the tidyverse. The 1.0 release focuses on one of these frameworks, __rlang errors__. This set of tools to signal and display errors gets a substantial overhaul. The three main changes to rlang errors that we'll review in this blog post are:
+The rlang package provides several low-level frameworks, like tidy evaluation, for the tidyverse. The 1.0.0 release focuses on one of these frameworks, __rlang errors__. This set of tools to signal and display errors gets a substantial overhaul. The three main changes to rlang errors that we'll review in this blog post are:
 
-1. Fully committing to the display of errors as bullet lists
+1. Fully committing to the display of errors as bulleted lists
 1. Including the erroring function call by default, as in base R
 1. Embracing chained errors to represent contextual information
 
@@ -78,7 +78,7 @@ mtcars %>%
   mutate(new = rep(am, 2))
 ```
 
-In all bullet lists, the main error message (the error header in rlang terms) is indicated with a "!" sign. This makes it easy to skim for error headers in a stuffy R output.
+In all bullet lists, the main error message (the error header in rlang terms) is indicated with a "!" sign. This makes it easy to skim for error headers in a long R output.
 
 
 ## Displaying the erroring function
@@ -113,7 +113,7 @@ check_numeric <- function(x) {
 add1("foo")
 ```
 
-To avoid distracting users with irrelevant information, `abort()` just didn't include a call in the error. However, we were missing out on contextual information that could help users understand the origin of an error without having to look at backtrace.
+To avoid distracting users with irrelevant information, `abort()` just didn't include a call in the error. However, we were missing out on contextual information that could help users understand the origin of an error without having to look at the backtrace, and that context is particularly important in a long pipeline of function calls.
 
 To improve on the situation, we added a `call` argument to `abort()` that makes it easy to throw an error on the behalf of another function. If you call `abort()` from a helper function, pass the caller environment to automatically pick up the corresponding function call:
 
@@ -152,7 +152,7 @@ Currenty only the development version of dplyr takes advantage of chained errors
 
 ## Use rlang style errors globally
 
-Normally, only the errors thrown with `abort()` use the new display. Add a call to `global_handle()` in your RProfile to use the rlang style globally, including base errors.
+Normally, only the errors thrown with `abort()` use the new display. Add a call to `global_handle()` in your `.RProfile` to use the rlang style globally, including base errors.
 
 ```{r, eval = FALSE}
 # In RProfile
