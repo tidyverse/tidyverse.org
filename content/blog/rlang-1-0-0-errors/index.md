@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: 47a766f93acece71
+rmd_hash: 6f068a7661c7376a
 
 ---
 
@@ -225,7 +225,7 @@ Currenty only the development version of dplyr takes advantage of chained errors
 
 ## Use rlang style errors globally
 
-Normally, only the errors thrown with [`abort()`](https://rlang.r-lib.org/reference/abort.html) use the new display. Add a call to `global_handle()` in your `.RProfile` to use the rlang style globally, including base errors.
+Normally, only the errors thrown with [`abort()`](https://rlang.r-lib.org/reference/abort.html) use the new display. Add a call to `global_handle()` in your `.Rprofile` to use the rlang style globally, including base errors.
 
 <div class="highlight">
 
