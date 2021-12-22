@@ -14,7 +14,7 @@ photo:
 
 categories: [package]
 tags: []
-rmd_hash: 9d55f118b753cdab
+rmd_hash: 47a766f93acece71
 
 ---
 
@@ -137,7 +137,7 @@ Here is a dplyr example of an informative error message structured as a bullet l
 
 </div>
 
-In all bullet lists, the main error message (the error header in rlang terms) is indicated with a "!" sign. This makes it easy to skim for error headers in a long R output.
+While rlang has featured error bullets for a while already, the 1.0.0 version fully commits to that format. The main error message (the error header in rlang terms) has become a bullet with a leading "!" sign that makes it easy to skim for error headers in a long R output.
 
 ## Displaying the erroring function
 
