@@ -13,7 +13,7 @@ categories: [package]
 tags: [tidyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 2091a86c21b3bc28
+rmd_hash: 42a7f268252c23d1
 
 ---
 
@@ -96,7 +96,9 @@ A related problem can occur when there are implicit missing factor levels in the
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>daily</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span><span class='nv'>daily</span>, type <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"A"</span>, <span class='s'>"B"</span>, <span class='s'>"B"</span>, <span class='s'>"A"</span><span class='o'>)</span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>daily</span> <span class='o'>&lt;-</span> <span class='nv'>daily</span> <span class='o'><a href='https://tidyr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>type <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"A"</span>, <span class='s'>"B"</span>, <span class='s'>"B"</span>, <span class='s'>"A"</span><span class='o'>)</span><span class='o'>)</span>
+
 <span class='nv'>daily</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 3</span></span>
 <span class='c'>#&gt;   day   value type </span>
@@ -281,7 +283,9 @@ We've improved on a number of the error messages throughout tidyr, but the error
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>readouts2</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice</a></span><span class='o'>(</span><span class='nv'>readouts</span>, <span class='nf'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> 
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>readouts2</span> <span class='o'>&lt;-</span> <span class='nv'>readouts</span> <span class='o'><a href='https://tidyr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> 
+
 <span class='nv'>readouts2</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 4</span></span>
 <span class='c'>#&gt;   county   date       system value</span>
@@ -394,7 +398,8 @@ When [`complete()`](https://tidyr.tidyverse.org/reference/complete.html)-ing a d
 <span class='c'>#&gt; <span style='color: #555555;'>3</span> Fri       1 B    </span>
 <span class='c'>#&gt; <span style='color: #555555;'>4</span> Mon       5 A</span>
 
-<span class='nf'><a href='https://tidyr.tidyverse.org/reference/complete.html'>complete</a></span><span class='o'>(</span><span class='nv'>daily</span>, <span class='nv'>day</span>, fill <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>value <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span><span class='o'>)</span>
+<span class='nv'>daily</span> <span class='o'><a href='https://tidyr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/complete.html'>complete</a></span><span class='o'>(</span><span class='nv'>day</span>, fill <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>value <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 7 × 3</span></span>
 <span class='c'>#&gt;   day   value type </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span></span>
@@ -423,7 +428,8 @@ But what if there were already missing values before completing? By default, [`c
 <span class='c'>#&gt; <span style='color: #555555;'>3</span> Fri       1 B    </span>
 <span class='c'>#&gt; <span style='color: #555555;'>4</span> Mon      <span style='color: #BB0000;'>NA</span> A</span>
 
-<span class='nf'><a href='https://tidyr.tidyverse.org/reference/complete.html'>complete</a></span><span class='o'>(</span><span class='nv'>daily2</span>, <span class='nv'>day</span>, fill <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>value <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span><span class='o'>)</span>
+<span class='nv'>daily2</span> <span class='o'><a href='https://tidyr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/complete.html'>complete</a></span><span class='o'>(</span><span class='nv'>day</span>, fill <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>value <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 7 × 3</span></span>
 <span class='c'>#&gt;   day   value type </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span></span>
@@ -441,7 +447,8 @@ To avoid this, you can now retain pre-existing explicit missing values with the 
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://tidyr.tidyverse.org/reference/complete.html'>complete</a></span><span class='o'>(</span><span class='nv'>daily2</span>, <span class='nv'>day</span>, fill <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>value <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span>, explicit <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>daily2</span> <span class='o'><a href='https://tidyr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/complete.html'>complete</a></span><span class='o'>(</span><span class='nv'>day</span>, fill <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>value <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span>, explicit <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 7 × 3</span></span>
 <span class='c'>#&gt;   day   value type </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span></span>
@@ -467,7 +474,8 @@ As an example, [`fill()`](https://tidyr.tidyverse.org/reference/fill.html) now w
 
 <span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://lubridate.tidyverse.org/reference/period.html'>seconds</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='kc'>NA</span>, <span class='m'>4</span>, <span class='kc'>NA</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span>
 
-<span class='nf'><a href='https://tidyr.tidyverse.org/reference/fill.html'>fill</a></span><span class='o'>(</span><span class='nv'>df</span>, <span class='nv'>x</span>, .direction <span class='o'>=</span> <span class='s'>"down"</span><span class='o'>)</span>
+<span class='nv'>df</span> <span class='o'><a href='https://tidyr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/fill.html'>fill</a></span><span class='o'>(</span><span class='nv'>x</span>, .direction <span class='o'>=</span> <span class='s'>"down"</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 1</span></span>
 <span class='c'>#&gt;   x       </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;Period&gt;</span></span>
@@ -485,7 +493,8 @@ And it now treats `NaN` like any other missing value:
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='kc'>NaN</span>, <span class='m'>2</span>, <span class='kc'>NA</span>, <span class='m'>3</span><span class='o'>)</span><span class='o'>)</span>
 
-<span class='nf'><a href='https://tidyr.tidyverse.org/reference/fill.html'>fill</a></span><span class='o'>(</span><span class='nv'>df</span>, <span class='nv'>x</span>, .direction <span class='o'>=</span> <span class='s'>"up"</span><span class='o'>)</span>
+<span class='nv'>df</span> <span class='o'><a href='https://tidyr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/fill.html'>fill</a></span><span class='o'>(</span><span class='nv'>x</span>, .direction <span class='o'>=</span> <span class='s'>"up"</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 1</span></span>
 <span class='c'>#&gt;       x</span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
@@ -517,7 +526,7 @@ The most drastic improvement in safety comes to [`replace_na()`](https://tidyr.t
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='c'># Previous behavior without vctrs:</span>
 
 <span class='c'># Integer column changed to character column</span>
-<span class='nf'><a href='https://tidyr.tidyverse.org/reference/replace_na.html'>replace_na</a></span><span class='o'>(</span><span class='nv'>df</span>, <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='s'>"missing"</span><span class='o'>)</span><span class='o'>)</span>
+<span class='nv'>df</span> <span class='o'><a href='https://tidyr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://tidyr.tidyverse.org/reference/replace_na.html'>replace_na</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='s'>"missing"</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; # A tibble: 3 × 1</span>
 <span class='c'>#&gt;   x      </span>
 <span class='c'>#&gt;   &lt;chr&gt;  </span>
@@ -526,7 +535,7 @@ The most drastic improvement in safety comes to [`replace_na()`](https://tidyr.t
 <span class='c'>#&gt; 3 3</span>
 
 <span class='c'># Integer column changed to double column</span>
-<span class='nf'><a href='https://tidyr.tidyverse.org/reference/replace_na.html'>replace_na</a></span><span class='o'>(</span><span class='nv'>df</span>, <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span>
+<span class='nv'>df</span> <span class='o'><a href='https://tidyr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://tidyr.tidyverse.org/reference/replace_na.html'>replace_na</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; # A tibble: 3 × 1</span>
 <span class='c'>#&gt;       x</span>
 <span class='c'>#&gt;   &lt;dbl&gt;</span>
@@ -543,12 +552,12 @@ With vctrs, we now ensure that the replacement value is always cast to the type 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='c'># New behavior with vctrs:</span>
 
 <span class='c'># Error, because "missing" can't be converted to an integer</span>
-<span class='nf'><a href='https://tidyr.tidyverse.org/reference/replace_na.html'>replace_na</a></span><span class='o'>(</span><span class='nv'>df</span>, <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='s'>"missing"</span><span class='o'>)</span><span class='o'>)</span>
+<span class='nv'>df</span> <span class='o'><a href='https://tidyr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://tidyr.tidyverse.org/reference/replace_na.html'>replace_na</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='s'>"missing"</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; Error: Can't convert `replace$x` &lt;character&gt; to match type of `data$x` &lt;integer&gt;.</span>
 
 <span class='c'># Integer column type is retained, and the double value of `1` is</span>
 <span class='c'># converted to an integer replacement value of `1L`</span>
-<span class='nf'><a href='https://tidyr.tidyverse.org/reference/replace_na.html'>replace_na</a></span><span class='o'>(</span><span class='nv'>df</span>, <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span>
+<span class='nv'>df</span> <span class='o'><a href='https://tidyr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://tidyr.tidyverse.org/reference/replace_na.html'>replace_na</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 1</span></span>
 <span class='c'>#&gt;       x</span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span></span>

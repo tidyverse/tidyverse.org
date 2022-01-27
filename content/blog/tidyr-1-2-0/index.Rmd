@@ -68,7 +68,9 @@ pivot_wider(daily, names_from = day, values_from = value, names_expand = TRUE)
 A related problem can occur when there are implicit missing factor levels in the `id_cols`. When this happens, there are missing rows (rather than columns) that you'd like to explicitly represent. To demonstrate, we'll modify `daily` with a `type` column, and pivot on that instead, keeping `day` as an identifier column.
 
 ```{r}
-daily <- mutate(daily, type = c("A", "B", "B", "A"))
+daily <- daily %>%
+  mutate(type = c("A", "B", "B", "A"))
+
 daily
 ```
 
@@ -176,7 +178,9 @@ Note that for `unused_fn` to work, you must supply `id_cols` explicitly, as othe
 We've improved on a number of the error messages throughout tidyr, but the error you get from `pivot_wider()` when you encounter values that aren't uniquely identified is now especially nice. Let's "accidentally" add a duplicate row to `readouts`.
 
 ```{r}
-readouts2 <- slice(readouts, seq_len(n()), n()) 
+readouts2 <- readouts %>%
+  slice(seq_len(n()), n()) 
+
 readouts2
 ```
 
@@ -227,7 +231,8 @@ When `complete()`-ing a data frame, it's often useful to immediately fill the ne
 ```{r}
 daily
 
-complete(daily, day, fill = list(value = 0))
+daily %>%
+  complete(day, fill = list(value = 0))
 ```
 
 But what if there were already missing values before completing? By default, `complete()` will still fill those *explicit* missing values too.
@@ -237,13 +242,15 @@ daily2 <- daily
 daily2$value[nrow(daily2)] <- NA
 daily2
 
-complete(daily2, day, fill = list(value = 0))
+daily2 %>%
+  complete(day, fill = list(value = 0))
 ```
 
 To avoid this, you can now retain pre-existing explicit missing values with the new `explicit` argument:
 
 ```{r}
-complete(daily2, day, fill = list(value = 0), explicit = FALSE)
+daily2 %>%
+  complete(day, fill = list(value = 0), explicit = FALSE)
 ```
 
 ## Missing values
@@ -257,7 +264,8 @@ library(lubridate, warn.conflicts = FALSE)
 
 df <- tibble(x = seconds(c(1, 2, NA, 4, NA)))
 
-fill(df, x, .direction = "down")
+df %>% 
+  fill(x, .direction = "down")
 ```
 
 And it now treats `NaN` like any other missing value:
@@ -265,7 +273,8 @@ And it now treats `NaN` like any other missing value:
 ```{r}
 df <- tibble(x = c(NaN, 2, NA, 3))
 
-fill(df, x, .direction = "up")
+df %>% 
+  fill(x, .direction = "up")
 ```
 
 The most drastic improvement in safety comes to `replace_na()`. Previously, this relied on `[<-` to replace missing values with a replacement value, which is much laxer than vctrs in terms of what the replacement value can be. This resulted in the possibility for your column type to change depending on what your replacement value was.
@@ -280,7 +289,7 @@ df
 # Previous behavior without vctrs:
 
 # Integer column changed to character column
-replace_na(df, list(x = "missing"))
+df %>% replace_na(list(x = "missing"))
 #> # A tibble: 3 × 1
 #>   x      
 #>   <chr>  
@@ -289,7 +298,7 @@ replace_na(df, list(x = "missing"))
 #> 3 3
 
 # Integer column changed to double column
-replace_na(df, list(x = 1))
+df %>% replace_na(list(x = 1))
 #> # A tibble: 3 × 1
 #>       x
 #>   <dbl>
@@ -304,11 +313,11 @@ With vctrs, we now ensure that the replacement value is always cast to the type 
 # New behavior with vctrs:
 
 # Error, because "missing" can't be converted to an integer
-replace_na(df, list(x = "missing"))
+df %>% replace_na(list(x = "missing"))
 
 # Integer column type is retained, and the double value of `1` is
 # converted to an integer replacement value of `1L`
-replace_na(df, list(x = 1))
+df %>% replace_na(list(x = 1))
 ```
 
 ## Acknowledgements
