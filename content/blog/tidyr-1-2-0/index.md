@@ -10,10 +10,10 @@ photo:
   url: https://unsplash.com/photos/Qv0d5LJCxgo
   author: Brina Blum
 categories: [package] 
-tags: []
+tags: [tidyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 493d96de6216c76e
+rmd_hash: 2091a86c21b3bc28
 
 ---
 
@@ -27,7 +27,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will go over the main new features, which include: four new arguments to [`pivot_wider()`](https://tidyr.tidyverse.org/reference/pivot_wider.html), the ability to unnest multiple columns at once in [`unnest_wider()`](https://tidyr.tidyverse.org/reference/hoist.html) and [`unnest_longer()`](https://tidyr.tidyverse.org/reference/hoist.html), an enhanced [`complete()`](https://tidyr.tidyverse.org/reference/complete.html) function, and some updates to our tools for handling missing values.
+This blog post will go over the main new features, which include four new arguments to [`pivot_wider()`](https://tidyr.tidyverse.org/reference/pivot_wider.html), the ability to unnest multiple columns at once in [`unnest_wider()`](https://tidyr.tidyverse.org/reference/hoist.html) and [`unnest_longer()`](https://tidyr.tidyverse.org/reference/hoist.html), an enhanced [`complete()`](https://tidyr.tidyverse.org/reference/complete.html) function, and some updates to our tools for handling missing values.
 
 You can see a full list of changes in the [release notes](https://github.com/tidyverse/tidyr/blob/main/NEWS.md), where you'll also find details on the \~50 bugs that were fixed in this release!
 
@@ -368,7 +368,8 @@ This provides us with a number of options, but the last one is particularly usef
 <span class='c'>#&gt; <span style='color: #555555;'>5</span>     2     2</span>
 
 <span class='c'># Joint unnesting</span>
-<span class='nf'><a href='https://tidyr.tidyverse.org/reference/hoist.html'>unnest_longer</a></span><span class='o'>(</span><span class='nv'>df</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>y</span><span class='o'>)</span><span class='o'>)</span>
+<span class='nv'>df</span> <span class='o'><a href='https://tidyr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/hoist.html'>unnest_longer</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>y</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span>
 <span class='c'>#&gt;       x     y</span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
