@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: tidyr-1-2-0
 title: tidyr 1.2.0
-date: 2022-01-25
+date: 2022-02-01
 author: Davis Vaughan
 description: >
     tidyr 1.2.0 includes a bunch of new features and bug fixes, particularly for pivoting, rectangling, and grid specific tools.
@@ -13,7 +13,7 @@ categories: [package]
 tags: [tidyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 42a7f268252c23d1
+rmd_hash: 2fd04f58db4b97ef
 
 ---
 
