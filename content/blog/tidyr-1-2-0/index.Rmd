@@ -1,0 +1,325 @@
+---
+output: hugodown::hugo_document
+slug: tidyr-1-2-0
+title: tidyr 1.2.0
+date: 2022-02-01
+author: Davis Vaughan
+description: >
+    tidyr 1.2.0 includes a bunch of new features and bug fixes, particularly for pivoting, rectangling, and grid specific tools.
+photo:
+  url: https://unsplash.com/photos/Qv0d5LJCxgo
+  author: Brina Blum
+categories: [package] 
+tags: [tidyr]
+editor_options: 
+  chunk_output_type: console
+---
+
+We're chuffed to announce the release of [tidyr](https://tidyr.tidyverse.org) 1.2.0. tidyr provides a set of tools for transforming data frames to and from tidy data, where each variable is a column and each observation is a row. Tidy data is a convention for matching the semantics and structure of your data that makes using the rest of the tidyverse (and many other R packages) much easier.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("tidyr")
+```
+
+This blog post will go over the main new features, which include four new arguments to `pivot_wider()`, the ability to unnest multiple columns at once in `unnest_wider()` and `unnest_longer()`, an enhanced `complete()` function, and some updates to our tools for handling missing values.
+
+You can see a full list of changes in the [release notes](https://github.com/tidyverse/tidyr/blob/main/NEWS.md), where you'll also find details on the \~50 bugs that were fixed in this release!
+
+```{r setup}
+library(tidyr)
+library(dplyr, warn.conflicts = FALSE)
+```
+
+## New author
+
+First off, we are very excited to welcome [Maximilian Girlich](https://github.com/mgirlich) as a new tidyr author in recognition of his significant and sustained contributions. In particular, he played a large part in speeding up a number of core functions, including: `unchop()`, `unnest()`, `unnest_wider()`, and `unnest_longer()`. Additionally, he provided proof-of-concept implementations for a few new features, like the `unused_fn` argument to `pivot_wider()` discussed below.
+
+## Pivoting
+
+### Value expansion
+
+`pivot_wider()` has gained two new arguments related to the *expansion* of values. These arguments are similar to `drop = FALSE` from `spread()`, but are a bit more fine grained. As you'll see, these are mostly useful when you have factors in either `names_from` or `id_cols` and want to ensure that all of the factor levels are retained.
+
+```{r}
+weekdays <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+daily <- tibble(
+  day = factor(c("Tue", "Thu", "Fri", "Mon"), levels = weekdays),
+  value = c(2, 3, 1, 5)
+)
+
+daily
+```
+
+Imagine you'd like to pivot the values from `day` into columns, filling the cells with `value`. By default, `pivot_wider()` only generates columns from the data that is actually there, and will retain the ordering that was present in the data.
+
+```{r}
+pivot_wider(daily, names_from = day, values_from = value)
+```
+
+When you know the full set of possible values and have encoded them as factor levels (as we have done here), you might want to retain those levels in the pivot, even if there isn't any data. Additionally, it would probably be nice if they were sorted to match the levels found in the factor. The new `names_expand` argument handles both of these.
+
+```{r}
+pivot_wider(daily, names_from = day, values_from = value, names_expand = TRUE)
+```
+
+A related problem can occur when there are implicit missing factor levels in the `id_cols`. When this happens, there are missing rows (rather than columns) that you'd like to explicitly represent. To demonstrate, we'll modify `daily` with a `type` column, and pivot on that instead, keeping `day` as an identifier column.
+
+```{r}
+daily <- daily %>%
+  mutate(type = c("A", "B", "B", "A"))
+
+daily
+```
+
+In the pivot below, we are missing some rows corresponding to the missing factor levels of `day`. Again, by default `pivot_wider()` will only use data that already exists in the `id_cols`.
+
+```{r}
+pivot_wider(
+  daily, 
+  names_from = type, 
+  values_from = value
+)
+```
+
+To explicitly expand (and sort) these missing rows, we can use `id_expand`, which works much the same way as `names_expand`. We will also go ahead and fill the unrepresented values with zeros.
+
+```{r}
+pivot_wider(
+  daily, 
+  id_expand = TRUE,
+  names_from = type, 
+  values_from = value,
+  values_fill = 0
+)
+```
+
+### Varying names
+
+When you specify multiple `values_from` columns, the resulting column names that get generated from the combination of `names_from` values and `values_from` names default to varying the `names_from` values *fastest*. This means that all of the columns related to the first `values_from` column will be at the front, followed by the columns related to the second `values_from` column, and so on. For example, if we wanted to flatten `daily` all the way out to a single row by specifying `values_from = c(value, type)`, then we would end up with all the columns related to `value` followed by those related to `type`.
+
+```{r}
+pivot_wider(
+  daily,
+  names_from = day,
+  values_from = c(value, type),
+  names_expand = TRUE
+)
+```
+
+Depending on your data, you might instead want to group all of the columns related to a particular `names_from` value together. In this example, that would mean grouping all of the columns related to Monday together, followed by Tuesday, Wednesday, etc. You can accomplish this with the new `names_vary` argument, which allows you to vary the `names_from` values *slowest*.
+
+```{r}
+pivot_wider(
+  daily,
+  names_from = day,
+  values_from = c(value, type),
+  names_expand = TRUE,
+  names_vary = "slowest"
+)
+```
+
+### Unused columns
+
+Occasionally you'll find yourself in a situation where you have columns in your data that are unrelated to the pivoting process itself, but you'd still like to retain some information about them. Consider this data set that records values returned by various systems across multiple counties.
+
+```{r}
+readouts <- tibble(
+  county = c("Wake", "Wake", "Wake", "Guilford", "Guilford"),
+  date = c(as.Date("2020-01-01") + 0:2, as.Date("2020-01-03") + 0:1),
+  system = c("A", "B", "C", "A", "C"),
+  value = c(3.2, 4, 5.5, 2, 1.2)
+)
+
+readouts
+```
+
+You might want to pivot this into a view containing one row per `county`, with the `system` types across the columns. You might do something like:
+
+```{r}
+pivot_wider(
+  readouts,
+  id_cols = county,
+  names_from = system,
+  values_from = value
+)
+```
+
+This worked, but in the process we've lost all of the information from the `date` column about when the values were recorded. To fix this, we can use the new `unused_fn` argument to retain a summary of the unused `date` column. In our case, we'll retain the most recent date a value was recorded across all systems.
+
+```{r}
+pivot_wider(
+  readouts,
+  id_cols = county,
+  names_from = system,
+  values_from = value,
+  unused_fn = list(date = max)
+)
+```
+
+If you want to retain the unused columns but delay the summarization entirely, you can use `list()` to wrap up the value into a list column.
+
+```{r}
+pivot_wider(
+  readouts,
+  id_cols = county,
+  names_from = system,
+  values_from = value,
+  unused_fn = list
+)
+```
+
+Note that for `unused_fn` to work, you must supply `id_cols` explicitly, as otherwise all of the remaining columns are assumed to be `id_cols`.
+
+### More informative errors
+
+We've improved on a number of the error messages throughout tidyr, but the error you get from `pivot_wider()` when you encounter values that aren't uniquely identified is now especially nice. Let's "accidentally" add a duplicate row to `readouts`.
+
+```{r}
+readouts2 <- readouts %>%
+  slice(seq_len(n()), n()) 
+
+readouts2
+```
+
+Pivoting on `system` warns us that the values from `value` are not uniquely identified.
+
+```{r}
+pivot_wider(
+  readouts2,
+  id_cols = county,
+  names_from = system,
+  values_from = value
+)
+```
+
+This provides us with a number of options, but the last one is particularly useful if we weren't expecting duplicates. This prints out a block of dplyr code that you can use to quickly identify duplication issues. Replacing `{data}` with `readouts2`, we get:
+
+```{r}
+readouts2 %>%
+  dplyr::group_by(county, system) %>%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+  dplyr::filter(n > 1L) 
+```
+
+## (Un)nesting
+
+`unnest_longer()` and `unnest_wider()` have both gained the ability to unnest multiple columns at once. This is particularly useful with `unnest_longer()`, where sequential unnesting would instead result in a Cartesian product, which isn't typically desired.
+
+```{r}
+df <- tibble(x = list(1, 1:2), y = list(1, 1:2))
+df
+```
+
+```{r}
+# Sequential unnesting
+df %>%
+  unnest_longer(x) %>%
+  unnest_longer(y)
+
+# Joint unnesting
+df %>% 
+  unnest_longer(c(x, y))
+```
+
+## Grids
+
+When `complete()`-ing a data frame, it's often useful to immediately fill the newly generated missing values with a value that better represents their intention. For example, with the `daily` data we could complete on the `day` factor column and insert zeros for `value` in any row that wasn't previously represented.
+
+```{r}
+daily
+
+daily %>%
+  complete(day, fill = list(value = 0))
+```
+
+But what if there were already missing values before completing? By default, `complete()` will still fill those *explicit* missing values too.
+
+```{r}
+daily2 <- daily
+daily2$value[nrow(daily2)] <- NA
+daily2
+
+daily2 %>%
+  complete(day, fill = list(value = 0))
+```
+
+To avoid this, you can now retain pre-existing explicit missing values with the new `explicit` argument:
+
+```{r}
+daily2 %>%
+  complete(day, fill = list(value = 0), explicit = FALSE)
+```
+
+## Missing values
+
+The three core missing values functions, `drop_na()`, `replace_na()`, and `fill()`, have all been updated to utilize [vctrs](https://vctrs.r-lib.org). This allows them to work properly with a wider variety of types, and makes them safer to use with some of the existing types that they already supported.
+
+As an example, `fill()` now works properly with the Period types from [lubridate](https://lubridate.tidyverse.org):
+
+```{r}
+library(lubridate, warn.conflicts = FALSE)
+
+df <- tibble(x = seconds(c(1, 2, NA, 4, NA)))
+
+df %>% 
+  fill(x, .direction = "down")
+```
+
+And it now treats `NaN` like any other missing value:
+
+```{r}
+df <- tibble(x = c(NaN, 2, NA, 3))
+
+df %>% 
+  fill(x, .direction = "up")
+```
+
+The most drastic improvement in safety comes to `replace_na()`. Previously, this relied on `[<-` to replace missing values with a replacement value, which is much laxer than vctrs in terms of what the replacement value can be. This resulted in the possibility for your column type to change depending on what your replacement value was.
+
+```{r}
+# Notice that this is an integer column
+df <- tibble(x = c(1L, NA, 3L))
+df
+```
+
+```{r, eval=FALSE}
+# Previous behavior without vctrs:
+
+# Integer column changed to character column
+df %>% replace_na(list(x = "missing"))
+#> # A tibble: 3 × 1
+#>   x      
+#>   <chr>  
+#> 1 1      
+#> 2 missing
+#> 3 3
+
+# Integer column changed to double column
+df %>% replace_na(list(x = 1))
+#> # A tibble: 3 × 1
+#>       x
+#>   <dbl>
+#> 1     1
+#> 2     1
+#> 3     3
+```
+
+With vctrs, we now ensure that the replacement value is always cast to the type of the column you are replacing in. This ensures that the column types remain the same before and after you replace any missing values.
+
+```{r, error=TRUE}
+# New behavior with vctrs:
+
+# Error, because "missing" can't be converted to an integer
+df %>% replace_na(list(x = "missing"))
+
+# Integer column type is retained, and the double value of `1` is
+# converted to an integer replacement value of `1L`
+df %>% replace_na(list(x = 1))
+```
+
+## Acknowledgements
+
+Thanks to the 25 people who contributed to this version of tidyr by discussing ideas and suggesting new features! [\@aliaamiri](https://github.com/aliaamiri), [\@allenbaron](https://github.com/allenbaron), [\@bersbersbers](https://github.com/bersbersbers), [\@cjburgess](https://github.com/cjburgess), [\@DanChaltiel](https://github.com/DanChaltiel), [\@edzer](https://github.com/edzer), [\@eshom](https://github.com/eshom), [\@gaborcsardi](https://github.com/gaborcsardi), [\@gergness](https://github.com/gergness), [\@ggrothendieck](https://github.com/ggrothendieck), [\@iago-pssjd](https://github.com/iago-pssjd), [\@issactoast](https://github.com/issactoast), [\@joiharalds](https://github.com/joiharalds), [\@LuiNov](https://github.com/LuiNov), [\@LukasWallrich](https://github.com/LukasWallrich), [\@mgirlich](https://github.com/mgirlich), [\@MichaelChirico](https://github.com/MichaelChirico), [\@NFA](https://github.com/NFA), [\@olehost](https://github.com/olehost), [\@psads-git](https://github.com/psads-git), [\@psychelzh](https://github.com/psychelzh), [\@ramiromagno](https://github.com/ramiromagno), [\@romainfrancois](https://github.com/romainfrancois), [\@TimTaylor](https://github.com/TimTaylor), and [\@xiangpin](https://github.com/xiangpin).
