@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [usethis, devtools]
-rmd_hash: 8729b6f892693e50
+rmd_hash: e3aefd83b0ef8334
 
 ---
 
@@ -86,7 +86,7 @@ I did however run into the situation where a test newly failed. Those are the si
 
 Those instances may be the most work when upgrading to edition 3 but I did not encounter many of them - and when I did it was valuable to know about the differences (well, those which I didn't choose to ignore).
 
-## Genearlly useful aspects - for any testthat edition
+## More testing made easier
 
 While I was going over all the test files, I also decided to cover a few other aspects.
 
