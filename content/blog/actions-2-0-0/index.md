@@ -1,0 +1,143 @@
+---
+output: hugodown::hugo_document
+
+slug: actions-2-0-0
+title: GitHub Actions for R developers, v2
+date: 2022-02-14
+author: Gábor Csárdi
+description: >
+    We have updated our GitHub Actions at `r-lib/actions`. Consider upgrading
+    to the new `v2` version, for faster and more reliable GHA jobs.
+
+photo:
+  url: https://www.pexels.com/photo/industry-technology-power-clock-4069389
+  author: Ronaldo Galeano
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [programming] 
+tags: ["GitHub Actions", "r-lib", "actions", "CI", "contionuous integration"]
+rmd_hash: 9fb663269136400e
+
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+
+We're tickled pink to announce the new, `v2` versions of our collection of R related GitHub Actions at <https://github.com/r-lib/actions>.
+
+If you are already using these actions, you might want to take look at the [full list of changes](https://github.com/r-lib/actions/releases/tag/v2) first.
+
+## About `rlib/actions`
+
+[GitHub Actions](https://github.com/features/actions) is a continuous integration service that allows you to automatically run code whenever you push to GitHub. If you're developing a package this allows you to automate tasks like running `R CMD check` on multiple platforms or rebuilding your [pkgdown](https://pkgdown.r-lib.org/) website.
+
+The [`r-lib/actions`](https://github.com/r-lib/actions#readme) repo has a number of reusable actions that perform common R-related tasks: installing R and Rtools, pandoc, installing dependencies of R packages, running `R CMD check`, etc.:
+
+-   `setup-r` installs R and on Windows Rtools,
+
+-   `setup-pandoc` installs pandoc,
+
+-   `setup-r-dependencies` installs R package dependencies,
+
+-   `check-r-package` runs `R CMD check` on an R package.
+
+See the [README](https://github.com/r-lib/actions#readme) for the complete list of actions.
+
+## Setting up `r-lib/actions`
+
+The `r-lib/actions` repo has [example workflows](https://github.com/r-lib/actions/tree/v2-branch/examples#example-workflows), it is best to start with these.
+
+You can copy the ones you'd like to use to the `.github/workflows` directory of your R package or project. For an R package you would typically want the `test-coverage` workflow and one of the `check-` workflows, depending on how thoroughly you want to check your package across operating systems and R versions. If your package has a pkgdown site then you probably also want the `pkgdown` workflow.
+
+The usethis package has several helper functions to set up GitHub Actions for you: [`?usethis::use_github_action`](https://usethis.r-lib.org/reference/github_actions.html). Note, that to set up the new `v2` versions of the actions you currently need to use the [development version](https://github.com/r-lib/usethis#installation) of the usethis package:
+
+``` r
+install.packages("pak", repos = "https://r-lib.github.io/p/pak/devel")
+pak::pkg_install("r-lib/usethis")
+usethis::use_github_action("check-standard")
+usethis::use_github_action("test-coverage")
+usethis::use_github_action("pkgdown")
+```
+
+## Which tag or branch should I use?
+
+In short, use the `v2` tag.
+
+The `v2` tag is a *sliding* tag. It is not fixed to a certain version, but we regularly update it with (non-breaking) improvements and fixes. If it is absolutely crucial that your workflow runs the same way, use one of the fixed tags, e.g. `v2.1.1` is the most recent one.
+
+## What is new?
+
+### Make a plan and stick to it
+
+`setup-r-dependencies@v2` takes a more principled approach to resolving and installing system and package dependencies:
+
+1.  It looks up all system (on supported Linux distributions) and package dependencies, and works out an installation plan with a set of package versions that are compatible with each other. (If it cannot find such set, then the action already fails here.)
+2.  It writes the plan into a *lock file*. This is a machine readable (JSON) file, that it also printed to the job's log file. This is the blueprint of the installation.
+3.  It potentially restores a cached set of installed packages. These are often the same exact package versions that are included in the installation plan. However, for efficiency, `setup-r-dependencies` also restores cache versions that are slightly different.
+4.  On Linux (if the distribution is supported) it installs all system requirements, according to the lock file.
+5.  It goes over the install plan again, to check that the packages (potentially) restored from the cache are the same as the ones in the plan. If a package is different, then it upgrades (or downgrades) it according to the plan.
+6.  At the end of the job, is saves the installed packages into the cache.
+
+At the end of the installation you can be sure that exactly the planned packages are installed.
+
+See the `setup-r-dependencies` [README](https://github.com/r-lib/actions/tree/v2-branch/setup-r-dependencies#readme) for more explanation and examples.
+
+### Simpler workflow files
+
+If you update your existing workflows to use the `v2` actions, also take a look at the new [example workflows](https://github.com/r-lib/actions/tree/v2/examples). These are typically much simpler than the previously suggested workflows, because we moved some workflow steps into the new actions. E.g. `check-r-package` always prints testthat output and it uploads the check directory as an artifact on failure, you don't need to do these explicitly in the workflow. `setup-r-dependencies` now prints the session info with all installed packages, no need to do this explicitly.
+
+### Snapshots as artifacts
+
+Encoding issues are not uncommon in snapshot tests across platforms. To make these easier to debug, `check-r-package@v2` will now upload snapshot output as artifacts if you set the `upload-snapshots` parameter to `true`:
+
+``` yaml
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+```
+
+### Rtools42 support
+
+[Rtools42](https://www.r-project.org/nosvn/winutf8/ucrt3/web/rtools.html) is the new version of the Rtools compiler bundle, which will be the default for R 4.2.0, coming in the spring. You can now optionally install Rtools42 with the `setup-r` action. By default `setup-r` uses [Rtools40](https://cran.r-project.org/bin/windows/Rtools/rtools40.html) because it is pre-installed on the CI machines, and it is fully compatible with Rtools42. To select Rtools42, set the `rtools-version` parameter to `42`:
+
+``` yaml
+      - uses: r-lib/actions/setup-r@v2-branch
+        with:
+          r-version: 'devel'
+          rtools-version: '42'
+```
+
+See [this example](https://github.com/r-lib/actions/blob/27ac87278d916382a04662af42392f3c921ee37e/.github/workflows/check-full.yaml) if you want to use `rtools-version` in a matrix build.
+
+### Other changes
+
+See the READMEs for more details.
+
+-   `setup-r-dependencies` now does not always install the latest versions of the dependencies.
+
+-   You can ask `setup-r-dependencies` to ignore some optional dependencies on older R versions.
+
+-   The Linux system requirements look-up is more robust now, and uses `SystemRequirements` fields from all local, GitHub or URL remotes, and it also uses the package installation plan, instead of only relying on the dependency tress of CRAN packages.
+
+-   `setup-r-dependencies` and `check-r-package` now have a `working-directory` parameter.
+
+-   `setup-r-dependencies` now works on all x86_64 Linux distributions (but only installs system requirements on supported ones, see the README).
+
+-   The example \*down (blogdown, pkgdown and bookdown) workflows now build the web site in pull requests as well, but only deploy on push and release events. They also have a manual trigger.
+
+-   The example \*down workflows now protect against race conditions.
+
+## Acknowledgements
+
+Thanks to everyone who contributed to `r-lib/actions`: [@andrewl776](https://github.com/andrewl776), [@arisp99](https://github.com/arisp99), [@assignUser](https://github.com/assignUser), [@astamm](https://github.com/astamm), [@bribroder](https://github.com/bribroder), [@duckmayr](https://github.com/duckmayr), [@hadley](https://github.com/hadley), [@harupy](https://github.com/harupy), [@ijlyttle](https://github.com/ijlyttle), [@IndrajeetPatil](https://github.com/IndrajeetPatil), [@jeroen](https://github.com/jeroen), [@krlmlr](https://github.com/krlmlr), [@lorenzwalthert](https://github.com/lorenzwalthert), [@MichaelChirico](https://github.com/MichaelChirico), [@MikkoVihtakari](https://github.com/MikkoVihtakari), [@ms609](https://github.com/ms609), [@pat-s](https://github.com/pat-s), [@s-u](https://github.com/s-u), [@slwu89](https://github.com/slwu89), [@vincentarelbundock](https://github.com/vincentarelbundock), and [@yutannihilation](https://github.com/yutannihilation).
+
