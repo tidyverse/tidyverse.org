@@ -2,12 +2,12 @@
 output: hugodown::hugo_document
 
 slug: upkeep-testthat-3
-title: Upkeep - Upgrading to testthat edition 3
+title: Upgrading to testthat edition 3
 date: 2022-02-08
 author: Hannah Frick
 description: >
-    Guidance for keeping your package up to date with tidyverse standards, in 
-    particular upgrading to testthat edition 3.
+    A workflow for upgrading to testthat edition 3: activation, deprecations, 
+    changes to warnings, messages, and comparisons.
 
 photo:
   url: https://unsplash.com/photos/46juD4zY1XA
@@ -15,8 +15,8 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
-tags: [usethis, devtools]
-rmd_hash: e3aefd83b0ef8334
+tags: [usethis, devtools, testthat]
+rmd_hash: cf9cd9878187a070
 
 ---
 
@@ -33,27 +33,23 @@ TODO:
 * [ ] ~[`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)~
 -->
 
-On the tidymodels team, I split time between new things like the [censored package for survival analysis](https://www.tidyverse.org/blog/2021/11/survival-analysis-parsnip-adjacent/) and keeping the existing packages in good shape.
+As the collection of packages in the tidyverse grows, maintenance becomes increasingly important, and Hadley made this the topic of his [keynote at rstudio::global 2021](https://www.rstudio.com/resources/rstudioglobal-2021/maintaining-the-house-the-tidyverse-built/).
 
-## Upkeep of tidy packages
-
-As the collection of packages grows, maintenance becomes increasingly important. Hadley Wickham made it the topic of his [keynote at rstudio::global 2021](https://www.rstudio.com/resources/rstudioglobal-2021/maintaining-the-house-the-tidyverse-built/). The [usethis](https://usethis.r-lib.org/) package provides tools for the workflows when working on tidyverse, r-lib, or tidymodels packages and as such contains the set of labels used to categorize GitHub issues. Day-to-day maintenance is captured via the `"upkeep"` label for "maintenance, infrastructure, and similar". For bigger efforts, `use_tidy_upkeep_issue()` creates an issue containing a checklist of actions to bring a package up to current tidyverse standards.
-
-![A GitHub issue with a checklist of upkeep tasks](upkeep-issue.png)
+In this blog post, I discuss my process for an recent maintenance task, upgrading package tests to use the third edition of testthat.
 
 ## testthat 3e
 
-One of the items on this checklist is to use testthat edition 3. The testthat package introduced the idea of an "edition" in version 3.0.0:
+The testthat package introduced the idea of an "edition" in version 3.0.0:
 
 > An edition is a bundle of behaviours that you have to explicitly choose to use, allowing us to make otherwise backward incompatible changes.
 
-While you can continue to use testthat's previous behaviour, it is recommended to upgrade so that you can make use of handy new features. As some of the changes may break your tests, you might have been putting that off though? You would not be alone in that! Several tidymodels packages still have to make the jump but I recently upgraded [dials](https://github.com/tidymodels/dials/) and [censored](https://github.com/tidymodels/censored/) to testthat edition 3. Here is what I did and learned along the way.
+If you haven't heard of testthat 3e yet, the [testthat article introducing the 3rd edition](https://testthat.r-lib.org/articles/third-edition.html) is a great place to start. It outlines all the changes this edition brings.
+
+While you can continue to use testthat's previous behaviour, it's a good idea to upgrade so that you can make use of handy new features. As some of the changes may break your tests, you might have been putting that off though? You would not be alone in that! Several tidymodels packages still have to make the jump but I recently upgraded [dials](https://github.com/tidymodels/dials/) and [censored](https://github.com/tidymodels/censored/) to testthat edition 3. Here is what I did and learned along the way.
 
 ### Workflow to upgrade
 
-First off, the [testthat article introducing the 3rd edition](https://testthat.r-lib.org/articles/third-edition.html) is very helpful. I'd recommend reading that if you haven't yet!
-
-It tells you how you can opt in to the new edition, and about major changes: deprecations, how comparisons are made, and how messages and warnings are handled.
+The testthat article tells you how you can opt in to the new edition, and about major changes: deprecations, how messages and warnings are handled, and how comparisons of objects are made.
 
 This already gives you the main guidance for a workflow:
 
@@ -64,19 +60,20 @@ This already gives you the main guidance for a workflow:
 
 ### Activation 🚀
 
-To activate you need to do two things in the DESCRIPTION - or you can let `usethis::use_testthat(3)` do it for you: - Increase the testthat version to `>= 3.0.0`. - Set the `Config/testthat/edition` field to `3`.
+To activate you need to do two things in the DESCRIPTION - or you can let `usethis::use_testthat(3)` do it for you:
+
+-   Increase the testthat version to `>= 3.0.0`.
+-   Set the `Config/testthat/edition` field to `3`.
 
 ### Moving on from deprecations ✨
 
-The article on testthat 3e contains a [list of deprecated functions](https://testthat.r-lib.org/articles/third-edition.html#deprecations) together with their successors. You can work your way through it, searching for the deprecated function and then replacing it with the most suitable alternative.
+The article on testthat 3e contains a [list of deprecated functions](https://testthat.r-lib.org/articles/third-edition.html#deprecations) together with their successors. You can work your way through it, searching for the deprecated function and then replacing it with the most suitable alternative. The first one that list is `context()` as testthat will use the file name instead, ensuring that context and file name are in sync. As such, `context()` does not have a replacement and my first commit after activating the third edition was to remove all calls to `context()`, followed by replacing other deprecated functions and arguments.
+
+![A list of commits starting with "require testthat 3e, followed by removing `context()` and other deprecated functions"](commits.png)
 
 ### Warnings and messages 🤫
 
 Edition 3 handles warnings and messages differently than edition 2: `expect_warning()` captures at most one warning so if your code generates multiple warnings, they will bubble up now. Messages were previously silently ignored, now they also bubble up. That means the output may be a lot noisier after switching to edition 3. If the warnings or messages are important, you should explicitly capture them. Otherwise you can suppress them to clean up the output and make it easier to focus on what's important. Again, the testthat article has good examples for how to do either.
-
-As an illustration of that workflow, my first commits when upgrading censored looked like this
-
-![A list of commits starting with "require testthat 3e"](commits.png)
 
 ### Comparing things 🍎 🍊
 
@@ -146,4 +143,6 @@ This gives you access to some convenient features of usethis and devtools:
 -   When you have either file open, you can run the tests with [`devtools:::test_active_file()`](http://devtools.r-lib.org/reference/test.html) and see the test coverage report with `test_coverage_active_file()` (which also shows you which lines are actually being tested). Both also have an RStudio addin which means you can add a [keyboard shortcut](https://rstudio.github.io/rstudioaddins/#keyboard-shorcuts) for them!
 
 And with that dials and censored were ready for more snapshot tests in the future!
+
+For more guidance on implementing tidy standards, check out [`usethis::use_tidy_upkeep_issue()`](https://usethis.r-lib.org/reference/tidyverse.html). It creates a GitHub issue with a handy checklist. You will be seeing those popping up in our repositories soon when we do some spring cleaning!
 
