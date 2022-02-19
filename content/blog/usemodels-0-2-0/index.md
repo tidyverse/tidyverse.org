@@ -6,7 +6,7 @@ title: usemodels 0-2-0
 date: 2022-02-19
 author: Max Kuhn
 description: >
-    A new release of the use models makes it even easier to use tidymodels.
+    A new release of the usemodels makes it even easier to use tidymodels.
 
 photo:
   url: https://unsplash.com/photos/r1sTNKz0omE
@@ -86,7 +86,7 @@ use_kernlab_svm_rbf(Class ~ ., data = two_class_dat)
 ##   add_recipe(kernlab_recipe) %>% 
 ##   add_model(kernlab_spec) 
 ## 
-## set.seed(98547)
+## set.seed(76554)
 ## kernlab_tune <-
 ##   tune_grid(kernlab_workflow, resamples = stop("add your rsample object"), grid = stop("add number of candidate points"))
 ```
