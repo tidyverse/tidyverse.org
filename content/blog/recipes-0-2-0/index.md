@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: recipes-0-2-0
 title: recipes 0.2.0
-date: 2022-02-19
+date: 2022-02-25
 author: Max Kuhn
 description: >
     Recipes has added a few new steps along with many improvements.
@@ -52,6 +52,41 @@ Here's a real example from [Episode 8 of _Sliced_](https://www.kaggle.com/c/slic
 
 ```r
 library(recipes)
+```
+
+```
+## Loading required package: dplyr
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```
+## 
+## Attaching package: 'recipes'
+```
+
+```
+## The following object is masked from 'package:stats':
+## 
+##     step
+```
+
+```r
 spotify <- 
   tibble::tribble(
     ~ artists,
@@ -79,7 +114,7 @@ Finally, a new filtering function (`step_filter_missing()`) can filter out colum
 
 ## Other notable new features
 
-`step_zv()` now has a `group` argument. This cna be helpful for models such as naive Bayes or quadratic discriminant analysis where the predictors must have at least two unique values _within each class_. 
+`step_zv()` now has a `group` argument. This can be helpful for models such as naive Bayes or quadratic discriminant analysis where the predictors must have at least two unique values _within each class_. 
 
 All recipe steps now officially support empty selections to be more aligned with dplyr and other packages that use tidyselect. For example, if a previous step removed all of the columns needed for a later step, the recipe does not fail when it is estimated (with the exception of `step_mutate()`). The documentation in `?selections` has been updated with advice for writing selectors when filtering steps are used. 
 
