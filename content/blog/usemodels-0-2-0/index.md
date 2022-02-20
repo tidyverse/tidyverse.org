@@ -39,9 +39,7 @@ You can install it from CRAN with:
 install.packages("usemodels")
 ```
 
-This blog post will describe the new features.
-
-You can see a full list of changes in the [release notes](https://usemodels.tidymodels.org/news/index.html)
+This blog post will describe the new features. You can see a full list of changes in the [release notes](https://usemodels.tidymodels.org/news/index.html)
 
 
 ```r
@@ -86,7 +84,7 @@ use_kernlab_svm_rbf(Class ~ ., data = two_class_dat)
 ##   add_recipe(kernlab_recipe) %>% 
 ##   add_model(kernlab_spec) 
 ## 
-## set.seed(76554)
+## set.seed(99571)
 ## kernlab_tune <-
 ##   tune_grid(kernlab_workflow, resamples = stop("add your rsample object"), grid = stop("add number of candidate points"))
 ```
