@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: usemodels-0-2-0
 title: usemodels 0.2.0
-date: 2022-02-19
+date: 2022-02-24
 author: Max Kuhn
 description: >
     A new release of the usemodels makes it even easier to use tidymodels.
@@ -84,7 +84,7 @@ use_kernlab_svm_rbf(Class ~ ., data = two_class_dat)
 ##   add_recipe(kernlab_recipe) %>% 
 ##   add_model(kernlab_spec) 
 ## 
-## set.seed(23082)
+## set.seed(58694)
 ## kernlab_tune <-
 ##   tune_grid(kernlab_workflow, resamples = stop("add your rsample object"), grid = stop("add number of candidate points"))
 ```
