@@ -66,7 +66,7 @@ To activate you need to do two things in the DESCRIPTION - or you can let `useth
 
 ### Moving on from deprecations `r emo::ji("sparkles")`
 
-The article on testthat 3e contains a [list of deprecated functions](https://testthat.r-lib.org/articles/third-edition.html#deprecations) together with their successors. You can work your way through it, searching for the deprecated function and then replacing it with the most suitable alternative. The first one in that list is `context()` as testthat will use the file name instead, ensuring that context and file name are in sync. As such, `context()` does not have a replacement. My first commit after activating the third edition was to remove all calls to `context()`, followed by replacing other deprecated functions and arguments.
+The article on testthat 3e contains a [list of deprecated functions](https://testthat.r-lib.org/articles/third-edition.html#deprecations) together with their successors. You can work your way through it, searching for the deprecated function and then replacing it with the most suitable alternative. The first one in that list is `context()` as testthat will use the file name instead, ensuring that context and file name are in sync. As such, `context()` does not have a replacement. My first [commit](https://github.com/tidymodels/censored/pull/142) after activating the third edition was to remove all calls to `context()`, followed by replacing other deprecated functions and arguments.
 
 ![A list of commits starting with "require testthat 3e, followed by removing `context()` and other deprecated functions"](commits.png)
 
@@ -112,7 +112,7 @@ This separates an expectation about the warnings from the expectation about the 
 
 I wanted to make the tests more self-contained so that a test could run with a single call to `test_that()`. Specifically, I didn't want to have to scroll back up to the top of the file to load any necessary package or find the code that creates helper objects.
 
-Namespacing functions helps with the former, i.e. using `dplyr::mutate()` instead of `library(dplyr)` at the top of the file and later `mutate()` inside of the expression for `test_that()`. 
+You can avoid the former by prefixing functions with the package they belong to, i.e. using `dplyr::mutate()` instead of `library(dplyr)` at the top of the file and later `mutate()` inside of the expression for `test_that()`. 
 
 If creating a helper object is short, I might move the code inside of `test_that()`. If you create the same helper objects multiple times and don't want to see the code repeatedly, you can move it into a helper function. Files inside the `testthat` folder of your source code with file names starting with `helper` are executed before tests are run. You could put your helper code there but it is [recommended](https://testthat.r-lib.org/reference/test_file.html#special-files) to put the helper code in your `R/` folder, for example as [`test-helpers.R`](https://testthat.r-lib.org/articles/custom-expectation.html).
 
