@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: upkeep-testthat-3
 title: Upgrading to testthat edition 3
-date: 2022-02-08
+date: 2022-02-22
 author: Hannah Frick
 description: >
     A workflow for upgrading to testthat edition 3: activation, deprecations, 
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [usethis, devtools, testthat]
-rmd_hash: 88f98fffb7c743fd
+rmd_hash: a6a6b85d0db273c7
 
 ---
 
