@@ -14,7 +14,7 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
-tags: [recipes tidymodels]
+tags: [recipes, tidymodels]
 ---
 
 <!--
