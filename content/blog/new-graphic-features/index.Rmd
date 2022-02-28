@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 
 slug: new-graphic-features
-title: Ragg, svglite, and the new graphics features
+title: ragg, svglite, and the new graphics features
 date: 2022-02-25
 author: Thomas Lin Pedersen
 description: >
@@ -51,11 +51,11 @@ install.packages("svglite")
 
 The post will rarely make any specific call-outs to ragg or svglite, as these are simply the packages that facilitate what is now possible with R graphics.
 
-## What is the graphics engine, really?
+## What is the graphics engine?
 
 At this point you might still be stuck thinking about what on earth I mean when I say *R graphics engine*. As a user, you are unlikely to ever engage in the finer points about the different abstractions in R graphics, but since we are here and I somehow caught your attention we might as well indulge in the finer points of the graphics implementation.
 
-While you may mainly be familiar with ggplot2 and perhaps a variety of graphics devices for getting your visualization into the correct file format, these two sits at opposite ends of a fairly elaborate graphics pipeline. ggplot2 is a high(er) level plotting package that allows you to express your data visualization intent through a structured grammar. Graphics devices such as ragg and svglite are low-level packages that translate simple graphics instructions into a given file format. In between these two poles we have a two additional abstractions that helps translate between the extremes.
+While you may mainly be familiar with ggplot2 and perhaps a variety of graphics devices (e.g. `pdf()` or `png()`), they sit at opposite ends of a fairly elaborate graphics pipeline. ggplot2 is a high(er) level plotting package that allows you to express your data visualization intent through a structured grammar. Graphics devices such as ragg and svglite are low-level packages that translate simple graphics instructions into a given file format. In between these two poles we have a two additional abstractions that helps translate between the extremes.
 
 ### Graphic systems
 
@@ -63,9 +63,9 @@ R currently sports two different systems, one colloquially known as *base* graph
 
 ### The graphics engine
 
-What unites base and grid graphics and sets them apart from e.g. rgl is that they both call into the same low level C API provided by R. This API is what is called the graphics engine. The graphics engine is responsible for communicating with the graphics devices while also providing a selected range of utility functionality common for both base and grid graphics. It is because of this abstraction that graphics in R is largely decoupled from how it is outputted, be it on screen, in a file, or directly to a printer.
+What unites base and grid graphics and sets them apart from e.g. rgl is that they both call into the same low level C API provided by R, the **graphics engine**. The graphics engine is responsible for communicating with the graphics devices while also providing a selected range of utility functionality common for both base and grid graphics. It is because of this abstraction that graphics in R is largely decoupled from how it is outputted, be it on screen, in a file, or directly to a printer.
 
-While it sounds nice and neat when it is all laid out like this, the current structure and division has grown out over many years and the boundary between the graphic systems, the graphics engine, and the graphic devices are grey. Still, the design is much more mature than what we see in other languages and as graphics/data-viz developers in R we are pretty spoiled compared to our peers in other languages --- perhaps without really knowing it.
+While it sounds nice and neat when it is all laid out like this, the current structure and division has grown out over many years and the boundary between the graphic systems, the graphics engine, and the graphic devices are blurry. Still, the design is much more mature than what we see in other languages and as graphics/data-viz developers in R we are pretty spoiled compared to our peers in other languages --- perhaps without really knowing it.
 
 ## A fragmented future
 
