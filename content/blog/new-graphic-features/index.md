@@ -11,13 +11,13 @@ description: >
     might come in the future.
 
 photo:
-  url: https://unsplash.com/photos/8uZPynIu-rQ
-  author: Pawel Czerwinski
+  url: https://versum.xyz/token/versum/15341
+  author: Thomas Lin Pedersen
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive] 
 tags: [ragg, svglite, ggplot2, graphics]
-rmd_hash: af53491c622e72e3
+rmd_hash: 89c5f6d70ec0fa29
 
 ---
 
