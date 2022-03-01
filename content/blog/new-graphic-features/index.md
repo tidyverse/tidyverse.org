@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 
 slug: new-graphic-features
-title: Ragg, svglite, and the new graphics features
+title: ragg, svglite, and the new graphics features
 date: 2022-02-25
 author: Thomas Lin Pedersen
 description: >
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive] 
 tags: [ragg, svglite, ggplot2, graphics]
-rmd_hash: 70e3799053cb4a22
+rmd_hash: af53491c622e72e3
 
 ---
 
@@ -34,7 +34,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-The release of ragg 1.2 and svglite 2.1 bought support for some exciting new graphics engine features that was added with R 4.1 by Paul Murrell from R Core. This post will dive into these new features as well as discuss what the future might hold for the R graphics engine.
+The release of ragg 1.2 and svglite 2.1 bought support for some exciting new graphics engine features, including gradients and patterns, that was added with R 4.1 by Paul Murrell from R Core. This post will dive into these new features as well as discuss what the future might hold for the R graphics engine.
 
 If you want to follow along on your own computer you can install the latest versions of ragg and svglite from CRAN
 
@@ -47,11 +47,13 @@ If you want to follow along on your own computer you can install the latest vers
 
 The post will rarely make any specific call-outs to ragg or svglite, as these are simply the packages that facilitate what is now possible with R graphics.
 
-## What is the graphics engine, really?
+## What is the graphics engine?
 
-At this point you might still be stuck thinking about what on earth I mean when I say *R graphics engine*. As a user, you are unlikely to ever engage in the finer points about the different abstractions in R graphics, but since we are here and I somehow caught your attention we might as well indulge in the finer points of the graphics implementation.
+You might wonder what is meant by the *R graphics engine*. It's pretty deep in the R graphics stack, so as a user, you are unlikely to ever engage with it directly, but since I somehow caught your attention we might as well indulge in the finer points of the graphics implementation.
 
-While you may mainly be familiar with ggplot2 and perhaps a variety of graphics devices for getting your visualization into the correct file format, these two sits at opposite ends of a fairly elaborate graphics pipeline. ggplot2 is a high(er) level plotting package that allows you to express your data visualization intent through a structured grammar. Graphics devices such as ragg and svglite are low-level packages that translate simple graphics instructions into a given file format. In between these two poles we have a two additional abstractions that helps translate between the extremes.
+While you may mainly be familiar with ggplot2 and perhaps a variety of graphics devices (e.g. [`pdf()`](https://rdrr.io/r/grDevices/pdf.html) or [`png()`](https://rdrr.io/r/grDevices/png.html)), they sit at opposite ends of a fairly elaborate graphics pipeline. ggplot2 is a high(er) level plotting package that allows you to express your data visualization intent through a structured grammar. Graphics devices such as ragg and svglite are low-level packages that translate simple graphics instructions into a given file format. In between these two poles we have a two additional abstractions that helps translate between the extremes. In very broad terms, the R graphic stack looks like this:
+
+![An overview of the different steps in the R graphics pipeline. A graphics package is build on top of a graphic system. All graphic systems calls into the same shared graphics engine which then relay graphic instructions to the active graphic device.](pipeline.png "graphics pipeline")
 
 ### Graphic systems
 
@@ -59,13 +61,15 @@ R currently sports two different systems, one colloquially known as *base* graph
 
 ### The graphics engine
 
-What unites base and grid graphics and sets them apart from e.g. rgl is that they both call into the same low level C API provided by R. This API is what is called the graphics engine. The graphics engine is responsible for communicating with the graphics devices while also providing a selected range of utility functionality common for both base and grid graphics. It is because of this abstraction that graphics in R is largely decoupled from how it is outputted, be it on screen, in a file, or directly to a printer.
+What unites base and grid graphics and sets them apart from e.g. rgl is that they both call into the same low level C API provided by R, the **graphics engine**. The graphics engine is responsible for communicating with the graphics devices while also providing a selected range of utility functionality common for both base and grid graphics. It is because of this abstraction that graphics in R is largely decoupled from how it is outputted, be it on screen, in a file, or directly to a printer.
 
-While it sounds nice and neat when it is all laid out like this, the current structure and division has grown out over many years and the boundary between the graphic systems, the graphics engine, and the graphic devices are grey. Still, the design is much more mature than what we see in other languages and as graphics/data-viz developers in R we are pretty spoiled compared to our peers in other languages --- perhaps without really knowing it.
+While it sounds nice and neat when it is all laid out like this, the current structure and division has grown out over many years and the boundary between the graphic systems, the graphics engine, and the graphic devices are blurry. Still, the design is much more mature than what we see in other languages and as graphics/data-viz developers in R we are pretty spoiled compared to our peers in other languages --- perhaps without really knowing it.
 
 ## A fragmented future
 
-With the division of responsibility described above, there are many points in the pipeline that may impose limitations in functionality. The graphic system might not provide the higher-level API to use functionality in the graphics engine, or a graphic device might not provide support for instructions coming in from the graphics engine. While this has mainly been a hypothetical situation prior to R 4.1, it is now the new reality. As users, this is most apparent in the choice of graphic device. After all, you don't expect the graphic system to be capable of something outside of its API, simply because new features were announced for the graphics device. However, if a graphic device lack support you may end up being surprised at what it renders.
+With the division of responsibility described above, there are many points in the pipeline that may impose limitations in functionality. The graphic system might not provide the higher-level API to use functionality in the graphics engine, or a graphic device might not provide support for instructions coming in from the graphics engine. While this has mainly been a hypothetical situation prior to R 4.1, it is now the new reality. The new features in the graphics engine was implemented along with high-level support in grid, and low level support in the pdf device along with the cairo based devices. This leaves base plot in the dark and also exclude a range of built-in devices, including the default devices on Windows and macOS. At this point, where high level support from e.g. ggplot2 is still not present, it might not be a big problem as you will probably use these features quite deliberately and know their limitations in support. In the future, however, this could lead to surprises.
+
+As users, this fragmentation is most apparent in the choice of graphic device. After all, you don't expect the graphic system to be capable of something outside of its API, simply because new features were announced for the graphics device. However, if a graphic device lack support it will simply not use the new features and you may end up surprised at what it renders.
 
 When it comes to graphic systems you can expect that grid will be the first, perhaps only, system that ends up supporting new features in the graphics engine. Part of the reason for that is that the grid API is more powerful in general and as new and more complex graphic powers are exposed it can be easiest to make them fit into the most expressive API. This is definitely the case for the latest batch of new features, but I also expect it to be the case going forward. Just because a functionality is exposed in grid, doesn't mean that it can easily be handled in e.g. ggplot2. I'll address what the new features may mean for the future of ggplot2 in the end of the post.
 
@@ -73,11 +77,11 @@ For graphic devices the water is more muddled. Not all devices are under active 
 
 ## The new features
 
-OK, so we've talked a lot about some new features without ever going into details with what they are. If you've never felt constrained by the capabilities of the graphics in R you may be forgiven for thinking that this is all a big fuzz over nothing. You may be right, but new capabilities will often allow the ecosystem to evolve in new and unexpected ways to the benefit of all.
+OK, so we've talked a lot about some new features without ever going into details with what they are. If you've never felt constrained by the capabilities of the graphics in R you may be forgiven for thinking that this is all a big fuss over nothing. You may be right, but new capabilities will often allow the ecosystem to evolve in new and unexpected ways to the benefit of all.
 
 ### Gradients
 
-While gradients have been a part of R graphics for a while, they have always relied on some hack - most often cutting the line or polygon in smaller bits and coloring these with color sampled from a gradient. However, now gradients are supported at the device level, meaning that the pixel color as calculated based on a gradient function. For now, the functionality is limited to fills, so if you want to draw a gradient line you still have to cut it up into small segments.
+While gradients have been a part of R graphics for a while, they have always relied on some hack - most often cutting the line or polygon in smaller bits and coloring these with color sampled from a gradient. However, now gradients are supported at the device level, meaning that the pixel color as calculated based on a gradient function. This means that the gradient is pixel-perfect at any resolution and if you are writing to vector format (e.g. svg) you can reduce the file size by not having to writing the coordinates for a chopped-up polygon to support the gradient. For now, the functionality is limited to fills, so if you want to draw a gradient line you still have to cut it up into small segments, though.
 
 Gradients can be created with the [`linearGradient()`](https://rdrr.io/r/grid/patterns.html) and [`radialGradient()`](https://rdrr.io/r/grid/patterns.html) which can be assigned to the fill of a grob:
 
@@ -285,7 +289,9 @@ Clipping is not only possible with single grobs. By combining grobs in a gList y
 
 </div>
 
-While the user interface for clipping paths are easy enough to understand, it should be noted that there may be slight differences between devices as to which grob types can be used. Most notably, the use of text grobs for defining clipping paths is not something that will work for every device (but do work in ragg).
+The examples above seems quite contrived and decoupled from data visualization, but there are of course real world usages, e.g. clipping a 2D density estimate to the shape of a country or clipping data points inside a circular canvas for polar plots.
+
+The user interface for clipping paths are easy enough to understand, but it should be noted that there may be slight differences between devices as to which grob types can be used. Most notably, the use of text grobs for defining clipping paths is not something that will work for every device (but do work in ragg).
 
 ### Alpha masks
 
@@ -330,11 +336,11 @@ Still, the main takeaway from all of the above is that the graphic engine is onc
 
 ## The ggplot2 implications
 
-While ggplot2 is using grid underneath it's grammar API, these features are generally not directly available in ggplot2. This is because most of these features are not directly applicable to the current API. Both gradient and patterns are obvious candidates for extensions of the ggplot2 API, but for now the grid API doesn't support a vector of patterns/gradients. Once this limitation is removed (it is in the works), we will need to figure out how scaling of these more flexible fill types should work. The starting point is of course to allow mapping from one data-value to a predefined pattern/gradient, but it would be interesting to think about how to map data-values to features of the pattern/gradient, e.g. have the gradient defined by two or more columns that all maps to different colors.
+While ggplot2 is using grid underneath it's grammar API, these features are generally not directly available in ggplot2. This is because most of these features are not directly applicable to the current API. Both gradient and patterns are obvious candidates for extensions of the ggplot2 API, but for now the grid API doesn't support a vector of patterns/gradients. Once this limitation is removed (it is in the works), we will need to figure out how scaling of these more flexible fill types should work. The starting point is of course to allow mapping from one data-value to a predefined pattern/gradient, but it would be interesting to think about how to map data-values to features of the pattern/gradient, e.g. have the gradient defined by two or more columns that all maps to different colors. Some of this work and exploration is already happening in [ggpattern](https://coolbutuseless.github.io/package/ggpattern), which could form the basis of future ggplot2 support.
 
 As for path clipping we could imagine that geoms could take a clipping grob, but it is not obvious how this grob should be constructed in a manner consistent with the grammar. The same goes for masks. Maybe most of this work should be relegated to [ggfx](https://ggfx.data-imaginist.com) which have an extended API that seems better suited to masks and arbitrary clipping.
 
 ## Acknowledgement
 
-I'd like to extent a huge thanks to Paul Murrell for continuing to support and improve the graphics API in R and for his willingness to answer questions during the implementation of the new features in ragg and svglite.
+I'd like to extent a huge thanks to Paul Murrell for continuing to support and improve the graphics API in R and for his willingness to answer questions during the implementation of the new features in ragg and svglite. The new graphics engine features were joint work with Paul Murrell, partly sponsored by RStudio.
 
