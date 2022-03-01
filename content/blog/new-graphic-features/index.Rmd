@@ -40,7 +40,7 @@ knitr::opts_chunk$set(
 set.seed(21)
 ```
 
-The release of ragg 1.2 and svglite 2.1 brought support for some exciting new graphics engine features, including gradients and patterns, which were added in R 4.1 by Paul Murrell from R Core. This post will dive into these new features, as well as discuss what the future might hold for the R graphics engine.
+The release of [ragg 1.2](https://ragg.r-lib.org) and [svglite 2.1](https://svglite.r-lib.org) brought support for some exciting new graphics engine features, including gradients and patterns, which were [added in R 4.1](https://developer.r-project.org/Blog/public/2020/07/15/new-features-in-the-r-graphics-engine/) by Paul Murrell from R Core. This post will dive into these new features, as well as discuss what the future might hold for the R graphics engine.
 
 If you want to follow along on your own computer, you can install the latest versions of ragg and svglite from CRAN
 
@@ -65,7 +65,7 @@ R currently sports two different systems, one colloquially known as *base* graph
 
 ### The graphics engine
 
-What unites base and grid graphics and sets them apart from e.g. rgl is that they both call into the same low-level C API provided by R, the **graphics engine**. The graphics engine is responsible for communicating with the graphics devices while also providing selected utility functionality common for both base and grid graphics. It is because of this abstraction that graphics in R is largely decoupled from how it is outputted, be it on screen, in a file, or directly to a printer.
+What unites base and grid graphics and sets them apart from e.g. rgl is that they both call into the same low-level C API provided by R, the **graphics engine**. The graphics engine is responsible for communicating with the graphics devices while also providing selected utility functionality common for both base and grid graphics. It is because of this abstraction that creating graphics in R is largely decoupled from how it is outputted, be it on screen, in a file, or directly to a printer.
 
 While it sounds nice and neat when it is all laid out like this, the current structure and division has grown out over many years, and the boundaries between the graphic systems, the graphics engine, and the graphic devices are blurry. Still, the design is much more mature than what we see in other languages, and as graphics/data-viz developers in R we are pretty spoiled compared to our peers in other languages --- perhaps without really knowing it.
 
@@ -77,7 +77,7 @@ As users, this fragmentation is most apparent in the choice of graphic device. A
 
 When it comes to graphic systems, you can expect that grid will be the first (perhaps only) system that ends up supporting new features in the graphics engine. Part of the reason for that is that the grid API is more powerful in general, and, as new and more complex graphic powers are exposed, it can be easiest to make them fit into the most expressive API. This is definitely the case for the latest batch of new features, but I also expect it to be the case going forward. Just because a functionality is exposed in grid, doesn't mean that it can easily be handled in e.g. ggplot2. I'll address what the new features may mean for the future of ggplot2 at the end of the post.
 
-For graphic _devices_ the water is more muddled. Not all devices are under active development, and such devices are unlikely to add support for new features. Further, it may be that a graphics device writes to a format, or uses a library that does not support a new feature provided by the graphics engine. The bottom line is that we can expect an increased fragmentation of the graphics devices in R in terms of which will be up to spec with the latest graphics engine features. It appears that the cairo-based devices along with the pdf device from grDevices can be expected to stay current. On our end, we will do our best to make sure that our graphic-device packages (currently ragg and svglite) will stay on top of any new additions to the graphics engine.
+For graphic *devices* the water is more muddled. Not all devices are under active development, and such devices are unlikely to add support for new features. Further, it may be that a graphics device writes to a format, or uses a library that does not support a new feature provided by the graphics engine. The bottom line is that we can expect an increased fragmentation of the graphics devices in R in terms of which will be up to spec with the latest graphics engine features. It appears that the cairo-based devices along with the pdf device from grDevices can be expected to stay current. On our end, we will do our best to make sure that our graphic-device packages (currently ragg and svglite) will stay on top of any new additions to the graphics engine.
 
 ## The new features
 
