@@ -23,7 +23,7 @@ The tidyverse also includes many other packages with more specialised usage. The
 
 As well as [readr](https://readr.tidyverse.org), for reading flat files, the tidyverse package installs a number of other packages for reading data:
 
-* [DBI](https://github.com/rstats-db/DBI) for relational databases.
+* [DBI](https://dbi.r-dbi.org) for relational databases.
   (Maintained by [Kirill Müller](https://www.cynkra.com).)
   You'll need to pair DBI with a database specific backends like 
   [RSQLite](https://rsqlite.r-dbi.org), 
@@ -34,7 +34,7 @@ As well as [readr](https://readr.tidyverse.org), for reading flat files, the tid
 
 * [haven](https://haven.tidyverse.org) for SPSS, Stata, and SAS data.
 
-* [httr](https://github.com/r-lib/httr) for web APIs.
+* [httr](https://httr.r-lib.org) for web APIs.
 
 * [readxl](https://readxl.tidyverse.org) for `.xls` and `.xlsx` sheets.
 
@@ -42,22 +42,20 @@ As well as [readr](https://readr.tidyverse.org), for reading flat files, the tid
 
 * [googledrive](https://googledrive.tidyverse.org) for [Google Drive](https://drive.google.com/) files.
 
-* [rvest](https://github.com/tidyverse/rvest) for web scraping.
+* [rvest](https://rvest.tidyverse.org) for web scraping.
 
 * [jsonlite](https://github.com/jeroen/jsonlite#jsonlite)
   for JSON. (Maintained by [Jeroen Ooms](https://github.com/jeroen).)
 
-* [xml2](https://github.com/r-lib/xml2) for XML.
-
-<!-- TODO: add googledrive and googlesheets4 once included: https://github.com/tidyverse/tidyverse/issues/229 -->
+* [xml2](https://xml2.r-lib.org) for XML.
 
 ## Wrangle
 
 In addition to [tidyr](https://tidyr.tidyverse.org), and [dplyr](https://dplyr.tidyverse.org), there are five packages (including [stringr](https://stringr.tidyverse.org) and [forcats](https://forcats.tidyverse.org)) which are designed to work with specific types of data:
 
 * [lubridate](https://lubridate.tidyverse.org) for dates and date-times.
-* [hms](https://github.com/tidyverse/hms) for time-of-day values.
-* [blob](https://github.com/tidyverse/blob) for storing blob (binary) data.
+* [hms](https://hms.tidyverse.org) for time-of-day values.
+* [blob](https://blob.tidyverse.org) for storing blob (binary) data.
 
 ### dplyr backends
 
@@ -74,12 +72,12 @@ In addition to [purrr](https://purrr.tidyverse.org), which provides very consist
   throughout the tidyverse. It also provide a number of more specialised
   piping operators (like `%$%` and `%<>%`) that can be useful in other places.
 
-* [glue](https://github.com/tidyverse/glue) provides an alternative to
+* [glue](https://glue.tidyverse.org) provides an alternative to
   `paste()` that makes it easier to combine data and strings.
 
 ## Model
 
-Modeling with the tidyverse uses the collection of [tidymodels packages](https://www.tidymodels.org/), which largely replace the [modelr](https://github.com/tidyverse/modelr) package used in [R4DS](https://r4ds.had.co.nz/). These packages provide a comprehensive foundation for creating and using models of all types. Visit the [_Getting Started_](https://www.tidymodels.org/start/) guide or, for more detailed examples, go straight to the [_Learn_](https://www.tidymodels.org/learn/) page.  
+Modeling with the tidyverse uses the collection of [tidymodels packages](https://www.tidymodels.org/), which largely replace the [modelr](https://modelr.tidyverse.org) package used in [R4DS](https://r4ds.had.co.nz/). These packages provide a comprehensive foundation for creating and using models of all types. Visit the [_Getting Started_](https://www.tidymodels.org/start/) guide or, for more detailed examples, go straight to the [_Learn_](https://www.tidymodels.org/learn/) page.  
 
 ## Get help
 
