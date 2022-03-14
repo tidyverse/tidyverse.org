@@ -15,20 +15,20 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
-tags: []
+tags: [parsnip, multilevelmod]
 ---
 
 <!--
 TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
 * [ ] Find photo & update yaml metadata
 * [ ] Create `thumbnail-sq.jpg`; height and width should be equal
 * [ ] Create `thumbnail-wd.jpg`; width should be >5x height
 * [ ] `hugodown::use_tidy_thumbnails()`
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] `usethis::use_tidy_thanks()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
 -->
 
 We're delighted to announce the release of [parsnip](https://parsnip.tidymodels.org/) 0.2.1. parsnip is a unified modeling interface for tidymodels. 
@@ -75,16 +75,16 @@ A good overview of this model is: _Bayesian Additive Regression Trees: A Review 
 
 ### New engines
 
-Within parsnip, a `glm` engines was added for linear regression. An engine vale of `brulee` was added for linear, logistic and multinomial regression as well as for neural networks. brulee is a new package for fitting models using torch (and a blog post will follow for this package). 
+Within parsnip, a `"glm"` engine was added for linear regression. An engine vale of `"brulee"` was added for linear, logistic, and multinomial regression as well as for neural networks. brulee is a new package for fitting models using torch (look for a blog post soon on this package). 
 
-As discussed below, the multilevelmod package adds a lot more engines for linear(ish) models, such as [`gee`](https://parsnip.tidymodels.org/reference/details_linear_reg_gee.html), [`gls`](https://parsnip.tidymodels.org/reference/details_linear_reg_gls.html), [`lme`](https://parsnip.tidymodels.org/reference/details_linear_reg_lme.html), [`lmer`](https://parsnip.tidymodels.org/reference/details_linear_reg_lmer.html), and [`stan_glmer`](https://parsnip.tidymodels.org/reference/details_linear_reg_stan_glmer.html). There are similar engines for logistic and Poisson regression. 
+As discussed below, the multilevelmod package adds a lot more engines for linear(ish) models, such as [`"gee"`](https://parsnip.tidymodels.org/reference/details_linear_reg_gee.html), [`"gls"`](https://parsnip.tidymodels.org/reference/details_linear_reg_gls.html), [`"lme"`](https://parsnip.tidymodels.org/reference/details_linear_reg_lme.html), [`"lmer"`](https://parsnip.tidymodels.org/reference/details_linear_reg_lmer.html), and [`"stan_glmer"`](https://parsnip.tidymodels.org/reference/details_linear_reg_stan_glmer.html). There are similar engines for logistic and Poisson regression. 
 
 
 ## multilevelmod
 
-This package has been simmering for a while on GitHub. Its engines are most useful for fitting a wide variety of models go by a litany of different names: mixed effects models, random coefficient models, variance component models, hierarchical linear models, and so on. 
+This package has been simmering for a while on GitHub. Its engines are useful for fitting a variety of models that go by a litany of different names: mixed effects models, random coefficient models, variance component models, hierarchical linear models, and so on. 
 
-One aspect of these models is that they mostly work with the formula method, which specifies the model terms but also which are "random effects". 
+One aspect of these models is that they mostly work with the formula method, which specifies both the model terms and also which of these are "random effects". 
 
 As an example, let's look at the measurement system analysis (MSA) data in the package. In these data, 56 separate items were measured twice using a laboratory test. The lab would like to understand how noisy their data are and if different samples can be distinguished from one another. Here's a plot of the data:  
 
@@ -110,7 +110,7 @@ msa_data %>%
 
 In this data set, the goal is to estimate how much of the variation in the lab test is due to the different samples (as it should be since they are different) or measurement noise. The latter term could be associated with day-to-day differences, people-to-people differences etc. It might also be irreducible noise. In any case, we'd like to get estimates of these two sources of variation. 
 
-A simple way to estimate this is to use a simple repeated measures model that considers the samples to be randomly selected from a population that are independent from one another. We can add a random intercept term that is different for each sample. From this, the sample-to-sample variance can be computed.
+A straightforward way to estimate this is to use a repeated measures model that considers the samples to be randomly selected from a population that are independent from one another. We can add a random intercept term that is different for each sample. From this, the sample-to-sample variance can be computed.
 
 There are a lot of packages that can do this but we'll use the lme4 package:
 
@@ -124,13 +124,13 @@ msa_model <-
 msa_model
 ```
 
-We can see from the output that the sample-to-sample variance is `0.6397^2 = 0.40921` which is about
+We can see from this output that the sample-to-sample variance is `0.6397^2 = 0.40921` which gives a percental of the total variance of:
 
 ```{r}
 0.6397 ^ 2 / (0.6397 ^ 2 + 0.2618 ^ 2) * 100
 ```
 
-percent of the total variance (which is pretty good). 
+Pretty good!
 
 There is a lot more that can be done with these models in terms of prediction and inference. If you are interested in more about multilevelmod, take a look at the [Get Started](https://multilevelmod.tidymodels.org/articles/multilevelmod.html) vignette. 
 
