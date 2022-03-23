@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: usemodels-0-2-0
 title: usemodels 0.2.0
-date: 2022-02-24
+date: 2022-03-23
 author: Max Kuhn
 description: >
     A new release of the usemodels package makes it even easier to use tidymodels.
@@ -19,15 +19,15 @@ tags: [tidymodels]
 
 <!--
 TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] `hugodown::use_tidy_thumbnails()`
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] `usethis::use_tidy_thanks()`
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
 -->
 
 We're chuffed to announce the release of [usemodels](https://usemodels.tidymodels.org/) 0.2.0. The usemodels package enables users to generate tidymodels code for fitting and tuning models. Given a) a formula and b) a data set, the `use_*()` functions (such as `use_glmnet()` and `use_xgboost()`) create code to fit that specific model to that data, including appropriate preprocessing. 
@@ -84,10 +84,13 @@ use_kernlab_svm_rbf(Class ~ ., data = two_class_dat)
 ##   add_recipe(kernlab_recipe) %>% 
 ##   add_model(kernlab_spec) 
 ## 
-## set.seed(70066)
+## set.seed(81161)
 ## kernlab_tune <-
 ##   tune_grid(kernlab_workflow, resamples = stop("add your rsample object"), grid = stop("add number of candidate points"))
 ```
 
 Let us know if there are other features that would be interesting for the package on its GitHub [issues page](https://github.com/tidymodels/usemodels/issues).
 
+## Acknowledgements
+
+Thanks to all the people who contributed to usemodels since [our last blog post](https://www.tidyverse.org/blog/2020/09/usemodels-0-0-1/):  [&#x0040;amazongodman](https://github.com/amazongodman), [&#x0040;brshallo](https://github.com/brshallo), [&#x0040;bryceroney](https://github.com/bryceroney), [&#x0040;czeildi](https://github.com/czeildi), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;larry77](https://github.com/larry77), and [&#x0040;topepo](https://github.com/topepo).
