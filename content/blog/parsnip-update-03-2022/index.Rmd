@@ -11,8 +11,8 @@ description: >
     statistical models. 
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/vrbZVyX2k4I
+  author: Markus Spiske
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
@@ -24,10 +24,10 @@ TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
 * [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] `hugodown::use_tidy_thumbnails()`
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
 * [x] Add intro sentence, e.g. the standard tagline for the package
 * [x] `usethis::use_tidy_thanks()`
 -->
