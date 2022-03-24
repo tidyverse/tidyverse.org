@@ -3,11 +3,12 @@ output: hugodown::hugo_document
 
 slug: parsnip-roundup-2022
 title: Updates for parsnip packages
-date: 2022-03-16
+date: 2022-03-24
 author: Max Kuhn
 description: >
-    parsnip and six of its extension packages were recently updated on CRAN. One
-    of the extensions is a new package for fitting multi-level statistical models. 
+    The parsnip package and six of its extension packages were recently updated 
+    on CRAN. One of the extensions is a new package for fitting multilevel 
+    statistical models. 
 
 photo:
   url: https://unsplash.com/photos/n6vS3xlnsCc
@@ -33,9 +34,9 @@ TODO:
 
 We're delighted to announce the release of [parsnip](https://parsnip.tidymodels.org/) 0.2.1. parsnip is a unified modeling interface for tidymodels. 
 
-This release of parsnip precipitated releases of our parsnip extension packages: baguette, discrim, plsmod, poissonreg, and rules. It also allowed us to release an additional package called multilevelmod (see the section below). We've kept CRAN busy in the last week or so. 
+This release of parsnip precipitated releases of our parsnip extension packages: baguette, discrim, plsmod, poissonreg, and rules. It also allowed us to release an additional package called multilevelmod (see the section below). We've kept CRAN busy! 
 
-You can see a full list of parsnip changes in the [release notes](https://parsnip.tidymodels.org/news/index.html#parsnip-020). 
+You can see a full list of recent parsnip changes in the [release notes](https://parsnip.tidymodels.org/news/index.html). 
 You can install the entire set from CRAN with:
 
 
@@ -68,13 +69,13 @@ This will not change within a version of parsnip; we'll update each list with ea
 
 ### BART
 
-We've added a model function for the excellent Bayesian Additive Regression Trees (BART) and an engine for the [dbarts](https://github.com/vdorie/dbarts) package. The model is an ensemble of trees that are assembled using Bayesian estimation methods. It typically has very good predictive predictive performance and are also able to generate estimates of the predictive posterior variance, and prediction intervals. 
+We've added a model function for the excellent Bayesian Additive Regression Trees (BART) approach and an engine for the [dbarts](https://github.com/vdorie/dbarts) package. The model is an ensemble of trees that is assembled using Bayesian estimation methods. It typically has very good predictive performance and is also able to generate estimates of the predictive posterior variance, and prediction intervals. 
 
 A good overview of this model is: _Bayesian Additive Regression Trees: A Review and Look Forward_ ([pdf](https://par.nsf.gov/servlets/purl/10181031)). 
 
 ### New engines
 
-Within parsnip, a `"glm"` engine was added for linear regression. An engine vale of `"brulee"` was added for linear, logistic, and multinomial regression as well as for neural networks. brulee is a new package for fitting models using torch (look for a blog post soon on this package). 
+Within parsnip, a `"glm"` engine was added for linear regression. An engine vale of `"brulee"` was added for linear, logistic, and multinomial regression as well as for neural networks. The brulee package is a new, and is for fitting models using torch (look for a blog post soon on this package). 
 
 As discussed below, the multilevelmod package adds a lot more engines for linear(ish) models, such as [`"gee"`](https://parsnip.tidymodels.org/reference/details_linear_reg_gee.html), [`"gls"`](https://parsnip.tidymodels.org/reference/details_linear_reg_gls.html), [`"lme"`](https://parsnip.tidymodels.org/reference/details_linear_reg_lme.html), [`"lmer"`](https://parsnip.tidymodels.org/reference/details_linear_reg_lmer.html), and [`"stan_glmer"`](https://parsnip.tidymodels.org/reference/details_linear_reg_stan_glmer.html). There are similar engines for logistic and Poisson regression. 
 
@@ -110,9 +111,9 @@ msa_data %>%
 <img src="figure/data-plot-1.svg" title="plot of chunk data-plot" alt="plot of chunk data-plot" style="display: block; margin: auto;" />
 
 
-In this data set, the goal is to estimate how much of the variation in the lab test is due to the different samples (as it should be since they are different) or measurement noise. The latter term could be associated with day-to-day differences, people-to-people differences etc. It might also be irreducible noise. In any case, we'd like to get estimates of these two sources of variation. 
+With this data set, the goal is to estimate how much of the variation in the lab test is due to the different samples (as it should be since they are different) or measurement noise. The latter term could be associated with day-to-day differences, people-to-people differences etc. It might also be irreducible noise. In any case, we'd like to get estimates of these two sources of variation. 
 
-A straightforward way to estimate this is to use a repeated measures model that considers the samples to be randomly selected from a population that are independent from one another. We can add a random intercept term that is different for each sample. From this, the sample-to-sample variance can be computed.
+A straightforward way to estimate this is to use a repeated measurements model that considers the samples to be randomly selected from a population that are independent from one another. We can add a random intercept term that is different for each sample. From this, the sample-to-sample variance can be computed.
 
 There are a lot of packages that can do this but we'll use the lme4 package:
 
