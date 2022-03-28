@@ -1,0 +1,75 @@
+---
+output: hugodown::hugo_document
+
+slug: readxl-1-4-0
+title: readxl 1.4.0
+date: 2022-03-28
+author: Jenny Bryan
+description: >
+    readxl 1.4.0 is a maintenance release with practically no user-facing
+    changes, but extensive change to package internals.
+
+photo:
+  url: https://unsplash.com/photos/tpAyLp9Ro50
+  author: Ryan
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [readxl]
+---
+
+We're pleased to announce the release of [readxl](https://readxl.tidyverse.org) 1.4.0.
+The readxl package makes it easy to get tabular data out of Excel files and into R with code, not mouse clicks.
+It supports both the legacy `.xls` format and the modern XML-based `.xlsx` format.
+readxl is designed to be easy to install (so: no external dependencies) and to cope with many of the less savory features of Excel files created by humans and 3rd party applications.
+
+The easiest way to install the latest version from CRAN is to install the whole tidyverse.
+
+```{r eval = FALSE}
+install.packages("tidyverse")
+```
+
+Alternatively, install just readxl from CRAN:
+
+```{r eval = FALSE}
+install.packages("readxl")
+```
+
+Regardless, you will still need to attach readxl explicitly.
+It is not a core tidyverse package, i.e. readxl is NOT attached via `library(tidyverse)`.
+Instead, do this in your script:
+
+```{r}
+library(readxl)
+```
+
+This release has practically no changes that should be noticeable by the typical user.
+However, internally, there have been extensive updates that set the stage for future user-facing improvements.
+Therefore, this post will be quite short and the main point is to encourage readxl users to kick the tires.
+We set out to upgrade the foundation to support building new features and we'd love to hear about any unintended regressions.
+
+You can see a full list of changes in the [release notes](https://readxl.tidyverse.org/news/index.html).
+
+## Updated libxls
+
+readxl now embeds libxls v1.6.2 (the previous release embedded v1.5.0).
+The libxls project is maintained by Evan Miller and is hosted at <https://github.com/libxls/libxls>, where you can read more in its [release notes](https://github.com/libxls/libxls/releases).
+
+## Switch from Rcpp to cpp11
+
+Thanks to Shelby Bearrows, readxl now uses [cpp11](https://cpp11.r-lib.org) to manage the interface to the embedded RapidXML and libxls libraries.
+Shelby is a new member of the tidyverse team and she [blogged about this project](https://www.tidyverse.org/blog/2021/09/updating-to-cpp11/) during her 2021 summer internship.
+
+## Other small improvements and what's next
+
+“Date or Not Date”: readxl's understanding of number formats has gotten more sophisticated (thanks [&#x0040;nacnudus](https://github.com/nacnudus) and [&#x0040;reviewher](https://github.com/reviewher)!).
+Non-datetime formats that incorporate colours or currencies should no longer be confused with datetime formats.
+We anticipate this will result in more accurate guessing of cell and column types.
+
+What's coming next?
+I won't go so far as to promise that 2022 is the year of readxl 😉.
+But I can say that top priorities include equipping readxl with better problem reporting and column specification, making its interface feel more similar to that of [readr](https://readr.tidyverse.org) and [vroom](https://vroom.r-lib.org).
+
+## Acknowledgements
+
+Thanks to the 103 people who have contributed to readxl since we last blogged about it (upon the release of version 1.2.0 in December 2018) by reporting bugs and suggesting new features: [&#x0040;abcdef123ghi](https://github.com/abcdef123ghi), [&#x0040;acvelozo](https://github.com/acvelozo), [&#x0040;ahbon123](https://github.com/ahbon123), [&#x0040;ajit555](https://github.com/ajit555), [&#x0040;artinmg](https://github.com/artinmg), [&#x0040;aswansyahputra](https://github.com/aswansyahputra), [&#x0040;averiperny](https://github.com/averiperny), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;ben1787](https://github.com/ben1787), [&#x0040;benmatthewsed](https://github.com/benmatthewsed), [&#x0040;benwatsoncpa](https://github.com/benwatsoncpa), [&#x0040;benzipperer](https://github.com/benzipperer), [&#x0040;bhive01](https://github.com/bhive01), [&#x0040;bjorn81](https://github.com/bjorn81), [&#x0040;boshek](https://github.com/boshek), [&#x0040;brkbrc](https://github.com/brkbrc), [&#x0040;Brunox13](https://github.com/Brunox13), [&#x0040;cderv](https://github.com/cderv), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;ddekadt](https://github.com/ddekadt), [&#x0040;dkgaraujo](https://github.com/dkgaraujo), [&#x0040;donnekgit](https://github.com/donnekgit), [&#x0040;druedin](https://github.com/druedin), [&#x0040;dxbhans](https://github.com/dxbhans), [&#x0040;elephann](https://github.com/elephann), [&#x0040;eringrand](https://github.com/eringrand), [&#x0040;estern95](https://github.com/estern95), [&#x0040;fary90](https://github.com/fary90), [&#x0040;fermumen](https://github.com/fermumen), [&#x0040;fndemarqui](https://github.com/fndemarqui), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;gbganalyst](https://github.com/gbganalyst), [&#x0040;ghost](https://github.com/ghost), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hammao](https://github.com/hammao), [&#x0040;hannes101](https://github.com/hannes101), [&#x0040;hddao](https://github.com/hddao), [&#x0040;hidekoji](https://github.com/hidekoji), [&#x0040;HughParsonage](https://github.com/HughParsonage), [&#x0040;idontgetoutmuch](https://github.com/idontgetoutmuch), [&#x0040;j-sirgo](https://github.com/j-sirgo), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jeromyanglim](https://github.com/jeromyanglim), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;jmcurran](https://github.com/jmcurran), [&#x0040;josh-m-sharpe](https://github.com/josh-m-sharpe), [&#x0040;jwhendy](https://github.com/jwhendy), [&#x0040;jzadra](https://github.com/jzadra), [&#x0040;kfhk](https://github.com/kfhk), [&#x0040;kiernann](https://github.com/kiernann), [&#x0040;ksetdekov](https://github.com/ksetdekov), [&#x0040;kwebihaf-github](https://github.com/kwebihaf-github), [&#x0040;llrs](https://github.com/llrs), [&#x0040;loureynolds](https://github.com/loureynolds), [&#x0040;lucasmation](https://github.com/lucasmation), [&#x0040;lucifersFall1n1](https://github.com/lucifersFall1n1), [&#x0040;luisvalenzuelar](https://github.com/luisvalenzuelar), [&#x0040;matthiasgomolka](https://github.com/matthiasgomolka), [&#x0040;MeoWoo6](https://github.com/MeoWoo6), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [&#x0040;misea](https://github.com/misea), [&#x0040;mkoohafkan](https://github.com/mkoohafkan), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;msgoussi](https://github.com/msgoussi), [&#x0040;nacnudus](https://github.com/nacnudus), [&#x0040;narayanana](https://github.com/narayanana), [&#x0040;nfultz](https://github.com/nfultz), [&#x0040;nickschurch](https://github.com/nickschurch), [&#x0040;nlneas1](https://github.com/nlneas1), [&#x0040;nqkhanh2209](https://github.com/nqkhanh2209), [&#x0040;ntsigilis](https://github.com/ntsigilis), [&#x0040;pitakakariki](https://github.com/pitakakariki), [&#x0040;pmallot](https://github.com/pmallot), [&#x0040;qdread](https://github.com/qdread), [&#x0040;queleanalytics](https://github.com/queleanalytics), [&#x0040;ramay](https://github.com/ramay), [&#x0040;ramiromagno](https://github.com/ramiromagno), [&#x0040;Rindrics](https://github.com/Rindrics), [&#x0040;rsbivand](https://github.com/rsbivand), [&#x0040;rwbaer](https://github.com/rwbaer), [&#x0040;saanasum](https://github.com/saanasum), [&#x0040;sbearrows](https://github.com/sbearrows), [&#x0040;Sbirch556](https://github.com/Sbirch556), [&#x0040;seanchrismurphy](https://github.com/seanchrismurphy), [&#x0040;Shicheng-Guo](https://github.com/Shicheng-Guo), [&#x0040;Sibojang9](https://github.com/Sibojang9), [&#x0040;simowaves](https://github.com/simowaves), [&#x0040;smsaladi](https://github.com/smsaladi), [&#x0040;songc-93](https://github.com/songc-93), [&#x0040;SteveDeitz](https://github.com/SteveDeitz), [&#x0040;struckma](https://github.com/struckma), [&#x0040;sureshvigneshbe](https://github.com/sureshvigneshbe), [&#x0040;tfulge](https://github.com/tfulge), [&#x0040;topepo](https://github.com/topepo), [&#x0040;ucb](https://github.com/ucb), [&#x0040;vchouraki](https://github.com/vchouraki), [&#x0040;wanttobenatural](https://github.com/wanttobenatural), [&#x0040;wgrundlingh](https://github.com/wgrundlingh), [&#x0040;WilDoane](https://github.com/WilDoane), [&#x0040;zerogetsamgow](https://github.com/zerogetsamgow), [&#x0040;zhangbs92](https://github.com/zhangbs92), and [&#x0040;zx8754](https://github.com/zx8754).
