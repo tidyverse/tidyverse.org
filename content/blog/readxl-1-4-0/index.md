@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [readxl]
-rmd_hash: 471be5498ec9ab41
+rmd_hash: 44356af488bab7c2
 
 ---
 
@@ -52,11 +52,11 @@ You can see a full list of changes in the [release notes](https://readxl.tidyver
 
 ## Updated libxls
 
-readxl now embeds libxls v1.6.2 (the previous release embedded v1.5.0). The libxls project is maintained by Evan Miller and is hosted at <https://github.com/libxls/libxls>, where you can read more in its [release notes](https://github.com/libxls/libxls/releases).
+readxl now embeds libxls v1.6.2 (the previous release embedded v1.5.0). The libxls project is maintained by Evan Miller and is hosted at <https://github.com/libxls/libxls>, where you can read more in its [release notes](https://github.com/libxls/libxls/releases). These accumulated releases fix a number of edge cases, allowing readxl to read even more weird and wonderful `.xls` files.
 
 ## Switch from Rcpp to cpp11
 
-Thanks to Shelby Bearrows, readxl now uses [cpp11](https://cpp11.r-lib.org) to manage the interface to the embedded RapidXML and libxls libraries. Shelby is a new member of the tidyverse team and she [blogged about this project](https://www.tidyverse.org/blog/2021/09/updating-to-cpp11/) during her 2021 summer internship.
+Thanks to Shelby Bearrows, readxl now uses [cpp11](https://cpp11.r-lib.org). Shelby is a new member of the tidyverse team and she [blogged about this project](https://www.tidyverse.org/blog/2021/09/updating-to-cpp11/) during her 2021 summer internship.
 
 ## Other small improvements and what's next
 
