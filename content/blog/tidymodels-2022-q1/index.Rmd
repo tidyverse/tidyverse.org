@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2022-q1
 title: "Q1 2022 tidymodels digest"
-date: 2022-03-30
+date: 2022-04-01
 author: Julia Silge
 description: >
     There were 21 releases of tidymodels packages during Q1 of this year,
