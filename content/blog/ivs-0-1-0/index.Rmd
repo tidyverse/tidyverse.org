@@ -86,12 +86,12 @@ end <- year_month_day(c(2020, 2020), c(2, 6))
 iv(start, end)
 ```
 
-Interval vectors are always composed of right-open intervals, and the intervals must be strictly increasing.
+Interval vectors are always composed of right-open intervals, and each individual interval in the vector must satisfy `start < end`.
 I say more on the practical reasons for this [in the Getting Started vignette](https://davisvaughan.github.io/ivs/articles/ivs.html#structure) if you are interested in learning more.
 
 ## Grouping by overlaps
 
-One of the most compelling reasons to use ivs is that it tries to make identifying and merging overlaps within a single interval vector as easy as possible.
+One of the key features of ivs is that it makes identifying and merging overlaps as easy as possible.
 
 Imagine you work for AWS (Amazon Web Services) and you have a database that tracks costs racked up by users that are utilizing your services.
 The date ranges below represent the intervals over which the cost was accrued, and the intervals don't overlap for a given `(user, service)` pair.
@@ -181,7 +181,7 @@ This returns a new interval vector that has the same length as the old one, and 
 users <- costs %>%
   select(-service) %>%
   group_by(user) %>%
-  mutate(group = iv_identify_group(interval))
+  mutate(user_interval = iv_identify_group(interval))
 
 users
 ```
@@ -190,7 +190,7 @@ This gives us something we can group on so we can `sum()` up the costs:
 
 ```{r}
 users %>%
-  group_by(user, group) %>%
+  group_by(user, user_interval) %>%
   summarise(cost = sum(cost), .groups = "drop")
 ```
 

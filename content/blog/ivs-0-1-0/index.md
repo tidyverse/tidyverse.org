@@ -13,7 +13,7 @@ categories: [package]
 tags: [ivs]
 editor_options: 
   chunk_output_type: console
-rmd_hash: bca9044bd0a23fa7
+rmd_hash: 9d0a252b05059068
 
 ---
 
@@ -105,11 +105,11 @@ or the `year_month_day` type from [clock](https://clock.r-lib.org):
 
 </div>
 
-Interval vectors are always composed of right-open intervals, and the intervals must be strictly increasing. I say more on the practical reasons for this [in the Getting Started vignette](https://davisvaughan.github.io/ivs/articles/ivs.html#structure) if you are interested in learning more.
+Interval vectors are always composed of right-open intervals, and each individual interval in the vector must satisfy `start < end`. I say more on the practical reasons for this [in the Getting Started vignette](https://davisvaughan.github.io/ivs/articles/ivs.html#structure) if you are interested in learning more.
 
 ## Grouping by overlaps
 
-One of the most compelling reasons to use ivs is that it tries to make identifying and merging overlaps within a single interval vector as easy as possible.
+One of the key features of ivs is that it makes identifying and merging overlaps as easy as possible.
 
 Imagine you work for AWS (Amazon Web Services) and you have a database that tracks costs racked up by users that are utilizing your services. The date ranges below represent the intervals over which the cost was accrued, and the intervals don't overlap for a given `(user, service)` pair.
 
@@ -243,12 +243,12 @@ Instead, we'll use [`iv_identify_group()`](https://davisvaughan.github.io/ivs/re
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>users</span> <span class='o'>&lt;-</span> <span class='nv'>costs</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='o'>-</span><span class='nv'>service</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>user</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
-  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>group <span class='o'>=</span> <span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv-groups.html'>iv_identify_group</a></span><span class='o'>(</span><span class='nv'>interval</span><span class='o'>)</span><span class='o'>)</span>
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>user_interval <span class='o'>=</span> <span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv-groups.html'>iv_identify_group</a></span><span class='o'>(</span><span class='nv'>interval</span><span class='o'>)</span><span class='o'>)</span>
 
 <span class='nv'>users</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 7 × 4</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'># Groups:   user [2]</span></span>
-<span class='c'>#&gt;    user  cost                 interval                    group</span>
+<span class='c'>#&gt;    user  cost                 interval            user_interval</span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>               <span style='color: #555555; font-style: italic;'>&lt;iv&lt;date&gt;&gt;</span>               <span style='color: #555555; font-style: italic;'>&lt;iv&lt;date&gt;&gt;</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>1</span>     1 200.  [2019-01-01, 2019-01-05) [2019-01-01, 2019-01-10)</span>
 <span class='c'>#&gt; <span style='color: #555555;'>2</span>     1  15.6 [2019-01-12, 2019-01-13) [2019-01-12, 2019-01-13)</span>
@@ -265,10 +265,10 @@ This gives us something we can group on so we can [`sum()`](https://rdrr.io/r/ba
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>users</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
-  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>user</span>, <span class='nv'>group</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>user</span>, <span class='nv'>user_interval</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>cost <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>cost</span><span class='o'>)</span>, .groups <span class='o'>=</span> <span class='s'>"drop"</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 3</span></span>
-<span class='c'>#&gt;    user                    group  cost</span>
+<span class='c'>#&gt;    user            user_interval  cost</span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>               <span style='color: #555555; font-style: italic;'>&lt;iv&lt;date&gt;&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>1</span>     1 [2019-01-01, 2019-01-10) 701. </span>
 <span class='c'>#&gt; <span style='color: #555555;'>2</span>     1 [2019-01-12, 2019-01-13)  15.6</span>
