@@ -315,9 +315,23 @@ To finish up, we need to add a column to `months` to represent the number of sub
 To do this we can use `iv_count_between()`, which returns an integer vector corresponding to the number of times the `i`-th month fell between any of the intervals in the active subscription interval vector.
 
 ```{r}
+months <- months %>%
+  mutate(count = iv_count_between(month, enrollments$active))
+
+months
+```
+
+```{r number-of-active-enrollments, echo=FALSE, fig.alt="Line chart of monthly enrollments over time with a slight decrease in enrollments over the years"}
+library(ggplot2)
+
 months %>%
-  mutate(count = iv_count_between(month, enrollments$active)) %>%
-  print(n = Inf)
+  ggplot(aes(x = as.Date(set_day(month, 1)), y = count)) +
+  geom_line() +
+  ggtitle("Number of active enrollments (Monthly)") +
+  labs(x = "", y = "# of active\nenrollments") +
+  theme_minimal() +
+  theme(axis.title.y = element_text(angle = 0, vjust = .5)) +
+  scale_x_date(date_labels = "%b, %Y")
 ```
 
 Also available are `iv_count_overlaps()`, `iv_count_precedes()`, and `iv_count_follows()` for counting relationships between two ivs.

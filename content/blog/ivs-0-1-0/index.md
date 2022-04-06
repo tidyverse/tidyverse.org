@@ -13,7 +13,7 @@ categories: [package]
 tags: [ivs]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 9367eb2e25eccda8
+rmd_hash: 321d2c1a97607277
 
 ---
 
@@ -464,9 +464,10 @@ To finish up, we need to add a column to `months` to represent the number of sub
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>months</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
-  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>count <span class='o'>=</span> <span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv_count_between.html'>iv_count_between</a></span><span class='o'>(</span><span class='nv'>month</span>, <span class='nv'>enrollments</span><span class='o'>$</span><span class='nv'>active</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
-  <span class='nf'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='o'>(</span>n <span class='o'>=</span> <span class='kc'>Inf</span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>months</span> <span class='o'>&lt;-</span> <span class='nv'>months</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>count <span class='o'>=</span> <span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv_count_between.html'>iv_count_between</a></span><span class='o'>(</span><span class='nv'>month</span>, <span class='nv'>enrollments</span><span class='o'>$</span><span class='nv'>active</span><span class='o'>)</span><span class='o'>)</span>
+
+<span class='nv'>months</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 27 × 2</span></span>
 <span class='c'>#&gt;    month        count</span>
 <span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;ymd&lt;month&gt;&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span></span>
@@ -480,23 +481,13 @@ To finish up, we need to add a column to `months` to represent the number of sub
 <span class='c'>#&gt; <span style='color: #555555;'> 8</span> 2017-08          3</span>
 <span class='c'>#&gt; <span style='color: #555555;'> 9</span> 2017-09          3</span>
 <span class='c'>#&gt; <span style='color: #555555;'>10</span> 2017-10          3</span>
-<span class='c'>#&gt; <span style='color: #555555;'>11</span> 2017-11          3</span>
-<span class='c'>#&gt; <span style='color: #555555;'>12</span> 2017-12          3</span>
-<span class='c'>#&gt; <span style='color: #555555;'>13</span> 2018-01          3</span>
-<span class='c'>#&gt; <span style='color: #555555;'>14</span> 2018-02          3</span>
-<span class='c'>#&gt; <span style='color: #555555;'>15</span> 2018-03          2</span>
-<span class='c'>#&gt; <span style='color: #555555;'>16</span> 2018-04          2</span>
-<span class='c'>#&gt; <span style='color: #555555;'>17</span> 2018-05          2</span>
-<span class='c'>#&gt; <span style='color: #555555;'>18</span> 2018-06          2</span>
-<span class='c'>#&gt; <span style='color: #555555;'>19</span> 2018-07          1</span>
-<span class='c'>#&gt; <span style='color: #555555;'>20</span> 2018-08          0</span>
-<span class='c'>#&gt; <span style='color: #555555;'>21</span> 2018-09          0</span>
-<span class='c'>#&gt; <span style='color: #555555;'>22</span> 2018-10          1</span>
-<span class='c'>#&gt; <span style='color: #555555;'>23</span> 2018-11          1</span>
-<span class='c'>#&gt; <span style='color: #555555;'>24</span> 2018-12          1</span>
-<span class='c'>#&gt; <span style='color: #555555;'>25</span> 2019-01          1</span>
-<span class='c'>#&gt; <span style='color: #555555;'>26</span> 2019-02          1</span>
-<span class='c'>#&gt; <span style='color: #555555;'>27</span> 2019-03          1</span></code></pre>
+<span class='c'>#&gt; <span style='color: #555555;'># … with 17 more rows</span></span></code></pre>
+
+</div>
+
+<div class="highlight">
+
+<img src="figs/number-of-active-enrollments-1.png" title="Line chart of monthly enrollments over time with a slight decrease in enrollments over the years" alt="Line chart of monthly enrollments over time with a slight decrease in enrollments over the years" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
