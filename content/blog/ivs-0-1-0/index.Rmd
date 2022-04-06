@@ -116,6 +116,10 @@ costs
 ```
 
 You might be interested in identifying the contiguous blocks of time that a particular service was in use, regardless of who was using it.
+In graphical form, that might look like this (notice how the overlapping `a` and overlapping `b` intervals have been combined):
+
+![](omnigraffle/ivs/groups.png)
+
 To solve this problem, we will first convert our `from/to` dates into a true interval vector using `iv()`.
 
 ```{r}
@@ -206,11 +210,13 @@ For example, you might want to locate where these two interval vectors overlap:
 needles <- iv_pairs(c(1, 5), c(3, 7), c(10, 12))
 needles
 
-haystack <- iv_pairs(c(0, 6), c(13, 15), c(0, 2), c(7, 8), c(4, 5))
+haystack <- iv_pairs(c(1, 6), c(12, 13), c(1, 2), c(7, 8), c(4, 5))
 haystack
 ```
 
-Ideally you'd like to be notified of the fact that `[1, 5)` from `needles` overlaps with `[0, 6)`, `[0, 2)` and `[4, 5)` from `haystack`.
+![](omnigraffle/ivs/locate.png)
+
+Ideally you'd like to be notified of the fact that `[1, 5)` from `needles` overlaps with `[1, 6)`, `[1, 2)` and `[4, 5)` from `haystack`.
 `iv_locate_overlaps()` allows you to do exactly this, and returns a data frame of the locations where the two interval vectors overlap.
 
 ```{r}
@@ -343,23 +349,29 @@ x
 iv_complement(x)
 ```
 
+![](omnigraffle/ivs/complement.png)
+
 By default, `iv_complement()` uses the smallest/largest values of its input as the bounds to compute the complement over, but, as we showed back in the `iv_groups()` section, you can supply bounds explicitly with `lower` and `upper`:
 
 ```{r}
-iv_complement(x, lower = 0, upper = Inf)
+iv_complement(x, upper = 20)
 ```
+
+![](omnigraffle/ivs/complement-upper.png)
 
 `iv_union()` takes the union of two ivs.
 It answers the question, "Which intervals are in `x` or `y`?"
 
 ```{r}
-y <- iv_pairs(c(-5, 0), c(1, 4), c(8, 10), c(15, 16))
+y <- iv_pairs(c(4, 5), c(13, 16), c(14, 18))
 
 x
 y
 
 iv_union(x, y)
 ```
+
+![](omnigraffle/ivs/union.png)
 
 `iv_intersect()` takes the intersection of two ivs.
 It answers the question, "Which intervals are in `x` and `y`?"
@@ -368,12 +380,16 @@ It answers the question, "Which intervals are in `x` and `y`?"
 iv_intersect(x, y)
 ```
 
+![](omnigraffle/ivs/intersect.png)
+
 `iv_difference()` takes the asymmetrical difference of two ivs.
 It answers the question, "Which intervals are in `x` but not `y`?"
 
 ```{r}
 iv_difference(x, y)
 ```
+
+![](omnigraffle/ivs/difference.png)
 
 ## Inspiration
 

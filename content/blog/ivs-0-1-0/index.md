@@ -13,7 +13,7 @@ categories: [package]
 tags: [ivs]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 9d0a252b05059068
+rmd_hash: 9367eb2e25eccda8
 
 ---
 
@@ -144,7 +144,11 @@ Imagine you work for AWS (Amazon Web Services) and you have a database that trac
 
 </div>
 
-You might be interested in identifying the contiguous blocks of time that a particular service was in use, regardless of who was using it. To solve this problem, we will first convert our `from/to` dates into a true interval vector using [`iv()`](https://davisvaughan.github.io/ivs/reference/iv.html).
+You might be interested in identifying the contiguous blocks of time that a particular service was in use, regardless of who was using it. In graphical form, that might look like this (notice how the overlapping `a` and overlapping `b` intervals have been combined):
+
+![](omnigraffle/ivs/groups.png)
+
+To solve this problem, we will first convert our `from/to` dates into a true interval vector using [`iv()`](https://davisvaughan.github.io/ivs/reference/iv.html).
 
 <div class="highlight">
 
@@ -290,14 +294,16 @@ For example, you might want to locate where these two interval vectors overlap:
 <span class='c'>#&gt; &lt;iv&lt;double&gt;[3]&gt;</span>
 <span class='c'>#&gt; [1] [1, 5)   [3, 7)   [10, 12)</span>
 
-<span class='nv'>haystack</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv.html'>iv_pairs</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>6</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>13</span>, <span class='m'>15</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>2</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>7</span>, <span class='m'>8</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>4</span>, <span class='m'>5</span><span class='o'>)</span><span class='o'>)</span>
+<span class='nv'>haystack</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv.html'>iv_pairs</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>6</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>12</span>, <span class='m'>13</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>7</span>, <span class='m'>8</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>4</span>, <span class='m'>5</span><span class='o'>)</span><span class='o'>)</span>
 <span class='nv'>haystack</span>
 <span class='c'>#&gt; &lt;iv&lt;double&gt;[5]&gt;</span>
-<span class='c'>#&gt; [1] [0, 6)   [13, 15) [0, 2)   [7, 8)   [4, 5)</span></code></pre>
+<span class='c'>#&gt; [1] [1, 6)   [12, 13) [1, 2)   [7, 8)   [4, 5)</span></code></pre>
 
 </div>
 
-Ideally you'd like to be notified of the fact that `[1, 5)` from `needles` overlaps with `[0, 6)`, `[0, 2)` and `[4, 5)` from `haystack`. [`iv_locate_overlaps()`](https://davisvaughan.github.io/ivs/reference/relation-locate.html) allows you to do exactly this, and returns a data frame of the locations where the two interval vectors overlap.
+![](omnigraffle/ivs/locate.png)
+
+Ideally you'd like to be notified of the fact that `[1, 5)` from `needles` overlaps with `[1, 6)`, `[1, 2)` and `[4, 5)` from `haystack`. [`iv_locate_overlaps()`](https://davisvaughan.github.io/ivs/reference/relation-locate.html) allows you to do exactly this, and returns a data frame of the locations where the two interval vectors overlap.
 
 <div class="highlight">
 
@@ -319,10 +325,10 @@ You can hand this data frame off to [`iv_align()`](https://davisvaughan.github.i
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv_align.html'>iv_align</a></span><span class='o'>(</span><span class='nv'>needles</span>, <span class='nv'>haystack</span>, locations <span class='o'>=</span> <span class='nv'>locations</span><span class='o'>)</span>
 <span class='c'>#&gt;    needles haystack</span>
-<span class='c'>#&gt; 1   [1, 5)   [0, 6)</span>
-<span class='c'>#&gt; 2   [1, 5)   [0, 2)</span>
+<span class='c'>#&gt; 1   [1, 5)   [1, 6)</span>
+<span class='c'>#&gt; 2   [1, 5)   [1, 2)</span>
 <span class='c'>#&gt; 3   [1, 5)   [4, 5)</span>
-<span class='c'>#&gt; 4   [3, 7)   [0, 6)</span>
+<span class='c'>#&gt; 4   [3, 7)   [1, 6)</span>
 <span class='c'>#&gt; 5   [3, 7)   [4, 5)</span>
 <span class='c'>#&gt; 6 [10, 12) [NA, NA)</span></code></pre>
 
@@ -337,10 +343,10 @@ You'll notice that `[10, 12)` from `needles` didn't overlap with anything from `
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>locations</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/relation-locate.html'>iv_locate_overlaps</a></span><span class='o'>(</span><span class='nv'>needles</span>, <span class='nv'>haystack</span>, no_match <span class='o'>=</span> <span class='s'>"drop"</span><span class='o'>)</span>
 <span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv_align.html'>iv_align</a></span><span class='o'>(</span><span class='nv'>needles</span>, <span class='nv'>haystack</span>, locations <span class='o'>=</span> <span class='nv'>locations</span><span class='o'>)</span>
 <span class='c'>#&gt;   needles haystack</span>
-<span class='c'>#&gt; 1  [1, 5)   [0, 6)</span>
-<span class='c'>#&gt; 2  [1, 5)   [0, 2)</span>
+<span class='c'>#&gt; 1  [1, 5)   [1, 6)</span>
+<span class='c'>#&gt; 2  [1, 5)   [1, 2)</span>
 <span class='c'>#&gt; 3  [1, 5)   [4, 5)</span>
-<span class='c'>#&gt; 4  [3, 7)   [0, 6)</span>
+<span class='c'>#&gt; 4  [3, 7)   [1, 6)</span>
 <span class='c'>#&gt; 5  [3, 7)   [4, 5)</span></code></pre>
 
 </div>
@@ -527,54 +533,64 @@ There are a number of set theoretical operations that you can use on ivs. These 
 
 </div>
 
+![](omnigraffle/ivs/complement.png)
+
 By default, [`iv_complement()`](https://davisvaughan.github.io/ivs/reference/iv-sets.html) uses the smallest/largest values of its input as the bounds to compute the complement over, but, as we showed back in the [`iv_groups()`](https://davisvaughan.github.io/ivs/reference/iv-groups.html) section, you can supply bounds explicitly with `lower` and `upper`:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv-sets.html'>iv_complement</a></span><span class='o'>(</span><span class='nv'>x</span>, lower <span class='o'>=</span> <span class='m'>0</span>, upper <span class='o'>=</span> <span class='kc'>Inf</span><span class='o'>)</span>
-<span class='c'>#&gt; &lt;iv&lt;double&gt;[4]&gt;</span>
-<span class='c'>#&gt; [1] [0, 1)    [5, 10)   [12, 13)  [15, Inf)</span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv-sets.html'>iv_complement</a></span><span class='o'>(</span><span class='nv'>x</span>, upper <span class='o'>=</span> <span class='m'>20</span><span class='o'>)</span>
+<span class='c'>#&gt; &lt;iv&lt;double&gt;[3]&gt;</span>
+<span class='c'>#&gt; [1] [5, 10)  [12, 13) [15, 20)</span></code></pre>
 
 </div>
+
+![](omnigraffle/ivs/complement-upper.png)
 
 [`iv_union()`](https://davisvaughan.github.io/ivs/reference/iv-sets.html) takes the union of two ivs. It answers the question, "Which intervals are in `x` or `y`?"
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>y</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv.html'>iv_pairs</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='o'>-</span><span class='m'>5</span>, <span class='m'>0</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>4</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>8</span>, <span class='m'>10</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>15</span>, <span class='m'>16</span><span class='o'>)</span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>y</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv.html'>iv_pairs</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>4</span>, <span class='m'>5</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>13</span>, <span class='m'>16</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>14</span>, <span class='m'>18</span><span class='o'>)</span><span class='o'>)</span>
 
 <span class='nv'>x</span>
 <span class='c'>#&gt; &lt;iv&lt;double&gt;[4]&gt;</span>
 <span class='c'>#&gt; [1] [1, 3)   [2, 5)   [10, 12) [13, 15)</span>
 <span class='nv'>y</span>
-<span class='c'>#&gt; &lt;iv&lt;double&gt;[4]&gt;</span>
-<span class='c'>#&gt; [1] [-5, 0)  [1, 4)   [8, 10)  [15, 16)</span>
+<span class='c'>#&gt; &lt;iv&lt;double&gt;[3]&gt;</span>
+<span class='c'>#&gt; [1] [4, 5)   [13, 16) [14, 18)</span>
 
 <span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv-sets.html'>iv_union</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>y</span><span class='o'>)</span>
-<span class='c'>#&gt; &lt;iv&lt;double&gt;[4]&gt;</span>
-<span class='c'>#&gt; [1] [-5, 0)  [1, 5)   [8, 12)  [13, 16)</span></code></pre>
+<span class='c'>#&gt; &lt;iv&lt;double&gt;[3]&gt;</span>
+<span class='c'>#&gt; [1] [1, 5)   [10, 12) [13, 18)</span></code></pre>
 
 </div>
+
+![](omnigraffle/ivs/union.png)
 
 [`iv_intersect()`](https://davisvaughan.github.io/ivs/reference/iv-sets.html) takes the intersection of two ivs. It answers the question, "Which intervals are in `x` and `y`?"
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv-sets.html'>iv_intersect</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>y</span><span class='o'>)</span>
-<span class='c'>#&gt; &lt;iv&lt;double&gt;[1]&gt;</span>
-<span class='c'>#&gt; [1] [1, 4)</span></code></pre>
+<span class='c'>#&gt; &lt;iv&lt;double&gt;[2]&gt;</span>
+<span class='c'>#&gt; [1] [4, 5)   [13, 15)</span></code></pre>
 
 </div>
+
+![](omnigraffle/ivs/intersect.png)
 
 [`iv_difference()`](https://davisvaughan.github.io/ivs/reference/iv-sets.html) takes the asymmetrical difference of two ivs. It answers the question, "Which intervals are in `x` but not `y`?"
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://davisvaughan.github.io/ivs/reference/iv-sets.html'>iv_difference</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>y</span><span class='o'>)</span>
-<span class='c'>#&gt; &lt;iv&lt;double&gt;[3]&gt;</span>
-<span class='c'>#&gt; [1] [4, 5)   [10, 12) [13, 15)</span></code></pre>
+<span class='c'>#&gt; &lt;iv&lt;double&gt;[2]&gt;</span>
+<span class='c'>#&gt; [1] [1, 4)   [10, 12)</span></code></pre>
 
 </div>
+
+![](omnigraffle/ivs/difference.png)
 
 ## Inspiration
 
