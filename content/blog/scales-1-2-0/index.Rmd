@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: scales-1-2-0
 title: scales 1.2.0
-date: 2022-04-12
+date: 2022-04-13
 author: Hadley Wickham
 description: >
     scales 1.2.0 brings a number of small but useful improvements 
@@ -31,7 +31,7 @@ TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
 * [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
-* [ ] Find photo & update yaml metadata
+* [x] Find photo & update yaml metadata
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] `hugodown::use_tidy_thumbnails()`
@@ -65,6 +65,8 @@ The most important is a new `scale_cut` argument that makes it possible to indep
 This is useful for scales which span multiple orders of magnitude. Take the following two examples which don't get great labels by default:
 
 ```{r}
+#| fig.alt: > 
+#|   Scatterplot with x-axis labels 1e+03, 1e+05, 1e+07, and 1e+09.
 df1 <- data.frame(
   x = 10 ^ runif(1000, 2, 9),
   y = runif(1000)
@@ -75,6 +77,11 @@ plot1 <- ggplot(df1, aes(x, y)) +
   geom_point() +
   labs(x = NULL, y = NULL)
 plot1 + scale_x_log10()
+```
+```{r}
+#| fig.alt: > 
+#|    Scatterplot with x-axis labels 0, 250000, 500000, 750000,
+#|    1000000, 12500000.
 plot2 <- ggplot(df2, aes(x, y)) + 
   geom_point()+
   labs(x = NULL, y = NULL)
@@ -84,10 +91,17 @@ plot2
 You can use `cut_short_scale()` to show thousands with a K suffix, millions with a M suffix, and billions with a B suffix:
 
 ```{r}
+#| fig.alt: > 
+#|    Scatterplot with x-axis labels 1K, 100K, 10M, 1B.
 plot1 +
   scale_x_log10(
     labels = label_number(scale_cut = cut_short_scale())
   )
+```
+
+```{r}
+#| fig.alt: > 
+#|    Scatterplot with x-axis labels 0, 250K, 500K, 750K, 1.00M, 1.25M
 plot2 +
   scale_x_continuous(
     labels = label_number(scale_cut = cut_short_scale())
@@ -99,10 +113,17 @@ plot2 +
 You can use `cut_si()` for SI labels:
 
 ```{r}
+#| fig.alt: > 
+#|    Scatterplot with x-axis labels 1 kg, 100 kg, 10 Mg, 1 Gg.
 plot1 + 
   scale_x_log10(
     labels = label_number(scale_cut = cut_si("g"))
   )
+```
+```{r}
+#| fig.alt: > 
+#|    Scatterplot with x-axis labels 0, 250 KMz, 500 KHz, 750 KHz,
+#|    1.00 MHz, 1.25 MHz
 plot2 + 
   scale_x_continuous(
     labels = label_number(scale_cut = cut_si("Hz"))
@@ -117,6 +138,9 @@ This replaces `label_number_si()` because it incorrectly used the [short-scale a
 Another way to label logs scales, thanks to [David C Hall](https://github.com/davidchall), you can now use `scales::labels_log()` to display
 
 ```{r}
+#| fig.alt: > 
+#|    Scatterplot with x-axis labels in mathematical notation: 10^3,
+#|    10^5, 10^7, 10^9.
 plot1 +
   scale_x_log10(
     labels = scales::label_log()
@@ -126,6 +150,9 @@ plot1 +
 You can use the `base` argument if you need a different base for the a logarithm:
 
 ```{r}
+#| fig.alt: > 
+#|    Scatterplot with x-axis labels in mathematical notation: 2^11,
+#|    2^17, 2^23, 2^29.
 plot1 + 
   scale_x_continuous(
     trans = scales::log_trans(2), 
@@ -138,6 +165,9 @@ plot1 +
 Finally, `label_dollar()` recieves a couple of small improvements. The `prefix` is now placed before the negative sign, rather than before it, yielding (e.g) the correct `-$1` instead of `$-1`:
 
 ```{r}
+#| fig.alt: > 
+#|    Line with y-axis labels in mathematical notation: 
+#|    0, -10000, -20000, -30000, -40000.
 df3 <- data.frame(
   date = as.Date("2022-01-01") + 1:1e3,
   balance = cumsum(runif(1e3, -1e3, 1e3))
@@ -150,6 +180,9 @@ plot3
 ```
 
 ```{r}
+#| fig.alt: > 
+#|    Line with y-axis labels in mathematical notation: 
+#|    $0, -$10K, -$20K, -$30K, -$40K.
 plot3 + 
   scale_y_continuous(
     labels = label_dollar(scale_cut = cut_short_scale())
@@ -160,6 +193,9 @@ plot3 +
 It also no longer uses its own `negative_parens` argument, but instead inherits the new `style_negative` argument from `label_number()`:
 
 ```{r}
+#| fig.alt: > 
+#|    Line with y-axis labels in mathematical notation: 
+#|    $0, ($10K), ($20K), ($30K), ($40K).
 plot3 + 
   scale_y_continuous(
     labels = label_dollar(

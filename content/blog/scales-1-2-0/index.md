@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: scales-1-2-0
 title: scales 1.2.0
-date: 2022-04-12
+date: 2022-04-13
 author: Hadley Wickham
 description: >
     scales 1.2.0 brings a number of small but useful improvements 
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, scales]
-rmd_hash: e2cae25e456cfd1d
+rmd_hash: 7d11b8de9eb745d6
 
 ---
 
@@ -25,7 +25,7 @@ TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
 * [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
+* [x] Find photo & update yaml metadata
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
@@ -54,7 +54,7 @@ This blog post will show off a few new features for labeling numbers, log scales
 
 [`label_number()`](https://scales.r-lib.org/reference/label_number.html) is the workhorse that powers ggplot2's formatting of numbers, including [`label_dollar()`](https://scales.r-lib.org/reference/label_dollar.html) and [`label_comma()`](https://scales.r-lib.org/reference/label_number.html). This release added a number of useful new features.
 
-The most important is a new `scale_cut` argument that makes it possible to independently scales different parts of the range. This is useful for scales that span multiple orders of magnitude. Take the following two examples which don't get great labels by default:
+The most important is a new `scale_cut` argument that makes it possible to independently scales different parts of the range. This is useful for scales which span multiple orders of magnitude. Take the following two examples which don't get great labels by default:
 
 <div class="highlight">
 
@@ -69,13 +69,18 @@ The most important is a new `scale_cut` argument that makes it possible to indep
   <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='kc'>NULL</span>, y <span class='o'>=</span> <span class='kc'>NULL</span><span class='o'>)</span>
 <span class='nv'>plot1</span> <span class='o'>+</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_log10</a></span><span class='o'>(</span><span class='o'>)</span>
 </code></pre>
-<img src="figs/unnamed-chunk-3-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-3-1.png" title="Scatterplot with x-axis labels 1e+03, 1e+05, 1e+07, and 1e+09." alt="Scatterplot with x-axis labels 1e+03, 1e+05, 1e+07, and 1e+09." width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+<div class="highlight">
+
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>plot2</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>df2</span>, <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>y</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span> 
   <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>+</span>
   <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='kc'>NULL</span>, y <span class='o'>=</span> <span class='kc'>NULL</span><span class='o'>)</span>
 <span class='nv'>plot2</span>
 </code></pre>
-<img src="figs/unnamed-chunk-3-2.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-4-1.png" title="Scatterplot with x-axis labels 0, 250000, 500000, 750000, 1000000, 12500000." alt="Scatterplot with x-axis labels 0, 250000, 500000, 750000, 1000000, 12500000." width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -88,13 +93,18 @@ You can use [`cut_short_scale()`](https://scales.r-lib.org/reference/number.html
     labels <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/label_number.html'>label_number</a></span><span class='o'>(</span>scale_cut <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/number.html'>cut_short_scale</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
   <span class='o'>)</span>
 </code></pre>
-<img src="figs/unnamed-chunk-4-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-5-1.png" title="Scatterplot with x-axis labels 1K, 100K, 10M, 1B." alt="Scatterplot with x-axis labels 1K, 100K, 10M, 1B." width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+<div class="highlight">
+
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>plot2</span> <span class='o'>+</span>
   <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous</a></span><span class='o'>(</span>
     labels <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/label_number.html'>label_number</a></span><span class='o'>(</span>scale_cut <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/number.html'>cut_short_scale</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
   <span class='o'>)</span>
 </code></pre>
-<img src="figs/unnamed-chunk-4-2.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-6-1.png" title="Scatterplot with x-axis labels 0, 250K, 500K, 750K, 1.00M, 1.25M" alt="Scatterplot with x-axis labels 0, 250K, 500K, 750K, 1.00M, 1.25M" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -109,21 +119,26 @@ You can use [`cut_si()`](https://scales.r-lib.org/reference/number.html) for SI 
     labels <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/label_number.html'>label_number</a></span><span class='o'>(</span>scale_cut <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/number.html'>cut_si</a></span><span class='o'>(</span><span class='s'>"g"</span><span class='o'>)</span><span class='o'>)</span>
   <span class='o'>)</span>
 </code></pre>
-<img src="figs/unnamed-chunk-5-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-7-1.png" title="Scatterplot with x-axis labels 1 kg, 100 kg, 10 Mg, 1 Gg." alt="Scatterplot with x-axis labels 1 kg, 100 kg, 10 Mg, 1 Gg." width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+<div class="highlight">
+
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>plot2</span> <span class='o'>+</span> 
   <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous</a></span><span class='o'>(</span>
     labels <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/label_number.html'>label_number</a></span><span class='o'>(</span>scale_cut <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/number.html'>cut_si</a></span><span class='o'>(</span><span class='s'>"Hz"</span><span class='o'>)</span><span class='o'>)</span>
   <span class='o'>)</span>
 </code></pre>
-<img src="figs/unnamed-chunk-5-2.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-8-1.png" title="Scatterplot with x-axis labels 0, 250 KMz, 500 KHz, 750 KHz, 1.00 MHz, 1.25 MHz" alt="Scatterplot with x-axis labels 0, 250 KMz, 500 KHz, 750 KHz, 1.00 MHz, 1.25 MHz" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
-This replaces [`label_number_si()`](https://scales.r-lib.org/reference/label_number_si.html) because it incorrectly used the [short scale abbreviations](https://en.wikipedia.org/wiki/Long_and_short_scales) instead of the correct [SI prefixes](https://en.wikipedia.org/wiki/Metric_prefix).
+This replaces [`label_number_si()`](https://scales.r-lib.org/reference/label_number_si.html) because it incorrectly used the [short-scale abbreviations](https://en.wikipedia.org/wiki/Long_and_short_scales) instead of the correct [SI prefixes](https://en.wikipedia.org/wiki/Metric_prefix).
 
 ## Log labels
 
-Another way to label logs scales Thanks to [David C Hall](https://github.com/davidchall) you can now use `scales::labels_log()` to display
+Another way to label logs scales, thanks to [David C Hall](https://github.com/davidchall), you can now use `scales::labels_log()` to display
 
 <div class="highlight">
 
@@ -132,7 +147,7 @@ Another way to label logs scales Thanks to [David C Hall](https://github.com/dav
     labels <span class='o'>=</span> <span class='nf'>scales</span><span class='nf'>::</span><span class='nf'><a href='https://scales.r-lib.org/reference/label_log.html'>label_log</a></span><span class='o'>(</span><span class='o'>)</span>
   <span class='o'>)</span>
 </code></pre>
-<img src="figs/unnamed-chunk-6-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-9-1.png" title="Scatterplot with x-axis labels in mathematical notation: 10^3, 10^5, 10^7, 10^9." alt="Scatterplot with x-axis labels in mathematical notation: 10^3, 10^5, 10^7, 10^9." width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -146,13 +161,13 @@ You can use the `base` argument if you need a different base for the a logarithm
     labels <span class='o'>=</span> <span class='nf'>scales</span><span class='nf'>::</span><span class='nf'><a href='https://scales.r-lib.org/reference/label_log.html'>label_log</a></span><span class='o'>(</span><span class='m'>2</span><span class='o'>)</span>
   <span class='o'>)</span>
 </code></pre>
-<img src="figs/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-10-1.png" title="Scatterplot with x-axis labels in mathematical notation: 2^11, 2^17, 2^23, 2^29." alt="Scatterplot with x-axis labels in mathematical notation: 2^11, 2^17, 2^23, 2^29." width="700px" style="display: block; margin: auto;" />
 
 </div>
 
 ## Currency
 
-Finally, [`label_dollar()`](https://scales.r-lib.org/reference/label_dollar.html) recieves a couple of small improvements. The the `prefix` is now placed before negative sign, rather than before it, yielding (e.g) the correct `-$1` instead of `$-1`:
+Finally, [`label_dollar()`](https://scales.r-lib.org/reference/label_dollar.html) recieves a couple of small improvements. The `prefix` is now placed before the negative sign, rather than before it, yielding (e.g) the correct `-$1` instead of `$-1`:
 
 <div class="highlight">
 
@@ -166,7 +181,7 @@ Finally, [`label_dollar()`](https://scales.r-lib.org/reference/label_dollar.html
   <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='kc'>NULL</span>, y <span class='o'>=</span> <span class='kc'>NULL</span><span class='o'>)</span>
 <span class='nv'>plot3</span>
 </code></pre>
-<img src="figs/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-11-1.png" title="Line with y-axis labels in mathematical notation: 0, -10000, -20000, -30000, -40000." alt="Line with y-axis labels in mathematical notation: 0, -10000, -20000, -30000, -40000." width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -177,11 +192,11 @@ Finally, [`label_dollar()`](https://scales.r-lib.org/reference/label_dollar.html
     labels <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/label_dollar.html'>label_dollar</a></span><span class='o'>(</span>scale_cut <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/number.html'>cut_short_scale</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
   <span class='o'>)</span>
 </code></pre>
-<img src="figs/unnamed-chunk-9-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-12-1.png" title="Line with y-axis labels in mathematical notation: $0, -$10K, -$20K, -$30K, -$40K." alt="Line with y-axis labels in mathematical notation: $0, -$10K, -$20K, -$30K, -$40K." width="700px" style="display: block; margin: auto;" />
 
 </div>
 
-It also longer uses its own `negative_parens` argument but instead inherits the new `style_negative` argument from [`label_number()`](https://scales.r-lib.org/reference/label_number.html):
+It also no longer uses its own `negative_parens` argument, but instead inherits the new `style_negative` argument from [`label_number()`](https://scales.r-lib.org/reference/label_number.html):
 
 <div class="highlight">
 
@@ -193,7 +208,7 @@ It also longer uses its own `negative_parens` argument but instead inherits the 
     <span class='o'>)</span>
   <span class='o'>)</span>
 </code></pre>
-<img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-13-1.png" title="Line with y-axis labels in mathematical notation: $0, ($10K), ($20K), ($30K), ($40K)." alt="Line with y-axis labels in mathematical notation: $0, ($10K), ($20K), ($30K), ($40K)." width="700px" style="display: block; margin: auto;" />
 
 </div>
 
