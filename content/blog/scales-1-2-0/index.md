@@ -138,7 +138,7 @@ This replaces [`label_number_si()`](https://scales.r-lib.org/reference/label_num
 
 ## Log labels
 
-Another way to label logs scales, thanks to [David C Hall](https://github.com/davidchall), you can now use `scales::labels_log()` to display
+Another way to label logs scales, thanks to [David C Hall](https://github.com/davidchall), you can now use `scales::label_log()` to display
 
 <div class="highlight">
 
