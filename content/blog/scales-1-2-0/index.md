@@ -167,7 +167,7 @@ You can use the `base` argument if you need a different base for the a logarithm
 
 ## Currency
 
-Finally, [`label_dollar()`](https://scales.r-lib.org/reference/label_dollar.html) recieves a couple of small improvements. The `prefix` is now placed before the negative sign, rather than before it, yielding (e.g) the correct `-$1` instead of `$-1`:
+Finally, [`label_dollar()`](https://scales.r-lib.org/reference/label_dollar.html) receives a couple of small improvements. The `prefix` is now placed before the negative sign, rather than after it, yielding (e.g) the correct `-$1` instead of `$-1`:
 
 <div class="highlight">
 
