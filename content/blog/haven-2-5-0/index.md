@@ -6,7 +6,7 @@ title: haven 2.5.0
 date: 2022-04-15
 author: Hadley Wickham
 description: >
-  haven 2.5.0 adds support for custom character widths, creates FDA compliant
+  haven 2.5.0 adds support for custom character widths, creates FDA-compliant
   XPT files, and can use Stata's `strL` variable type.
 photo:
   url: https://unsplash.com/photos/VsPsf4F5Pi0
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [haven]
-rmd_hash: 78c1c34ab8c75ebc
+rmd_hash: 2f522d40b2f10f24
 
 ---
 
@@ -46,9 +46,9 @@ The most important news for this release is that [Danny Smith](https://github.co
 
 Other improvements of note:
 
--   You can set custom variable widths when writing by setting the the `width` attribute of the variable.
+-   You can set custom variable widths when writing by setting the `width` attribute of the variable.
 
--   You can create FDA compliant SAS transport files with haven thanks to the addition of custom variable width support and some XPT writing related bug fixes.
+-   You can create FDA-compliant SAS transport files with haven, thanks to the addition of custom variable width support and some XPT writing related bug fixes.
 
 -   `write_dta()` now supports Stata's `StrL` variables. This means that it's possible to write Stata files containing strings longer than 2045 characters, which was previously a hard upper limit.
 
