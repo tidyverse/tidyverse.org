@@ -74,9 +74,9 @@ textrecipes_rec <- recipe(price ~ zip, data = Sacramento) %>%
 
 ## themis
 
-In addition to fixing all the reported bugs, we have two fairly major announcements. A new step `step_smotenc()` was added thanks to [Robert Gregg](https://github.com/RobertGregg). This step applies the SMOTENC algorithm that is used to synthetically generate observations from minority classes. The SMOTENC method can handle a mix of categorical and numerical predictors which was not possible using the existing SMOTE method which could only operate on numeric predictors. 
+A new step `step_smotenc()` was added thanks to [Robert Gregg](https://github.com/RobertGregg). This step applies the SMOTENC algorithm to synthetically generate observations from minority classes. The SMOTENC method can handle a mix of categorical and numerical predictors, which was not possible using the existing SMOTE method which could only operate on numeric predictors. 
 
-The `hpc_data` illustrates this use case neatly. The data set contains characteristics of unix jobs and how long they look to run (the outcome `class`). The outcome is not that balanced, with the classes having almost 10 times fewer observations. One way to deal with an imbalance like this is to over-sample the minority observations to lessen the imbalance. 
+The `hpc_data` illustrates this use case neatly. The data set contains characteristics of HPC Unix jobs and how long they took to run (the outcome `class`). The outcome is not that balanced, with some classes having almost 10 times fewer observations than others. One way to deal with an imbalance like this is to over-sample the minority observations to mitigate the imbalance. 
 
 ```{r}
 data(hpc_data)
@@ -84,7 +84,7 @@ data(hpc_data)
 hpc_data %>% count(class)
 ```
 
-Using `step_smotenc()`, with the `over_ratio` argument, we can make sure that all classes are over-sampled to have no less than 0.5 of the observations of the largest class.
+Using `step_smotenc()`, with the `over_ratio` argument, we can make sure that all classes are over-sampled to have no less than half of the observations of the largest class.
 
 ```{r}
 up_rec <- recipe(class ~ ., data = hpc_data) %>%
@@ -104,11 +104,11 @@ smotenc(hpc_data, "class", over_ratio = 0.5)
 
 ## textrecipes
 
-The functions `all_tokenized()` and `all_tokenized_predictors()` were added to more easily select tokenized columns in a similar fashion to the existing `all_numeric()` and `all_numeric_predictors()` selectors.
+We added the functions `all_tokenized()` and `all_tokenized_predictors()` to more easily select tokenized columns, similar to the [existing `all_numeric()` and `all_numeric_predictors()` selectors in recipes](https://recipes.tidymodels.org/reference/has_role.html).
 
-Lastly, the main step in textrecipes tends to be `step_tokenize()` as you would need it to generate tokens that are modified that the other steps. Over the years we found that it got overloaded with functionality as more and more support for different types of tokenization was added. The remedy to this problem have been to create specialized steps, so `step_tokenize()` has gotten a couple of cousin steps `step_tokenize_bpe()`, `step_tokenize_sentencepiece()` and `step_tokenize_wordpiece()` which wraps {tokenizers.bpe}, {sentencepiece} and {wordpiece} respectively.
+The most important step in textrecipes is`step_tokenize()`, as you need it to generate tokens that can be modified by other steps. We have found that this function has gotten overloaded with functionality as more and more support for different types of tokenization was added. To address this, we have created new specialized tokenization steps; `step_tokenize()` has gotten cousin steps `step_tokenize_bpe()`, `step_tokenize_sentencepiece()`, and `step_tokenize_wordpiece()` which wrap tokenizers.bpe, sentencepiece, and wordpiece respectively.
 
-In addition to being easier to manage code-wise, it also allows for less, more readable code with better tab completion.
+In addition to being easier to manage code-wise, these new functions also allow for more compact, more readable code with better tab completion.
 
 ```{r}
 data(tate_text)
