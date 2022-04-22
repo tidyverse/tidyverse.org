@@ -43,33 +43,17 @@ install.packages("textrecipes")
 
 The `NEWS` files are linked here for each package; We will go over some of the bigger changes within and between these packages in this post. A lot of the smaller changes were done to make sure that these extension packages are up to the same standard as recipes itself.
 
-- [embed](https://embed.tidymodels.org/news/index.html#embed-020)
 - [themis](https://themis.tidymodels.org/news/index.html#themis-020)
 - [textrecipes](https://textrecipes.tidymodels.org/news/index.html#textrecipes-051)
+- [embed](https://embed.tidymodels.org/news/index.html#embed-020)
 
 ```{r}
 library(recipes)
-library(embed)
 library(themis)
 library(textrecipes)
+library(embed)
 library(modeldata)
 set.seed(1234)
-```
-
-## embed
-
-`step_feature_hash()` is now soft deprecated in embed in favor of `step_dummy_hash()` in textrecipes. The embed version uses TensorFlow, which for some use cases is quite a dependency. One thing to keep an eye out for when moving over is that the textrecipes version uses `num_terms` instead of `num_hash` to denote the number of columns to output.
-
-```{r, warning=FALSE}
-data(Sacramento)
-
-# Old recipe
-embed_rec <- recipe(price ~ zip, data = Sacramento) %>%
-  step_feature_hash(zip, num_hash = 64)
-
-# New recipe
-textrecipes_rec <- recipe(price ~ zip, data = Sacramento) %>%
-  step_dummy_hash(zip, num_terms = 64)
 ```
 
 ## themis
@@ -126,12 +110,28 @@ tate_rec <- recipe(~., data = tate_text) %>%
   step_tokenize_bpe(medium, vocabulary_size = 1000)
 ```
 
+## embed
+
+`step_feature_hash()` is now soft deprecated in embed in favor of `step_dummy_hash()` in textrecipes. The embed version uses TensorFlow, which for some use cases is quite a dependency. One thing to keep an eye out for when moving over is that the textrecipes version uses `num_terms` instead of `num_hash` to denote the number of columns to output.
+
+```{r, warning=FALSE}
+data(Sacramento)
+
+# Old recipe
+embed_rec <- recipe(price ~ zip, data = Sacramento) %>%
+  step_feature_hash(zip, num_hash = 64)
+
+# New recipe
+textrecipes_rec <- recipe(price ~ zip, data = Sacramento) %>%
+  step_dummy_hash(zip, num_terms = 64)
+```
+
 ## Acknowledgements
 
 We’d like to extend our thanks to all of the contributors who helped make these releases possible!
 
-- embed: [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;naveranoc](https://github.com/naveranoc), [&#x0040;talegari](https://github.com/talegari), and [&#x0040;topepo](https://github.com/topepo).
-
 - themis: [&#x0040;coforfe](https://github.com/coforfe), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;emilyriederer](https://github.com/emilyriederer), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;OGuggenbuehl](https://github.com/OGuggenbuehl), and [&#x0040;RobertGregg](https://github.com/RobertGregg).
 
 - textrecipes: [&#x0040;dgrtwo](https://github.com/dgrtwo), [&#x0040;DiabbZegpi](https://github.com/DiabbZegpi), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;jcragy](https://github.com/jcragy), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;joeycouse](https://github.com/joeycouse), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;NLDataScientist](https://github.com/NLDataScientist), [&#x0040;raj-hubber](https://github.com/raj-hubber), and [&#x0040;topepo](https://github.com/topepo).
+
+- embed: [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;naveranoc](https://github.com/naveranoc), [&#x0040;talegari](https://github.com/talegari), and [&#x0040;topepo](https://github.com/topepo).
