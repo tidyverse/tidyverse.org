@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [recipes, tidymodels]
-rmd_hash: f0f5dbf60456ffed
+rmd_hash: 2f66e97c0c6d7407
 
 ---
 
@@ -47,65 +47,32 @@ You can install the these updates from CRAN with:
 
 The `NEWS` files are linked here for each package; We will go over some of the bigger changes within and between these packages in this post. A lot of the smaller changes were done to make sure that these extension packages are up to the same standard as recipes itself.
 
--   [embed](https://embed.tidymodels.org/news/index.html#embed-020)
 -   [themis](https://themis.tidymodels.org/news/index.html#themis-020)
 -   [textrecipes](https://textrecipes.tidymodels.org/news/index.html#textrecipes-051)
+-   [embed](https://embed.tidymodels.org/news/index.html#embed-020)
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/tidymodels/recipes'>recipes</a></span><span class='o'>)</span>
-<span class='c'>#&gt; Loading required package: dplyr</span>
-<span class='c'>#&gt; </span>
-<span class='c'>#&gt; Attaching package: 'dplyr'</span>
-<span class='c'>#&gt; The following objects are masked from 'package:stats':</span>
-<span class='c'>#&gt; </span>
-<span class='c'>#&gt;     filter, lag</span>
-<span class='c'>#&gt; The following objects are masked from 'package:base':</span>
-<span class='c'>#&gt; </span>
-<span class='c'>#&gt;     intersect, setdiff, setequal, union</span>
-<span class='c'>#&gt; </span>
-<span class='c'>#&gt; Attaching package: 'recipes'</span>
-<span class='c'>#&gt; The following object is masked from 'package:stats':</span>
-<span class='c'>#&gt; </span>
-<span class='c'>#&gt;     step</span>
-<span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://embed.tidymodels.org'>embed</a></span><span class='o'>)</span>
 <span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/tidymodels/themis'>themis</a></span><span class='o'>)</span>
 <span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/tidymodels/textrecipes'>textrecipes</a></span><span class='o'>)</span>
+<span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://embed.tidymodels.org'>embed</a></span><span class='o'>)</span>
 <span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://modeldata.tidymodels.org'>modeldata</a></span><span class='o'>)</span>
 <span class='nf'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='o'>(</span><span class='m'>1234</span><span class='o'>)</span></code></pre>
 
 </div>
 
-## embed
-
-[`step_feature_hash()`](https://embed.tidymodels.org/reference/step_feature_hash.html) is now soft deprecated in embed in favor of [`step_dummy_hash()`](https://textrecipes.tidymodels.org/reference/step_dummy_hash.html) in textrecipes. The embed version uses TensorFlow, which for some use cases is quite a dependency. One thing to keep an eye out for when moving over is that the textrecipes version uses `num_terms` instead of `num_hash` to denote the number of columns to output.
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='nv'>Sacramento</span><span class='o'>)</span>
-
-<span class='c'># Old recipe</span>
-<span class='nv'>embed_rec</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://recipes.tidymodels.org/reference/recipe.html'>recipe</a></span><span class='o'>(</span><span class='nv'>price</span> <span class='o'>~</span> <span class='nv'>zip</span>, data <span class='o'>=</span> <span class='nv'>Sacramento</span><span class='o'>)</span> <span class='o'><a href='https://textrecipes.tidymodels.org/reference/pipe.html'>%&gt;%</a></span>
-  <span class='nf'><a href='https://embed.tidymodels.org/reference/step_feature_hash.html'>step_feature_hash</a></span><span class='o'>(</span><span class='nv'>zip</span>, num_hash <span class='o'>=</span> <span class='m'>64</span><span class='o'>)</span>
-<span class='c'>#&gt; Loaded Tensorflow version 2.8.0</span>
-
-<span class='c'># New recipe</span>
-<span class='nv'>textrecipes_rec</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://recipes.tidymodels.org/reference/recipe.html'>recipe</a></span><span class='o'>(</span><span class='nv'>price</span> <span class='o'>~</span> <span class='nv'>zip</span>, data <span class='o'>=</span> <span class='nv'>Sacramento</span><span class='o'>)</span> <span class='o'><a href='https://textrecipes.tidymodels.org/reference/pipe.html'>%&gt;%</a></span>
-  <span class='nf'><a href='https://textrecipes.tidymodels.org/reference/step_dummy_hash.html'>step_dummy_hash</a></span><span class='o'>(</span><span class='nv'>zip</span>, num_terms <span class='o'>=</span> <span class='m'>64</span><span class='o'>)</span></code></pre>
-
-</div>
-
 ## themis
 
-In addition to fixing all the reported bugs, we have two fairly major announcements. A new step [`step_smotenc()`](https://themis.tidymodels.org/reference/step_smotenc.html) was added thanks to [Robert Gregg](https://github.com/RobertGregg). This step applies the SMOTENC algorithm that is used to synthetically generate observations from minority classes. The SMOTENC method can handle a mix of categorical and numerical predictors which was not possible using the existing SMOTE method which could only operate on numeric predictors.
+A new step [`step_smotenc()`](https://themis.tidymodels.org/reference/step_smotenc.html) was added thanks to [Robert Gregg](https://github.com/RobertGregg). This step applies the SMOTENC algorithm to synthetically generate observations from minority classes. The SMOTENC method can handle a mix of categorical and numerical predictors, which was not possible using the existing SMOTE method which could only operate on numeric predictors.
 
-The `hpc_data` illustrates this use case neatly. The data set contains characteristics of unix jobs and how long they look to run (the outcome `class`). The outcome is not that balanced, with the classes having almost 10 times fewer observations. One way to deal with an imbalance like this is to over-sample the minority observations to lessen the imbalance.
+The `hpc_data` illustrates this use case neatly. The data set contains characteristics of HPC Unix jobs and how long they took to run (the outcome `class`). The outcome is not that balanced, with some classes having almost 10 times fewer observations than others. One way to deal with an imbalance like this is to over-sample the minority observations to mitigate the imbalance.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='nv'>hpc_data</span><span class='o'>)</span>
 
-<span class='nv'>hpc_data</span> <span class='o'><a href='https://textrecipes.tidymodels.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/count.html'>count</a></span><span class='o'>(</span><span class='nv'>class</span><span class='o'>)</span>
+<span class='nv'>hpc_data</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/count.html'>count</a></span><span class='o'>(</span><span class='nv'>class</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 2</span></span>
 <span class='c'>#&gt;   class     n</span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span></span>
@@ -116,16 +83,16 @@ The `hpc_data` illustrates this use case neatly. The data set contains character
 
 </div>
 
-Using [`step_smotenc()`](https://themis.tidymodels.org/reference/step_smotenc.html), with the `over_ratio` argument, we can make sure that all classes are over-sampled to have no less than 0.5 of the observations of the largest class.
+Using [`step_smotenc()`](https://themis.tidymodels.org/reference/step_smotenc.html), with the `over_ratio` argument, we can make sure that all classes are over-sampled to have no less than half of the observations of the largest class.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>up_rec</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://recipes.tidymodels.org/reference/recipe.html'>recipe</a></span><span class='o'>(</span><span class='nv'>class</span> <span class='o'>~</span> <span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>hpc_data</span><span class='o'>)</span> <span class='o'><a href='https://textrecipes.tidymodels.org/reference/pipe.html'>%&gt;%</a></span>
-  <span class='nf'><a href='https://themis.tidymodels.org/reference/step_smotenc.html'>step_smotenc</a></span><span class='o'>(</span><span class='nv'>class</span>, over_ratio <span class='o'>=</span> <span class='m'>0.5</span><span class='o'>)</span> <span class='o'><a href='https://textrecipes.tidymodels.org/reference/pipe.html'>%&gt;%</a></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>up_rec</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://recipes.tidymodels.org/reference/recipe.html'>recipe</a></span><span class='o'>(</span><span class='nv'>class</span> <span class='o'>~</span> <span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>hpc_data</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://themis.tidymodels.org/reference/step_smotenc.html'>step_smotenc</a></span><span class='o'>(</span><span class='nv'>class</span>, over_ratio <span class='o'>=</span> <span class='m'>0.5</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
   <span class='nf'><a href='https://recipes.tidymodels.org/reference/prep.html'>prep</a></span><span class='o'>(</span><span class='o'>)</span>
 
-<span class='nv'>up_rec</span> <span class='o'><a href='https://textrecipes.tidymodels.org/reference/pipe.html'>%&gt;%</a></span>
-  <span class='nf'><a href='https://recipes.tidymodels.org/reference/bake.html'>bake</a></span><span class='o'>(</span>new_data <span class='o'>=</span> <span class='kc'>NULL</span><span class='o'>)</span> <span class='o'><a href='https://textrecipes.tidymodels.org/reference/pipe.html'>%&gt;%</a></span>
+<span class='nv'>up_rec</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://recipes.tidymodels.org/reference/bake.html'>bake</a></span><span class='o'>(</span>new_data <span class='o'>=</span> <span class='kc'>NULL</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/count.html'>count</a></span><span class='o'>(</span><span class='nv'>class</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 2</span></span>
 <span class='c'>#&gt;   class     n</span>
@@ -161,18 +128,18 @@ The method that was implemented in embed now has [standalone functions](https://
 
 ## textrecipes
 
-The functions [`all_tokenized()`](https://textrecipes.tidymodels.org/reference/all_tokenized.html) and [`all_tokenized_predictors()`](https://textrecipes.tidymodels.org/reference/all_tokenized.html) were added to more easily select tokenized columns in a similar fashion to the existing [`all_numeric()`](https://recipes.tidymodels.org/reference/has_role.html) and [`all_numeric_predictors()`](https://recipes.tidymodels.org/reference/has_role.html) selectors.
+We added the functions [`all_tokenized()`](https://textrecipes.tidymodels.org/reference/all_tokenized.html) and [`all_tokenized_predictors()`](https://textrecipes.tidymodels.org/reference/all_tokenized.html) to more easily select tokenized columns, similar to the [existing `all_numeric()` and `all_numeric_predictors()` selectors in recipes](https://recipes.tidymodels.org/reference/has_role.html).
 
-Lastly, the main step in textrecipes tends to be [`step_tokenize()`](https://textrecipes.tidymodels.org/reference/step_tokenize.html) as you would need it to generate tokens that are modified that the other steps. Over the years we found that it got overloaded with functionality as more and more support for different types of tokenization was added. The remedy to this problem have been to create specialized steps, so [`step_tokenize()`](https://textrecipes.tidymodels.org/reference/step_tokenize.html) has gotten a couple of cousin steps [`step_tokenize_bpe()`](https://textrecipes.tidymodels.org/reference/step_tokenize_bpe.html), [`step_tokenize_sentencepiece()`](https://textrecipes.tidymodels.org/reference/step_tokenize_sentencepiece.html) and [`step_tokenize_wordpiece()`](https://textrecipes.tidymodels.org/reference/step_tokenize_wordpiece.html) which wraps {tokenizers.bpe}, {sentencepiece} and {wordpiece} respectively.
+The most important step in textrecipes is[`step_tokenize()`](https://textrecipes.tidymodels.org/reference/step_tokenize.html), as you need it to generate tokens that can be modified by other steps. We have found that this function has gotten overloaded with functionality as more and more support for different types of tokenization was added. To address this, we have created new specialized tokenization steps; [`step_tokenize()`](https://textrecipes.tidymodels.org/reference/step_tokenize.html) has gotten cousin steps [`step_tokenize_bpe()`](https://textrecipes.tidymodels.org/reference/step_tokenize_bpe.html), [`step_tokenize_sentencepiece()`](https://textrecipes.tidymodels.org/reference/step_tokenize_sentencepiece.html), and [`step_tokenize_wordpiece()`](https://textrecipes.tidymodels.org/reference/step_tokenize_wordpiece.html) which wrap [tokenizers.bpe](https://CRAN.R-project.org/package=tokenizers.bpe), [sentencepiece](https://CRAN.R-project.org/package=sentencepiece), and [wordpiece](https://CRAN.R-project.org/package=wordpiece) respectively.
 
-In addition to being easier to manage code-wise, it also allows for less, more readable code with better tab completion.
+In addition to being easier to manage code-wise, these new functions also allow for more compact, more readable code with better tab completion.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='nv'>tate_text</span><span class='o'>)</span>
 
 <span class='c'># Old</span>
-<span class='nv'>tate_rec</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://recipes.tidymodels.org/reference/recipe.html'>recipe</a></span><span class='o'>(</span><span class='o'>~</span><span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>tate_text</span><span class='o'>)</span> <span class='o'><a href='https://textrecipes.tidymodels.org/reference/pipe.html'>%&gt;%</a></span>
+<span class='nv'>tate_rec</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://recipes.tidymodels.org/reference/recipe.html'>recipe</a></span><span class='o'>(</span><span class='o'>~</span><span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>tate_text</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
  <span class='nf'><a href='https://textrecipes.tidymodels.org/reference/step_tokenize.html'>step_tokenize</a></span><span class='o'>(</span>
     <span class='nv'>text</span>,
     engine <span class='o'>=</span> <span class='s'>"tokenizers.bpe"</span>,
@@ -180,8 +147,27 @@ In addition to being easier to manage code-wise, it also allows for less, more r
   <span class='o'>)</span>
 
 <span class='c'># New</span>
-<span class='nv'>tate_rec</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://recipes.tidymodels.org/reference/recipe.html'>recipe</a></span><span class='o'>(</span><span class='o'>~</span><span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>tate_text</span><span class='o'>)</span> <span class='o'><a href='https://textrecipes.tidymodels.org/reference/pipe.html'>%&gt;%</a></span>
+<span class='nv'>tate_rec</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://recipes.tidymodels.org/reference/recipe.html'>recipe</a></span><span class='o'>(</span><span class='o'>~</span><span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>tate_text</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
   <span class='nf'><a href='https://textrecipes.tidymodels.org/reference/step_tokenize_bpe.html'>step_tokenize_bpe</a></span><span class='o'>(</span><span class='nv'>medium</span>, vocabulary_size <span class='o'>=</span> <span class='m'>1000</span><span class='o'>)</span></code></pre>
+
+</div>
+
+## embed
+
+[`step_feature_hash()`](https://embed.tidymodels.org/reference/step_feature_hash.html) is now soft deprecated in embed in favor of [`step_dummy_hash()`](https://textrecipes.tidymodels.org/reference/step_dummy_hash.html) in textrecipes. The embed version uses TensorFlow, which for some use cases is quite a dependency. One thing to keep an eye out for when moving over is that the textrecipes version uses `num_terms` instead of `num_hash` to denote the number of columns to output.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='nv'>Sacramento</span><span class='o'>)</span>
+
+<span class='c'># Old recipe</span>
+<span class='nv'>embed_rec</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://recipes.tidymodels.org/reference/recipe.html'>recipe</a></span><span class='o'>(</span><span class='nv'>price</span> <span class='o'>~</span> <span class='nv'>zip</span>, data <span class='o'>=</span> <span class='nv'>Sacramento</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://embed.tidymodels.org/reference/step_feature_hash.html'>step_feature_hash</a></span><span class='o'>(</span><span class='nv'>zip</span>, num_hash <span class='o'>=</span> <span class='m'>64</span><span class='o'>)</span>
+<span class='c'>#&gt; Loaded Tensorflow version 2.8.0</span>
+
+<span class='c'># New recipe</span>
+<span class='nv'>textrecipes_rec</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://recipes.tidymodels.org/reference/recipe.html'>recipe</a></span><span class='o'>(</span><span class='nv'>price</span> <span class='o'>~</span> <span class='nv'>zip</span>, data <span class='o'>=</span> <span class='nv'>Sacramento</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='nf'><a href='https://textrecipes.tidymodels.org/reference/step_dummy_hash.html'>step_dummy_hash</a></span><span class='o'>(</span><span class='nv'>zip</span>, num_terms <span class='o'>=</span> <span class='m'>64</span><span class='o'>)</span></code></pre>
 
 </div>
 
@@ -189,9 +175,9 @@ In addition to being easier to manage code-wise, it also allows for less, more r
 
 We'd like to extend our thanks to all of the contributors who helped make these releases possible!
 
--   embed: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@juliasilge](https://github.com/juliasilge), [@naveranoc](https://github.com/naveranoc), [@talegari](https://github.com/talegari), and [@topepo](https://github.com/topepo).
-
 -   themis: [@coforfe](https://github.com/coforfe), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@emilyriederer](https://github.com/emilyriederer), [@jennybc](https://github.com/jennybc), [@OGuggenbuehl](https://github.com/OGuggenbuehl), and [@RobertGregg](https://github.com/RobertGregg).
 
 -   textrecipes: [@dgrtwo](https://github.com/dgrtwo), [@DiabbZegpi](https://github.com/DiabbZegpi), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@jcragy](https://github.com/jcragy), [@jennybc](https://github.com/jennybc), [@joeycouse](https://github.com/joeycouse), [@lionel-](https://github.com/lionel-), [@NLDataScientist](https://github.com/NLDataScientist), [@raj-hubber](https://github.com/raj-hubber), and [@topepo](https://github.com/topepo).
+
+-   embed: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@juliasilge](https://github.com/juliasilge), [@naveranoc](https://github.com/naveranoc), [@talegari](https://github.com/talegari), and [@topepo](https://github.com/topepo).
 
