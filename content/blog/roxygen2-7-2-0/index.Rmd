@@ -1,0 +1,91 @@
+---
+output: hugodown::hugo_document
+
+slug: roxygen2-7-2-0
+title: roxygen2 7.2.0
+date: 2022-04-25
+author: Hadley Wickham
+description: >
+    roxygen2 7.2.0 brings improvements to `NAMESPACE` generation, 
+    better multiparameter argument inheritance, and improved warnings.
+photo:
+  url: https://unsplash.com/photos/hpTH5b6mo2s
+  author: ian dooley
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [roxygen2, devtools]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+```
+We're tickled pink to announce the release of [roxygen2](https://roxygen2.r-lib.org) 7.2.0.
+roxygen2 allows you to write specially formatted R comments that generate R documentation files (`man/*.Rd`) and the `NAMESPACE` file.
+roxygen2 is used by over 9,000 CRAN packages.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("roxygen2")
+```
+
+There are five big improvements in this release:
+
+-   The `NAMESPACE` roclet now preserves all existing non-import directives during its first pass.
+    This will generally eliminate the pair of `"NAMESPACE has changed"` messages and should reduce the chances that you end up with a sufficiently broken `NAMESPACE` that you can't re-load and re-document your package.
+
+-   `@inheritParams` now only inherits exact multi-parameter matches.
+    For example take `my_plot()` below:
+
+    ```{r}
+    #' @param width,height The dimensions in inches
+    my_plot <- function(x, width, height) {
+      
+    }
+    ```
+
+    Previously, `width` and `height` were inherited individually, so this roxygen2 block:
+
+    ```{r}
+    #' @inheritParams my_plot
+    your_plot <- function(x, y, width, height) {
+      
+    } 
+    ```
+
+    Would be equivalent to:
+
+    ```{r}
+    #' @param width The dimensions in inches
+    #' @param height The dimensions in inches
+    your_plot <- function(x, y, width, height) {
+      
+    } 
+    ```
+
+    Now, multiparmeter arguments will only be inherited as a whole.
+    This could break your documentation if you were relying on this behaviour, but in all the cases we've seen in tidyverse packages it's been an improvement.
+
+-   We've done a thorough review of all warning messages to make them more informative and actionable.
+    We've also fixed a number of bugs that lead to invalid Rd files or pointed you to something that wasn't actually the problem.
+
+    If you have a daily build of RStudio, warnings will now include a clickable hyperlink that takes you directly to the problem.
+    This technology is under active development across the IDE and the cli package but is something you should expect to see more of in the future.
+
+You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
+
+## Acknowledgements
+
+A big thanks to everyone who contributed to this release through their issues, pull requests, and discussions! [&#x0040;AlexisDerumigny](https://github.com/AlexisDerumigny), [&#x0040;BenWiseman](https://github.com/BenWiseman), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;bobjansen](https://github.com/bobjansen), [&#x0040;brry](https://github.com/brry), [&#x0040;cderv](https://github.com/cderv), [&#x0040;cjyetman](https://github.com/cjyetman), [&#x0040;courtiol](https://github.com/courtiol), [&#x0040;DanChaltiel](https://github.com/DanChaltiel), [&#x0040;danielvartan](https://github.com/danielvartan), [&#x0040;DarioS](https://github.com/DarioS), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dieghernan](https://github.com/dieghernan), [&#x0040;dmurdoch](https://github.com/dmurdoch), [&#x0040;dwachsmuth](https://github.com/dwachsmuth), [&#x0040;flrd](https://github.com/flrd), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;hadley](https://github.com/hadley), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;JantekM](https://github.com/JantekM), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;karoliskoncevicius](https://github.com/karoliskoncevicius), [&#x0040;kongdd](https://github.com/kongdd), [&#x0040;kpagacz](https://github.com/kpagacz), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;maelle](https://github.com/maelle), [&#x0040;malcolmbarrett](https://github.com/malcolmbarrett), [&#x0040;mbojan](https://github.com/mbojan), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [&#x0040;MislavSag](https://github.com/MislavSag), [&#x0040;mschilli87](https://github.com/mschilli87), [&#x0040;Nelson-Gon](https://github.com/Nelson-Gon), [&#x0040;netique](https://github.com/netique), [&#x0040;pnacht](https://github.com/pnacht), [&#x0040;ramiromagno](https://github.com/ramiromagno), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;saicharanp18](https://github.com/saicharanp18), [&#x0040;simonsays1980](https://github.com/simonsays1980), [&#x0040;ThierryO](https://github.com/ThierryO), [&#x0040;wch](https://github.com/wch), [&#x0040;wurli](https://github.com/wurli), and [&#x0040;yogat3ch](https://github.com/yogat3ch).
