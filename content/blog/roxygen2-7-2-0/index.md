@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [roxygen2, devtools]
-rmd_hash: 52d339880daf3df9
+rmd_hash: 20e43e94a1d3fa4f
 
 ---
 
@@ -80,13 +80,13 @@ There are five big improvements in this release:
 
     </div>
 
-    Now, multiparmeter arguments will only be inherited as a whole. This could break your documentation if you were relying on this behaviour, but in all the cases we've seen in tidyverse packages it's been an improvement.
+    Now, multi-parmeter arguments will only be inherited as a whole. This potentially could break your documentation if you (e.g.) only had one of `width` and `height` in your function. However, we haven't seen this problem anywhere in the tidyverse, and the inherit arguments are generally much improved.
 
 -   We've done a thorough review of all warning messages to make them more informative and actionable. We've also fixed a number of bugs that lead to invalid Rd files or pointed you to something that wasn't actually the problem.
 
-    If you have a daily build of RStudio, warnings will now include a clickable hyperlink that takes you directly to the problem. This technology is under active development across the IDE and the cli package but is something you should expect to see more of in the future.
+    If you have a daily build of RStudio, warnings will now include a clickable link that takes you directly to the problem. This technology is under active development across the IDE and the [cli](https://cli.r-lib.org) package and you should expect to see more of it in the future.
 
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
+You can see a full list of changes in the [release notes](https://github.com/r-lib/roxygen2/blob/main/NEWS.md).
 
 ## Acknowledgements
 
