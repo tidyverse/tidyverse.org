@@ -15,7 +15,7 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive] 
-tags: [tidymodels parsnip]
+tags: [tidymodels, parsnip]
 ---
 
 <!--
