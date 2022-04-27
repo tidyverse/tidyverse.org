@@ -44,14 +44,14 @@ After quite a bit of time, the tidymodels packages have finally enabled the use 
 
 ## What are case weights?
 
-Case weights are non-negative numbers that are used to specify how much each observation influences a model fit. 
+Case weights are non-negative numbers that are used to specify how much each observation influences the estimation of a model. 
 
 If you are new to this term, it is worth reading Thomas Lumley’s excellent post [_Weights in statistics_](https://notstatschat.rbind.io/2020/08/04/weights-in-statistics/) as well as ["Struggles with Survey Weighting and Regression Modeling"](https://projecteuclid.org/journals/statistical-science/volume-22/issue-2/Struggles-with-Survey-Weighting-and-Regression-Modeling/10.1214/088342306000000691.full). Although "case weights" isn't a universally used term, we'll use it to distinguish it from other types of weights, such as class weights in cost-sensitive learning and others. 
 
 There are different types of case weights whose terminology can be very different across problem domains. Here are some examples: 
 
 * **Frequency weights** are integers that denote how many times a particular row of data has been observed. They help compress redundant rows into a single entry. 
-* **Importance weights** focus on how much each row of the data set should influence the model fit. These can be based on data or arbitrarily set to achieve some goal. 
+* **Importance weights** focus on how much each row of the data set should influence model estimation. These can be based on data or arbitrarily set to achieve some goal. 
 * When survey respondents have different probabilities of selection, (inverse) **probability weights** can help reduce bias in the results of a data analysis. 
 * If a data point has an associated precision, **analytic weighting** helps a model focus on the data points with less uncertainty (such as in meta-analysis).
 
@@ -125,7 +125,7 @@ In both cases the model coefficients are the same; the standard errors and degre
 
 ## Why is this so complicated? 
 
-Traditionally, the use of weights in base R functions are to fit the model and to report limited measures of model fit. Here, `glm()` reports the deviance while `lm()` shows estimates of the RMSE and adjusted-R<sup>2</sup>.
+Traditionally, the use of weights in base R functions are to fit the model and to report limited measures of model efficacy Here, `glm()` reports the deviance while `lm()` shows estimates of the RMSE and adjusted-R<sup>2</sup>.
 
 Believe it or not, the logistic regression code shown above, which is a typical example of using weights in a classical statistical setting, is much simpler that we what we have to contend with in modern data analysis. There are a few things that we do in modern data analysis where correctly using weights is not so straightforward. These include:
 
@@ -137,9 +137,9 @@ A framework like tidymodels enables all of these tools and the impact of case we
 
 Additionally, the type of case weights **and their intent** affect which of these operations should be affected. 
 
-For example, frequency weights should affect the model fit, the preprocessing steps, and performance estimation. If the predictors require centering, a weighted mean should be used to appropriately ensure that the mean of that column is truly zero. Let's say that sensitivity and specificity estimates are required. The 2x2 table of observed and predicted results should have cell counts that reflect the case weights. If they did not, infrequently occurring data points have as much weight as the rows that have a high prevalence. 
+For example, frequency weights should affect the estimation of the model, the preprocessing steps, and performance estimation. If the predictors require centering, a weighted mean should be used to appropriately ensure that the mean of that column is truly zero. Let's say that sensitivity and specificity estimates are required. The 2x2 table of observed and predicted results should have cell counts that reflect the case weights. If they did not, infrequently occurring data points have as much weight as the rows that have a high prevalence. 
 
-As a counter example, importance weights reflect the idea that they should only influence _the model fitting procedure_. It wouldn't make sense to use a weighted mean to center a predictor; the weight shouldn't influence an unsupervised operation in the same way as the model fit. More critically, any holdout data set used to quantify model efficacy should reflect the data as seen in the wild (without the impact of the weights). 
+As a counter example, importance weights reflect the idea that they should only influence _the model fitting procedure_. It wouldn't make sense to use a weighted mean to center a predictor; the weight shouldn't influence an unsupervised operation in the same way as model estimation. More critically, any holdout data set used to quantify model efficacy should reflect the data as seen in the wild (without the impact of the weights). 
 
 ## How does tidymodels handle weights? 
 
@@ -158,7 +158,7 @@ importance_weights(round(runif(10), 2))
 
 The class of these objects tells packages like recipes and yardstick if their values should be used for preprocessing and performance metrics, respectively: 
 
-* Importance weights only affect the model fit and _supervised_ recipes steps. They are not used with yardstick functions for calculating measures of model fit.
+* Importance weights only affect the model estimation and _supervised_ recipes steps. They are not used with yardstick functions for calculating measures of model performance.
 
 * Frequency weights are used for all parts of the preprocessing, model fitting, and performance estimation operations. 
 
@@ -198,7 +198,7 @@ training_sim <-
   )
 ```
 
-We strongly advise that users set the case weight column before any other tidymodels functions are used. This ensures that they are handled correctly in the analyses that follow. 
+We strongly advise that users set the case weight column before any other tidymodels functions are used. This ensures that they are handled correctly in the analyses that follow. In some cases, such as recipes, we prohibit changing the case weight column. Since the intent of the weights is needed, errors could occur if that intent was changed during the analysis. 
 
 Let's use 10-fold cross-validation to resample the data. This case is unaffected by the presence of weights: 
 
