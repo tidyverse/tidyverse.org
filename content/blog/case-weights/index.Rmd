@@ -6,8 +6,7 @@ title: Using case weights with tidymodels
 date: 2022-05-01
 author: Max Kuhn
 description: >
-    The tidymodels packages have enabled the use of case weights across many 
-    packages. This post discusses the changes. 
+    Support for case weights is now available across many tidymodels packages.
 
 photo:
   url: https://unsplash.com/photos/iLKK0eFTywU
@@ -44,7 +43,7 @@ After quite a bit of time, the tidymodels packages have finally enabled the use 
 
 ## What are case weights?
 
-Case weights are non-negative numbers that are used to specify how much each observation influences the estimation of a model. 
+Case weights are non-negative numbers used to specify how much each observation influences the estimation of a model. 
 
 If you are new to this term, it is worth reading Thomas Lumley’s excellent post [_Weights in statistics_](https://notstatschat.rbind.io/2020/08/04/weights-in-statistics/) as well as ["Struggles with Survey Weighting and Regression Modeling"](https://projecteuclid.org/journals/statistical-science/volume-22/issue-2/Struggles-with-Survey-Weighting-and-Regression-Modeling/10.1214/088342306000000691.full). Although "case weights" isn't a universally used term, we'll use it to distinguish it from other types of weights, such as class weights in cost-sensitive learning and others. 
 
@@ -61,7 +60,7 @@ There are undoubtedly more types of weights in other domains. Quoting [Andrew Ge
 
 ## How are they used in traditional modeling?
 
-A traditional example is for categorical data where a small number of possible categories are observed many times. For example, the `UCBAdmissions` contains "Aggregate data on applicants to graduate school at Berkeley for the six largest departments in 1973 classified by admission and sex."
+A traditional example is categorical data where a small number of possible categories are observed many times. For example, `UCBAdmissions` contains "Aggregate data on applicants to graduate school at Berkeley for the six largest departments in 1973 classified by admission and sex."
 
 ```{r UCBAdmissions}
 data("UCBAdmissions")
@@ -79,7 +78,7 @@ ucb <-
 ucb
 ```
 
-There are `r nrow(ucb)` possible configurations of the variables but a total of `r sum(ucb$n)` observations. If we want to model the data in this format, using a logistic regression, we could  use:
+There are `r nrow(ucb)` possible configurations of the variables but a total of `r sum(ucb$n)` observations. If we want to model the data in this format, we could  use a logistic regression:
 
 ```{r glm}
 glm_fit <-
@@ -120,18 +119,18 @@ glm(
 )
 ```
 
-In both cases the model coefficients are the same; the standard errors and degrees of freedom are correct for the model with grouped data though. 
+In both cases the model coefficients are the same but the standard errors and degrees of freedom are only correct for the model with grouped data. 
 
 
 ## Why is this so complicated? 
 
-Traditionally, the use of weights in base R functions are to fit the model and to report limited measures of model efficacy Here, `glm()` reports the deviance while `lm()` shows estimates of the RMSE and adjusted-R<sup>2</sup>.
+Traditionally, the use of weights in base R functions are to fit the model and to report limited measures of model efficacy. Here, `glm()` reports the deviance while `lm()` shows estimates of the RMSE and adjusted-R<sup>2</sup>.
 
-Believe it or not, the logistic regression code shown above, which is a typical example of using weights in a classical statistical setting, is much simpler that we what we have to contend with in modern data analysis. There are a few things that we do in modern data analysis where correctly using weights is not so straightforward. These include:
+Believe it or not, the logistic regression code shown above, which is a typical example of using weights in a classical statistical setting, is much simpler than what we have to contend with in modern data analysis. There are a few things that we do in modern data analysis where correctly using weights is not so straightforward. These include:
 
-* Resampling (e.g. the bootstrap or cross-validation).
+* Resampling (e.g. bootstrap or cross-validation).
 * Preprocessing methods such as centering and scaling. 
-* Expanded measures of performance (e.g. area under the ROC curve, mean absolute deviations, Kohen's Kappa, and so on)
+* Expanded measures of performance (e.g. area under the ROC curve, mean absolute deviations, Kohen's Kappa, and so on).
 
 A framework like tidymodels enables all of these tools and the impact of case weights is more comprehensive. 
 
@@ -230,7 +229,7 @@ There are a few things to point out here. The recipe automatically detects the c
 
 As mentioned above, any unsupervised steps are unaffected by importance weights so neither `step_ns()` or `step_normalize()` use the weights in their calculations. 
 
-When using case weights, we would like to encourage users to keep their model and preprocessing tool within a workflow. The workflows package now has a `add_case_weights()` function to help here: 
+When using case weights, we would like to encourage users to keep their model and preprocessing tool within a workflow. The workflows package now has an `add_case_weights()` function to help here: 
 
 ```{r sim-wflow}
 lr_wflow <- 
@@ -256,7 +255,7 @@ lr_res <-
 autoplot(lr_res)
 ```
 
-Recall that tidymodels assumes that the first level of the outcome factor is the event of interest. Since the first level of the outcome has the fewest values, we would expect the sensitivity of the model to suffer. These results suggest that the weights are making the model focus on the majority class. 
+In tidymodels, the default is that the first level of the outcome factor is the event of interest. Since the first level of the outcome has the fewest values, we would expect the sensitivity of the model to suffer. These results suggest that the weights are making the model focus on the majority class. 
 
 For comparison, let's remove the weights and then tune the same parameter values. 
 
