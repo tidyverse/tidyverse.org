@@ -39,6 +39,8 @@ After quite a bit of time, the tidymodels packages have finally enabled the use 
 
 Case weights are non-negative numbers that are used to impact how much each observation influences a model fit. 
 
+If you are new to this term, it is worth reading Thomas Lumley’s excellent post [_Weights in statistics_](https://notstatschat.rbind.io/2020/08/04/weights-in-statistics/) as well as ["Struggles with Survey Weighting and Regression Modeling"](https://projecteuclid.org/journals/statistical-science/volume-22/issue-2/Struggles-with-Survey-Weighting-and-Regression-Modeling/10.1214/088342306000000691.full). Although "case weights" isn't a universally used term, we'll use it to distinguish it from other types of weights, such as class weights in cost-sensitive learning and others. 
+
 There are different types of case weights whose terminology can be very different across problem domains. Here are some examples: 
 
 * **Frequency weights** are integers that denote how many times a particular row of data has been observed. They help compress redundant rows into a smaller format. 
@@ -46,13 +48,13 @@ There are different types of case weights whose terminology can be very differen
 * When survey respondents have different probabilities of selection, (inverse) **probability weights** can help remove bias from the results of a data analysis. 
 * If a data point has an associated precision, **analytic weighting** helps a model focus on the data points with less uncertainty (such as in meta-analysis).
 
-There are undoubtedly more types of weights in other domains. 
+There are undoubtedly more types of weights in other domains. Quoting [Andrew Gelman](https://projecteuclid.org/journals/statistical-science/volume-22/issue-2/Struggles-with-Survey-Weighting-and-Regression-Modeling/10.1214/088342306000000691.full): 
 
-Generally speaking, case weights are usually non-negative. 
+> Weighting causes no end of confusion both in applied and theoretical statistics. People just assume because something has one name ("weights"), it is one thing. So then we get questions like, "How do you do weighted regression in Stan," and we have to reply, "What is it that you actually want to do?"
 
-## How are they used in base R?
+## How are they used in traditional modeling?
 
-The best example is for categorical data where a small number of possible categories are observed many times. For example, the `UCBAdmissions` contains "Aggregate data on applicants to graduate school at Berkeley for the six largest departments in 1973 classified by admission and sex."
+A traditional example is for categorical data where a small number of possible categories are observed many times. For example, the `UCBAdmissions` contains "Aggregate data on applicants to graduate school at Berkeley for the six largest departments in 1973 classified by admission and sex."
 
 
 ```r
@@ -229,11 +231,12 @@ glm(
 
 In both cases the model coefficients are the same; the standard errors and degrees of freedom are correct for the model with grouped data though. 
 
+
 ## Why is this so complicated? 
 
 Traditionally, the use of weights in base R functions are to fit the model and to report limited measures of model fit. Here, `glm()` reports the deviance while `lm()` shows estimates of the RMSE and adjusted-R<sup>2</sup>.
 
-Believe it or not, the logistic regression code shown above is somewhat straight-forward since the scope of the analysis is very small. There are a few things that we do in modern data analysis that `glm()` and `lm()` do not: 
+Believe it or not, the logistic regression code shown above, which is a typical example of using weights in a classical statistical setting, is much simpler that we what we have to contend with in modern data analysis. There are a few things that we do in modern data analysis where correctly using weights is not so straightforward. These include:
 
 * Resampling (e.g. the bootstrap or cross-validation).
 * Preprocessing methods such as centering and scaling. 
@@ -310,7 +313,7 @@ This is also an area where we'd like [community feedback](https://community.rstu
 
 ## Tidymodels syntax
 
-Let's work through an example. We'll use some data simulated with a severe class imbalance. These functions are in the new version of the modeldata package.
+Let's work through an example. We'll use some data simulated with a severe class imbalance. These functions are in the [development version of the modeldata package](https://modeldata.tidymodels.org/dev/reference/sim_classification.html).
 
 
 ```r
