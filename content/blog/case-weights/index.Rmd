@@ -40,7 +40,7 @@ tidymodels_prefer()
 theme_set(theme_bw())
 ```
 
-After quite a bit of time, the tidymodels packages have enabled the use of case weights. There has been a ton of work and some technical hurdles to overcome. The diversity of the types of weights, and how they should be used, is very complex but I think that we've come up with a solution that is fairly straight-forward for the users. 
+After quite a bit of time, the tidymodels packages have finally enabled the use of case weights. There has been a ton of work and multiple technical hurdles to overcome. The diversity of the types of weights, and how they should be used, is very complex, but I think that we've come up with a solution that is fairly straight-forward for users. 
 
 ## What are case weights?
 
@@ -51,7 +51,7 @@ There are different types of case weights whose terminology can be very differen
 * **Frequency weights** are integers that denote how many times a particular row of data has been observed. They help compress redundant rows into a smaller format. 
 * **Importance weights** focus on how much each row of the data set should influence the model fit. These can be based on data or arbitrarily set to achieve some goal. 
 * When survey respondents have different probabilities of selection, (inverse) **probability weights** can help remove bias from the results of a data analysis. 
-* If a data point has an associated precision, **analytic weighting** have help a model focus on the data points with less uncertainty (such as in meta-analysis).
+* If a data point has an associated precision, **analytic weighting** helps a model focus on the data points with less uncertainty (such as in meta-analysis).
 
 There are undoubtedly more types of weights in other domains. 
 
@@ -134,9 +134,9 @@ A framework like tidymodels enables all of these tools and the impact of case we
 
 Additionally, the type of case weights **and their intent** affect which of these operations should be affected. 
 
-For example, frequency weights should affect the model fit but also preprocessing steps as well as performance estimation. If the predictors require centering, a weighted mean should be used to appropriately make sure that the mean of that column is truly zero. Let's say that sensitivity and specificity estimates are required. The 2x2 table of observed and predicted results should have cell counts that reflect the case weights. If they did not, infrequently occurring data points have as much weight as the rows that have a high prevalence. 
+For example, frequency weights should affect the model fit, the preprocessing steps, and performance estimation. If the predictors require centering, a weighted mean should be used to appropriately ensure that the mean of that column is truly zero. Let's say that sensitivity and specificity estimates are required. The 2x2 table of observed and predicted results should have cell counts that reflect the case weights. If they did not, infrequently occurring data points have as much weight as the rows that have a high prevalence. 
 
-As a counter example, importance weights reflect the idea that they should influence _the model fitting procedure_. It wouldn't make sense to use a weighted mean to center a predictor; the weight shouldn't influence an unsupervised operation in the same way as the model fit. More critically, any holdout data set used to quantify model efficacy should reflect the data as seen in the wild (without the impact of the weights). 
+As a counter example, importance weights reflect the idea that they should only influence _the model fitting procedure_. It wouldn't make sense to use a weighted mean to center a predictor; the weight shouldn't influence an unsupervised operation in the same way as the model fit. More critically, any holdout data set used to quantify model efficacy should reflect the data as seen in the wild (without the impact of the weights). 
 
 ## How does tidymodels handle this? 
 
@@ -155,7 +155,7 @@ importance_weights(round(runif(10), 2))
 
 The class of these objects tell packages like recipes and yardstick if their values should be used for preprocessing and performance metrics, respectively: 
 
-* Importance weights only affect the model fit and _supervised_ recipes steps. They are not used with yardstick functions
+* Importance weights only affect the model fit and _supervised_ recipes steps. They are not used with yardstick functions.
 
 * Frequency weights are used for all parts of the preprocessing, model fitting, and performance estimation operations. 
 
@@ -163,9 +163,9 @@ Currently, these are the only classes implemented. We are doing a lot of reading
 
 ## About resampling
 
-This is a topic that we are still unsure about. We definitively think that importance weights should not affect of the data are split or resampled. 
+This is a topic that we are still unsure about. We definitively think that importance weights should not affect how the data are split or resampled. 
 
-Frequency weights are more complex. Suppose we are using 10-fold cross-validation with the logistic regression on the UCB admission data, should we
+Frequency weights are more complex. Suppose we are using 10-fold cross-validation with the logistic regression on the UCB admission data, should we:
 
 * Have all the case weights be placed into either the modeling or holdout set? 
 * Fractionally, split the case weights into both the modeling and holdout data? 
@@ -176,7 +176,7 @@ This is also an area where we'd like [community feedback](https://community.rstu
 
 ## Tidymodels syntax
 
-Let's work through an example. We'll use some data simulated with a severe class imbalance. These functions are in the new version of the modeldata package
+Let's work through an example. We'll use some data simulated with a severe class imbalance. These functions are in the new version of the modeldata package.
 
 ```{r sim-data}
 set.seed(1)
@@ -237,7 +237,7 @@ lr_wflow <-
 lr_wflow
 ```
 
-From here, let's tune the model. This code doesn't have to change at all. We will add some additional metrics to show the affect of the weights though: 
+From here, let's tune the model. This code doesn't have to change at all. Because we set the case weights column with `add_case_weights()`, tune and workflows automatically know how to pass the case weights on to the underlying parsnip model. We will add some additional metrics to show the affect of the weights though: 
 
 ```{r sim-tune, fig.height=4, fig.width=7, out.width="100%", dev='svg'}
 cls_metrics <- metric_set(sensitivity, specificity)
