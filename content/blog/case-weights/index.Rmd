@@ -68,7 +68,7 @@ data("UCBAdmissions")
 UCBAdmissions
 ```
 
-This is a 3D array, so let's convert to a rectangular data format:
+This is a 3D array, so let's convert it to a rectangular data format:
 
 ```{r df}
 library(tidymodels)
@@ -79,7 +79,7 @@ ucb <-
 ucb
 ```
 
-There are `r nrow(ucb)` possible configurations of the variables but a total of `r sum(ucb$n)` observations. If we want to model the data in this format, using a logistic regression, we could  use
+There are `r nrow(ucb)` possible configurations of the variables but a total of `r sum(ucb$n)` observations. If we want to model the data in this format, using a logistic regression, we could  use:
 
 ```{r glm}
 glm_fit <-
@@ -141,7 +141,7 @@ For example, frequency weights should affect the model fit, the preprocessing st
 
 As a counter example, importance weights reflect the idea that they should only influence _the model fitting procedure_. It wouldn't make sense to use a weighted mean to center a predictor; the weight shouldn't influence an unsupervised operation in the same way as the model fit. More critically, any holdout data set used to quantify model efficacy should reflect the data as seen in the wild (without the impact of the weights). 
 
-## How does tidymodels handle this? 
+## How does tidymodels handle weights? 
 
 We've decided to add some additional vector data types that allow users to describe the type of weights. These data types also help tidymodels functions know what the intent of the analysis should be. 
 
@@ -156,9 +156,9 @@ ucb
 importance_weights(round(runif(10), 2))
 ```
 
-The class of these objects tell packages like recipes and yardstick if their values should be used for preprocessing and performance metrics, respectively: 
+The class of these objects tells packages like recipes and yardstick if their values should be used for preprocessing and performance metrics, respectively: 
 
-* Importance weights only affect the model fit and _supervised_ recipes steps. They are not used with yardstick functions.
+* Importance weights only affect the model fit and _supervised_ recipes steps. They are not used with yardstick functions for calculating measures of model fit.
 
 * Frequency weights are used for all parts of the preprocessing, model fitting, and performance estimation operations. 
 
@@ -222,6 +222,7 @@ sim_rec <-
   recipe(class ~ ., data = training_sim) %>% 
   step_ns(starts_with("non_linear"), deg_free = 10) %>% 
   step_normalize(all_numeric_predictors())
+  
 sim_rec
 ```
 
@@ -255,9 +256,9 @@ lr_res <-
 autoplot(lr_res)
 ```
 
-Recall that tidymodels assumes that the first level of the outcome factor is the event of interest. Since the first level of the outcome has the fewest values, we would expect that the sensitivity of the model to suffer. These results suggest that the weights are making the model focus on the majority class. 
+Recall that tidymodels assumes that the first level of the outcome factor is the event of interest. Since the first level of the outcome has the fewest values, we would expect the sensitivity of the model to suffer. These results suggest that the weights are making the model focus on the majority class. 
 
-For comparison, let's remove the weights then tune the same parameter values. 
+For comparison, let's remove the weights and then tune the same parameter values. 
 
 ```{r sim-tune-unwt}
 lr_unwt_wflow <- 
