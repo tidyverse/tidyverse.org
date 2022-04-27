@@ -37,15 +37,15 @@ After quite a bit of time, the tidymodels packages have finally enabled the use 
 
 ## What are case weights?
 
-Case weights are non-negative numbers that are used to impact how much each observation influences a model fit. 
+Case weights are non-negative numbers that are used to specify how much each observation influences a model fit. 
 
 If you are new to this term, it is worth reading Thomas Lumley’s excellent post [_Weights in statistics_](https://notstatschat.rbind.io/2020/08/04/weights-in-statistics/) as well as ["Struggles with Survey Weighting and Regression Modeling"](https://projecteuclid.org/journals/statistical-science/volume-22/issue-2/Struggles-with-Survey-Weighting-and-Regression-Modeling/10.1214/088342306000000691.full). Although "case weights" isn't a universally used term, we'll use it to distinguish it from other types of weights, such as class weights in cost-sensitive learning and others. 
 
 There are different types of case weights whose terminology can be very different across problem domains. Here are some examples: 
 
-* **Frequency weights** are integers that denote how many times a particular row of data has been observed. They help compress redundant rows into a smaller format. 
+* **Frequency weights** are integers that denote how many times a particular row of data has been observed. They help compress redundant rows into a single entry. 
 * **Importance weights** focus on how much each row of the data set should influence the model fit. These can be based on data or arbitrarily set to achieve some goal. 
-* When survey respondents have different probabilities of selection, (inverse) **probability weights** can help remove bias from the results of a data analysis. 
+* When survey respondents have different probabilities of selection, (inverse) **probability weights** can help reduce bias in the results of a data analysis. 
 * If a data point has an associated precision, **analytic weighting** helps a model focus on the data points with less uncertainty (such as in meta-analysis).
 
 There are undoubtedly more types of weights in other domains. Quoting [Andrew Gelman](https://projecteuclid.org/journals/statistical-science/volume-22/issue-2/Struggles-with-Survey-Weighting-and-Regression-Modeling/10.1214/088342306000000691.full): 
@@ -106,7 +106,7 @@ UCBAdmissions
 ##   Rejected  351    317
 ```
 
-This is a 3D array, so let's convert to a rectangular data format:
+This is a 3D array, so let's convert it to a rectangular data format:
 
 
 ```r
@@ -135,7 +135,7 @@ ucb
 ## # … with 14 more rows
 ```
 
-There are 24 possible configurations of the variables but a total of 4526 observations. If we want to model the data in this format, using a logistic regression, we could  use
+There are 24 possible configurations of the variables but a total of 4526 observations. If we want to model the data in this format, using a logistic regression, we could  use:
 
 
 ```r
@@ -250,7 +250,7 @@ For example, frequency weights should affect the model fit, the preprocessing st
 
 As a counter example, importance weights reflect the idea that they should only influence _the model fitting procedure_. It wouldn't make sense to use a weighted mean to center a predictor; the weight shouldn't influence an unsupervised operation in the same way as the model fit. More critically, any holdout data set used to quantify model efficacy should reflect the data as seen in the wild (without the impact of the weights). 
 
-## How does tidymodels handle this? 
+## How does tidymodels handle weights? 
 
 We've decided to add some additional vector data types that allow users to describe the type of weights. These data types also help tidymodels functions know what the intent of the analysis should be. 
 
@@ -259,25 +259,14 @@ In parsnip, the functions `frequency_weights()` and `importance_weights()` can b
 
 ```r
 # For the UC admissions data
-ucb$n <- frequency_weights(ucb$n)
-ucb
+ucb <- ucb %>% mutate(n = frequency_weights(n))
+ucb$n
 ```
 
 ```
-## # A tibble: 24 × 4
-##    Admit    Gender Dept           n
-##    <fct>    <fct>  <fct> <freq_wts>
-##  1 Admitted Male   A            512
-##  2 Rejected Male   A            313
-##  3 Admitted Female A             89
-##  4 Rejected Female A             19
-##  5 Admitted Male   B            353
-##  6 Rejected Male   B            207
-##  7 Admitted Female B             17
-##  8 Rejected Female B              8
-##  9 Admitted Male   C            120
-## 10 Rejected Male   C            205
-## # … with 14 more rows
+## <frequency_weights[24]>
+##  [1] 512 313  89  19 353 207  17   8 120 205 202 391 138 279 131 244  53 138  94
+## [20] 299  22 351  24 317
 ```
 
 ```r
@@ -290,9 +279,9 @@ importance_weights(round(runif(10), 2))
 ##  [1] 0.91 0.53 0.72 0.81 0.33 0.11 0.61 0.61 0.20 0.49
 ```
 
-The class of these objects tell packages like recipes and yardstick if their values should be used for preprocessing and performance metrics, respectively: 
+The class of these objects tells packages like recipes and yardstick if their values should be used for preprocessing and performance metrics, respectively: 
 
-* Importance weights only affect the model fit and _supervised_ recipes steps. They are not used with yardstick functions.
+* Importance weights only affect the model fit and _supervised_ recipes steps. They are not used with yardstick functions for calculating measures of model fit.
 
 * Frequency weights are used for all parts of the preprocessing, model fitting, and performance estimation operations. 
 
@@ -369,6 +358,7 @@ sim_rec <-
   recipe(class ~ ., data = training_sim) %>% 
   step_ns(starts_with("non_linear"), deg_free = 10) %>% 
   step_normalize(all_numeric_predictors())
+  
 sim_rec
 ```
 
@@ -428,7 +418,7 @@ lr_wflow
 ## Computational engine: glmnet
 ```
 
-From here, let's tune the model. This code doesn't have to change at all. Because we set the case weights column with `add_case_weights()`, tune and workflows automatically know how to pass the case weights on to the underlying parsnip model. We will add some additional metrics to show the affect of the weights though: 
+Existing `add_*()` functions in workflows add objects (instead of data). Rather than specifying case weights in each preprocessor function (e.g. `add_formula()` and so on), this syntax is more simple and works with any type of preprocessor.  
 
 
 ```r
@@ -446,9 +436,9 @@ autoplot(lr_res)
 
 <img src="figure/sim-tune-1.svg" title="plot of chunk sim-tune" alt="plot of chunk sim-tune" width="100%" />
 
-Recall that tidymodels assumes that the first level of the outcome factor is the event of interest. Since the first level of the outcome has the fewest values, we would expect that the sensitivity of the model to suffer. These results suggest that the weights are making the model focus on the majority class. 
+Recall that tidymodels assumes that the first level of the outcome factor is the event of interest. Since the first level of the outcome has the fewest values, we would expect the sensitivity of the model to suffer. These results suggest that the weights are making the model focus on the majority class. 
 
-For comparison, let's remove the weights then tune the same parameter values. 
+For comparison, let's remove the weights and then tune the same parameter values. 
 
 
 ```r

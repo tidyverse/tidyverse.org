@@ -44,15 +44,15 @@ After quite a bit of time, the tidymodels packages have finally enabled the use 
 
 ## What are case weights?
 
-Case weights are non-negative numbers that are used to impact how much each observation influences a model fit. 
+Case weights are non-negative numbers that are used to specify how much each observation influences a model fit. 
 
 If you are new to this term, it is worth reading Thomas Lumley’s excellent post [_Weights in statistics_](https://notstatschat.rbind.io/2020/08/04/weights-in-statistics/) as well as ["Struggles with Survey Weighting and Regression Modeling"](https://projecteuclid.org/journals/statistical-science/volume-22/issue-2/Struggles-with-Survey-Weighting-and-Regression-Modeling/10.1214/088342306000000691.full). Although "case weights" isn't a universally used term, we'll use it to distinguish it from other types of weights, such as class weights in cost-sensitive learning and others. 
 
 There are different types of case weights whose terminology can be very different across problem domains. Here are some examples: 
 
-* **Frequency weights** are integers that denote how many times a particular row of data has been observed. They help compress redundant rows into a smaller format. 
+* **Frequency weights** are integers that denote how many times a particular row of data has been observed. They help compress redundant rows into a single entry. 
 * **Importance weights** focus on how much each row of the data set should influence the model fit. These can be based on data or arbitrarily set to achieve some goal. 
-* When survey respondents have different probabilities of selection, (inverse) **probability weights** can help remove bias from the results of a data analysis. 
+* When survey respondents have different probabilities of selection, (inverse) **probability weights** can help reduce bias in the results of a data analysis. 
 * If a data point has an associated precision, **analytic weighting** helps a model focus on the data points with less uncertainty (such as in meta-analysis).
 
 There are undoubtedly more types of weights in other domains. Quoting [Andrew Gelman](https://projecteuclid.org/journals/statistical-science/volume-22/issue-2/Struggles-with-Survey-Weighting-and-Regression-Modeling/10.1214/088342306000000691.full): 
@@ -149,8 +149,8 @@ In parsnip, the functions `frequency_weights()` and `importance_weights()` can b
 
 ```{r vec-wts}
 # For the UC admissions data
-ucb$n <- frequency_weights(ucb$n)
-ucb
+ucb <- ucb %>% mutate(n = frequency_weights(n))
+ucb$n
 
 # For a general vector of importance weights: 
 importance_weights(round(runif(10), 2))
@@ -241,7 +241,7 @@ lr_wflow <-
 lr_wflow
 ```
 
-From here, let's tune the model. This code doesn't have to change at all. Because we set the case weights column with `add_case_weights()`, tune and workflows automatically know how to pass the case weights on to the underlying parsnip model. We will add some additional metrics to show the affect of the weights though: 
+Existing `add_*()` functions in workflows add objects (instead of data). Rather than specifying case weights in each preprocessor function (e.g. `add_formula()` and so on), this syntax is more simple and works with any type of preprocessor.  
 
 ```{r sim-tune, fig.height=4, fig.width=7, out.width="100%", dev='svg'}
 cls_metrics <- metric_set(sensitivity, specificity)
