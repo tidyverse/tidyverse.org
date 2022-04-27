@@ -269,18 +269,18 @@ lr_unwt_res <-
 
 How do the results compare? 
 
-```{r plot-results, echo = FALSE, fig.height=5, fig.width=7.5, out.width="100%", dev='svg'}
+```{r plot-results, echo = FALSE, fig.height=4, fig.width=7.5, out.width="100%", dev='svg'}
 lr_unwt_res %>%
   collect_metrics() %>%
   mutate(analysis = "unweighted") %>%
   bind_rows(lr_res %>%
               collect_metrics() %>%
               mutate(analysis = "weighted")) %>%
-  ggplot(aes(x = penalty, y = mean, col = analysis)) +
+  ggplot(aes(x = penalty, y = mean, col = .metric)) +
   geom_point() + 
   geom_line() + 
   scale_x_log10() +
-  facet_wrap(~ .metric) +
+  facet_wrap(~ analysis) +
   labs(y = NULL) +
   theme(legend.position = "top") +
   scale_color_brewer(palette = "Paired")
