@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: case-weights
 title: Using case weights with tidymodels
-date: 2022-05-01
+date: 2022-05-04
 author: Max Kuhn
 description: >
     Support for case weights is now available across many tidymodels packages.
@@ -233,15 +233,15 @@ In both cases the model coefficients are the same but the standard errors and de
 
 ## Why is this so complicated? 
 
-Traditionally, the use of weights in base R functions are to fit the model and to report limited measures of model efficacy. Here, `glm()` reports the deviance while `lm()` shows estimates of the RMSE and adjusted-R<sup>2</sup>.
+Traditionally, the use of weights in base R functions are used to fit the model and to report a few measures of model efficacy. Here, `glm()` reports the deviance while `lm()` shows estimates of the RMSE and adjusted-R<sup>2</sup>.
 
 Believe it or not, the logistic regression code shown above, which is a typical example of using weights in a classical statistical setting, is much simpler than what we have to contend with in modern data analysis. There are a few things that we do in modern data analysis where correctly using weights is not so straightforward. These include:
 
 * Resampling (e.g. bootstrap or cross-validation).
 * Preprocessing methods such as centering and scaling. 
-* Expanded measures of performance (e.g. area under the ROC curve, mean absolute deviations, Kohen's Kappa, and so on).
+* Additional measures of performance (e.g. area under the ROC curve, mean absolute deviations, Kohen's Kappa, and so on).
 
-A framework like tidymodels enables all of these tools and the impact of case weights is more comprehensive. 
+A framework like tidymodels enables all of these operations and, for this reason, the impact of case weights is more comprehensive. 
 
 Additionally, the type of case weights **and their intent** affect which of these operations should be affected. 
 
@@ -394,20 +394,20 @@ lr_wflow
 ```
 
 ```
-## ══ Workflow ═══════════════════════════════════════════════════════════════════════
+## ══ Workflow ═════════════════════════════════════════════════════════════════════════
 ## Preprocessor: Recipe
 ## Model: logistic_reg()
 ## 
-## ── Preprocessor ───────────────────────────────────────────────────────────────────
+## ── Preprocessor ─────────────────────────────────────────────────────────────────────
 ## 2 Recipe Steps
 ## 
 ## • step_ns()
 ## • step_normalize()
 ## 
-## ── Case Weights ───────────────────────────────────────────────────────────────────
+## ── Case Weights ─────────────────────────────────────────────────────────────────────
 ## case_wts
 ## 
-## ── Model ──────────────────────────────────────────────────────────────────────────
+## ── Model ────────────────────────────────────────────────────────────────────────────
 ## Logistic Regression Model Specification (classification)
 ## 
 ## Main Arguments:
