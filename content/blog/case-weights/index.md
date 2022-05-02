@@ -32,7 +32,9 @@ TODO:
 
 
 
-After quite a bit of time, the tidymodels packages have finally enabled the use of case weights. There has been a ton of work and multiple technical hurdles to overcome. The diversity of the types of weights, and how they should be used, is very complex, but I think that we've come up with a solution that is fairly straight-forward for users. 
+We are pleased to announce that tidymodels packages now support the use of case weights. There has been a ton of work and multiple technical hurdles to overcome. The diversity of the types of weights and how they should be used is very complex, but I think that we've come up with a solution that is fairly straightforward for users. 
+
+Several packages are affected by these changes and we're keeping them on GitHub until everything is finalized. See the last section for instructions for installing the development versions. 
 
 ## What are case weights?
 
@@ -241,7 +243,7 @@ Believe it or not, the logistic regression code shown above, which is a typical 
 * Preprocessing methods such as centering and scaling. 
 * Additional measures of performance (e.g. area under the ROC curve, mean absolute deviations, Kohen's Kappa, and so on).
 
-A framework like tidymodels enables all of these operations and, for this reason, the impact of case weights is more comprehensive. 
+A framework like tidymodels should enable users to utilize case weights across all phases of their data analysis. 
 
 Additionally, the type of case weights **and their intent** affect which of these operations should be affected. 
 
@@ -470,7 +472,7 @@ if (!rlang::is_installed("pak")) {
 }
 
 pkgs <- c("hardhat", "parsnip@feature/case-weights", "recipes@case-weights",
-          "tune", "workflows", "yardstick")
+          "modeldata", "tune", "workflows", "yardstick")
 pkgs <- paste0("tidymodels/", pkgs)
 
 pak::pak(pkgs)
