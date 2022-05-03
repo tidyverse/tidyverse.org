@@ -1,9 +1,9 @@
 ---
 output: hugodown::hugo_document
 
-slug: recipes-update-04-20222
+slug: recipes-update-05-20222
 title: Updates for recipes extension packages
-date: 2022-04-19
+date: 2022-05-03
 author: Emil Hvitfeldt
 description: >
     The three extension packages for recipes were recently updated 
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [recipes, tidymodels]
-rmd_hash: 12ab182a52fdcaca
+rmd_hash: b8b2caa26ea950ee
 
 ---
 
