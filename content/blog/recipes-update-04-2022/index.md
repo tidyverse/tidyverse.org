@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [recipes, tidymodels]
-rmd_hash: 2f66e97c0c6d7407
+rmd_hash: 12ab182a52fdcaca
 
 ---
 
@@ -64,9 +64,9 @@ The `NEWS` files are linked here for each package; We will go over some of the b
 
 ## themis
 
-A new step [`step_smotenc()`](https://themis.tidymodels.org/reference/step_smotenc.html) was added thanks to [Robert Gregg](https://github.com/RobertGregg). This step applies the SMOTENC algorithm to synthetically generate observations from minority classes. The SMOTENC method can handle a mix of categorical and numerical predictors, which was not possible using the existing SMOTE method which could only operate on numeric predictors.
+A new step [`step_smotenc()`](https://themis.tidymodels.org/reference/step_smotenc.html) was added thanks to [Robert Gregg](https://github.com/RobertGregg). This step applies the [SMOTENC algorithm](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=SMOTENC+&btnG=) to synthetically generate observations from minority classes. The SMOTENC method can handle a mix of categorical and numerical predictors, which was not possible using the existing SMOTE method which could only operate on numeric predictors.
 
-The `hpc_data` illustrates this use case neatly. The data set contains characteristics of HPC Unix jobs and how long they took to run (the outcome `class`). The outcome is not that balanced, with some classes having almost 10 times fewer observations than others. One way to deal with an imbalance like this is to over-sample the minority observations to mitigate the imbalance.
+The `hpc_data` illustrates this use case neatly. The data set contains characteristics of HPC Unix jobs and how long they took to run (the outcome column is `class`). The outcome is not that balanced, with some classes having almost 10 times fewer observations than others. One way to deal with an imbalance like this is to over-sample the minority observations to mitigate the imbalance.
 
 <div class="highlight">
 
