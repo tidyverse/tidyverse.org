@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: case-weights
 title: Using case weights with tidymodels
-date: 2022-05-04
+date: 2022-05-05
 author: Max Kuhn
 description: >
     Support for case weights is now available across many tidymodels packages.
@@ -235,7 +235,7 @@ In both cases the model coefficients are the same but the standard errors and de
 
 ## Why is this so complicated? 
 
-Traditionally, the use of weights in base R functions are used to fit the model and to report a few measures of model efficacy. Here, `glm()` reports the deviance while `lm()` shows estimates of the RMSE and adjusted-R<sup>2</sup>.
+Traditionally, weights in base R functions are used to fit the model and to report a few measures of model efficacy. Here, `glm()` reports the deviance while `lm()` shows estimates of the RMSE and adjusted-R<sup>2</sup>.
 
 Believe it or not, the logistic regression code shown above, which is a typical example of using weights in a classical statistical setting, is much simpler than what we have to contend with in modern data analysis. There are a few things that we do in modern data analysis where correctly using weights is not so straightforward. These include:
 
@@ -286,7 +286,7 @@ The class of these objects tells packages like recipes and yardstick if their va
 
 * Frequency weights are used for all parts of the preprocessing, model fitting, and performance estimation operations. 
 
-Currently, these are the only classes implemented. We are doing a lot of reading on how the analysis of survey data should use case weights and how we can enable this and other data analysis use cases. [We'd love to hear from you](https://community.rstudio.com/) if you have expertise in this area. 
+Currently, these are the only classes implemented. We are doing a lot of reading on how the analysis of survey data should use case weights and how we can enable this and other data analysis use cases. [We'd love to hear from you](https://community.rstudio.com/t/case-weight-blog-post-discussion/136281) if you have expertise in this area. 
 
 ## About resampling
 
@@ -299,7 +299,7 @@ Frequency weights are more complex. Suppose we are using 10-fold cross-validatio
 
 For the latter case, suppose a row of data has a case weight of 100 and we use 10-fold cross-validation. We would always put 90 of those 100 into the modeling data set and the other 10 into the holdout. This seems to be consistent with the sampling of the data and is what would happen if there were actually 100 rows in the data (instead of one row with a case weight of 100). However, it does raise questions regarding data leakage by just re-predicting the same data that went into the model. 
 
-This is also an area where we'd like [community feedback](https://community.rstudio.com/). 
+This is also an area where we'd like [community feedback](https://community.rstudio.com/t/case-weight-blog-post-discussion/136281). 
 
 ## Tidymodels syntax
 
@@ -461,7 +461,7 @@ The importance weights certainly did their job since the weighted analysis has a
 
 ## Getting feedback
 
-We've laid the groundwork for using case weights holistically in tidymodels. For those of you who use case weights, we'd like to know what you think of our approach and answer any questions that you have. We have an [RStudio Community post](https://community.rstudio.com/) queued up to discuss this topic. 
+We've laid the groundwork for using case weights holistically in tidymodels. For those of you who use case weights, we'd like to know what you think of our approach and answer any questions that you have. We have an [RStudio Community post](https://community.rstudio.com/t/case-weight-blog-post-discussion/136281) queued up to discuss this topic. 
 
 We've waited to release packages with case weight support until the main pieces were in place. If you would like to play around with what we've done, you can load the development versions of the packages using:
 
