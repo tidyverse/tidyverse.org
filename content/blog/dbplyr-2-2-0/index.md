@@ -6,30 +6,31 @@ title: dbplyr 2.2.0
 date: 2022-05-20
 author: Hadley Wickham
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    This release brings improvements to SQL translation, a new
+    way of getting local data into the database, and support for
+    dplyr's family of row modification functions.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/lRoX0shwjUQ
+  author: Jan Antonin Kolar
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr, dbplyr]
-rmd_hash: 7357fa08d6a9a56b
+rmd_hash: 95d0c4dfa43299a1
 
 ---
 
 <!--
 TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
@@ -73,8 +74,7 @@ The use of `*` is particularly nice when you have a subquery. Previously the gen
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> |&gt; 
-  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>x2 <span class='o'>=</span> <span class='nv'>x</span> <span class='o'>+</span> <span class='m'>1</span><span class='o'>)</span> |&gt; 
-  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>x3 <span class='o'>=</span> <span class='nv'>x2</span> <span class='o'>+</span> <span class='m'>1</span><span class='o'>)</span>
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>x2 <span class='o'>=</span> <span class='nv'>x</span> <span class='o'>+</span> <span class='m'>1</span>, x3 <span class='o'>=</span> <span class='nv'>x2</span> <span class='o'>+</span> <span class='m'>1</span><span class='o'>)</span>
 <span class='c'>#&gt; &lt;SQL&gt;</span>
 <span class='c'>#&gt; <span style='color: #0000BB;'>SELECT</span> *, `x2` + 1.0<span style='color: #0000BB;'> AS </span>`x3`</span>
 <span class='c'>#&gt; <span style='color: #0000BB;'>FROM</span> (</span>
@@ -89,8 +89,7 @@ The use of `*` is particularly nice when you have a subquery. Previously the gen
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lf</span> |&gt; 
-  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>x2 <span class='o'>=</span> <span class='nv'>x</span> <span class='o'>+</span> <span class='m'>1</span><span class='o'>)</span> |&gt; 
-  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>x3 <span class='o'>=</span> <span class='nv'>x2</span> <span class='o'>+</span> <span class='m'>1</span><span class='o'>)</span> |&gt; 
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>x2 <span class='o'>=</span> <span class='nv'>x</span> <span class='o'>+</span> <span class='m'>1</span>, x3 <span class='o'>=</span> <span class='nv'>x2</span> <span class='o'>+</span> <span class='m'>1</span><span class='o'>)</span> |&gt; 
   <span class='nf'><a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query</a></span><span class='o'>(</span>cte <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span>
 <span class='c'>#&gt; &lt;SQL&gt;</span>
 <span class='c'>#&gt; <span style='color: #0000BB;'>WITH </span>`q01`<span style='color: #0000BB;'> AS</span> (</span>
@@ -181,4 +180,8 @@ The primary purpose of these functions is to modify the underlying tables, but t
 With `in_place = FALSE`, [`rows_insert()`](https://dplyr.tidyverse.org/reference/rows.html) and [`rows_append()`](https://dplyr.tidyverse.org/reference/rows.html) performs an `INSERT`, [`rows_update()`](https://dplyr.tidyverse.org/reference/rows.html) and `rows_path()` perform an `UPDATE`, and [`rows_delete()`](https://dplyr.tidyverse.org/reference/rows.html) performs a `DELETE.`
 
 ## Acknowledgements
+
+Most of the work in this release was done by dbplyr author [@mgirlich](https://github.com/mgirlich): thanks for all your continued hard work!
+
+And a big thanks to all 77 other contributors who's comments, code, and discussion helped make a better package: [@001ben](https://github.com/001ben), [@1beb](https://github.com/1beb), [@Ada-Nick](https://github.com/Ada-Nick), [@admivsn](https://github.com/admivsn), [@alex-m-ffm](https://github.com/alex-m-ffm), [@andreassoteriadesmoj](https://github.com/andreassoteriadesmoj), [@andyquinterom](https://github.com/andyquinterom), [@apalacio10](https://github.com/apalacio10), [@apalacio9502](https://github.com/apalacio9502), [@aris-hastings](https://github.com/aris-hastings), [@asimumba](https://github.com/asimumba), [@ben1787](https://github.com/ben1787), [@boshek](https://github.com/boshek), [@caljnj](https://github.com/caljnj), [@carlganz](https://github.com/carlganz), [@CLRafaelR](https://github.com/CLRafaelR), [@coponhub](https://github.com/coponhub), [@cslewis04](https://github.com/cslewis04), [@dbaston](https://github.com/dbaston), [@dpprdan](https://github.com/dpprdan), [@DrFabach](https://github.com/DrFabach), [@EarlGlynn](https://github.com/EarlGlynn), [@edonnachie](https://github.com/edonnachie), [@eipi10](https://github.com/eipi10), [@eitsupi](https://github.com/eitsupi), [@fh-afrachioni](https://github.com/fh-afrachioni), [@fh-kpikhart](https://github.com/fh-kpikhart), [@ggpinto](https://github.com/ggpinto), [@GuillaumePressiat](https://github.com/GuillaumePressiat), [@hadley](https://github.com/hadley), [@HarlanH](https://github.com/HarlanH), [@hdplsa](https://github.com/hdplsa), [@iangow](https://github.com/iangow), [@James-G-Hill](https://github.com/James-G-Hill), [@jennybc](https://github.com/jennybc), [@jiaqizhu-learning](https://github.com/jiaqizhu-learning), [@jonkeane](https://github.com/jonkeane), [@jsspurgeon](https://github.com/jsspurgeon), [@julieinsan](https://github.com/julieinsan), [@k6adams](https://github.com/k6adams), [@kelnerrr](https://github.com/kelnerrr), [@kmishra9](https://github.com/kmishra9), [@krlmlr](https://github.com/krlmlr), [@Leprechault](https://github.com/Leprechault), [@Liudvikas-vinted](https://github.com/Liudvikas-vinted), [@LukasWallrich](https://github.com/LukasWallrich), [@m-sostero](https://github.com/m-sostero), [@maelle](https://github.com/maelle), [@mattcane](https://github.com/mattcane), [@mfherman](https://github.com/mfherman), [@mkoohafkan](https://github.com/mkoohafkan), [@Mosk915](https://github.com/Mosk915), [@nassuphis](https://github.com/nassuphis), [@nirski](https://github.com/nirski), [@nviets](https://github.com/nviets), [@overmar](https://github.com/overmar), [@p-schaefer](https://github.com/p-schaefer), [@plogacev](https://github.com/plogacev), [@randy3k](https://github.com/randy3k), [@recleev](https://github.com/recleev), [@rmcd1024](https://github.com/rmcd1024), [@rsund](https://github.com/rsund), [@rvomm](https://github.com/rvomm), [@samssann](https://github.com/samssann), [@sfirke](https://github.com/sfirke), [@Sir-Chibi](https://github.com/Sir-Chibi), [@sitendug](https://github.com/sitendug), [@somatusag](https://github.com/somatusag), [@stephenashton-dhsc](https://github.com/stephenashton-dhsc), [@swnydick](https://github.com/swnydick), [@thothal](https://github.com/thothal), [@torbjorn](https://github.com/torbjorn), [@tsengj](https://github.com/tsengj), [@vspinu](https://github.com/vspinu), [@Waftmaster](https://github.com/Waftmaster), [@williamlai2](https://github.com/williamlai2), and [@yitao-li](https://github.com/yitao-li).
 
