@@ -1,0 +1,134 @@
+---
+output: hugodown::hugo_document
+
+slug: dbplyr-2-2-0
+title: dbplyr 2.2.0
+date: 2022-05-20
+author: Hadley Wickham
+description: >
+    A 2-3 sentence description of the post that appears on the articles page.
+    This can be omitted if it would just recapitulate the title.
+
+photo:
+  url: https://unsplash.com/photos/n6vS3xlnsCc
+  author: Kelley Bozarth
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [dplyr, dbplyr]
+---
+
+```{=html}
+<!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+```
+We're chuffed to announce the release of [dbplyr](https://dbplyr.tidyverse.org) 2.2.0.
+dbplyr is a database backend for dplyr that allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr translates it to SQL for you.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("dbplyr")
+```
+
+This blog post will discuss some of the biggest improvements to SQL translations introduce `copy_inline()`, and discuss support for dplyr's `row_` functions.
+You can see a full list of changes in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.2.0).
+
+```{r setup}
+library(dbplyr)
+library(dplyr, warn.conflicts = FALSE)
+```
+
+## SQL improvements
+
+This release brings with it a host of useful improvements to SQL generation.
+Firstly, where possible dbplyr now uses `*` rather than listing every column individually.
+This is particularly nice when you have a table with many names:
+
+```{r}
+lf <- lazy_frame(!!!setNames(as.list(1:26), letters))
+lf
+```
+
+If you're familiar with dbplyr's old SQL output, you'll also notice that the output receives some basic syntax highlighting and much improved line breaks and indenting.
+
+The use of `*` is particularly nice when you have a subquery.
+Previously the generated SQL would have repeated the column names `a` to `z` twice, once for each subquery.
+
+```{r}
+lf |> 
+  mutate(x2 = x + 1) |> 
+  mutate(x3 = x2 + 1)
+```
+
+`show_query()`, `compute()` and `collect()` have experimental support for common table expressions (CTEs), available by setting `cte = TRUE` argument.
+CTEs are the database equivalent of the pipe; they allow you to write subqueries in the order in which they're evaluated, rather than the opposite.
+
+```{r}
+lf |> 
+  mutate(x2 = x + 1) |> 
+  mutate(x3 = x2 + 1) |> 
+  show_query(cte = TRUE)
+```
+
+We've also added support for translating `cut()`: this is a very useful base R function that's fiddly to express in SQL:
+
+```{r}
+lf <- lazy_frame(x = 1)
+
+translate_sql(
+  cut(x, c(0, 25, 50, 100))
+)
+  
+# Can provide custom labels
+translate_sql(
+  cut(x, c(0, 25, 50, 100), labels = c("small", "medium", "large"))
+)
+
+# And use Inf/-Inf bounds
+translate_sql(
+  cut(
+    x, 
+    breaks = c(-Inf, 25, 50, Inf), 
+    labels = c("small", "medium", "large")
+  )
+)
+```
+
+There are also a whole host of minor translation improvements which you can read about in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.2.0).
+
+## `copy_inline()`
+
+`copy_inline()` provides a new way to get data out of R and into the database by embedding the data directly in the query.
+This is a natural complement to `copy_to()` which writes data to a table temporary table.
+`copy_inline()` is useful when you don't have the ability to create temporary tables and it's typically faster for small datasets.
+
+As shown below, the SQL it generates is a bit of a mouthful but it should work on a very wide range of databases.
+As far we can tell, all three steps are necessary: we need to provide the data, then name each column, then ensure that the types are correct.
+
+```{r}
+df <- data.frame(x = 1:5, y = letters[1:5])
+show_query(copy_inline(simulate_postgres(), df))
+```
+
+## Row modification
+
+dplyr 1.0.0 added a family of [row modification](https://www.tidyverse.org/blog/2020/05/dplyr-1-0-0-last-minute-additions/#row-mutation) functions, `rows_insert()`, `rows_append()`, `rows_update()`, `rows_patch()`, `rows_upsert()`, and `rows_delete()`.
+These were inspired by SQL and are now supported by dbplyr.
+
+The primary purpose of these functions is to modify the underlying tables, but that purpose is potential dangerous so you'll need to deliberate opt-in to modification by setting `in_place = TRUE`.
+You can use the default behaviour, `in_place = FALSE`, to simulate what the result will be.
+
+With `in_place = FALSE`, `rows_insert()` and `rows_append()` performs an `INSERT`, `rows_update()` and `rows_path()` perform an `UPDATE`, and `rows_delete()` performs a `DELETE.`
+
+## Acknowledgements
