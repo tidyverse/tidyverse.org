@@ -19,7 +19,7 @@ tags: ["GitHub Actions"]
 editor_options:
   markdown:
     wrap: sentence
-rmd_hash: 91bf7ab828212f21
+rmd_hash: 5f21cb438f0fec8c
 
 ---
 
@@ -108,6 +108,8 @@ Encoding issues are not uncommon in snapshot tests across platforms. To make the
         with:
           upload-snapshots: true
 ```
+
+See the [Snapshot tests](https://testthat.r-lib.org/articles/snapshotting.html) article in the testthat manual for more about testthat snapshots.
 
 ### Rtools42 support
 
