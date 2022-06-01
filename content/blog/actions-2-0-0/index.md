@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: actions-2-0-0
 title: GitHub Actions for R developers, v2
-date: 2022-02-14
+date: 2022-06-01
 author: Gábor Csárdi
 description: >
     We have updated our GitHub Actions at `r-lib/actions`. Consider upgrading
@@ -15,8 +15,11 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [programming] 
-tags: ["GitHub Actions", "r-lib", "actions", "CI", "contionuous integration"]
-rmd_hash: 9fb663269136400e
+tags: ["GitHub Actions"]
+editor_options:
+  markdown:
+    wrap: sentence
+rmd_hash: 91bf7ab828212f21
 
 ---
 
@@ -33,9 +36,11 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're tickled pink to announce the new, `v2` versions of our collection of R related GitHub Actions at <https://github.com/r-lib/actions>.
+We're tickled pink to announce a `v2` release of our collection of R related GitHub Actions at <https://github.com/r-lib/actions>.
 
 If you are already using these actions, you might want to take look at the [full list of changes](https://github.com/r-lib/actions/releases/tag/v2) first.
+
+In this post, we'll show how to set up `r-lib/actions` for your R package or project, and what is new in the `v2` version.
 
 ## About `rlib/actions`
 
@@ -43,13 +48,13 @@ If you are already using these actions, you might want to take look at the [full
 
 The [`r-lib/actions`](https://github.com/r-lib/actions#readme) repo has a number of reusable actions that perform common R-related tasks: installing R and Rtools, pandoc, installing dependencies of R packages, running `R CMD check`, etc.:
 
--   `setup-r` installs R and on Windows Rtools,
+-   [`setup-r`](https://github.com/r-lib/actions/tree/v2/setup-r#readme) installs R and on Windows Rtools,
 
--   `setup-pandoc` installs pandoc,
+-   [`setup-pandoc`](https://github.com/r-lib/actions/tree/v2/setup-pandoc#readme) installs pandoc,
 
--   `setup-r-dependencies` installs R package dependencies,
+-   [`setup-r-dependencies`](https://github.com/r-lib/actions/tree/v2/setup-r-dependencies#readme) installs R package dependencies,
 
--   `check-r-package` runs `R CMD check` on an R package.
+-   [`check-r-package`](https://github.com/r-lib/actions/tree/v2/check-r-package#readme) runs `R CMD check` on an R package.
 
 See the [README](https://github.com/r-lib/actions#readme) for the complete list of actions.
 
@@ -59,11 +64,9 @@ The `r-lib/actions` repo has [example workflows](https://github.com/r-lib/action
 
 You can copy the ones you'd like to use to the `.github/workflows` directory of your R package or project. For an R package you would typically want the `test-coverage` workflow and one of the `check-` workflows, depending on how thoroughly you want to check your package across operating systems and R versions. If your package has a pkgdown site then you probably also want the `pkgdown` workflow.
 
-The usethis package has several helper functions to set up GitHub Actions for you: [`?usethis::use_github_action`](https://usethis.r-lib.org/reference/github_actions.html). Note, that to set up the new `v2` versions of the actions you currently need to use the [development version](https://github.com/r-lib/usethis#installation) of the usethis package:
+The usethis package has several helper functions to set up GitHub Actions for you: [`?usethis::use_github_action`](https://usethis.r-lib.org/reference/github_actions.html). You'll need the latest version of usethis, version 2.1.6 for this.
 
 ``` r
-install.packages("pak", repos = "https://r-lib.github.io/p/pak/devel")
-pak::pkg_install("r-lib/usethis")
 usethis::use_github_action("check-standard")
 usethis::use_github_action("test-coverage")
 usethis::use_github_action("pkgdown")
@@ -73,7 +76,7 @@ usethis::use_github_action("pkgdown")
 
 In short, use the `v2` tag.
 
-The `v2` tag is a *sliding* tag. It is not fixed to a certain version, but we regularly update it with (non-breaking) improvements and fixes. If it is absolutely crucial that your workflow runs the same way, use one of the fixed tags, e.g. `v2.1.1` is the most recent one.
+The `v2` tag is a *sliding* tag. It is not fixed to a certain version, but we regularly update it with (non-breaking) improvements and fixes. If it is absolutely crucial that your workflow runs the same way, use one of the fixed tags, e.g. `v2.2.2` is the most recent one.
 
 ## What is new?
 
@@ -108,7 +111,7 @@ Encoding issues are not uncommon in snapshot tests across platforms. To make the
 
 ### Rtools42 support
 
-[Rtools42](https://www.r-project.org/nosvn/winutf8/ucrt3/web/rtools.html) is the new version of the Rtools compiler bundle, which will be the default for R 4.2.0, coming in the spring. You can now optionally install Rtools42 with the `setup-r` action. By default `setup-r` uses [Rtools40](https://cran.r-project.org/bin/windows/Rtools/rtools40.html) because it is pre-installed on the CI machines, and it is fully compatible with Rtools42. To select Rtools42, set the `rtools-version` parameter to `42`:
+[Rtools42](https://www.r-project.org/nosvn/winutf8/ucrt3/web/rtools.html) is the new version of the Rtools compiler bundle, which will be the default for latest R 4.2.0. You can now optionally install Rtools42 with the `setup-r` action. By default `setup-r` uses [Rtools40](https://cran.r-project.org/bin/windows/Rtools/rtools40.html) because it is pre-installed on the CI machines, and it is fully compatible with Rtools42. To select Rtools42, set the `rtools-version` parameter to `42`:
 
 ``` yaml
       - uses: r-lib/actions/setup-r@v2-branch
@@ -136,6 +139,10 @@ See the READMEs for more details.
 -   The example \*down (blogdown, pkgdown and bookdown) workflows now build the web site in pull requests as well, but only deploy on push and release events. They also have a manual trigger.
 
 -   The example \*down workflows now protect against race conditions.
+
+## Feedback
+
+Your feedback is much appreciated. Before reporting a [new issue](https://github.com/r-lib/actions/issues/new/choose), please check if it was already reported, see the [list of issues](https://github.com/r-lib/actions/issues), especially the pinned issues (if any) at the top of the issue page.
 
 ## Acknowledgements
 
