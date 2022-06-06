@@ -1,0 +1,136 @@
+---
+output: hugodown::hugo_document
+
+slug: dbplyr-2-2-0
+title: dbplyr 2.2.0
+date: 2022-06-06
+author: Hadley Wickham
+description: >
+    This release brings improvements to SQL translation, a new
+    way of getting local data into the database, and support for
+    dplyr's family of row modification functions.
+
+photo:
+  url: https://unsplash.com/photos/lRoX0shwjUQ
+  author: Jan Antonin Kolar
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [dplyr, dbplyr]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+```
+We're chuffed to announce the release of [dbplyr](https://dbplyr.tidyverse.org) 2.2.0.
+dbplyr is a database backend for dplyr that allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr translates it to SQL for you.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("dbplyr")
+```
+
+This blog post will discuss some of the biggest improvements to SQL translations, introduce `copy_inline()`, and discuss support for dplyr's `row_` functions.
+You can see a full list of changes in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.2.0).
+
+```{r setup}
+library(dbplyr)
+library(dplyr, warn.conflicts = FALSE)
+```
+
+## SQL improvements
+
+This release brings with it a host of useful improvements to SQL generation.
+Firstly, dbplyr uses `*` where possible.
+This is particularly nice when you have a table with many names:
+
+```{r}
+lf <- lazy_frame(!!!setNames(as.list(1:26), letters))
+lf
+```
+
+If you're familiar with dbplyr's old SQL output, you'll also notice that the output receives some basic syntax highlighting and much improved line breaks and indenting.
+
+The use of `*` is particularly nice when you have a subquery.
+Previously the generated SQL would have repeated the column names `a` to `z` twice, once for each subquery.
+
+```{r}
+lf |> 
+  mutate(x2 = x + 1, x3 = x2 + 1)
+```
+
+`show_query()`, `compute()` and `collect()` have experimental support for common table expressions (CTEs), available by setting `cte = TRUE` argument.
+CTEs are the database equivalent of the pipe; they allow you to write subqueries in the order in which they're evaluated, rather than the opposite.
+
+```{r}
+lf |> 
+  mutate(x2 = x + 1, x3 = x2 + 1) |> 
+  show_query(cte = TRUE)
+```
+
+We've also added support for translating `cut()`: this is a very useful base R function that's fiddly to express in SQL:
+
+```{r}
+lf <- lazy_frame(x = 1)
+
+translate_sql(
+  cut(x, c(0, 25, 50, 100))
+)
+  
+# Can provide custom labels
+translate_sql(
+  cut(x, c(0, 25, 50, 100), labels = c("small", "medium", "large"))
+)
+
+# And use Inf/-Inf bounds
+translate_sql(
+  cut(
+    x, 
+    breaks = c(-Inf, 25, 50, Inf), 
+    labels = c("small", "medium", "large")
+  )
+)
+```
+
+There are also a whole host of minor translation improvements which you can read about in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.2.0).
+
+## `copy_inline()`
+
+`copy_inline()` provides a new way to get data out of R and into the database by embedding the data directly in the query.
+This is a natural complement to `copy_to()` which writes data to a temporary table.
+`copy_inline()` is faster for small datasets and is particularly useful when you don't have the permissions needed to create temporary tables.
+Here's a very simple example of what the generated SQL will look like for PostgreSQL
+
+```{r}
+df <- data.frame(x = 1:5, y = letters[1:5])
+show_query(copy_inline(simulate_postgres(), df))
+```
+
+## Row modification
+
+dplyr 1.0.0 added a family of [row modification](https://www.tidyverse.org/blog/2020/05/dplyr-1-0-0-last-minute-additions/#row-mutation) functions: `rows_insert()`, `rows_append()`, `rows_update()`, `rows_patch()`, `rows_upsert()`, and `rows_delete()`.
+These functions were inspired by SQL and are now supported by dbplyr.
+
+The primary purpose of these functions is to modify the underlying tables.
+Because that purpose is dangerous, you'll need to deliberate opt-in to modification by setting `in_place = TRUE`.
+Use the default behaviour, `in_place = FALSE`, to simulate what the result will be.
+
+With `in_place = FALSE`, `rows_insert()` and `rows_append()` performs an `INSERT`, `rows_update()` and `rows_path()` perform an `UPDATE`, and `rows_delete()` performs a `DELETE.`
+
+## Acknowledgements
+
+Most of the work in this release was done by dbplyr author [\@mgirlich](https://github.com/mgirlich): thanks for all your continued hard work!
+
+And a big thanks to all 77 other contributors who's comments, code, and discussion helped make a better package: [\@001ben](https://github.com/001ben), [\@1beb](https://github.com/1beb), [\@Ada-Nick](https://github.com/Ada-Nick), [\@admivsn](https://github.com/admivsn), [\@alex-m-ffm](https://github.com/alex-m-ffm), [\@andreassoteriadesmoj](https://github.com/andreassoteriadesmoj), [\@andyquinterom](https://github.com/andyquinterom), [\@apalacio10](https://github.com/apalacio10), [\@apalacio9502](https://github.com/apalacio9502), [\@aris-hastings](https://github.com/aris-hastings), [\@asimumba](https://github.com/asimumba), [\@ben1787](https://github.com/ben1787), [\@boshek](https://github.com/boshek), [\@caljnj](https://github.com/caljnj), [\@carlganz](https://github.com/carlganz), [\@CLRafaelR](https://github.com/CLRafaelR), [\@coponhub](https://github.com/coponhub), [\@cslewis04](https://github.com/cslewis04), [\@dbaston](https://github.com/dbaston), [\@dpprdan](https://github.com/dpprdan), [\@DrFabach](https://github.com/DrFabach), [\@EarlGlynn](https://github.com/EarlGlynn), [\@edonnachie](https://github.com/edonnachie), [\@eipi10](https://github.com/eipi10), [\@eitsupi](https://github.com/eitsupi), [\@fh-afrachioni](https://github.com/fh-afrachioni), [\@fh-kpikhart](https://github.com/fh-kpikhart), [\@ggpinto](https://github.com/ggpinto), [\@GuillaumePressiat](https://github.com/GuillaumePressiat), [\@hadley](https://github.com/hadley), [\@HarlanH](https://github.com/HarlanH), [\@hdplsa](https://github.com/hdplsa), [\@iangow](https://github.com/iangow), [\@James-G-Hill](https://github.com/James-G-Hill), [\@jennybc](https://github.com/jennybc), [\@jiaqizhu-learning](https://github.com/jiaqizhu-learning), [\@jonkeane](https://github.com/jonkeane), [\@jsspurgeon](https://github.com/jsspurgeon), [\@julieinsan](https://github.com/julieinsan), [\@k6adams](https://github.com/k6adams), [\@kelnerrr](https://github.com/kelnerrr), [\@kmishra9](https://github.com/kmishra9), [\@krlmlr](https://github.com/krlmlr), [\@Leprechault](https://github.com/Leprechault), [\@Liudvikas-vinted](https://github.com/Liudvikas-vinted), [\@LukasWallrich](https://github.com/LukasWallrich), [\@m-sostero](https://github.com/m-sostero), [\@maelle](https://github.com/maelle), [\@mattcane](https://github.com/mattcane), [\@mfherman](https://github.com/mfherman), [\@mkoohafkan](https://github.com/mkoohafkan), [\@Mosk915](https://github.com/Mosk915), [\@nassuphis](https://github.com/nassuphis), [\@nirski](https://github.com/nirski), [\@nviets](https://github.com/nviets), [\@overmar](https://github.com/overmar), [\@p-schaefer](https://github.com/p-schaefer), [\@plogacev](https://github.com/plogacev), [\@randy3k](https://github.com/randy3k), [\@recleev](https://github.com/recleev), [\@rmcd1024](https://github.com/rmcd1024), [\@rsund](https://github.com/rsund), [\@rvomm](https://github.com/rvomm), [\@samssann](https://github.com/samssann), [\@sfirke](https://github.com/sfirke), [\@Sir-Chibi](https://github.com/Sir-Chibi), [\@sitendug](https://github.com/sitendug), [\@somatusag](https://github.com/somatusag), [\@stephenashton-dhsc](https://github.com/stephenashton-dhsc), [\@swnydick](https://github.com/swnydick), [\@thothal](https://github.com/thothal), [\@torbjorn](https://github.com/torbjorn), [\@tsengj](https://github.com/tsengj), [\@vspinu](https://github.com/vspinu), [\@Waftmaster](https://github.com/Waftmaster), [\@williamlai2](https://github.com/williamlai2), and [\@yitao-li](https://github.com/yitao-li).
