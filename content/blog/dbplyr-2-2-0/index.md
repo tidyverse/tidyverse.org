@@ -168,7 +168,7 @@ dplyr 1.0.0 added a family of [row modification](https://www.tidyverse.org/blog/
 
 The primary purpose of these functions is to modify the underlying tables. Because that purpose is dangerous, you'll need to deliberate opt-in to modification by setting `in_place = TRUE`. Use the default behaviour, `in_place = FALSE`, to simulate what the result will be.
 
-With `in_place = FALSE`, [`rows_insert()`](https://dplyr.tidyverse.org/reference/rows.html) and [`rows_append()`](https://dplyr.tidyverse.org/reference/rows.html) performs an `INSERT`, [`rows_update()`](https://dplyr.tidyverse.org/reference/rows.html) and `rows_patch()` perform an `UPDATE`, and [`rows_delete()`](https://dplyr.tidyverse.org/reference/rows.html) performs a `DELETE.`
+With `in_place = FALSE`, [`rows_insert()`](https://dplyr.tidyverse.org/reference/rows.html) and [`rows_append()`](https://dplyr.tidyverse.org/reference/rows.html) perform an `INSERT`, [`rows_update()`](https://dplyr.tidyverse.org/reference/rows.html) and `rows_patch()` perform an `UPDATE`, and [`rows_delete()`](https://dplyr.tidyverse.org/reference/rows.html) performs a `DELETE.`
 
 ## Acknowledgements
 
