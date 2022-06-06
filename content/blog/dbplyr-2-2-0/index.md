@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: dbplyr-2-2-0
 title: dbplyr 2.2.0
-date: 2022-05-20
+date: 2022-06-06
 author: Hadley Wickham
 description: >
     This release brings improvements to SQL translation, a new
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr, dbplyr]
-rmd_hash: 95d0c4dfa43299a1
+rmd_hash: 1a6cf774591580bf
 
 ---
 
@@ -31,7 +31,7 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 We're chuffed to announce the release of [dbplyr](https://dbplyr.tidyverse.org) 2.2.0. dbplyr is a database backend for dplyr that allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr translates it to SQL for you.
@@ -44,7 +44,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will discuss some of the biggest improvements to SQL translations introduce [`copy_inline()`](https://dbplyr.tidyverse.org/reference/copy_inline.html), and discuss support for dplyr's `row_` functions. You can see a full list of changes in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.2.0).
+This blog post will discuss some of the biggest improvements to SQL translations, introduce [`copy_inline()`](https://dbplyr.tidyverse.org/reference/copy_inline.html), and discuss support for dplyr's `row_` functions. You can see a full list of changes in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.2.0).
 
 <div class="highlight">
 
@@ -55,7 +55,7 @@ This blog post will discuss some of the biggest improvements to SQL translations
 
 ## SQL improvements
 
-This release brings with it a host of useful improvements to SQL generation. Firstly, where possible dbplyr now uses `*` rather than listing every column individually. This is particularly nice when you have a table with many names:
+This release brings with it a host of useful improvements to SQL generation. Firstly, dbplyr uses `*` where possible. This is particularly nice when you have a table with many names:
 
 <div class="highlight">
 
@@ -150,9 +150,7 @@ There are also a whole host of minor translation improvements which you can read
 
 ## `copy_inline()`
 
-[`copy_inline()`](https://dbplyr.tidyverse.org/reference/copy_inline.html) provides a new way to get data out of R and into the database by embedding the data directly in the query. This is a natural complement to [`copy_to()`](https://dplyr.tidyverse.org/reference/copy_to.html) which writes data to a table temporary table. [`copy_inline()`](https://dbplyr.tidyverse.org/reference/copy_inline.html) is useful when you don't have the ability to create temporary tables and it's typically faster for small datasets.
-
-As shown below, the SQL it generates is a bit of a mouthful but it should work on a very wide range of databases. As far we can tell, all three steps are necessary: we need to provide the data, then name each column, then ensure that the types are correct.
+[`copy_inline()`](https://dbplyr.tidyverse.org/reference/copy_inline.html) provides a new way to get data out of R and into the database by embedding the data directly in the query. This is a natural complement to [`copy_to()`](https://dplyr.tidyverse.org/reference/copy_to.html) which writes data to a temporary table. [`copy_inline()`](https://dbplyr.tidyverse.org/reference/copy_inline.html) is faster for small datasets and is particularly useful when you don't have the permissions needed to create temporary tables. Here's a very simple example of what the generated SQL will look like for PostgreSQL
 
 <div class="highlight">
 
@@ -160,22 +158,15 @@ As shown below, the SQL it generates is a bit of a mouthful but it should work o
 <span class='nf'><a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query</a></span><span class='o'>(</span><span class='nf'><a href='https://dbplyr.tidyverse.org/reference/copy_inline.html'>copy_inline</a></span><span class='o'>(</span><span class='nf'><a href='https://dbplyr.tidyverse.org/reference/backend-postgres.html'>simulate_postgres</a></span><span class='o'>(</span><span class='o'>)</span>, <span class='nv'>df</span><span class='o'>)</span><span class='o'>)</span>
 <span class='c'>#&gt; &lt;SQL&gt;</span>
 <span class='c'>#&gt; <span style='color: #0000BB;'>SELECT</span> CAST(`x` AS INTEGER)<span style='color: #0000BB;'> AS </span>`x`, CAST(`y` AS TEXT)<span style='color: #0000BB;'> AS </span>`y`</span>
-<span class='c'>#&gt; <span style='color: #0000BB;'>FROM</span> (</span>
-<span class='c'>#&gt;   (</span>
-<span class='c'>#&gt;     <span style='color: #0000BB;'>SELECT</span> NULL<span style='color: #0000BB;'> AS </span>`x`, NULL<span style='color: #0000BB;'> AS </span>`y`</span>
-<span class='c'>#&gt;     <span style='color: #0000BB;'>WHERE</span> (0 = 1)</span>
-<span class='c'>#&gt;   )</span>
-<span class='c'>#&gt;   <span style='color: #0000BB;'>UNION ALL</span></span>
-<span class='c'>#&gt;   (<span style='color: #0000BB;'>VALUES</span> (1, 'a'), (2, 'b'), (3, 'c'), (4, 'd'), (5, 'e'))</span>
-<span class='c'>#&gt; ) `values_table`</span></code></pre>
+<span class='c'>#&gt; <span style='color: #0000BB;'>FROM</span> (  <span style='color: #0000BB;'>VALUES</span> (1, 'a'), (2, 'b'), (3, 'c'), (4, 'd'), (5, 'e')) AS drvd(`x`, `y`)</span></code></pre>
 
 </div>
 
 ## Row modification
 
-dplyr 1.0.0 added a family of [row modification](https://www.tidyverse.org/blog/2020/05/dplyr-1-0-0-last-minute-additions/#row-mutation) functions, [`rows_insert()`](https://dplyr.tidyverse.org/reference/rows.html), [`rows_append()`](https://dplyr.tidyverse.org/reference/rows.html), [`rows_update()`](https://dplyr.tidyverse.org/reference/rows.html), [`rows_patch()`](https://dplyr.tidyverse.org/reference/rows.html), [`rows_upsert()`](https://dplyr.tidyverse.org/reference/rows.html), and [`rows_delete()`](https://dplyr.tidyverse.org/reference/rows.html). These were inspired by SQL and are now supported by dbplyr.
+dplyr 1.0.0 added a family of [row modification](https://www.tidyverse.org/blog/2020/05/dplyr-1-0-0-last-minute-additions/#row-mutation) functions: [`rows_insert()`](https://dplyr.tidyverse.org/reference/rows.html), [`rows_append()`](https://dplyr.tidyverse.org/reference/rows.html), [`rows_update()`](https://dplyr.tidyverse.org/reference/rows.html), [`rows_patch()`](https://dplyr.tidyverse.org/reference/rows.html), [`rows_upsert()`](https://dplyr.tidyverse.org/reference/rows.html), and [`rows_delete()`](https://dplyr.tidyverse.org/reference/rows.html). These functions were inspired by SQL and are now supported by dbplyr.
 
-The primary purpose of these functions is to modify the underlying tables, but that purpose is potential dangerous so you'll need to deliberate opt-in to modification by setting `in_place = TRUE`. You can use the default behaviour, `in_place = FALSE`, to simulate what the result will be.
+The primary purpose of these functions is to modify the underlying tables. Because that purpose is dangerous, you'll need to deliberate opt-in to modification by setting `in_place = TRUE`. Use the default behaviour, `in_place = FALSE`, to simulate what the result will be.
 
 With `in_place = FALSE`, [`rows_insert()`](https://dplyr.tidyverse.org/reference/rows.html) and [`rows_append()`](https://dplyr.tidyverse.org/reference/rows.html) performs an `INSERT`, [`rows_update()`](https://dplyr.tidyverse.org/reference/rows.html) and `rows_path()` perform an `UPDATE`, and [`rows_delete()`](https://dplyr.tidyverse.org/reference/rows.html) performs a `DELETE.`
 
