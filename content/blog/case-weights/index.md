@@ -471,7 +471,7 @@ if (!rlang::is_installed("pak")) {
   install.packages("pak")
 }
 
-pkgs <- c("hardhat", "parsnip@feature/case-weights", "recipes@case-weights",
+pkgs <- c("hardhat", "parsnip", "recipes",
           "modeldata", "tune", "workflows", "yardstick")
 pkgs <- paste0("tidymodels/", pkgs)
 
