@@ -44,7 +44,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will discuss some of the biggest improvements to SQL translations, introduce [`copy_inline()`](https://dbplyr.tidyverse.org/reference/copy_inline.html), and discuss support for dplyr's `row_` functions. You can see a full list of changes in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.2.0).
+This blog post will discuss some of the biggest improvements to SQL translations, introduce [`copy_inline()`](https://dbplyr.tidyverse.org/reference/copy_inline.html), and discuss support for dplyr's `rows_` functions. You can see a full list of changes in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.2.0).
 
 <div class="highlight">
 
