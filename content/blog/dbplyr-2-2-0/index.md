@@ -44,7 +44,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will discuss some of the biggest improvements to SQL translations, introduce [`copy_inline()`](https://dbplyr.tidyverse.org/reference/copy_inline.html), and discuss support for dplyr's `rows_` functions. You can see a full list of changes in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.2.0).
+This blog post will discuss some of the biggest improvements to SQL translations, introduce [`copy_inline()`](https://dbplyr.tidyverse.org/reference/copy_inline.html), and discuss support for dplyr's `row_` functions. You can see a full list of changes in the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.2.0).
 
 <div class="highlight">
 
@@ -168,7 +168,7 @@ dplyr 1.0.0 added a family of [row modification](https://www.tidyverse.org/blog/
 
 The primary purpose of these functions is to modify the underlying tables. Because that purpose is dangerous, you'll need to deliberate opt-in to modification by setting `in_place = TRUE`. Use the default behaviour, `in_place = FALSE`, to simulate what the result will be.
 
-With `in_place = FALSE`, [`rows_insert()`](https://dplyr.tidyverse.org/reference/rows.html) and [`rows_append()`](https://dplyr.tidyverse.org/reference/rows.html) perform an `INSERT`, [`rows_update()`](https://dplyr.tidyverse.org/reference/rows.html) and `rows_patch()` perform an `UPDATE`, and [`rows_delete()`](https://dplyr.tidyverse.org/reference/rows.html) performs a `DELETE.`
+With `in_place = FALSE`, [`rows_insert()`](https://dplyr.tidyverse.org/reference/rows.html) and [`rows_append()`](https://dplyr.tidyverse.org/reference/rows.html) performs an `INSERT`, [`rows_update()`](https://dplyr.tidyverse.org/reference/rows.html) and `rows_path()` perform an `UPDATE`, and [`rows_delete()`](https://dplyr.tidyverse.org/reference/rows.html) performs a `DELETE.`
 
 ## Acknowledgements
 
