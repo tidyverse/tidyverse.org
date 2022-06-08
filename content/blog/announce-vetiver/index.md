@@ -10,6 +10,11 @@ description: >
   tasks in R and Python. Use vetiver to version, share, deploy, and monitor a 
   trained model.
 
+photo:
+  url: https://unsplash.com/photos/3C5ZfCLSGC4
+  author: "21 swan"
+
+
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, vetiver]
@@ -31,7 +36,7 @@ TODO:
 
 
 
-We are thrilled to announce the release of [vetiver](https://vetiver.rstudio.com/), a framework for MLOps tasks in R and Python! The goal of vetiver is to provide fluent tooling to **version**, **share**, **deploy**, and **monitor** a trained model.
+We are thrilled to announce the release of [vetiver](https://vetiver.rstudio.com/), a framework for MLOps tasks in R and Python! The goal of vetiver is to provide fluent tooling to **version**, **share**, **deploy**, and **monitor** a trained model. If you like perfume or candles, you may recognize this ingredient; vetiver, also known as the "oil of tranquility", is used as a stabilizing ingredient in perfumery to preserve more volatile fragrances.
 
 You can install the released version of vetiver for R from [CRAN](https://cran.r-project.org/package=vetiver):
 
