@@ -1,3 +1,24 @@
+---
+output: hugodown::hugo_document
+
+slug: lintr-3-0-0
+title: lintr 3.0.0
+date: 2022-06-14
+author: Michael Chirico
+description: >
+    lintr 3.0.0 is a major release featuring a more consistent
+    API for using linter and dozens of new linters included
+
+photo:
+  url: https://unsplash.com/photos/tt_HFMMae1w
+  author: Hai Tran
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [lintr]
+
+---
+
 We are very excited to announce the release of [lintr](https://lintr.r-lib.org) 3.0.0! lintr provides
 both a framework for [static analysis](https://www.perforce.com/blog/sca/what-static-analysis) of R packages
 and scripts and a variety of linters, e.g. to enforce the [tidyverse style guide](https://style.tidyverse.org/).
