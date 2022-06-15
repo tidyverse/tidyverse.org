@@ -1,0 +1,205 @@
+---
+output: hugodown::hugo_document
+
+slug: spatialsample-0-2-0
+title: spatialsample 0.2.0
+date: 2022-06-15
+author: Mike Mahoney
+description: >
+    spatialsample 0.2.0 is now on CRAN! This release provides a bunch of new features, including new spatial resampling methods, visualization helpers, and spatial buffering.
+
+photo:
+  url: https://unsplash.com/photos/1-29wyvvLJA
+  author: Andrew Neel
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [spatialsample, rsample, tidymodels]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+```{r setup, include = FALSE}
+library(ggplot2)
+theme_set(theme_minimal())
+```
+
+
+We're positively electrified to announce the release of [spatialsample](https://spatialsample.tidymodels.org/) 0.2.0. spatialsample is a package for spatial resampling, extending the rsample framework for resampling to help create spatial extrapolation between your analysis and assessment data sets.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("spatialsample")
+```
+
+This blog post will describe the highlights of what's new. You can see a full list of changes in the [release notes](https://github.com/tidymodels/spatialsample/blob/main/NEWS.md).
+
+## New Features
+
+This version of spatialsample includes a new data set, made up of 682 hexagons containing data about tree canopy cover change in Boston, Massachusetts:
+
+```{r}
+#| fig.alt = "A map showing the spatial arrangement of hexagons making up the boston_canopy data set."
+library(spatialsample)
+library(ggplot2)
+
+ggplot(boston_canopy) + 
+  geom_sf()
+```
+
+This data is stored as an sf object, and as such contains information about the proper coordinate reference system and units of measurement associated with the data. 
+
+And that brings us to the first new feature in this release of spatialsample: `spatial_clustering_cv()` now supports sf objects, and will calculate distances in a way that respects coordinate reference systems (including using the s2 geometry library for geographic coordinate reference systems):
+
+```{r}
+set.seed(123)
+kmeans_clustering <- spatial_clustering_cv(boston_canopy, v = 5)
+kmeans_clustering
+```
+
+This release also provides `autoplot()` methods to visualize resamples via ggplot2, making it easy to see how exactly your data is being divided. Just call `autoplot()` on the outputs from any spatial clustering function:
+
+```{r}
+#| fig.alt = "A map showing the boston_canopy data set broken into five folds through spatial_clustering_cv. The five folds are visibly different sizes, and are grouped by spatial proximity."
+autoplot(kmeans_clustering) + labs(title = "kmeans()")
+```
+
+In addition to supporting more types of data, `spatial_clustering_cv()` has also been extended to support more types of clustering. Use the `cluster_function` argument to use hierarchical clustering via `hclust()` instead of the default `kmeans()`-based clusters:
+
+```{r}
+#| fig.alt = "A map showing the boston_canopy data set broken into five folds through spatial_clustering_cv, using the hclust clustering method. The five folds are still visibly different sizes, and are grouped by spatial proximity, but the clusters are notably different from those produced by the default kmeans method."
+
+set.seed(123)
+spatial_clustering_cv(
+  boston_canopy, 
+  v = 5, 
+  cluster_function = "hclust"
+) |> 
+  autoplot() + 
+  labs(title = "hclust()")
+```
+
+This argument can also accept functions, letting you plug in clustering methodologies from other packages or that you've written yourself:
+
+```{r}
+#| fig.alt = "A map showing the outputs of spatial_clustering_cv when using a custom clustering function. The custom clustering function assigned folds systematically, moving sequentially through rows in the data frame, and as such the output does not look very clustered. However, the functions in spatialsample performed exactly the same with the custom clustering function as they did with the built-in options."
+set.seed(123)
+
+custom_clusters <- function(dists, v, ...) {
+  rep(letters[1:v], length.out = nrow(boston_canopy))
+}
+
+spatial_clustering_cv(
+  boston_canopy, 
+  v = 5, 
+  cluster_function = custom_clusters
+) |> 
+  autoplot() + 
+  labs(title = "custom_clusters()")
+```
+
+In addition to the clustering extensions, this version of spatialsample introduces a few functions for other popular spatial resampling methods. For instance, the new function `spatial_block_cv()` helps you perform [block cross-validation](https://doi.org/10.1111/ecog.02881), splitting your data into folds based on a grid of regular polygons. You can assign these polygons to folds at random:
+
+```{r}
+#| fig.alt = "A map showing the outputs of block cross-validation performed using spatial_block_cv. A regular grid of squares has been drawn over the boston_canopy data set, and all data falling into a single block is assigned to the same fold. Blocks are assigned to folds at random, resulting in a patchy distribution of folds across the data set."
+
+set.seed(123)
+spatial_block_cv(boston_canopy, v = 5) |> 
+  autoplot()
+```
+
+Or systematically, either by assigning folds in order from the bottom-left and proceeding from left to right along each row by setting `method = "continuous"`:
+
+```{r}
+#| fig.alt = "A map showing the outputs of block cross-validation performed using spatial_block_cv with continuous systematic assignment. Rather than the patchy random assignment before, blocks are now assigned from left to right for each row of the regular grid, resulting in the same folds always being adjacent to one another."
+spatial_block_cv(boston_canopy, v = 5, method = "continuous") |> 
+  autoplot()
+```
+
+Or by "snaking" back and forth up the grid by setting `method = "snake"`:
+
+```{r}
+#| fig.alt = "A map showing the outputs of block cross-validation performed using spatial_block_cv with snaking systematic assignment. Blocks are now assigned alternatively from left to right and right to left, resulting in a similar alignment of folds to the continuous method."
+
+spatial_block_cv(boston_canopy, v = 5, method = "snake") |> 
+  autoplot()
+```
+
+This release of spatialsample also adds support for [leave-location-out cross-validation](https://doi.org/10.1111/geb.12161) through the new function `spatial_leave_location_out_cv()`. You can use this to create resamples when you already have a good idea of what data might be spatially correlated together -- for instance, we can use it to split the Ames housing data from modeldata by neighborhood:
+
+```{r}
+#| fig.alt = "A map showing the outputs of leave-location-out cross-validation performed using spatial_leave_location_out_cv on the Ames housing data. Folds are assigned based on what neighborhood each house falls into. Some neighborhoods are entirely contained within another neighborhood, and neighborhoods contain very different numbers of houses."
+data(ames, package = "modeldata")
+
+ames_sf <- sf::st_as_sf(ames, coords = c("Longitude", "Latitude"), crs = 4326)
+
+set.seed(123)
+spatial_leave_location_out_cv(ames_sf, Neighborhood) |> 
+  autoplot()
+```
+
+## Buffering
+
+The last major feature in this release is the introduction of spatial buffering. Spatial buffering enforces a certain minimum distance between your analysis and assessment sets, making sure that you're spatially extrapolating when making predictions with a model. 
+
+While all spatial resampling functions in spatialsample can use spatial buffers, particularly interesting is the new `spatial_buffer_vfold_cv()` function. This function makes it easy to add spatial buffers around a standard V-fold cross-validation procedure. When we plot the object returned by this function, it just looks like a standard V-fold cross-validation setup:
+
+```{r}
+#| fig.alt = "A map showing the outputs of spatially buffered cross-validation performed using spatial_buffer_vfold_cv, once again using the boston_canopy data set. When visualizing all folds at once, there does not seem to be any spatial structure to the resamples; folds are distributed randomly throughout the data set, and folds abut one another without any spatial separation."
+set.seed(123)
+blocks <- spatial_buffer_vfold_cv(
+  boston_canopy, 
+  v = 15,
+  buffer = 100,
+  radius = NULL
+)
+
+autoplot(blocks)
+```
+
+However, if we use `autoplot()` to visualize the splits themselves, we can see that we've created an exclusion buffer around each of our assessment sets. Data inside this buffer is assigned to neither the assessment or analysis set, so you can be sure your data is spatially separated:
+
+```{r, animation.hook='gifski'}
+#| fig.alt = "An animation showing maps of each individual fold produced using spatial_buffer_vfold_cv. Now it is evident that any data adjacent to the assessment data has been added to a 'buffer' zone, and is part of neither the analysis or the assessment set."
+
+blocks$splits |> 
+  purrr::walk(function(x) print(autoplot(x)))
+```
+
+In addition to exclusion buffers, spatialsample now lets you add inclusion radii to any spatial resampling. This will add any points within a certain distance of the original assessment set to the assessment set, letting you create clumped "discs" of data to assess your models against:
+
+```{r, animation.hook='gifski'}
+#| fig.alt = "Another animation showing maps of each individual fold produced using spatial_buffer_vfold_cv. When using the argument radius, points adjacent to the assessment set are themselves added to the assessment set. The buffer is then applied to each data point in the enlarged assessment set."
+
+set.seed(123)
+blocks <- spatial_buffer_vfold_cv(
+  boston_canopy, 
+  v = 20,
+  buffer = 100,
+  radius = 100
+)
+
+blocks$splits |> 
+  purrr::walk(function(x) print(autoplot(x)))
+```
+
+## ...and more!
+
+This is just scratching the surface of the new features and improvements in this release of spatialsample. You can see a full list of changes in the the [release notes](https://github.com/tidymodels/spatialsample/blob/main/NEWS.md).
+
+## Acknowledgments
+
+We’d like to thank everyone that has contributed since the last release:
+[&#x0040;jennybc](https://github.com/jennybc), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;MxNl](https://github.com/MxNl), [&#x0040;nipnipj](https://github.com/nipnipj), and [&#x0040;PathosEthosLogos](https://github.com/PathosEthosLogos).
