@@ -36,7 +36,7 @@ theme_set(theme_minimal())
 ```
 
 
-We're positively electrified to announce the release of [spatialsample](https://spatialsample.tidymodels.org/) 0.2.0. spatialsample is a package for spatial resampling, extending the rsample framework for resampling to help create spatial extrapolation between your analysis and assessment data sets.
+We're positively electrified to announce the release of [spatialsample](https://spatialsample.tidymodels.org/) 0.2.0. spatialsample is a package for spatial resampling, extending the [rsample](https://rsample.tidymodels.org/) framework to help create spatial extrapolation between your analysis and assessment data sets.
 
 You can install it from CRAN with:
 
@@ -61,7 +61,7 @@ ggplot(boston_canopy) +
 
 This data is stored as an sf object, and as such contains information about the proper coordinate reference system and units of measurement associated with the data. 
 
-And that brings us to the first new feature in this release of spatialsample: `spatial_clustering_cv()` now supports sf objects, and will calculate distances in a way that respects coordinate reference systems (including using the s2 geometry library for geographic coordinate reference systems):
+This brings us to the first new feature in this release of spatialsample: `spatial_clustering_cv()` now supports sf objects, and will calculate distances in a way that respects coordinate reference systems (including using the s2 geometry library for geographic coordinate reference systems):
 
 ```{r}
 set.seed(123)
@@ -76,7 +76,7 @@ This release also provides `autoplot()` methods to visualize resamples via ggplo
 autoplot(kmeans_clustering) + labs(title = "kmeans()")
 ```
 
-In addition to supporting more types of data, `spatial_clustering_cv()` has also been extended to support more types of clustering. Use the `cluster_function` argument to use hierarchical clustering via `hclust()` instead of the default `kmeans()`-based clusters:
+In addition to supporting more types of data, `spatial_clustering_cv()` has also been extended to support more types of clustering. Set the `cluster_function` argument to `"hclust"` for hierarchical clustering via `hclust()` instead of the default `kmeans()`-based clusters:
 
 ```{r}
 #| fig.alt = "A map showing the boston_canopy data set broken into five folds through spatial_clustering_cv, using the hclust clustering method. The five folds are still visibly different sizes, and are grouped by spatial proximity, but the clusters are notably different from those produced by the default kmeans method."
@@ -110,7 +110,7 @@ spatial_clustering_cv(
   labs(title = "custom_clusters()")
 ```
 
-In addition to the clustering extensions, this version of spatialsample introduces a few functions for other popular spatial resampling methods. For instance, the new function `spatial_block_cv()` helps you perform [block cross-validation](https://doi.org/10.1111/ecog.02881), splitting your data into folds based on a grid of regular polygons. You can assign these polygons to folds at random:
+In addition to the clustering extensions, this version of spatialsample introduces new functions for other popular spatial resampling methods. For instance, `spatial_block_cv()` helps you perform [block cross-validation](https://doi.org/10.1111/ecog.02881), splitting your data into folds based on a grid of regular polygons. You can assign these polygons to folds at random:
 
 ```{r}
 #| fig.alt = "A map showing the outputs of block cross-validation performed using spatial_block_cv. A regular grid of squares has been drawn over the boston_canopy data set, and all data falling into a single block is assigned to the same fold. Blocks are assigned to folds at random, resulting in a patchy distribution of folds across the data set."
