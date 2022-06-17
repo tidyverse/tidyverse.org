@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: spatialsample-0-2-0
 title: spatialsample 0.2.0
-date: 2022-06-20
+date: 2022-06-21
 author: Mike Mahoney
 description: >
     spatialsample 0.2.0 is now on CRAN! This release provides a bunch of new features, including new spatial resampling methods, visualization helpers, and spatial buffering.
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [spatialsample, rsample, tidymodels]
-rmd_hash: e32d34f03ea9e23c
+rmd_hash: bac3ea21616a4fbb
 
 ---
 
