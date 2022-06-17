@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: spatialsample-0-2-0
 title: spatialsample 0.2.0
-date: 2022-06-15
+date: 2022-06-20
 author: Mike Mahoney
 description: >
     spatialsample 0.2.0 is now on CRAN! This release provides a bunch of new features, including new spatial resampling methods, visualization helpers, and spatial buffering.
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [spatialsample, rsample, tidymodels]
-rmd_hash: 07b16e6dfb0af81f
+rmd_hash: e32d34f03ea9e23c
 
 ---
 
@@ -32,7 +32,7 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're positively electrified to announce the release of [spatialsample](https://spatialsample.tidymodels.org/) 0.2.0. spatialsample is a package for spatial resampling, extending the rsample framework for resampling to help create spatial extrapolation between your analysis and assessment data sets.
+We're positively electrified to announce the release of [spatialsample](https://spatialsample.tidymodels.org/) 0.2.0. spatialsample is a package for spatial resampling, extending the [rsample](https://rsample.tidymodels.org/) framework to help create spatial extrapolation between your analysis and assessment data sets.
 
 You can install it from CRAN with:
 
@@ -42,7 +42,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will describe the highlights of what's new. You can see a full list of changes in the [release notes](https://github.com/tidymodels/spatialsample/blob/main/NEWS.md).
+This blog post will describe the highlights of what's new. You can see a full list of changes in the [release notes](https://spatialsample.tidymodels.org/news/index.html#spatialsample-020).
 
 ## New Features
 
@@ -62,7 +62,7 @@ This version of spatialsample includes a new data set, made up of 682 hexagons c
 
 This data is stored as an sf object, and as such contains information about the proper coordinate reference system and units of measurement associated with the data.
 
-And that brings us to the first new feature in this release of spatialsample: [`spatial_clustering_cv()`](https://spatialsample.tidymodels.org/reference/spatial_clustering_cv.html) now supports sf objects, and will calculate distances in a way that respects coordinate reference systems (including using the s2 geometry library for geographic coordinate reference systems):
+This brings us to the first new feature in this release of spatialsample: [`spatial_clustering_cv()`](https://spatialsample.tidymodels.org/reference/spatial_clustering_cv.html) now supports sf objects, and will calculate distances in a way that respects coordinate reference systems (including using the s2 geometry library for geographic coordinate reference systems):
 
 <div class="highlight">
 
@@ -91,7 +91,7 @@ This release also provides [`autoplot()`](https://ggplot2.tidyverse.org/referenc
 
 </div>
 
-In addition to supporting more types of data, [`spatial_clustering_cv()`](https://spatialsample.tidymodels.org/reference/spatial_clustering_cv.html) has also been extended to support more types of clustering. Use the `cluster_function` argument to use hierarchical clustering via [`hclust()`](https://rdrr.io/r/stats/hclust.html) instead of the default [`kmeans()`](https://rdrr.io/r/stats/kmeans.html)-based clusters:
+In addition to supporting more types of data, [`spatial_clustering_cv()`](https://spatialsample.tidymodels.org/reference/spatial_clustering_cv.html) has also been extended to support more types of clustering. Set the `cluster_function` argument to use `"hclust"` for hierarchical clustering via [`hclust()`](https://rdrr.io/r/stats/hclust.html) instead of the default [`kmeans()`](https://rdrr.io/r/stats/kmeans.html)-based clusters:
 
 <div class="highlight">
 
@@ -130,7 +130,7 @@ This argument can also accept functions, letting you plug in clustering methodol
 
 </div>
 
-In addition to the clustering extensions, this version of spatialsample introduces a few functions for other popular spatial resampling methods. For instance, the new function [`spatial_block_cv()`](https://spatialsample.tidymodels.org/reference/spatial_block_cv.html) helps you perform [block cross-validation](https://doi.org/10.1111/ecog.02881), splitting your data into folds based on a grid of regular polygons. You can assign these polygons to folds at random:
+In addition to the clustering extensions, this version of spatialsample introduces new functions for other popular spatial resampling methods. For instance, [`spatial_block_cv()`](https://spatialsample.tidymodels.org/reference/spatial_block_cv.html) helps you perform [block cross-validation](https://doi.org/10.1111/ecog.02881), splitting your data into folds based on a grid of regular polygons. You can assign these polygons to folds at random:
 
 <div class="highlight">
 
@@ -234,7 +234,7 @@ In addition to exclusion buffers, spatialsample now lets you add inclusion radii
 
 ## ...and more!
 
-This is just scratching the surface of the new features and improvements in this release of spatialsample. You can see a full list of changes in the the [release notes](https://github.com/tidymodels/spatialsample/blob/main/NEWS.md).
+This is just scratching the surface of the new features and improvements in this release of spatialsample. You can see a full list of changes in the the [release notes](https://spatialsample.tidymodels.org/news/index.html#spatialsample-020).
 
 ## Acknowledgments
 
