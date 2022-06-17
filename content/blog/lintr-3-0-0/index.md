@@ -19,6 +19,19 @@ tags: [lintr]
 
 ---
 
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
 We are very excited to announce the release of [lintr](https://lintr.r-lib.org) 3.0.0! lintr provides
 both a framework for [static analysis](https://www.perforce.com/blog/sca/what-static-analysis) of R packages
 and scripts and a variety of linters, e.g. to enforce the [tidyverse style guide](https://style.tidyverse.org/).
@@ -211,15 +224,6 @@ and more! Follow [#884](https://github.com/r-lib/lintr/issues/884) for updates.
 Welcome [Alexander Rosenstock](@AshesITR), [Kun Ren](@renkun-ken),
 and [Michael Chirico](@MichaelChirico) to the lintr authors team!
 
-And a great big thanks to the other 20 authors who have contributed to this release of lintr:
+And a great big thanks to the other 97 people who have contributed to this release of lintr:
 
-[@1beb](https://github.com/1beb), [@danielinteractive](https://github.com/danielinteractive),
-[@dmurdoch](https://github.com/dmurdoch), [@dpprdan](https://github.com/dpprdan),
-[@dragosmg](https://github.com/dragosmg), [@eitsupi](https://github.com/eitsupi),
-[@fabian-s](https://github.com/fabian-s), [@fdlk](https://github.com/fdlk),
-[@frederic-mahe](https://github.com/frederic-mahe), [@hadley](https://github.com/hadley),
-[@huisman](https://github.com/huisman), [@jimhester](https://github.com/jimhester),
-[@jonkeane](https://github.com/jonkeane), [@klmr](https://github.com/klmr),
-[@kpagacz](https://github.com/kpagacz), [@leogama](https://github.com/leogama),
-[@michaelquinn32](https://github.com/michaelquinn32), [@russHyde](https://github.com/russHyde),
-[@thisisnic](https://github.com/thisisnic), [@yutannihilation](https://github.com/yutannihilation)
+[&#x0040;1beb](https://github.com/1beb), [&#x0040;albert-ying](https://github.com/albert-ying), [&#x0040;aronatkins](https://github.com/aronatkins), [&#x0040;AshesITR](https://github.com/AshesITR), [&#x0040;assignUser](https://github.com/assignUser), [&#x0040;barryrowlingson](https://github.com/barryrowlingson), [&#x0040;belokoch](https://github.com/belokoch), [&#x0040;bersbersbers](https://github.com/bersbersbers), [&#x0040;bsolomon1124](https://github.com/bsolomon1124), [&#x0040;chrisumphlett](https://github.com/chrisumphlett), [&#x0040;csgillespie](https://github.com/csgillespie), [&#x0040;danielinteractive](https://github.com/danielinteractive), [&#x0040;dankessler](https://github.com/dankessler), [&#x0040;dgkf](https://github.com/dgkf), [&#x0040;dinakar29](https://github.com/dinakar29), [&#x0040;dmurdoch](https://github.com/dmurdoch), [&#x0040;dpprdan](https://github.com/dpprdan), [&#x0040;dragosmg](https://github.com/dragosmg), [&#x0040;dschlaep](https://github.com/dschlaep), [&#x0040;eitsupi](https://github.com/eitsupi), [&#x0040;ElsLommelen](https://github.com/ElsLommelen), [&#x0040;f-ritter](https://github.com/f-ritter), [&#x0040;fabian-s](https://github.com/fabian-s), [&#x0040;fdlk](https://github.com/fdlk), [&#x0040;fornaeffe](https://github.com/fornaeffe), [&#x0040;frederic-mahe](https://github.com/frederic-mahe), [&#x0040;GiuseppeTT](https://github.com/GiuseppeTT), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hhoeflin](https://github.com/hhoeflin), [&#x0040;hrvg](https://github.com/hrvg), [&#x0040;huisman](https://github.com/huisman), [&#x0040;iago-pssjd](https://github.com/iago-pssjd), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;inventionate](https://github.com/inventionate), [&#x0040;ishaar226](https://github.com/ishaar226), [&#x0040;jabenninghoff](https://github.com/jabenninghoff), [&#x0040;jameslamb](https://github.com/jameslamb), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jeremymiles](https://github.com/jeremymiles), [&#x0040;jhgoebbert](https://github.com/jhgoebbert), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;johanneswerner](https://github.com/johanneswerner), [&#x0040;jonkeane](https://github.com/jonkeane), [&#x0040;JSchoenbachler](https://github.com/JSchoenbachler), [&#x0040;JWiley](https://github.com/JWiley), [&#x0040;karlvurdst](https://github.com/karlvurdst), [&#x0040;klmr](https://github.com/klmr), [&#x0040;Kotsakis](https://github.com/Kotsakis), [&#x0040;kpagacz](https://github.com/kpagacz), [&#x0040;kpj](https://github.com/kpj), [&#x0040;latot](https://github.com/latot), [&#x0040;leogama](https://github.com/leogama), [&#x0040;liar666](https://github.com/liar666), [&#x0040;logstar](https://github.com/logstar), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;maelle](https://github.com/maelle), [&#x0040;markromanmiller](https://github.com/markromanmiller), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;maxheld83](https://github.com/maxheld83), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;michaelquinn32](https://github.com/michaelquinn32), [&#x0040;mikekaminsky](https://github.com/mikekaminsky), [&#x0040;milanglacier](https://github.com/milanglacier), [&#x0040;minimenchmuncher](https://github.com/minimenchmuncher), [&#x0040;mjsteinbaugh](https://github.com/mjsteinbaugh), [&#x0040;nathaneastwood](https://github.com/nathaneastwood), [&#x0040;nlarusstone](https://github.com/nlarusstone), [&#x0040;nsoranzo](https://github.com/nsoranzo), [&#x0040;nvuillam](https://github.com/nvuillam), [&#x0040;pakjiddat](https://github.com/pakjiddat), [&#x0040;pat-s](https://github.com/pat-s), [&#x0040;prncevince](https://github.com/prncevince), [&#x0040;QiStats-Joel](https://github.com/QiStats-Joel), [&#x0040;rahulrachh](https://github.com/rahulrachh), [&#x0040;razz-matazz](https://github.com/razz-matazz), [&#x0040;renkun-ken](https://github.com/renkun-ken), [&#x0040;rfalke](https://github.com/rfalke), [&#x0040;richfitz](https://github.com/richfitz), [&#x0040;russHyde](https://github.com/russHyde), [&#x0040;salim-b](https://github.com/salim-b), [&#x0040;schaffstein](https://github.com/schaffstein), [&#x0040;scottmmjackson](https://github.com/scottmmjackson), [&#x0040;sgvignali](https://github.com/sgvignali), [&#x0040;shaopeng-gh](https://github.com/shaopeng-gh), [&#x0040;StefanBRas](https://github.com/StefanBRas), [&#x0040;stefaneng](https://github.com/stefaneng), [&#x0040;stefanocoretta](https://github.com/stefanocoretta), [&#x0040;stufield](https://github.com/stufield), [&#x0040;TCABJ](https://github.com/TCABJ), [&#x0040;telegott](https://github.com/telegott), [&#x0040;ThierryO](https://github.com/ThierryO), [&#x0040;thisisnic](https://github.com/thisisnic), [&#x0040;tonyk7440](https://github.com/tonyk7440), [&#x0040;wfmueller29](https://github.com/wfmueller29), [&#x0040;wibeasley](https://github.com/wibeasley), [&#x0040;yannickwurm](https://github.com/yannickwurm), and [&#x0040;yutannihilation](https://github.com/yutannihilation).
