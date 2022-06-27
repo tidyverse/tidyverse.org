@@ -1,0 +1,193 @@
+---
+output: hugodown::hugo_document
+
+slug: bonsai-0-1-0
+title: bonsai 0.1.0
+date: 2022-06-24
+author: Simon Couch
+description: >
+    A new parsnip extension package for tree-based models is now on CRAN.
+
+photo:
+  url: https://unsplash.com/photos/-OBffuUekfQ
+  author: 五玄土
+
+categories: [package] 
+tags: [tidymodels, parsnip, bonsai]
+---
+
+We're super stoked to announce the first release of the [bonsai](https://bonsai.tidymodels.org/) package on CRAN! bonsai is a [parsnip](https://parsnip.tidymodels.org/) extension package for tree-based models.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("bonsai")
+```
+
+Without extension packages, the parsnip package already supports fitting decision trees, random forests, and boosted trees. The bonsai package introduces support for two additional engines that implement variants of these algorithms:
+
+* [partykit](https://CRAN.R-project.org/package=partykit): conditional inference trees via `decision_tree()` and conditional random forests via `rand_forest()`
+* [LightGBM](https://CRAN.R-project.org/package=lightgbm): optimized gradient boosted trees via `boost_tree()`
+
+To illustrate the advantages that these new engines have to offer, we'll fit a few models and explore their output. First, loading bonsai as well as the rest of the tidymodels core packages:
+
+```{r}
+library(bonsai)
+
+library(tidymodels)
+```
+
+We'll use a [dataset](https://allisonhorst.github.io/palmerpenguins/) containing measurements on 3 different species of penguins as an example. Loading that data in and checking it out:
+
+```{r}
+data(penguins, package = "modeldata")
+
+str(penguins)
+```
+
+Specifically, we'll make use of flipper length and home island to model a penguin's species:
+
+```{r penguin-plot, warning = FALSE}
+ggplot(penguins) +
+  aes(x = island, y = flipper_length_mm, col = species) +
+  geom_jitter(width = .2)
+```
+
+Looking at this plot, you might begin to imagine your own simple set of binary splits for guessing which species a penguin might be given its home island and flipper length. Given that this small set of predictors almost completely separates our outcome with only a few splits, a relatively simple tree should serve our purposes just fine.
+
+## Decision Trees
+
+bonsai introduces support for fitting decision trees with partykit, which implements a variety of decision trees called conditional inference trees (CITs). 
+
+CITs differ from implementations of decision trees available elsewhere in the tidymodels in the criteria used to generate splits. The details of how these criteria differ are outside of the scope of this post.^[For those interested, the [original paper](https://doi.org/10.1198/106186006X133933) introducing conditional inference trees describes and motivates these differences well.] Practically, though, CITs offer a few notable advantages over CART- and C5.0-based decision trees:
+
+* **Overfitting**: Common implementations of decision trees are notoriously prone to overfitting, and require several well-chosen penalization (i.e. cost-complexity) and early stopping (e.g. pruning, max depth) hyperparameters to fit a model that will perform well when predicting on new observations. "Out-of-the-box," CITs are not as prone to these same issues and do not accept a penalization parameter at all.
+* **Selection bias**: Common implementations of decision trees are biased towards selecting variables with many possible split points or missing values. CITs are natively not prone to the first issue, and many popular implementations address the second vulnerability.
+
+To define a conditional inference tree model specification, just set the modeling engine to `"partykit"` when creating a decision tree. Fitting to the penguins data, then:
+
+```{r}
+dt_mod <-
+  decision_tree() %>%
+  set_engine(engine = "partykit") %>%
+  set_mode(mode = "classification") %>%
+  fit(
+    formula = species ~ flipper_length_mm + island, 
+    data = penguins
+  )
+
+dt_mod
+```
+
+Do any of these splits line up with your intuition? This tree results in only `r partykit::width(dt_mod$fit)` terminal nodes and describes the structure shown in the above plot quite well. 
+
+Read more about this implementation of decision trees in `?details_decision_tree_partykit`.
+
+## Random Forests
+
+One generalization of a decision tree is a _random forest_, which fits a large number of decision trees, each independently of the others. The fitted random forest model combines predictions from the individual decision trees to generate its predictions.
+
+bonsai introduces support for random forests using the `partykit` engine, which implements an algorithm called a _conditional random forest_. Conditional random forests are a type of random forest that uses conditional inference trees (like the one we fit above!) for its constituent decision trees.
+
+To fit a conditional random forest with partykit, our code looks pretty similar to that which we we needed to fit a conditional inference tree. Just switch out `decision_tree()` with `rand_forest()` and remember to keep the engine set as `"partykit"`.
+
+```{r}
+rf_mod <- 
+  rand_forest() %>%
+  set_engine(engine = "partykit") %>%
+  set_mode(mode = "classification") %>%
+  fit(
+    formula = species ~ flipper_length_mm + island, 
+    data = penguins
+  )
+```
+
+Read more about this implementation of random forests in `?details_rand_forest_partykit`.
+
+## Boosted Trees
+
+Another generalization of a decision tree is a series of decision trees where _each tree depends on the results of previous trees_—this is called a _boosted tree_. bonsai implements an additional parsnip engine for this model type called `"lightgbm"`. While fitting boosted trees is quite computationally intensive, especially with high-dimensional data, LightGBM provides an implementation of a highly efficient variant of the algorithm.
+
+To make use of it, start out with a `boost_tree` model spec and set `engine = "lightgbm"`:
+
+```{r}
+bt_mod <-
+  boost_tree() %>%
+  set_engine(engine = "lightgbm") %>%
+  set_mode(mode = "classification") %>%
+  fit(
+    formula = species ~ flipper_length_mm + island, 
+    data = penguins
+  )
+```
+
+The main benefit of using LightGBM is its computational efficiency: as the number of observations in training data increases, we can observe an increasingly substantial decrease in time-to-fit when using the LightGBM engine as compared to other implementations of boosted trees, like XGBoost. 
+
+To show this, we'll use the `sim_regression()` function from modeldata to simulate increasingly large datasets that we can fit models to. For example, generating a dataset with 10 observations and 20 numeric predictors:
+
+```{r}
+sim_regression(num_samples = 10)
+```
+
+Now, fitting boosted trees on increasingly large datasets with XGBoost and LightGBM and observing time-to-fit:
+
+```{r boost-comparison}
+# given an engine and nrow(training_data), return the time to fit
+time_boost_fit <- function(engine, n) {
+  time <- 
+    system.time({
+      boost_tree() %>%
+      set_engine(engine = engine) %>%
+      set_mode(mode = "regression") %>%
+      fit(
+        formula = outcome ~ ., 
+        data = sim_regression(num_samples = n)
+      )
+    })
+  
+  tibble(
+    engine = engine,
+    n = n,
+    time_to_fit = time[["elapsed"]]
+  )
+}
+
+# setup engine and n_samples combinations
+engines <- rep(c(XGBoost = "xgboost", LightGBM = "lightgbm"), each = 11)
+n_samples <- round(rep(10 * 10^(seq(2, 4.5, .25)), times  = 2))
+
+# apply the function over each combination
+fit_times <- 
+  map2_dfr(
+    engines,
+    n_samples,
+    time_boost_fit
+  ) %>%
+  mutate(
+    engine = factor(engine, levels = c("xgboost", "lightgbm"))
+  )
+
+# visualize results
+ggplot(fit_times) +
+  aes(x = n, y = time_to_fit, col = engine) +
+  geom_line() +
+  scale_x_log10()
+```
+
+As we can see, the decrease in time-to-fit when using LightGBM as opposed to XGBoost becomes more notable as the number of rows in the training data increases.
+
+Read more about this implementation of boosted trees in `?details_boost_tree_lightgbm`.
+
+## Other Notes
+
+This package is based off of [the treesnip package](https://github.com/curso-r/treesnip) by Daniel Falbel, Athos Damiani, and Roel M. Hogervorst. Users of that package will note that we have not included support for [the catboost package](https://github.com/catboost/catboost). Unfortunately, the catboost R package is not on CRAN so we're not able to add support for the package for now. We'll be keeping an eye on discussions in that development community and plan to support the package upon its release to CRAN!
+
+Each of these model specs and engines have several arguments and tuning parameters that affect user experience and results greatly. We recommend reading about each of these parameters and tuning them when you find them relevant for your modeling use case.
+
+## Acknowledgements
+
+A big thanks to Daniel Falbel, Athos Damiani, and Roel M. Hogervorst for their work on [the treesnip package](https://github.com/curso-r/treesnip), on which this package is based. We've listed the treesnip authors as co-authors of bonsai in recognition of their help in laying the foundations for this project.
+
+We're also grateful for the wonderful package hex sticker by Amanda Petri!
+
+Finally, thank you to those who have tested and provided feedback on the developmental versions of the package over the last couple months.
