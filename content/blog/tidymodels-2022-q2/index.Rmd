@@ -1,0 +1,206 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-2022-q2
+title: "Q2 2022 tidymodels digest"
+date: 2022-06-24
+author: Emil Hvitfeldt
+description: >
+    Q2 marks the end of the season of case weights, with TKTK new releases.
+
+photo:
+  url: https://unsplash.com/photos/BBR_zigEmyQ
+  author:  Samuel Girven
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [roundup] 
+tags: [tidymodels, parsnip, recipes]
+---
+
+<!--
+TODO:
+* [X] Look over / edit the post's title in the yaml
+* [X] Edit (or delete) the description; note this appears in the Twitter card
+* [X] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [X] Find photo & update yaml metadata
+* [X] Create `thumbnail-sq.jpg`; height and width should be equal
+* [X] Create `thumbnail-wd.jpg`; width should be >5x height
+* [X] `hugodown::use_tidy_thumbnails()`
+* [X] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. 
+
+```{r}
+library(tidymodels)
+```
+
+Since the beginning of last year, we have been publishing [quarterly updates](https://www.tidyverse.org/categories/roundup/) here on the tidyverse blog summarizing what's new in the tidymodels ecosystem. The purpose of these regular posts is to share useful new features and any updates you may have missed. You can check out the [`tidymodels` tag](https://www.tidyverse.org/tags/tidymodels/) to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused, like these from the past month or so:
+
+- [spatialsample](https://www.tidyverse.org/blog/2022/06/spatialsample-0-2-0/)
+- [recipes and its extension packages](https://www.tidyverse.org/blog/2022/05/recipes-update-05-20222/)
+
+Since [our last roundup post](https://www.tidyverse.org/blog/2022/04/tidymodels-2022-q1/), there have been CRAN releases of 25 tidymodels packages. You can install these updates from CRAN with:
+
+```{r, eval = FALSE}
+install.packages(c(
+  "rsample", "spatialsample", "parsnip", "baguette", "multilevelmod", "discrim",
+  "plsmod", "poissonreg", "rules", "recipes", "embed", "themis", "textrecipes",
+  "workflows", "workflowsets", "tune", "yardstick", "broom", "dials", "butcher",
+  "hardhat", "infer", "stacks", "tidyposterior", "tidypredict"
+))
+```
+
+- [baguette](https://baguette.tidymodels.org/news/index.html#baguette-100)
+- [broom](https://broom.tidymodels.org/news/index.html#broom-080)
+- [butcher](https://butcher.tidymodels.org/news/index.html#butcher-020)
+- [dials](https://dials.tidymodels.org/news/index.html#dials-100)
+- [discrim](https://discrim.tidymodels.org/news/index.html#discrim-100)
+- [embed](TODO)
+- [hardhat](https://hardhat.tidymodels.org/news/index.html#hardhat-110)
+- [infer](https://infer.tidymodels.org/news/index.html#infer-v102)
+- [modeldata](TODO)
+- [multilevelmod](https://multilevelmod.tidymodels.org/news/index.html#multilevelmod-100)
+- [parsnip](https://parsnip.tidymodels.org/news/index.html#parsnip-100)
+- [plsmod](TODO)
+- [poissonreg](https://poissonreg.tidymodels.org/news/index.html#poissonreg-100)
+- [recipes](TODO)
+- [rsample](https://rsample.tidymodels.org/news/index.html#rsample-100)
+- [rules](https://rules.tidymodels.org/news/index.html#rules-100)
+- [spatialsample](https://spatialsample.tidymodels.org/news/index.html#spatialsample-020)
+- [stacks](https://stacks.tidymodels.org/news/index.html#stacks-023)
+- [textrecipes](TODO)
+- [themis](TODO)
+- [tidyposterior](https://tidyposterior.tidymodels.org/news/index.html#tidyposterior-100)
+- [tidypredict](https://tidypredict.tidymodels.org/news/index.html#tidypredict-049)
+- [tune](TODO)
+- [workflows](TODO)
+- [workflowsets](TODO)
+- [yardstick](https://yardstick.tidymodels.org/news/index.html#yardstick-100)
+
+The `NEWS` files are linked here for each package; you'll notice that there are a lot! We know it may be bothersome to keep up with all these changes, so we want to draw your attention to our recent blog posts above and also highlight a few more useful updates in today's blog post.
+
+## case weights
+
+Much of the work we have been doing so far this year has been related to case weights. For a more detailed account of the deliberations see this earlier post about the [use of case weights with tidymodels](https://www.tidyverse.org/blog/2022/05/case-weights/).
+We are confident that we have created a good foundation with our implementation and we are signaling the support for case weights by bumping the version of affected packages and extension packages to 1.0.0.
+
+A full worked example can be found in the  [prevous blog post](tidyverse.org/blog/2022/05/case-weights/#tidymodels-syntax) and on [the tidymodels site](TODO).
+
+## non-standard roles in recipes
+
+Recipes use the idea of roles to determine how and when the different variables are used. The main roles you have seen are "outcome", "predictor", and now "case_weights". You are also able to change the roles of these variables using `add_role()` and `update_role()`.
+
+With a recent addition of case weights adding another type of standard role, we have made recipes more robust by having it check that all columns in the `data` supplied to `recipe()` are also present in the `new_data` supplied to `bake()` with the exception is made for columns with roles of either `"outcome"` or `"case_weights"`, which are typically not required at `bake()` time.
+
+This change for stricter checking of roles will mean that you might need to make some small changes to your code if you are using non-standard roles. The function [update_role_requirements()](https://recipes.tidymodels.org/reference/update_role_requirements.html) can be used to specify whether a role will is required at bake time.
+
+We have shown before how you can use `update_role()` to remove variables as predictors by setting them as id variables. Suppose we were to do some preprocessing on the `tate_text` data set
+
+```{r}
+data("tate_text")
+glimpse(tate_text)
+```
+
+This data set includes an id variable that shouldn't have any predictive power and a title variable that we want to ignore for now. Previously we would have created the following recipe to process this data, using `update_role(id, title, new_role = "id")` to let the recipe know that we don't want it to treat id and title as predictors
+
+```{r}
+tate_rec <- recipe(year ~ ., data = tate_text) %>%
+  update_role(id, title, new_role = "id") %>% 
+  step_dummy_extract(artist, medium, sep = ", ")
+
+tate_rec_prepped <- prep(tate_rec)
+```
+
+And this works fine until we try to apply the recipe to new data with our predictors
+
+```{r, error=TRUE}
+new_painting <- tibble(
+  artist = "Hamilton, Richard",
+  medium = "Letterpress on paper" 
+)
+
+bake(tate_rec_prepped, new_painting)
+```
+
+This now complains because the recipe is expecting the `id` and `title` to be in the data set passed to `bake()`. This issue can be fixed by using `update_role_requirements()` as shown below to tell the recipe that variables of role `"id"` are not required when baking.
+
+```{r, warning=FALSE}
+tate_rec <- recipe(year ~ ., data = tate_text) %>%
+  update_role(id, title, new_role = "id") %>%
+  update_role_requirements(role = "id", bake = FALSE) %>%
+  step_dummy_extract(artist, medium, sep = ", ")
+
+tate_rec_prepped <- prep(tate_rec)
+
+bake(tate_rec_prepped, new_painting)
+```
+
+## Acknowledgements
+
+- applicable: [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;marlycormar](https://github.com/marlycormar), and [&#x0040;topepo](https://github.com/topepo).
+
+- baguette: [&#x0040;juliasilge](https://github.com/juliasilge), and [&#x0040;topepo](https://github.com/topepo).
+
+- bonsai: [&#x0040;pinogl](https://github.com/pinogl), [&#x0040;simonpcouch](https://github.com/simonpcouch), and [&#x0040;topepo](https://github.com/topepo).
+
+- broom: [&#x0040;behrman](https://github.com/behrman), [&#x0040;corybrunson](https://github.com/corybrunson), [&#x0040;fschaffner](https://github.com/fschaffner), [&#x0040;gjones1219](https://github.com/gjones1219), [&#x0040;grantmcdermott](https://github.com/grantmcdermott), [&#x0040;ray-p144](https://github.com/ray-p144), [&#x0040;RichardJActon](https://github.com/RichardJActon), [&#x0040;russHyde](https://github.com/russHyde), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;tappek](https://github.com/tappek), [&#x0040;Timelessprod](https://github.com/Timelessprod), and [&#x0040;vincentarelbundock](https://github.com/vincentarelbundock).
+
+- butcher: [&#x0040;davidkane9](https://github.com/davidkane9), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;juliasilge](https://github.com/juliasilge), and [&#x0040;simonpcouch](https://github.com/simonpcouch).
+
+- censored: [&#x0040;bcjaeger](https://github.com/bcjaeger), [&#x0040;brunocarlin](https://github.com/brunocarlin), [&#x0040;erikvona](https://github.com/erikvona), [&#x0040;gvelasq](https://github.com/gvelasq), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), and [&#x0040;topepo](https://github.com/topepo).
+
+- corrr: [&#x0040;astamm](https://github.com/astamm), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;john-s-f](https://github.com/john-s-f), [&#x0040;juliasilge](https://github.com/juliasilge), and [&#x0040;thisisdaryn](https://github.com/thisisdaryn).
+
+- dials: [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;franzbischoff](https://github.com/franzbischoff), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;py9mrg](https://github.com/py9mrg), [&#x0040;simonpcouch](https://github.com/simonpcouch), and [&#x0040;topepo](https://github.com/topepo).
+
+- discrim: [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;jmarshallnz](https://github.com/jmarshallnz), [&#x0040;juliasilge](https://github.com/juliasilge), and [&#x0040;topepo](https://github.com/topepo).
+
+- embed: [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;exsell-jc](https://github.com/exsell-jc), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;mkhansa](https://github.com/mkhansa), [&#x0040;talegari](https://github.com/talegari), and [&#x0040;topepo](https://github.com/topepo).
+
+- hardhat: [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;jonthegeek](https://github.com/jonthegeek), [&#x0040;mdancho84](https://github.com/mdancho84), and [&#x0040;topepo](https://github.com/topepo).
+
+- infer: [&#x0040;gdbassett](https://github.com/gdbassett), [&#x0040;liubao210](https://github.com/liubao210), [&#x0040;nipnipj](https://github.com/nipnipj), and [&#x0040;simonpcouch](https://github.com/simonpcouch).
+
+- modeldata: [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;jbkunst](https://github.com/jbkunst), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;simonpcouch](https://github.com/simonpcouch), and [&#x0040;topepo](https://github.com/topepo).
+
+- multilevelmod: [&#x0040;a-difabio](https://github.com/a-difabio), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;sitendug](https://github.com/sitendug), [&#x0040;topepo](https://github.com/topepo), and [&#x0040;YiweiZhu](https://github.com/YiweiZhu).
+
+- parsnip: [&#x0040;brunocarlin](https://github.com/brunocarlin), [&#x0040;cb12991](https://github.com/cb12991), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;deschen1](https://github.com/deschen1), [&#x0040;edgararuiz](https://github.com/edgararuiz), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;emmamendelsohn](https://github.com/emmamendelsohn), [&#x0040;exsell-jc](https://github.com/exsell-jc), [&#x0040;fdeoliveirag](https://github.com/fdeoliveirag), [&#x0040;gundalav](https://github.com/gundalav), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;jmarshallnz](https://github.com/jmarshallnz), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;Npaffen](https://github.com/Npaffen), [&#x0040;oj713](https://github.com/oj713), [&#x0040;pmags](https://github.com/pmags), [&#x0040;PursuitOfDataScience](https://github.com/PursuitOfDataScience), [&#x0040;qiushiyan](https://github.com/qiushiyan), [&#x0040;salim-b](https://github.com/salim-b), [&#x0040;shosaco](https://github.com/shosaco), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;tolliam](https://github.com/tolliam), and [&#x0040;topepo](https://github.com/topepo).
+
+- plsmod: [&#x0040;juliasilge](https://github.com/juliasilge).
+
+- poissonreg: [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;juliasilge](https://github.com/juliasilge), and [&#x0040;topepo](https://github.com/topepo).
+
+- recipes: [&#x0040;abichat](https://github.com/abichat), [&#x0040;albertiniufu](https://github.com/albertiniufu), [&#x0040;AndrewKostandy](https://github.com/AndrewKostandy), [&#x0040;aridf](https://github.com/aridf), [&#x0040;brunocarlin](https://github.com/brunocarlin), [&#x0040;cb12991](https://github.com/cb12991), [&#x0040;conorjudge](https://github.com/conorjudge), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;duccioa](https://github.com/duccioa), [&#x0040;edgararuiz](https://github.com/edgararuiz), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;exsell-jc](https://github.com/exsell-jc), [&#x0040;hsbadr](https://github.com/hsbadr), [&#x0040;jkennel](https://github.com/jkennel), [&#x0040;joeycouse](https://github.com/joeycouse), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;kendonB](https://github.com/kendonB), [&#x0040;krzjoa](https://github.com/krzjoa), [&#x0040;madprogramer](https://github.com/madprogramer), [&#x0040;mdporter](https://github.com/mdporter), [&#x0040;mdsteiner](https://github.com/mdsteiner), [&#x0040;nipnipj](https://github.com/nipnipj), [&#x0040;PursuitOfDataScience](https://github.com/PursuitOfDataScience), [&#x0040;r2evans](https://github.com/r2evans), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;szymonkusak](https://github.com/szymonkusak), [&#x0040;themichjam](https://github.com/themichjam), [&#x0040;tmastny](https://github.com/tmastny), [&#x0040;tomazweiss](https://github.com/tomazweiss), [&#x0040;topepo](https://github.com/topepo), [&#x0040;TylerGrantSmith](https://github.com/TylerGrantSmith), and [&#x0040;zenggyu](https://github.com/zenggyu).
+
+- rsample: [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dfalbel](https://github.com/dfalbel), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mdporter](https://github.com/mdporter), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;pgoodling-usgs](https://github.com/pgoodling-usgs), [&#x0040;sametsoekel](https://github.com/sametsoekel), [&#x0040;topepo](https://github.com/topepo), and [&#x0040;wkdavis](https://github.com/wkdavis).
+
+- rules: [&#x0040;DesmondChoy](https://github.com/DesmondChoy), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;topepo](https://github.com/topepo), and [&#x0040;wdkeyzer](https://github.com/wdkeyzer).
+
+- shinymodels: [&#x0040;simonpcouch](https://github.com/simonpcouch).
+
+- spatialsample: [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;MxNl](https://github.com/MxNl), [&#x0040;nipnipj](https://github.com/nipnipj), and [&#x0040;PathosEthosLogos](https://github.com/PathosEthosLogos).
+
+- stacks: [&#x0040;amcmahon17](https://github.com/amcmahon17), [&#x0040;domijan](https://github.com/domijan), [&#x0040;Jeffrothschild](https://github.com/Jeffrothschild), [&#x0040;mvt-oviedo](https://github.com/mvt-oviedo), [&#x0040;py9mrg](https://github.com/py9mrg), [&#x0040;rcannood](https://github.com/rcannood), [&#x0040;Saarialho](https://github.com/Saarialho), [&#x0040;simonpcouch](https://github.com/simonpcouch), and [&#x0040;williamshell](https://github.com/williamshell).
+
+- textrecipes: [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;NLDataScientist](https://github.com/NLDataScientist), [&#x0040;PursuitOfDataScience](https://github.com/PursuitOfDataScience), and [&#x0040;raj-hubber](https://github.com/raj-hubber).
+
+- themis: [&#x0040;coforfe](https://github.com/coforfe), and [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt).
+
+- tidymodels: [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;EngrStudent](https://github.com/EngrStudent), [&#x0040;exsell-jc](https://github.com/exsell-jc), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;kcarnold](https://github.com/kcarnold), [&#x0040;scottlyden](https://github.com/scottlyden), and [&#x0040;topepo](https://github.com/topepo).
+
+- tidyposterior: [&#x0040;jmgirard](https://github.com/jmgirard), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), and [&#x0040;topepo](https://github.com/topepo).
+
+- tidypredict: [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;mgirlich](https://github.com/mgirlich), [&#x0040;simonpcouch](https://github.com/simonpcouch), and [&#x0040;topepo](https://github.com/topepo).
+
+- tune: [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dax44](https://github.com/dax44), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;felxcon](https://github.com/felxcon), [&#x0040;franzbischoff](https://github.com/franzbischoff), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;joeycouse](https://github.com/joeycouse), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mdancho84](https://github.com/mdancho84), [&#x0040;munoztd0](https://github.com/munoztd0), [&#x0040;nikhilpathiyil](https://github.com/nikhilpathiyil), [&#x0040;pgoodling-usgs](https://github.com/pgoodling-usgs), [&#x0040;py9mrg](https://github.com/py9mrg), [&#x0040;qiushiyan](https://github.com/qiushiyan), [&#x0040;siegfried](https://github.com/siegfried), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;thegargiulian](https://github.com/thegargiulian), [&#x0040;topepo](https://github.com/topepo), [&#x0040;williamshell](https://github.com/williamshell), and [&#x0040;wtbxsjy](https://github.com/wtbxsjy).
+
+- usemodels: [&#x0040;aloes2512](https://github.com/aloes2512), [&#x0040;amcmahon17](https://github.com/amcmahon17), [&#x0040;juliasilge](https://github.com/juliasilge), and [&#x0040;larry77](https://github.com/larry77).
+
+- workflows: [&#x0040;CarstenLange](https://github.com/CarstenLange), [&#x0040;dajmcdon](https://github.com/dajmcdon), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;nipnipj](https://github.com/nipnipj), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;themichjam](https://github.com/themichjam), and [&#x0040;TylerGrantSmith](https://github.com/TylerGrantSmith).
+
+- workflowsets: [&#x0040;a-difabio](https://github.com/a-difabio), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;topepo](https://github.com/topepo), [&#x0040;wdefreitas](https://github.com/wdefreitas), and [&#x0040;yonicd](https://github.com/yonicd).
+
+- yardstick: [&#x0040;1lliter8](https://github.com/1lliter8), [&#x0040;amcmahon17](https://github.com/amcmahon17), [&#x0040;brshallo](https://github.com/brshallo), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), and [&#x0040;gsverhoeven](https://github.com/gsverhoeven).
