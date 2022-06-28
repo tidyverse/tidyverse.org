@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: bonsai-0-1-0
 title: bonsai 0.1.0
-date: 2022-06-24
+date: 2022-06-30
 author: Simon Couch
 description: >
     A new parsnip extension package for tree-based models is now on CRAN.
@@ -29,7 +29,7 @@ Without extension packages, the parsnip package already supports fitting decisio
 * [partykit](https://CRAN.R-project.org/package=partykit): conditional inference trees via `decision_tree()` and conditional random forests via `rand_forest()`
 * [LightGBM](https://CRAN.R-project.org/package=lightgbm): optimized gradient boosted trees via `boost_tree()`
 
-To illustrate the advantages that these new engines have to offer, we'll fit a few models and explore their output. First, loading bonsai as well as the rest of the tidymodels core packages:
+To demonstrate how to use the package, we'll fit a few tree-based models and explore their output. First, loading bonsai as well as the rest of the tidymodels core packages:
 
 ```{r}
 library(bonsai)
@@ -89,7 +89,7 @@ One generalization of a decision tree is a _random forest_, which fits a large n
 
 bonsai introduces support for random forests using the `partykit` engine, which implements an algorithm called a _conditional random forest_. Conditional random forests are a type of random forest that uses conditional inference trees (like the one we fit above!) for its constituent decision trees.
 
-To fit a conditional random forest with partykit, our code looks pretty similar to that which we we needed to fit a conditional inference tree. Just switch out `decision_tree()` with `rand_forest()` and remember to keep the engine set as `"partykit"`.
+To fit a conditional random forest with partykit, our code looks pretty similar to that which we we needed to fit a conditional inference tree. Just switch out `decision_tree()` with `rand_forest()` and remember to keep the engine set as `"partykit"`:
 
 ```{r}
 rf_mod <- 
@@ -180,7 +180,7 @@ Read more about this implementation of boosted trees in `?details_boost_tree_lig
 
 ## Other Notes
 
-This package is based off of [the treesnip package](https://github.com/curso-r/treesnip) by Daniel Falbel, Athos Damiani, and Roel M. Hogervorst. Users of that package will note that we have not included support for [the catboost package](https://github.com/catboost/catboost). Unfortunately, the catboost R package is not on CRAN so we're not able to add support for the package for now. We'll be keeping an eye on discussions in that development community and plan to support the package upon its release to CRAN!
+This package is based off of [the treesnip package](https://github.com/curso-r/treesnip) by Daniel Falbel, Athos Damiani, and Roel M. Hogervorst. Users of that package will note that we have not included support for [the catboost package](https://github.com/catboost/catboost). Unfortunately, the catboost R package is not on CRAN, so we're not able to add support for the package for now. We'll be keeping an eye on discussions in that development community and plan to support the package upon its release to CRAN!
 
 Each of these model specs and engines have several arguments and tuning parameters that affect user experience and results greatly. We recommend reading about each of these parameters and tuning them when you find them relevant for your modeling use case.
 

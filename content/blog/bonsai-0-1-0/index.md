@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: bonsai-0-1-0
 title: bonsai 0.1.0
-date: 2022-06-24
+date: 2022-06-30
 author: Simon Couch
 description: >
     A new parsnip extension package for tree-based models is now on CRAN.
@@ -14,7 +14,7 @@ photo:
 
 categories: [package] 
 tags: [tidymodels, parsnip, bonsai]
-rmd_hash: a9524374c2e30abc
+rmd_hash: 11c063445f8a5328
 
 ---
 
@@ -33,7 +33,7 @@ Without extension packages, the parsnip package already supports fitting decisio
 -   [partykit](https://CRAN.R-project.org/package=partykit): conditional inference trees via [`decision_tree()`](https://parsnip.tidymodels.org/reference/decision_tree.html) and conditional random forests via [`rand_forest()`](https://parsnip.tidymodels.org/reference/rand_forest.html)
 -   [LightGBM](https://CRAN.R-project.org/package=lightgbm): optimized gradient boosted trees via [`boost_tree()`](https://parsnip.tidymodels.org/reference/boost_tree.html)
 
-To illustrate the advantages that these new engines have to offer, we'll fit a few models and explore their output. First, loading bonsai as well as the rest of the tidymodels core packages:
+To demonstrate how to use the package, we'll fit a few tree-based models and explore their output. First, loading bonsai as well as the rest of the tidymodels core packages:
 
 <div class="highlight">
 
@@ -148,7 +148,7 @@ One generalization of a decision tree is a *random forest*, which fits a large n
 
 bonsai introduces support for random forests using the `partykit` engine, which implements an algorithm called a *conditional random forest*. Conditional random forests are a type of random forest that uses conditional inference trees (like the one we fit above!) for its constituent decision trees.
 
-To fit a conditional random forest with partykit, our code looks pretty similar to that which we we needed to fit a conditional inference tree. Just switch out [`decision_tree()`](https://parsnip.tidymodels.org/reference/decision_tree.html) with [`rand_forest()`](https://parsnip.tidymodels.org/reference/rand_forest.html) and remember to keep the engine set as `"partykit"`.
+To fit a conditional random forest with partykit, our code looks pretty similar to that which we we needed to fit a conditional inference tree. Just switch out [`decision_tree()`](https://parsnip.tidymodels.org/reference/decision_tree.html) with [`rand_forest()`](https://parsnip.tidymodels.org/reference/rand_forest.html) and remember to keep the engine set as `"partykit"`:
 
 <div class="highlight">
 
@@ -192,18 +192,18 @@ To show this, we'll use the `sim_regression()` function from modeldata to simula
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>sim_regression</span><span class='o'>(</span>num_samples <span class='o'>=</span> <span class='m'>10</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 10 × 21</span></span>
-<span class='c'>#&gt;    outcome predictor_01 predictor_02 predictor_03 predictor_04 predictor_05</span>
-<span class='c'>#&gt;      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>  31.2        -<span style='color: #BB0000;'>0.352</span>         2.52         2.43        -<span style='color: #BB0000;'>3.45</span>         5.52 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>  -<span style='color: #BB0000;'>0.635</span>      -<span style='color: #BB0000;'>4.26</span>          1.99         1.32        -<span style='color: #BB0000;'>1.38</span>        -<span style='color: #BB0000;'>1.37</span> </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>  27.7        -<span style='color: #BB0000;'>1.10</span>          2.02        -<span style='color: #BB0000;'>2.18</span>         5.85        -<span style='color: #BB0000;'>1.01</span> </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>  13.4        -<span style='color: #BB0000;'>1.76</span>         -<span style='color: #BB0000;'>1.12</span>        -<span style='color: #BB0000;'>3.11</span>        -<span style='color: #BB0000;'>0.122</span>        2.05 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>   0.815      -<span style='color: #BB0000;'>1.73</span>          0.505        0.163        2.31        -<span style='color: #BB0000;'>6.38</span> </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>  39.7        -<span style='color: #BB0000;'>0.099</span><span style='color: #BB0000; text-decoration: underline;'>4</span>        0.666        3.46         4.05         2.61 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>  33.4        -<span style='color: #BB0000;'>5.49</span>         -<span style='color: #BB0000;'>7.15</span>        -<span style='color: #BB0000;'>1.57</span>        -<span style='color: #BB0000;'>4.27</span>         1.61 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>  18.0        -<span style='color: #BB0000;'>2.07</span>         -<span style='color: #BB0000;'>0.245</span>        0.620        1.28         1.94 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span>  25.9        -<span style='color: #BB0000;'>1.57</span>         -<span style='color: #BB0000;'>3.26</span>         6.20         1.50         0.164</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>  12.0        -<span style='color: #BB0000;'>1.77</span>         -<span style='color: #BB0000;'>1.70</span>         1.70         1.35        -<span style='color: #BB0000;'>2.32</span> </span>
+<span class='c'>#&gt;     outcome predictor_01 predictor_02 predictor_03 predictor_04 predictor_05</span>
+<span class='c'>#&gt;       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>   0.083<span style='text-decoration: underline;'>0</span>        3.26        -<span style='color: #BB0000;'>0.146</span>      -<span style='color: #BB0000;'>1.89</span>         1.53          3.40 </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>  13.7           0.953        0.282       0.583       -<span style='color: #BB0000;'>3.42</span>         -<span style='color: #BB0000;'>1.38</span> </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>  11.4           1.42        -<span style='color: #BB0000;'>1.84</span>       -<span style='color: #BB0000;'>0.482</span>        1.06         -<span style='color: #BB0000;'>0.345</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>  21.2           1.16        -<span style='color: #BB0000;'>2.68</span>        1.24         1.92          0.130</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>  54.2           6.66        -<span style='color: #BB0000;'>3.01</span>       -<span style='color: #BB0000;'>3.09</span>         6.52          1.48 </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>  -<span style='color: #BB0000;'>9.68</span>         -<span style='color: #BB0000;'>1.17</span>        -<span style='color: #BB0000;'>3.83</span>       -<span style='color: #BB0000;'>5.88</span>        -<span style='color: #BB0000;'>4.11</span>          2.73 </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>  57.2          -<span style='color: #BB0000;'>2.95</span>        -<span style='color: #BB0000;'>3.92</span>        0.116        7.25          1.69 </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>  22.1          -<span style='color: #BB0000;'>7.43</span>        -<span style='color: #BB0000;'>1.84</span>        3.67        -<span style='color: #BB0000;'>3.98</span>          2.95 </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span> -<span style='color: #BB0000;'>23.0</span>          -<span style='color: #BB0000;'>0.118</span>        2.51       -<span style='color: #BB0000;'>0.038</span><span style='color: #BB0000; text-decoration: underline;'>7</span>       0.068<span style='text-decoration: underline;'>0</span>       -<span style='color: #BB0000;'>0.932</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>  40.1           4.02        -<span style='color: #BB0000;'>0.690</span>       2.76        -<span style='color: #BB0000;'>3.13</span>          3.28 </span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 15 more variables: predictor_06 &lt;dbl&gt;, predictor_07 &lt;dbl&gt;,</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>#   predictor_08 &lt;dbl&gt;, predictor_09 &lt;dbl&gt;, predictor_10 &lt;dbl&gt;,</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>#   predictor_11 &lt;dbl&gt;, predictor_12 &lt;dbl&gt;, predictor_13 &lt;dbl&gt;,</span></span>
@@ -268,7 +268,7 @@ Read more about this implementation of boosted trees in [`?details_boost_tree_li
 
 ## Other Notes
 
-This package is based off of [the treesnip package](https://github.com/curso-r/treesnip) by Daniel Falbel, Athos Damiani, and Roel M. Hogervorst. Users of that package will note that we have not included support for [the catboost package](https://github.com/catboost/catboost). Unfortunately, the catboost R package is not on CRAN so we're not able to add support for the package for now. We'll be keeping an eye on discussions in that development community and plan to support the package upon its release to CRAN!
+This package is based off of [the treesnip package](https://github.com/curso-r/treesnip) by Daniel Falbel, Athos Damiani, and Roel M. Hogervorst. Users of that package will note that we have not included support for [the catboost package](https://github.com/catboost/catboost). Unfortunately, the catboost R package is not on CRAN, so we're not able to add support for the package for now. We'll be keeping an eye on discussions in that development community and plan to support the package upon its release to CRAN!
 
 Each of these model specs and engines have several arguments and tuning parameters that affect user experience and results greatly. We recommend reading about each of these parameters and tuning them when you find them relevant for your modeling use case.
 
