@@ -14,7 +14,7 @@ photo:
 
 categories: [package] 
 tags: [tidymodels, parsnip, bonsai]
-rmd_hash: 11c063445f8a5328
+rmd_hash: 8df9d01b7aa457c2
 
 ---
 
@@ -32,6 +32,8 @@ Without extension packages, the parsnip package already supports fitting decisio
 
 -   [partykit](https://CRAN.R-project.org/package=partykit): conditional inference trees via [`decision_tree()`](https://parsnip.tidymodels.org/reference/decision_tree.html) and conditional random forests via [`rand_forest()`](https://parsnip.tidymodels.org/reference/rand_forest.html)
 -   [LightGBM](https://CRAN.R-project.org/package=lightgbm): optimized gradient boosted trees via [`boost_tree()`](https://parsnip.tidymodels.org/reference/boost_tree.html)
+
+As we introduce further support for tree-based model engines in the tidymodels, new implementations will reside in this package (rather than parsnip).
 
 To demonstrate how to use the package, we'll fit a few tree-based models and explore their output. First, loading bonsai as well as the rest of the tidymodels core packages:
 
@@ -55,9 +57,11 @@ To demonstrate how to use the package, we'll fit a few tree-based models and exp
 <span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span>
 <span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>lag()</span>     masks <span style='color: #0000BB;'>stats</span>::lag()</span>
 <span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>recipes</span>::<span style='color: #00BB00;'>step()</span>  masks <span style='color: #0000BB;'>stats</span>::step()</span>
-<span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Search for functions across packages at <span style='color: #00BB00;'>https://www.tidymodels.org/find/</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Dig deeper into tidy modeling with R at <span style='color: #00BB00;'>https://www.tmwr.org</span></span></code></pre>
 
 </div>
+
+Note that we use a development version of the [modeldata](https://modeldata.tidymodels.org/) package to generate example data later on in this post using the new `sim_regression()` function---you can install this version of the package using `pak::pak(tidymodels/modeldata)`.
 
 We'll use a [dataset](https://allisonhorst.github.io/palmerpenguins/) containing measurements on 3 different species of penguins as an example. Loading that data in and checking it out:
 
@@ -125,8 +129,8 @@ To define a conditional inference tree model specification, just set the modelin
 <span class='c'>#&gt; |   [2] island in Biscoe</span>
 <span class='c'>#&gt; |   |   [3] flipper_length_mm &lt;= 203</span>
 <span class='c'>#&gt; |   |   |   [4] flipper_length_mm &lt;= 196: Adelie (n = 38, err = 0.0%)</span>
-<span class='c'>#&gt; |   |   |   [5] flipper_length_mm &gt; 196: Adelie (n = 7, err = 14.3%)</span>
-<span class='c'>#&gt; |   |   [6] flipper_length_mm &gt; 203: Gentoo (n = 123, err = 0.0%)</span>
+<span class='c'>#&gt; |   |   |   [5] flipper_length_mm &gt; 196: Adelie (n = 8, err = 25.0%)</span>
+<span class='c'>#&gt; |   |   [6] flipper_length_mm &gt; 203: Gentoo (n = 122, err = 0.0%)</span>
 <span class='c'>#&gt; |   [7] island in Dream, Torgersen</span>
 <span class='c'>#&gt; |   |   [8] island in Dream</span>
 <span class='c'>#&gt; |   |   |   [9] flipper_length_mm &lt;= 192: Adelie (n = 59, err = 33.9%)</span>
@@ -192,18 +196,18 @@ To show this, we'll use the `sim_regression()` function from modeldata to simula
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'>sim_regression</span><span class='o'>(</span>num_samples <span class='o'>=</span> <span class='m'>10</span><span class='o'>)</span>
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 10 × 21</span></span>
-<span class='c'>#&gt;     outcome predictor_01 predictor_02 predictor_03 predictor_04 predictor_05</span>
-<span class='c'>#&gt;       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span>   0.083<span style='text-decoration: underline;'>0</span>        3.26        -<span style='color: #BB0000;'>0.146</span>      -<span style='color: #BB0000;'>1.89</span>         1.53          3.40 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span>  13.7           0.953        0.282       0.583       -<span style='color: #BB0000;'>3.42</span>         -<span style='color: #BB0000;'>1.38</span> </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span>  11.4           1.42        -<span style='color: #BB0000;'>1.84</span>       -<span style='color: #BB0000;'>0.482</span>        1.06         -<span style='color: #BB0000;'>0.345</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span>  21.2           1.16        -<span style='color: #BB0000;'>2.68</span>        1.24         1.92          0.130</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span>  54.2           6.66        -<span style='color: #BB0000;'>3.01</span>       -<span style='color: #BB0000;'>3.09</span>         6.52          1.48 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span>  -<span style='color: #BB0000;'>9.68</span>         -<span style='color: #BB0000;'>1.17</span>        -<span style='color: #BB0000;'>3.83</span>       -<span style='color: #BB0000;'>5.88</span>        -<span style='color: #BB0000;'>4.11</span>          2.73 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span>  57.2          -<span style='color: #BB0000;'>2.95</span>        -<span style='color: #BB0000;'>3.92</span>        0.116        7.25          1.69 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span>  22.1          -<span style='color: #BB0000;'>7.43</span>        -<span style='color: #BB0000;'>1.84</span>        3.67        -<span style='color: #BB0000;'>3.98</span>          2.95 </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span> -<span style='color: #BB0000;'>23.0</span>          -<span style='color: #BB0000;'>0.118</span>        2.51       -<span style='color: #BB0000;'>0.038</span><span style='color: #BB0000; text-decoration: underline;'>7</span>       0.068<span style='text-decoration: underline;'>0</span>       -<span style='color: #BB0000;'>0.932</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span>  40.1           4.02        -<span style='color: #BB0000;'>0.690</span>       2.76        -<span style='color: #BB0000;'>3.13</span>          3.28 </span>
+<span class='c'>#&gt;    outcome predictor_01 predictor_02 predictor_03 predictor_04 predictor_05</span>
+<span class='c'>#&gt;      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span>  41.9        -<span style='color: #BB0000;'>3.15</span>          3.72       -<span style='color: #BB0000;'>0.800</span>        -<span style='color: #BB0000;'>5.87</span>         0.265</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span>  49.4         4.93          6.15        5.09          0.501       -<span style='color: #BB0000;'>2.45</span> </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span>  -<span style='color: #BB0000;'>9.20</span>        0.020<span style='text-decoration: underline;'>0</span>       -<span style='color: #BB0000;'>2.31</span>        4.64          0.422        3.14 </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span>  -<span style='color: #BB0000;'>0.385</span>      -<span style='color: #BB0000;'>1.97</span>         -<span style='color: #BB0000;'>2.56</span>       -<span style='color: #BB0000;'>0.018</span><span style='color: #BB0000; text-decoration: underline;'>2</span>        1.83        -<span style='color: #BB0000;'>4.23</span> </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span>   8.08       -<span style='color: #BB0000;'>0.266</span>        -<span style='color: #BB0000;'>0.574</span>      -<span style='color: #BB0000;'>1.08</span>         -<span style='color: #BB0000;'>1.75</span>         1.57 </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span>   3.79        0.145         3.86        3.91          3.32        -<span style='color: #BB0000;'>4.27</span> </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span>   1.12       -<span style='color: #BB0000;'>6.35</span>         -<span style='color: #BB0000;'>2.39</span>        0.119         0.848        1.74 </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span>   3.21        4.56          3.20       -<span style='color: #BB0000;'>2.68</span>         -<span style='color: #BB0000;'>1.11</span>         0.729</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span>  -<span style='color: #BB0000;'>4.56</span>        2.97         -<span style='color: #BB0000;'>1.36</span>       -<span style='color: #BB0000;'>1.90</span>         -<span style='color: #BB0000;'>1.01</span>         0.557</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span>   0.140      -<span style='color: #BB0000;'>0.234</span>        -<span style='color: #BB0000;'>1.05</span>        0.551         0.861       -<span style='color: #BB0000;'>0.937</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 15 more variables: predictor_06 &lt;dbl&gt;, predictor_07 &lt;dbl&gt;,</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>#   predictor_08 &lt;dbl&gt;, predictor_09 &lt;dbl&gt;, predictor_10 &lt;dbl&gt;,</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>#   predictor_11 &lt;dbl&gt;, predictor_12 &lt;dbl&gt;, predictor_13 &lt;dbl&gt;,</span></span>
