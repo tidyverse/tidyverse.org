@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, parsnip, recipes]
-rmd_hash: ee78d0bfcc61c9e5
+rmd_hash: 166da3a510591464
 
 ---
 
@@ -51,7 +51,7 @@ The [tidymodels](https://www.tidymodels.org/) framework is a collection of R pac
 <span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span>
 <span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>lag()</span>     masks <span style='color: #0000BB;'>stats</span>::lag()</span>
 <span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>recipes</span>::<span style='color: #00BB00;'>step()</span>  masks <span style='color: #0000BB;'>stats</span>::step()</span>
-<span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Learn how to get started at <span style='color: #00BB00;'>https://www.tidymodels.org/start/</span></span></code></pre>
+<span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Dig deeper into tidy modeling with R at <span style='color: #00BB00;'>https://www.tmwr.org</span></span></code></pre>
 
 </div>
 
@@ -59,6 +59,7 @@ Since the beginning of last year, we have been publishing [quarterly updates](ht
 
 -   [spatialsample](https://www.tidyverse.org/blog/2022/06/spatialsample-0-2-0/)
 -   [recipes and its extension packages](https://www.tidyverse.org/blog/2022/05/recipes-update-05-20222/)
+-   [bonsai](https://www.tidyverse.org/blog/2022/06/bonsai-0-1-0/)
 
 Since [our last roundup post](https://www.tidyverse.org/blog/2022/04/tidymodels-2022-q1/), there have been CRAN releases of 25 tidymodels packages. You can install these updates from CRAN with:
 
