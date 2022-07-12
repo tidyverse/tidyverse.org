@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [rsample, tidymodels]
-rmd_hash: 3da60570052ed22b
+rmd_hash: 4271df35eea73178
 
 ---
 
@@ -77,7 +77,7 @@ rsample 1.1.0 extends this support by adding four new functions for grouped resa
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span>
 <span class='c'>#&gt;   splits             id        </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2995/464]&gt;</span> Bootstrap1</span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2980/793]&gt;</span> Bootstrap1</span>
 
 <span class='c'># Random resampling without replacement:</span>
 <span class='nf'><a href='https://rsample.tidymodels.org/reference/group_mc_cv.html'>group_mc_cv</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span>, times <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span>
@@ -85,7 +85,7 @@ rsample 1.1.0 extends this support by adding four new functions for grouped resa
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span>
 <span class='c'>#&gt;   splits             id       </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2268/662]&gt;</span> Resample1</span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2179/751]&gt;</span> Resample1</span>
 
 <span class='c'># Data splitting to create a validation set:</span>
 <span class='nf'><a href='https://rsample.tidymodels.org/reference/validation_split.html'>group_validation_split</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span><span class='o'>)</span>
@@ -93,12 +93,12 @@ rsample 1.1.0 extends this support by adding four new functions for grouped resa
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span>
 <span class='c'>#&gt;   splits             id        </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2112/818]&gt;</span> validation</span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2199/731]&gt;</span> validation</span>
 
 <span class='c'># Data splitting to create an initial training/testing split:</span>
 <span class='nf'><a href='https://rsample.tidymodels.org/reference/initial_split.html'>group_initial_split</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span><span class='o'>)</span>
 <span class='c'>#&gt; &lt;Training/Testing/Total&gt;</span>
-<span class='c'>#&gt; &lt;2393/537/2930&gt;</span></code></pre>
+<span class='c'>#&gt; &lt;2293/637/2930&gt;</span></code></pre>
 
 </div>
 
@@ -113,16 +113,16 @@ The other big change to grouped resampling comes as a new argument to [`group_vf
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 28 × 2</span></span>
 <span class='c'>#&gt;    splits             id        </span>
 <span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [2929/1]&gt;</span>   Resample01</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [2487/443]&gt;</span> Resample02</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [2906/24]&gt;</span>  Resample03</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [2765/165]&gt;</span> Resample04</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [2764/166]&gt;</span> Resample05</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [2902/28]&gt;</span>  Resample06</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [2900/30]&gt;</span>  Resample07</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [2816/114]&gt;</span> Resample08</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span> <span style='color: #555555;'>&lt;split [2822/108]&gt;</span> Resample09</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [2928/2]&gt;</span>   Resample10</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [2663/267]&gt;</span> Resample01</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [2859/71]&gt;</span>  Resample02</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [2858/72]&gt;</span>  Resample03</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [2827/103]&gt;</span> Resample04</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [2779/151]&gt;</span> Resample05</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [2799/131]&gt;</span> Resample06</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [2487/443]&gt;</span> Resample07</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [2906/24]&gt;</span>  Resample08</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span> <span style='color: #555555;'>&lt;split [2900/30]&gt;</span>  Resample09</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [2879/51]&gt;</span>  Resample10</span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 18 more rows</span></span></code></pre>
 
 </div>
@@ -184,12 +184,12 @@ For instance, the new [`reshuffle_rset()`](https://rsample.tidymodels.org/refere
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 74</span></span>
 <span class='c'>#&gt;   MS_SubClass             MS_Zoning Lot_Frontage Lot_Area Street Alley Lot_Shape</span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>                   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>    </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> One_Story_1946_and_New… Resident…           80    <span style='text-decoration: underline;'>11</span>622 Pave   No_A… Regular  </span>
-<span class='c'>#&gt; <span style='color: #555555;'>2</span> One_Story_1946_and_New… Resident…           81    <span style='text-decoration: underline;'>14</span>267 Pave   No_A… Slightly…</span>
-<span class='c'>#&gt; <span style='color: #555555;'>3</span> One_Story_1946_and_New… Resident…           93    <span style='text-decoration: underline;'>11</span>160 Pave   No_A… Regular  </span>
-<span class='c'>#&gt; <span style='color: #555555;'>4</span> Two_Story_1946_and_New… Resident…           78     <span style='text-decoration: underline;'>9</span>978 Pave   No_A… Slightly…</span>
-<span class='c'>#&gt; <span style='color: #555555;'>5</span> One_Story_PUD_1946_and… Resident…           41     <span style='text-decoration: underline;'>4</span>920 Pave   No_A… Regular  </span>
-<span class='c'>#&gt; <span style='color: #555555;'>6</span> One_Story_PUD_1946_and… Resident…           43     <span style='text-decoration: underline;'>5</span>005 Pave   No_A… Slightly…</span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> One_Story_1946_and_New… Resident…          141    <span style='text-decoration: underline;'>31</span>770 Pave   No_A… Slightly…</span>
+<span class='c'>#&gt; <span style='color: #555555;'>2</span> One_Story_1946_and_New… Resident…           80    <span style='text-decoration: underline;'>11</span>622 Pave   No_A… Regular  </span>
+<span class='c'>#&gt; <span style='color: #555555;'>3</span> One_Story_1946_and_New… Resident…           81    <span style='text-decoration: underline;'>14</span>267 Pave   No_A… Slightly…</span>
+<span class='c'>#&gt; <span style='color: #555555;'>4</span> One_Story_1946_and_New… Resident…           93    <span style='text-decoration: underline;'>11</span>160 Pave   No_A… Regular  </span>
+<span class='c'>#&gt; <span style='color: #555555;'>5</span> Two_Story_1946_and_New… Resident…           74    <span style='text-decoration: underline;'>13</span>830 Pave   No_A… Slightly…</span>
+<span class='c'>#&gt; <span style='color: #555555;'>6</span> Two_Story_1946_and_New… Resident…           78     <span style='text-decoration: underline;'>9</span>978 Pave   No_A… Slightly…</span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 67 more variables: Land_Contour &lt;fct&gt;, Utilities &lt;fct&gt;,</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>#   Lot_Config &lt;fct&gt;, Land_Slope &lt;fct&gt;, Neighborhood &lt;fct&gt;, Condition_1 &lt;fct&gt;,</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'>#   Condition_2 &lt;fct&gt;, Bldg_Type &lt;fct&gt;, House_Style &lt;fct&gt;, Overall_Cond &lt;fct&gt;,</span></span>
@@ -222,7 +222,7 @@ For instance, the new [`reshuffle_rset()`](https://rsample.tidymodels.org/refere
 
 </div>
 
-This works with repeated cross-validation, stratification, grouping -- pretty much anything you did originally will be preserved when reshuffling the rset.
+This works with repeated cross-validation, stratification, grouping -- anything you did originally should be preserved when reshuffling the rset.
 
 Additionally, the new [`reverse_splits()`](https://rsample.tidymodels.org/reference/reverse_splits.html) function will "swap" the assessment and analysis folds of any rsplit or rset object:
 
