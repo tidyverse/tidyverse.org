@@ -44,7 +44,7 @@ This blog post will walk through some of the highlights from this newest release
 
 By far and away the biggest addition in this version of rsample is the set of new functions for grouped resampling. Grouped resampling is a form of resampling where observations need to be assigned to the analysis or assessment sets as a "group", not split between the two. This is a common need when some of your data is more closely related than would be expected under random chance: for instance, when taking multiple measurements of a single patient over time, or when your data is geographically clustered into distinct "locations" like different neighborhoods.
 
-rsample has supported grouped v-fold cross-validation for a few years, through the `grouped_vfold_cv()` function:
+rsample has supported grouped V-fold cross-validation for a few years, through the `grouped_vfold_cv()` function:
 
 ```{r setup}
 library(purrr)
@@ -76,7 +76,7 @@ group_validation_split(ames, Neighborhood)
 group_initial_split(ames, Neighborhood)
 ```
 
-These functions all target assigning a certain proportion of your data to the assessment fold. Hitting that target can be tricky when your groups aren't all the same size, however. To work around this, these new functions create a list of all the groups in your data, randomly reshuffle it, and then select the first $n$ groups in the list that results in splitting the data as close to that proportion as possible. The net effect of this on users is that your analysis and assessment folds won't always be precisely the size you're targeting (particularly if you have a few large groups), but all data in a single group will always be entirely assigned to the same set and the splits will be entirely randomly created.
+These functions all target assigning a certain proportion of your data to the assessment fold. Hitting that target can be tricky when your groups aren't all the same size, however. To work around this, these new functions create a list of all the groups in your data, randomly reshuffle it, and then select the first _n_ groups in the list that results in splitting the data as close to that proportion as possible. The net effect of this on users is that your analysis and assessment folds won't always be precisely the size you're targeting (particularly if you have a few large groups), but all data in a single group will always be entirely assigned to the same set and the splits will be entirely randomly created.
 
 The other big change to grouped resampling comes as a new argument to `group_vfold_cv()`. By default, `group_vfold_cv()` assigns roughly the same number of groups to each of your folds, so you wind up with the same number of patients, or neighborhoods, or whatever else you're grouping by in each assessment set. The new `balance` argument lets you instead assign roughly the same number of rows to each fold instead, if you set `balance = observations`:
 
@@ -86,7 +86,7 @@ group_vfold_cv(ames, Neighborhood, balance = "observations")
 
 This approach works in a similar way to the new grouped resampling functions, attempting to assign roughly `1 / v` of your data to each fold. When working with unbalanced groups, this can result in much more even assignments of data to each fold:
 
-```{r}
+```{r message=FALSE}
 library(ggplot2)
 library(dplyr)
 
@@ -119,11 +119,11 @@ resample %>%
   labs(title = "sd() of nrow(analysis) by balance method")
 ```
 
-Right now, these grouping functions don't support stratification. If you have thoughts on how you'd expect stratification to work with grouping, or know of examples of other implementations, [let us know on GitHub](https://github.com/tidymodels/rsample/issues/317)!
+Right now, these grouping functions don't support stratification. If you have thoughts on how you'd expect stratification to work with grouping, or have an example of how another implementation has handled it, [let us know on GitHub](https://github.com/tidymodels/rsample/issues/317)!
 
 ## Other Improvements
 
-In addition, this release adds a few new utility functions to make it easier to work with the rsets produced by rsample functions.
+This release also adds a few new utility functions to make it easier to work with the rsets produced by rsample functions.
 
 For instance, the new `reshuffle_rset()` will re-generate an rset, using the same arguments as were used to originally create it, but under the current random seed:
 
