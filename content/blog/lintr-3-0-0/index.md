@@ -128,7 +128,7 @@ should be replaced with:
 lint_package(linters = assignment_linter())
 ```
 
-We expect this to show up in most cases through users' .lintr configuration files.
+We expect this to show up in most cases through users' `.lintr` configuration files.
 
 Second, users implementing custom linters need to convert to function factories.
 
