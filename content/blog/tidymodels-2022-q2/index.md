@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, parsnip, recipes]
-rmd_hash: 166da3a510591464
+rmd_hash: 5f772af3d5a2ea1d
 
 ---
 
@@ -38,7 +38,7 @@ The [tidymodels](https://www.tidymodels.org/) framework is a collection of R pac
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidymodels.tidymodels.org'>tidymodels</a></span><span class='o'>)</span>
 <span class='c'>#&gt; ── <span style='font-weight: bold;'>Attaching packages</span> ────────────────────────────────────── tidymodels 0.2.0 ──</span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>broom       </span> 0.8.0          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>recipes     </span> 0.2.0.<span style='color: #BB0000;'>9002</span></span>
+<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>broom       </span> 0.8.0          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>recipes     </span> 1.0.0.<span style='color: #BB0000;'>9000</span></span>
 <span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dials       </span> 1.0.0.<span style='color: #BB0000;'>9000</span>     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>rsample     </span> 0.1.1.<span style='color: #BB0000;'>9000</span></span>
 <span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dplyr       </span> 1.0.9          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tibble      </span> 3.1.7     </span>
 <span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>ggplot2     </span> 3.3.6          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tidyr       </span> 1.2.0     </span>
@@ -79,26 +79,26 @@ Since [our last roundup post](https://www.tidyverse.org/blog/2022/04/tidymodels-
 -   [butcher](https://butcher.tidymodels.org/news/index.html#butcher-020)
 -   [dials](https://dials.tidymodels.org/news/index.html#dials-100)
 -   [discrim](https://discrim.tidymodels.org/news/index.html#discrim-100)
--   [embed](TODO)
--   [hardhat](https://hardhat.tidymodels.org/news/index.html#hardhat-110)
+-   [embed](https://embed.tidymodels.org/news/index.html#embed-100)
+-   [hardhat](https://hardhat.tidymodels.org/news/index.html#hardhat-120)
 -   [infer](https://infer.tidymodels.org/news/index.html#infer-v102)
--   [modeldata](TODO)
+-   [modeldata](https://modeldata.tidymodels.org/news/index.html#modeldata-100)
 -   [multilevelmod](https://multilevelmod.tidymodels.org/news/index.html#multilevelmod-100)
 -   [parsnip](https://parsnip.tidymodels.org/news/index.html#parsnip-100)
--   [plsmod](TODO)
 -   [poissonreg](https://poissonreg.tidymodels.org/news/index.html#poissonreg-100)
--   [recipes](TODO)
+-   [recipes](https://recipes.tidymodels.org/news/index.html#recipes-101)
 -   [rsample](https://rsample.tidymodels.org/news/index.html#rsample-100)
 -   [rules](https://rules.tidymodels.org/news/index.html#rules-100)
 -   [spatialsample](https://spatialsample.tidymodels.org/news/index.html#spatialsample-020)
 -   [stacks](https://stacks.tidymodels.org/news/index.html#stacks-023)
--   [textrecipes](TODO)
--   [themis](TODO)
+-   [textrecipes](https://textrecipes.tidymodels.org/news/index.html#textrecipes-100)
+-   [themis](https://themis.tidymodels.org/news/index.html#themis-100)
+-   [tidymodels](https://tidymodels.tidymodels.org/news/index.html#tidymodels-100)
 -   [tidyposterior](https://tidyposterior.tidymodels.org/news/index.html#tidyposterior-100)
 -   [tidypredict](https://tidypredict.tidymodels.org/news/index.html#tidypredict-049)
--   [tune](TODO)
--   [workflows](TODO)
--   [workflowsets](TODO)
+-   [tune](https://tune.tidymodels.org/news/index.html#tune-100)
+-   [workflows](https://workflows.tidymodels.org/news/index.html#workflows-100)
+-   [workflowsets](https://workflowsets.tidymodels.org/news/index.html#workflowsets-100)
 -   [yardstick](https://yardstick.tidymodels.org/news/index.html#yardstick-100)
 
 The `NEWS` files are linked here for each package; you'll notice that there are a lot! We know it may be bothersome to keep up with all these changes, so we want to draw your attention to our recent blog posts above and also highlight a few more useful updates in today's blog post.
