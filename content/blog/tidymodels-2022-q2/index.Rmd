@@ -95,16 +95,16 @@ Recipes use the idea of roles to determine how and when the different variables 
 
 With a recent addition of case weights as another type of standard role, we have made recipes more robust. It now checks that all columns in the `data` supplied to `recipe()` are also present in the `new_data` supplied to `bake()`. An exception is made for columns with roles of either `"outcome"` or `"case_weights"` because these are typically not required at `bake()` time.
 
-This change for stricter checking of roles will mean that you might need to make some small changes to your code if you are using non-standard roles. The function [update_role_requirements()](https://recipes.tidymodels.org/reference/update_role_requirements.html) can be used to specify whether a role will is required at bake time.
+This change for stricter checking of roles will mean that you might need to make some small changes to your code if you are using non-standard roles. The function [update_role_requirements()](https://recipes.tidymodels.org/reference/update_role_requirements.html) lets you specify whether a role is required at bake time.
 
-We have shown before how you can use `update_role()` to remove variables as predictors by setting them as id variables. Suppose we were to do some preprocessing on the `tate_text` data set
+Let's look at the `tate_text` data set as an example:
 
 ```{r}
 data("tate_text")
 glimpse(tate_text)
 ```
 
-This data set includes an id variable that shouldn't have any predictive power and a title variable that we want to ignore for now. Previously we would have created the following recipe to process this data, using `update_role(id, title, new_role = "id")` to let the recipe know that we don't want it to treat id and title as predictors
+This data set includes an `id` variable that shouldn't have any predictive power and a `title` variable that we want to ignore for now. We can let the recipe know that we don't want it to treat `id` and `title` as predictors by giving them a different role which we will call `"id"` here:
 
 ```{r}
 tate_rec <- recipe(year ~ ., data = tate_text) %>%
@@ -114,7 +114,7 @@ tate_rec <- recipe(year ~ ., data = tate_text) %>%
 tate_rec_prepped <- prep(tate_rec)
 ```
 
-And this works fine until we try to apply the recipe to new data with our predictors
+This will now error when we try to apply the recipe to new data that contains only our predictors
 
 ```{r, error=TRUE}
 new_painting <- tibble(
