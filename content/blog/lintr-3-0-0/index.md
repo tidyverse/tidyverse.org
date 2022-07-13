@@ -191,7 +191,7 @@ See the [NEWS](https://lintr.r-lib.org/news/index.html#google-linters-3-0-0) for
 
 ## Other improvements
 
-This is a big release -- almost 2 years in the making -- and there has been a plethora of smaller
+This is a big release---almost 2 years in the making---and includes a plethora of smaller
 but nonetheless important changes to lintr. Please check the
 [NEWS](https://lintr.r-lib.org/news/index.html#lintr-300)
 for a complete enumeration of these. Here are a few more new linters as a highlight:
