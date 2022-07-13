@@ -75,7 +75,7 @@ This snippet generates 5 lints:
 
 The first lint is spurious because `t` and `f` do not correctly convey that this linter targets
 the symbols `T` and `F`, so we want to ignore it. Prior to this release, we would have to
-"throw the baby out with the bathwater" by suppressing _all five lints_ like so:
+throw the baby out with the bathwater by suppressing _all five lints_ like so:
 
 ```r
 T_and_F_symbol_linter=function(){ # nolint. T and F are OK here.
