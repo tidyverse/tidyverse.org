@@ -36,22 +36,19 @@ The [tidymodels](https://www.tidymodels.org/) framework is a collection of R pac
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidymodels.tidymodels.org'>tidymodels</a></span><span class='o'>)</span>
-<span class='c'>#&gt; ── <span style='font-weight: bold;'>Attaching packages</span> ────────────────────────────────────── tidymodels 0.2.0 ──</span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>broom       </span> 0.8.0          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>recipes     </span> 1.0.0.<span style='color: #BB0000;'>9000</span></span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dials       </span> 1.0.0.<span style='color: #BB0000;'>9000</span>     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>rsample     </span> 0.1.1.<span style='color: #BB0000;'>9000</span></span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dplyr       </span> 1.0.9          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tibble      </span> 3.1.7     </span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>ggplot2     </span> 3.3.6          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tidyr       </span> 1.2.0     </span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>infer       </span> 1.0.2          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tune        </span> 0.2.0.<span style='color: #BB0000;'>9002</span></span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>modeldata   </span> 0.1.1          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflows   </span> 0.2.6.<span style='color: #BB0000;'>9001</span></span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>parsnip     </span> 1.0.0.<span style='color: #BB0000;'>9000</span>     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflowsets</span> 0.2.1     </span>
-<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>purrr       </span> 0.3.4          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>yardstick   </span> 1.0.0.<span style='color: #BB0000;'>9000</span></span>
-<span class='c'>#&gt; ── <span style='font-weight: bold;'>Conflicts</span> ───────────────────────────────────────── tidymodels_conflicts() ──</span>
-<span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>purrr</span>::<span style='color: #00BB00;'>discard()</span> masks <span style='color: #0000BB;'>scales</span>::discard()</span>
-<span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span>
-<span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>lag()</span>     masks <span style='color: #0000BB;'>stats</span>::lag()</span>
-<span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>recipes</span>::<span style='color: #00BB00;'>step()</span>  masks <span style='color: #0000BB;'>stats</span>::step()</span>
-<span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Learn how to get started at <span style='color: #00BB00;'>https://www.tidymodels.org/start/</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidymodels.tidymodels.org'>tidymodels</a></span><span class='o'>)</span></span><span><span class='c'>#&gt; ── <span style='font-weight: bold;'>Attaching packages</span> ────────────────────────────────────── tidymodels 1.0.0 ──</span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>broom       </span> 1.0.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>recipes     </span> 1.0.1</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dials       </span> 1.0.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>rsample     </span> 1.0.0</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dplyr       </span> 1.0.9     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tibble      </span> 3.1.7</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>ggplot2     </span> 3.3.6     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tidyr       </span> 1.2.0</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>infer       </span> 1.0.2     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tune        </span> 1.0.0</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>modeldata   </span> 1.0.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflows   </span> 1.0.0</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>parsnip     </span> 1.0.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflowsets</span> 1.0.0</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>purrr       </span> 0.3.4     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>yardstick   </span> 1.0.0</span></span><span><span class='c'>#&gt; ── <span style='font-weight: bold;'>Conflicts</span> ───────────────────────────────────────── tidymodels_conflicts() ──</span></span>
+<span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>purrr</span>::<span style='color: #00BB00;'>discard()</span> masks <span style='color: #0000BB;'>scales</span>::discard()</span></span>
+<span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span></span>
+<span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>lag()</span>     masks <span style='color: #0000BB;'>stats</span>::lag()</span></span>
+<span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>recipes</span>::<span style='color: #00BB00;'>step()</span>  masks <span style='color: #0000BB;'>stats</span>::step()</span></span>
+<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Use <span style='color: #00BB00;'>tidymodels_prefer()</span> to resolve common conflicts.</span></span></code></pre>
 
 </div>
 
@@ -65,12 +62,12 @@ Since [our last roundup post](https://www.tidyverse.org/blog/2022/04/tidymodels-
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span>
-  <span class='s'>"rsample"</span>, <span class='s'>"spatialsample"</span>, <span class='s'>"parsnip"</span>, <span class='s'>"baguette"</span>, <span class='s'>"multilevelmod"</span>, <span class='s'>"discrim"</span>,
-  <span class='s'>"plsmod"</span>, <span class='s'>"poissonreg"</span>, <span class='s'>"rules"</span>, <span class='s'>"recipes"</span>, <span class='s'>"embed"</span>, <span class='s'>"themis"</span>, <span class='s'>"textrecipes"</span>,
-  <span class='s'>"workflows"</span>, <span class='s'>"workflowsets"</span>, <span class='s'>"tune"</span>, <span class='s'>"yardstick"</span>, <span class='s'>"broom"</span>, <span class='s'>"dials"</span>, <span class='s'>"butcher"</span>,
-  <span class='s'>"hardhat"</span>, <span class='s'>"infer"</span>, <span class='s'>"stacks"</span>, <span class='s'>"tidyposterior"</span>, <span class='s'>"tidypredict"</span>
-<span class='o'>)</span><span class='o'>)</span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span></span>
+<span>  <span class='s'>"rsample"</span>, <span class='s'>"spatialsample"</span>, <span class='s'>"parsnip"</span>, <span class='s'>"baguette"</span>, <span class='s'>"multilevelmod"</span>, <span class='s'>"discrim"</span>,</span>
+<span>  <span class='s'>"plsmod"</span>, <span class='s'>"poissonreg"</span>, <span class='s'>"rules"</span>, <span class='s'>"recipes"</span>, <span class='s'>"embed"</span>, <span class='s'>"themis"</span>, <span class='s'>"textrecipes"</span>,</span>
+<span>  <span class='s'>"workflows"</span>, <span class='s'>"workflowsets"</span>, <span class='s'>"tune"</span>, <span class='s'>"yardstick"</span>, <span class='s'>"broom"</span>, <span class='s'>"dials"</span>, <span class='s'>"butcher"</span>,</span>
+<span>  <span class='s'>"hardhat"</span>, <span class='s'>"infer"</span>, <span class='s'>"stacks"</span>, <span class='s'>"tidyposterior"</span>, <span class='s'>"tidypredict"</span></span>
+<span><span class='o'>)</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
@@ -121,15 +118,14 @@ We have shown before how you can use `update_role()` to remove variables as pred
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='s'>"tate_text"</span><span class='o'>)</span>
-<span class='nf'>glimpse</span><span class='o'>(</span><span class='nv'>tate_text</span><span class='o'>)</span>
-<span class='c'>#&gt; Rows: 4,284</span>
-<span class='c'>#&gt; Columns: 5</span>
-<span class='c'>#&gt; $ id     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 21926, 20472, 20474, 20473, 20513, 21389, 121187, 19455, 20938,…</span>
-<span class='c'>#&gt; $ artist <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> "Absalon", "Auerbach, Frank", "Auerbach, Frank", "Auerbach, Fra…</span>
-<span class='c'>#&gt; $ title  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "Proposals for a Habitat", "Michael", "Geoffrey", "Jake", "To t…</span>
-<span class='c'>#&gt; $ medium <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> "Video, monitor or projection, colour and sound (stereo)", "Etc…</span>
-<span class='c'>#&gt; $ year   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 199…</span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='s'>"tate_text"</span><span class='o'>)</span></span>
+<span><span class='nf'>glimpse</span><span class='o'>(</span><span class='nv'>tate_text</span><span class='o'>)</span></span><span><span class='c'>#&gt; Rows: 4,284</span></span>
+<span><span class='c'>#&gt; Columns: 5</span></span>
+<span><span class='c'>#&gt; $ id     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 21926, 20472, 20474, 20473, 20513, 21389, 121187, 19455, 20938,…</span></span>
+<span><span class='c'>#&gt; $ artist <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> "Absalon", "Auerbach, Frank", "Auerbach, Frank", "Auerbach, Fra…</span></span>
+<span><span class='c'>#&gt; $ title  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "Proposals for a Habitat", "Michael", "Geoffrey", "Jake", "To t…</span></span>
+<span><span class='c'>#&gt; $ medium <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> "Video, monitor or projection, colour and sound (stereo)", "Etc…</span></span>
+<span><span class='c'>#&gt; $ year   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 199…</span></span></code></pre>
 
 </div>
 
@@ -137,11 +133,11 @@ This data set includes an id variable that shouldn't have any predictive power a
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>tate_rec</span> <span class='o'>&lt;-</span> <span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>year</span> <span class='o'>~</span> <span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>tate_text</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'>update_role</span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>title</span>, new_role <span class='o'>=</span> <span class='s'>"id"</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
-  <span class='nf'>step_dummy_extract</span><span class='o'>(</span><span class='nv'>artist</span>, <span class='nv'>medium</span>, sep <span class='o'>=</span> <span class='s'>", "</span><span class='o'>)</span>
-
-<span class='nv'>tate_rec_prepped</span> <span class='o'>&lt;-</span> <span class='nf'>prep</span><span class='o'>(</span><span class='nv'>tate_rec</span><span class='o'>)</span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tate_rec</span> <span class='o'>&lt;-</span> <span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>year</span> <span class='o'>~</span> <span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>tate_text</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
+<span>  <span class='nf'>update_role</span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>title</span>, new_role <span class='o'>=</span> <span class='s'>"id"</span><span class='o'>)</span> <span class='o'>%&gt;%</span> </span>
+<span>  <span class='nf'>step_dummy_extract</span><span class='o'>(</span><span class='nv'>artist</span>, <span class='nv'>medium</span>, sep <span class='o'>=</span> <span class='s'>", "</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>tate_rec_prepped</span> <span class='o'>&lt;-</span> <span class='nf'>prep</span><span class='o'>(</span><span class='nv'>tate_rec</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
@@ -149,16 +145,15 @@ And this works fine until we try to apply the recipe to new data with our predic
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>new_painting</span> <span class='o'>&lt;-</span> <span class='nf'>tibble</span><span class='o'>(</span>
-  artist <span class='o'>=</span> <span class='s'>"Hamilton, Richard"</span>,
-  medium <span class='o'>=</span> <span class='s'>"Letterpress on paper"</span> 
-<span class='o'>)</span>
-
-<span class='nf'>bake</span><span class='o'>(</span><span class='nv'>tate_rec_prepped</span>, <span class='nv'>new_painting</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `bake()`:</span></span>
-<span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> The following required columns are missing from `new_data`: "id", "title".</span>
-<span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span> These columns have one of the following roles, which are required at `bake()` time: "id".</span>
-<span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span> If these roles are not required at `bake()` time, use `update_role_requirements(role = "your_role", bake = FALSE)`.</span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>new_painting</span> <span class='o'>&lt;-</span> <span class='nf'>tibble</span><span class='o'>(</span></span>
+<span>  artist <span class='o'>=</span> <span class='s'>"Hamilton, Richard"</span>,</span>
+<span>  medium <span class='o'>=</span> <span class='s'>"Letterpress on paper"</span> </span>
+<span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nf'>bake</span><span class='o'>(</span><span class='nv'>tate_rec_prepped</span>, <span class='nv'>new_painting</span><span class='o'>)</span></span><span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `bake()`:</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> The following required columns are missing from `new_data`: "id", "title".</span></span>
+<span><span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span> These columns have one of the following roles, which are required at `bake()` time: "id".</span></span>
+<span><span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span> If these roles are not required at `bake()` time, use `update_role_requirements(role = "your_role", bake = FALSE)`.</span></span></code></pre>
 
 </div>
 
@@ -166,25 +161,24 @@ This now complains because the recipe is expecting the `id` and `title` to be in
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>tate_rec</span> <span class='o'>&lt;-</span> <span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>year</span> <span class='o'>~</span> <span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>tate_text</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'>update_role</span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>title</span>, new_role <span class='o'>=</span> <span class='s'>"id"</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'>update_role_requirements</span><span class='o'>(</span>role <span class='o'>=</span> <span class='s'>"id"</span>, bake <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
-  <span class='nf'>step_dummy_extract</span><span class='o'>(</span><span class='nv'>artist</span>, <span class='nv'>medium</span>, sep <span class='o'>=</span> <span class='s'>", "</span><span class='o'>)</span>
-
-<span class='nv'>tate_rec_prepped</span> <span class='o'>&lt;-</span> <span class='nf'>prep</span><span class='o'>(</span><span class='nv'>tate_rec</span><span class='o'>)</span>
-
-<span class='nf'>bake</span><span class='o'>(</span><span class='nv'>tate_rec_prepped</span>, <span class='nv'>new_painting</span><span class='o'>)</span>
-<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2,675</span></span>
-<span class='c'>#&gt;   artist_Abigail artist_Abraham artist_Absalon artist_Abts artist_Achill</span>
-<span class='c'>#&gt;            <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span>              0              0              0           0             0</span>
-<span class='c'>#&gt; <span style='color: #555555;'># … with 2,670 more variables: artist_Ackroyd &lt;dbl&gt;, artist_Adam &lt;dbl&gt;,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   artist_Agnes &lt;dbl&gt;, artist_Ahtila &lt;dbl&gt;, artist_Ai &lt;dbl&gt;,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   artist_Akram &lt;dbl&gt;, artist_Aksel &lt;dbl&gt;, artist_Al &lt;dbl&gt;,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   artist_Al.Ani &lt;dbl&gt;, artist_Alan &lt;dbl&gt;, artist_Albert &lt;dbl&gt;,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   artist_Aleksandra &lt;dbl&gt;, artist_Alex &lt;dbl&gt;, artist_Alexander &lt;dbl&gt;,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   artist_Alexandre.da &lt;dbl&gt;, artist_Alfredo &lt;dbl&gt;, artist_Alice &lt;dbl&gt;,</span></span>
-<span class='c'>#&gt; <span style='color: #555555;'>#   artist_Alimpiev &lt;dbl&gt;, artist_Alison &lt;dbl&gt;, artist_Allen &lt;dbl&gt;, …</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tate_rec</span> <span class='o'>&lt;-</span> <span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>year</span> <span class='o'>~</span> <span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>tate_text</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
+<span>  <span class='nf'>update_role</span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>title</span>, new_role <span class='o'>=</span> <span class='s'>"id"</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
+<span>  <span class='nf'>update_role_requirements</span><span class='o'>(</span>role <span class='o'>=</span> <span class='s'>"id"</span>, bake <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
+<span>  <span class='nf'>step_dummy_extract</span><span class='o'>(</span><span class='nv'>artist</span>, <span class='nv'>medium</span>, sep <span class='o'>=</span> <span class='s'>", "</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>tate_rec_prepped</span> <span class='o'>&lt;-</span> <span class='nf'>prep</span><span class='o'>(</span><span class='nv'>tate_rec</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nf'>bake</span><span class='o'>(</span><span class='nv'>tate_rec_prepped</span>, <span class='nv'>new_painting</span><span class='o'>)</span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2,675</span></span></span>
+<span><span class='c'>#&gt;   artist_Abigail artist_Abraham artist_Absalon artist_Abts artist_Achill</span></span>
+<span><span class='c'>#&gt;            <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>              0              0              0           0             0</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># … with 2,670 more variables: artist_Ackroyd &lt;dbl&gt;, artist_Adam &lt;dbl&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   artist_Agnes &lt;dbl&gt;, artist_Ahtila &lt;dbl&gt;, artist_Ai &lt;dbl&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   artist_Akram &lt;dbl&gt;, artist_Aksel &lt;dbl&gt;, artist_Al &lt;dbl&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   artist_Al.Ani &lt;dbl&gt;, artist_Alan &lt;dbl&gt;, artist_Albert &lt;dbl&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   artist_Aleksandra &lt;dbl&gt;, artist_Alex &lt;dbl&gt;, artist_Alexander &lt;dbl&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   artist_Alexandre.da &lt;dbl&gt;, artist_Alfredo &lt;dbl&gt;, artist_Alice &lt;dbl&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   artist_Alimpiev &lt;dbl&gt;, artist_Alison &lt;dbl&gt;, artist_Allen &lt;dbl&gt;, …</span></span></span></code></pre>
 
 </div>
 
