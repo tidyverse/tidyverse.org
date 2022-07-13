@@ -54,7 +54,7 @@ T_and_F_symbol_linter=function(){
 
 This snippet generates 5 lints:
 
- 1. `object_name_linter()` because the uppercase `T` and `F` do not match `lower_snake_case`.
+ 1. `object_name_linter()` because the uppercase `T` and `F` in the function name do not match `lower_snake_case`.
  2. `brace_linter()` because `{` should be separated from `)` by a space.
  3. `paren_body_linter()` because `)` should be separated from the function body (starting at `{`) by a space.
  4. `infix_spaces_linter()` because `=` should be surrounded by spaces on both sides.
@@ -62,7 +62,7 @@ This snippet generates 5 lints:
 
 The first lint is spurious because `t` and `f` do not correctly convey that this linter targets
 the symbols `T` and `F`, so we want to ignore it. Prior to this release, we would have to
-"throw the baby out with the bathwater" by suppressing _all five lints_ like so:
+throw the baby out with the bathwater by suppressing _all five lints_ like so:
 
 ```r
 T_and_F_symbol_linter=function(){ # nolint. T and F are OK here.
@@ -88,7 +88,7 @@ that you can fix them! See `?exclude` for more details.
 
 As of lintr 3.0.0, _all_ linters must be [function factories](https://adv-r.hadley.nz/function-factories.html).
 
-Previously, only parameterizable linters (such as `line_length_linter`, which takes a parameter controlling how
+Previously, only parameterizable linters (such as `line_length_linter()`, which takes a parameter controlling how
 wide lines are allowed to be without triggering a lint) were factories, but this led to some problems:
 
  1. Inconsistency---some linters were designated as calls like `line_length_linter(120)` while others were
@@ -115,7 +115,7 @@ should be replaced with:
 lint_package(linters = assignment_linter())
 ```
 
-We expect this to show up in most cases through users' .lintr configuration files.
+We expect this to show up in most cases through users' `.lintr` configuration files.
 
 Second, users implementing custom linters need to convert to function factories.
 
