@@ -101,7 +101,7 @@ that you can fix them! See `?exclude` for more details.
 
 As of lintr 3.0.0, _all_ linters must be [function factories](https://adv-r.hadley.nz/function-factories.html).
 
-Previously, only parameterizable linters (such as `line_length_linter`, which takes a parameter controlling how
+Previously, only parameterizable linters (such as `line_length_linter()`, which takes a parameter controlling how
 wide lines are allowed to be without triggering a lint) were factories, but this led to some problems:
 
  1. Inconsistency -- some linters were designated as calls like `line_length_linter(120)` while others were
