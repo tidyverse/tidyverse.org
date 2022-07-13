@@ -67,7 +67,7 @@ T_and_F_symbol_linter=function(){
 
 This snippet generates 5 lints:
 
- 1. `object_name_linter()` because the uppercase `T` and `F` do not match `lower_snake_case`
+ 1. `object_name_linter()` because the uppercase `T` and `F` in the function name do not match `lower_snake_case`
  2. `brace_linter()` because `{` should be separated from `)` by a space
  3. `paren_body_linter()` because `)` should be separated from the function body (starting at `{`) by a space
  4. `infix_spaces_linter()` because `=` should be surrounded by spaces on both sides
