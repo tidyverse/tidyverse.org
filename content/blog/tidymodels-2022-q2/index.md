@@ -3,10 +3,10 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2022-q2
 title: "Q2 2022 tidymodels digest"
-date: 2022-06-24
+date: 2022-07-14
 author: Emil Hvitfeldt
 description: >
-    Q2 marks the end of the season of case weights, with TKTK new releases.
+    Q2 marks the end of the season of case weights, with 25 new releases.
 
 photo:
   url: https://unsplash.com/photos/BBR_zigEmyQ
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, parsnip, recipes]
-rmd_hash: cfc86658b180556b
+rmd_hash: 487402610ff2ed00
 
 ---
 
@@ -29,26 +29,29 @@ TODO:
 * [X] Create `thumbnail-wd.jpg`; width should be >5x height
 * [X] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [X] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [X] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidymodels.tidymodels.org'>tidymodels</a></span><span class='o'>)</span></span><span><span class='c'>#&gt; ── <span style='font-weight: bold;'>Attaching packages</span> ────────────────────────────────────── tidymodels 1.0.0 ──</span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>broom       </span> 1.0.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>recipes     </span> 1.0.1</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dials       </span> 1.0.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>rsample     </span> 1.0.0</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dplyr       </span> 1.0.9     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tibble      </span> 3.1.7</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>ggplot2     </span> 3.3.6     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tidyr       </span> 1.2.0</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>infer       </span> 1.0.2     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tune        </span> 1.0.0</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>modeldata   </span> 1.0.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflows   </span> 1.0.0</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>parsnip     </span> 1.0.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflowsets</span> 1.0.0</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>purrr       </span> 0.3.4     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>yardstick   </span> 1.0.0</span></span><span><span class='c'>#&gt; ── <span style='font-weight: bold;'>Conflicts</span> ───────────────────────────────────────── tidymodels_conflicts() ──</span></span>
-<span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>purrr</span>::<span style='color: #00BB00;'>discard()</span> masks <span style='color: #0000BB;'>scales</span>::discard()</span></span>
-<span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span></span>
-<span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>lag()</span>     masks <span style='color: #0000BB;'>stats</span>::lag()</span></span>
-<span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>recipes</span>::<span style='color: #00BB00;'>step()</span>  masks <span style='color: #0000BB;'>stats</span>::step()</span></span>
-<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Use <span style='color: #00BB00;'>tidymodels_prefer()</span> to resolve common conflicts.</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidymodels.tidymodels.org'>tidymodels</a></span><span class='o'>)</span>
+<span class='c'>#&gt; ── <span style='font-weight: bold;'>Attaching packages</span> ────────────────────────────────────── tidymodels 1.0.0 ──</span>
+<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>broom       </span> 1.0.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>recipes     </span> 1.0.1</span>
+<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dials       </span> 1.0.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>rsample     </span> 1.0.0</span>
+<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dplyr       </span> 1.0.9     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tibble      </span> 3.1.7</span>
+<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>ggplot2     </span> 3.3.6     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tidyr       </span> 1.2.0</span>
+<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>infer       </span> 1.0.2     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tune        </span> 1.0.0</span>
+<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>modeldata   </span> 1.0.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflows   </span> 1.0.0</span>
+<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>parsnip     </span> 1.0.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflowsets</span> 1.0.0</span>
+<span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>purrr       </span> 0.3.4     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>yardstick   </span> 1.0.0</span>
+<span class='c'>#&gt; ── <span style='font-weight: bold;'>Conflicts</span> ───────────────────────────────────────── tidymodels_conflicts() ──</span>
+<span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>purrr</span>::<span style='color: #00BB00;'>discard()</span> masks <span style='color: #0000BB;'>scales</span>::discard()</span>
+<span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span>
+<span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>lag()</span>     masks <span style='color: #0000BB;'>stats</span>::lag()</span>
+<span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>recipes</span>::<span style='color: #00BB00;'>step()</span>  masks <span style='color: #0000BB;'>stats</span>::step()</span>
+<span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Use suppressPackageStartupMessages() to eliminate package startup messages</span></code></pre>
 
 </div>
 
@@ -62,12 +65,12 @@ Since [our last roundup post](https://www.tidyverse.org/blog/2022/04/tidymodels-
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span></span>
-<span>  <span class='s'>"rsample"</span>, <span class='s'>"spatialsample"</span>, <span class='s'>"parsnip"</span>, <span class='s'>"baguette"</span>, <span class='s'>"multilevelmod"</span>, <span class='s'>"discrim"</span>,</span>
-<span>  <span class='s'>"plsmod"</span>, <span class='s'>"poissonreg"</span>, <span class='s'>"rules"</span>, <span class='s'>"recipes"</span>, <span class='s'>"embed"</span>, <span class='s'>"themis"</span>, <span class='s'>"textrecipes"</span>,</span>
-<span>  <span class='s'>"workflows"</span>, <span class='s'>"workflowsets"</span>, <span class='s'>"tune"</span>, <span class='s'>"yardstick"</span>, <span class='s'>"broom"</span>, <span class='s'>"dials"</span>, <span class='s'>"butcher"</span>,</span>
-<span>  <span class='s'>"hardhat"</span>, <span class='s'>"infer"</span>, <span class='s'>"stacks"</span>, <span class='s'>"tidyposterior"</span>, <span class='s'>"tidypredict"</span></span>
-<span><span class='o'>)</span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span>
+  <span class='s'>"rsample"</span>, <span class='s'>"spatialsample"</span>, <span class='s'>"parsnip"</span>, <span class='s'>"baguette"</span>, <span class='s'>"multilevelmod"</span>, <span class='s'>"discrim"</span>,
+  <span class='s'>"plsmod"</span>, <span class='s'>"poissonreg"</span>, <span class='s'>"rules"</span>, <span class='s'>"recipes"</span>, <span class='s'>"embed"</span>, <span class='s'>"themis"</span>, <span class='s'>"textrecipes"</span>,
+  <span class='s'>"workflows"</span>, <span class='s'>"workflowsets"</span>, <span class='s'>"tune"</span>, <span class='s'>"yardstick"</span>, <span class='s'>"broom"</span>, <span class='s'>"dials"</span>, <span class='s'>"butcher"</span>,
+  <span class='s'>"hardhat"</span>, <span class='s'>"infer"</span>, <span class='s'>"stacks"</span>, <span class='s'>"tidyposterior"</span>, <span class='s'>"tidypredict"</span>
+<span class='o'>)</span><span class='o'>)</span></code></pre>
 
 </div>
 
@@ -100,85 +103,225 @@ Since [our last roundup post](https://www.tidyverse.org/blog/2022/04/tidymodels-
 
 The `NEWS` files are linked here for each package; you'll notice that there are a lot! We know it may be bothersome to keep up with all these changes, so we want to draw your attention to our recent blog posts above and also highlight a few more useful updates in today's blog post.
 
-## case weights
+We are confident that we have created a good foundation with our implementation across many of our packages and we are using this as an opportunity to bump the packages versions to 1.0.0.
 
-Much of the work we have been doing so far this year has been related to case weights. For a more detailed account of the deliberations see this earlier post about the [use of case weights with tidymodels](https://www.tidyverse.org/blog/2022/05/case-weights/). We are confident that we have created a good foundation with our implementation and we are signaling the support for case weights by bumping the version of affected packages and extension packages to 1.0.0.
+## Case weights
 
-A full worked example can be found in the [prevous blog post](tidyverse.org/blog/2022/05/case-weights/#tidymodels-syntax) and on [the tidymodels site](TODO).
+Much of the work we have been doing so far this year has been related to case weights. For a more detailed account of the deliberations see this earlier post about the [use of case weights with tidymodels](https://www.tidyverse.org/blog/2022/05/case-weights/).
 
-## non-standard roles in recipes
+A full worked example can be found in the [previous blog post](tidyverse.org/blog/2022/05/case-weights/#tidymodels-syntax) and on [the tidymodels site](TODO).
 
-Recipes use the idea of roles to determine how and when the different variables are used. The main roles you have seen are "outcome", "predictor", and now "case_weights". You are also able to change the roles of these variables using `add_role()` and `update_role()`.
-
-With a recent addition of case weights adding another type of standard role, we have made recipes more robust by having it check that all columns in the `data` supplied to `recipe()` are also present in the `new_data` supplied to `bake()` with the exception is made for columns with roles of either `"outcome"` or `"case_weights"`, which are typically not required at `bake()` time.
-
-This change for stricter checking of roles will mean that you might need to make some small changes to your code if you are using non-standard roles. The function [update_role_requirements()](https://recipes.tidymodels.org/reference/update_role_requirements.html) can be used to specify whether a role will is required at bake time.
-
-We have shown before how you can use `update_role()` to remove variables as predictors by setting them as id variables. Suppose we were to do some preprocessing on the `tate_text` data set
+As an example let's go over how case weights are used within tidymodels. We start by simulating a data set using `sim_classification()`, this data set is going to be unbalanced and we will be using importance weights to give more weight to the minority class. In tidymodels you can use `importance_weights()` or `frequency_weights()` to denote what type of weight you are working with. Setting the type of weight should be the first thing you do.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='s'>"tate_text"</span><span class='o'>)</span></span>
-<span><span class='nf'>glimpse</span><span class='o'>(</span><span class='nv'>tate_text</span><span class='o'>)</span></span><span><span class='c'>#&gt; Rows: 4,284</span></span>
-<span><span class='c'>#&gt; Columns: 5</span></span>
-<span><span class='c'>#&gt; $ id     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 21926, 20472, 20474, 20473, 20513, 21389, 121187, 19455, 20938,…</span></span>
-<span><span class='c'>#&gt; $ artist <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> "Absalon", "Auerbach, Frank", "Auerbach, Frank", "Auerbach, Fra…</span></span>
-<span><span class='c'>#&gt; $ title  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "Proposals for a Habitat", "Michael", "Geoffrey", "Jake", "To t…</span></span>
-<span><span class='c'>#&gt; $ medium <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> "Video, monitor or projection, colour and sound (stereo)", "Etc…</span></span>
-<span><span class='c'>#&gt; $ year   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 199…</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>)</span>
+<span class='nv'>training_sim</span> <span class='o'>&lt;-</span> <span class='nf'>sim_classification</span><span class='o'>(</span><span class='m'>5000</span>, intercept <span class='o'>=</span> <span class='o'>-</span><span class='m'>25</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+  <span class='nf'>mutate</span><span class='o'>(</span>
+    case_wts <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='o'>(</span><span class='nv'>class</span> <span class='o'>==</span> <span class='s'>"class_1"</span>, <span class='m'>60</span>, <span class='m'>1</span><span class='o'>)</span>,
+    case_wts <span class='o'>=</span> <span class='nf'>importance_weights</span><span class='o'>(</span><span class='nv'>case_wts</span><span class='o'>)</span>
+  <span class='o'>)</span>
+
+<span class='nv'>training_sim</span> <span class='o'>%&gt;%</span>
+  <span class='nf'>relocate</span><span class='o'>(</span><span class='nv'>case_wts</span>, .after <span class='o'>=</span> <span class='nv'>class</span><span class='o'>)</span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5,000 × 17</span></span>
+<span class='c'>#&gt;    class    case_wts two_factor_1 two_factor_2 non_linear_1 non_linear_2</span>
+<span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;imp_wts&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span> class_2         1       0.092<span style='text-decoration: underline;'>4</span>       -<span style='color: #BB0000;'>1.70</span>       -<span style='color: #BB0000;'>0.579</span>         0.201</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span> class_2         1      -<span style='color: #BB0000;'>0.136</span>         0.608      -<span style='color: #BB0000;'>0.770</span>         0.114</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span> class_2         1      -<span style='color: #BB0000;'>0.080</span><span style='color: #BB0000; text-decoration: underline;'>6</span>       -<span style='color: #BB0000;'>2.07</span>       -<span style='color: #BB0000;'>0.709</span>         0.272</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span> class_2         1       1.35          2.75       -<span style='color: #BB0000;'>0.380</span>         0.785</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span> class_2         1      -<span style='color: #BB0000;'>0.238</span>         1.08       -<span style='color: #BB0000;'>0.700</span>         0.638</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span> class_2         1      -<span style='color: #BB0000;'>0.322</span>        -<span style='color: #BB0000;'>1.79</span>        0.053<span style='text-decoration: underline;'>4</span>        0.470</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span> class_2         1       1.35         -<span style='color: #BB0000;'>0.102</span>      -<span style='color: #BB0000;'>0.764</span>         0.827</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span> class_2         1       0.595         1.30       -<span style='color: #BB0000;'>0.045</span><span style='color: #BB0000; text-decoration: underline;'>4</span>        0.493</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span> class_2         1       0.563         0.916      -<span style='color: #BB0000;'>0.383</span>         0.775</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span> class_2         1      -<span style='color: #BB0000;'>0.327</span>        -<span style='color: #BB0000;'>0.457</span>      -<span style='color: #BB0000;'>0.390</span>         0.704</span>
+<span class='c'>#&gt; <span style='color: #555555;'># … with 4,990 more rows, and 11 more variables: non_linear_3 &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   linear_01 &lt;dbl&gt;, linear_02 &lt;dbl&gt;, linear_03 &lt;dbl&gt;, linear_04 &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   linear_05 &lt;dbl&gt;, linear_06 &lt;dbl&gt;, linear_07 &lt;dbl&gt;, linear_08 &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   linear_09 &lt;dbl&gt;, linear_10 &lt;dbl&gt;</span></span></code></pre>
 
 </div>
 
-This data set includes an id variable that shouldn't have any predictive power and a title variable that we want to ignore for now. Previously we would have created the following recipe to process this data, using `update_role(id, title, new_role = "id")` to let the recipe know that we don't want it to treat id and title as predictors
+Now that we have the data we can the resamples we want. We assigned weights before creating the resamples so that information is being carried into the resamples. The weights are not used in the creation of the resamples.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tate_rec</span> <span class='o'>&lt;-</span> <span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>year</span> <span class='o'>~</span> <span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>tate_text</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
-<span>  <span class='nf'>update_role</span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>title</span>, new_role <span class='o'>=</span> <span class='s'>"id"</span><span class='o'>)</span> <span class='o'>%&gt;%</span> </span>
-<span>  <span class='nf'>step_dummy_extract</span><span class='o'>(</span><span class='nv'>artist</span>, <span class='nv'>medium</span>, sep <span class='o'>=</span> <span class='s'>", "</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nv'>tate_rec_prepped</span> <span class='o'>&lt;-</span> <span class='nf'>prep</span><span class='o'>(</span><span class='nv'>tate_rec</span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='o'>(</span><span class='m'>2</span><span class='o'>)</span>
+<span class='nv'>sim_folds</span> <span class='o'>&lt;-</span> <span class='nf'>vfold_cv</span><span class='o'>(</span><span class='nv'>training_sim</span>, strata <span class='o'>=</span> <span class='nv'>class</span><span class='o'>)</span></code></pre>
 
 </div>
 
-And this works fine until we try to apply the recipe to new data with our predictors
+When creating the model specification we don't need to do anything special, as parsnip will apply case weights when there is support for it. If you are unsure if a model supports case weights you can consult the documentation or the `show_model_info()` function, like so: `show_model_info("logistic_reg")`.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>new_painting</span> <span class='o'>&lt;-</span> <span class='nf'>tibble</span><span class='o'>(</span></span>
-<span>  artist <span class='o'>=</span> <span class='s'>"Hamilton, Richard"</span>,</span>
-<span>  medium <span class='o'>=</span> <span class='s'>"Letterpress on paper"</span> </span>
-<span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nf'>bake</span><span class='o'>(</span><span class='nv'>tate_rec_prepped</span>, <span class='nv'>new_painting</span><span class='o'>)</span></span><span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `bake()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> The following required columns are missing from `new_data`: "id", "title".</span></span>
-<span><span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span> These columns have one of the following roles, which are required at `bake()` time: "id".</span></span>
-<span><span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span> If these roles are not required at `bake()` time, use `update_role_requirements(role = "your_role", bake = FALSE)`.</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lr_spec</span> <span class='o'>&lt;-</span> 
+  <span class='nf'>logistic_reg</span><span class='o'>(</span>penalty <span class='o'>=</span> <span class='nf'>tune</span><span class='o'>(</span><span class='o'>)</span>, mixture <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+  <span class='nf'>set_engine</span><span class='o'>(</span><span class='s'>"glmnet"</span><span class='o'>)</span></code></pre>
 
 </div>
 
-This now complains because the recipe is expecting the `id` and `title` to be in the data set passed to `bake()`. This issue can be fixed by using `update_role_requirements()` as shown below to tell the recipe that variables of role `"id"` are not required when baking.
+Next, we will set up a recipe for preprocessing
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tate_rec</span> <span class='o'>&lt;-</span> <span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>year</span> <span class='o'>~</span> <span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>tate_text</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
-<span>  <span class='nf'>update_role</span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>title</span>, new_role <span class='o'>=</span> <span class='s'>"id"</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
-<span>  <span class='nf'>update_role_requirements</span><span class='o'>(</span>role <span class='o'>=</span> <span class='s'>"id"</span>, bake <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
-<span>  <span class='nf'>step_dummy_extract</span><span class='o'>(</span><span class='nv'>artist</span>, <span class='nv'>medium</span>, sep <span class='o'>=</span> <span class='s'>", "</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nv'>tate_rec_prepped</span> <span class='o'>&lt;-</span> <span class='nf'>prep</span><span class='o'>(</span><span class='nv'>tate_rec</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nf'>bake</span><span class='o'>(</span><span class='nv'>tate_rec_prepped</span>, <span class='nv'>new_painting</span><span class='o'>)</span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2,675</span></span></span>
-<span><span class='c'>#&gt;   artist_Abigail artist_Abraham artist_Absalon artist_Abts artist_Achill</span></span>
-<span><span class='c'>#&gt;            <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>              0              0              0           0             0</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># … with 2,670 more variables: artist_Ackroyd &lt;dbl&gt;, artist_Adam &lt;dbl&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   artist_Agnes &lt;dbl&gt;, artist_Ahtila &lt;dbl&gt;, artist_Ai &lt;dbl&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   artist_Akram &lt;dbl&gt;, artist_Aksel &lt;dbl&gt;, artist_Al &lt;dbl&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   artist_Al.Ani &lt;dbl&gt;, artist_Alan &lt;dbl&gt;, artist_Albert &lt;dbl&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   artist_Aleksandra &lt;dbl&gt;, artist_Alex &lt;dbl&gt;, artist_Alexander &lt;dbl&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   artist_Alexandre.da &lt;dbl&gt;, artist_Alfredo &lt;dbl&gt;, artist_Alice &lt;dbl&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   artist_Alimpiev &lt;dbl&gt;, artist_Alison &lt;dbl&gt;, artist_Allen &lt;dbl&gt;, …</span></span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>sim_rec</span> <span class='o'>&lt;-</span> 
+  <span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>class</span> <span class='o'>~</span> <span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>training_sim</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+  <span class='nf'>step_ns</span><span class='o'>(</span><span class='nf'>starts_with</span><span class='o'>(</span><span class='s'>"non_linear"</span><span class='o'>)</span>, deg_free <span class='o'>=</span> <span class='m'>10</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+  <span class='nf'>step_normalize</span><span class='o'>(</span><span class='nf'>all_numeric_predictors</span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
+  
+<span class='nv'>sim_rec</span>
+<span class='c'>#&gt; Recipe</span>
+<span class='c'>#&gt; </span>
+<span class='c'>#&gt; Inputs:</span>
+<span class='c'>#&gt; </span>
+<span class='c'>#&gt;          role #variables</span>
+<span class='c'>#&gt;  case_weights          1</span>
+<span class='c'>#&gt;       outcome          1</span>
+<span class='c'>#&gt;     predictor         15</span>
+<span class='c'>#&gt; </span>
+<span class='c'>#&gt; Operations:</span>
+<span class='c'>#&gt; </span>
+<span class='c'>#&gt; Natural splines on starts_with("non_linear")</span>
+<span class='c'>#&gt; Centering and scaling for all_numeric_predictors()</span></code></pre>
+
+</div>
+
+The recipe automatically detects the case weights even though they are captured by the dot on the right-hand side of the formula. The recipe automatically sets its role and will error if that column is changed in any way.
+
+As mentioned above, any unsupervised steps are unaffected by importance weights so neither `step_ns()` or `step_normalize()` use the weights in their calculations.
+
+When using case weights, we would like to encourage users to keep their model and preprocessing tool within a workflow. The workflows package now has an add_case_weights() function to help here:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>lr_wflow</span> <span class='o'>&lt;-</span> 
+  <span class='nf'>workflow</span><span class='o'>(</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+  <span class='nf'>add_model</span><span class='o'>(</span><span class='nv'>lr_spec</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+  <span class='nf'>add_recipe</span><span class='o'>(</span><span class='nv'>sim_rec</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+  <span class='nf'>add_case_weights</span><span class='o'>(</span><span class='nv'>case_wts</span><span class='o'>)</span>
+<span class='nv'>lr_wflow</span>
+<span class='c'>#&gt; ══ Workflow ════════════════════════════════════════════════════════════════════</span>
+<span class='c'>#&gt; <span style='font-style: italic;'>Preprocessor:</span> Recipe</span>
+<span class='c'>#&gt; <span style='font-style: italic;'>Model:</span> logistic_reg()</span>
+<span class='c'>#&gt; </span>
+<span class='c'>#&gt; ── Preprocessor ────────────────────────────────────────────────────────────────</span>
+<span class='c'>#&gt; 2 Recipe Steps</span>
+<span class='c'>#&gt; </span>
+<span class='c'>#&gt; • step_ns()</span>
+<span class='c'>#&gt; • step_normalize()</span>
+<span class='c'>#&gt; </span>
+<span class='c'>#&gt; ── Case Weights ────────────────────────────────────────────────────────────────</span>
+<span class='c'>#&gt; case_wts</span>
+<span class='c'>#&gt; </span>
+<span class='c'>#&gt; ── Model ───────────────────────────────────────────────────────────────────────</span>
+<span class='c'>#&gt; Logistic Regression Model Specification (classification)</span>
+<span class='c'>#&gt; </span>
+<span class='c'>#&gt; Main Arguments:</span>
+<span class='c'>#&gt;   penalty = tune()</span>
+<span class='c'>#&gt;   mixture = 1</span>
+<span class='c'>#&gt; </span>
+<span class='c'>#&gt; Computational engine: glmnet</span></code></pre>
+
+</div>
+
+And that is all you need to use case weights, the remaining functions from the tune and yardstick package know how to deal with case weights depending on the type of weight.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>cls_metrics</span> <span class='o'>&lt;-</span> <span class='nf'>metric_set</span><span class='o'>(</span><span class='nv'>sensitivity</span>, <span class='nv'>specificity</span><span class='o'>)</span>
+
+<span class='nv'>grid</span> <span class='o'>&lt;-</span> <span class='nf'>tibble</span><span class='o'>(</span>penalty <span class='o'>=</span> <span class='m'>10</span><span class='o'>^</span><span class='nf'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='o'>(</span><span class='o'>-</span><span class='m'>3</span>, <span class='m'>0</span>, length.out <span class='o'>=</span> <span class='m'>20</span><span class='o'>)</span><span class='o'>)</span>
+
+<span class='nf'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='o'>(</span><span class='m'>3</span><span class='o'>)</span>
+<span class='nv'>lr_res</span> <span class='o'>&lt;-</span> 
+  <span class='nv'>lr_wflow</span> <span class='o'>%&gt;%</span> 
+  <span class='nf'>tune_grid</span><span class='o'>(</span>resamples <span class='o'>=</span> <span class='nv'>sim_folds</span>, grid <span class='o'>=</span> <span class='nv'>grid</span>, metrics <span class='o'>=</span> <span class='nv'>cls_metrics</span><span class='o'>)</span>
+
+<span class='nf'>autoplot</span><span class='o'>(</span><span class='nv'>lr_res</span><span class='o'>)</span>
+</code></pre>
+<img src="figs/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+## Non-standard roles in recipes
+
+The recipes package use the idea of roles to determine how and when the different variables are used. The main roles are `"outcome"`, `"predictor"`, and now `"case_weights"`. You are also able to change the roles of these variables using `add_role()` and `update_role()`.
+
+With a recent addition of case weights as another type of standard role, we have made recipes more robust. It now checks that all columns in the `data` supplied to `recipe()` are also present in the `new_data` supplied to `bake()`. An exception is made for columns with roles of either `"outcome"` or `"case_weights"` because these are typically not required at `bake()` time.
+
+This change for stricter checking of roles will mean that you might need to make some small changes to your code if you are using non-standard roles.
+
+Let's look at the `tate_text` data set as an example:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='s'>"tate_text"</span><span class='o'>)</span>
+<span class='nf'>glimpse</span><span class='o'>(</span><span class='nv'>tate_text</span><span class='o'>)</span>
+<span class='c'>#&gt; Rows: 4,284</span>
+<span class='c'>#&gt; Columns: 5</span>
+<span class='c'>#&gt; $ id     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 21926, 20472, 20474, 20473, 20513, 21389, 121187, 19455, 20938,…</span>
+<span class='c'>#&gt; $ artist <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> "Absalon", "Auerbach, Frank", "Auerbach, Frank", "Auerbach, Fra…</span>
+<span class='c'>#&gt; $ title  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "Proposals for a Habitat", "Michael", "Geoffrey", "Jake", "To t…</span>
+<span class='c'>#&gt; $ medium <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> "Video, monitor or projection, colour and sound (stereo)", "Etc…</span>
+<span class='c'>#&gt; $ year   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 199…</span></code></pre>
+
+</div>
+
+This data set includes an `id` variable that shouldn't have any predictive power and a `title` variable that we want to ignore for now. We can let the recipe know that we don't want it to treat `id` and `title` as predictors by giving them a different role which we will call `"id"` here:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>tate_rec</span> <span class='o'>&lt;-</span> <span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>year</span> <span class='o'>~</span> <span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>tate_text</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'>update_role</span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>title</span>, new_role <span class='o'>=</span> <span class='s'>"id"</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+  <span class='nf'>step_dummy_extract</span><span class='o'>(</span><span class='nv'>artist</span>, <span class='nv'>medium</span>, sep <span class='o'>=</span> <span class='s'>", "</span><span class='o'>)</span>
+
+<span class='nv'>tate_rec_prepped</span> <span class='o'>&lt;-</span> <span class='nf'>prep</span><span class='o'>(</span><span class='nv'>tate_rec</span><span class='o'>)</span></code></pre>
+
+</div>
+
+This will now error when we try to apply the recipe to new data that contains only our predictors:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>new_painting</span> <span class='o'>&lt;-</span> <span class='nf'>tibble</span><span class='o'>(</span>
+  artist <span class='o'>=</span> <span class='s'>"Hamilton, Richard"</span>,
+  medium <span class='o'>=</span> <span class='s'>"Letterpress on paper"</span> 
+<span class='o'>)</span>
+
+<span class='nf'>bake</span><span class='o'>(</span><span class='nv'>tate_rec_prepped</span>, <span class='nv'>new_painting</span><span class='o'>)</span>
+<span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `bake()`:</span></span>
+<span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> The following required columns are missing from `new_data`: "id", "title".</span>
+<span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span> These columns have one of the following roles, which are required at `bake()` time: "id".</span>
+<span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span> If these roles are not required at `bake()` time, use `update_role_requirements(role = "your_role", bake = FALSE)`.</span></code></pre>
+
+</div>
+
+It complains because the recipe is expecting the `id` and `title` variables to be in the data set passed to `bake()`. We can use [update_role_requirements()](https://recipes.tidymodels.org/reference/update_role_requirements.html) to tell the recipe that variables of role `"id"` are not required when baking and we are good to go!
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>tate_rec</span> <span class='o'>&lt;-</span> <span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>year</span> <span class='o'>~</span> <span class='nv'>.</span>, data <span class='o'>=</span> <span class='nv'>tate_text</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'>update_role</span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>title</span>, new_role <span class='o'>=</span> <span class='s'>"id"</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'>update_role_requirements</span><span class='o'>(</span>role <span class='o'>=</span> <span class='s'>"id"</span>, bake <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'>step_dummy_extract</span><span class='o'>(</span><span class='nv'>artist</span>, <span class='nv'>medium</span>, sep <span class='o'>=</span> <span class='s'>", "</span><span class='o'>)</span>
+
+<span class='nv'>tate_rec_prepped</span> <span class='o'>&lt;-</span> <span class='nf'>prep</span><span class='o'>(</span><span class='nv'>tate_rec</span><span class='o'>)</span>
+
+<span class='nf'>bake</span><span class='o'>(</span><span class='nv'>tate_rec_prepped</span>, <span class='nv'>new_painting</span><span class='o'>)</span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2,675</span></span>
+<span class='c'>#&gt;   artist_Abigail artist_Abraham artist_Absalon artist_Abts artist_Achill</span>
+<span class='c'>#&gt;            <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span>              0              0              0           0             0</span>
+<span class='c'>#&gt; <span style='color: #555555;'># … with 2,670 more variables: artist_Ackroyd &lt;dbl&gt;, artist_Adam &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   artist_Agnes &lt;dbl&gt;, artist_Ahtila &lt;dbl&gt;, artist_Ai &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   artist_Akram &lt;dbl&gt;, artist_Aksel &lt;dbl&gt;, artist_Al &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   artist_Al.Ani &lt;dbl&gt;, artist_Alan &lt;dbl&gt;, artist_Albert &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   artist_Aleksandra &lt;dbl&gt;, artist_Alex &lt;dbl&gt;, artist_Alexander &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   artist_Alexandre.da &lt;dbl&gt;, artist_Alfredo &lt;dbl&gt;, artist_Alice &lt;dbl&gt;,</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'>#   artist_Alimpiev &lt;dbl&gt;, artist_Alison &lt;dbl&gt;, artist_Allen &lt;dbl&gt;, …</span></span></code></pre>
 
 </div>
 

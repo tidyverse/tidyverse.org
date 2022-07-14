@@ -3,10 +3,10 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2022-q2
 title: "Q2 2022 tidymodels digest"
-date: 2022-06-24
+date: 2022-07-14
 author: Emil Hvitfeldt
 description: >
-    Q2 marks the end of the season of case weights, with TKTK new releases.
+    Q2 marks the end of the season of case weights, with 25 new releases.
 
 photo:
   url: https://unsplash.com/photos/BBR_zigEmyQ
@@ -27,7 +27,7 @@ TODO:
 * [X] Create `thumbnail-wd.jpg`; width should be >5x height
 * [X] `hugodown::use_tidy_thumbnails()`
 * [X] Add intro sentence, e.g. the standard tagline for the package
-* [ ] `usethis::use_tidy_thanks()`
+* [X] `usethis::use_tidy_thanks()`
 -->
 
 The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. 
@@ -82,20 +82,92 @@ install.packages(c(
 
 The `NEWS` files are linked here for each package; you'll notice that there are a lot! We know it may be bothersome to keep up with all these changes, so we want to draw your attention to our recent blog posts above and also highlight a few more useful updates in today's blog post.
 
+We are confident that we have created a good foundation with our implementation across many of our packages and we are using this as an opportunity to bump the packages versions to 1.0.0.
+
 ## Case weights
 
 Much of the work we have been doing so far this year has been related to case weights. For a more detailed account of the deliberations see this earlier post about the [use of case weights with tidymodels](https://www.tidyverse.org/blog/2022/05/case-weights/).
-We are confident that we have created a good foundation with our implementation and we are signaling the support for case weights by bumping the version of affected packages and extension packages to 1.0.0.
 
-A full worked example can be found in the  [previous blog post](tidyverse.org/blog/2022/05/case-weights/#tidymodels-syntax) and on [the tidymodels site](TODO).
+A full worked example can be found in the [previous blog post](tidyverse.org/blog/2022/05/case-weights/#tidymodels-syntax) and on [the tidymodels site](TODO).
+
+As an example let's go over how case weights are used within tidymodels. We start by simulating a data set using `sim_classification()`, this data set 
+is going to be unbalanced and we will be using importance weights to give more weight to the minority class. In tidymodels you can use `importance_weights()` or `frequency_weights()` to denote what type of weight you are working with. Setting the type of weight should be the first thing you do.
+
+```{r}
+set.seed(1)
+training_sim <- sim_classification(5000, intercept = -25) %>% 
+  mutate(
+    case_wts = ifelse(class == "class_1", 60, 1),
+    case_wts = importance_weights(case_wts)
+  )
+
+training_sim %>%
+  relocate(case_wts, .after = class)
+```
+
+Now that we have the data we can the resamples we want. We assigned weights before creating the resamples so that information is being carried into the resamples. The weights are not used in the creation of the resamples.
+
+```{r}
+set.seed(2)
+sim_folds <- vfold_cv(training_sim, strata = class)
+```
+
+When creating the model specification we don't need to do anything special, as parsnip will apply case weights when there is support for it. If you are unsure if a model supports case weights you can consult the documentation or the `show_model_info()` function, like so: `show_model_info("logistic_reg")`.
+
+```{r}
+lr_spec <- 
+  logistic_reg(penalty = tune(), mixture = 1) %>% 
+  set_engine("glmnet")
+```
+
+Next, we will set up a recipe for preprocessing
+
+```{r}
+sim_rec <- 
+  recipe(class ~ ., data = training_sim) %>% 
+  step_ns(starts_with("non_linear"), deg_free = 10) %>% 
+  step_normalize(all_numeric_predictors())
+  
+sim_rec
+```
+
+The recipe automatically detects the case weights even though they are captured by the dot on the right-hand side of the formula. The recipe automatically sets its role and will error if that column is changed in any way.
+
+As mentioned above, any unsupervised steps are unaffected by importance weights so neither `step_ns()` or `step_normalize()` use the weights in their calculations.
+
+When using case weights, we would like to encourage users to keep their model and preprocessing tool within a workflow. The workflows package now has an add_case_weights() function to help here:
+
+```{r}
+lr_wflow <- 
+  workflow() %>% 
+  add_model(lr_spec) %>% 
+  add_recipe(sim_rec) %>% 
+  add_case_weights(case_wts)
+lr_wflow
+```
+
+And that is all you need to use case weights, the remaining functions from the tune and yardstick package know how to deal with case weights depending on the type of weight.
+
+```{r}
+cls_metrics <- metric_set(sensitivity, specificity)
+
+grid <- tibble(penalty = 10^seq(-3, 0, length.out = 20))
+
+set.seed(3)
+lr_res <- 
+  lr_wflow %>% 
+  tune_grid(resamples = sim_folds, grid = grid, metrics = cls_metrics)
+
+autoplot(lr_res)
+```
 
 ## Non-standard roles in recipes
 
-Recipes use the idea of roles to determine how and when the different variables are used. The main roles you have seen are `"outcome"`, `"predictor"`, and now `"case_weights"`. You are also able to change the roles of these variables using `add_role()` and `update_role()`.
+The recipes package use the idea of roles to determine how and when the different variables are used. The main roles are `"outcome"`, `"predictor"`, and now `"case_weights"`. You are also able to change the roles of these variables using `add_role()` and `update_role()`.
 
 With a recent addition of case weights as another type of standard role, we have made recipes more robust. It now checks that all columns in the `data` supplied to `recipe()` are also present in the `new_data` supplied to `bake()`. An exception is made for columns with roles of either `"outcome"` or `"case_weights"` because these are typically not required at `bake()` time.
 
-This change for stricter checking of roles will mean that you might need to make some small changes to your code if you are using non-standard roles. The function [update_role_requirements()](https://recipes.tidymodels.org/reference/update_role_requirements.html) lets you specify whether a role is required at bake time.
+This change for stricter checking of roles will mean that you might need to make some small changes to your code if you are using non-standard roles.
 
 Let's look at the `tate_text` data set as an example:
 
@@ -114,7 +186,7 @@ tate_rec <- recipe(year ~ ., data = tate_text) %>%
 tate_rec_prepped <- prep(tate_rec)
 ```
 
-This will now error when we try to apply the recipe to new data that contains only our predictors
+This will now error when we try to apply the recipe to new data that contains only our predictors:
 
 ```{r, error=TRUE}
 new_painting <- tibble(
