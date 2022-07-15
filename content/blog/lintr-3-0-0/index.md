@@ -91,7 +91,7 @@ As of lintr 3.0.0, _all_ linters must be [function factories](https://adv-r.hadl
 Previously, only parameterizable linters (such as `line_length_linter()`, which takes a parameter controlling how
 wide lines are allowed to be without triggering a lint) were factories, but this led to some problems:
 
- 1. Inconsistency---some linters were designated as calls like `line_length_linter(120)` while others were
+ 1. Inconsistency---some linters were designated as calls, like `line_length_linter(120)`, while others were
     designated as names like `no_tab_linter`.
  2. Brittleness---some linters evolve to gain (or lose) parameters over time, e.g. in this release
     `assignment_linter` gained two arguments, `allow_cascading_assign` and `allow_right_assign`,
