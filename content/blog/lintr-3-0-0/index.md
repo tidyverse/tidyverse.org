@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: lintr-3-0-0
 title: lintr 3.0.0
-date: 2022-06-14
+date: 2022-07-15
 author: Michael Chirico
 description: >
     lintr 3.0.0 is a major release featuring a more consistent
