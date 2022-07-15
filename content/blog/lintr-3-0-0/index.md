@@ -96,7 +96,7 @@ wide lines are allowed to be without triggering a lint) were factories, but this
  2. Brittleness---some linters evolve to gain (or lose) parameters over time, e.g. in this release
     `assignment_linter` gained two arguments, `allow_cascading_assign` and `allow_right_assign`,
     to fine-tune the handling of the cascading assignment operators `<<-`/`->>` and
-    right assignment operators `->`/`->>`, respectively).
+    right assignment operators `->`/`->>`, respectively.
  3. Performance---factories can run some fixed computations at declaration and store them in the
     function environment, whereas previously the calculation would need to be repeated on every
     expression of every file being linted.
