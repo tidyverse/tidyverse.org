@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2022-q2
 title: "Q2 2022 tidymodels digest"
-date: 2022-07-14
+date: 2022-07-19
 author: Emil Hvitfeldt
 description: >
     Q2 marks the end of the season of case weights, with 25 new releases.
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, parsnip, recipes]
-rmd_hash: 487402610ff2ed00
+rmd_hash: c61b66b9a0318529
 
 ---
 
@@ -51,7 +51,7 @@ The [tidymodels](https://www.tidymodels.org/) framework is a collection of R pac
 <span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span>
 <span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>lag()</span>     masks <span style='color: #0000BB;'>stats</span>::lag()</span>
 <span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>recipes</span>::<span style='color: #00BB00;'>step()</span>  masks <span style='color: #0000BB;'>stats</span>::step()</span>
-<span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Use suppressPackageStartupMessages() to eliminate package startup messages</span></code></pre>
+<span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Search for functions across packages at <span style='color: #00BB00;'>https://www.tidymodels.org/find/</span></span></code></pre>
 
 </div>
 
@@ -109,7 +109,7 @@ We are confident that we have created a good foundation with our implementation 
 
 Much of the work we have been doing so far this year has been related to case weights. For a more detailed account of the deliberations see this earlier post about the [use of case weights with tidymodels](https://www.tidyverse.org/blog/2022/05/case-weights/).
 
-A full worked example can be found in the [previous blog post](tidyverse.org/blog/2022/05/case-weights/#tidymodels-syntax) and on [the tidymodels site](TODO).
+A full worked example can be found in the [previous blog post](tidyverse.org/blog/2022/05/case-weights/#tidymodels-syntax) and on [the tidymodels site](https://www.tidymodels.org/learn/work/case-weights/).
 
 As an example let's go over how case weights are used within tidymodels. We start by simulating a data set using `sim_classification()`, this data set is going to be unbalanced and we will be using importance weights to give more weight to the minority class. In tidymodels you can use `importance_weights()` or `frequency_weights()` to denote what type of weight you are working with. Setting the type of weight should be the first thing you do.
 
