@@ -20,8 +20,8 @@ tags: [lintr]
 ---
 
 We are very excited to announce the release of [lintr](https://lintr.r-lib.org) 3.0.0! lintr
-is maintained by Jim Hester and contributors, including three new package authors:
-[Alexander Rosenstock](@AshesITR), [Kun Ren](@renkun-ken), and [Michael Chirico](@MichaelChirico).
+is maintained by [Jim Hester](https://github.com/jimhester) and contributors, including three new package authors:
+[Alexander Rosenstock](https://github.com/AshesITR), [Kun Ren](https://github.com/renkun-ken), and [Michael Chirico](https://github.com/MichaelChirico).
 lintr provides both a framework for [static analysis](https://www.perforce.com/blog/sca/what-static-analysis) of R packages
 and scripts and a variety of linters, e.g. to enforce the [tidyverse style guide](https://style.tidyverse.org/).
 
