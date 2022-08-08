@@ -58,6 +58,7 @@ resample$splits %>%
     any(assessment(x)$Neighborhood %in% analysis(x)$Neighborhood)
   }
 )
+
 ```
 
 rsample 1.1.0 extends this support by adding four new functions for grouped resampling. The new functions `group_bootstraps()`, `group_mc_cv()`, `group_validation_split()`, and `group_initial_split()` all work like their ungrouped versions, but let you specify a grouping column to make sure related observations are all assigned to the same sets:
@@ -66,14 +67,18 @@ rsample 1.1.0 extends this support by adding four new functions for grouped resa
 # Bootstrap resampling with replacement:
 group_bootstraps(ames, Neighborhood, times = 1)
 
+
 # Random resampling without replacement:
 group_mc_cv(ames, Neighborhood, times = 1)
+
 
 # Data splitting to create a validation set:
 group_validation_split(ames, Neighborhood)
 
+
 # Data splitting to create an initial training/testing split:
 group_initial_split(ames, Neighborhood)
+
 ```
 
 These functions all target assigning a certain proportion of your data to the assessment fold. Hitting that target can be tricky when your groups aren't all the same size, however. To work around this, these new functions create a list of all the groups in your data, randomly reshuffle it, and then select the first _n_ groups in the list that results in splitting the data as close to that proportion as possible. The net effect of this on users is that your analysis and assessment folds won't always be precisely the size you're targeting (particularly if you have a few large groups), but all data in a single group will always be entirely assigned to the same set and the splits will be entirely randomly created.
@@ -82,6 +87,7 @@ The other big change to grouped resampling comes as a new argument to `group_vfo
 
 ```{r}
 group_vfold_cv(ames, Neighborhood, balance = "observations")
+
 ```
 
 This approach works in a similar way to the new grouped resampling functions, attempting to assign roughly `1 / v` of your data to each fold. When working with unbalanced groups, this can result in much more even assignments of data to each fold:
@@ -135,6 +141,7 @@ resample$splits[[1]] %>%
   analysis() %>%
   head()
 
+
 resample <- reshuffle_rset(resample)
 
 resample$splits[[1]] %>%
@@ -148,8 +155,9 @@ Additionally, the new `reverse_splits()` function will "swap" the assessment and
 
 ```{r}
 resample <- initial_split(mtcars)
-
 resample
+
+
 reverse_splits(resample)
 ```
 

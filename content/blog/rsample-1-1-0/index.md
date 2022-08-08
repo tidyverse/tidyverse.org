@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [rsample, tidymodels]
-rmd_hash: 2c7faead65d398ad
+rmd_hash: 89edff4ed75ccacd
 
 ---
 
@@ -76,18 +76,21 @@ rsample 1.1.0 extends this support by adding four new functions for grouped resa
 <span><span class='c'>#&gt;   splits             id        </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2737/752]&gt;</span> Bootstrap1</span></span><span></span>
+<span></span>
 <span><span class='c'># Random resampling without replacement:</span></span>
 <span><span class='nf'><a href='https://rsample.tidymodels.org/reference/group_mc_cv.html'>group_mc_cv</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span>, times <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span></span><span><span class='c'>#&gt; # Group Monte Carlo cross-validation (0.75/0.25) with 1 resamples  </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span></span>
 <span><span class='c'>#&gt;   splits             id       </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2123/807]&gt;</span> Resample1</span></span><span></span>
+<span></span>
 <span><span class='c'># Data splitting to create a validation set:</span></span>
 <span><span class='nf'><a href='https://rsample.tidymodels.org/reference/validation_split.html'>group_validation_split</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span><span class='o'>)</span></span><span><span class='c'>#&gt; # Group Validation Set Split (0.75/0.25)  </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span></span>
 <span><span class='c'>#&gt;   splits             id        </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2160/770]&gt;</span> validation</span></span><span></span>
+<span></span>
 <span><span class='c'># Data splitting to create an initial training/testing split:</span></span>
 <span><span class='nf'><a href='https://rsample.tidymodels.org/reference/initial_split.html'>group_initial_split</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span><span class='o'>)</span></span><span><span class='c'>#&gt; &lt;Training/Testing/Total&gt;</span></span>
 <span><span class='c'>#&gt; &lt;2195/735/2930&gt;</span></span></code></pre>
@@ -179,6 +182,7 @@ For instance, the new [`reshuffle_rset()`](https://rsample.tidymodels.org/refere
 <span><span class='c'>#&gt; Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2</span></span>
 <span><span class='c'>#&gt; Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3    1</span></span>
 <span><span class='c'>#&gt; Duster 360        14.3   8  360 245 3.21 3.570 15.84  0  0    3    4</span></span><span></span>
+<span></span>
 <span><span class='nv'>resample</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/reshuffle_rset.html'>reshuffle_rset</a></span><span class='o'>(</span><span class='nv'>resample</span><span class='o'>)</span></span>
 <span></span>
 <span><span class='nv'>resample</span><span class='o'>$</span><span class='nv'>splits</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
@@ -200,9 +204,10 @@ Additionally, the new [`reverse_splits()`](https://rsample.tidymodels.org/refere
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>resample</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/initial_split.html'>initial_split</a></span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span></span>
-<span></span>
 <span><span class='nv'>resample</span></span><span><span class='c'>#&gt; &lt;Training/Testing/Total&gt;</span></span>
-<span><span class='c'>#&gt; &lt;24/8/32&gt;</span></span><span><span class='nf'><a href='https://rsample.tidymodels.org/reference/reverse_splits.html'>reverse_splits</a></span><span class='o'>(</span><span class='nv'>resample</span><span class='o'>)</span></span><span><span class='c'>#&gt; &lt;Training/Testing/Total&gt;</span></span>
+<span><span class='c'>#&gt; &lt;24/8/32&gt;</span></span><span></span>
+<span></span>
+<span><span class='nf'><a href='https://rsample.tidymodels.org/reference/reverse_splits.html'>reverse_splits</a></span><span class='o'>(</span><span class='nv'>resample</span><span class='o'>)</span></span><span><span class='c'>#&gt; &lt;Training/Testing/Total&gt;</span></span>
 <span><span class='c'>#&gt; &lt;8/24/32&gt;</span></span></code></pre>
 
 </div>
