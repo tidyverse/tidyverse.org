@@ -128,7 +128,8 @@ This release also adds a few new utility functions to make it easier to work wit
 For instance, the new `reshuffle_rset()` will re-generate an rset, using the same arguments as were used to originally create it, but with the current random seed:
 
 ```{r}
-resample <- vfold_cv(ames)
+set.seed(123)
+resample <- vfold_cv(mtcars)
 
 resample$splits[[1]] %>%
   analysis() %>%
@@ -146,7 +147,7 @@ This works with repeated cross-validation, stratification, grouping -- anything 
 Additionally, the new `reverse_splits()` function will "swap" the assessment and analysis folds of any rsplit or rset object:
 
 ```{r}
-resample <- initial_split(ames)
+resample <- initial_split(mtcars)
 
 resample
 reverse_splits(resample)
