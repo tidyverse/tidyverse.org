@@ -38,7 +38,7 @@ You can install it from CRAN with:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"rsample"</span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"rsample"</span><span class='o'>)</span></code></pre>
 
 </div>
 
@@ -52,17 +52,18 @@ The rsample package has supported grouped v-fold cross-validation for a few year
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='http://purrr.tidyverse.org'>purrr</a></span><span class='o'>)</span></span>
-<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://rsample.tidymodels.org'>rsample</a></span><span class='o'>)</span></span>
-<span><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='nv'>ames</span>, package <span class='o'>=</span> <span class='s'>"modeldata"</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nv'>resample</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/group_vfold_cv.html'>group_vfold_cv</a></span><span class='o'>(</span><span class='nv'>ames</span>, group <span class='o'>=</span> <span class='nv'>Neighborhood</span>, v <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nv'>resample</span><span class='o'>$</span><span class='nv'>splits</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_lgl</a></span><span class='o'>(</span><span class='kr'>function</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
-<span>    <span class='nf'><a href='https://rdrr.io/r/base/any.html'>any</a></span><span class='o'>(</span><span class='nf'><a href='https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html'>assessment</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span><span class='o'>$</span><span class='nv'>Neighborhood</span> <span class='o'><a href='https://rdrr.io/r/base/match.html'>%in%</a></span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html'>analysis</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span><span class='o'>$</span><span class='nv'>Neighborhood</span><span class='o'>)</span></span>
-<span>  <span class='o'>&#125;</span></span>
-<span><span class='o'>)</span></span><span><span class='c'>#&gt; [1] FALSE FALSE</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='http://purrr.tidyverse.org'>purrr</a></span><span class='o'>)</span>
+<span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://rsample.tidymodels.org'>rsample</a></span><span class='o'>)</span>
+<span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='nv'>ames</span>, package <span class='o'>=</span> <span class='s'>"modeldata"</span><span class='o'>)</span>
+
+<span class='nv'>resample</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/group_vfold_cv.html'>group_vfold_cv</a></span><span class='o'>(</span><span class='nv'>ames</span>, group <span class='o'>=</span> <span class='nv'>Neighborhood</span>, v <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span>
+
+<span class='nv'>resample</span><span class='o'>$</span><span class='nv'>splits</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_lgl</a></span><span class='o'>(</span><span class='kr'>function</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='o'>&#123;</span>
+    <span class='nf'><a href='https://rdrr.io/r/base/any.html'>any</a></span><span class='o'>(</span><span class='nf'><a href='https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html'>assessment</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span><span class='o'>$</span><span class='nv'>Neighborhood</span> <span class='o'>%in%</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html'>analysis</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span><span class='o'>$</span><span class='nv'>Neighborhood</span><span class='o'>)</span>
+  <span class='o'>&#125;</span>
+<span class='o'>)</span>
+<span class='c'>#&gt; [1] FALSE FALSE</span></code></pre>
 
 </div>
 
@@ -70,30 +71,37 @@ rsample 1.1.0 extends this support by adding four new functions for grouped resa
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Bootstrap resampling with replacement:</span></span>
-<span><span class='nf'><a href='https://rsample.tidymodels.org/reference/group_bootstraps.html'>group_bootstraps</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span>, times <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span></span><span><span class='c'>#&gt; # Group bootstrap sampling </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span></span>
-<span><span class='c'>#&gt;   splits             id        </span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2737/752]&gt;</span> Bootstrap1</span></span><span></span>
-<span></span>
-<span><span class='c'># Random resampling without replacement:</span></span>
-<span><span class='nf'><a href='https://rsample.tidymodels.org/reference/group_mc_cv.html'>group_mc_cv</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span>, times <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span></span><span><span class='c'>#&gt; # Group Monte Carlo cross-validation (0.75/0.25) with 1 resamples  </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span></span>
-<span><span class='c'>#&gt;   splits             id       </span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2123/807]&gt;</span> Resample1</span></span><span></span>
-<span></span>
-<span><span class='c'># Data splitting to create a validation set:</span></span>
-<span><span class='nf'><a href='https://rsample.tidymodels.org/reference/validation_split.html'>group_validation_split</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span><span class='o'>)</span></span><span><span class='c'>#&gt; # Group Validation Set Split (0.75/0.25)  </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span></span>
-<span><span class='c'>#&gt;   splits             id        </span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2160/770]&gt;</span> validation</span></span><span></span>
-<span></span>
-<span><span class='c'># Data splitting to create an initial training/testing split:</span></span>
-<span><span class='nf'><a href='https://rsample.tidymodels.org/reference/initial_split.html'>group_initial_split</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span><span class='o'>)</span></span><span><span class='c'>#&gt; &lt;Training/Testing/Total&gt;</span></span>
-<span><span class='c'>#&gt; &lt;2195/735/2930&gt;</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='c'># Bootstrap resampling with replacement:</span>
+<span class='nf'><a href='https://rsample.tidymodels.org/reference/group_bootstraps.html'>group_bootstraps</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span>, times <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span>
+<span class='c'>#&gt; # Group bootstrap sampling </span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span>
+<span class='c'>#&gt;   splits              id        </span>
+<span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>              <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [3045/1151]&gt;</span> Bootstrap1</span>
+
+
+<span class='c'># Random resampling without replacement:</span>
+<span class='nf'><a href='https://rsample.tidymodels.org/reference/group_mc_cv.html'>group_mc_cv</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span>, times <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span>
+<span class='c'>#&gt; # Group Monte Carlo cross-validation (0.75/0.25) with 1 resamples  </span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span>
+<span class='c'>#&gt;   splits             id       </span>
+<span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2205/725]&gt;</span> Resample1</span>
+
+
+<span class='c'># Data splitting to create a validation set:</span>
+<span class='nf'><a href='https://rsample.tidymodels.org/reference/validation_split.html'>group_validation_split</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span><span class='o'>)</span>
+<span class='c'>#&gt; # Group Validation Set Split (0.75/0.25)  </span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span>
+<span class='c'>#&gt;   splits             id        </span>
+<span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2188/742]&gt;</span> validation</span>
+
+
+<span class='c'># Data splitting to create an initial training/testing split:</span>
+<span class='nf'><a href='https://rsample.tidymodels.org/reference/initial_split.html'>group_initial_split</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span><span class='o'>)</span>
+<span class='c'>#&gt; &lt;Training/Testing/Total&gt;</span>
+<span class='c'>#&gt; &lt;2218/712/2930&gt;</span></code></pre>
 
 </div>
 
@@ -103,22 +111,23 @@ The other big change to grouped resampling comes as a new argument to [`group_vf
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rsample.tidymodels.org/reference/group_vfold_cv.html'>group_vfold_cv</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span>, balance <span class='o'>=</span> <span class='s'>"observations"</span><span class='o'>)</span></span><span><span class='c'>#&gt; # Group 28-fold cross-validation </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 28 × 2</span></span></span>
-<span><span class='c'>#&gt;    splits             id        </span></span>
-<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [2902/28]&gt;</span>  Resample01</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [2900/30]&gt;</span>  Resample02</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [2907/23]&gt;</span>  Resample03</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [2691/239]&gt;</span> Resample04</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [2816/114]&gt;</span> Resample05</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [2906/24]&gt;</span>  Resample06</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [2799/131]&gt;</span> Resample07</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [2886/44]&gt;</span>  Resample08</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> <span style='color: #555555;'>&lt;split [2879/51]&gt;</span>  Resample09</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [2837/93]&gt;</span>  Resample10</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># … with 18 more rows</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ Use `print(n = ...)` to see more rows</span></span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rsample.tidymodels.org/reference/group_vfold_cv.html'>group_vfold_cv</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span>, balance <span class='o'>=</span> <span class='s'>"observations"</span><span class='o'>)</span>
+<span class='c'>#&gt; # Group 28-fold cross-validation </span>
+<span class='c'>#&gt; <span style='color: #555555;'># A tibble: 28 × 2</span></span>
+<span class='c'>#&gt;    splits             id        </span>
+<span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [2663/267]&gt;</span> Resample01</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [2859/71]&gt;</span>  Resample02</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [2882/48]&gt;</span>  Resample03</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [2487/443]&gt;</span> Resample04</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [2902/28]&gt;</span>  Resample05</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [2928/2]&gt;</span>   Resample06</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [2837/93]&gt;</span>  Resample07</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [2691/239]&gt;</span> Resample08</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span> <span style='color: #555555;'>&lt;split [2748/182]&gt;</span> Resample09</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [2799/131]&gt;</span> Resample10</span>
+<span class='c'>#&gt; <span style='color: #555555;'># … with 18 more rows</span></span>
+<span class='c'>#&gt; <span style='color: #555555;'># ℹ Use `print(n = ...)` to see more rows</span></span></code></pre>
 
 </div>
 
@@ -126,36 +135,37 @@ This approach works in a similar way to the new grouped resampling functions, at
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='o'>)</span></span>
-<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nv'>analysis_sd</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>v</span>, <span class='nv'>balance</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
-<span>  <span class='nf'><a href='https://rsample.tidymodels.org/reference/group_vfold_cv.html'>group_vfold_cv</a></span><span class='o'>(</span></span>
-<span>    <span class='nv'>ames</span>, </span>
-<span>    <span class='nv'>Neighborhood</span>, </span>
-<span>    <span class='nv'>v</span>, </span>
-<span>    balance <span class='o'>=</span> <span class='nv'>balance</span></span>
-<span>  <span class='o'>)</span><span class='o'>$</span><span class='nv'>splits</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
-<span>    <span class='nf'>purrr</span><span class='nf'>::</span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_dbl</a></span><span class='o'>(</span><span class='o'>~</span> <span class='nf'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='o'>(</span><span class='nf'><a href='https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html'>analysis</a></span><span class='o'>(</span><span class='nv'>.x</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
-<span>    <span class='nf'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='o'>&#125;</span></span>
-<span></span>
-<span><span class='nv'>resample</span> <span class='o'>&lt;-</span> <span class='nf'>tidyr</span><span class='nf'>::</span><span class='nf'><a href='https://tidyr.tidyverse.org/reference/expand.html'>crossing</a></span><span class='o'>(</span></span>
-<span>  idx <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='o'>(</span><span class='m'>100</span><span class='o'>)</span>,</span>
-<span>  v <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>2</span>, <span class='m'>5</span>, <span class='m'>10</span>, <span class='m'>15</span><span class='o'>)</span>,</span>
-<span>  balance <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"groups"</span>, <span class='s'>"observations"</span><span class='o'>)</span></span>
-<span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nv'>resample</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>sd <span class='o'>=</span> <span class='nf'>purrr</span><span class='nf'>::</span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map2.html'>pmap_dbl</a></span><span class='o'>(</span></span>
-<span>    <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='nv'>v</span>, <span class='nv'>balance</span><span class='o'>)</span>,</span>
-<span>    <span class='nv'>analysis_sd</span></span>
-<span>  <span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>sd</span>, fill <span class='o'>=</span> <span class='nv'>balance</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span> </span>
-<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_histogram.html'>geom_histogram</a></span><span class='o'>(</span>alpha <span class='o'>=</span> <span class='m'>0.6</span>, color <span class='o'>=</span> <span class='s'>"black"</span>, size <span class='o'>=</span> <span class='m'>0.3</span><span class='o'>)</span> <span class='o'>+</span> </span>
-<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span><span class='o'>(</span><span class='o'>~</span> <span class='nv'>v</span><span class='o'>)</span> <span class='o'>+</span> </span>
-<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_minimal</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span> </span>
-<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='o'>(</span>title <span class='o'>=</span> <span class='s'>"sd() of nrow(analysis) by balance method"</span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='o'>)</span>
+<span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='o'>)</span>
+
+<span class='nv'>analysis_sd</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>v</span>, <span class='nv'>balance</span><span class='o'>)</span> <span class='o'>&#123;</span>
+  <span class='nf'><a href='https://rsample.tidymodels.org/reference/group_vfold_cv.html'>group_vfold_cv</a></span><span class='o'>(</span>
+    <span class='nv'>ames</span>, 
+    <span class='nv'>Neighborhood</span>, 
+    <span class='nv'>v</span>, 
+    balance <span class='o'>=</span> <span class='nv'>balance</span>
+  <span class='o'>)</span><span class='o'>$</span><span class='nv'>splits</span> <span class='o'>%&gt;%</span> 
+    <span class='nf'>purrr</span><span class='nf'>::</span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_dbl</a></span><span class='o'>(</span><span class='o'>~</span> <span class='nf'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='o'>(</span><span class='nf'><a href='https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html'>analysis</a></span><span class='o'>(</span><span class='nv'>.x</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span> 
+    <span class='nf'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='o'>(</span><span class='o'>)</span>
+<span class='o'>&#125;</span>
+
+<span class='nv'>resample</span> <span class='o'>&lt;-</span> <span class='nf'>tidyr</span><span class='nf'>::</span><span class='nf'><a href='https://tidyr.tidyverse.org/reference/expand.html'>crossing</a></span><span class='o'>(</span>
+  idx <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='o'>(</span><span class='m'>100</span><span class='o'>)</span>,
+  v <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>2</span>, <span class='m'>5</span>, <span class='m'>10</span>, <span class='m'>15</span><span class='o'>)</span>,
+  balance <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"groups"</span>, <span class='s'>"observations"</span><span class='o'>)</span>
+<span class='o'>)</span>
+
+<span class='nv'>resample</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>sd <span class='o'>=</span> <span class='nf'>purrr</span><span class='nf'>::</span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map2.html'>pmap_dbl</a></span><span class='o'>(</span>
+    <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='nv'>v</span>, <span class='nv'>balance</span><span class='o'>)</span>,
+    <span class='nv'>analysis_sd</span>
+  <span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>sd</span>, fill <span class='o'>=</span> <span class='nv'>balance</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_histogram.html'>geom_histogram</a></span><span class='o'>(</span>alpha <span class='o'>=</span> <span class='m'>0.6</span>, color <span class='o'>=</span> <span class='s'>"black"</span>, size <span class='o'>=</span> <span class='m'>0.3</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span><span class='o'>(</span><span class='o'>~</span> <span class='nv'>v</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_minimal</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='o'>(</span>title <span class='o'>=</span> <span class='s'>"sd() of nrow(analysis) by balance method"</span><span class='o'>)</span>
+</code></pre>
 <img src="figs/unnamed-chunk-4-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
@@ -170,30 +180,33 @@ For instance, the new [`reshuffle_rset()`](https://rsample.tidymodels.org/refere
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='o'>(</span><span class='m'>123</span><span class='o'>)</span></span>
-<span><span class='nv'>resample</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/vfold_cv.html'>vfold_cv</a></span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nv'>resample</span><span class='o'>$</span><span class='nv'>splits</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html'>analysis</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='o'>)</span></span><span><span class='c'>#&gt;                    mpg cyl disp  hp drat    wt  qsec vs am gear carb</span></span>
-<span><span class='c'>#&gt; Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4</span></span>
-<span><span class='c'>#&gt; Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4    1</span></span>
-<span><span class='c'>#&gt; Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1</span></span>
-<span><span class='c'>#&gt; Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2</span></span>
-<span><span class='c'>#&gt; Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3    1</span></span>
-<span><span class='c'>#&gt; Duster 360        14.3   8  360 245 3.21 3.570 15.84  0  0    3    4</span></span><span></span>
-<span></span>
-<span><span class='nv'>resample</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/reshuffle_rset.html'>reshuffle_rset</a></span><span class='o'>(</span><span class='nv'>resample</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nv'>resample</span><span class='o'>$</span><span class='nv'>splits</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html'>analysis</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='o'>)</span></span><span><span class='c'>#&gt;                    mpg cyl disp  hp drat    wt  qsec vs am gear carb</span></span>
-<span><span class='c'>#&gt; Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4    4</span></span>
-<span><span class='c'>#&gt; Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4</span></span>
-<span><span class='c'>#&gt; Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4    1</span></span>
-<span><span class='c'>#&gt; Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1</span></span>
-<span><span class='c'>#&gt; Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2</span></span>
-<span><span class='c'>#&gt; Duster 360        14.3   8  360 245 3.21 3.570 15.84  0  0    3    4</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='o'>(</span><span class='m'>123</span><span class='o'>)</span>
+<span class='nv'>resample</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/vfold_cv.html'>vfold_cv</a></span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span>
+
+<span class='nv'>resample</span><span class='o'>$</span><span class='nv'>splits</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html'>analysis</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='o'>)</span>
+<span class='c'>#&gt;                    mpg cyl disp  hp drat    wt  qsec vs am gear carb</span>
+<span class='c'>#&gt; Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4</span>
+<span class='c'>#&gt; Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4    1</span>
+<span class='c'>#&gt; Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1</span>
+<span class='c'>#&gt; Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2</span>
+<span class='c'>#&gt; Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3    1</span>
+<span class='c'>#&gt; Duster 360        14.3   8  360 245 3.21 3.570 15.84  0  0    3    4</span>
+
+
+<span class='nv'>resample</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/reshuffle_rset.html'>reshuffle_rset</a></span><span class='o'>(</span><span class='nv'>resample</span><span class='o'>)</span>
+
+<span class='nv'>resample</span><span class='o'>$</span><span class='nv'>splits</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html'>analysis</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>%&gt;%</span>
+  <span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='o'>)</span>
+<span class='c'>#&gt;                    mpg cyl disp  hp drat    wt  qsec vs am gear carb</span>
+<span class='c'>#&gt; Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4    4</span>
+<span class='c'>#&gt; Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4</span>
+<span class='c'>#&gt; Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4    1</span>
+<span class='c'>#&gt; Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1</span>
+<span class='c'>#&gt; Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2</span>
+<span class='c'>#&gt; Duster 360        14.3   8  360 245 3.21 3.570 15.84  0  0    3    4</span></code></pre>
 
 </div>
 
@@ -203,12 +216,15 @@ Additionally, the new [`reverse_splits()`](https://rsample.tidymodels.org/refere
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>resample</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/initial_split.html'>initial_split</a></span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span></span>
-<span><span class='nv'>resample</span></span><span><span class='c'>#&gt; &lt;Training/Testing/Total&gt;</span></span>
-<span><span class='c'>#&gt; &lt;24/8/32&gt;</span></span><span></span>
-<span></span>
-<span><span class='nf'><a href='https://rsample.tidymodels.org/reference/reverse_splits.html'>reverse_splits</a></span><span class='o'>(</span><span class='nv'>resample</span><span class='o'>)</span></span><span><span class='c'>#&gt; &lt;Training/Testing/Total&gt;</span></span>
-<span><span class='c'>#&gt; &lt;8/24/32&gt;</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>resample</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/initial_split.html'>initial_split</a></span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span>
+<span class='nv'>resample</span>
+<span class='c'>#&gt; &lt;Training/Testing/Total&gt;</span>
+<span class='c'>#&gt; &lt;24/8/32&gt;</span>
+
+
+<span class='nf'><a href='https://rsample.tidymodels.org/reference/reverse_splits.html'>reverse_splits</a></span><span class='o'>(</span><span class='nv'>resample</span><span class='o'>)</span>
+<span class='c'>#&gt; &lt;Training/Testing/Total&gt;</span>
+<span class='c'>#&gt; &lt;8/24/32&gt;</span></code></pre>
 
 </div>
 
