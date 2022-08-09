@@ -1,0 +1,170 @@
+---
+output: hugodown::hugo_document
+
+slug: rsample-1-1-0
+title: rsample 1.1.0
+date: 2022-08-08
+author: Mike Mahoney
+description: >
+    rsample 1.1.0 is now on CRAN! This release provides a ton of new functions for grouped resampling, as well as a few long-awaited utility functions.
+
+photo:
+  url: https://unsplash.com/photos/bukjsECgmeU
+  author: Paul Teysen
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [rsample, tidymodels]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're downright exhilarated to announce the release of [rsample](https://rsample.tidymodels.org/) 1.1.0. The rsample package makes it easy to create resamples for estimating distributions and assessing model performance.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("rsample")
+```
+
+This blog post will walk through some of the highlights from this newest release. You can see a full list of changes in the [release notes](https://rsample.tidymodels.org/news/index.html#rsample-110).
+
+## Grouped resampling
+
+By far and away the biggest addition in this version of rsample is the set of new functions for grouped resampling. Grouped resampling is a form of resampling where observations need to be assigned to the analysis or assessment sets as a "group", not split between the two. This is a common need when some of your data is more closely related than would be expected under random chance: for instance, when taking multiple measurements of a single patient over time, or when your data is geographically clustered into distinct "locations" like different neighborhoods.
+
+The rsample package has supported grouped v-fold cross-validation for a few years, through the `group_vfold_cv()` function:
+
+```{r setup}
+library(purrr)
+library(rsample)
+data(ames, package = "modeldata")
+
+resample <- group_vfold_cv(ames, group = Neighborhood, v = 2)
+
+resample$splits %>%
+  map_lgl(function(x) {
+    any(assessment(x)$Neighborhood %in% analysis(x)$Neighborhood)
+  }
+)
+
+```
+
+rsample 1.1.0 extends this support by adding four new functions for grouped resampling. The new functions `group_bootstraps()`, `group_mc_cv()`, `group_validation_split()`, and `group_initial_split()` all work like their ungrouped versions, but let you specify a grouping column to make sure related observations are all assigned to the same sets:
+
+```{r}
+# Bootstrap resampling with replacement:
+group_bootstraps(ames, Neighborhood, times = 1)
+
+
+# Random resampling without replacement:
+group_mc_cv(ames, Neighborhood, times = 1)
+
+
+# Data splitting to create a validation set:
+group_validation_split(ames, Neighborhood)
+
+
+# Data splitting to create an initial training/testing split:
+group_initial_split(ames, Neighborhood)
+
+```
+
+These functions all target assigning a certain proportion of your data to the assessment fold. Hitting that target can be tricky when your groups aren't all the same size, however. To work around this, these new functions create a list of all the groups in your data, randomly reshuffle it, and then select the first _n_ groups in the list that results in splitting the data as close to that proportion as possible. The net effect of this on users is that your analysis and assessment folds won't always be precisely the size you're targeting (particularly if you have a few large groups), but all data in a single group will always be entirely assigned to the same set and the splits will be entirely randomly created.
+
+The other big change to grouped resampling comes as a new argument to `group_vfold_cv()`. By default, `group_vfold_cv()` assigns roughly the same number of groups to each of your folds, so you wind up with the same number of patients, or neighborhoods, or whatever else you're grouping by in each assessment set. The new `balance` argument lets you instead assign roughly the same number of rows to each fold instead, if you set `balance = observations`:
+
+```{r}
+group_vfold_cv(ames, Neighborhood, balance = "observations")
+
+```
+
+This approach works in a similar way to the new grouped resampling functions, attempting to assign roughly `1 / v` of your data to each fold. When working with unbalanced groups, this can result in much more even assignments of data to each fold:
+
+```{r message=FALSE}
+library(ggplot2)
+library(dplyr)
+
+analysis_sd <- function(v, balance) {
+  group_vfold_cv(
+    ames, 
+    Neighborhood, 
+    v, 
+    balance = balance
+  )$splits %>% 
+    purrr::map_dbl(~ nrow(analysis(.x))) %>% 
+    sd()
+}
+
+resample <- tidyr::crossing(
+  idx = seq_len(100),
+  v = c(2, 5, 10, 15),
+  balance = c("groups", "observations")
+)
+
+resample %>%
+  mutate(sd = purrr::pmap_dbl(
+    list(v, balance),
+    analysis_sd
+  )) %>%
+  ggplot(aes(sd, fill = balance)) + 
+  geom_histogram(alpha = 0.6, color = "black", size = 0.3) + 
+  facet_wrap(~ v) + 
+  theme_minimal() + 
+  labs(title = "sd() of nrow(analysis) by balance method")
+```
+
+Right now, these grouping functions don't support stratification. If you have thoughts on how you'd expect stratification to work with grouping, or have an example of how another implementation has handled it, [let us know on GitHub](https://github.com/tidymodels/rsample/issues/317)!
+
+## Other improvements
+
+This release also adds a few new utility functions to make it easier to work with the rsets produced by rsample functions.
+
+For instance, the new `reshuffle_rset()` will re-generate an rset, using the same arguments as were used to originally create it, but with the current random seed:
+
+```{r}
+set.seed(123)
+resample <- vfold_cv(mtcars)
+
+resample$splits[[1]] %>%
+  analysis() %>%
+  head()
+
+
+resample <- reshuffle_rset(resample)
+
+resample$splits[[1]] %>%
+  analysis() %>%
+  head()
+```
+
+This works with repeated cross-validation, stratification, grouping -- anything you did originally should be preserved when reshuffling the rset.
+
+Additionally, the new `reverse_splits()` function will "swap" the assessment and analysis folds of any rsplit or rset object:
+
+```{r}
+resample <- initial_split(mtcars)
+resample
+
+
+reverse_splits(resample)
+```
+
+This is just scratching the surface of the new features and improvements in this release of rsample! You can see a full list of changes in the the [release notes](https://rsample.tidymodels.org/news/index.html#rsample-110).
+
+## Acknowledgements
+
+We’d like to thank everyone that has contributed since the last release: 
+[&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), and [&#x0040;sametsoekel](https://github.com/sametsoekel).
+
