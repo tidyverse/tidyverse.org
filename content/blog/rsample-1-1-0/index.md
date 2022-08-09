@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [rsample, tidymodels]
-rmd_hash: 89edff4ed75ccacd
+rmd_hash: 1f9078c830c1d8c1
 
 ---
 
@@ -44,7 +44,7 @@ You can install it from CRAN with:
 
 This blog post will walk through some of the highlights from this newest release. You can see a full list of changes in the [release notes](https://rsample.tidymodels.org/news/index.html#rsample-110).
 
-## Grouped Resampling
+## Grouped resampling
 
 By far and away the biggest addition in this version of rsample is the set of new functions for grouped resampling. Grouped resampling is a form of resampling where observations need to be assigned to the analysis or assessment sets as a "group", not split between the two. This is a common need when some of your data is more closely related than would be expected under random chance: for instance, when taking multiple measurements of a single patient over time, or when your data is geographically clustered into distinct "locations" like different neighborhoods.
 
@@ -77,7 +77,7 @@ rsample 1.1.0 extends this support by adding four new functions for grouped resa
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span>
 <span class='c'>#&gt;   splits              id        </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>              <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [3045/1151]&gt;</span> Bootstrap1</span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [3050/1225]&gt;</span> Bootstrap1</span>
 
 
 <span class='c'># Random resampling without replacement:</span>
@@ -86,7 +86,7 @@ rsample 1.1.0 extends this support by adding four new functions for grouped resa
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span>
 <span class='c'>#&gt;   splits             id       </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2205/725]&gt;</span> Resample1</span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2198/732]&gt;</span> Resample1</span>
 
 
 <span class='c'># Data splitting to create a validation set:</span>
@@ -95,13 +95,13 @@ rsample 1.1.0 extends this support by adding four new functions for grouped resa
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span>
 <span class='c'>#&gt;   splits             id        </span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span>
-<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2188/742]&gt;</span> validation</span>
+<span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [2201/729]&gt;</span> validation</span>
 
 
 <span class='c'># Data splitting to create an initial training/testing split:</span>
 <span class='nf'><a href='https://rsample.tidymodels.org/reference/initial_split.html'>group_initial_split</a></span><span class='o'>(</span><span class='nv'>ames</span>, <span class='nv'>Neighborhood</span><span class='o'>)</span>
 <span class='c'>#&gt; &lt;Training/Testing/Total&gt;</span>
-<span class='c'>#&gt; &lt;2218/712/2930&gt;</span></code></pre>
+<span class='c'>#&gt; &lt;2162/768/2930&gt;</span></code></pre>
 
 </div>
 
@@ -116,16 +116,16 @@ The other big change to grouped resampling comes as a new argument to [`group_vf
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 28 × 2</span></span>
 <span class='c'>#&gt;    splits             id        </span>
 <span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span>
-<span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [2663/267]&gt;</span> Resample01</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [2859/71]&gt;</span>  Resample02</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [2882/48]&gt;</span>  Resample03</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [2487/443]&gt;</span> Resample04</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [2902/28]&gt;</span>  Resample05</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [2928/2]&gt;</span>   Resample06</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [2837/93]&gt;</span>  Resample07</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [2691/239]&gt;</span> Resample08</span>
-<span class='c'>#&gt; <span style='color: #555555;'> 9</span> <span style='color: #555555;'>&lt;split [2748/182]&gt;</span> Resample09</span>
-<span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [2799/131]&gt;</span> Resample10</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [2928/2]&gt;</span>   Resample01</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [2922/8]&gt;</span>   Resample02</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [2907/23]&gt;</span>  Resample03</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [2736/194]&gt;</span> Resample04</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [2886/44]&gt;</span>  Resample05</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [2893/37]&gt;</span>  Resample06</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [2929/1]&gt;</span>   Resample07</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [2663/267]&gt;</span> Resample08</span>
+<span class='c'>#&gt; <span style='color: #555555;'> 9</span> <span style='color: #555555;'>&lt;split [2805/125]&gt;</span> Resample09</span>
+<span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [2837/93]&gt;</span>  Resample10</span>
 <span class='c'>#&gt; <span style='color: #555555;'># … with 18 more rows</span></span>
 <span class='c'>#&gt; <span style='color: #555555;'># ℹ Use `print(n = ...)` to see more rows</span></span></code></pre>
 
