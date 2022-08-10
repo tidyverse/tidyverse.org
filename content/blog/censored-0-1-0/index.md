@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, parsnip, censored]
-rmd_hash: ed14506e13310300
+rmd_hash: 969dea0da72d7243
 
 ---
 
@@ -74,7 +74,7 @@ parsnip 1.0.0 introduces a new mode `"censored regression"` and the censored pac
 | [`survival_reg()`](https://parsnip.tidymodels.org/reference/survival_reg.html)         | survival |
 | [`survival_reg()`](https://parsnip.tidymodels.org/reference/survival_reg.html)         | flexsurv |
 
-All models can be fitted through a formula interface. Stratification can be specified through adding a [`strata()`](https://rdrr.io/pkg/survival/man/strata.html) term to the formula, as in the survival package.
+All models can be fitted through a formula interface. For example, when the engine allows for stratification variables, these can be specified by using a [`strata()`](https://rdrr.io/pkg/survival/man/strata.html) term in the formula, as in the survival package.
 
 The `cetaceans` data set contains information about dolphins and whales living in captivity in the USA. It is derived from a [Tidy Tuesday data set](https://github.com/rfordatascience/tidytuesday/tree/master/data/2018/2018-12-18) and you can install the corresponding data package with `pak::pak("hfrick/cetaceans")`.
 
@@ -209,6 +209,10 @@ This can be used to visualize an approximation of the underlying survival curve.
 </div>
 
 More examples of available models, engines, and prediction types can be found in the article [Fitting and Predicting with censored](https://censored.tidymodels.org/articles/examples.html).
+
+## What's next?
+
+Our aim is to broadly integrate survival analysis in the tidymodels framework. Next, we'll be working on adding appropriate metrics to the yardstick package and enabling model tuning via the tune package.
 
 ## Acknowledgements
 
