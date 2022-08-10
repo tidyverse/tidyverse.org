@@ -1,0 +1,158 @@
+---
+output: hugodown::hugo_document
+
+slug: censored-0-1-0
+title: censored 0.1.0
+date: 2022-08-10
+author: Hannah Frick
+description: >
+    censored 0.1.0 is a new tidymodels package for survival models.
+
+photo:
+  url: https://unsplash.com/photos/UDlXygG0pgA
+  author: Ranae Smith
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [tidymodels, parsnip, censored]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're extremely pleased to announce the first release of [censored](https://censored.tidymodels.org) on CRAN. The censored package is a parsnip extension package for survival models.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("censored")
+```
+
+This blog post will introduce a new model type, a new mode, and new prediction types for survival analysis in the tidymodels framework. We have [previously](https://www.tidyverse.org/blog/2021/11/survival-analysis-parsnip-adjacent/) blogged about these changes while they were in development, now they have been released!
+
+```{r setup}
+library(censored)
+```
+
+## Model types, modes, and engines
+
+A parsnip model specification consists of three elements:
+
+-   a **model type** such as linear model, random forest, support vector machine, etc
+-   a computational **engine** such as a specific R package or tools outside of R like Keras or Stan
+-   a **mode** such as regression or classification
+
+parsnip 1.0.0 introduces a new mode `"censored regression"` and the censored package provides engines to fit various models in this new mode. With the addition of the new `proportional_hazards()` model type, the available models cover parametric, semi-parametric, and tree-based models:
+
+| model                    | engine   |
+|:-------------------------|:---------|
+| `bag_tree()`             | rpart    |
+| `boost_tree()`           | mboost   |
+| `decision_tree()`        | rpart    |
+| `decision_tree()`        | partykit |
+| `proportional_hazards()` | survival |
+| `proportional_hazards()` | glmnet   |
+| `rand_forest()`          | partykit |
+| `survival_reg()`         | survival |
+| `survival_reg()`         | flexsurv |
+
+All models can be fitted through a formula interface. For example, when the engine allows for stratification variables, these can be specified by using a `strata()` term in the formula, as in the survival package.
+
+The `cetaceans` data set contains information about dolphins and whales living in captivity in the USA. It is derived from a [Tidy Tuesday data set](https://github.com/rfordatascience/tidytuesday/tree/master/data/2018/2018-12-18) and you can install the corresponding data package with `pak::pak("hfrick/cetaceans")`.
+
+```{r cetaceans}
+library(cetaceans)
+str(cetaceans)
+```
+
+To illustrate the new modelling function `proportional_hazards()` and the formula interface for glmnet, let's fit a penalized Cox model.
+
+```{r glmnet-fit}
+cox_penalized <- proportional_hazards(penalty = 0.1) %>%
+  set_engine("glmnet") %>%
+  set_mode("censored regression") %>%
+  fit(
+    Surv(age, event) ~ sex + transfers + strata(born_in_captivity),
+    data = cetaceans
+  )
+```
+
+## Prediction types
+
+For censored regression, parsnip now also includes new prediction types:
+
+- `"time"` for the survival time
+- `"survival"` for the survival probability
+- `"hazard"` for the hazard
+- `"quantile"` for quantiles of the event time distribution
+- `"linear_pred"` for the linear predictor
+
+Predictions made with censored respect the tidymodels principles of:
+
+- The predictions are always inside a tibble.
+- The column names and types are unsurprising and predictable.
+- The number of rows in `new_data` and the output are the same.
+
+Let's demonstrate that with a small data set to predict on: just three observations, and the first one includes a missing value for one of the predictors.
+
+```{r new_data}
+cetaceans_3 <- cetaceans[1:3,]
+cetaceans_3$sex[1] <- NA
+```
+
+Predictions of types `"time"` and `"survival"` are available for all model/engine combinations in censored.
+
+```{r glmnet-time}
+predict(cox_penalized, new_data = cetaceans_3, type = "time")
+```
+
+Survival probability can be predicted at multiple time points, specified through the `time` argument to `predict()`. Here we are predicting survival probability at age 10, 20, 30, and 40 years.
+
+```{r glmnet-survival}
+pred <- predict(cox_penalized, new_data = cetaceans_3, type = "survival", time = c(10, 20, 30, 40))
+pred
+```
+
+The `.pred` column is a list-column, containing nested tibbles:
+
+```{r glmnet-survival-unnested}
+# for the observation with NA
+pred$.pred[[1]]
+
+# without NA
+pred$.pred[[2]]
+```
+
+This can be used to visualize an approximation of the underlying survival curve.
+
+```{r survival-curve}
+library(ggplot2)
+
+predict(cox_penalized, new_data = cetaceans[2:3,], 
+        type = "survival", time = seq(0, 80, 1)) %>% 
+  dplyr::mutate(id = factor(2:3)) %>% 
+  tidyr::unnest(cols = .pred) %>% 
+  ggplot(aes(x = .time, y = .pred_survival, col = id)) +
+  geom_step() +
+  theme_bw()
+```
+
+More examples of available models, engines, and prediction types can be found in the article [Fitting and Predicting with censored](https://censored.tidymodels.org/articles/examples.html).
+
+## What's next?
+
+Our aim is to broadly integrate survival analysis in the tidymodels framework. Next, we'll be working on adding appropriate metrics to the yardstick package and enabling model tuning via the tune package.
+
+## Acknowledgements
+
+A big thanks to all the contributors: [&#x0040;bcjaeger](https://github.com/bcjaeger), [&#x0040;brunocarlin](https://github.com/brunocarlin), [&#x0040;caimiao0714](https://github.com/caimiao0714), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dvdsb](https://github.com/dvdsb), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;erikvona](https://github.com/erikvona), [&#x0040;gvelasq](https://github.com/gvelasq), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;schelhorn](https://github.com/schelhorn), and [&#x0040;topepo](https://github.com/topepo).
