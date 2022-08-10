@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: censored-0-1-0
 title: censored 0.1.0
-date: 2022-07-19
+date: 2022-08-10
 author: Hannah Frick
 description: >
     censored 0.1.0 is a new tidymodels package for survival models.
@@ -30,7 +30,7 @@ TODO:
 * [x] `usethis::use_tidy_thanks()`
 -->
 
-We're extremely pleased to announce the release of [censored](https://censored.tidymodels.org) 0.1.0. censored is a extension package for survival models to parsnip, the unified modeling interface for tidymodels.
+We're extremely pleased to announce the first release of [censored](https://censored.tidymodels.org) on CRAN. The censored package is a parsnip extension package for survival models.
 
 You can install it from CRAN with:
 
@@ -68,13 +68,16 @@ parsnip 1.0.0 introduces a new mode `"censored regression"` and the censored pac
 
 All models can be fitted through a formula interface. Stratification can be specified through adding a `strata()` term to the formula, as in the survival package.
 
-To illustrate the new modelling function `proportional_hazards()` and the formula interface for glmnet, let's fit a penalized Cox model. The `cetaceans` data set contains information about dolphins and whales living in captivity in the USA.
+The `cetaceans` data set contains information about dolphins and whales living in captivity in the USA. It is derived from a [Tidy Tuesday data set](https://github.com/rfordatascience/tidytuesday/tree/master/data/2018/2018-12-18) and you can install the corresponding data package with `pak::pak("hfrick/cetaceans")`.
+
+```{r cetaceans}
+library(cetaceans)
+str(cetaceans)
+```
+
+To illustrate the new modelling function `proportional_hazards()` and the formula interface for glmnet, let's fit a penalized Cox model.
 
 ```{r glmnet-fit}
-#devtools::install_github("hfrick/cetaceans")
-library(censored)
-library(cetaceans)
-
 cox_penalized <- proportional_hazards(penalty = 0.1) %>%
   set_engine("glmnet") %>%
   set_mode("censored regression") %>%
@@ -127,7 +130,7 @@ The `.pred` column is a list-column, containing nested tibbles:
 pred$.pred[[1]]
 
 # without NA
-pred$.pred[[1]]
+pred$.pred[[2]]
 ```
 
 This can be used to visualize an approximation of the underlying survival curve.
@@ -135,7 +138,8 @@ This can be used to visualize an approximation of the underlying survival curve.
 ```{r survival-curve}
 library(ggplot2)
 
-predict(cox_penalized, new_data = cetaceans[2:3,], type = "survival", time = seq(0, 80, 1)) %>% 
+predict(cox_penalized, new_data = cetaceans[2:3,], 
+        type = "survival", time = seq(0, 80, 1)) %>% 
   dplyr::mutate(id = factor(2:3)) %>% 
   tidyr::unnest(cols = .pred) %>% 
   ggplot(aes(x = .time, y = .pred_survival, col = id)) +
@@ -145,7 +149,6 @@ predict(cox_penalized, new_data = cetaceans[2:3,], type = "survival", time = seq
 
 More examples of available models, engines, and prediction types can be found in the article [Fitting and Predicting with censored](https://censored.tidymodels.org/articles/examples.html).
 
-
 ## Acknowledgements
 
-[&#x0040;bcjaeger](https://github.com/bcjaeger), [&#x0040;brunocarlin](https://github.com/brunocarlin), [&#x0040;caimiao0714](https://github.com/caimiao0714), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dvdsb](https://github.com/dvdsb), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;erikvona](https://github.com/erikvona), [&#x0040;gvelasq](https://github.com/gvelasq), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;schelhorn](https://github.com/schelhorn), and [&#x0040;topepo](https://github.com/topepo).
+A big thanks to all the contributors: [&#x0040;bcjaeger](https://github.com/bcjaeger), [&#x0040;brunocarlin](https://github.com/brunocarlin), [&#x0040;caimiao0714](https://github.com/caimiao0714), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dvdsb](https://github.com/dvdsb), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;erikvona](https://github.com/erikvona), [&#x0040;gvelasq](https://github.com/gvelasq), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;schelhorn](https://github.com/schelhorn), and [&#x0040;topepo](https://github.com/topepo).
