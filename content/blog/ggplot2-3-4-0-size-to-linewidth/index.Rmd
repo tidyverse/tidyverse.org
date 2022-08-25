@@ -48,7 +48,7 @@ Before going into technicalities we'll describe how it is intended to
 work. We are well aware that we can't just make a change that would
 instantly break everyone's code. So, we have gone to great length to
 make old code work as before while gently coercing users into adopting
-the news paradigm. For example, take a look at this piece of old code:
+the new paradigm. For example, take a look at this old code:
 
 ```{r}
 library(ggplot2)
@@ -74,7 +74,7 @@ ggplot(airquality) +
   scale_size("Windspeed (mph)", range = c(0.5, 3))
 ```
 
-but ultimately we of course wants users to migrate to the following
+but ultimately we want users to migrate to the following
 code:
 
 ```{r}
@@ -95,7 +95,7 @@ ggplot(airquality) +
 We have been able to add this automatic translation in a quite
 non-intrusive way which means that you as a package developer don't need
 to do that much to adapt to the new naming. To show this I'll create a
-geom drawing circles and then update it to using linewidth instead:
+geom drawing circles then update it to use linewidth instead:
 
 ```{r}
 GeomCircle <- ggproto("GeomCircle", Geom,
@@ -186,7 +186,7 @@ not a huge operation.
 
 There are a few things you need to do to update the old code but they
 are all pretty benign. The changes are commented in the code below and
-will also be discussed afterwards
+will also be discussed afterwards.
 
 ```{r}
 GeomCircle <- ggproto("GeomCircle", Geom,
@@ -244,7 +244,7 @@ implementation. First (but last in the code), we add
 that this layer has a `size` aesthetic that should be converted
 automatically with a deprecation warning. Setting this to `TRUE` allows
 you to rest assured that as far as your code goes you can expect to have
-a `linewidth` aesthetic. Second, we updates the `default_aes` to use
+a `linewidth` aesthetic. Second, we update the `default_aes` to use
 `linewidth` instead of `size`. Third, wherever we use `size` in our geom
 logic we instead use `linewidth %||% size`. The reason for the fallback
 is that if your package is used together with an older version of
