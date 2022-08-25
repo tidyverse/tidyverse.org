@@ -19,7 +19,7 @@ tags: [ggplot2]
 editor_options: 
   markdown: 
     wrap: 72
-rmd_hash: 703cd186e4f4ea0b
+rmd_hash: 35ade0b8dd36516b
 
 ---
 
@@ -29,7 +29,7 @@ There are many excellent reasons for this change, all of which will have to wait
 
 ## The way it works
 
-Before going into technicalities we'll describe how it is intended to work. We are well aware that we can't just make a change that would instantly break everyone's code. So, we have gone to great length to make old code work as before while gently coercing users into adopting the news paradigm. For example, take a look at this piece of old code:
+Before going into technicalities we'll describe how it is intended to work. We are well aware that we can't just make a change that would instantly break everyone's code. So, we have gone to great length to make old code work as before while gently coercing users into adopting the new paradigm. For example, take a look at this old code:
 
 <div class="highlight">
 
@@ -66,7 +66,7 @@ As you can see, ggplot2 detects the use of the `size` aesthetic and informs the 
 
 </div>
 
-but ultimately we of course wants users to migrate to the following code:
+but ultimately we want users to migrate to the following code:
 
 <div class="highlight">
 
@@ -81,11 +81,11 @@ but ultimately we of course wants users to migrate to the following code:
 
 </div>
 
-> The last two plots are not equal because the `default` `linewidth` scale correctly use a linear transform instead of a square root transform
+> Note that there's an important difference between these two plots (and one of the reasons we're making the change): The last two plots differ because the default `linewidth` scale correctly use a linear transform instead of a square root transform (which is only sensible for scaling of areas).
 
 ## How to adopt this
 
-We have been able to add this automatic translation in a quite non-intrusive way which means that you as a package developer don't need to do that much to adapt to the new naming. To show this I'll create a geom drawing circles and then update it to using linewidth instead:
+We have been able to add this automatic translation in a quite non-intrusive way which means that you as a package developer don't need to do that much to adapt to the new naming. To show this I'll create a geom drawing circles then update it to use linewidth instead:
 
 <div class="highlight">
 
@@ -174,7 +174,7 @@ It seems to work as intended. As can be seen from the code above, the `size` aes
 
 ### The fix
 
-There are a few things you need to do to update the old code but they are all pretty benign. The changes are commented in the code below and will also be discussed afterwards
+There are a few things you need to do to update the old code but they are all pretty benign. The changes are commented in the code below and will also be discussed afterwards.
 
 <div class="highlight">
 
@@ -228,7 +228,7 @@ There are a few things you need to do to update the old code but they are all pr
 
 </div>
 
-As we can see above, we need two changes and two additions to our implementation. First (but last in the code), we add `rename_size = TRUE` to our geom implementation. This instructs ggplot2 that this layer has a `size` aesthetic that should be converted automatically with a deprecation warning. Setting this to `TRUE` allows you to rest assured that as far as your code goes you can expect to have a `linewidth` aesthetic. Second, we updates the `default_aes` to use `linewidth` instead of `size`. Third, wherever we use `size` in our geom logic we instead use `linewidth %||% size`. The reason for the fallback is that if your package is used together with an older version of ggplot2 the `rename_size = TRUE` line has no effect and you need to fall back to `size` if that is what the user has specified. Fourth, we add `size` to the `non_missing_aes` field. As with the last point, this is only relevant for use with older versions of ggplot2 as it instructs the geom to not warn when `size` is used.
+As we can see above, we need two changes and two additions to our implementation. First (but last in the code), we add `rename_size = TRUE` to our geom implementation. This instructs ggplot2 that this layer has a `size` aesthetic that should be converted automatically with a deprecation warning. Setting this to `TRUE` allows you to rest assured that as far as your code goes you can expect to have a `linewidth` aesthetic. Second, we update the `default_aes` to use `linewidth` instead of `size`. Third, wherever we use `size` in our geom logic we instead use `linewidth %||% size`. The reason for the fallback is that if your package is used together with an older version of ggplot2 the `rename_size = TRUE` line has no effect and you need to fall back to `size` if that is what the user has specified. Fourth, we add `size` to the `non_missing_aes` field. As with the last point, this is only relevant for use with older versions of ggplot2 as it instructs the geom to not warn when `size` is used.
 
 Let's try out the new implementation:
 
