@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: bundle-0-1-0
 title: Announcing bundle
-date: 2022-09-17
+date: 2022-09-16
 author: Julia Silge
 description: >
     Some models store information in locations that cannot be saved via 
