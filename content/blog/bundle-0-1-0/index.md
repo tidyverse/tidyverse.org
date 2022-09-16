@@ -20,7 +20,7 @@ categories: [package]
 tags: [bundle]
 ---
 
-We're thrilled to announce the first release of [bundle](https://rstudio.github.io/bundle/) 0.1.0. The bundle package provides a consistent interface to capture all information needed to serialize a model, situate that information within a portable object, and restore it for use in new settings.
+We're thrilled to announce the first release of [bundle](https://rstudio.github.io/bundle/). The bundle package provides a consistent interface to capture all information needed to serialize a model, situate that information within a portable object, and restore it for use in new settings.
 
 You can install it from CRAN with:
 
@@ -116,7 +116,7 @@ r(
 
 Nice! 😀
 
-What if instead we wanted to use a neural network, using tidymodels and keras as the modeling engine?
+What if instead we wanted to train a neural network using tidymodels, with keras as the modeling engine?
 
 
 ```r
@@ -144,6 +144,7 @@ saveRDS(keras_fit, file = temp_file)
 
 r(
   function(temp_file, new_data) {
+    library(workflows)
     model_object <- readRDS(file = temp_file)
     predict(model_object, new_data)
   },
@@ -156,8 +157,8 @@ r(
 
 ```
 ## Error: ! error in callr subprocess
-## Caused by error in `UseMethod("predict")`:
-## ! no applicable method for 'predict' applied to an object of class "workflow"
+## Caused by error in `do.call(object$predict, args)`:
+## ! 'what' must be a function or character string
 ```
 
 Oh no! 😱
