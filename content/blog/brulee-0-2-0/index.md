@@ -40,6 +40,68 @@ The corresponding [set of functions](https://tidymodels.github.io/brulee/referen
 
 To use these with `brulee_mlp()`, there is a  `rate_schedule` argument with possible values: `"none"` (the default), `"decay_time"`, `"decay_expo"`, `"cyclic"` and `"step"`. Each function has arguments and these can be passed directly to `brulee_mlp()`. The `rate_schedule` argument can also be tuned as any other engine-specific parameter.
 
+## An example
+
+Let's look at an example using the Ames housing data. We'll use tidymodels to split the data and also preprocess the data a bit. 
+
+
+```r
+library(tidymodels)
+library(brulee)
+
+# ------------------------------------------------------------------------------
+
+tidymodels_prefer()
+theme_set(theme_bw())
+
+# ------------------------------------------------------------------------------
+
+data(ames, package = "modeldata")
+ames$Sale_Price <- log10(ames$Sale_Price)
+
+# ------------------------------------------------------------------------------
+
+set.seed(5685)
+split <- initial_split(ames)
+ames_train <- training(split)
+ames_test  <- testing(split)
+
+# ------------------------------------------------------------------------------
+# Let's make a recipe to preprocess the data
+
+ames_rec <-
+  recipe(Sale_Price ~ Bldg_Type + Neighborhood + Year_Built + Gr_Liv_Area +
+           Full_Bath + Year_Sold + Lot_Area + Central_Air + Longitude + Latitude,
+         data = ames_train) %>%
+  # Transform some highly skewed predictors
+  step_BoxCox(Lot_Area, Gr_Liv_Area) %>%
+  # Lump some rarely occurring categories into "other"
+  step_other(Neighborhood, threshold = 0.05)  %>%
+  # Encode categorical predictors as binary.
+  step_dummy(all_nominal_predictors(), one_hot = TRUE) %>%
+  # Add an interaction effect:
+  step_interact(~ starts_with("Central_Air"):Year_Built) %>%
+  step_zv(all_predictors()) %>%
+  step_normalize(all_numeric_predictors())
+```
+
+Now we can fit the model by passing the data, the recipe, and other options to `brulee_mlp()`. We'll use a cyclic scheduler with a half-cycle size of 5 epochs:
+
+
+```r
+set.seed(827)
+fit <- brulee_mlp(ames_rec, data = ames_train, hidden_units = 20, epochs = 151,
+                  penalty = 0.05, rate_schedule = "cyclic", step_size = 5)
+
+# Show the validation loss and alter the x-axis tick marks to correspond to cycles. 
+cycles <- seq(1, 151, by = 10)
+autoplot(fit) + scale_x_continuous(breaks = cycles, minor_breaks = NULL)
+```
+
+<img src="figure/val-loss-1.svg" title="plot of chunk val-loss" alt="plot of chunk val-loss" width="90%" />
+
+
+
 
 ## Acknowledgements
 
