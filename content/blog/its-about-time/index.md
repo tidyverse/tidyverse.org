@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [clock, r-lib]
-rmd_hash: 8a4ef0744c5377b8
+rmd_hash: b7a1b9ed15dc305d
 
 ---
 
@@ -33,7 +33,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-At rstudio::conf(2022), Davis Vaughan gave a lightning talk on [clock](https://clock.r-lib.org/), an R package that aims to provide comprehensive and safe handling of date-times. clock goes beyond the date and date-time types that base R provides, implementing new types for year-month, year-quarter, ISO year-week, and many other date-like formats, all with up to nanosecond precision.
+At rstudio::conf(2022), Davis Vaughan gave a lightning talk on [clock](https://clock.r-lib.org/), an R package that aims to provide comprehensive and safe handling of date-times. clock goes beyond the date and date-time types that base R provides, implementing new types for year-month, year-quarter, ISO year-week, and many other date-like formats, all with up to nanosecond precision. clock is **not** replacing [lubridate](https://lubridate.tidyverse.org/). lubridate will never go away, and is not being deprecated or superseded. In the future, we expect to update lubridate to use clock as a backend (so clock becomes [stringi](https://stringi.gagolewski.com/) to lubridate's [stringr](https://stringr.tidyverse.org/)).
 
 In Davis' talk, you'll see how clock emphasizes "safety first" when manipulating date-times, and how its new date-time types can be used in your own work.
 
