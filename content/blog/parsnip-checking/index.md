@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: parsnip-checking-1-0-2
 title: Improvements to model specification checking in tidymodels
-date: 2022-10-10
+date: 2022-10-05
 author: Simon Couch
 description: >
     parsnip 1.0.2 includes a number of changes to how the package checks
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parsnip, tidymodels]
-rmd_hash: 04e68e74f43ce86b
+rmd_hash: 6c7c2ce362f40fb3
 
 ---
 
@@ -34,11 +34,9 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're stoked to announce the upcoming release of [parsnip](https://parsnip.tidymodels.org/) v1.0.2 on CRAN! parsnip provides a tidy, unified interface to models that can be used to try a range of models without getting bogged down in the syntactical minutiae of the underlying packages. This release includes improvements to errors and warnings that proliferate throughout the tidymodels ecosystem. These changes are meant to better anticipate common mistakes and nudge users informatively when defining model specifications.
+We're stoked to announce the upcoming release of [parsnip](https://parsnip.tidymodels.org/) v1.0.2 on CRAN! parsnip provides a tidy, unified interface to various statistical and machine learning models. This release includes improvements to errors and warnings that proliferate throughout the tidymodels ecosystem. These changes are meant to better anticipate common mistakes and nudge users informatively when defining model specifications. parsnip v1.0.2 includes a number of other changes that you can read about in the [release notes](https://github.com/tidymodels/parsnip/blob/main/NEWS.md).
 
-First, though, we'll start off with a higher-level overview of parsnip and its foundational role in the tidymodels collection of packages.
-
-## A bird's eye view of parsnip and friends
+## parsnip and its extension packages
 
 We'll load parsnip, along with other core packages in tidymodels, using the tidymodels meta-package:
 
@@ -46,7 +44,7 @@ We'll load parsnip, along with other core packages in tidymodels, using the tidy
 library(tidymodels)
 ```
 
-parsnip provides a unified interface to machine learning models, supporting a wide array of modeling approaches implemented across numerous R packages. For instance, the code to specify a linear regression model using the `glmnet` library:
+parsnip provides a unified interface to machine learning models, supporting a wide array of modeling approaches implemented across numerous R packages. For instance, the code to specify a linear regression model using the `glmnet` package:
 
 ``` r
 linear_reg() %>%
@@ -68,22 +66,22 @@ boost_tree() %>%
 #> Computational engine: xgboost
 ```
 
-We refer to these objects as *model specifications*, and each are composed of three main components:
+We refer to these objects as *model specifications*. They have three main components:
 
 -   The **model type**: In this case, a linear regression or boosted tree.
 -   The **mode**: The learning task, such as regression or classification.
--   The **engine**: The package or function supplying the implementation for the given model type and mode.
+-   The **engine**: The implementation for the given model type and mode, usually an R package.
 
-Aside from the consistency in syntax, another advantage of the parsnip package is that it's extensible; anyone (including you!) can write a parsnip *extension package* that tightly integrates with our packages out-of-the-box. We maintain a few of these packages ourselves, such as:
+This conceptual split of the model specification allows for parsnip's consistent syntax - and it makes it extensible. Anyone (including you!) can write a parsnip *extension package* that tightly integrates with other tidymodels packages out-of-the-box. We maintain a few of these packages ourselves, such as:
 
--   [agua](https://github.com/tidymodels/agua): support for models from the H2O modeling ecosystem
--   [baguette](https://github.com/tidymodels/baguette): support for bootstrap aggregating ensemble models
--   [censored](https://github.com/tidymodels/censored): support for censored regression and survival analysis
+-   [agua](https://github.com/tidymodels/agua): models from the H2O modeling ecosystem
+-   [baguette](https://github.com/tidymodels/baguette): bootstrap aggregating ensemble models
+-   [censored](https://github.com/tidymodels/censored): censored regression and survival analysis
 
 Similarly, community members outside of the tidymodels team have written parsnip extension packages, such as:
 
--   [modeltime](https://github.com/business-science/modeltime): support for time series forecasting
--   [additive](https://github.com/hsbadr/additive): support for generalized additive models
+-   [modeltime](https://github.com/business-science/modeltime): time series forecasting
+-   [additive](https://github.com/hsbadr/additive): generalized additive models
 
 Much of our work on improving errors and warnings in this release has focused on parsnip's integration with its extensions.
 
@@ -91,8 +89,8 @@ Much of our work on improving errors and warnings in this release has focused on
 
 Two "big ideas" have helped us focus our efforts related to improving errors and messages in the ecosystem.
 
--   The same kind of mistake should raise the same prompt
--   Don't tell the user they did something they didn't do
+-   The same kind of mistake should raise the same prompt.
+-   Don't tell the user they did something they didn't do.
 
 We'll address both in the sections below!
 
@@ -352,11 +350,9 @@ bag_tree() %>%
 
 We hope these changes improve folks' experience when modeling with parsnip in the future!
 
-## Other bits and bobs
+## Acknowledgements
 
 <!-- This post has highlighted upcoming improvements to model specification checking in parsnip. For those who'd like to learn more, I've written a [companion article](https://simonpcouch.com/blog) on my blog that delves further into the tooling we use to check model specifications. -->
-
-parsnip v1.0.2 includes a number of other changes that you can read about [here](https://github.com/tidymodels/parsnip/blob/main/NEWS.md).
 
 Thanks to the folks who have contributed to this release of parsnip via GitHub: [@gustavomodelli](https://github.com/gustavomodelli), [@joeycouse](https://github.com/joeycouse), [@mrkaye97](https://github.com/mrkaye97), [@siegfried](https://github.com/siegfried).
 
