@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parsnip, tidymodels]
-rmd_hash: 95e2b10031e553b5
+rmd_hash: 04e68e74f43ce86b
 
 ---
 
@@ -354,11 +354,9 @@ We hope these changes improve folks' experience when modeling with parsnip in th
 
 ## Other bits and bobs
 
-This post has highlighted upcoming improvements to model specification checking in parsnip. For those who'd like to learn more, I've written a [companion article](https://simonpcouch.com/blog) on my blog that delves further into the tooling we use to check model specifications.
+<!-- This post has highlighted upcoming improvements to model specification checking in parsnip. For those who'd like to learn more, I've written a [companion article](https://simonpcouch.com/blog) on my blog that delves further into the tooling we use to check model specifications. -->
 
 parsnip v1.0.2 includes a number of other changes that you can read about [here](https://github.com/tidymodels/parsnip/blob/main/NEWS.md).
-
-## Acknowledgements
 
 Thanks to the folks who have contributed to this release of parsnip via GitHub: [@gustavomodelli](https://github.com/gustavomodelli), [@joeycouse](https://github.com/joeycouse), [@mrkaye97](https://github.com/mrkaye97), [@siegfried](https://github.com/siegfried).
 
