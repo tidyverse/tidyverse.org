@@ -32,11 +32,11 @@ TODO:
 * [x] `usethis::use_tidy_thanks()`
 -->
 
-We're stoked to announce the upcoming release of [parsnip](https://parsnip.tidymodels.org/) v1.0.2 on CRAN! parsnip provides a tidy, unified interface to models that can be used to try a range of models without getting bogged down in the syntactical minutiae of the underlying packages. This release includes improvements to errors and warnings that proliferate throughout the tidymodels ecosystem. These changes are meant to better anticipate common mistakes and nudge users informatively when defining model specifications.
+We're stoked to announce the upcoming release of [parsnip](https://parsnip.tidymodels.org/) v1.0.2 on CRAN! parsnip provides a tidy, unified interface to various statistical and machine learning models. This release includes improvements to errors and warnings that proliferate throughout the tidymodels ecosystem. These changes are meant to better anticipate common mistakes and nudge users informatively when defining model specifications.
 
 First, though, we'll start off with a higher-level overview of parsnip and its foundational role in the tidymodels collection of packages.
 
-## A bird's eye view of parsnip and friends
+## parsnip and its extension packages
 
 We'll load parsnip, along with other core packages in tidymodels, using the tidymodels meta-package:
 
@@ -66,22 +66,22 @@ boost_tree() %>%
 #> Computational engine: xgboost
 ```
 
-We refer to these objects as _model specifications_, and each are composed of three main components:
+We refer to these objects as _model specifications_. They have three main components:
 
 * The **model type**: In this case, a linear regression or boosted tree.
 * The **mode**: The learning task, such as regression or classification.
-* The **engine**: The package or function supplying the implementation for the given model type and mode.
+* The **engine**: The implementation for the given model type and mode, usually an R package.
 
-Aside from the consistency in syntax, another advantage of the parsnip package is that it's extensible; anyone (including you!) can write a parsnip _extension package_ that tightly integrates with our packages out-of-the-box. We maintain a few of these packages ourselves, such as:
+This conceptual split of the model specification allows for parsnip's consistent syntax - and it makes it extensible. Anyone (including you!) can write a parsnip _extension package_ that tightly integrates with other tidymodels packages out-of-the-box. We maintain a few of these packages ourselves, such as:
 
-* [agua](https://github.com/tidymodels/agua): support for models from the H2O modeling ecosystem
-* [baguette](https://github.com/tidymodels/baguette): support for bootstrap aggregating ensemble models
-* [censored](https://github.com/tidymodels/censored): support for censored regression and survival analysis
+* [agua](https://github.com/tidymodels/agua): models from the H2O modeling ecosystem
+* [baguette](https://github.com/tidymodels/baguette): bootstrap aggregating ensemble models
+* [censored](https://github.com/tidymodels/censored): censored regression and survival analysis
 
 Similarly, community members outside of the tidymodels team have written parsnip extension packages, such as:
 
-* [modeltime](https://github.com/business-science/modeltime): support for time series forecasting
-* [additive](https://github.com/hsbadr/additive): support for generalized additive models
+* [modeltime](https://github.com/business-science/modeltime): time series forecasting
+* [additive](https://github.com/hsbadr/additive): generalized additive models
 
 Much of our work on improving errors and warnings in this release has focused on parsnip's integration with its extensions.
 
@@ -89,8 +89,8 @@ Much of our work on improving errors and warnings in this release has focused on
 
 Two "big ideas" have helped us focus our efforts related to improving errors and messages in the ecosystem.
 
-* The same kind of mistake should raise the same prompt
-* Don't tell the user they did something they didn't do
+* The same kind of mistake should raise the same prompt.
+* Don't tell the user they did something they didn't do.
 
 We'll address both in the sections below!
 
