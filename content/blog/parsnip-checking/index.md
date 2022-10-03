@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parsnip, tidymodels]
-rmd_hash: 6c7c2ce362f40fb3
+rmd_hash: da41af045f45f72b
 
 ---
 
@@ -34,7 +34,7 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're stoked to announce the upcoming release of [parsnip](https://parsnip.tidymodels.org/) v1.0.2 on CRAN! parsnip provides a tidy, unified interface to various statistical and machine learning models. This release includes improvements to errors and warnings that proliferate throughout the tidymodels ecosystem. These changes are meant to better anticipate common mistakes and nudge users informatively when defining model specifications. parsnip v1.0.2 includes a number of other changes that you can read about in the [release notes](https://github.com/tidymodels/parsnip/blob/main/NEWS.md).
+We're stoked to announce the new release of [parsnip](https://parsnip.tidymodels.org/) v1.0.2 on CRAN! parsnip provides a tidy, unified interface to various statistical and machine learning models. This release includes improvements to errors and warnings that proliferate throughout the tidymodels ecosystem. These changes are meant to better anticipate common mistakes and nudge users informatively when defining model specifications. parsnip v1.0.2 includes a number of other changes that you can read about in the [release notes](https://parsnip.tidymodels.org/news/index.html#parsnip-102).
 
 ## parsnip and its extension packages
 
@@ -206,7 +206,7 @@ bag_tree() %>%
 #> Computational engine: rpart
 ```
 
-If we specify the mode as a regression model, though, the specification is no longer well-supported given the extensions we've loaded. parsnip will again prompt us to load the correct package:
+The censored package, however, doesn't implement a `regression` mode for bagged trees. Thus, if we set the mode to `regression` but fail to load the package that provides support for that mode, parsnip will again prompt us to load the correct package:
 
 ``` r
 bag_tree() %>%
