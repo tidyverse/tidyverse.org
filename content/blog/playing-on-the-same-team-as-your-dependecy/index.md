@@ -17,7 +17,7 @@ tags: []
 editor_options: 
   markdown: 
     wrap: 72
-rmd_hash: dd01ff04a66cf78b
+rmd_hash: bc9b93eecde6cea6
 
 ---
 
@@ -36,27 +36,27 @@ TODO:
 
 Developing packages for R is a matter of standing on the shoulders of others. Very seldom does packages exist in a vacuum --- on the contrary, we often rely on dependencies to avoid duplication of code or lean into the work done by experts within an adjacent field.
 
-It can easily feel like a one way relationship to take on a dependency on another package. You are responsible for keeping your package working and the developer of the dependency can ignore whatever goes on in your package. Code flows only from the dependency to your package. This is not true, though. By taking on a dependency you enter into a mutual relationship with it. The dependency implicitly promises to not change it's interface without providing an upgrade path to you. You, on the other hand promises to only rely on the public interface of the package. This blog post goes into detail with what your promise entails.
+It can easily feel like a one-way relationship to take on a dependency of another package. You are responsible for keeping your package working and the developer of the dependency can ignore whatever goes on in your package. Code flows only from the dependency to your package. This is not true, though. By taking on a dependency you enter into a mutual relationship with it. The dependency implicitly promises not to change its interface without providing an upgrade path to you. You, on the other hand, promises to only rely on the public interface of the package. This blog post goes into detail as to what your promise entails.
 
 ### Why does this matter?
 
-As a developer you may be surprised to learn that the dependency's promise is enforced by CRAN. When submitting a new version for release the package goes through a battery of tests, among these a reverse dependency check where all packages on CRAN that depends on the submitted package is checked against the new version. If any regressions have occurred it is flagged. The CRAN repository policy states:
+As a developer, you may be surprised to learn that the dependency's promise is enforced by CRAN. When submitting a new version for release, the package goes through a battery of tests, including a reverse dependency check where all packages on CRAN that depend on the submitted package are checked against the new version. If any regressions have occurred, it is flagged. The CRAN repository policy states:
 
-> If an update will change the package\'s API and hence affect packages depending on it, it is expected that you will contact the maintainers of affected packages and suggest changes, and give them time (at least 2 weeks, ideally more) to prepare updates before submitting your updated package.
+> If an update will change the package's API and hence affect packages depending on it, it is expected that you will contact the maintainers of affected packages and suggest changes, and give them time (at least 2 weeks, ideally more) to prepare updates before submitting your updated package.
 
 This is good in general --- it *is* important that a package maintains a stable interface across versions --- but can become a huge obstacle to updates if the packages that depends on you are reaching behind the curtain and making assumptions you never promised to adhere to.
 
 ## What's in an API?
 
-For better and worse, R as a language is extremely liberal with what you can access as a user. There is practically no data or function you can't access and modify which makes the concept of APIs a question of conventions. Those conventions are quite well defined when it comes to functions in packages, but much less so for everything else. We will discuss functions first and then proceed into the more gray area of objects and data.
+For better and worse, R as a language is extremely liberal with what you can access as a user. There is practically no data or function you can't access and modify, which makes the concept of APIs a question of conventions. Those conventions are quite well defined when it comes to functions in packages, but much less so for everything else. We will discuss functions first, and then proceed into the more gray areas of objects and data.
 
 ### Exported functions
 
-When creating a package you are now required to provide a NAMESPACE file which states the functions you import *into* your package for use, and the functions you export *out of* your package for others to use. The NAMESPACE file demarcates in very clear terms the functional interface of a package but is still based on mutual trust. While you cannot import functions from a package that have not been exported, there is nothing in the R language that prevents you from using them by accessing them directly. Below we will talk about several ways of doing this and why all of them has issues:
+When creating a package, you are required to provide a NAMESPACE file which states the functions you import *into* your package for use, and the functions you export *out of* your package for others to use. The NAMESPACE file demarcates in very clear terms the functional interface of a package, but is still based on mutual trust. While you cannot import functions from a package that have not been exported, there is nothing in the R language that prevents you from using them by accessing them directly. Below, we will talk about several ways of doing this and why each of them has issues:
 
 #### Using `:::`
 
-R provides two operators for accessing objects in a package namespace: `::` allows you to fetch exported objects and functions while `:::` allows you to access *any* object and function. Thus, you could for instance gain access to the internal `camelize()` function in ggplot2 to convert geom function names into ggproto object names like so:
+R provides two operators for accessing objects in a package namespace: `::` allows you to fetch exported objects and functions, while `:::` allows you to access *any* object and function (both public and internal). Thus, you could for instance gain access to the internal `camelize()` function in ggplot2 to convert geom function names into ggproto object names like so:
 
 <div class="highlight">
 
@@ -65,11 +65,11 @@ R provides two operators for accessing objects in a package namespace: `::` allo
 
 </div>
 
-*But* since there is no need for `:::` except for reaching beyond the package interface it's use is actively checked and packages using it is rejected from CRAN.
+*But* since there is no need for `:::` except for reaching beyond the package interface, its use is actively checked and packages using it are rejected from CRAN.
 
 #### Using `utils::getFromNamespace()`
 
-To circumvent the detection of `:::` we sometimes see code like the following in packages:
+To circumvent the detection of `:::`, we sometimes see code like the following in packages:
 
 <div class="highlight">
 
@@ -87,12 +87,12 @@ There are two huge issues with this approach. The first being that you now have 
 <span class='c'>#&gt;   if (first) x &lt;- firstUpper(x)</span>
 <span class='c'>#&gt;   x</span>
 <span class='c'>#&gt; &#125;</span>
-<span class='c'>#&gt; &lt;bytecode: 0x109cd3de8&gt;</span>
+<span class='c'>#&gt; &lt;bytecode: 0x1299e4058&gt;</span>
 <span class='c'>#&gt; &lt;environment: namespace:ggplot2&gt;</span></code></pre>
 
 </div>
 
-We can see that it contains a call to `firstUpper()` which is another internal function. As ggplot2 developers we might decide one day that this factorization of code is too granular and inline the code of `firstUpper()` into `camelize()`, allowing us to remove `firstUpper()` altogether.
+We can see that it contains a call to `firstUpper()` which is another internal function. As ggplot2 developers, we might decide one day that this factorization of code is too granular, and inline the code of `firstUpper()` into `camelize()`, allowing us to remove `firstUpper()` altogether.
 
 <div class="highlight">
 
@@ -105,7 +105,7 @@ We can see that it contains a call to `firstUpper()` which is another internal f
 
 </div>
 
-All of that would be perfectly fine for us to do. After all we are not changing the public interface of ggplot2, we aren't even changing how `camelize()` works. But, in packages that have fetched `camelize()` at build time the function would be unchanged, still calling `firstUpper()` who now no longer exists. As you might imagine this can lead to some very hard to debug errors for, you, your users, and the maintainer of the dependency.
+All of that would be perfectly fine for us to do. After all, we are not changing the public interface of ggplot2, we aren't even changing how `camelize()` works. But, in packages that have fetched `camelize()` at build time, the function would be unchanged, still calling `firstUpper()` which now no longer exists. As you might imagine, this can lead to some very hard to debug errors for you, your users, and the maintainer of the dependency.
 
 #### Use `asNamespace()` inside a function
 
@@ -119,7 +119,7 @@ This rule can be extended beyond its use to access unexported functions: **Never
 
 While `add_these_two_objects_together` is exported and you are doing nothing wrong in terms of interfaces, you are still setting up a build-time dependency that might cause breakage any time your dependency gets updated on a system.
 
-Thus we arrive at the last approach: Fetching the function inside a function call and then use it. In the example below we are using [`asNamespace()`](https://rdrr.io/r/base/ns-internal.html) but the same principle holds true for [`getFromNamespace()`](https://rdrr.io/r/utils/getFromNamespace.html)
+Thus, we arrive at the last approach: Fetching the function inside a function call and then using it. In the example, below we are using [`asNamespace()`](https://rdrr.io/r/base/ns-internal.html) but the same principle holds true for [`getFromNamespace()`](https://rdrr.io/r/utils/getFromNamespace.html)
 
 <div class="highlight">
 
@@ -133,13 +133,13 @@ Now, while this is many times better than what we did before, it is still a big 
 
 #### What to do?
 
-What if you really wanted that functionality? A good first approach is to simply copy the code for the function into your own package. For something like `camelize()` this is fairly simple as it doesn't call into other internal functions (except `firstUpper()` but we saw that that could be inlined). One thing to keep in mind here is to make sure that the licence of the dependency doesn't prevent you from doing this (e.g. a package released under MIT license can't copy code from a package released under a GPL-2 licence).
+What if you really wanted that functionality? A good first approach is to simply copy the code for the function into your own package. For something like `camelize()`, this is fairly simple as it doesn't call into other internal functions (except `firstUpper()` but we saw that that could be inlined). One thing to keep in mind here is to make sure that the licence of the dependency doesn't prevent you from doing this (e.g. a package released under MIT license can't copy code from a package released under a GPL-2 licence).
 
-If you can't copy the code into your own package, either due to incompatible licenses or because the function is a rabbit hole of internal function calls, you'll need to reach out to the maintainer and ask whether the required function can be exported so you can use it. Keep in mind that there are many good reasons why you could get a "no" since every new export increases the maintenance burden of a package. So, you can get a "yes" and all is well, or you might get a "no" and have to accept that as well. Getting a "no" is not a blanket approval to do any of the above things we have discussed, for the exact reasons we have discussed, rather it means you have to reframe your solution so it doesn't require this functionality or abandon it altogether.
+If you can't copy the code into your own package, either due to incompatible licenses or because the function is a rabbit hole of internal function calls, you'll need to reach out to the maintainer and ask whether the required function can be exported so you can use it. Keep in mind that there are many good reasons why you could get a "no", since every new export increases the maintenance burden of a package. So, you can get a "yes" and all is well, or you might get a "no" and have to accept that as well. Getting a "no" is not a blanket approval to do any of the above things we have discussed, for the exact reasons we described. Rather, it means you have to reframe your solution so it doesn't require this functionality or abandon it altogether.
 
 ### Exported structures
 
-While the situation with functions is quite clear-cut --- there are *do's* and *don't* --- we enter a much grayer area when it comes to any sort of data/object structure you get from a dependency, either as an object exported by the package or as a return value from an exported function. The reason why it is a gray area is that there is no formal way to specify an interface to on object in R and the users are used to an "everything goes" mentality when it comes to reaching into data structures. For example, while attributes are a bit more "hidden away" than elements in a list, there is no notion of these being prohibited from access. There might be a mutual understanding that if you alter attributes in some way it might lead to breakage somewhere downstream, but merely reading attributes as a pretty common thing to do. The same goes for more complex object that contains more than just data. An example is the object created by a call to `ggplot()`
+While the situation with functions is quite clear-cut --- there are *do's* and *don'ts* --- we enter a much grayer area when it comes to any sort of data/object structure you get from a dependency, either as an object exported by the package or as a return value from an exported function. The reason why it is a gray area is that there is no formal way to specify an interface to on object in R and the users are used to an "anything goes" mentality when it comes to reaching into data structures. For example, while attributes are a bit more "hidden away" than elements in a list, there is no notion of these being prohibited from access. There might be a mutual understanding that, if you alter attributes in some way, it might lead to breakage somewhere downstream. But merely reading attributes is a pretty common thing to do. The same goes for more complex objects that contain more than just data. An example is the object created by a call to `ggplot()`
 
 <div class="highlight">
 
@@ -209,19 +209,19 @@ While the situation with functions is quite clear-cut --- there are *do's* and *
 
 </div>
 
-This is obviously more than just data, but what, if any, is actually fair to access as a package developer? This is a tough question to answer in general terms.
+This is obviously more than just data, but which elements, if any, are actually fair to access as a package developer? This is a tough question to answer in general terms.
 
-If you want to be a very polite (and who wouldn't), the best way to go about it is to look for accessor functions for the part of the object you are interested in and in the absence of one, ask the maintainer to add one. The reason why accessor functions are so much better than relying on e.g. [`attr()`](https://rdrr.io/r/base/attr.html) to extract some information stored in an attribute, is that it frees the maintain to change the *structure* of the data/object, while keeping the *interface* constant. Asking a maintainer for a public accessor function will also alert the maintainer to the fact that others are actually interested in said information which could inform future development.
+If you want to be a very polite (and who wouldn't), the best way to go about it is to look for accessor functions for the part of the object you are interested in, and in the absence of one, ask the maintainer to add one. The reason why accessor functions are so much better than relying on e.g. [`attr()`](https://rdrr.io/r/base/attr.html) to extract some information stored in an attribute, is that it frees the maintainer to change the *structure* of the data/object, while keeping the *interface* constant. Asking a maintainer for a public accessor function will also alert the maintainer to the fact that others are actually interested in said information, which could inform future development.
 
 #### Testing, testing
 
-You may be the most polite package developer, using only the finest public accessor functions in your code and keeping out of any data structure you don't control the provenance off and still be reliant of implementation details in objects from other packages. How? You may inadvertently test for their internal details in your unit tests when you are comparing objects wholesale, or if you have saved complex objects and load these up during testing.
+You may be the most polite package developer, using only the finest public accessor functions in your code and keeping out of any data structure you don't control the provenance of and still be reliant of implementation details in objects from other packages. How? You may inadvertently test for their internal details in your unit tests when you are comparing objects wholesale, or if you have saved complex objects and load these up during testing.
 
-Once again we are certainly in a gray area here, but one guide line to help you is to ask yourself whether your unit test is only testing for parts that your own package influence, or does it also include assumptions about implementation details of another package. As an example (once again from ggplot2), you might want to ensure that a plot function in your package works as intended. On one extreme end you can save a working ggplot object returned from your function and then test for equivalence with that during unit testing. This is not a great idea because anything we might change internally in ggplot2 would likely result in changes to the created ggplot2 object, and while it still works, it may look slightly different. On the other end you may instead do visual testing using the vdiffr package where you only look at the actual output. However, that also makes a lot of assumptions about how ggplot2 chooses to render it's objects and internal changes may again break your tests without there being anything broken in reality.
+Once again, we are certainly in a gray area here, but one guideline to help you is to ask yourself whether your unit test is only testing for parts that your own package influence, or does it also include assumptions about implementation details of another package. As an example (once again from ggplot2), you might want to ensure that a plot function in your package works as intended. On one extreme end you can save a working ggplot object returned from your function and then test for equivalence with that during unit testing. This is not a great idea because anything we might change internally in ggplot2 would likely result in changes to the created ggplot2 object. And while it still works, it may look slightly different. On the other end, you may instead do visual testing using the vdiffr package where you only look at the actual output. However, that also makes a lot of assumptions about how ggplot2 chooses to render its objects and internal changes may again break your tests without there being anything broken in reality.
 
 > Visual testing in general is something that is mainly intended for packages providing graphic rendering, e.g. ggplot2 and it's extension package ecosystem. If you are using other packages to create your plots you should in general lean on them to test for visual regressions.
 
-The Goldilocks zone for your testing is to figure out which exact elements your high-level plot function influences and then get to these, preferably using public accessor functions. For ggplot2 it will often be enough to extract the data for each layer (using `layer_data()`) and test specific columns of that (never test against the full layer data since ggplot2 may add to this etc.).
+The Goldilocks zone for your testing is to figure out which exact elements your high-level plot function influences, and then get to these, preferably using public accessor functions. For ggplot2 it will often be enough to extract the data for each layer (using `layer_data()`) and test specific columns of that (never test against the full layer data since ggplot2 may add to this etc.).
 
-If you find that you are missing public accessor function in order to do proper testing, once again reach out to the maintainer and ask. You may learn that this information is not exposed because it is subject to change, thus a poor fit for unit testing, or you may get your function and end up with more robust tests in your own package.
+If you find that you are missing public accessor function in order to do proper testing, once again reach out to the maintainer and ask. You may learn that this information is not exposed because it is subject to change, thus a poor fit for unit testing. Or you may get your function and end up with more robust tests in your own package.
 

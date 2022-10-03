@@ -45,19 +45,20 @@ package. Code flows only from the dependency to your package. This is
 not true, though. By taking on a dependency you enter into a mutual
 relationship with it. The dependency implicitly promises not to change
 its interface without providing an upgrade path to you. You, on the
-other hand, promises to only rely on the public interface of the package.
-This blog post goes into detail as to what your promise entails.
+other hand, promises to only rely on the public interface of the
+package. This blog post goes into detail as to what your promise
+entails.
 
 ### Why does this matter?
 
 As a developer, you may be surprised to learn that the dependency's
 promise is enforced by CRAN. When submitting a new version for release,
 the package goes through a battery of tests, including a reverse
-dependency check where all packages on CRAN that depend on the
-submitted package are checked against the new version. If any regressions
-have occurred, it is flagged. The CRAN repository policy states:
+dependency check where all packages on CRAN that depend on the submitted
+package are checked against the new version. If any regressions have
+occurred, it is flagged. The CRAN repository policy states:
 
-> If an update will change the package\'s API and hence affect packages
+> If an update will change the package's API and hence affect packages
 > depending on it, it is expected that you will contact the maintainers
 > of affected packages and suggest changes, and give them time (at least
 > 2 weeks, ideally more) to prepare updates before submitting your
@@ -80,23 +81,24 @@ objects and data.
 
 ### Exported functions
 
-When creating a package, you are now required to provide a NAMESPACE file
+When creating a package, you are required to provide a NAMESPACE file
 which states the functions you import *into* your package for use, and
 the functions you export *out of* your package for others to use. The
 NAMESPACE file demarcates in very clear terms the functional interface
-of a package, but is still based on mutual trust. While you cannot import
-functions from a package that have not been exported, there is nothing
-in the R language that prevents you from using them by accessing them
-directly. Below, we will talk about several ways of doing this and why
-each of them has issues:
+of a package, but is still based on mutual trust. While you cannot
+import functions from a package that have not been exported, there is
+nothing in the R language that prevents you from using them by accessing
+them directly. Below, we will talk about several ways of doing this and
+why each of them has issues:
 
 #### Using `:::`
 
 R provides two operators for accessing objects in a package namespace:
 `::` allows you to fetch exported objects and functions, while `:::`
-allows you to access *any* object and function. Thus, you could for
-instance gain access to the internal `camelize()` function in ggplot2 to
-convert geom function names into ggproto object names like so:
+allows you to access *any* object and function (both public and
+internal). Thus, you could for instance gain access to the internal
+`camelize()` function in ggplot2 to convert geom function names into
+ggproto object names like so:
 
 ```{r}
 ggplot2:::camelize('geom_point', first = TRUE)
@@ -145,10 +147,10 @@ camelize <- function(x, first = FALSE) {
 All of that would be perfectly fine for us to do. After all, we are not
 changing the public interface of ggplot2, we aren't even changing how
 `camelize()` works. But, in packages that have fetched `camelize()` at
-build time, the function would be unchanged, still calling `firstUpper()`
-which now no longer exists. As you might imagine, this can lead to some
-very hard to debug errors for you, your users, and the maintainer of
-the dependency.
+build time, the function would be unchanged, still calling
+`firstUpper()` which now no longer exists. As you might imagine, this
+can lead to some very hard to debug errors for you, your users, and the
+maintainer of the dependency.
 
 #### Use `asNamespace()` inside a function
 
@@ -201,7 +203,7 @@ If you can't copy the code into your own package, either due to
 incompatible licenses or because the function is a rabbit hole of
 internal function calls, you'll need to reach out to the maintainer and
 ask whether the required function can be exported so you can use it.
-Keep in mind that there are many good reasons why you could get a "no"
+Keep in mind that there are many good reasons why you could get a "no",
 since every new export increases the maintenance burden of a package.
 So, you can get a "yes" and all is well, or you might get a "no" and
 have to accept that as well. Getting a "no" is not a blanket approval to
@@ -230,9 +232,9 @@ example is the object created by a call to `ggplot()`
 str(ggplot2::ggplot())
 ```
 
-This is obviously more than just data, but what, if any, is actually
-fair to access as a package developer? This is a tough question to
-answer in general terms.
+This is obviously more than just data, but which elements, if any, are
+actually fair to access as a package developer? This is a tough question
+to answer in general terms.
 
 If you want to be a very polite (and who wouldn't), the best way to go
 about it is to look for accessor functions for the part of the object
@@ -278,11 +280,11 @@ break your tests without there being anything broken in reality.
 > regressions.
 
 The Goldilocks zone for your testing is to figure out which exact
-elements your high-level plot function influences, and then get to these,
-preferably using public accessor functions. For ggplot2 it will often be
-enough to extract the data for each layer (using `layer_data()`) and
-test specific columns of that (never test against the full layer data
-since ggplot2 may add to this etc.).
+elements your high-level plot function influences, and then get to
+these, preferably using public accessor functions. For ggplot2 it will
+often be enough to extract the data for each layer (using
+`layer_data()`) and test specific columns of that (never test against
+the full layer data since ggplot2 may add to this etc.).
 
 If you find that you are missing public accessor function in order to do
 proper testing, once again reach out to the maintainer and ask. You may
