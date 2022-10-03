@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: parsnip-checking-1-0-2
 title: Improvements to model specification checking in tidymodels
-date: 2022-10-05
+date: 2022-10-03
 author: Simon Couch
 description: >
     parsnip 1.0.2 includes a number of changes to how the package checks
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parsnip, tidymodels]
-rmd_hash: da41af045f45f72b
+rmd_hash: e34fb3dbfa7f7062
 
 ---
 
