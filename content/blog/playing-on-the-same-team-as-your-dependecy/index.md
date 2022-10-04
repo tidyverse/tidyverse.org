@@ -17,7 +17,7 @@ tags: []
 editor_options: 
   markdown: 
     wrap: 72
-rmd_hash: bc9b93eecde6cea6
+rmd_hash: c02a9476f1907823
 
 ---
 
@@ -87,7 +87,7 @@ There are two huge issues with this approach. The first being that you now have 
 <span class='c'>#&gt;   if (first) x &lt;- firstUpper(x)</span>
 <span class='c'>#&gt;   x</span>
 <span class='c'>#&gt; &#125;</span>
-<span class='c'>#&gt; &lt;bytecode: 0x1299e4058&gt;</span>
+<span class='c'>#&gt; &lt;bytecode: 0x106658a98&gt;</span>
 <span class='c'>#&gt; &lt;environment: namespace:ggplot2&gt;</span></code></pre>
 
 </div>
@@ -224,4 +224,6 @@ Once again, we are certainly in a gray area here, but one guideline to help you 
 The Goldilocks zone for your testing is to figure out which exact elements your high-level plot function influences, and then get to these, preferably using public accessor functions. For ggplot2 it will often be enough to extract the data for each layer (using `layer_data()`) and test specific columns of that (never test against the full layer data since ggplot2 may add to this etc.).
 
 If you find that you are missing public accessor function in order to do proper testing, once again reach out to the maintainer and ask. You may learn that this information is not exposed because it is subject to change, thus a poor fit for unit testing. Or you may get your function and end up with more robust tests in your own package.
+
+While the example above is using ggplot2, this can be extrapolated to every other dependency that provide any form of complex output or exported data structure. Always question yourself whether your unit test is testing more than your own package's behavior. If they do, try to eliminate the influence of the dependencies as much as possible. Remember that tests that fail for reasons other than what it is testing for is not only annoying to you --- it can also drag out the release of the packages you rely on.
 
