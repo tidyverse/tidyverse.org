@@ -1,0 +1,156 @@
+---
+output: hugodown::hugo_document
+
+slug: tidyselect-1-2-0
+title: tidyselect 1.2.0
+date: 2022-10-14
+author: Lionel Henry and Hadley Wickham
+description: >
+    [tidyselect](https://tidyselect.r-lib.org/) 1.2.0 hit CRAN last week and includes a few updates to the syntax of selections in tidyverse functions
+
+photo:
+  url: https://unsplash.com/photos/xZxZxiceD8s
+  author: Laura Gilchrist
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package]
+tags: [lifecycle]
+---
+
+<!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+[tidyselect](https://tidyselect.r-lib.org/) 1.2.0 hit CRAN last week and includes a few updates to the syntax of selections in tidyverse functions like `dplyr::select(...)` and `tidyr::pivot_longer(cols = )`.
+
+tidyselect is a low level package that implements the backend for selection contexts in tidyverse functions. A selection context is an argument like `cols` in `pivot_longer()` or a set of arguments like `...` in `select()` [^1]. In these special contexts, you can use a dialect of R that helps you create a selection of columns. You can select multiple columns with `c()`, a range of columns with `:`, and complex matches with selection helpers such as `starts_with()`. Under the hood, this selection syntax is interpreted and processed by the tidyselect package.
+
+[^1]: If you are wondering whether a particular argument supports selections, look in the function documentation. Arguments tagged with `<tidy-select>` implement the selection dialect. By contrast, arguments tagged with `<data-masking>` only allow to refer to data frame columns directly.
+
+In this post, we'll cover the most important [lifecycle changes](https://lifecycle.r-lib.org/articles/stages.html) in the selection syntax that tidyverse users should know about. You can see a full list of changes in the [release notes](https://tidyselect.r-lib.org/news/index.html#tidyselect-120). We'll start by a quick recap of what it means in practice for a feature to be deprecated or soft-deprecated.
+
+```{r setup, message = FALSE}
+library(tidyverse)
+```
+
+
+## About soft-deprecation
+
+Deprecation of features in tidyverse packages is handled by the lifecycle package. See https://www.tidyverse.org/blog/2021/02/lifecycle-1-0-0/ for an introduction.
+
+The main feature of lifecycle is to distinguish between two stages of deprecation and two usage modes, direct and indirect.
+
+- For script users, __direct usage__ is when you use a deprecated feature from the global environment. If the deprecated feature was used inside a package function that you are calling, it is considered __indirect usage__.
+
+- For package developers, the distinction between direct and indirect usages is made by testthat in unit tests. If a function in your package calls the feature, it is considered direct usage. If that's a function in another package that you are calling, it's indirect usage.
+
+These usage modes determine how verbose (and thus how annoying) the deprecation warnings are.
+
+- For __soft-deprecation__, indirect usage is always silent because we only want to alert people who are actually able to update code at this point.
+
+  Direct usage is one warning every 8 hours to avoid being too annoying during this transition period, so that you can continue to work with existing code, ignore the warnings, and update to the new patterns when you have time.
+
+- For __deprecation__, it's now really time to update the code.  and direct usage gives a warning every time so that deprecated features can no longer be ignored.
+
+  Indirect usage now also warns, but only one warning every 8 hours since you indirect users are not in control of the code that uses the deprecated feature. The warning message automatically picks up the package URL where the usage was detected so that you can easily report the deprecation to the relevant maintainers.
+
+lifecycle warnings are set up to helpfully inform you about upcoming changes while being as discrete as possible. All of the features deprecated in tidyselect in this blog post are in the soft-deprecation stage, and will remain this way for at least one year.
+
+
+## Supplying character vectors of column names outside of `all_of()` and `any_of()`
+
+To select columns from a character vector of names, you normally use `all_of()` or `any_of()`.
+
+```{r}
+vars <- c("cyl", "am")
+mtcars |> select(all_of(vars)) |> glimpse()
+```
+
+Whereas the former is adamant that it _must_ select all of the requested columns:
+
+```{r, error = TRUE}
+mtcars |> select(all_of(letters))
+```
+
+The latter is more lenient and ignores any names that are not present in the data frame. In this case, it ends up selecting nothing:
+
+```{r}
+mtcars |> select(any_of(letters))
+```
+
+Another feature of `all_of()` and `any_of()` is that they remove all ambiguity between variables in your environment like `vars` or `letters` (env-variables) and variables inside the data frame like `cyl` or `am` (data-variables). Let's add `vars` in the data frame to see what happens:
+
+```{r}
+my_data <- mtcars |> mutate(vars = 1:n())
+my_data |> select(all_of(vars)) |> glimpse()
+```
+
+Because `vars` was supplied to `all_of()`, `select()` will never confuse it with `mtcars$vars`. In technical terms, there is no __data-masking__ within selection helpers like `all_of()`, `any_of()`, or even `starts_with()`. It is safe to supply env-variables to these functions without worrying about data-masking ambiguity.
+
+This is not the case however if you supply a character vector outside of `all_of()`:
+
+```{r}
+my_data |> select(vars) |> glimpse()
+```
+
+This is why we have decided to deprecate direct supply of character vectors in favour of using `all_of()` and `any_of()`. You will now get a soft-deprecation warning recommending to use `all_of()`:
+
+```{r}
+mtcars |> select(vars) |> glimpse()
+```
+
+
+## Using `.data` inside selections
+
+The `.data` pronoun is a convenient way of programming with data-masking functions like `mutate()` and `filter()`. It has two main functions:
+
+1. Retrieve a data frame column from a name stored in a variable with `[[`.
+
+   ```{r}
+   var <- "am"
+   mtcars |> transmute(am = .data[[var]] * 10) |> glimpse()
+   ```
+
+2. For package developers, `.data` is helpful to silence R CMD check notes about unknown variables. When the static analysis checker of R encounters an expression like `mtcars |> mutate(am * 2)`, it has no way of knowing that `am` is a data frame variable. Since it doesn't see any variable `am` in your environment, it emits a warning about a potential typo in the code.
+
+   The `.data$col` pattern is used to work around this issue: `mtcars |> mutate(.data$am * 2)` doesn't produce any warnings.
+
+Whereas `.data` is very useful in data-masking functions, its usage in selections is much more limited. As we have seen in the previous section, retrieving a variable from character vector should be done with `all_of()`:
+
+```{r}
+var <- "am"
+mtcars |> select(all_of(var)) |> glimpse()
+```
+
+And to avoid the R CMD check note about unknown variables, it is much cleaner to wrap the column name in quotes:
+
+```{r}
+mtcars |> select("am") |> glimpse()
+```
+
+Allowing the `.data` pronoun in selection contexts also makes the distinction between tidy-selections and data-masking blurrier. And so we have decided to deprecate it in selections:
+
+```{r}
+var <- "am"
+mtcars |> select(.data[[var]]) |> invisible()
+```
+
+```{r}
+mtcars |> select(.data$am) |> invisible()
+```
+
+
+## Acknowledgements
+
+Many thanks to all contributors (issues and PRs) to this release!
+
+  [&#x0040;alexpghayes](https://github.com/alexpghayes), [&#x0040;angela-li](https://github.com/angela-li), [&#x0040;apreshill](https://github.com/apreshill), [&#x0040;arneschillert](https://github.com/arneschillert), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;behrman](https://github.com/behrman), [&#x0040;bensoltoff](https://github.com/bensoltoff), [&#x0040;braceandbracket](https://github.com/braceandbracket), [&#x0040;brshallo](https://github.com/brshallo), [&#x0040;bwalsh5](https://github.com/bwalsh5), [&#x0040;carneybill](https://github.com/carneybill), [&#x0040;ChrisDunleavy](https://github.com/ChrisDunleavy), [&#x0040;ColinFay](https://github.com/ColinFay), [&#x0040;courtiol](https://github.com/courtiol), [&#x0040;csgillespie](https://github.com/csgillespie), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dgrtwo](https://github.com/dgrtwo), [&#x0040;DivadNojnarg](https://github.com/DivadNojnarg), [&#x0040;dpprdan](https://github.com/dpprdan), [&#x0040;dpseidel](https://github.com/dpseidel), [&#x0040;drmowinckels](https://github.com/drmowinckels), [&#x0040;dylan-cooper](https://github.com/dylan-cooper), [&#x0040;EconomiCurtis](https://github.com/EconomiCurtis), [&#x0040;edgararuiz-zz](https://github.com/edgararuiz-zz), [&#x0040;EdwinTh](https://github.com/EdwinTh), [&#x0040;elben10](https://github.com/elben10), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;espinielli](https://github.com/espinielli), [&#x0040;fenguoerbian](https://github.com/fenguoerbian), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;giocomai](https://github.com/giocomai), [&#x0040;gregrs-uk](https://github.com/gregrs-uk), [&#x0040;gregswinehart](https://github.com/gregswinehart), [&#x0040;gvelasq](https://github.com/gvelasq), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;hplieninger](https://github.com/hplieninger), [&#x0040;ismayc](https://github.com/ismayc), [&#x0040;jameslairdsmith](https://github.com/jameslairdsmith), [&#x0040;jayhesselberth](https://github.com/jayhesselberth), [&#x0040;jemus42](https://github.com/jemus42), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;justmytwospence](https://github.com/justmytwospence), [&#x0040;karawoo](https://github.com/karawoo), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;leafyoung](https://github.com/leafyoung), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;LucyMcGowan](https://github.com/LucyMcGowan), [&#x0040;maelle](https://github.com/maelle), [&#x0040;markdly](https://github.com/markdly), [&#x0040;martin-ueding](https://github.com/martin-ueding), [&#x0040;maurolepore](https://github.com/maurolepore), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [&#x0040;mitchelloharawild](https://github.com/mitchelloharawild), [&#x0040;pkq](https://github.com/pkq), [&#x0040;PursuitOfDataScience](https://github.com/PursuitOfDataScience), [&#x0040;rgerecke](https://github.com/rgerecke), [&#x0040;richierocks](https://github.com/richierocks), [&#x0040;Robinlovelace](https://github.com/Robinlovelace), [&#x0040;robinsones](https://github.com/robinsones), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;rosseji](https://github.com/rosseji), [&#x0040;rudeboybert](https://github.com/rudeboybert), [&#x0040;saghirb](https://github.com/saghirb), [&#x0040;sbearrows](https://github.com/sbearrows), [&#x0040;sharlagelfand](https://github.com/sharlagelfand), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;stedy](https://github.com/stedy), [&#x0040;stephlocke](https://github.com/stephlocke), [&#x0040;stragu](https://github.com/stragu), [&#x0040;sysilviakim](https://github.com/sysilviakim), [&#x0040;thisisdaryn](https://github.com/thisisdaryn), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;thuettel](https://github.com/thuettel), [&#x0040;tmstauss](https://github.com/tmstauss), [&#x0040;topepo](https://github.com/topepo), [&#x0040;tracykteal](https://github.com/tracykteal), [&#x0040;tyluRp](https://github.com/tyluRp), [&#x0040;vspinu](https://github.com/vspinu), [&#x0040;warint](https://github.com/warint), [&#x0040;wibeasley](https://github.com/wibeasley), [&#x0040;yitao-li](https://github.com/yitao-li), and [&#x0040;yutannihilation](https://github.com/yutannihilation).
