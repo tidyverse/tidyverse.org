@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [lifecycle]
-rmd_hash: 4d5eb8af4eccff3e
+rmd_hash: 99bfb1712693a647
 
 ---
 
@@ -43,6 +43,8 @@ In this post, we'll cover the most important [lifecycle changes](https://lifecyc
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='o'>)</span></span></code></pre>
 
 </div>
+
+Note: With this release of tidyselect, some error messages will be suboptimal until dplyr 1.1.0 is released (planned in late October). We recommend waiting until then before updating tidyselect (though it's not a big deal if you have already updated).
 
 ## About soft-deprecation
 
