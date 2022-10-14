@@ -6,7 +6,7 @@ title: tidyselect 1.2.0
 date: 2022-10-14
 author: Lionel Henry and Hadley Wickham
 description: >
-    [tidyselect](https://tidyselect.r-lib.org/) 1.2.0 hit CRAN last week and includes a few updates to the syntax of selections in tidyverse functions
+    tidyselect 1.2.0 hit CRAN last week and includes a few updates to the syntax of selections in tidyverse functions.
 
 photo:
   url: https://unsplash.com/photos/xZxZxiceD8s
@@ -14,8 +14,8 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
-tags: [lifecycle]
-rmd_hash: 99bfb1712693a647
+tags: [lifecycle, tidyselect]
+rmd_hash: e19290f3bf89d914
 
 ---
 
@@ -34,9 +34,9 @@ TODO:
 
 [tidyselect](https://tidyselect.r-lib.org/) 1.2.0 hit CRAN last week and includes a few updates to the syntax of selections in tidyverse functions like `dplyr::select(...)` and `tidyr::pivot_longer(cols = )`.
 
-tidyselect is a low level package that implements the backend for selection contexts in tidyverse functions. A selection context is an argument like `cols` in [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) or a set of arguments like `...` in [`select()`](https://dplyr.tidyverse.org/reference/select.html) [^1]. In these special contexts, you can use a dialect of R that helps you create a selection of columns. You can select multiple columns with [`c()`](https://rdrr.io/r/base/c.html), a range of columns with `:`, and complex matches with selection helpers such as [`starts_with()`](https://tidyselect.r-lib.org/reference/starts_with.html). Under the hood, this selection syntax is interpreted and processed by the tidyselect package.
+tidyselect is a low-level package that implements the backend for selection contexts in tidyverse functions. A selection context is an argument like `cols` in [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) or a set of arguments like `...` in [`select()`](https://dplyr.tidyverse.org/reference/select.html) [^1]. In these special contexts, you can use a dialect of R that helps you create a selection of columns. You can select multiple columns with [`c()`](https://rdrr.io/r/base/c.html), a range of columns with `:`, and complex matches with selection helpers such as [`starts_with()`](https://tidyselect.r-lib.org/reference/starts_with.html). Under the hood, this selection syntax is interpreted and processed by the tidyselect package.
 
-In this post, we'll cover the most important [lifecycle changes](https://lifecycle.r-lib.org/articles/stages.html) in the selection syntax that tidyverse users should know about. You can see a full list of changes in the [release notes](https://tidyselect.r-lib.org/news/index.html#tidyselect-120). We'll start by a quick recap of what it means in practice for a feature to be deprecated or soft-deprecated.
+In this post, we'll cover the most important [lifecycle changes](https://lifecycle.r-lib.org/articles/stages.html) in the selection syntax that tidyverse users should know about. You can see a full list of changes in the [release notes](https://tidyselect.r-lib.org/news/index.html#tidyselect-120). We'll start with a quick recap of what it means in practice for a feature to be deprecated or soft-deprecated.
 
 <div class="highlight">
 
@@ -66,7 +66,7 @@ These usage modes determine how verbose (and thus how annoying) the deprecation 
 
     Indirect usage now also warns, but only one warning every 8 hours since you indirect users are not in control of the code that uses the deprecated feature. The warning message automatically picks up the package URL where the usage was detected so that you can easily report the deprecation to the relevant maintainers.
 
-lifecycle warnings are set up to helpfully inform you about upcoming changes while being as discrete as possible. All of the features deprecated in tidyselect in this blog post are in the soft-deprecation stage, and will remain this way for at least one year.
+lifecycle warnings are set up to helpfully inform you about upcoming changes while being as discrete as possible. All of the features deprecated in tidyselect in this blog post are in the **soft-deprecation** stage, and will remain this way for at least one year.
 
 ## Supplying character vectors of column names outside of `all_of()` and `any_of()`
 
@@ -212,6 +212,8 @@ Allowing the `.data` pronoun in selection contexts also makes the distinction be
 <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Please use `"am"` instead of `.data$am`</span></span></code></pre>
 
 </div>
+
+This deprecation does not affect the use of `.data` in data-masking contexts.
 
 ## Acknowledgements
 
