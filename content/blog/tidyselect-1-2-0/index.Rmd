@@ -65,25 +65,25 @@ These usage modes determine how verbose (and thus how annoying) the deprecation 
 
   Indirect usage now also warns, but only one warning every 8 hours since indirect users are not in control of the code that uses the deprecated feature. The warning message automatically picks up the package URL where the usage was detected so that you can easily report the deprecation to the relevant maintainers.
 
-lifecycle warnings are set up to helpfully inform you about upcoming changes while being as discrete as possible. All of the features deprecated in tidyselect in this blog post are in the **soft-deprecation** stage, and will remain this way for at least one year.
+lifecycle warnings are set up to helpfully inform you about upcoming changes while being as discreet as possible. All of the features deprecated in tidyselect in this blog post are in the **soft-deprecation** stage, and will remain this way for at least one year.
 
 
 ## Supplying character vectors of column names outside of `all_of()` and `any_of()`
 
-To select columns from a character vector of names, you normally use `all_of()` or `any_of()`.
+To specify a column selection using a character vector of names, you normally use `all_of()` or `any_of()`.
 
 ```{r}
 vars <- c("cyl", "am")
 mtcars |> select(all_of(vars)) |> glimpse()
 ```
 
-Whereas the former is adamant that it _must_ select all of the requested columns:
+Whereas `all_of()` is adamant that it _must_ select all of the requested columns:
 
 ```{r, error = TRUE}
 mtcars |> select(all_of(letters))
 ```
 
-The latter is more lenient and ignores any names that are not present in the data frame. In this case, it ends up selecting nothing:
+`any_of()` is more lenient and ignores any names that are not present in the data frame. In this case, it ends up selecting nothing:
 
 ```{r}
 mtcars |> select(any_of(letters))
