@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [lifecycle, tidyselect]
-rmd_hash: 18037f4310688f17
+rmd_hash: d963328f42ce2644
 
 ---
 
@@ -36,7 +36,7 @@ TODO:
 
 tidyselect is a low-level package that provides the backend for selection contexts in tidyverse functions. A selection context is an argument like `cols` in [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) or a set of arguments like `...` in [`select()`](https://dplyr.tidyverse.org/reference/select.html) [^1]. In these special contexts, you can use a domain specific language that helps you create a selection of columns. For example, you can select multiple columns with [`c()`](https://rdrr.io/r/base/c.html), a range of columns with `:`, and complex matches with selection helpers such as [`starts_with()`](https://tidyselect.r-lib.org/reference/starts_with.html). Under the hood, this selection syntax is interpreted and processed by the tidyselect package.
 
-In this post, we'll cover the most important [lifecycle changes](https://lifecycle.r-lib.org/articles/stages.html) in the selection syntax that tidyverse users should know about. You can see a full list of changes in the [release notes](https://tidyselect.r-lib.org/news/index.html#tidyselect-120). We'll start with a quick recap of what it means in practice for a feature to be deprecated or soft-deprecated.
+In this post, we'll cover the most important [lifecycle changes](https://lifecycle.r-lib.org/articles/stages.html) in the selection syntax that tidyverse users (package developers in particular) should know about. You can see a full list of changes in the [release notes](https://tidyselect.r-lib.org/news/index.html#tidyselect-120). We'll start with a quick recap of what it means in practice for a feature to be deprecated or soft-deprecated.
 
 <div class="highlight">
 
@@ -56,7 +56,7 @@ The main feature of lifecycle is to distinguish between two stages of deprecatio
 
 -   For package developers, the distinction between direct and indirect usages is made by testthat in unit tests. If a function in your package calls the feature, it is considered direct usage. If that's a function in another package that you are calling, it's indirect usage.
 
-These usage modes determine how verbose (and thus how annoying) the deprecation warnings are.
+To sum up, direct usage is when your own code uses the deprecated feature, and indirect usage is when someone else's code uses it. This distinction matters because it determines how verbose (and thus how annoying) the deprecation warnings are.
 
 -   For **soft-deprecation**, indirect usage is always silent because we only want to alert people who are actually able to fix the problem.
 
