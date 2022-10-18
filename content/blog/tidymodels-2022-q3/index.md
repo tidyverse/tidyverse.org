@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2022-q3
 title: "Q3 2022 tidymodels digest"
-date: 2022-10-19
+date: 2022-10-20
 author: Max Kuhn
 description: >
     Our post-RStudio conference productivity has been high! This post talks about tidymodels updates from the last few months. 
@@ -14,7 +14,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, agua, recipes, h2o]
-rmd_hash: ed13bc6563f534b4
+rmd_hash: 135bbebfc475b80a
 
 ---
 
@@ -28,12 +28,12 @@ Since the beginning of 2021, we have been publishing [quarterly updates](https:/
 -   [censored 0.1.0](https://www.tidyverse.org/blog/2022/08/censored-0-1-0/)
 -   [rsample 1.1.0](https://www.tidyverse.org/blog/2022/08/rsample-1-1-0/)
 
-Since [our last roundup post](https://www.tidyverse.org/blog/2022/07/tidymodels-2022-q2/), there have been CRAN releases of 21 tidymodels packages. Here are links to their NEWS files:
+Since [our last roundup post](https://www.tidyverse.org/blog/2022/07/tidymodels-2022-q2/), there have been CRAN releases of 22 tidymodels packages. Here are links to their NEWS files:
 
 <div class="highlight">
 
 -   agua [(0.1.0)](https://agua.tidymodels.org/news/index.html)
--   applicable [(0.1.0)](https://applicable.tidymodels.org/news/index.html)
+-   applicable [(0.1.0)](https://github.com/tidymodels/applicable/blob/develop/NEWS.md)
 -   bonsai [(0.2.0)](https://bonsai.tidymodels.org/news/index.html)
 -   broom [(1.0.1)](https://broom.tidymodels.org/news/index.html)
 -   brulee [(0.2.0)](https://brulee.tidymodels.org/news/index.html)
@@ -47,6 +47,7 @@ Since [our last roundup post](https://www.tidyverse.org/blog/2022/07/tidymodels-
 -   plsmod [(1.0.0)](https://plsmod.tidymodels.org/news/index.html)
 -   poissonreg [(1.0.1)](https://poissonreg.tidymodels.org/news/index.html)
 -   probably [(0.1.0)](https://probably.tidymodels.org/news/index.html)
+-   recipes [(1.0.2)](https://recipes.tidymodels.org/news/index.html)
 -   rsample [(1.1.0)](https://rsample.tidymodels.org/news/index.html)
 -   spatialsample [(0.2.1)](https://spatialsample.tidymodels.org/news/index.html)
 -   textrecipes [(1.0.1)](https://textrecipes.tidymodels.org/news/index.html)
@@ -62,17 +63,19 @@ We'll highlight two specific upgrades: one for agua and another in recipes.
 
 With version 3.38.0.1 of the [h2o](https://cran.r-project.org/package=h2o) package, agua can now tune h2o models as if they were any other type of model engine
 
-h2o has an excellent server-based computational engine for fitting a variety of different machine learning and statistical models. The h2o server can run locally or on some external high performance computing server. The downside is that it is light on tools for feature engineering and interactive data analysis.
+[h2o](https://h2o.ai) has an excellent server-based computational engine for fitting a variety of different machine learning and statistical models. The h2o server can run locally or on some external high performance computing server. The downside is that it is light on tools for feature engineering and interactive data analysis.
 
 Using h2o with tidymodels enables users to leverage the benefits of packages like recipes along with fast, server-based parallel processing.
 
 While the syntax for model fitting and tuning are the same as any other non-h2o model, there are different ways to parallelize the work:
 
--   The h2o server has the ability to internally parallelize individual model computations. For example, when fitting trees, the search for the best split can be done using multiple threads.
+-   The h2o server has the ability to internally parallelize individual model computations. For example, when fitting trees, the search for the best split can be done using multiple threads. The number of threads that each model should be used is set with [h2o.init(nthreads)](https://docs.h2o.ai/h2o/latest-stable/h2o-r/docs/reference/h2o.init.html). The default (`-1`) is to use all CPUs on the host.
 
--   R has external parallelization tools (such as the foreach and future packages) that can start new R processes to simultaneously do work. This would run many models in parallel.
+-   When using grid search, [h2o.grid(parallelism)](https://docs.h2o.ai/h2o/latest-stable/h2o-r/docs/reference/h2o.grid.html) determines how many models the h2o server should process at the same time. The default (`1`) constrains the server to run the models sequentially.
 
-With h2o and tidymodels, you should probably **use h2o's parallelization**. Using both approaches *can* work but only for some technologies. It's still pretty complicated and we will work more on un-complicating it.
+-   R has external parallelization tools (such as the foreach and future packages) that can start new R processes to simultaneously do work. This would run many models in parallel. For h2o, this determines how many models that the agua package could send to the server at once. This does not appear to be constrained by the `parallelism` argument to `h2o.grid()`.
+
+With h2o and tidymodels, you should probably **use h2o's parallelization**. Using multiple approaches *can* work but only for some technologies. It's still pretty complicated and we will work more on un-complicating it.
 
 To setup h2o parallelization, there is a new control argument called `backend_options`. If you were doing a grid search, you first define how many threads the h2o server should use:
 
@@ -90,7 +93,7 @@ then pass this to any of the existing control functions:
 grid_ctrl <- control_grid(backend_options = h2o_thread_spec)
 ```
 
-Now h2o will parallel process individual model computations.
+Now h2o can parallel process 10 models at once.
 
 Here is an example using a simulated data set with a numeric outcome:
 
@@ -107,7 +110,8 @@ Here is an example using a simulated data set with a numeric outcome:
 
 <span class='c'># Resample using 10-fold cross-validation</span>
 <span class='nf'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='o'>(</span><span class='m'>91</span><span class='o'>)</span>
-<span class='nv'>sim_rs</span> <span class='o'>&lt;-</span> <span class='nf'>vfold_cv</span><span class='o'>(</span><span class='nv'>sim_dat</span><span class='o'>)</span></code></pre>
+<span class='nv'>sim_rs</span> <span class='o'>&lt;-</span> <span class='nf'>vfold_cv</span><span class='o'>(</span><span class='nv'>sim_dat</span><span class='o'>)</span>
+</code></pre>
 
 </div>
 
@@ -124,7 +128,8 @@ We'll use grid search to tune a boosted tree:
     loss_reduction <span class='o'>=</span> <span class='nf'><a href='https://hardhat.tidymodels.org/reference/tune.html'>tune</a></span><span class='o'>(</span><span class='o'>)</span>
   <span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
   <span class='nf'><a href='https://parsnip.tidymodels.org/reference/set_engine.html'>set_engine</a></span><span class='o'>(</span><span class='s'>"h2o"</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
-  <span class='nf'><a href='https://parsnip.tidymodels.org/reference/set_args.html'>set_mode</a></span><span class='o'>(</span><span class='s'>"regression"</span><span class='o'>)</span></code></pre>
+  <span class='nf'><a href='https://parsnip.tidymodels.org/reference/set_args.html'>set_mode</a></span><span class='o'>(</span><span class='s'>"regression"</span><span class='o'>)</span>
+</code></pre>
 
 </div>
 
@@ -137,7 +142,8 @@ Now let's parallel process our computations
 
 <span class='c'># Multi-thread the model fits</span>
 <span class='nv'>h2o_thread_spec</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://agua.tidymodels.org/reference/h2o_tune.html'>agua_backend_options</a></span><span class='o'>(</span>parallelism <span class='o'>=</span> <span class='m'>10</span><span class='o'>)</span>
-<span class='nv'>grid_ctrl</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tune.tidymodels.org/reference/control_grid.html'>control_grid</a></span><span class='o'>(</span>backend_options <span class='o'>=</span> <span class='nv'>h2o_thread_spec</span><span class='o'>)</span></code></pre>
+<span class='nv'>grid_ctrl</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tune.tidymodels.org/reference/control_grid.html'>control_grid</a></span><span class='o'>(</span>backend_options <span class='o'>=</span> <span class='nv'>h2o_thread_spec</span><span class='o'>)</span>
+</code></pre>
 
 </div>
 
@@ -148,13 +154,15 @@ We'll evaluate a very small grid at first:
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='o'>(</span><span class='m'>7616</span><span class='o'>)</span>
 <span class='nv'>grid_res</span> <span class='o'>&lt;-</span>
   <span class='nv'>boost_spec</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
-  <span class='nf'><a href='https://tune.tidymodels.org/reference/tune_grid.html'>tune_grid</a></span><span class='o'>(</span><span class='nv'>outcome</span> <span class='o'>~</span> <span class='nv'>.</span>, resamples <span class='o'>=</span> <span class='nv'>sim_rs</span>, grid <span class='o'>=</span> <span class='m'>10</span>, control <span class='o'>=</span> <span class='nv'>grid_ctrl</span><span class='o'>)</span></code></pre>
+  <span class='nf'><a href='https://tune.tidymodels.org/reference/tune_grid.html'>tune_grid</a></span><span class='o'>(</span><span class='nv'>outcome</span> <span class='o'>~</span> <span class='nv'>.</span>, resamples <span class='o'>=</span> <span class='nv'>sim_rs</span>, grid <span class='o'>=</span> <span class='m'>10</span>, control <span class='o'>=</span> <span class='nv'>grid_ctrl</span><span class='o'>)</span>
+</code></pre>
 
 </div>
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://tune.tidymodels.org/reference/show_best.html'>show_best</a></span><span class='o'>(</span><span class='nv'>grid_res</span>, metric <span class='o'>=</span> <span class='s'>"rmse"</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'>select</span><span class='o'>(</span><span class='o'>-</span><span class='nv'>.config</span>, <span class='o'>-</span><span class='nv'>.metric</span>, <span class='o'>-</span><span class='nv'>.estimator</span><span class='o'>)</span>
+
 <span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 8</span></span>
 <span class='c'>#&gt;   trees min_n tree_depth    learn_rate loss_reduction  mean     n std_err</span>
 <span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span>
@@ -165,6 +173,7 @@ We'll evaluate a very small grid at first:
 <span class='c'>#&gt; <span style='color: #555555;'>5</span>   985    18          7 0.000<span style='text-decoration: underline;'>000</span>045<span style='text-decoration: underline;'>4</span>         1.84<span style='color: #555555;'>e</span><span style='color: #BB0000;'>-3</span>  18.4    10   1.04</span>
 
 <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/autoplot.html'>autoplot</a></span><span class='o'>(</span><span class='nv'>grid_res</span>, metric <span class='o'>=</span> <span class='s'>"rmse"</span><span class='o'>)</span>
+
 </code></pre>
 <img src="figs/grid-plot-1.svg" width="90%" style="display: block; margin: auto;" />
 
@@ -186,6 +195,7 @@ It was a small grid and most of the configurations were not especially good. We 
     iter <span class='o'>=</span> <span class='m'>25</span>,
     control <span class='o'>=</span> <span class='nv'>sa_ctrl</span>
   <span class='o'>)</span>
+
 <span class='c'>#&gt; <span style='color: #000000;'>Optimizing rmse</span></span>
 <span class='c'>#&gt; <span style='color: #000000;'>Initial best: 13.06400</span></span>
 <span class='c'>#&gt; <span style='color: #000000;'> 1 </span><span style='color: #00BB00;'>♥ new best          </span><span style='color: #000000;'> rmse=12.688  (+/-0.7899)</span></span>
@@ -246,8 +256,8 @@ It's important that we thank everyone in the community that contributed to tidym
 
 <div class="highlight">
 
--   agua: [@coforfe](https://github.com/coforfe), [@jeliason](https://github.com/jeliason), [@qiushiyan](https://github.com/qiushiyan), and [@topepo](https://github.com/topepo).
--   applicable: No new contributors
+-   agua: [@coforfe](https://github.com/coforfe), [@gouthaman87](https://github.com/gouthaman87), [@jeliason](https://github.com/jeliason), [@qiushiyan](https://github.com/qiushiyan), and [@topepo](https://github.com/topepo).
+-   applicable: [@topepo](https://github.com/topepo).
 -   bonsai: [@barrettlayman](https://github.com/barrettlayman), [@DesmondChoy](https://github.com/DesmondChoy), [@dfsnow](https://github.com/dfsnow), [@dpprdan](https://github.com/dpprdan), [@jameslamb](https://github.com/jameslamb), and [@simonpcouch](https://github.com/simonpcouch).
 -   broom: [@AaronRendahl](https://github.com/AaronRendahl), [@AmeliaMN](https://github.com/AmeliaMN), [@bbolker](https://github.com/bbolker), [@capnrefsmmat](https://github.com/capnrefsmmat), [@corybrunson](https://github.com/corybrunson), [@ddsjoberg](https://github.com/ddsjoberg), [@friendly](https://github.com/friendly), [@johanneskoch94](https://github.com/johanneskoch94), and [@simonpcouch](https://github.com/simonpcouch).
 -   brulee: [@topepo](https://github.com/topepo).
@@ -261,6 +271,7 @@ It's important that we thank everyone in the community that contributed to tidym
 -   plsmod: [@topepo](https://github.com/topepo).
 -   poissonreg: [@hfrick](https://github.com/hfrick), [@mattwarkentin](https://github.com/mattwarkentin), and [@simonpcouch](https://github.com/simonpcouch).
 -   probably: [@DavisVaughan](https://github.com/DavisVaughan).
+-   recipes: [@abichat](https://github.com/abichat), [@adisarid](https://github.com/adisarid), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@JamesHWade](https://github.com/JamesHWade), [@juliasilge](https://github.com/juliasilge), [@luisDVA](https://github.com/luisDVA), [@naveranoc](https://github.com/naveranoc), [@nhward](https://github.com/nhward), [@RMHogervorst](https://github.com/RMHogervorst), [@ruddnr](https://github.com/ruddnr), [@simonpcouch](https://github.com/simonpcouch), [@topepo](https://github.com/topepo), and [@zhaoliang0302](https://github.com/zhaoliang0302).
 -   rsample: [@DavisVaughan](https://github.com/DavisVaughan), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@hfrick](https://github.com/hfrick), [@juliasilge](https://github.com/juliasilge), [@mikemahoney218](https://github.com/mikemahoney218), and [@tjmahr](https://github.com/tjmahr).
 -   spatialsample: [@mikemahoney218](https://github.com/mikemahoney218).
 -   textrecipes: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@hadley](https://github.com/hadley), and [@PursuitOfDataScience](https://github.com/PursuitOfDataScience).
