@@ -61,7 +61,7 @@ We'll highlight two specific upgrades: one for agua and another in recipes.
 
 ## A big upgrade for agua
 
-With version 3.38.0.1 of the [h2o](https://cran.r-project.org/package=h2o) package, agua can now tune h2o models as if they were any other type of model engine
+With version 3.38.0.1 of the [h2o](https://cran.r-project.org/package=h2o) package, agua can now tune h2o models as if they were any other type of model engine.
 
 [h2o](https://h2o.ai) has an excellent server-based computational engine for fitting a variety of different machine learning and statistical models. The h2o server can run locally or on some external high performance computing server. The downside is that it is light on tools for feature engineering and interactive data analysis.
 
@@ -77,7 +77,7 @@ While the syntax for model fitting and tuning are the same as any other non-h2o 
 
 With h2o and tidymodels, you should probably **use h2o's parallelization**. Using multiple approaches *can* work but only for some technologies. It's still pretty complicated and we will work more on un-complicating it.
 
-To setup h2o parallelization, there is a new control argument called `backend_options`. If you were doing a grid search, you first define how many threads the h2o server should use:
+To set up h2o parallelization, there is a new control argument called `backend_options`. If you were doing a grid search, you first define how many threads the h2o server should use:
 
 ``` r
 library(tidymodels)
@@ -87,7 +87,7 @@ library(finetune)
 h2o_thread_spec <- agua_backend_options(parallelism = 10) 
 ```
 
-then pass this to any of the existing control functions:
+Then, pass the output to any of the existing control functions:
 
 ``` r
 grid_ctrl <- control_grid(backend_options = h2o_thread_spec)
@@ -133,7 +133,7 @@ We'll use grid search to tune a boosted tree:
 
 </div>
 
-Now let's parallel process our computations
+Now, let's parallel process our computations.
 
 <div class="highlight">
 
