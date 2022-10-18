@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidyselect-1-2-0
 title: tidyselect 1.2.0
-date: 2022-10-14
+date: 2022-10-18
 author: Lionel Henry and Hadley Wickham
 description: >
     tidyselect 1.2.0 hit CRAN last week and includes a few updates to the syntax of selections in tidyverse functions.
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [lifecycle, tidyselect]
-rmd_hash: d963328f42ce2644
+rmd_hash: 5d0bf9fcb47ac05d
 
 ---
 
