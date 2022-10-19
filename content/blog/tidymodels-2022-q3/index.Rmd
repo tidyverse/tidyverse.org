@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2022-q3
 title: "Q3 2022 tidymodels digest"
-date: 2022-10-20
+date: 2022-10-19
 author: Max Kuhn
 description: >
     Our post-RStudio conference productivity has been high! This post talks about tidymodels updates from the last few months. 
@@ -227,6 +227,36 @@ The recipes package now has an expanded set of spline functions (with a common n
 There is also another step to make polynomial functions: [`step_poly_bernstein()`](https://recipes.tidymodels.org/dev/reference/step_poly_bernstein.html)
 
 These functions take different approaches to creating the new set of features. Take a look at the references to see the technical details. 
+
+Here is a simple example using the [Ames data](https://www.tmwr.org/ames.html) where we model the sale price as a nonlinear function of the longitude using a convex basis function: 
+
+```{r}
+#| label: Longitude
+#| out.width: "70%"
+#| fig.align: "center"
+#| fig.width: 6
+#| fig.height: 4.25
+#| dev: svg
+data(ames)
+
+ames$Sale_Price <- log10(ames$Sale_Price)
+
+spline_rec <- recipe(Sale_Price ~ Longitude, data = ames) %>% 
+  step_spline_convex(Longitude, deg_free = 25)
+
+spline_fit <- 
+  spline_rec %>% 
+  workflow( linear_reg() ) %>% 
+  fit(data = ames)
+
+spline_fit %>% 
+  augment(ames) %>% 
+  ggplot(aes(Longitude)) + 
+  geom_point(aes(y = Sale_Price), alpha = 1 / 3) +
+  geom_line(aes(y = .pred), col = "red", lwd = 1.5)
+```
+
+Not too bad but the model clearly over-fits on the extreme right tail of the predictor distribution. 
 
 ## Acknowledgements
 

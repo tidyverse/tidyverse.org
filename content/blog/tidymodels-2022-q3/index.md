@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2022-q3
 title: "Q3 2022 tidymodels digest"
-date: 2022-10-20
+date: 2022-10-19
 author: Max Kuhn
 description: >
     Our post-RStudio conference productivity has been high! This post talks about tidymodels updates from the last few months. 
@@ -14,7 +14,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, agua, recipes, h2o]
-rmd_hash: fe9975bc905186c1
+rmd_hash: 03e0c388bda862a2
 
 ---
 
@@ -249,6 +249,35 @@ The recipes package now has an expanded set of spline functions (with a common n
 There is also another step to make polynomial functions: [`step_poly_bernstein()`](https://recipes.tidymodels.org/dev/reference/step_poly_bernstein.html)
 
 These functions take different approaches to creating the new set of features. Take a look at the references to see the technical details.
+
+Here is a simple example using the [Ames data](https://www.tmwr.org/ames.html) where we model the sale price as a nonlinear function of the longitude using a convex basis function:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='nv'>ames</span><span class='o'>)</span>
+
+<span class='nv'>ames</span><span class='o'>$</span><span class='nv'>Sale_Price</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span><span class='o'>(</span><span class='nv'>ames</span><span class='o'>$</span><span class='nv'>Sale_Price</span><span class='o'>)</span>
+
+<span class='nv'>spline_rec</span> <span class='o'>&lt;-</span> <span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>Sale_Price</span> <span class='o'>~</span> <span class='nv'>Longitude</span>, data <span class='o'>=</span> <span class='nv'>ames</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'>step_spline_convex</span><span class='o'>(</span><span class='nv'>Longitude</span>, deg_free <span class='o'>=</span> <span class='m'>25</span><span class='o'>)</span>
+
+<span class='nv'>spline_fit</span> <span class='o'>&lt;-</span> 
+  <span class='nv'>spline_rec</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'>workflow</span><span class='o'>(</span> <span class='nf'><a href='https://parsnip.tidymodels.org/reference/linear_reg.html'>linear_reg</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'><a href='https://generics.r-lib.org/reference/fit.html'>fit</a></span><span class='o'>(</span>data <span class='o'>=</span> <span class='nv'>ames</span><span class='o'>)</span>
+
+<span class='nv'>spline_fit</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'><a href='https://generics.r-lib.org/reference/augment.html'>augment</a></span><span class='o'>(</span><span class='nv'>ames</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='nf'>ggplot</span><span class='o'>(</span><span class='nf'>aes</span><span class='o'>(</span><span class='nv'>Longitude</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'>geom_point</span><span class='o'>(</span><span class='nf'>aes</span><span class='o'>(</span>y <span class='o'>=</span> <span class='nv'>Sale_Price</span><span class='o'>)</span>, alpha <span class='o'>=</span> <span class='m'>1</span> <span class='o'>/</span> <span class='m'>3</span><span class='o'>)</span> <span class='o'>+</span>
+  <span class='nf'>geom_line</span><span class='o'>(</span><span class='nf'>aes</span><span class='o'>(</span>y <span class='o'>=</span> <span class='nv'>.pred</span><span class='o'>)</span>, col <span class='o'>=</span> <span class='s'>"red"</span>, lwd <span class='o'>=</span> <span class='m'>1.5</span><span class='o'>)</span>
+
+</code></pre>
+<img src="figs/Longitude-1.svg" width="70%" style="display: block; margin: auto;" />
+
+</div>
+
+Not too bad but the model clearly over-fits on the extreme right tail of the predictor distribution.
 
 ## Acknowledgements
 
