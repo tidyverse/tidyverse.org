@@ -14,7 +14,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, agua, recipes, h2o]
-rmd_hash: 135bbebfc475b80a
+rmd_hash: fe9975bc905186c1
 
 ---
 
@@ -33,7 +33,7 @@ Since [our last roundup post](https://www.tidyverse.org/blog/2022/07/tidymodels-
 <div class="highlight">
 
 -   agua [(0.1.0)](https://agua.tidymodels.org/news/index.html)
--   applicable [(0.1.0)](https://github.com/tidymodels/applicable/blob/develop/NEWS.md)
+-   applicable [(0.1.0)](https://applicable.tidymodels.org/news/index.html)
 -   bonsai [(0.2.0)](https://bonsai.tidymodels.org/news/index.html)
 -   broom [(1.0.1)](https://broom.tidymodels.org/news/index.html)
 -   brulee [(0.2.0)](https://brulee.tidymodels.org/news/index.html)
@@ -57,7 +57,7 @@ Since [our last roundup post](https://www.tidyverse.org/blog/2022/07/tidymodels-
 
 </div>
 
-We'll highlight two specific upgrades: one for agua and another in recipes.
+We'll highlight two specific upgrades: one for agua and another for recipes.
 
 ## A big upgrade for agua
 
@@ -73,9 +73,9 @@ While the syntax for model fitting and tuning are the same as any other non-h2o 
 
 -   When using grid search, [h2o.grid(parallelism)](https://docs.h2o.ai/h2o/latest-stable/h2o-r/docs/reference/h2o.grid.html) determines how many models the h2o server should process at the same time. The default (`1`) constrains the server to run the models sequentially.
 
--   R has external parallelization tools (such as the foreach and future packages) that can start new R processes to simultaneously do work. This would run many models in parallel. For h2o, this determines how many models that the agua package could send to the server at once. This does not appear to be constrained by the `parallelism` argument to `h2o.grid()`.
+-   R has external parallelization tools (such as the foreach and future packages) that can start new R processes to simultaneously do work. This would run many models in parallel. For h2o, this determines how many models the agua package could send to the server at once. This does not appear to be constrained by the `parallelism` argument to `h2o.grid()`.
 
-With h2o and tidymodels, you should probably **use h2o's parallelization**. Using multiple approaches *can* work but only for some technologies. It's still pretty complicated and we will work more on un-complicating it.
+With h2o and tidymodels, you should probably **use h2o's parallelization**. Using multiple approaches *can* work but only for some technologies. It's still [pretty complicated](https://github.com/topepo/agua-h2o-benchmark) but we are working on un-complicating it.
 
 To set up h2o parallelization, there is a new control argument called `backend_options`. If you were doing a grid search, you first define how many threads the h2o server should use:
 
@@ -234,7 +234,7 @@ There is a great worked example [on the agua website](https://agua.tidymodels.or
 
 ## More spline recipe steps
 
-Spline techniques allow linear models to produce nonlinear model curves These are called [basis expasion methods](https://bookdown.org/max/FES/numeric-one-to-many.html#numeric-basis-functions) since they take a single numeric predictor and make additional nonlinear feature columns.
+Spline techniques allow linear models to produce nonlinear model curves. These are called [basis expansion methods](https://bookdown.org/max/FES/numeric-one-to-many.html#numeric-basis-functions) since they take a single numeric predictor and make additional nonlinear feature columns.
 
 If you have ever used `geom:smooth()`, you have probably used a spline function.
 
