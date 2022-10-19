@@ -1,0 +1,278 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-2022-q3
+title: "Q3 2022 tidymodels digest"
+date: 2022-10-19
+author: Max Kuhn
+description: >
+    Our post-RStudio conference productivity has been high! This post talks about tidymodels updates from the last few months. 
+photo:
+  url: https://unsplash.com/photos/PyDaL4PcLoQ
+  author:  Simon Spieske
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [roundup] 
+tags: [tidymodels, agua, recipes, h2o]
+---
+
+
+```{r}
+#| include: false
+#| label: startup
+
+library(tidymodels)
+library(agua)
+library(finetune)
+library(doMC)
+registerDoMC(cores = 10)
+
+tidymodels_prefer()
+theme_set(theme_bw())
+options(pillar.advice = FALSE, pillar.min_title_chars = Inf, width = 120)
+```
+```{r}
+#| label: get-repo-info
+#| include: FALSE
+
+since <- "2022-07-19"
+
+source("repo-functions.R")
+
+
+tm_data <- 
+  map_dfr(tm_pkgs, get_current_release) %>% 
+  filter(date > ymd(since)) %>% 
+  mutate(
+    repo = paste0("tidymodels/", package),
+    thanks = map_chr(repo, return_tidy_thanks, from = since),
+    thanks = glue("- {package}: {thanks}"),
+    news = glue("- {package} [({version})](https://{package}.tidymodels.org/news/index.html)")
+  )
+
+txt_pkg_list <- knitr::combine_words(tm_data$package)
+```
+
+The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. 
+
+Since the beginning of 2021, we have been publishing [quarterly updates](https://www.tidyverse.org/categories/roundup/) here on the tidyverse blog summarizing what's new in the tidymodels ecosystem. The purpose of these regular posts is to share useful new features and any updates you may have missed. You can check out the [`tidymodels` tag](https://www.tidyverse.org/tags/tidymodels/) to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused, like these from the past month or so:
+
+- [Improvements to model specification checking in tidymodels](https://www.tidyverse.org/blog/2022/10/parsnip-checking-1-0-2/)
+- [brulee 0.2.0](https://www.tidyverse.org/blog/2022/09/brulee-0-2-0/)
+- [Announcing bundle](https://www.tidyverse.org/blog/2022/09/bundle-0-1-0/)
+- [censored 0.1.0](https://www.tidyverse.org/blog/2022/08/censored-0-1-0/)
+- [rsample 1.1.0](https://www.tidyverse.org/blog/2022/08/rsample-1-1-0/)
+
+Since [our last roundup post](https://www.tidyverse.org/blog/2022/07/tidymodels-2022-q2/), there have been CRAN releases of `r nrow(tm_data)` tidymodels packages. Here are links to their NEWS files:
+
+```{r}
+#| echo: FALSE
+#| results: asis
+
+cat(tm_data$news, sep = "\n")
+```
+
+We'll highlight two specific upgrades: one for agua and another for recipes. 
+
+
+## A big upgrade for agua
+
+With version 3.38.0.1 of the [h2o](https://cran.r-project.org/package=h2o) package, agua can now tune h2o models as if they were any other type of model engine.
+
+[h2o](https://h2o.ai) has an excellent server-based computational engine for fitting a variety of different machine learning and statistical models. The h2o server can run locally or on some external high performance computing server. The downside is that it is light on tools for feature engineering and interactive data analysis. 
+
+Using h2o with tidymodels enables users to leverage the benefits of packages like recipes along with fast, server-based parallel processing. 
+
+While the syntax for model fitting and tuning are the same as any other non-h2o model, there are different ways to parallelize the work: 
+
+* The h2o server has the ability to internally parallelize individual model computations. For example, when fitting trees, the search for the best split can be done using multiple threads. The number of threads that each model should be used is set with [h2o.init(nthreads)](https://docs.h2o.ai/h2o/latest-stable/h2o-r/docs/reference/h2o.init.html). The default (`-1`) is to use all CPUs on the host. 
+
+* When using grid search, [h2o.grid(parallelism)](https://docs.h2o.ai/h2o/latest-stable/h2o-r/docs/reference/h2o.grid.html) determines how many models the h2o server should process at the same time. The default (`1`) constrains the server to run the models sequentially.
+
+* R has external parallelization tools (such as the foreach and future packages) that can start new R processes to simultaneously do work. This would run many models in parallel. For h2o, this determines how many models the agua package could send to the server at once. This does not appear to be constrained by the `parallelism` argument to `h2o.grid()`. 
+
+With h2o and tidymodels, you should probably **use h2o's parallelization**. Using multiple approaches _can_ work but only for some technologies. It's still [pretty complicated](https://github.com/topepo/agua-h2o-benchmark) but we are working on un-complicating it. 
+
+To set up h2o parallelization, there is a new control argument called `backend_options`. If you were doing a grid search, you first define how many threads the h2o server should use:
+
+```r
+library(tidymodels)
+library(agua)
+library(finetune)
+
+h2o_thread_spec <- agua_backend_options(parallelism = 10) 
+```
+
+Then, pass the output to any of the existing control functions: 
+
+```r
+grid_ctrl <- control_grid(backend_options = h2o_thread_spec)
+```
+
+Now h2o can parallel process 10 models at once. 
+
+Here is an example using a simulated data set with a numeric outcome: 
+
+```{r}
+#| results: hide
+
+library(tidymodels)
+library(agua)
+library(finetune)
+
+# Simulate the data
+n_train <- 200
+set.seed(6147)
+sim_dat <- sim_regression(n_train)
+
+# Resample using 10-fold cross-validation
+set.seed(91)
+sim_rs <- vfold_cv(sim_dat)
+```
+
+We'll use grid search to tune a boosted tree:
+
+```{r}
+boost_spec <-
+  boost_tree(
+    trees = tune(),
+    min_n = tune(),
+    tree_depth = tune(),
+    learn_rate = tune(),
+    loss_reduction = tune()
+  ) %>%
+  set_engine("h2o") %>%
+  set_mode("regression")
+```
+
+Now, let's parallel process our computations.
+
+```{r}
+#| results: hide
+#| label: h2o-init
+
+# Start the h2o server
+h2o::h2o.init()
+
+# Multi-thread the model fits
+h2o_thread_spec <- agua_backend_options(parallelism = 10)
+grid_ctrl <- control_grid(backend_options = h2o_thread_spec)
+```
+
+We'll evaluate a very small grid at first: 
+
+```{r}
+#| results: hide
+#| message: FALSE
+#| warning: FALSE
+#| label: grid
+#| cache: TRUE
+set.seed(7616)
+grid_res <-
+  boost_spec %>%
+  tune_grid(outcome ~ ., resamples = sim_rs, grid = 10, control = grid_ctrl)
+```
+
+```{r}
+#| label: grid-plot
+#| out.width: "90%"
+#| fig.align: "center"
+#| fig.width: 8
+#| fig.height: 5
+#| dev: svg
+show_best(grid_res, metric = "rmse") %>% select(-.config, -.metric, -.estimator)
+
+autoplot(grid_res, metric = "rmse")
+```
+
+It was a small grid and most of the configurations were not especially good. We can further optimize the results by applying simulated annealing search to the best grid results. 
+
+```{r}
+#| label: sim-anneal
+#| cache: TRUE
+sa_ctrl <- control_sim_anneal(backend_options = h2o_thread_spec)
+
+set.seed(4)
+sa_res <-
+  boost_spec %>%
+  tune_sim_anneal(
+    outcome ~ .,
+    resamples = sim_rs,
+    initial = grid_res,
+    iter = 25,
+    control = sa_ctrl
+  )
+```
+
+Again, h2o is doing all of the computational work for fitting models and tidymodels is proposing new parameter configurations. 
+
+One other nice feature of the new agua release is the h2o engine for the `auto_ml()` model. This builds a stacked ensemble on a set of different models (not unlike our [stacks](https://stacks.tidymodels.org) package but with far less code). 
+
+There is a great worked example [on the agua website](https://agua.tidymodels.org/articles/auto_ml.html) so make sure to check this out! 
+
+## More spline recipe steps
+
+Spline techniques allow linear models to produce nonlinear model curves. These are called [basis expansion methods](https://bookdown.org/max/FES/numeric-one-to-many.html#numeric-basis-functions) since they take a single numeric predictor and make additional nonlinear feature columns. 
+
+If you have ever used `geom:smooth()`, you have probably used a spline function. 
+
+The recipes package now has an expanded set of spline functions (with a common naming convention): 
+
+- [`step_spline_b()`](https://recipes.tidymodels.org/dev/reference/step_spline_b.html)
+- [`step_spline_convex()`](https://recipes.tidymodels.org/dev/reference/step_spline_convex.html)
+- [`step_spline_monotone()`](https://recipes.tidymodels.org/dev/reference/step_spline_monotone.html)
+- [`step_spline_natural()`](https://recipes.tidymodels.org/dev/reference/step_spline_natural.html)
+- [`step_spline_nonnegative()`](https://recipes.tidymodels.org/dev/reference/step_spline_nonnegative.html)
+
+There is also another step to make polynomial functions: [`step_poly_bernstein()`](https://recipes.tidymodels.org/dev/reference/step_poly_bernstein.html)
+
+These functions take different approaches to creating the new set of features. Take a look at the references to see the technical details. 
+
+Here is a simple example using the [Ames data](https://www.tmwr.org/ames.html) where we model the sale price as a nonlinear function of the longitude using a convex basis function: 
+
+```{r}
+#| label: Longitude
+#| out.width: "70%"
+#| fig.align: "center"
+#| fig.width: 6
+#| fig.height: 4.25
+#| dev: svg
+data(ames)
+
+ames$Sale_Price <- log10(ames$Sale_Price)
+
+spline_rec <- recipe(Sale_Price ~ Longitude, data = ames) %>% 
+  step_spline_convex(Longitude, deg_free = 25)
+
+spline_fit <- 
+  spline_rec %>% 
+  workflow( linear_reg() ) %>% 
+  fit(data = ames)
+
+spline_fit %>% 
+  augment(ames) %>% 
+  ggplot(aes(Longitude)) + 
+  geom_point(aes(y = Sale_Price), alpha = 1 / 3) +
+  geom_line(aes(y = .pred), col = "red", lwd = 1.5)
+```
+
+Not too bad but the model clearly over-fits on the extreme right tail of the predictor distribution. 
+
+## Acknowledgements
+
+It's important that we thank everyone in the community that contributed to tidymodels: 
+
+
+```{r}
+#| echo: FALSE
+#| results: asis
+
+cat(tm_data$thanks, sep = "\n")
+```
+
+
+```{r}
+#| include: FALSE
+
+agua::h2o_end()
+```
