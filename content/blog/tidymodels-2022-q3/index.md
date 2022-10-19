@@ -33,7 +33,7 @@ Since [our last roundup post](https://www.tidyverse.org/blog/2022/07/tidymodels-
 <div class="highlight">
 
 -   agua [(0.1.0)](https://agua.tidymodels.org/news/index.html)
--   applicable [(0.1.0)](https://applicable.tidymodels.org/news/index.html)
+-   applicable [(0.1.0)](https://github.com/tidymodels/applicable/blob/develop/NEWS.md)
 -   bonsai [(0.2.0)](https://bonsai.tidymodels.org/news/index.html)
 -   broom [(1.0.1)](https://broom.tidymodels.org/news/index.html)
 -   brulee [(0.2.0)](https://brulee.tidymodels.org/news/index.html)
