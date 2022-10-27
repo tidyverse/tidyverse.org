@@ -176,6 +176,28 @@ ggplot(data, aes(x)) +
   )
 ```
 
+### No clipping in facet strips
+It is now possible to turn clipping in the facet strips off. For the most part the default works fine but in certain situations you'd like the strip text or the border to be seen in full. The new feature is a theme setting:
+
+```{r}
+p <- ggplot(diamonds) + 
+  geom_bar(aes(y = color)) + 
+  facet_wrap(~ cut) + 
+  theme_minimal() + 
+  theme(
+    strip.background = element_rect("grey90", colour = "grey90", linewidth = 1),
+    axis.line.y = element_line(linewidth = 1)
+  )
+p
+```
+
+In the (a bit contrived) theme above we see a jarring step between the strip background and the axis line because the border of the strip is clipped to the extent of the strip. We can fix this by turning off clipping:
+
+```{r}
+p + theme(strip.clip = "off")
+```
+
+
 ### Justification in `geom_bar()`/`geom_col()`
 
 You can now specify how the bars in `geom_bar()` should be justified with respect to the position on the axis they are tied to:

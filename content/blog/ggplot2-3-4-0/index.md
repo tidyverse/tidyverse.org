@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, graphics]
-rmd_hash: eb5fc0541c327dcd
+rmd_hash: 1b490fab9395e064
 
 ---
 
@@ -227,6 +227,36 @@ While most of the focus has been on internal housekeeping in this release a few 
 
 </div>
 
+### No clipping in facet strips
+
+It is now possible to turn clipping in the facet strips off. For the most part the default works fine but in certain situations you'd like the strip text or the border to be seen in full. The new feature is a theme setting:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>p</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>diamonds</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar</a></span><span class='o'>(</span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='nv'>color</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span><span class='o'>(</span><span class='o'>~</span> <span class='nv'>cut</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_minimal</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='o'>(</span>
+    strip.background <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_rect</a></span><span class='o'>(</span><span class='s'>"grey90"</span>, colour <span class='o'>=</span> <span class='s'>"grey90"</span>, linewidth <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span>,
+    axis.line.y <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_line</a></span><span class='o'>(</span>linewidth <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span>
+  <span class='o'>)</span>
+<span class='nv'>p</span>
+</code></pre>
+<img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+In the (a bit contrived) theme above we see a jarring step between the strip background and the axis line because the border of the strip is clipped to the extent of the strip. We can fix this by turning off clipping:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>p</span> <span class='o'>+</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='o'>(</span>strip.clip <span class='o'>=</span> <span class='s'>"off"</span><span class='o'>)</span>
+</code></pre>
+<img src="figs/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
 ### Justification in `geom_bar()`/`geom_col()`
 
 You can now specify how the bars in [`geom_bar()`](https://ggplot2.tidyverse.org/reference/geom_bar.html) should be justified with respect to the position on the axis they are tied to:
@@ -240,7 +270,7 @@ You can now specify how the bars in [`geom_bar()`](https://ggplot2.tidyverse.org
   <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar</a></span><span class='o'>(</span>data <span class='o'>=</span> <span class='nv'>mtcars_left</span>, just <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span> <span class='o'>+</span> 
   <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span><span class='o'>(</span><span class='o'>~</span><span class='nv'>justification</span>, ncol <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span>
 </code></pre>
-<img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-12-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
