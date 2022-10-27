@@ -1,0 +1,198 @@
+---
+output: hugodown::hugo_document
+
+slug: ggplot2-3-4-0
+title: ggplot2 3.4.0
+date: 2022-11-01
+author: Thomas Lin Pedersen
+description: >
+    ggplot2 3.4.0 is now on CRAN. Read all about the (mostly internal) changes
+    that makes up this release.
+
+photo:
+  url: https://data-imaginist.com/art
+  author: Thomas Lin Pedersen
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [ggplot2, graphics]
+---
+
+```{=html}
+<!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+```
+We're so happy to announce the release of [ggplot2](https://ggplot2.tidyverse.org) 3.4.0 on CRAN. ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details. The new version can be installed from CRAN using `install.packages("ggplot2")`.
+
+This release is not full of exciting new features. Instead we have focused on the internals, tightening up of the API, and improving the messaging, especially when it comes to errors and warnings. While the release also contains a few new features these other aspects are the stars of this release.
+
+You can see a full list of changes in the [release notes](https://ggplot2.tidyverse.org/news/index.html)
+
+```{r setup, message=FALSE}
+library(ggplot2)
+library(patchwork)
+library(dplyr)
+```
+
+## Hello `linewidth`
+
+Arguably the biggest user.visible change in this release is the introduction of a new fundamental aesthetic. `linewidth` will from this point on take over sizing of the width of lines---something that was earlier handled by `size`. The reason for this change is that prior to this release `size` was used for two related, but different, properties: the size of points (and glyphs) and the width of lines. Since one is area based and one is length based they fundamentally needs different scaling and the default size scale has always catered to area sizing, using a square root transform. Further, this conflation has also resulted in composite geoms like `geom_pointrange()` where it was difficult to control the line width and point size separately.
+
+There is not much to discuss when it comes to how to use this "feature", as it is a matter of switching out `size` with `linewidth` whenever you target stroke sizing:
+
+```{r}
+ggplot(airquality) + 
+  geom_line(aes(Day, Temp, linewidth = Month, group = Month)) + 
+  scale_linewidth(range = c(0.5, 3))
+```
+
+Now, changing such a fundamental thing when a package is as old and widely used as ggplot2 is no small undertaking, and I wish it had been done earlier, but rather late than never. We have gone to lengths to ensure that old code continues to work. For the most part using size will continue to behave like before:
+
+```{r}
+ggplot(airquality) + 
+  geom_line(aes(Day, Temp, size = Month, group = Month)) + 
+  scale_size(range = c(0.5, 3))
+```
+
+As you can see you get the expected plot but also gets a deprecation warning asking you to port your code. Comparing the two legends we can also see the discrepancy in scaling that we discussed above, showing a much more even progression with `linewidth`.
+
+All of this should work with all the geoms provided by ggplot2 (and we have described [a clear upgrade path for extension developers to adopt this](https://www.tidyverse.org/blog/2022/08/ggplot2-3-4-0-size-to-linewidth/)), except for a few instances where `size` remains a valid aesthetic for the geom. In these cases you will not get a deprecation warning and your output may change in look when running old code. The two geoms this concerns are `geom_pointrange()` and `geom_sf()` which both continues to use `size` to scale points. Comparing the output from e.g. `geom_pointrange()` we can see how using `size` now only targets the point and not the line:
+
+```{r}
+ggplot(airquality) + 
+  geom_pointrange(aes(x = factor(Month), y = Temp), stat = "summary", size = 2)
+```
+
+We recognize that introducing silent visual changes like this is not optimal but we weighted both sides and decided that it was better in the long run to rip the band-aid off and commit fully to the `linewidth` change in one release.
+
+The switch to `linewidth` goes beyond aesthetics and should target every part of the API that have used `size` to target line width. This is mostly present in theming where `element_rect()` and `element_line()` now uses `linewidth` as argument instead of `size`. As above a deprecation warning will inform you of this change:
+
+```{r}
+ggplot(mtcars) + 
+  geom_point(aes(x = mpg, y = disp)) + 
+  theme(panel.grid = element_line(linewidth = 0.2))
+```
+
+We have done our best to ensure that it is easy for our extension developers to follow the path laid out by ggplot2 when it comes to embracing the new aesthetic, but you will probably experience a period of discrepancy between some of your favorite extensions and ggplot2. I have full confidence that our amazing extension developers will adapt quickly so that period will probably be short.
+
+### On the topic of line width
+
+We have made a few other internal changes when it comes to line widths. The biggest of these are perhaps a new default for polygon line width in `geom_sf()`. The change came about as we already had induced visual changes to old code due to the `linewidth` aesthetic introduction and based on feedback from the spatial community we saw that `size` was most often used to thin the polygon borders. The new default is 0.2 (down from 0.5) and hopefully strikes a nice balance:
+
+```{r}
+nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+p1 <- ggplot(nc) +
+  geom_sf(linewidth = 0.5) + 
+  ggtitle("Old default")
+
+p2 <- ggplot(nc) +
+  geom_sf() + 
+  ggtitle("New default")
+
+p1/p2
+```
+
+More minor is a small fix we did to `guide_colorbar()` where it was brought to our attention that the `ticks.linewidth` and `frame.linewidth` weren't given in the same unit as every other line width in ggplot2. This has been corrected and the default has been adjusted to retain the same look but if you have given these specifically in your code you are likely to notice a visual change.
+
+## Other breaking changes
+
+In the grab-bag of breaking changes we have now formally deprecated `qplot()`. It will continue to work as always but will be a bit noisy about it. Don't expect the function to disappear, but the deprecation signals that we don't intend to do further work on `qplot()` to keep it current with new features etc. In the same vein, `stat()` and `..var..` for marking aesthetics from stats are also formally deprecated in favor of `after_stat()`. Again, the result is that using these old APIs will be noisy but still work.
+
+On the topic of `after_stat()` the values and computations happening inside of this now works on the un-transformed variables rather than the transformed ones. This is a bit esoteric and only applies to aesthetics that have had a scale transformation applied to them, so you may never notice.
+
+Lastly, we have made a switch to using `rlang::hash()` instead of `digest::digest()` which may result in the automatic ordering of legends changing, again a pretty minor change.
+
+## Better errors
+
+One of the most substantial changes in usability in this release is a complete rewrite of the errors and warnings. This goes deeper than changing wordings as the messaging is now based on the signal handling in the [cli](https://cli.r-lib.org) package that provides rich text formatting and better ways to guide the user to a resolution. Consider the following easy to make mistake of using the pipe instead of `+`:
+
+```{r, error=TRUE}
+ggplot(mtcars) |> 
+  geom_point(aes(mpg, disp))
+```
+
+As can be seen, the error now clearly states where it is happening, then tells you what is wrong, and lastly gives you a hint at what might be the solution.
+
+However, this is not all. One of the biggest issues with error reporting in ggplot2 is that most code is evaluated during rendering, not when the API calls are made. Because of this it has been difficult to link a user error in a geom specification to the actual error message that arises. This could send the user on a treasure hunt to identify what to change in order to fix the code. With the changes in 3.4.0 we are now much better at directing the user to the right place in their code when errors in the rendering happens:
+
+```{r, error=TRUE, fig.keep='none'}
+huron <- data.frame(year = 1875:1972, level = as.vector(LakeHuron))
+ggplot(huron) +
+  geom_line(aes(year, level)) + 
+  geom_ribbon(aes(year, xmin = level - 5, xmax = level + 5))
+```
+
+We can see that the error message correctly identifies the geom responsible for the layer, communicates during what part of the rendering it happened during, and points to the index of the layer in the case that multiple layers from the same geom have been used. Lastly it shows the original error that can help you with solving the issue.
+
+Hopefully the changes goes a long way to make ggplot2 even more welcoming to new and seasoned users alike. However, this effort is never done and we continue to appreciate issues in the github repository pointing out unhelpful errors or warnings that arises so that we may improve it further.
+
+## vctrs inside
+
+The last part of the large housekeeping changes in this release is that ggplot2 finally embraces [vctrs](https://vctrs.r-lib.org) and uses it's functions internally primarily for binding data together. Apart from a nice bump in rendering speed it also means that we now better support data types build upon vctrs and subscribe to the more well-defined coercion rules that it provides. The last point is a double edged sword though, as your code may contain a diverse mix of data types in different layers that worked before but doesn't align with the strictness of vctrs. While we have gone to lengths to ensure that your code still works you will begin to see deprecation notices if you e.g. factor on a variable that is incompatible across layers:
+
+```{r}
+labels <- data.frame(
+  label = paste("gear", 3:5),
+  gear = as.character(3:5),
+  x = 100,
+  y = 11
+)
+ggplot(mtcars) + 
+  geom_point(aes(disp, mpg)) + 
+  geom_text(aes(x, y, label = label), labels, hjust = "left") + 
+  facet_wrap(~gear)
+```
+
+While this may seem like an unnecessary annoyance we hope that you'll learn to appreciate that this strictness can save you from silent bugs where you end up combining variables that are basically incompatible.
+
+## New features
+
+While most of the focus has been on internal housekeeping in this release a few new features has also crept in, courtesy of our amazing contributors from the community:
+
+### Bounded density estimation
+
+`geom_density()` have gained a `bounds` argument allowing you to perform density estimation with bound correction. This can leads to might better edge estimates when bounds are known for a sample:
+
+```{r}
+data <- data.frame(x = rexp(100))
+ggplot(data, aes(x)) +
+  geom_density(aes(colour = "unbounded"), key_glyph = "path") +
+  geom_density(aes(colour = "bounded"), bounds = c(0, Inf), key_glyph = "path") +
+  stat_function(aes(colour = "true distribution"), fun = dexp) + 
+  scale_colour_manual(
+    name = NULL, 
+    values = c("black", "firebrick", "forestgreen"),
+    breaks = c("true distribution", "unbounded", "bounded")
+  )
+```
+
+### Justification in `geom_bar()`/`geom_col()`
+
+You can now specify how the bars in `geom_bar()` should be justified with respect to the position on the axis they are tied to:
+
+```{r}
+mtcars_centered <- mutate(mtcars, justification = "centered")
+mtcars_left <- mutate(mtcars, justification = "left aligned")
+ggplot(mapping = aes(x = gear)) + 
+  geom_bar(data = mtcars_centered) + 
+  geom_bar(data = mtcars_left, just = 0) + 
+  facet_wrap(~justification, ncol = 1)
+```
+
+It goes without saying that you should only do this for good reasons because it goes against how people in general expect bar plots to behave, but for certain layout needs it can be a boon.
+
+## Acknowledgements
+
+As always, this release could not be possible without contributions from our amazing community. A huge thanks goes out to everyone who has helped made ggplot2 3.4.0 a reality:
+
+[&#x0040;92amartins](https://github.com/92amartins), [&#x0040;acircleda](https://github.com/acircleda), [&#x0040;AlgaeKat](https://github.com/AlgaeKat), [&#x0040;andreaskuepfer](https://github.com/andreaskuepfer), [&#x0040;angleik](https://github.com/angleik), [&#x0040;aphalo](https://github.com/aphalo), [&#x0040;artuurC](https://github.com/artuurC), [&#x0040;asolisc](https://github.com/asolisc), [&#x0040;baderstine](https://github.com/baderstine), [&#x0040;basille](https://github.com/basille), [&#x0040;bergsmat](https://github.com/bergsmat), [&#x0040;bersbersbers](https://github.com/bersbersbers), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;brianmsm](https://github.com/brianmsm), [&#x0040;brunomioto](https://github.com/brunomioto), [&#x0040;bwiernik](https://github.com/bwiernik), [&#x0040;capnrefsmmat](https://github.com/capnrefsmmat), [&#x0040;clauswilke](https://github.com/clauswilke), [&#x0040;cmartin](https://github.com/cmartin), [&#x0040;ConchuirohAodha](https://github.com/ConchuirohAodha), [&#x0040;corybrunson](https://github.com/corybrunson), [&#x0040;DanChaltiel](https://github.com/DanChaltiel), [&#x0040;DarioS](https://github.com/DarioS), [&#x0040;Darxor](https://github.com/Darxor), [&#x0040;davidchall](https://github.com/davidchall), [&#x0040;davidhodge931](https://github.com/davidhodge931), [&#x0040;dhrhzz](https://github.com/dhrhzz), [&#x0040;DiegoJArg](https://github.com/DiegoJArg), [&#x0040;DISOhda](https://github.com/DISOhda), [&#x0040;drtoche](https://github.com/drtoche), [&#x0040;Enterprise-J](https://github.com/Enterprise-J), [&#x0040;ewallace](https://github.com/ewallace), [&#x0040;gbrlrgrs](https://github.com/gbrlrgrs), [&#x0040;ggrothendieck](https://github.com/ggrothendieck), [&#x0040;GregorDall](https://github.com/GregorDall), [&#x0040;hadley](https://github.com/hadley), [&#x0040;henningpohl](https://github.com/henningpohl), [&#x0040;Hugh-Mungo](https://github.com/Hugh-Mungo), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;JacobElder](https://github.com/JacobElder), [&#x0040;jarauh](https://github.com/jarauh), [&#x0040;javlon](https://github.com/javlon), [&#x0040;jdonland](https://github.com/jdonland), [&#x0040;jessexknight](https://github.com/jessexknight), [&#x0040;jfunction](https://github.com/jfunction), [&#x0040;JobNmadu](https://github.com/JobNmadu), [&#x0040;JoFAM](https://github.com/JoFAM), [&#x0040;jooyoungseo](https://github.com/jooyoungseo), [&#x0040;jpquast](https://github.com/jpquast), [&#x0040;jtlandis](https://github.com/jtlandis), [&#x0040;junjunlab](https://github.com/junjunlab), [&#x0040;jwhendy](https://github.com/jwhendy), [&#x0040;kapsner](https://github.com/kapsner), [&#x0040;KasperThystrup](https://github.com/KasperThystrup), [&#x0040;kongdd](https://github.com/kongdd), [&#x0040;LarryVincent](https://github.com/LarryVincent), [&#x0040;leonjessen](https://github.com/leonjessen), [&#x0040;Lisamrshhsr](https://github.com/Lisamrshhsr), [&#x0040;llrs](https://github.com/llrs), [&#x0040;LuisLauM](https://github.com/LuisLauM), [&#x0040;lynn242](https://github.com/lynn242), [&#x0040;makrez](https://github.com/makrez), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;michaelgrund](https://github.com/michaelgrund), [&#x0040;mikeroswell](https://github.com/mikeroswell), [&#x0040;mjsmith037](https://github.com/mjsmith037), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;mvanaman](https://github.com/mvanaman), [&#x0040;netique](https://github.com/netique), [&#x0040;nfancy](https://github.com/nfancy), [&#x0040;ngreifer](https://github.com/ngreifer), [&#x0040;nkehrein](https://github.com/nkehrein), [&#x0040;olobiolo](https://github.com/olobiolo), [&#x0040;orgadish](https://github.com/orgadish), [&#x0040;pachadotdev](https://github.com/pachadotdev), [&#x0040;padpadpadpad](https://github.com/padpadpadpad), [&#x0040;paupaiz](https://github.com/paupaiz), [&#x0040;ProfessorPeregrine](https://github.com/ProfessorPeregrine), [&#x0040;PursuitOfDataScience](https://github.com/PursuitOfDataScience), [&#x0040;rikudoukarthik](https://github.com/rikudoukarthik), [&#x0040;rjake](https://github.com/rjake), [&#x0040;rressler](https://github.com/rressler), [&#x0040;SarenT](https://github.com/SarenT), [&#x0040;Sebas256](https://github.com/Sebas256), [&#x0040;shenzhenzth](https://github.com/shenzhenzth), [&#x0040;skyroam](https://github.com/skyroam), [&#x0040;stargorg](https://github.com/stargorg), [&#x0040;stefanoborini](https://github.com/stefanoborini), [&#x0040;steveharoz](https://github.com/steveharoz), [&#x0040;stragu](https://github.com/stragu), [&#x0040;szimmer](https://github.com/szimmer), [&#x0040;tamas-ferenci](https://github.com/tamas-ferenci), [&#x0040;teunbrand](https://github.com/teunbrand), [&#x0040;tfjaeger](https://github.com/tfjaeger), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;thoolihan](https://github.com/thoolihan), [&#x0040;tjebo](https://github.com/tjebo), [&#x0040;topepo](https://github.com/topepo), [&#x0040;trevorld](https://github.com/trevorld), [&#x0040;tungttnguyen](https://github.com/tungttnguyen), [&#x0040;twest820](https://github.com/twest820), [&#x0040;waynerroper](https://github.com/waynerroper), [&#x0040;willgearty](https://github.com/willgearty), [&#x0040;wmacnair](https://github.com/wmacnair), [&#x0040;wurli](https://github.com/wurli), [&#x0040;yutannihilation](https://github.com/yutannihilation), and [&#x0040;zeehio](https://github.com/zeehio).
