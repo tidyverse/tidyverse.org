@@ -7,7 +7,7 @@ date: 2022-11-01
 author: Thomas Lin Pedersen
 description: >
     ggplot2 3.4.0 is now on CRAN. Read all about the (mostly internal) changes
-    that makes up this release.
+    that make up this release.
 
 photo:
   url: https://data-imaginist.com/art
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, graphics]
-rmd_hash: 1b490fab9395e064
+rmd_hash: b64b052c4014c30f
 
 ---
 
@@ -49,7 +49,7 @@ You can see a full list of changes in the [release notes](https://ggplot2.tidyve
 
 ## Hello `linewidth`
 
-Arguably the biggest user.visible change in this release is the introduction of a new fundamental aesthetic. `linewidth` will from this point on take over sizing of the width of lines---something that was earlier handled by `size`. The reason for this change is that prior to this release `size` was used for two related, but different, properties: the size of points (and glyphs) and the width of lines. Since one is area based and one is length based they fundamentally needs different scaling and the default size scale has always catered to area sizing, using a square root transform. Further, this conflation has also resulted in composite geoms like [`geom_pointrange()`](https://ggplot2.tidyverse.org/reference/geom_linerange.html) where it was difficult to control the line width and point size separately.
+Arguably the biggest user.visible change in this release is the introduction of a new fundamental aesthetic. From this release on, `linewidth` will take over sizing of the width of lines---something that was earlier handled by `size`. The reason for this change is that prior to this release `size` was used for two related, but different, properties: the size of points (and glyphs) and the width of lines. Since one is area based and one is length based they fundamentally needs different scaling and the default size scale has always catered to area sizing, using a square root transform. This conflation has also made it hard for composite geoms like [`geom_pointrange()`](https://ggplot2.tidyverse.org/reference/geom_linerange.html) to control the line width and point size separately.
 
 There is not much to discuss when it comes to how to use this "feature", as it is a matter of switching out `size` with `linewidth` whenever you target stroke sizing:
 
@@ -63,7 +63,7 @@ There is not much to discuss when it comes to how to use this "feature", as it i
 
 </div>
 
-Now, changing such a fundamental thing when a package is as old and widely used as ggplot2 is no small undertaking, and I wish it had been done earlier, but rather late than never. We have gone to lengths to ensure that old code continues to work. For the most part using size will continue to behave like before:
+Now, changing such a fundamental thing when a package is as old and widely used as ggplot2 is no small undertaking, and I wish it had been done earlier, but better late than never. We have gone to great lengths to ensure that old code continues to work. For the most part using size will continue to behave like before:
 
 <div class="highlight">
 
@@ -77,7 +77,7 @@ Now, changing such a fundamental thing when a package is as old and widely used 
 
 </div>
 
-As you can see you get the expected plot but also gets a deprecation warning asking you to port your code. Comparing the two legends we can also see the discrepancy in scaling that we discussed above, showing a much more even progression with `linewidth`.
+As you can see you get the expected plot but also gets a deprecation warning asking you to update your code. Comparing the two legends we can also see the discrepancy in scaling that we discussed above, showing a much more even progression with `linewidth`.
 
 All of this should work with all the geoms provided by ggplot2 (and we have described [a clear upgrade path for extension developers to adopt this](https://www.tidyverse.org/blog/2022/08/ggplot2-3-4-0-size-to-linewidth/)), except for a few instances where `size` remains a valid aesthetic for the geom. In these cases you will not get a deprecation warning and your output may change in look when running old code. The two geoms this concerns are [`geom_pointrange()`](https://ggplot2.tidyverse.org/reference/geom_linerange.html) and [`geom_sf()`](https://ggplot2.tidyverse.org/reference/ggsf.html) which both continues to use `size` to scale points. Comparing the output from e.g. [`geom_pointrange()`](https://ggplot2.tidyverse.org/reference/geom_linerange.html) we can see how using `size` now only targets the point and not the line:
 
@@ -134,9 +134,9 @@ More minor is a small fix we did to [`guide_colorbar()`](https://ggplot2.tidyver
 
 In the grab-bag of breaking changes we have now formally deprecated [`qplot()`](https://ggplot2.tidyverse.org/reference/qplot.html). It will continue to work as always but will be a bit noisy about it. Don't expect the function to disappear, but the deprecation signals that we don't intend to do further work on [`qplot()`](https://ggplot2.tidyverse.org/reference/qplot.html) to keep it current with new features etc. In the same vein, [`stat()`](https://ggplot2.tidyverse.org/reference/aes_eval.html) and `..var..` for marking aesthetics from stats are also formally deprecated in favor of [`after_stat()`](https://ggplot2.tidyverse.org/reference/aes_eval.html). Again, the result is that using these old APIs will be noisy but still work.
 
-On the topic of [`after_stat()`](https://ggplot2.tidyverse.org/reference/aes_eval.html) the values and computations happening inside of this now works on the un-transformed variables rather than the transformed ones. This is a bit esoteric and only applies to aesthetics that have had a scale transformation applied to them, so you may never notice.
+On the topic of [`after_stat()`](https://ggplot2.tidyverse.org/reference/aes_eval.html), the values and computations inside of it now use the un-transformed variables rather than the transformed ones. This is a bit esoteric and only applies to aesthetics that have had a scale transformation applied to them, so you may never notice.
 
-Lastly, we have made a switch to using [`rlang::hash()`](https://rlang.r-lib.org/reference/hash.html) instead of [`digest::digest()`](https://rdrr.io/pkg/digest/man/digest.html) which may result in the automatic ordering of legends changing, again a pretty minor change.
+Lastly, we have made a switch to using [`rlang::hash()`](https://rlang.r-lib.org/reference/hash.html) instead of [`digest::digest()`](https://rdrr.io/pkg/digest/man/digest.html) which may result in the automatic ordering of legends changing, again a pretty minor change. If you care about the ordering of the legends you can always take control of it using the `order` argument inside the different `guide_*()` constructors.
 
 ## Better errors
 
@@ -177,7 +177,7 @@ Hopefully the changes goes a long way to make ggplot2 even more welcoming to new
 
 ## vctrs inside
 
-The last part of the large housekeeping changes in this release is that ggplot2 finally embraces [vctrs](https://vctrs.r-lib.org) and uses it's functions internally primarily for binding data together. Apart from a nice bump in rendering speed it also means that we now better support data types build upon vctrs and subscribe to the more well-defined coercion rules that it provides. The last point is a double edged sword though, as your code may contain a diverse mix of data types in different layers that worked before but doesn't align with the strictness of vctrs. While we have gone to lengths to ensure that your code still works you will begin to see deprecation notices if you e.g. factor on a variable that is incompatible across layers:
+The last part of the large housekeeping changes in this release is that ggplot2 finally embraces [vctrs](https://vctrs.r-lib.org) and uses it's functions internally primarily for binding data together. Apart from a nice bump in rendering speed it also means that we now better support data types built upon vctrs and subscribe to the more well-defined coercion rules that it provides. The last point is a double edged sword though, as your code may contain a diverse mix of data types in different layers that worked before but doesn't align with the strictness of vctrs. While we have gone to lengths to ensure that your code still works you will begin to see deprecation notices if you e.g. factor on a variable that is incompatible across layers:
 
 <div class="highlight">
 
