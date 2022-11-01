@@ -1,0 +1,250 @@
+---
+output: hugodown::hugo_document
+
+slug: stringr-1-5-0
+title: stringr 1.5.0
+date: 2022-10-31
+author: Hadley Wickham
+description: >
+    It's been three years but a new version of stringr is now on CRAN!
+    This release includes a bunch of small but useful new functions and 
+    some increased consistency with the rest of the tidyverse.
+
+photo:
+  url: https://unsplash.com/photos/XGqS569rdgk
+  author: Amie Bell
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [stringr, tidyverse]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+```
+We're chuffed to announce the release of [stringr](https://stringr.tidyverse.org) 1.5.0.
+stringr provides a cohesive set of functions designed to make working with strings as easy as possible.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("{package}")
+```
+
+It's been over three and half years since the last stringr release, and in that time we've accumulated a bunch of small but useful new functions in the developer version.
+Thorough documentation review and a new vignette on transitioning from base R by Sara Stoudt in the 2019 Tidyverse developer day.
+Finally, stringr is now officially [re-licensed as MIT](https://www.tidyverse.org/blog/2021/12/relicensing-packages/).
+
+You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
+
+```{r setup}
+library(stringr)
+```
+
+## Breaking changes
+
+Lets start with the important stuff: the breaking changes.
+We've tried to keep these small and we don't believe they'll affect much code in the wild as they only affected \~20 of the \~1600 packages that use stringr.
+But we're believe they're important as a consistent set of rules makes the tidyverse as a whole more predictable and easier to learn.
+
+### Recycling rules
+
+stringr functions now consistently implement the tidyverse recycling rules[^1], which are stricter than the previous rules in two ways.
+Firstly, we no longer recycle shorter vectors that are an integer multiple of longer vectors:
+
+[^1]: You might wonder why we developed our own set of recycling rules for the tidyverse instead of using the base R rules.
+    That's because, unfortunately, there isn't a consistent set of rules used by base R, but a [suite of variations](https://vctrs.r-lib.org/articles/type-size.html#appendix-recycling-in-base-r).
+
+```{r}
+#| error: true
+
+str_detect(letters, c("x", "y"))
+```
+
+Secondly, a 0-length vector doesn't automatically imply a 0-length output, it's instead recycled using the usual rules:
+
+```{r}
+#| error: true
+
+str_detect(letters, character())
+```
+
+Neither of these situations occurs very commonly with stringr, so this change primarily brings consistency with the rest of the tidyverse without affecting much existing code.
+
+There's one other small change that mostly affects `str_c()`: `NULL`s are ignored, rather than being treated like 0-length vectors.
+This is mostly useful in programming.
+
+```{r}
+emphasise <- FALSE
+
+str_c(
+  "Hello",
+  if (emphasise) "!"
+)
+```
+
+Finally, stringr functions are generally a little stricter because we require the inputs to be vectors of some type.
+Again, this is unlikely to affect your data analysis code and will result in a clearer error if you accidentally pass in something weird:
+
+```{r}
+#| error: TRUE
+
+str_detect(mean, "x")
+```
+
+### Empty patterns
+
+In many stringr functions, `""` will match or split on every character motivated.
+This is motivated by base R's `strsplit()`:
+
+```{r}
+strsplit("abc", "")[[1]]
+str_split("abc", "")[[1]]
+```
+
+When creating stringr (over 13 years ago!) I took this idea and ran with it, implementing similar support in every function where it might possibly work.
+But I missed an important problem with `str_detect()`.
+
+What should `str_detect(X, "")` return?
+You can argue two ways:
+
+-   To be consistent with `str_split()`, it should return `TRUE` whenever there are characters to match, i.e. `x != ""`.
+-   It's not common to build up a set of possible matches by doing `str_flatten(matches, "|")`. What should this match if `matches` is empty? Ideally it would match nothing implying that `str_detect(x, "")` should be equivalent to `x == ""`.
+
+This inconsistency potentially leads to some subtle bugs, so use of `""` in `str_detect()` (and a few other related functions) is now an error:
+
+```{r}
+#| error: true
+
+str_detect(letters, "")
+```
+
+## New features
+
+Now that we've got the breaking changes out of the way we can focus on the new features 😃.
+The biggest improvement is to `str_view()` which has gained a bunch of new features, including using the cli package to work in more places.
+We also have a grab bag of new functions.
+
+### `str_view()`
+
+`str_view()` uses ANSI colouring rather than an HTML widget which means it works in more places and requires fewer dependencies.
+It:
+
+-   Displays strings with special characters.
+
+    ```{r}
+    x <- c("\\", "\"\nabcdef\n\"")
+    x
+
+    str_view(x)
+    ```
+
+-   Highlights unusual whitespace characters.
+
+    ```{r}
+    str_view("\t")
+    ```
+
+-   Shows all matches.
+
+    ```{r}
+    str_view(fruit, "(.)\\1")
+    ```
+
+    (This makes `str_view_all()` redundant and hence deprecated.)
+
+### Locale sensitive functions
+
+There are three new functions related to comparing strings:
+
+-   `str_equal()` compares two character vectors using unicode rules, optionally ignoring case
+
+    ```{r}
+    str_equal("a", "A")
+    str_equal("a", "A", ignore_case = TRUE)
+    ```
+
+-   `str_rank()` completes the set of order/rank/sort functions:
+
+    ```{r}
+    str_rank(c("a", "c", "b", "b"))
+    # compare to:
+    str_order(c("a", "c", "b", "b"))
+    ```
+
+-   `str_unique()` returns unique values, optionally ignoring case:
+
+    ```{r}
+    str_unique(c("a", "a", "A"))
+    str_unique(c("a", "a", "A"), ignore_case = TRUE)
+    ```
+
+### Splitting
+
+`str_split()` gains two useful variants:
+
+-   `str_split_1()` is tailored for the special case of splitting up a single string.
+    It returns a character vector, not a list, and errors if you try and give it multiple values:
+
+    ```{r}
+    #| error: true
+
+    str_split_1("x-y-z", "-")
+    str_split_1(c("x-y", "a-b-c"), "-")
+    ```
+
+-   `str_split_i()` extracts a single piece from the splits string:
+
+    ```{r}
+    x <- c("a-b-c", "d-e", "f-g-h-i")
+    str_split_i(x, "-", 2)
+    str_split_i(x, "-", 4)
+    ```
+
+### Miscellaneous
+
+-   `str_escape()` escapes regular expression metacharacters, providing an alternative to `fixed()` if you want to compose a pattern from user supplied strings:
+
+    ```{r}
+    str_view(str_escape("[]|"))
+    ```
+
+-   `str_extract()` can optionally extract a capturing group instead of the complete match:
+
+    ```{r}
+    x <- c("Chapter 1", "Section 2.3", "Chapter 3", "Section 4.1.1")
+    str_extract(x, "([A-Za-z]+) ([0-9.]+)", group = 1)
+    str_extract(x, "([A-Za-z]+) ([0-9.]+)", group = 2)
+    ```
+
+-   `str_flatten()` gains a `last` argument which is used to power the new `str_flatten_comma()`:
+
+    ```{r}
+    str_flatten_comma(c("cats", "dogs", "mice"))
+    str_flatten_comma(c("cats", "dogs", "mice"), last = " and ")
+    str_flatten_comma(c("cats", "dogs", "mice"), last = ", and ")
+
+    # correctly handles the two element case with the Oxford comma
+    str_flatten_comma(c("cats", "dogs"), last = ", and ")
+    ```
+
+-   `str_like()` works like `str_detect()` but uses SQL's LIKE syntax:
+
+    ```{r}
+    fruit <- c("apple", "banana", "pear", "pineapple")
+    fruit[str_like(fruit, "%apple")]
+    fruit[str_like(fruit, "p__r")]
+    ```
+
+## Acknowledgements
