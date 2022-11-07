@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: ggplot2-3-4-0
 title: ggplot2 3.4.0
-date: 2022-11-01
+date: 2022-11-07
 author: Thomas Lin Pedersen
 description: >
     ggplot2 3.4.0 is now on CRAN. Read all about the (mostly internal) changes
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, graphics]
-rmd_hash: b64b052c4014c30f
+rmd_hash: 7c7f3d0173c69daa
 
 ---
 
@@ -206,6 +206,34 @@ While this may seem like an unnecessary annoyance we hope that you'll learn to a
 
 While most of the focus has been on internal housekeeping in this release a few new features has also crept in, courtesy of our amazing contributors from the community:
 
+### Stacking non-aligned data
+
+[`position_stack()`](https://ggplot2.tidyverse.org/reference/position_stack.html) has always required that groups share a common x-value to be stacked. The nature of most time series data etc. makes it so that this is often the case, but not always. We have now introduced a [`stat_align()`](https://ggplot2.tidyverse.org/reference/geom_ribbon.html) that takes care of interpolating y-values in each group at every unique x-value in the data so that they can be stacked. This stat is now the default for [`geom_area()`](https://ggplot2.tidyverse.org/reference/geom_ribbon.html):
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'>tibble</span><span class='nf'>::</span><span class='nf'><a href='https://tibble.tidyverse.org/reference/tribble.html'>tribble</a></span><span class='o'>(</span>
+    <span class='o'>~</span><span class='nv'>g</span>, <span class='o'>~</span><span class='nv'>x</span>, <span class='o'>~</span><span class='nv'>y</span>,
+    <span class='s'>"a"</span>, <span class='m'>1</span>, <span class='m'>2</span>,
+    <span class='s'>"a"</span>, <span class='m'>3</span>, <span class='m'>5</span>,
+    <span class='s'>"a"</span>, <span class='m'>5</span>, <span class='m'>1</span>,
+    <span class='s'>"b"</span>, <span class='m'>2</span>, <span class='m'>0</span>,
+    <span class='s'>"b"</span>, <span class='m'>4</span>, <span class='m'>6</span>,
+    <span class='s'>"b"</span>, <span class='m'>6</span>, <span class='m'>7</span>
+<span class='o'>)</span>
+<span class='nv'>p1</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>df</span>, <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>y</span>, fill <span class='o'>=</span> <span class='nv'>g</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_ribbon.html'>geom_area</a></span><span class='o'>(</span>stat <span class='o'>=</span> <span class='s'>"identity"</span>, alpha <span class='o'>=</span> <span class='m'>0.5</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle</a></span><span class='o'>(</span><span class='s'>"stat_identity()"</span><span class='o'>)</span>
+<span class='nv'>p2</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>df</span>, <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>y</span>, fill <span class='o'>=</span> <span class='nv'>g</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_ribbon.html'>geom_area</a></span><span class='o'>(</span>alpha <span class='o'>=</span> <span class='m'>0.5</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle</a></span><span class='o'>(</span><span class='s'>"stat_align()"</span><span class='o'>)</span>
+
+<span class='o'>(</span><span class='nv'>p1</span> <span class='o'>|</span> <span class='nv'>p2</span><span class='o'>)</span> <span class='o'>&amp;</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='o'>(</span>legend.position <span class='o'>=</span> <span class='s'>"none"</span><span class='o'>)</span>
+</code></pre>
+<img src="figs/unnamed-chunk-9-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
 ### Bounded density estimation
 
 [`geom_density()`](https://ggplot2.tidyverse.org/reference/geom_density.html) have gained a `bounds` argument allowing you to perform density estimation with bound correction. This can leads to might better edge estimates when bounds are known for a sample:
@@ -223,7 +251,7 @@ While most of the focus has been on internal housekeeping in this release a few 
     breaks <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"true distribution"</span>, <span class='s'>"unbounded"</span>, <span class='s'>"bounded"</span><span class='o'>)</span>
   <span class='o'>)</span>
 </code></pre>
-<img src="figs/unnamed-chunk-9-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -243,7 +271,7 @@ It is now possible to turn clipping in the facet strips off. For the most part t
   <span class='o'>)</span>
 <span class='nv'>p</span>
 </code></pre>
-<img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -253,7 +281,7 @@ In the (a bit contrived) theme above we see a jarring step between the strip bac
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>p</span> <span class='o'>+</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='o'>(</span>strip.clip <span class='o'>=</span> <span class='s'>"off"</span><span class='o'>)</span>
 </code></pre>
-<img src="figs/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-12-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -270,7 +298,7 @@ You can now specify how the bars in [`geom_bar()`](https://ggplot2.tidyverse.org
   <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar</a></span><span class='o'>(</span>data <span class='o'>=</span> <span class='nv'>mtcars_left</span>, just <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span> <span class='o'>+</span> 
   <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span><span class='o'>(</span><span class='o'>~</span><span class='nv'>justification</span>, ncol <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span>
 </code></pre>
-<img src="figs/unnamed-chunk-12-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-13-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 

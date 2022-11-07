@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: ggplot2-3-4-0
 title: ggplot2 3.4.0
-date: 2022-11-01
+date: 2022-11-07
 author: Thomas Lin Pedersen
 description: >
     ggplot2 3.4.0 is now on CRAN. Read all about the (mostly internal) changes
@@ -158,6 +158,30 @@ While this may seem like an unnecessary annoyance we hope that you'll learn to a
 ## New features
 
 While most of the focus has been on internal housekeeping in this release a few new features has also crept in, courtesy of our amazing contributors from the community:
+
+### Stacking non-aligned data
+
+`position_stack()` has always required that groups share a common x-value to be stacked. The nature of most time series data etc. makes it so that this is often the case, but not always. We have now introduced a `stat_align()` that takes care of interpolating y-values in each group at every unique x-value in the data so that they can be stacked. This stat is now the default for `geom_area()`:
+
+```{r}
+df <- tibble::tribble(
+    ~g, ~x, ~y,
+    "a", 1, 2,
+    "a", 3, 5,
+    "a", 5, 1,
+    "b", 2, 0,
+    "b", 4, 6,
+    "b", 6, 7
+)
+p1 <- ggplot(df, aes(x, y, fill = g)) + 
+  geom_area(stat = "identity", alpha = 0.5) + 
+  ggtitle("stat_identity()")
+p2 <- ggplot(df, aes(x, y, fill = g)) + 
+  geom_area(alpha = 0.5) + 
+  ggtitle("stat_align()")
+
+(p1 | p2) & theme(legend.position = "none")
+```
 
 ### Bounded density estimation
 
