@@ -1,0 +1,290 @@
+---
+output: hugodown::hugo_document
+
+slug: purrr-1-0-0
+title: purrr 1.0.0
+date: 2022-11-10
+author: Hadley Wickham
+description: >
+    purrr 1.0.0 brings a basket of updates to purrr. We deprecated a number of
+    seldom used functions to hone in on the core purpose of purrr while 
+    implemented a swath of new features including progress bars, improved 
+    error reporting, and much much more!
+
+photo:
+  url: https://unsplash.com/photos/YCPkW_r_6uA
+  author: Jari Hytönen
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [purrr]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+```
+```{r}
+#| include: false
+asciicast::init_knitr_engine()
+```
+
+We're happy to announce the release of [purrr](http://purrr.tidyverse.org/) 1.0.0!
+purrr enhances R's functional programming toolkit by providing a complete and consistent set of tools for working with functions and vectors.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("purrr")
+```
+
+purrr is 7 years old, but it's finally made it to 1.0.0!
+This was an opportunity to really refine the core purrrpose of purrr, making it more purrrsimonious by moving a number of functions to purrrgatory.
+Hopefully these changes are not cat-istrophic
+
+Ok, now that I've got all the purrr related puns out of system ...
+
+You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
+
+```{r setup}
+library(purrr)
+```
+
+## Core purpose refinements
+
+A number of functions have been deprecated to keep purrr focused on it's core purpose of faciliating functional programming in R:
+
+-   `cross()` and all its variants have been deprecated because they're slow and buggy, and a better approach already exists in `tidyr::expand_grid()`.
+
+-   `update_list()`, `rerun()`, and the use of tidyselect with `map_at()` and friends have been deprecated, because we no longer believe that non-standard evaluation is a good fit for purrr.
+
+-   The `lift_*` family of functions has been deprecated because they rely on a style of function manipulation that is uncommon in R.
+
+-   `prepend()`, `rdunif()`, `rbernoulli()`, `when()`, and `list_along()` have all been deprecated because they don't align with the core purpose of purrr.
+
+-   `splice()` was deprecated because we no longer believe that automatic splicing makes for good UI.
+
+These functions will continue to work for a number of years, but will warn you once every 8 hours when you use them.
+A future release in several years time will cause the warnings to happen on every use, and we'll remove them in a release several years after that.
+
+Deprecating these functions makes purrr easier to maintain because it reduces the surface area for bugs and issues, and it makes purrr easier to learn because there's a clearer common thread that ties together all functons.
+
+## Other breaking changes
+
+As part of our new policy, I made pull requests to all [CRAN packages that broke](https://github.com/tidyverse/purrr/issues/969) (except for the 1 that wasn't on GitHub).
+Out of \~1,400 dependencies only \~40 had problems.
+I've found making these PRs very empathy building and I'm getting much faster at parachuting into a random package that I have no idea what it does and fixing the problems.
+This act also gave me confidence that we'll we're deprecating quite a few functions and changing a few special cases, it shouldn't affect much code in the wild.
+
+### pluck and zero-length vectors
+
+Previously, `pluck()` would replace 0-length vectors with the value of `default`.
+Now only `NULL` and absent elements will be replaced with `default`:
+
+```{r}
+x <- list(y = list(a = character(), b = NULL))
+pluck(x, "y", "a", .default = NA)
+pluck(x, "y", "b", .default = NA)
+pluck(x, "y", "c", .default = NA)
+```
+
+This also influences the map family because using an integer vector, character vector, or list automatically calls `pluck()`:
+
+```{r}
+x <- list(list(1), list(), list(NULL), list(character()))
+map(x, 1, .default = NA)
+```
+
+We made this change because it makes purrr more consistent with the rest of the tidyverse which distinguishes zero-length vectors from `NULL`s.
+
+### Tidyverse consistency
+
+Similarly, `map2()` and `pmap()` now obey the tidyverse recycling rules, more on that below.
+
+And `map_chr()` is no longer so permissive.
+
+### `map_depth()`
+
+There was a bug in `map_depth()` - it was documented to error if you requested a depth that didn't exist.
+This caused three packages to fail.
+
+### Assigning `NULL`
+
+In `pluck<-`, `assign_in()`, `modify()`, `modify2()`, `modify_if()`, `list_modify()` assigning a `NULL` value now creates a `NULL` value in the output, rather than deleting that element.
+If you want to delete an entry, now use `zap()`.
+
+```{r}
+x <- list(a = 1, b = 2)
+x$a <- NULL
+str(x)
+```
+
+So how do you insert a `NULL` using base R?
+You have to switch to `[` and wrap the `NULL` in a list:
+
+```{r}
+x <- list(a = 1, b = 2)
+x["a"] <- list(NULL)
+str(x)
+```
+
+With purrr:
+
+```{r}
+x |> list_modify(a = NULL) |> str()
+```
+
+If you want to delete it, you'll need to use the special `zap()` sentinel:
+
+```{r}
+x |> list_modify(a = zap()) |> str()
+```
+
+## Documentation and licensing
+
+In purrr's documentation, we have switched to using the base pipe (`|>`) instead of magrittr's pie (`%>%`) and R's anonymous function short hand (`\(x) x + 1`) instead of formula syntax (`~ .x + 1`).
+We believe that these are more readable because they can be used in every package.
+
+Note, that due to the [tidyverse R dependency policy](https://www.tidyverse.org/blog/2019/04/r-version-support/), purrr works in R 3.5, 3.6, 4.0, 4.1, and 4.2, but the base pipe and anonymous function sytnax are only available in R 4.0 and later.
+To allow purrr to continue to pass `R CMD check`, the examples are automatically disabled in older versions of R.
+
+Similarly, inline with our new tidyverse policy [purrr has been re-licensed](https://www.tidyverse.org/blog/2021/12/relicensing-packages/) with the MIT license.
+
+## Mapping
+
+The map functions have received a major overhaul:
+
+-   Progress bars
+-   Errors give location
+-   New `map_vec()` generalises `map_lgl()`, `map_int()` and friends.
+-   Tidyverse consistency
+
+### Progress bars
+
+```{asciicast}
+#| include: false
+library(purrr)
+options(cli.progress_show_after = 0)
+options(cli.progress_clear = FALSE)
+```
+
+```{asciicast progress}
+#| asciicast_at: "all"
+#| cache: true
+x <- map(1:500, \(x) Sys.sleep(0.01), .progress = TRUE)
+```
+
+In most cases, we expect that `.progress = TRUE` will give you a decent progress bar.
+But if you're wrapping the `map()` in a function, you might want to set it to a string that 's used to identify the progress bar.
+And if needed, you can supply a list, allowing you full control of the progress bar.
+
+### Better errors
+
+If there's an error in the function you're mapping, `map()` and friends now tell which element caused the problem:
+
+```{r}
+#| error: true
+x <- sample(1:500)
+map(x, \(x) if (x == 1) stop("Error!") else 10)
+```
+
+We hope that this makes your debugging life just a little bit easier!
+
+(And don't forget about `safely()` and `possibly()` if you expect failures and want to either ignore or capture them.)
+
+### New `map_vec()`
+
+New `map_vec()`, `map2_vec()`, and `pmap_vec()` work on all types of vectors, extending `map_lgl()`, `map_int()`, and friends so that you can easily work with dates, factors, date-times and more
+
+```{r}
+#| error: true
+
+1:3 %>% map_vec(factor)
+1:3 %>% map_vec(\(year) ISOdate(year + 2022, 10, 5))
+```
+
+Obeys the vctrs rules, which are also used in `dplyr::bind_rows()`, dplyr joins, and many other places.
+
+If you want to require a certain type of output, supply `.ptype`.
+`ptype` is short for prototype, and should be vector that exemplifies the type of output you expect (this vector is usually empty, but it doesn't have to be).
+
+```{r}
+#| error: true
+
+# in vctrs, converting a factor to a character is generally a free transformation:
+1:3 %>% map_vec(factor, .ptype = character())
+
+# but converting it to an integer is an error
+1:3 %>% map_vec(factor, .ptype = integer())
+```
+
+We don't expect you to know or memorise these rules; our hope is that as we slowly ensure that every tidyverse functions follows the same rules that these will be become second nature.
+
+### Tidyverse consistency
+
+vctrs has also had an influence on `map_lgl()`, `map_int()`, `map_int()`, and `map_dbl()`, and they now follow the same coercion rules as vctrs.
+This means that:
+
+-   `map_chr(TRUE, identity)`, `map_chr(0L, identity)`, and `map_chr(1L, identity)` are deprecated because we now believe that converting a logical/integer/double to a character vector should require an explicit coercion.
+
+    ```{r}
+    # previously
+    map_chr(1:4, \(x) x + 1)
+
+    # now
+    map_chr(1:4, \(x) as.character(x + 1))
+    ```
+
+-   `map_int(1.5, identity)` now fails because we believe that silently truncating doubles to integers is dangerous.
+    But note that `map_int(1, identity)` still works since no numeric precision is lost.
+
+    ```{r}
+    #| error: true
+    map_int(1:3, \(x) x / 2)
+
+    map_int(1:3, \(x) x * 2)
+    ```
+
+Additionally, `map2()`, `modify2()`, and `pmap()` use tidyverse recycling rules where vectors of length 1 are recycled to any size but all others must have the same length.
+
+## `keep_at()` and `discard_at()`
+
+-   New `keep_at()` and `discard_at()` that work like `keep()` and `discard()` but operation on element names rather than element contents (#817).
+
+-   `*_at()` can now take a function (or formula) that's passed the vector of element names and returns the elements to select.
+
+## Flattening and simplification
+
+-   New `list_c()`, `list_rbind()`, and `list_cbind()` make it easy to `c()`, `rbind()`, or `cbind()` all of the elements in a list.
+
+-   New `list_simplify()` reduces a list of length-1 vectors to a simpler atomic or S3 vector (#900).
+
+-   New `list_transpose()` which automatically simplifies if possible (#875).
+
+-   `flatten()` and friends are superseded in favour of `list_flatten()`, `list_c()`, `list_cbind()`, and `list_rbind()`.
+
+-   `*_dfc()` and `*_dfr()` have been superseded in favour of using the appropriate map function along with `list_rbind()` or `list_cbind()` (#912).
+
+-   `simplify()`, `simplify_all()`, and `as_vector()` have been superseded in favour of `list_simplify()`.
+    It provides a more consistent definition of simplification (#900).
+
+-   `transpose()` has been superseded in favour of `list_transpose()` (#875).
+    It has built-in simplification.
+
+### `list_` functions
+
+-   New `list_update()` which is similar to `list_modify()` but doesn't work recursively (#822).
+
+-   `list_modify()` no longer recurses into data frames (and other objects built on top of lists that are fundamentally non-list like) (#810).
+
+## Acknowledgements
