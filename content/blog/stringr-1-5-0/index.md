@@ -6,9 +6,9 @@ title: stringr 1.5.0
 date: 2022-10-31
 author: Hadley Wickham
 description: >
-    It's been three years but a new version of stringr is now on CRAN!
-    This release includes a bunch of small but useful new functions and 
-    some increased consistency with the rest of the tidyverse.
+    It's been a long three years but a new version of stringr is now on
+    CRAN! This release includes a bunch of small but useful new functions
+    and some increased consistency with the rest of the tidyverse.
 
 photo:
   url: https://unsplash.com/photos/XGqS569rdgk
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [stringr, tidyverse]
-rmd_hash: 0a794e126fa274b9
+rmd_hash: 7d8ee2f585f90ae9
 
 ---
 
@@ -29,8 +29,8 @@ TODO:
 * [x] Find photo & update yaml metadata
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
@@ -40,13 +40,11 @@ You can install it from CRAN with:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"&#123;package&#125;"</span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"stringr"</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
-It's been over three and half years since the last stringr release, and in that time we've accumulated a bunch of small but useful new functions in the developer version. Thorough documentation review and a new vignette on transitioning from base R by Sara Stoudt in the 2019 Tidyverse developer day. Finally, stringr is now officially [re-licensed as MIT](https://www.tidyverse.org/blog/2021/12/relicensing-packages/).
-
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
+This blog post will give you an overview of the biggest changes (you can get a detailed list of all changes from the [release notes](%7B%20github_release%20%7D)). Firstly, we need to update you on some (small) breaking changes we've made to make stringr more consistent with the rest of the tidyverse. Then we'll give a quick overview of improvement to documentation and stringr's new license. Then we'll finish off by diving into the many small, but useful, functions that we've accumulated in the three and half years since the last release.
 
 <div class="highlight">
 
@@ -56,7 +54,7 @@ You can see a full list of changes in the [release notes](%7B%20github_release%2
 
 ## Breaking changes
 
-Lets start with the important stuff: the breaking changes. We've tried to keep these small and we don't believe they'll affect much code in the wild as they only affected \~20 of the \~1600 packages that use stringr. But we're believe they're important as a consistent set of rules makes the tidyverse as a whole more predictable and easier to learn.
+Lets start with the important stuff: the breaking changes. We've tried to keep these small and we don't believe they'll affect much code in the wild (only affected \~20 of the \~1600 packages that use stringr). But we're believe they're important as a consistent set of rules makes the tidyverse as a whole more predictable and easier to learn.
 
 ### Recycling rules
 
@@ -70,31 +68,18 @@ stringr functions now consistently implement the tidyverse recycling rules[^1], 
 
 </div>
 
-Secondly, a 0-length vector doesn't automatically imply a 0-length output, it's instead recycled using the usual rules:
+Secondly, a 0-length vector no longer implies a 0-length output. Instead it's recycled using the usual rules:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_detect.html'>str_detect</a></span><span class='o'>(</span><span class='nv'>letters</span>, <span class='nf'><a href='https://rdrr.io/r/base/character.html'>character</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `str_detect()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't recycle `string` (size 26) to match `pattern` (size 0).</span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't recycle `string` (size 26) to match `pattern` (size 0).</span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_detect.html'>str_detect</a></span><span class='o'>(</span><span class='s'>"x"</span>, <span class='nf'><a href='https://rdrr.io/r/base/character.html'>character</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; logical(0)</span></span></code></pre>
 
 </div>
 
-Neither of these situations occurs very commonly with stringr, so this change primarily brings consistency with the rest of the tidyverse without affecting much existing code.
-
-There's one other small change that mostly affects [`str_c()`](https://stringr.tidyverse.org/reference/str_c.html): `NULL`s are ignored, rather than being treated like 0-length vectors. This is mostly useful in programming.
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>emphasise</span> <span class='o'>&lt;-</span> <span class='kc'>FALSE</span></span>
-<span></span>
-<span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_c.html'>str_c</a></span><span class='o'>(</span></span>
-<span>  <span class='s'>"Hello"</span>,</span>
-<span>  <span class='kr'>if</span> <span class='o'>(</span><span class='nv'>emphasise</span><span class='o'>)</span> <span class='s'>"!"</span></span>
-<span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] "Hello"</span></span></code></pre>
-
-</div>
+Neither of these situations occurs very commonly in data analysis, so this change primarily brings consistency with the rest of the tidyverse without affecting much existing code.
 
 Finally, stringr functions are generally a little stricter because we require the inputs to be vectors of some type. Again, this is unlikely to affect your data analysis code and will result in a clearer error if you accidentally pass in something weird:
 
@@ -135,13 +120,21 @@ This inconsistency potentially leads to some subtle bugs, so use of `""` in [`st
 
 </div>
 
+## Documentation and licensing
+
+Now that we've got the breaking changes out of the way we can focus on the new stuff 😃. Most importantly, there's a new vignette that provides some advice if you're transition from (or to) base R's string functions: `vignette("from-base", package = "stringr")`. It was written by [Sara Stoudt](https://sastoudt.github.io) during the 2019 Tidyverse developer day, and has finally made it to the released version!
+
+We've also spend a bunch of time reviewing the documentation, particularly the topic titles and descriptions. They're now more informative and less duplicative, hopefully make it easier to find the function that you're looking for. See the complete list of functions in the [reference index](https://stringr.tidyverse.org/reference/index.html).
+
+Finally, stringr is now officially [re-licensed as MIT](https://www.tidyverse.org/blog/2021/12/relicensing-packages/).
+
 ## New features
 
-Now that we've got the breaking changes out of the way we can focus on the new features 😃. The biggest improvement is to [`str_view()`](https://stringr.tidyverse.org/reference/str_view.html) which has gained a bunch of new features, including using the cli package to work in more places. We also have a grab bag of new functions.
+The biggest improvement is to [`str_view()`](https://stringr.tidyverse.org/reference/str_view.html) which has gained a bunch of new features, including using the cli package to work in more places. We also have a grab bag of new functions that fill in small functionality gaps.
 
 ### `str_view()`
 
-[`str_view()`](https://stringr.tidyverse.org/reference/str_view.html) uses ANSI colouring rather than an HTML widget which means it works in more places and requires fewer dependencies. It:
+[`str_view()`](https://stringr.tidyverse.org/reference/str_view.html) uses ANSI colouring rather than an HTML widget. This means it works in more places and requires fewer dependencies. [`str_view()`](https://stringr.tidyverse.org/reference/str_view.html) now:
 
 -   Displays strings with special characters.
 
@@ -167,7 +160,7 @@ Now that we've got the breaking changes out of the way we can focus on the new f
 
     </div>
 
--   Shows all matches.
+-   By default, only show matching strings.
 
     <div class="highlight">
 
@@ -198,7 +191,7 @@ Now that we've got the breaking changes out of the way we can focus on the new f
 
     (This makes [`str_view_all()`](https://stringr.tidyverse.org/reference/str_view.html) redundant and hence deprecated.)
 
-### Locale sensitive functions
+### Comparing strings
 
 There are three new functions related to comparing strings:
 
@@ -248,14 +241,19 @@ There are three new functions related to comparing strings:
 
     </div>
 
--   [`str_split_i()`](https://stringr.tidyverse.org/reference/str_split.html) extracts a single piece from the splits string:
+    It's a shortcut for the common pattern of `unlist(str_split(x, " "))`.
+
+-   [`str_split_i()`](https://stringr.tidyverse.org/reference/str_split.html) extracts a single piece from the split string:
 
     <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a-b-c"</span>, <span class='s'>"d-e"</span>, <span class='s'>"f-g-h-i"</span><span class='o'>)</span></span>
     <span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_split.html'>str_split_i</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='s'>"-"</span>, <span class='m'>2</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] "b" "e" "g"</span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_split.html'>str_split_i</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='s'>"-"</span>, <span class='m'>4</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] NA  NA  "i"</span></span></code></pre>
+    <span><span class='c'>#&gt; [1] "b" "e" "g"</span></span><span></span>
+    <span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_split.html'>str_split_i</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='s'>"-"</span>, <span class='m'>4</span><span class='o'>)</span></span>
+    <span><span class='c'>#&gt; [1] NA  NA  "i"</span></span><span></span>
+    <span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_split.html'>str_split_i</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='s'>"-"</span>, <span class='o'>-</span><span class='m'>1</span><span class='o'>)</span></span>
+    <span><span class='c'>#&gt; [1] "c" "e" "i"</span></span></code></pre>
 
     </div>
 
@@ -265,12 +263,11 @@ There are three new functions related to comparing strings:
 
     <div class="highlight">
 
-    <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_view.html'>str_view</a></span><span class='o'>(</span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_escape.html'>str_escape</a></span><span class='o'>(</span><span class='s'>"[]|"</span><span class='o'>)</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; <span style='color: #555555;'>[1] │</span> \[\]\|</span></span></code></pre>
+    <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_view.html'>str_view</a></span><span class='o'>(</span><span class='s'>"[hello]"</span>, <span class='nf'><a href='https://stringr.tidyverse.org/reference/str_escape.html'>str_escape</a></span><span class='o'>(</span><span class='s'>"[]"</span><span class='o'>)</span><span class='o'>)</span></span></code></pre>
 
     </div>
 
--   [`str_extract()`](https://stringr.tidyverse.org/reference/str_extract.html) can optionally extract a capturing group instead of the complete match:
+-   [`str_extract()`](https://stringr.tidyverse.org/reference/str_extract.html) can now extract a capturing group instead of the complete match:
 
     <div class="highlight">
 
@@ -307,6 +304,8 @@ There are three new functions related to comparing strings:
     </div>
 
 ## Acknowledgements
+
+A big thanks to all 114 folks who contributed to this release through pull requests and issues! [@aaronrudkin](https://github.com/aaronrudkin), [@adisarid](https://github.com/adisarid), [@AleSR13](https://github.com/AleSR13), [@anfederico](https://github.com/anfederico), [@AR1337](https://github.com/AR1337), [@arisp99](https://github.com/arisp99), [@avila](https://github.com/avila), [@balthasars](https://github.com/balthasars), [@batpigandme](https://github.com/batpigandme), [@bbarros50](https://github.com/bbarros50), [@bbo2adwuff](https://github.com/bbo2adwuff), [@bensenmansen](https://github.com/bensenmansen), [@bfgray3](https://github.com/bfgray3), [@Bisaloo](https://github.com/Bisaloo), [@bonmac](https://github.com/bonmac), [@botan](https://github.com/botan), [@bshor](https://github.com/bshor), [@carlganz](https://github.com/carlganz), [@chintanp](https://github.com/chintanp), [@chrimaho](https://github.com/chrimaho), [@chris2b5](https://github.com/chris2b5), [@clemenshug](https://github.com/clemenshug), [@courtiol](https://github.com/courtiol), [@dachosen1](https://github.com/dachosen1), [@dan-reznik](https://github.com/dan-reznik), [@datawookie](https://github.com/datawookie), [@david-romano](https://github.com/david-romano), [@DavisVaughan](https://github.com/DavisVaughan), [@dbarrows](https://github.com/dbarrows), [@deann88](https://github.com/deann88), [@denrou](https://github.com/denrou), [@deschen1](https://github.com/deschen1), [@dsg38](https://github.com/dsg38), [@dtburk](https://github.com/dtburk), [@elbersb](https://github.com/elbersb), [@geotheory](https://github.com/geotheory), [@ghost](https://github.com/ghost), [@GrimTrigger88](https://github.com/GrimTrigger88), [@hadley](https://github.com/hadley), [@iago-pssjd](https://github.com/iago-pssjd), [@IndigoJay](https://github.com/IndigoJay), [@jashapiro](https://github.com/jashapiro), [@JBGruber](https://github.com/JBGruber), [@jennybc](https://github.com/jennybc), [@jimhester](https://github.com/jimhester), [@jjesusfilho](https://github.com/jjesusfilho), [@jmbarbone](https://github.com/jmbarbone), [@joethorley](https://github.com/joethorley), [@jonas-hag](https://github.com/jonas-hag), [@jonthegeek](https://github.com/jonthegeek), [@joshyam-k](https://github.com/joshyam-k), [@jpeacock29](https://github.com/jpeacock29), [@jzadra](https://github.com/jzadra), [@KasperThystrup](https://github.com/KasperThystrup), [@kendonB](https://github.com/kendonB), [@kieran-mace](https://github.com/kieran-mace), [@kiernann](https://github.com/kiernann), [@Kodiologist](https://github.com/Kodiologist), [@leej3](https://github.com/leej3), [@leowill01](https://github.com/leowill01), [@LimaRAF](https://github.com/LimaRAF), [@lmwang9527](https://github.com/lmwang9527), [@Ludsfer](https://github.com/Ludsfer), [@lz01](https://github.com/lz01), [@Marcade80](https://github.com/Marcade80), [@Mashin6](https://github.com/Mashin6), [@MattCowgill](https://github.com/MattCowgill), [@maxheld83](https://github.com/maxheld83), [@mgirlich](https://github.com/mgirlich), [@MichaelChirico](https://github.com/MichaelChirico), [@michaelweylandt](https://github.com/michaelweylandt), [@mikeaalv](https://github.com/mikeaalv), [@misea](https://github.com/misea), [@mitchelloharawild](https://github.com/mitchelloharawild), [@mkvasnicka](https://github.com/mkvasnicka), [@mrcaseb](https://github.com/mrcaseb), [@mtnbikerjoshua](https://github.com/mtnbikerjoshua), [@mwip](https://github.com/mwip), [@nachovoss](https://github.com/nachovoss), [@neonira](https://github.com/neonira), [@Nischal-Karki-ATW](https://github.com/Nischal-Karki-ATW), [@oliverbeagley](https://github.com/oliverbeagley), [@orgadish](https://github.com/orgadish), [@pachadotdev](https://github.com/pachadotdev), [@PathosEthosLogos](https://github.com/PathosEthosLogos), [@pdelboca](https://github.com/pdelboca), [@petermeissner](https://github.com/petermeissner), [@phargarten2](https://github.com/phargarten2), [@programLyrique](https://github.com/programLyrique), [@psads-git](https://github.com/psads-git), [@psychelzh](https://github.com/psychelzh), [@PursuitOfDataScience](https://github.com/PursuitOfDataScience), [@richardjtelford](https://github.com/richardjtelford), [@richelbilderbeek](https://github.com/richelbilderbeek), [@rjpat](https://github.com/rjpat), [@romatik](https://github.com/romatik), [@rressler](https://github.com/rressler), [@rwbaer](https://github.com/rwbaer), [@salim-b](https://github.com/salim-b), [@sammo3182](https://github.com/sammo3182), [@sastoudt](https://github.com/sastoudt), [@SchmidtPaul](https://github.com/SchmidtPaul), [@seasmith](https://github.com/seasmith), [@selesnow](https://github.com/selesnow), [@slee981](https://github.com/slee981), [@Tal1987](https://github.com/Tal1987), [@tanzatanza](https://github.com/tanzatanza), [@THChan11](https://github.com/THChan11), [@travis-leith](https://github.com/travis-leith), [@vladtarko](https://github.com/vladtarko), [@wdenton](https://github.com/wdenton), [@wurli](https://github.com/wurli), [@Yingjie4Science](https://github.com/Yingjie4Science), and [@zeehio](https://github.com/zeehio).
 
 [^1]: You might wonder why we developed our own set of recycling rules for the tidyverse instead of using the base R rules. That's because, unfortunately, there isn't a consistent set of rules used by base R, but a [suite of variations](https://vctrs.r-lib.org/articles/type-size.html#appendix-recycling-in-base-r).
 
