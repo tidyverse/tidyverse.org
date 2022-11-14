@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [purrr]
-rmd_hash: fe52c2b035373dcb
+rmd_hash: 4c11c85c356c74c4
 
 ---
 
@@ -57,27 +57,9 @@ You can see a full list of changes in the [release notes](%7B%20github_release%2
 
 </div>
 
-## Core purpose refinements
+## Breaking changes
 
-A number of functions have been deprecated to keep purrr focused on it's core purpose of faciliating functional programming in R:
-
--   [`cross()`](https://purrr.tidyverse.org/reference/cross.html) and all its variants have been deprecated because they're slow and buggy, and a better approach already exists in [`tidyr::expand_grid()`](https://tidyr.tidyverse.org/reference/expand_grid.html).
-
--   [`update_list()`](https://purrr.tidyverse.org/reference/update_list.html), [`rerun()`](https://purrr.tidyverse.org/reference/rerun.html), and the use of tidyselect with [`map_at()`](https://purrr.tidyverse.org/reference/map_if.html) and friends have been deprecated, because we no longer believe that non-standard evaluation is a good fit for purrr.
-
--   The `lift_*` family of functions has been deprecated because they rely on a style of function manipulation that is uncommon in R.
-
--   [`prepend()`](https://purrr.tidyverse.org/reference/prepend.html), [`rdunif()`](https://purrr.tidyverse.org/reference/rdunif.html), [`rbernoulli()`](https://purrr.tidyverse.org/reference/rbernoulli.html), [`when()`](https://purrr.tidyverse.org/reference/when.html), and [`list_along()`](https://purrr.tidyverse.org/reference/along.html) have all been deprecated because they don't align with the core purpose of purrr.
-
--   `splice()` was deprecated because we no longer believe that automatic splicing makes for good UI.
-
-These functions will continue to work for a number of years, but will warn you once every 8 hours when you use them. A future release in several years time will cause the warnings to happen on every use, and we'll remove them in a release several years after that.
-
-Deprecating these functions makes purrr easier to maintain because it reduces the surface area for bugs and issues, and it makes purrr easier to learn because there's a clearer common thread that ties together all functons.
-
-## Other breaking changes
-
-As part of our new policy, I made pull requests to all [CRAN packages that broke](https://github.com/tidyverse/purrr/issues/969) (except for the 1 that wasn't on GitHub). Out of \~1,400 dependencies only \~40 had problems. I've found making these PRs very empathy building and I'm getting much faster at parachuting into a random package that I have no idea what it does and fixing the problems. This act also gave me confidence that we'll we're deprecating quite a few functions and changing a few special cases, it shouldn't affect much code in the wild.
+First the bad stuff: we've made some changes to the way purrr operates. A 1.0.0 release is an opportunity to make some bigger changes to the package to ensure it's on firm footing for the next 10 years. Tried to make these as minimally invasive as possible. As part of our new policy, I made pull requests to all [CRAN packages that broke](https://github.com/tidyverse/purrr/issues/969) (except for the 1 that wasn't on GitHub). Out of \~1,400 dependencies only \~40 had problems. I've found making these PRs very empathy building and I'm getting much faster at parachuting into a random package that I have no idea what it does and fixing the problems. This act also gave me confidence that we'll we're deprecating quite a few functions and changing a few special cases, it shouldn't affect much code in the wild.
 
 ### pluck and zero-length vectors
 
@@ -113,17 +95,13 @@ This also influences the map family because using an integer vector, character v
 
 </div>
 
-We made this change because it makes purrr more consistent with the rest of the tidyverse which distinguishes zero-length vectors from `NULL`s.
+We made this change because it makes purrr more consistent with the rest of the tidyverse which distinguishes zero-length vectors from `NULL`s, and it looks like it was a bug in the original implementation of the function.
 
 ### Tidyverse consistency
 
-Similarly, [`map2()`](https://purrr.tidyverse.org/reference/map2.html) and [`pmap()`](https://purrr.tidyverse.org/reference/pmap.html) now obey the tidyverse recycling rules, more on that below.
+[`map2()`](https://purrr.tidyverse.org/reference/map2.html) and [`pmap()`](https://purrr.tidyverse.org/reference/pmap.html) now obey the tidyverse recycling rules
 
 And [`map_chr()`](https://purrr.tidyverse.org/reference/map.html) is no longer so permissive.
-
-### `map_depth()`
-
-There was a bug in [`map_depth()`](https://purrr.tidyverse.org/reference/map_depth.html) - it was documented to error if you requested a depth that didn't exist. This caused three packages to fail.
 
 ### Assigning `NULL`
 
@@ -152,7 +130,7 @@ So how do you insert a `NULL` using base R? You have to switch to `[` and wrap t
 
 </div>
 
-With purrr:
+Now purrr consistently sets a `NULL` rather than deleting the element. We wanted all purrr functions to be consistent, and creating `NULL` seemed most useful:
 
 <div class="highlight">
 
@@ -173,17 +151,33 @@ If you want to delete it, you'll need to use the special [`zap()`](https://rlang
 
 </div>
 
+### Core purpose refinements
+
+A number of functions have been deprecated to keep purrr focused on its core purpose: facilitating functional programming in R. Deprecating these functions makes purrr easier to maintain because it reduces the surface area for bugs and issues, and it makes purrr easier to learn because there's a clearer common thread that ties together all functions.
+
+-   [`cross()`](https://purrr.tidyverse.org/reference/cross.html) and all its variants have been deprecated because they're slow and buggy, and a better approach already exists in [`tidyr::expand_grid()`](https://tidyr.tidyverse.org/reference/expand_grid.html).
+
+-   [`update_list()`](https://purrr.tidyverse.org/reference/update_list.html), [`rerun()`](https://purrr.tidyverse.org/reference/rerun.html), and the use of tidyselect with [`map_at()`](https://purrr.tidyverse.org/reference/map_if.html) and friends have been deprecated because we no longer believe that non-standard evaluation is a good fit for purrr.
+
+-   The `lift_*` family of functions has been deprecated because they rely on a style of function manipulation that is uncommon in R.
+
+-   [`prepend()`](https://purrr.tidyverse.org/reference/prepend.html), [`rdunif()`](https://purrr.tidyverse.org/reference/rdunif.html), [`rbernoulli()`](https://purrr.tidyverse.org/reference/rbernoulli.html), [`when()`](https://purrr.tidyverse.org/reference/when.html), and [`list_along()`](https://purrr.tidyverse.org/reference/along.html) have all been deprecated because they don't align with the core purpose of purrr.
+
+-   `splice()` was deprecated because we no longer believe that automatic splicing makes for good UI and there are other ways to achieve the same result.
+
+Deprecation means that the functions will continue to work, you'll get warned once every 8 hours if you use them. In several years time, we'll release an update which causes the warnings to occur on every time you use them, and a few years after that they'll transformed to throwing errors.
+
+Along with these deprecations, we've also decided not to tackle an important extension: multicore computation. If you want that, we recommend [furrr](https://furrr.futureverse.org).
+
 ## Documentation and licensing
 
-In purrr's documentation, we have switched to using the base pipe (`|>`) instead of magrittr's pie (`%>%`) and R's anonymous function short hand (`\(x) x + 1`) instead of formula syntax (`~ .x + 1`). We believe that these are more readable because they can be used in every package.
-
-Note, that due to the [tidyverse R dependency policy](https://www.tidyverse.org/blog/2019/04/r-version-support/), purrr works in R 3.5, 3.6, 4.0, 4.1, and 4.2, but the base pipe and anonymous function sytnax are only available in R 4.0 and later. To allow purrr to continue to pass `R CMD check`, the examples are automatically disabled in older versions of R.
+In purrr's documentation, we have switched to using the base pipe (`|>`) instead of magrittr's pie (`|>`) and R's anonymous function short hand (`\(x) x + 1`) instead of formula syntax (`~ .x + 1`). We believe that these are more readable because they can be used in every package. Note, that due to the [tidyverse R dependency policy](https://www.tidyverse.org/blog/2019/04/r-version-support/), purrr works in R 3.5, 3.6, 4.0, 4.1, and 4.2, but the base pipe and anonymous function syntax are only available in R 4.0 and later. To allow purrr to continue to pass `R CMD check`, the examples are automatically disabled in older versions of R.
 
 Similarly, inline with our new tidyverse policy [purrr has been re-licensed](https://www.tidyverse.org/blog/2021/12/relicensing-packages/) with the MIT license.
 
 ## Mapping
 
-The map functions have received a major overhaul:
+The map functions have received a major overhaul. There's four features that you particularly need to know about:
 
 -   Progress bars
 -   Errors give location
@@ -192,13 +186,23 @@ The map functions have received a major overhaul:
 
 ### Progress bars
 
+The map family of function can now produce a progress bar. This is super useful for long running jobs:
+
 <div class="highlight">
 
 <img src="figs//progress.svg" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
-In most cases, we expect that `.progress = TRUE` will give you a decent progress bar. But if you're wrapping the [`map()`](https://purrr.tidyverse.org/reference/map.html) in a function, you might want to set it to a string that 's used to identify the progress bar. And if needed, you can supply a list, allowing you full control of the progress bar.
+(For interactive use, the progress bar uses some simple heuristics so that it doesn't show up for very simple jobs.)
+
+In most cases, we expect that `.progress = TRUE` will give you a decent progress bar. But if you're wrapping the [`map()`](https://purrr.tidyverse.org/reference/map.html) in a function, you might want to set it to a string that 's used to identify the progress bar:
+
+<div class="highlight">
+
+<img src="figs//named-progress.svg" width="700px" style="display: block; margin: auto;" />
+
+</div>
 
 ### Better errors
 
@@ -209,47 +213,59 @@ If there's an error in the function you're mapping, [`map()`](https://purrr.tidy
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>500</span><span class='o'>)</span></span>
 <span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='o'>(</span><span class='nv'>x</span>, \<span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='kr'>if</span> <span class='o'>(</span><span class='nv'>x</span> <span class='o'>==</span> <span class='m'>1</span><span class='o'>)</span> <span class='kr'><a href='https://rdrr.io/r/base/stop.html'>stop</a></span><span class='o'>(</span><span class='s'>"Error!"</span><span class='o'>)</span> <span class='kr'>else</span> <span class='m'>10</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `map()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> In index: 101.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> In index: 51.</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Caused by error in `.f()`:</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Error!</span></span></code></pre>
 
 </div>
 
-We hope that this makes your debugging life just a little bit easier!
+We hope that this makes your debugging life just a little bit easier! We have also generally reviewed the error messages throughout purrr in order to make them more actionable. If you hit a confusing error message, please let us know!
 
-(And don't forget about [`safely()`](https://purrr.tidyverse.org/reference/safely.html) and [`possibly()`](https://purrr.tidyverse.org/reference/possibly.html) if you expect failures and want to either ignore or capture them.)
+(Don't forget about [`safely()`](https://purrr.tidyverse.org/reference/safely.html) and [`possibly()`](https://purrr.tidyverse.org/reference/possibly.html) if you expect failures and want to either ignore or capture them.)
 
 ### New `map_vec()`
 
-New [`map_vec()`](https://purrr.tidyverse.org/reference/map.html), [`map2_vec()`](https://purrr.tidyverse.org/reference/map2.html), and [`pmap_vec()`](https://purrr.tidyverse.org/reference/pmap.html) work on all types of vectors, extending [`map_lgl()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), and friends so that you can easily work with dates, factors, date-times and more
+We've added [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) (along with [`map2_vec()`](https://purrr.tidyverse.org/reference/map2.html), and [`pmap_vec()`](https://purrr.tidyverse.org/reference/pmap.html)). They extend [`map_lgl()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), and friends so that you can easily work with dates, factors, date-times and more:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span><span class='nv'>factor</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 1 2 3</span></span>
-<span><span class='c'>#&gt; Levels: 1 2 3</span></span><span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>year</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/base/ISOdatetime.html'>ISOdate</a></span><span class='o'>(</span><span class='nv'>year</span> <span class='o'>+</span> <span class='m'>2022</span>, <span class='m'>10</span>, <span class='m'>5</span><span class='o'>)</span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>i</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='nv'>letters</span><span class='o'>[</span><span class='nv'>i</span><span class='o'>]</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] a b c</span></span>
+<span><span class='c'>#&gt; Levels: a b c</span></span><span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>i</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='nv'>letters</span><span class='o'>[</span><span class='nv'>i</span><span class='o'>]</span>, levels <span class='o'>=</span> <span class='nv'>letters</span><span class='o'>[</span><span class='m'>4</span><span class='o'>:</span><span class='m'>1</span><span class='o'>]</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] a b c</span></span>
+<span><span class='c'>#&gt; Levels: d c b a</span></span><span></span>
+<span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>i</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/ISOdatetime.html'>ISOdate</a></span><span class='o'>(</span><span class='nv'>i</span> <span class='o'>+</span> <span class='m'>2022</span>, <span class='m'>10</span>, <span class='m'>5</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] "2023-10-05" "2024-10-05" "2025-10-05"</span></span><span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>i</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/base/ISOdatetime.html'>ISOdate</a></span><span class='o'>(</span><span class='nv'>i</span> <span class='o'>+</span> <span class='m'>2022</span>, <span class='m'>10</span>, <span class='m'>5</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "2023-10-05 12:00:00 GMT" "2024-10-05 12:00:00 GMT"</span></span>
 <span><span class='c'>#&gt; [3] "2025-10-05 12:00:00 GMT"</span></span></code></pre>
 
 </div>
 
-Obeys the vctrs rules, which are also used in [`dplyr::bind_rows()`](https://dplyr.tidyverse.org/reference/bind_rows.html), dplyr joins, and many other places.
+[`map_vec()`](https://purrr.tidyverse.org/reference/map.html) exists somewhat in the middle of base R's [`sapply()`](https://rdrr.io/r/base/lapply.html) and [`vapply()`](https://rdrr.io/r/base/lapply.html). Unlike [`sapply()`](https://rdrr.io/r/base/lapply.html) it will always return a simpler vector, erroring if there's no common type. Obeys the vctrs rules, which are also used in [`dplyr::bind_rows()`](https://dplyr.tidyverse.org/reference/bind_rows.html), dplyr joins, and many other places.
 
-If you want to require a certain type of output, supply `.ptype`. `ptype` is short for prototype, and should be vector that exemplifies the type of output you expect (this vector is usually empty, but it doesn't have to be).
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='m'>1</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span><span class='nv'>identity</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `map_vec()`:</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't combine `&lt;list&gt;[[1]]` &lt;character&gt; and `&lt;list&gt;[[2]]` &lt;double&gt;.</span></span></code></pre>
+
+</div>
+
+If you want to require a certain type of output, supply `.ptype`, making [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) behaviour more like [`vapply()`](https://rdrr.io/r/base/lapply.html) (but supporting more types). `ptype` is short for prototype, and should be vector that exemplifies the type of output you expect (this vector is usually empty, but it doesn't have to be).
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># in vctrs, converting a factor to a character is generally a free transformation:</span></span>
-<span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span><span class='nv'>factor</span>, .ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/character.html'>character</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span><span class='nv'>factor</span>, .ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/character.html'>character</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "1" "2" "3"</span></span><span></span>
 <span><span class='c'># but converting it to an integer is an error</span></span>
-<span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span><span class='nv'>factor</span>, .ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/integer.html'>integer</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span><span class='nv'>factor</span>, .ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/integer.html'>integer</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `map_vec()`:</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't convert `&lt;list&gt;[[1]]` &lt;factor&lt;25c7e&gt;&gt; to &lt;integer&gt;.</span></span></code></pre>
 
 </div>
 
-We don't expect you to know or memorise these rules; our hope is that as we slowly ensure that every tidyverse functions follows the same rules that these will be become second nature.
+We don't expect you to know or memorise these rules; our hope is that as we slowly ensure that every tidyverse function follows the same rules that these will be become second nature.
 
 ### Tidyverse consistency
 
@@ -269,7 +285,7 @@ vctrs has also had an influence on [`map_lgl()`](https://purrr.tidyverse.org/ref
 
     </div>
 
--   `map_int(1.5, identity)` now fails because we believe that silently truncating doubles to integers is dangerous. But note that `map_int(1, identity)` still works since no numeric precision is lost.
+-   [`map_int()`](https://purrr.tidyverse.org/reference/map.html) requires that the numeric results be close to integers, rather than silently truncating to integers. Compare these two examples:
 
     <div class="highlight">
 
@@ -287,31 +303,256 @@ Additionally, [`map2()`](https://purrr.tidyverse.org/reference/map2.html), [`mod
 
 ## `keep_at()` and `discard_at()`
 
--   New [`keep_at()`](https://purrr.tidyverse.org/reference/keep_at.html) and [`discard_at()`](https://purrr.tidyverse.org/reference/keep_at.html) that work like [`keep()`](https://purrr.tidyverse.org/reference/keep.html) and [`discard()`](https://purrr.tidyverse.org/reference/keep.html) but operation on element names rather than element contents (#817).
+purrr has gained a new pair of functions [`keep_at()`](https://purrr.tidyverse.org/reference/keep_at.html) and [`discard_at()`](https://purrr.tidyverse.org/reference/keep_at.html): they work similarly to [`keep()`](https://purrr.tidyverse.org/reference/keep.html) and [`discard()`](https://purrr.tidyverse.org/reference/keep.html) but operate names rather than element contents.
 
--   `*_at()` can now take a function (or formula) that's passed the vector of element names and returns the elements to select.
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span>, b <span class='o'>=</span> <span class='m'>2</span>, c <span class='o'>=</span> <span class='m'>3</span>, D <span class='o'>=</span> <span class='m'>4</span>, E <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/keep_at.html'>keep_at</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"b"</span>, <span class='s'>"c"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; List of 3</span></span>
+<span><span class='c'>#&gt;  $ a: num 1</span></span>
+<span><span class='c'>#&gt;  $ b: num 2</span></span>
+<span><span class='c'>#&gt;  $ c: num 3</span></span><span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/keep_at.html'>discard_at</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"b"</span>, <span class='s'>"c"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; List of 2</span></span>
+<span><span class='c'>#&gt;  $ D: num 4</span></span>
+<span><span class='c'>#&gt;  $ E: num 5</span></span></code></pre>
+
+</div>
+
+Or you can supply a function:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/keep_at.html'>keep_at</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>nm</span><span class='o'>)</span> <span class='nv'>nm</span> <span class='o'><a href='https://rdrr.io/r/base/match.html'>%in%</a></span> <span class='nv'>letters</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; $a</span></span>
+<span><span class='c'>#&gt; [1] 1</span></span>
+<span><span class='c'>#&gt; </span></span>
+<span><span class='c'>#&gt; $b</span></span>
+<span><span class='c'>#&gt; [1] 2</span></span>
+<span><span class='c'>#&gt; </span></span>
+<span><span class='c'>#&gt; $c</span></span>
+<span><span class='c'>#&gt; [1] 3</span></span></code></pre>
+
+</div>
+
+The ability to accept a function is also gained by all other `_at()` functions:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>is_lower_case</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nv'>x</span> <span class='o'><a href='https://rdrr.io/r/base/match.html'>%in%</a></span> <span class='nv'>letters</span></span>
+<span></span>
+<span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/modify.html'>modify_at</a></span><span class='o'>(</span><span class='nv'>is_lower_case</span>, \<span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nv'>x</span> <span class='o'>*</span> <span class='m'>2</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; List of 5</span></span>
+<span><span class='c'>#&gt;  $ a: num 2</span></span>
+<span><span class='c'>#&gt;  $ b: num 4</span></span>
+<span><span class='c'>#&gt;  $ c: num 6</span></span>
+<span><span class='c'>#&gt;  $ D: num 4</span></span>
+<span><span class='c'>#&gt;  $ E: num 5</span></span></code></pre>
+
+</div>
+
+This should mostly make up for the fact they can no longer take tidyselect specifications via `vars()`.
 
 ## Flattening and simplification
 
--   New [`list_c()`](https://purrr.tidyverse.org/reference/list_c.html), [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html), and [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html) make it easy to [`c()`](https://rdrr.io/r/base/c.html), [`rbind()`](https://rdrr.io/r/base/cbind.html), or [`cbind()`](https://rdrr.io/r/base/cbind.html) all of the elements in a list.
+We've revised the functions related the flattening and simplification of lists. These were inconsistent across the tidyverse and caused us a lot of confusion internally because folks used the same words to mean different things. We've also given these functions a common prefix to make it more clear that they all operate on lists. Additionally, [`flatten_dfr()`](https://purrr.tidyverse.org/reference/flatten.html) had some particularly puzzling edge cases when the inputs would be flattened into columns, rather than rows.
 
--   New [`list_simplify()`](https://purrr.tidyverse.org/reference/list_simplify.html) reduces a list of length-1 vectors to a simpler atomic or S3 vector (#900).
-
--   New [`list_transpose()`](https://purrr.tidyverse.org/reference/list_transpose.html) which automatically simplifies if possible (#875).
-
--   `flatten()` and friends are superseded in favour of [`list_flatten()`](https://purrr.tidyverse.org/reference/list_flatten.html), [`list_c()`](https://purrr.tidyverse.org/reference/list_c.html), [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html), and [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html).
-
--   `*_dfc()` and `*_dfr()` have been superseded in favour of using the appropriate map function along with [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) or [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html) (#912).
-
--   [`simplify()`](https://purrr.tidyverse.org/reference/as_vector.html), [`simplify_all()`](https://purrr.tidyverse.org/reference/as_vector.html), and [`as_vector()`](https://purrr.tidyverse.org/reference/as_vector.html) have been superseded in favour of [`list_simplify()`](https://purrr.tidyverse.org/reference/list_simplify.html). It provides a more consistent definition of simplification (#900).
-
+-   `flatten()` has been superseded by [`list_flatten()`](https://purrr.tidyverse.org/reference/list_flatten.html).
+-   `flatten_lgl()`, `flatten_int()`, `flatten_dbl()`, and `flatten_chr()` have been superseded by [`list_c()`](https://purrr.tidyverse.org/reference/list_c.html).
+-   [`flatten_dfr()`](https://purrr.tidyverse.org/reference/flatten.html) and [`flatten_dfc()`](https://purrr.tidyverse.org/reference/flatten.html) have been superseded by [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) and [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html) respectively.
+-   [`map_dfc()`](https://purrr.tidyverse.org/reference/map_dfr.html) and [`map_dfr()`](https://purrr.tidyverse.org/reference/map_dfr.html) (and their `map2` and `pmap` variants) have been superseded in favour of using the appropriate map function along with [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) or [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html).
+-   [`simplify()`](https://purrr.tidyverse.org/reference/as_vector.html), [`simplify_all()`](https://purrr.tidyverse.org/reference/as_vector.html), and [`as_vector()`](https://purrr.tidyverse.org/reference/as_vector.html) have been superseded in favour of [`list_simplify()`](https://purrr.tidyverse.org/reference/list_simplify.html).
 -   [`transpose()`](https://purrr.tidyverse.org/reference/transpose.html) has been superseded in favour of [`list_transpose()`](https://purrr.tidyverse.org/reference/list_transpose.html) (#875). It has built-in simplification.
 
-### `list_` functions
+We realise that these functions are used widely in practice so they are superseded: this means that they are not going away but we no longer recommend them, and they will receive only critical bug fixes.
 
--   New [`list_update()`](https://purrr.tidyverse.org/reference/list_update.html) which is similar to [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) but doesn't work recursively (#822).
+INSERT SOME TABLE
 
--   [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) no longer recurses into data frames (and other objects built on top of lists that are fundamentally non-list like) (#810).
+### Flattening
+
+Firstly, we have [`list_flatten()`](https://purrr.tidyverse.org/reference/list_flatten.html) which removes one layer of hierarchy from a list. In other words, if any of the children of a list are themselves lists, the contents of those lists are inlined into the parent:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>2</span>, <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>3</span>, <span class='m'>4</span><span class='o'>)</span>, <span class='m'>5</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; List of 2</span></span>
+<span><span class='c'>#&gt;  $ : num 1</span></span>
+<span><span class='c'>#&gt;  $ :List of 3</span></span>
+<span><span class='c'>#&gt;   ..$ : num 2</span></span>
+<span><span class='c'>#&gt;   ..$ :List of 2</span></span>
+<span><span class='c'>#&gt;   .. ..$ : num 3</span></span>
+<span><span class='c'>#&gt;   .. ..$ : num 4</span></span>
+<span><span class='c'>#&gt;   ..$ : num 5</span></span><span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_flatten.html'>list_flatten</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; List of 4</span></span>
+<span><span class='c'>#&gt;  $ : num 1</span></span>
+<span><span class='c'>#&gt;  $ : num 2</span></span>
+<span><span class='c'>#&gt;  $ :List of 2</span></span>
+<span><span class='c'>#&gt;   ..$ : num 3</span></span>
+<span><span class='c'>#&gt;   ..$ : num 4</span></span>
+<span><span class='c'>#&gt;  $ : num 5</span></span><span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_flatten.html'>list_flatten</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_flatten.html'>list_flatten</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; List of 5</span></span>
+<span><span class='c'>#&gt;  $ : num 1</span></span>
+<span><span class='c'>#&gt;  $ : num 2</span></span>
+<span><span class='c'>#&gt;  $ : num 3</span></span>
+<span><span class='c'>#&gt;  $ : num 4</span></span>
+<span><span class='c'>#&gt;  $ : num 5</span></span></code></pre>
+
+</div>
+
+[`list_flatten()`](https://purrr.tidyverse.org/reference/list_flatten.html) always returns a list; once a list is as flat as it can get (i.e. none of its children contain lists), it leaves the input unchanged.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_flatten.html'>list_flatten</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_flatten.html'>list_flatten</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_flatten.html'>list_flatten</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; List of 5</span></span>
+<span><span class='c'>#&gt;  $ : num 1</span></span>
+<span><span class='c'>#&gt;  $ : num 2</span></span>
+<span><span class='c'>#&gt;  $ : num 3</span></span>
+<span><span class='c'>#&gt;  $ : num 4</span></span>
+<span><span class='c'>#&gt;  $ : num 5</span></span></code></pre>
+
+</div>
+
+### Simplification
+
+[`list_simplify()`](https://purrr.tidyverse.org/reference/list_simplify.html) maintains the length, but produces a simpler type:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] 1 2 3</span></span><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"b"</span>, <span class='s'>"c"</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] "a" "b" "c"</span></span></code></pre>
+
+</div>
+
+Because the length must stay the same, it will only succeed if every element has length 1:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>:</span><span class='m'>4</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `list_simplify()`:</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `x[[3]]` must have size 1, not size 2.</span></span><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='nf'><a href='https://rdrr.io/r/base/integer.html'>integer</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `list_simplify()`:</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `x[[3]]` must have size 1, not size 0.</span></span></code></pre>
+
+</div>
+
+Because the result must be a simpler vector, all the components must be compatible:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='s'>"a"</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `list_simplify()`:</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't combine `&lt;list&gt;[[1]]` &lt;double&gt; and `&lt;list&gt;[[3]]` &lt;character&gt;.</span></span></code></pre>
+
+</div>
+
+If you need to simplify if possible, set `strict = FALSE`:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='s'>"a"</span><span class='o'>)</span>, strict <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [[1]]</span></span>
+<span><span class='c'>#&gt; [1] 1</span></span>
+<span><span class='c'>#&gt; </span></span>
+<span><span class='c'>#&gt; [[2]]</span></span>
+<span><span class='c'>#&gt; [1] 2</span></span>
+<span><span class='c'>#&gt; </span></span>
+<span><span class='c'>#&gt; [[3]]</span></span>
+<span><span class='c'>#&gt; [1] "a"</span></span></code></pre>
+
+</div>
+
+If you want to be specific the type you want, [`list_simplify()`](https://purrr.tidyverse.org/reference/list_simplify.html) can take the same prototype argument as [`map_vec()`](https://purrr.tidyverse.org/reference/map.html):
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span>ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/integer.html'>integer</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] 1 2 3</span></span><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span>ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `list_simplify()`:</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't convert `&lt;list&gt;[[1]]` &lt;double&gt; to &lt;factor&lt;&gt;&gt;.</span></span></code></pre>
+
+</div>
+
+### Concatenation
+
+If you don't want to fix either the type or the length of the list, you might want to concatenate all the pieces together. There are three functions depending on whether you want to concatenate a vector, or a data frame by rows or by columns. This is similar to using `do.call(c)` or `do.call(rbind)` but uses vctrs coercion rules
+
+So unlike `list_simplfy()` the elements can be different lengths:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_c.html'>list_c</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] 1 2 3</span></span><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>:</span><span class='m'>4</span>, <span class='nf'><a href='https://rdrr.io/r/base/integer.html'>integer</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_c.html'>list_c</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] 1 2 3 4</span></span></code></pre>
+
+</div>
+
+But they still must have compatible types:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='s'>"a"</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_c.html'>list_c</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `list_c()`:</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't combine `x[[1]]` &lt;double&gt; and `x[[3]]` &lt;character&gt;.</span></span></code></pre>
+
+</div>
+
+This makes it clear that [`map_dfr()`](https://purrr.tidyverse.org/reference/map_dfr.html) and [`map_dfc()`](https://purrr.tidyverse.org/reference/map_dfr.html) don't really belong to the map family because they don't maintain a 1-to-1 mapping between input and output: there's reliable no way to associate a row in the output with an element in an input. For this reason, [`map_dfr()`](https://purrr.tidyverse.org/reference/map_dfr.html) and [`map_dfc()`](https://purrr.tidyverse.org/reference/map_dfr.html) (and the `map2` and `pmap`) variants are superseded and we recommend switching to an explicit call to [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) or [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html) instead:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>paths</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map_dfr.html'>map_dfr</a></span><span class='o'>(</span><span class='nv'>read_csv</span>, .id <span class='o'>=</span> <span class='s'>"path"</span><span class='o'>)</span></span>
+<span><span class='c'># now</span></span>
+<span><span class='nv'>paths</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='o'>(</span><span class='nv'>read_csv</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_c.html'>list_rbind</a></span><span class='o'>(</span>names_to <span class='o'>=</span> <span class='s'>"path"</span><span class='o'>)</span></span></code></pre>
+
+</div>
+
+This new behaviour has some follow on consequences to [`accumulate()`](https://purrr.tidyverse.org/reference/accumulate.html) and [`accumulate2()`](https://purrr.tidyverse.org/reference/accumulate.html) which previously had an idiosyncratic approach to simplification. Also added a new [`list_transpose()`](https://purrr.tidyverse.org/reference/list_transpose.html) which works similarly to [`transpose()`](https://purrr.tidyverse.org/reference/transpose.html) but again has consistent simplification mechanism.
+
+### `list_update()` functions
+
+There's one other functions not directly related to flattening and friends, but shares the new `list_` prefix so are worth mentioning here: [`list_update()`](https://purrr.tidyverse.org/reference/list_update.html)  
+New [`list_update()`](https://purrr.tidyverse.org/reference/list_update.html) is similar to [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) but it doesn't work recursively (this is a mildly confusing feature of [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) that many folks didn't know about)
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_update.html'>list_update</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; List of 2</span></span>
+<span><span class='c'>#&gt;  $ x: num 1</span></span>
+<span><span class='c'>#&gt;  $ y: num 2</span></span></code></pre>
+
+</div>
+
+Here's a quick comparison of [`list_update()`](https://purrr.tidyverse.org/reference/list_update.html) vs [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html): when there's a list on the left-hand side and the right-hand sidem, [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) will recurse down. This is sometimes useful if you want to change a value deep inside a list.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span>, y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_update.html'>list_update</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>b <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; List of 2</span></span>
+<span><span class='c'>#&gt;  $ x: num 1</span></span>
+<span><span class='c'>#&gt;  $ y:List of 1</span></span>
+<span><span class='c'>#&gt;   ..$ b: num 2</span></span><span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span>, y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_update.html'>list_modify</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>b <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; List of 2</span></span>
+<span><span class='c'>#&gt;  $ x: num 1</span></span>
+<span><span class='c'>#&gt;  $ y:List of 2</span></span>
+<span><span class='c'>#&gt;   ..$ a: num 1</span></span>
+<span><span class='c'>#&gt;   ..$ b: num 1</span></span></code></pre>
+
+</div>
+
+In purrr 1.0.0, [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) also gains the ability to control
 
 ## Acknowledgements
 
