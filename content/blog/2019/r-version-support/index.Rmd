@@ -1,7 +1,7 @@
 ---
 title: R version support
 author: Mara Averick
-date: '2019-04-01'
+date: 2019-04-01
 slug: r-version-support
 output: hugodown::hugo_document
 description: >
@@ -48,44 +48,18 @@ rversions <- tibble::tribble(
 # get year for projected
 cur_year <- lubridate::year(lubridate::today())
 # make table
-rversions |>
+rversions_filtered <- rversions |>
   dplyr::arrange(year) |>
   dplyr::mutate("min_version" = dplyr::lag(r_release, n = 4L, order_by = year)) |>
-  dplyr::mutate("r_devel" = dplyr::lead(r_release, n = 1L, order_by = year)) |>
   dplyr::select(c(year, r_release, min_version)) |>
-  dplyr::filter(year >= 2019) |>
-  gt::gt() |>
-  gt::tab_header(
-    title = "Tidyverse minimum R version support",
-    subtitle = "Four versions previous to current R version"
-  ) |>
-  gt::cols_label(
-    year = gt::md("**Year**"),
-    r_release = gt::md("**Latest release**"),
-    min_version = gt::md("**Minimum version**")
-  ) |>
-  gt::tab_footnote(
-    footnote = "Projected.",
-    locations = gt::cells_body(
-      columns = r_release,
-      rows = year > cur_year
-    )
-  ) |>
-  gt::opt_footnote_marks(marks = "standard") |>
-  gt::tab_source_note(source_note = glue::glue("Last updated {lubridate::today()}.")) |>
-  gt::tab_style(
-    style = gt::cell_text(
-      align = "right"
-    ),
-    locations = gt::cells_source_notes()
-  ) |>
-  gt::tab_style(
-    style = gt::cell_borders(
-      sides = c("top", "bottom"),
-      color = "#A8A8A8"
-    ),
-    locations = gt::cells_source_notes()
-  )
+  dplyr::filter(year >= 2019)
+
+new_names <- c("Year", "Current R version", "Minimum supported version")
+
+knitr::kable(rversions_filtered,
+  col.names = new_names,
+  caption = "Tidyverse minimum R version support"
+)
 ```
 
 
