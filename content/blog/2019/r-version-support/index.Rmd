@@ -1,0 +1,68 @@
+---
+title: R version support
+author: Mara Averick
+date: 2019-04-01
+slug: r-version-support
+output: hugodown::hugo_document
+description: >
+    Which versions of R do tidyverse packages support?
+categories:
+  - other
+photo:
+  url: https://unsplash.com/photos/GSCtoEEqntQ
+  author: Ralph Howald
+---
+
+## Which versions of R do tidyverse packages support? 
+
+Though package-specific minimum versions of R are given in the `Depends` fields of individual `DESCRIPTION` files, our general policy is to support the __current version__, the __devel version__, and __four previous versions__ of R.
+
+**Edit 2022-11-15[^1]**
+
+Over the past several years and moving forward (as described in the “Release plans” section of the [R Developer Page](https://developer.r-project.org/)), R version releases occur annually:
+
+> The overall release schedule is to have annual x.y.0 releases in Spring, with patch releases happening on an as-needed basis.
+
+Thus, the _official_ minimum supported versions of R for the tidyverse[^2] are as described in the table, below.
+
+```{r echo=FALSE}
+# make r version tibble
+rversions <- tibble::tribble(
+  ~year, ~r_release,
+  2013L, "3.0",
+  2014L, "3.1",
+  2015L, "3.2",
+  2016L, "3.3",
+  2017L, "3.4",
+  2018L, "3.5",
+  2019L, "3.6",
+  2020L, "4.0",
+  2021L, "4.1",
+  2022L, "4.2",
+  2023L, "4.3",
+  2024L, "4.4",
+  2025L, "4.5",
+  2026L, "4.6"
+)
+
+# get year for projected
+cur_year <- lubridate::year(lubridate::today())
+# make table
+rversions_filtered <- rversions |>
+  dplyr::arrange(year) |>
+  dplyr::mutate("min_version" = dplyr::lag(r_release, n = 4L, order_by = year)) |>
+  dplyr::select(c(year, r_release, min_version)) |>
+  dplyr::filter(year >= 2019)
+
+new_names <- c("Year", "Current R version", "Minimum supported version")
+
+knitr::kable(rversions_filtered,
+  col.names = new_names,
+  caption = "Tidyverse minimum R version support"
+)
+```
+
+
+[^1]: Add table with annual historic and projected R-version support.
+[^2]: Note that older versions _may_ be supported. For example, as of 2022, the [tidyverse package `Depends` field](https://github.com/tidyverse/tidyverse/blob/aeabcde8c6ae435f16b5173682d5667d292829fb/DESCRIPTION#LL17-L18) is R (>= 3.3).
+
