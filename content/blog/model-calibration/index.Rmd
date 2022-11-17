@@ -1,0 +1,154 @@
+---
+output: hugodown::hugo_document
+
+slug: model-calibration
+title: Model Calibration
+date: 2022-11-17
+author: Edgar Ruiz
+description: >
+    Model Calibration is coming to Tidymodels. This post covers the new plotting
+    functions, and our plans for future enhancements. 
+
+photo:
+  url: https://unsplash.com/photos/n6vS3xlnsCc
+  author: Bubbles the Puppy :) 
+
+categories: [package]
+tags: [model, plots]
+---
+
+<!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+I am very excited to introduce the work currently underway. These changes are not
+yet in the CRAN versions of the packages. We opted to write this post to create
+early awareness, and to recieve feedback from the community. For Model
+Calibration,  the main driver will be the `probably` package, but there is an 
+upcoming update to `yardstick` that will also apply to the calibration process.
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  #eval = FALSE
+)
+
+library(probably)
+library(dplyr)
+library(ggplot2)
+library(tidymodels)
+```
+
+
+```{r, eval = FALSE}
+remotes::install_github("tidymodels/probably")
+```
+
+```{r}
+library(probably)
+library(dplyr)
+```
+
+```{r}
+segment_logistic
+```
+## Breaks (Bins)
+
+```{r}
+segment_logistic %>% 
+  cal_plot_breaks(Class, .pred_good)
+```
+
+```{r}
+segment_logistic %>% 
+  cal_plot_breaks(Class, .pred_good, num_breaks = 5)
+```
+
+## Logistic
+
+```{r}
+segment_logistic %>% 
+  cal_plot_logistic(Class, .pred_good)
+```
+
+```{r}
+segment_logistic %>% 
+  cal_plot_logistic(Class, .pred_good, smooth = FALSE)
+```
+## Windowed
+
+```{r, include=FALSE}
+windows_size <- 0.10
+step_size    <- 0.05
+
+steps <- seq(0, 1, by = step_size)
+lower_cut <- steps - (windows_size / 2)
+lower_cut[lower_cut < 0] <- 0
+upper_cut <- steps + (windows_size / 2)
+upper_cut[upper_cut > 1] <- 1
+
+tibble(
+  step = steps,
+  lower = lower_cut,
+  upper = upper_cut,
+  group = seq_along(steps)
+) %>% 
+  ggplot(aes(x = step, y = group)) + 
+  geom_errorbar(aes(xmin = lower, xmax = upper)) +
+  theme_minimal() +
+  theme(aspect.ratio = 1)
+```
+
+
+```{r}
+segment_logistic %>% 
+  cal_plot_windowed(Class, .pred_good)
+```
+
+
+```{r}
+segment_logistic %>% 
+  cal_plot_windowed(Class, .pred_good, step_size = 0.1)
+```
+## Additional options
+
+```{r}
+segment_logistic %>% 
+  cal_plot_breaks(Class, .pred_good, conf_level = 0.8)
+```
+```{r}
+segment_logistic %>% 
+  cal_plot_windowed(Class, .pred_good, include_points = FALSE)
+```
+
+## `tune` results
+
+```{r}
+set.seed(111)
+
+sim_data <- sim_classification(500)
+
+rec <- recipe(class ~ ., data = sim_data) %>%
+  step_ns(linear_01, deg_free = tune("linear_01"))
+
+tuned_model <- tune_grid(
+  object = set_engine(logistic_reg(), "glm"),
+  preprocessor = rec,
+  resamples = vfold_cv(sim_data, v = 2, repeats = 3),
+  control = control_resamples(save_pred = TRUE)
+)
+```
+
+```{r}
+tuned_model %>% 
+  cal_plot_breaks()
+```
+
