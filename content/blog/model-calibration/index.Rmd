@@ -30,15 +30,9 @@ TODO:
 * [ ] `usethis::use_tidy_thanks()`
 -->
 
-I am very excited to introduce the work currently underway. These changes are not
-yet in the CRAN versions of the packages. We opted to write this post to create
-early awareness, and to recieve feedback from the community. For Model
-Calibration,  the main driver will be the `probably` package, but there is an 
-upcoming update to `yardstick` that will also apply to the calibration process.
-
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  #eval = FALSE
+  eval = FALSE
 )
 
 library(probably)
@@ -46,6 +40,44 @@ library(dplyr)
 library(ggplot2)
 library(tidymodels)
 ```
+
+I am very excited to introduce work currently underway.  We are looking to create 
+early awareness, and to receive feedback from the community. That is why the 
+enhancements discussed here are not yet in CRAN. 
+
+## Model Calibration
+
+*The goal of Model Calibration is to improve the accuracy of predictions.* It 
+does this by adjusting the prediction's probabilities. Meaning that the predicted 
+outcome may change based on the established threshold. 
+
+For example, a prediction could say that it is 60% certain of a result of "Yes".
+But, after applying the calibration, the new probability is now 45%. If the 
+threshold is set to 50%, the new predicted outcome is now set to "No". 
+
+There are two main components to Model Calibration:
+
+- **Diagnosis** - Figuring out how well the original and calibrated probabilities 
+perform
+- **Remediation** - Calculating and applying the calibration
+
+
+## The plan
+
+As with everything in machine learning, there are several options to
+consider when calibrating a model. Through the new features in the Tidymodels
+packages, we aspire to make those options as easily accessible as possible. 
+
+Our plan is to implement Model Calibration in two phases: The first phase will focus
+on binary models, and the second phase will focus on multi-class models. 
+
+The first batch of enhancements are now available in the development version of 
+`probably`. The enhancements are centered around plotting functions meant for
+**diagnosing** the prediction's performance. These are more commonly known as 
+Calibration Plots.
+
+## Setup
+
 
 
 ```{r, eval = FALSE}
@@ -60,6 +92,8 @@ library(dplyr)
 ```{r}
 segment_logistic
 ```
+
+
 ## Breaks (Bins)
 
 ```{r}
@@ -131,7 +165,9 @@ segment_logistic %>%
 
 ## `tune` results
 
-```{r}
+```{r, eval = FALSE}
+library(tidymodels)
+
 set.seed(111)
 
 sim_data <- sim_classification(500)
@@ -147,8 +183,37 @@ tuned_model <- tune_grid(
 )
 ```
 
-```{r}
+```{r, eval = FALSE}
 tuned_model %>% 
   cal_plot_breaks()
+```
+
+## Getting ready for the next stage
+
+
+```{r}
+model <- glm(Class ~ .pred_good, segment_logistic, family = "binomial")
+
+preds <- predict(model, segment_logistic, type = "response")
+  
+combined <- bind_rows(
+  mutate(segment_logistic, source = "original"), 
+  mutate(segment_logistic, .pred_good = 1 - preds, source = "glm")
+  )
+
+combined 
+```
+
+
+```{r}
+combined %>%
+  group_by(source) %>%
+  cal_plot_breaks(Class, .pred_good)
+```
+
+```{r}
+combined %>% 
+  group_by(source) %>% 
+  cal_plot_breaks(Class, .pred_good)
 ```
 
