@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [model, plots]
-rmd_hash: df03812658d044be
+rmd_hash: 305c2b8c98b07a0c
 
 ---
 
@@ -34,7 +34,7 @@ TODO:
 
 I am very excited to introduce work currently underway. We are looking to create early awareness, and to receive feedback from the community. That is why the enhancements discussed here are not yet in CRAN. As probably inferred by the title and description, the work centers around bringing Model Calibration to Tidymodels.
 
-Even though the article is meant to introduce new package functionality. We also have the goal of introducing Model Calibration conceptually. The idea is to encourage everyone who may have use for it to try it out, even though this may be the first time that you read about Model Calibration. So, if you are already familiar with Model Calibration, feel free to skip to the [Setup](#setup) section to get started.
+Even though the article is meant to introduce new package functionality. We also have the goal of introducing Model Calibration conceptually. We want to provide sufficient background for those who may not be familiar with Model Calibration. If you are already familiar with this technique, feel free to skip to the [Setup](#setup) section to get started.
 
 ## Model Calibration
 
@@ -253,6 +253,10 @@ This can layer can be removed by setting `include_rug` to `FALSE`:
 
 ## Integration with `tune`
 
+The calibration plots in `probably` support `tune_results` objects. The functions read the metadata from the `tune` object, and the `truth` and `estimate` arguments automatically.
+
+To showcase this feature, we will tune a model based on simulated data. In order for the calibration plot to work, the predictions need to be collected. This is done by setting `save_pred` to `TRUE`.
+
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidymodels.tidymodels.org'>tidymodels</a></span><span class='o'>)</span></span>
@@ -268,10 +272,18 @@ This can layer can be removed by setting `include_rug` to `FALSE`:
 <span>  object <span class='o'>=</span> <span class='nf'>set_engine</span><span class='o'>(</span><span class='nf'>logistic_reg</span><span class='o'>(</span><span class='o'>)</span>, <span class='s'>"glm"</span><span class='o'>)</span>,</span>
 <span>  preprocessor <span class='o'>=</span> <span class='nv'>rec</span>,</span>
 <span>  resamples <span class='o'>=</span> <span class='nf'>vfold_cv</span><span class='o'>(</span><span class='nv'>sim_data</span>, v <span class='o'>=</span> <span class='m'>2</span>, repeats <span class='o'>=</span> <span class='m'>3</span><span class='o'>)</span>,</span>
+<span>  </span>
+<span>  <span class='c'># Important: `saved_pred` has to be set to TRUE in order for </span></span>
+<span>  <span class='c'>#the plotting to be possible</span></span>
+<span>  </span>
 <span>  control <span class='o'>=</span> <span class='nf'>control_resamples</span><span class='o'>(</span>save_pred <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
-<span><span class='o'>)</span></span></code></pre>
+<span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>tuned_model</span></span></code></pre>
 
 </div>
+
+The plotting functions will automatically collect the predictions. Each of the pre-processing groups will be plotted individually in its own facet.
 
 <div class="highlight">
 
@@ -280,7 +292,11 @@ This can layer can be removed by setting `include_rug` to `FALSE`:
 
 </div>
 
-## Getting ready for the next stage
+## Preparing for the next stage
+
+As mentioned in the outset of this post, the goal is to also provide a way to calibrate the model, and to apply the calibration to future predictions. We have made sure that the plotting functions are ready now to accept multiple probability sets.
+
+In this post, we will showcase that functionality by "manually" creating a quick calibration model, we we can use it to compare to the original probabilities. We will need both of them to be on the same data frame, and to have a way of distinguishing the original probabilities from the calibrated probabilities. In this case we will create a variable called `source`:
 
 <div class="highlight">
 
@@ -311,6 +327,8 @@ This can layer can be removed by setting `include_rug` to `FALSE`:
 
 </div>
 
+The new plot functions support `dplyr` groupings. So, to overlay the two groups, we just need to pass `source` to [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html):
+
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>combined</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
@@ -321,15 +339,27 @@ This can layer can be removed by setting `include_rug` to `FALSE`:
 
 </div>
 
+If we would like to plot them side by side, we can add [`facet_wrap()`](https://ggplot2.tidyverse.org/reference/facet_wrap.html) as an additional step of the plot:
+
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>combined</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>combined</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>source</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
-<span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
+<span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span><span class='o'>(</span><span class='o'>~</span><span class='nv'>source</span><span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='o'>(</span>legend.position <span class='o'>=</span> <span class='s'>"none"</span><span class='o'>)</span></span>
 </code></pre>
 <img src="figs/unnamed-chunk-20-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
+
+Our goal in the future is to provide calibration functions that create the models, and provide an easy way to visualize.
+
+## Conclusion
+
+As mentioned at the top of this post. We look forward to your feedback as you try out these features, and read about our plans for the new future. If you wish to send us your thoughts, feel free to open an issue in `probably`'s GitHub repo here: <https://github.com/tidymodels/probably/issues>.
 
 [^1]: We can think of an **event** as the outcome that is being tracked by the probability. For example, in a model predicting "heads" or "tails", and we want to calibrate the probability for "tails", then the **event** is when the column containing the outcome, has the value of "tails".
 

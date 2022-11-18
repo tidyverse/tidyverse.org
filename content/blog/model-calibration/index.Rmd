@@ -47,11 +47,10 @@ enhancements discussed here are not yet in CRAN. As probably inferred by the tit
 and description, the work centers around bringing Model Calibration to Tidymodels.
 
 Even though the article is meant to introduce new package functionality. We also
-have the goal of introducing Model Calibration conceptually. The idea is to 
-encourage everyone who may have use for it to try it out, even though this may
-be the first time that you read about Model Calibration.  So, if you are already
-familiar with Model Calibration, feel free to skip to the [Setup](#setup) section
-to get started. 
+have the goal of introducing Model Calibration conceptually. We want to provide
+sufficient background for those who may not be familiar with Model Calibration.
+If you are already familiar with this technique, feel free to skip to the 
+[Setup](#setup) section to get started. 
 
 ## Model Calibration
 
@@ -327,6 +326,14 @@ segment_logistic %>%
 
 ## Integration with `tune`
 
+The calibration plots in `probably` support `tune_results` objects.  The functions
+read the metadata from the `tune` object, and the `truth` and `estimate` 
+arguments automatically. 
+
+To showcase this feature, we will tune a model based on simulated data. In order
+for the calibration plot to work, the predictions need to be collected. This is
+done by setting `save_pred` to `TRUE`.
+
 ```{r, eval = FALSE}
 library(tidymodels)
 
@@ -341,17 +348,35 @@ tuned_model <- tune_grid(
   object = set_engine(logistic_reg(), "glm"),
   preprocessor = rec,
   resamples = vfold_cv(sim_data, v = 2, repeats = 3),
+  
+  # Important: `saved_pred` has to be set to TRUE in order for 
+  #the plotting to be possible
+  
   control = control_resamples(save_pred = TRUE)
 )
+
+tuned_model
 ```
+The plotting functions will automatically collect the predictions. Each of the 
+pre-processing groups will be plotted individually in its own facet.
 
 ```{r, eval = FALSE}
 tuned_model %>% 
   cal_plot_breaks()
 ```
 
-## Getting ready for the next stage
+## Preparing for the next stage
 
+As mentioned in the outset of this post, the goal is to also provide a way to
+calibrate the model, and to apply the calibration to future predictions.  We have
+made sure that the plotting functions are ready now to accept multiple probability
+sets.
+
+In this post, we will showcase that functionality by "manually" creating a quick 
+calibration model, we we can use it to compare to the original probabilities. We will
+need both of them to be on the same data frame, and to have a way of
+distinguishing the original probabilities from the calibrated probabilities. In
+this case we will create a variable called `source`:
 
 ```{r}
 model <- glm(Class ~ .pred_good, segment_logistic, family = "binomial")
@@ -366,16 +391,33 @@ combined <- bind_rows(
 combined 
 ```
 
+The new plot functions support `dplyr` groupings. So, to overlay the two
+groups, we just need to pass `source` to `group_by()`: 
 
 ```{r}
 combined %>%
   group_by(source) %>%
   cal_plot_breaks(Class, .pred_good)
 ```
+If we would like to plot them side by side, we can add `facet_wrap()` as an
+additional step of the plot:
 
 ```{r}
+library(ggplot2)
+
 combined %>% 
   group_by(source) %>% 
-  cal_plot_breaks(Class, .pred_good)
+  cal_plot_breaks(Class, .pred_good) +
+  facet_wrap(~source) +
+  theme(legend.position = "none")
 ```
+Our goal in the future is to provide calibration functions that create the 
+models, and provide an easy way to visualize.
+
+## Conclusion
+
+As mentioned at the top of this post. We look forward to your feedback as you try
+out these features, and read about our plans for the new future. If you wish
+to send us your thoughts, feel free to open an issue in `probably`'s GitHub repo
+here: https://github.com/tidymodels/probably/issues.
 
