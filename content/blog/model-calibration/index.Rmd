@@ -267,16 +267,63 @@ segment_logistic %>%
   cal_plot_logistic(Class, .pred_good, smooth = FALSE)
 ```
 
-## Additional options
+## Additional options and features
+
+### Intervals
+
+The confidence intervals are visualized using the gray ribbon. The default
+interval is 0.9, but can be changed using the `conf_level` argument.  
 
 ```{r}
 segment_logistic %>% 
   cal_plot_breaks(Class, .pred_good, conf_level = 0.8)
 ```
+
+If desired, the intervals can be removed by setting the `include_ribbon` 
+argument to `FALSE`.
+
 ```{r}
 segment_logistic %>% 
-  cal_plot_windowed(Class, .pred_good, include_points = FALSE)
+  cal_plot_breaks(Class, .pred_good, include_ribbon = FALSE)
 ```
+
+### Rugs
+
+By default, the calibration plots include a RUGs layer at the top and at the 
+bottom of the visualization.  They are meant to give us an idea of the density
+of events, versus the density of non-events as the probabilities progress from
+0 to 1. 
+
+```{r, echo = FALSE}
+segment_logistic %>% 
+  cal_plot_breaks(Class, .pred_good) +
+  geom_segment(
+    x = 0.5, 
+    xend = 0.6, 
+    y = 0.9, 
+    yend = 1, 
+    arrow = arrow(length = unit(0.3, "cm")),
+    color = "#ffaaff"
+    ) +
+  geom_text(x = 0.5, y = 0.87, label = "Density of events", color = "#ff88ff")  +
+  geom_segment(
+    x = 0.5, 
+    xend = 0.6, 
+    y = 0.1, 
+    yend = 0.0, 
+    arrow = arrow(length = unit(0.3, "cm")),
+    color = "#ffaaff"
+    ) +
+  geom_text(x = 0.5, y = 0.13, label = "Density of non-events", color = "#ff88ff")
+```
+
+This can layer can be removed by setting `include_rug` to `FALSE`:
+
+```{r}
+segment_logistic %>% 
+  cal_plot_breaks(Class, .pred_good, include_rug = FALSE) 
+```
+
 
 ## Integration with `tune`
 
