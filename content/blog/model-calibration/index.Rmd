@@ -46,6 +46,13 @@ early awareness, and to receive feedback from the community. That is why the
 enhancements discussed here are not yet in CRAN. As probably inferred by the title 
 and description, the work centers around bringing Model Calibration to Tidymodels.
 
+Even though the article is meant to introduce new package functionality. We also
+have the goal of introducing Model Calibration conceptually. The idea is to 
+encourage everyone who may have use for it to try it out, even though this may
+be the first time that you read about Model Calibration.  So, if you are already
+familiar with Model Calibration, feel free to skip to the [Setup](#setup) section
+to get started. 
+
 ## Model Calibration
 
 *The goal of Model Calibration is to improve the accuracy of predictions.* It 
@@ -171,12 +178,8 @@ segment_logistic %>%
   cal_plot_breaks(Class, .pred_good)
 ```
 
-Notice the ribbon plot in gray that envelops the plot line. These are the confidence
-intervals. This is also an argument that can be adjusted via `conf_level`. The
-default is 0.9. 
-
 The number of bins in `cal_plot_breaks()` can be adjusted using `num_breaks`. 
-Here is an example of what the plot looks like if we reduce the bins from 10
+Here is an example of what the plot looks like if we reduce the bins from 10,
 to 5:
 
 ```{r}
@@ -184,20 +187,22 @@ segment_logistic %>%
   cal_plot_breaks(Class, .pred_good, num_breaks = 5 )
 ```
 
-## Logistic
-
-```{r}
-segment_logistic %>% 
-  cal_plot_logistic(Class, .pred_good)
-```
-
-```{r}
-segment_logistic %>% 
-  cal_plot_logistic(Class, .pred_good, smooth = FALSE)
-```
 ## Windowed
 
-```{r, include=FALSE}
+Another approach is to use overlapping ranges, or windows. We can calculate the
+midpoint and the event rate for each of the windows. And because we are plotting 
+the median for each window, even though the ranges overlap, the midpoints will
+not.  This method reduces the risk  of any discrete bin over or under estimating 
+the event rate.
+
+There are two variables that control the windows. The **step size**, controls
+the frequency of the windows. If we set a step size of 5%, will create a new
+window every 5% probability (5%, 10%, 15%... etc). The second argument is
+**window size**. This defines how big the the window is.  If it is set to %10, 
+then a given step will overlap halfway into the previous step, as well as the
+next step. Here is a visual representation of this specific scenario:
+
+```{r, echo = FALSE}
 windows_size <- 0.10
 step_size    <- 0.05
 
@@ -219,17 +224,49 @@ tibble(
   theme(aspect.ratio = 1)
 ```
 
+In `probably`, the `cal_plot_windowed()` function provides this functionality. 
+The default step size is 0.05, and can be changed via the `step_size` argument.
+The default window size is 0.1, and can be changed via the `window_size` argument.
 
 ```{r}
 segment_logistic %>% 
   cal_plot_windowed(Class, .pred_good)
 ```
 
+Here is an example of reducing the `step_size` from 0.05, to 0.02. There are
+more than double the windows:
 
 ```{r}
 segment_logistic %>% 
-  cal_plot_windowed(Class, .pred_good, step_size = 0.1)
+  cal_plot_windowed(Class, .pred_good, step_size = 0.02)
 ```
+
+## Logistic
+
+Another way to visualize the performance is to fit a regression model of the
+events against the probabilities. This is helpful because it avoids the use of
+pre-determined groupings. Another difference, is that we are not plotting 
+midpoints of actual results, but rather predictions based on those results. 
+
+The `cal_plot_logistic()` provides this functionality. By default, it uses a 
+logistic spline model, provided by the `mgcv` package. The idea is to visualize
+a smooth line based on the predictions:
+
+```{r}
+segment_logistic %>% 
+  cal_plot_logistic(Class, .pred_good)
+```
+
+If smoothing is not needed, a more straightforward logistic model can be used
+to fit the probabilities. By setting the `smooth` argument to `FALSE`, will make
+the function switch to the results from a  `glm()` model as the base of the
+visualization. 
+
+```{r}
+segment_logistic %>% 
+  cal_plot_logistic(Class, .pred_good, smooth = FALSE)
+```
+
 ## Additional options
 
 ```{r}

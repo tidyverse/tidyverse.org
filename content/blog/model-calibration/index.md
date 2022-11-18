@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [model, plots]
-rmd_hash: 70a600d821a460d4
+rmd_hash: 9cbc7e021ac2a029
 
 ---
 
@@ -33,6 +33,8 @@ TODO:
 -->
 
 I am very excited to introduce work currently underway. We are looking to create early awareness, and to receive feedback from the community. That is why the enhancements discussed here are not yet in CRAN. As probably inferred by the title and description, the work centers around bringing Model Calibration to Tidymodels.
+
+Even though the article is meant to introduce new package functionality. We also have the goal of introducing Model Calibration conceptually. The idea is to encourage everyone who may have use for it to try it out, even though this may be the first time that you read about Model Calibration. So, if you are already familiar with Model Calibration, feel free to skip to the [Setup](#setup) section to get started.
 
 ## Model Calibration
 
@@ -131,9 +133,7 @@ In `probably`, binned calibration plots can be created using [`cal_plot_breaks()
 
 </div>
 
-Notice the ribbon plot in gray that envelops the plot line. These are the confidence intervals. This is also an argument that can be adjusted via `conf_level`. The default is 0.9.
-
-The number of bins in [`cal_plot_breaks()`](https://probably.tidymodels.org/reference/cal_plot_breaks.html) can be adjusted using `num_breaks`. Here is an example of what the plot looks like if we reduce the bins from 10 to 5:
+The number of bins in [`cal_plot_breaks()`](https://probably.tidymodels.org/reference/cal_plot_breaks.html) can be adjusted using `num_breaks`. Here is an example of what the plot looks like if we reduce the bins from 10, to 5:
 
 <div class="highlight">
 
@@ -144,41 +144,61 @@ The number of bins in [`cal_plot_breaks()`](https://probably.tidymodels.org/refe
 
 </div>
 
-## Logistic
+## Windowed
+
+Another approach is to use overlapping ranges, or windows. We can calculate the midpoint and the event rate for each of the windows. And because we are plotting the median for each window, even though the ranges overlap, the midpoints will not. This method reduces the risk of any discrete bin over or under estimating the event rate.
+
+There are two variables that control the windows. The **step size**, controls the frequency of the windows. If we set a step size of 5%, will create a new window every 5% probability (5%, 10%, 15%... etc). The second argument is **window size**. This defines how big the the window is. If it is set to %10, then a given step will overlap halfway into the previous step, as well as the next step. Here is a visual representation of this specific scenario:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
-<span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_logistic</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
-</code></pre>
 <img src="figs/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
-<span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_logistic</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, smooth <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span>
-</code></pre>
-<img src="figs/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" />
-
-</div>
-
-## Windowed
+In `probably`, the [`cal_plot_windowed()`](https://probably.tidymodels.org/reference/cal_plot_breaks.html) function provides this functionality. The default step size is 0.05, and can be changed via the `step_size` argument. The default window size is 0.1, and can be changed via the `window_size` argument.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_windowed</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
+
+Here is an example of reducing the `step_size` from 0.05, to 0.02. There are more than double the windows:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
-<span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_windowed</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, step_size <span class='o'>=</span> <span class='m'>0.1</span><span class='o'>)</span></span>
+<span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_windowed</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, step_size <span class='o'>=</span> <span class='m'>0.02</span><span class='o'>)</span></span>
+</code></pre>
+<img src="figs/unnamed-chunk-9-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+## Logistic
+
+Another way to visualize the performance is to fit a regression model of the events against the probabilities. This is helpful because it avoids the use of pre-determined groupings. Another difference, is that we are not plotting midpoints of actual results, but rather predictions based on those results.
+
+The [`cal_plot_logistic()`](https://probably.tidymodels.org/reference/cal_plot_breaks.html) provides this functionality. By default, it uses a logistic spline model, provided by the `mgcv` package. The idea is to visualize a smooth line based on the predictions:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+<span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_logistic</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
+</code></pre>
+<img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+If smoothing is not needed, a more straightforward logistic model can be used to fit the probabilities. By setting the `smooth` argument to `FALSE`, will make the function switch to the results from a [`glm()`](https://rdrr.io/r/stats/glm.html) model as the base of the visualization.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+<span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_logistic</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, smooth <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span>
 </code></pre>
 <img src="figs/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" />
 
