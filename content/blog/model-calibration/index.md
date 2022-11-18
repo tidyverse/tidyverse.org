@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [model, plots]
-rmd_hash: 798ea152dccc6383
+rmd_hash: 70a600d821a460d4
 
 ---
 
@@ -32,7 +32,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-I am very excited to introduce work currently underway. We are looking to create early awareness, and to receive feedback from the community. That is why the enhancements discussed here are not yet in CRAN.
+I am very excited to introduce work currently underway. We are looking to create early awareness, and to receive feedback from the community. That is why the enhancements discussed here are not yet in CRAN. As probably inferred by the title and description, the work centers around bringing Model Calibration to Tidymodels.
 
 ## Model Calibration
 
@@ -53,9 +53,29 @@ Our plan is to implement Model Calibration in two phases: The first phase will f
 
 The first batch of enhancements are now available in the development version of `probably`. The enhancements are centered around plotting functions meant for **diagnosing** the prediction's performance. These are more commonly known as **Calibration Plots**.
 
+## Calibration plots
+
+The idea behind a Calibration Plot is that if we group the predictions based on their probability, then we should see an percentage of events [^1] that match such probability.
+
+For example, if we group all of the predictions with 10% probability. We should expect that about 10% of the those in the group are indeed events. We should also expect about 20% of those with 20% probability to be events, and so forth.
+
+The Calibration Plot for the ideal model will essentially be perfect incline line that start at 0,0 and ends in 1,1. But, as with everything in real life, there is really no model that can accomplish this. Sometimes the model will predict a 10% probability, and no event is found. Which means that those probabilities should be adjusted down to 0.
+
+Here is an example of the new Calibration Plots in `probably`. We will discuss the particulars of the functions in the next section. For now, we are simply introducing what the plot would look like:
+
+<div class="highlight">
+
+<img src="figs/unnamed-chunk-1-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+In the case of this model, in can see that the group in the about 40% probability (Bin Midpoint) actually has about 60% event rate. If we were to calibrate our model, and increase the probability for those, then these could change the predicted outcome, assuming that the threshold is set for 50%. On the other hand, those with 55% - 60% probability, seem have an event rate under 50%. Those could also be calibrated to change the prediction, if again, the threshold is set to 50%.
+
+That is the power of calibrating probabilities. The trick is knowing where to calibrate, and which direction to adjust (up or down).
+
 ## Setup
 
-If you wish to try out the new features, install the development version of `probably`
+To try out the new calibration plots, install the development version of `probably`:
 
 <div class="highlight">
 
@@ -63,7 +83,7 @@ If you wish to try out the new features, install the development version of `pro
 
 </div>
 
-To start, we will load the `probably` and `dplyr` packages into our R session.
+If you would like to follow along, load the `probably` and `dplyr` packages into you R session.
 
 <div class="highlight">
 
@@ -72,7 +92,7 @@ To start, we will load the `probably` and `dplyr` packages into our R session.
 
 </div>
 
-`probably` comes with a few data sets. For most of the examples in this post, we will use `segment_logistic`. It is an example data set that contains predictions, and their probabilities.
+`probably` comes with a few data sets. For most of the examples in this post, we will use `segment_logistic`. It is an example data set that contains predictions, and their probabilities. `Class` contains the outcome of "good" and "poor", `.pred_good` contains the probability that the event is "good".
 
 <div class="highlight">
 
@@ -94,23 +114,33 @@ To start, we will load the `probably` and `dplyr` packages into our R session.
 
 </div>
 
-## Breaks (Bins)
+## Binned plot
+
+On smaller data sets, it is a challenging to obtain an accurate *event rate* for a given probability. For example, if there are 5 predictions with a 50% probability, and 3 of those are events, the plot would show a 60% event rate. This comparison would not be appropriate because there are no enough predictions to really determine how close to 50% the model really is.
+
+The most common approach to plotting the performance, is to group the probabilities into bins, or buckets. Usually, the data is split into 10 discrete buckets, from 0 to 1 (0 - 100%). The *event rate* and the *median of the probabilities* is calculated for each bin.
+
+In `probably`, binned calibration plots can be created using [`cal_plot_breaks()`](https://probably.tidymodels.org/reference/cal_plot_breaks.html). It expects a data set, and the un-quoted variable names that contains the events (`truth`), and the probabilities (`estimate`). For the example here, we pass the `segment_logistic` data set, and use `Class` and `.pred_good` as the arguments. By default, this function will create a calibration plot with 10 buckets (breaks):
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-4-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-5-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
+
+Notice the ribbon plot in gray that envelops the plot line. These are the confidence intervals. This is also an argument that can be adjusted via `conf_level`. The default is 0.9.
+
+The number of bins in [`cal_plot_breaks()`](https://probably.tidymodels.org/reference/cal_plot_breaks.html) can be adjusted using `num_breaks`. Here is an example of what the plot looks like if we reduce the bins from 10 to 5:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
-<span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, num_breaks <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span></span>
+<span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, num_breaks <span class='o'>=</span> <span class='m'>5</span> <span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-5-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-6-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -121,7 +151,7 @@ To start, we will load the `probably` and `dplyr` packages into our R session.
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_logistic</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-6-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -130,7 +160,7 @@ To start, we will load the `probably` and `dplyr` packages into our R session.
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_logistic</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, smooth <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -141,7 +171,7 @@ To start, we will load the `probably` and `dplyr` packages into our R session.
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_windowed</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-9-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -150,7 +180,7 @@ To start, we will load the `probably` and `dplyr` packages into our R session.
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_windowed</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, step_size <span class='o'>=</span> <span class='m'>0.1</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -161,7 +191,7 @@ To start, we will load the `probably` and `dplyr` packages into our R session.
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, conf_level <span class='o'>=</span> <span class='m'>0.8</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-12-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -170,11 +200,11 @@ To start, we will load the `probably` and `dplyr` packages into our R session.
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_windowed</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, include_points <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-12-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-13-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
-## `tune` results
+## Integration with `tune`
 
 <div class="highlight">
 
@@ -240,7 +270,7 @@ To start, we will load the `probably` and `dplyr` packages into our R session.
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>source</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-16-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-17-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -250,7 +280,9 @@ To start, we will load the `probably` and `dplyr` packages into our R session.
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>source</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-17-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-18-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
+
+[^1]: We can think of an **event** as the outcome that is being tracked by the probability. For example, in a model predicting "heads" or "tails", and we want to calibrate the probability for "tails", then the **event** is when the column containing the outcome, has the value of "tails".
 

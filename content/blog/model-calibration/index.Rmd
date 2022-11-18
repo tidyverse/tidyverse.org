@@ -43,7 +43,8 @@ library(tidymodels)
 
 I am very excited to introduce work currently underway.  We are looking to create 
 early awareness, and to receive feedback from the community. That is why the 
-enhancements discussed here are not yet in CRAN. 
+enhancements discussed here are not yet in CRAN. As probably inferred by the title 
+and description, the work centers around bringing Model Calibration to Tidymodels.
 
 ## Model Calibration
 
@@ -76,16 +77,60 @@ The first batch of enhancements are now available in the development version of
 **diagnosing** the prediction's performance. These are more commonly known as 
 **Calibration Plots**.
 
+## Calibration plots
+
+The idea behind a Calibration Plot is that if we group the predictions based on 
+their probability, then we should see an percentage of events ^[We can think of 
+an **event** as the outcome that is being tracked by the probability. For 
+example, in a model predicting "heads" or "tails", and we want to calibrate the
+probability for "tails", then the **event** is when the column containing the 
+outcome, has the value of "tails".]  that match such probability. 
+
+For example, if we group all of the predictions with 10% probability. We should
+expect that about 10% of the those in the group are indeed events. We should 
+also expect about 20% of those with 20% probability to be events, and so forth. 
+
+The Calibration Plot for the ideal model will essentially be perfect incline line
+that start at 0,0 and ends in 1,1. But, as with everything in real life, there
+is really no model that can accomplish this. Sometimes the model will predict
+a 10% probability, and no event is found. Which means that those probabilities
+should be adjusted down to 0.
+
+Here is an example of the new Calibration Plots in `probably`. We will discuss
+the particulars of the functions in the next section. For now, we are simply 
+introducing what the plot would look like:
+
+```{r, echo = FALSE}
+segment_logistic %>% 
+  cal_plot_breaks(
+    Class, 
+    .pred_good, 
+    include_rug = FALSE,
+    include_points = FALSE,
+    include_ribbon = FALSE
+    )
+```
+
+In the case of this model, in can see that the group in the about 40% probability
+(Bin Midpoint) actually has about 60%  event rate. If we were to calibrate
+our model, and increase the probability for those, then these could change the
+predicted outcome, assuming that the threshold is set for 50%. On the other hand,
+those with 55% - 60% probability, seem have an event rate under 50%. Those could
+also be calibrated to change the prediction, if again, the threshold is set to 50%.
+
+That is the power of calibrating probabilities. The trick is knowing where to
+calibrate, and which direction to adjust (up or down).
+
 ## Setup
 
-If you wish to try out the new features, install the development version of 
-`probably`
+To try out the new calibration plots, install the development version of `probably`:
 
 ```{r, eval = FALSE}
 remotes::install_github("tidymodels/probably")
 ```
 
-To start, we will load the `probably` and `dplyr` packages into our R session.
+If you would like to follow along, load the `probably` and `dplyr` packages 
+into you R session.
 
 ```{r}
 library(probably)
@@ -94,23 +139,49 @@ library(dplyr)
 
 `probably` comes with a few data sets. For most of the examples in this post,
 we will use `segment_logistic`. It is an example data set that contains
-predictions, and their probabilities.
+predictions, and their probabilities. `Class` contains the outcome of 
+"good" and "poor", `.pred_good` contains the probability that the event is "good". 
 
 ```{r}
 segment_logistic
 ```
 
 
-## Breaks (Bins)
+## Binned plot
+
+On smaller data sets, it is a challenging to obtain an accurate *event rate* 
+for a given probability. For example, if there are 5 predictions with a 50% 
+probability, and 3 of those are events, the plot would show a 60% event rate.
+This comparison would not be appropriate because there are no enough predictions
+to really determine how close to 50% the model really is. 
+
+The most common approach to plotting the performance, is to group the probabilities
+into bins, or buckets.  Usually, the data is split into 10 discrete buckets,
+from 0 to 1 (0 - 100%). The *event rate* and the *median of the probabilities* is 
+calculated for each bin. 
+
+In `probably`, binned calibration plots can be created using `cal_plot_breaks()`. 
+It expects a data set, and the un-quoted variable names that contains the events
+(`truth`), and the probabilities (`estimate`). For the example here, we pass the 
+`segment_logistic` data set, and use `Class` and `.pred_good` as the arguments. 
+By default, this function will create a calibration plot with 10 buckets (breaks):
 
 ```{r}
 segment_logistic %>% 
   cal_plot_breaks(Class, .pred_good)
 ```
 
+Notice the ribbon plot in gray that envelops the plot line. These are the confidence
+intervals. This is also an argument that can be adjusted via `conf_level`. The
+default is 0.9. 
+
+The number of bins in `cal_plot_breaks()` can be adjusted using `num_breaks`. 
+Here is an example of what the plot looks like if we reduce the bins from 10
+to 5:
+
 ```{r}
 segment_logistic %>% 
-  cal_plot_breaks(Class, .pred_good, num_breaks = 5)
+  cal_plot_breaks(Class, .pred_good, num_breaks = 5 )
 ```
 
 ## Logistic
@@ -170,7 +241,7 @@ segment_logistic %>%
   cal_plot_windowed(Class, .pred_good, include_points = FALSE)
 ```
 
-## `tune` results
+## Integration with `tune`
 
 ```{r, eval = FALSE}
 library(tidymodels)
