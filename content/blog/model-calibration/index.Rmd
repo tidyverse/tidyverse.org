@@ -10,8 +10,8 @@ description: >
     functions, and our plans for future enhancements. 
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Bubbles the Puppy :) 
+  url: https://unsplash.com/photos/iLKK0eFTywU
+  author: Graphic Node
 
 categories: [package]
 tags: [model, plots]
@@ -43,8 +43,7 @@ library(tidymodels)
 
 I am very excited to introduce work currently underway.  We are looking to create 
 early awareness, and to receive feedback from the community. That is why the 
-enhancements discussed here are not yet in CRAN. As probably inferred by the title 
-and description, the work centers around bringing Model Calibration to Tidymodels.
+enhancements discussed here are not yet in CRAN. 
 
 Even though the article is meant to introduce new package functionality. We also
 have the goal of introducing Model Calibration conceptually. We want to provide
@@ -123,9 +122,6 @@ our model, and increase the probability for those, then these could change the
 predicted outcome, assuming that the threshold is set for 50%. On the other hand,
 those with 55% - 60% probability, seem have an event rate under 50%. Those could
 also be calibrated to change the prediction, if again, the threshold is set to 50%.
-
-That is the power of calibrating probabilities. The trick is knowing where to
-calibrate, and which direction to adjust (up or down).
 
 ## Setup
 
@@ -334,7 +330,7 @@ To showcase this feature, we will tune a model based on simulated data. In order
 for the calibration plot to work, the predictions need to be collected. This is
 done by setting `save_pred` to `TRUE`.
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 library(tidymodels)
 
 set.seed(111)
@@ -360,9 +356,9 @@ tuned_model
 The plotting functions will automatically collect the predictions. Each of the 
 pre-processing groups will be plotted individually in its own facet.
 
-```{r, eval = FALSE}
+```{r, eval = TRUE, fig.dim = c(9, 9)}
 tuned_model %>% 
-  cal_plot_breaks()
+  cal_plot_logistic() 
 ```
 
 ## Preparing for the next stage
@@ -413,6 +409,7 @@ combined %>%
 ```
 Our goal in the future is to provide calibration functions that create the 
 models, and provide an easy way to visualize.
+
 
 ## Conclusion
 

@@ -10,12 +10,12 @@ description: >
     functions, and our plans for future enhancements. 
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Bubbles the Puppy :) 
+  url: https://unsplash.com/photos/iLKK0eFTywU
+  author: Graphic Node
 
 categories: [package]
 tags: [model, plots]
-rmd_hash: 305c2b8c98b07a0c
+rmd_hash: a3d7baa0093697fb
 
 ---
 
@@ -32,7 +32,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-I am very excited to introduce work currently underway. We are looking to create early awareness, and to receive feedback from the community. That is why the enhancements discussed here are not yet in CRAN. As probably inferred by the title and description, the work centers around bringing Model Calibration to Tidymodels.
+I am very excited to introduce work currently underway. We are looking to create early awareness, and to receive feedback from the community. That is why the enhancements discussed here are not yet in CRAN.
 
 Even though the article is meant to introduce new package functionality. We also have the goal of introducing Model Calibration conceptually. We want to provide sufficient background for those who may not be familiar with Model Calibration. If you are already familiar with this technique, feel free to skip to the [Setup](#setup) section to get started.
 
@@ -72,8 +72,6 @@ Here is an example of the new Calibration Plots in `probably`. We will discuss t
 </div>
 
 In the case of this model, in can see that the group in the about 40% probability (Bin Midpoint) actually has about 60% event rate. If we were to calibrate our model, and increase the probability for those, then these could change the predicted outcome, assuming that the threshold is set for 50%. On the other hand, those with 55% - 60% probability, seem have an event rate under 50%. Those could also be calibrated to change the prediction, if again, the threshold is set to 50%.
-
-That is the power of calibrating probabilities. The trick is knowing where to calibrate, and which direction to adjust (up or down).
 
 ## Setup
 
@@ -279,7 +277,19 @@ To showcase this feature, we will tune a model based on simulated data. In order
 <span>  control <span class='o'>=</span> <span class='nf'>control_resamples</span><span class='o'>(</span>save_pred <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
 <span><span class='o'>)</span></span>
 <span></span>
-<span><span class='nv'>tuned_model</span></span></code></pre>
+<span><span class='nv'>tuned_model</span></span>
+<span><span class='c'>#&gt; # Tuning results</span></span>
+<span><span class='c'>#&gt; # 2-fold cross-validation repeated 3 times </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 6</span></span></span>
+<span><span class='c'>#&gt;   splits            id      id2   .metrics          .notes           .predicti…¹</span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>     </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [250/250]&gt;</span> Repeat1 Fold1 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span> &lt;tibble&gt;   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> <span style='color: #555555;'>&lt;split [250/250]&gt;</span> Repeat1 Fold2 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span> &lt;tibble&gt;   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> <span style='color: #555555;'>&lt;split [250/250]&gt;</span> Repeat2 Fold1 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span> &lt;tibble&gt;   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> <span style='color: #555555;'>&lt;split [250/250]&gt;</span> Repeat2 Fold2 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span> &lt;tibble&gt;   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> <span style='color: #555555;'>&lt;split [250/250]&gt;</span> Repeat3 Fold1 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span> &lt;tibble&gt;   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>6</span> <span style='color: #555555;'>&lt;split [250/250]&gt;</span> Repeat3 Fold2 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span> &lt;tibble&gt;   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># … with abbreviated variable name ¹​.predictions</span></span></span></code></pre>
 
 </div>
 
@@ -288,7 +298,9 @@ The plotting functions will automatically collect the predictions. Each of the p
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tuned_model</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
-<span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='o'>)</span></span></code></pre>
+<span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_logistic</a></span><span class='o'>(</span><span class='o'>)</span> </span>
+</code></pre>
+<img src="figs/unnamed-chunk-17-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
