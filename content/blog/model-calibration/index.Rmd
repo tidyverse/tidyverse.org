@@ -226,26 +226,30 @@ segment_logistic %>%
   cal_plot_windowed(Class, .pred_good, step_size = 0.02)
 ```
 
-## Logistic
+## Model-based
 
-Another way to visualize the performance is to fit a regression model of the
-events against the probabilities. This is helpful because it avoids the use of
+Another way to visualize the performance is to fit a classification model of the
+events against the estimated probabilities. This is helpful because it avoids the use of
 pre-determined groupings. Another difference, is that we are not plotting 
 midpoints of actual results, but rather predictions based on those results. 
 
 The `cal_plot_logistic()` provides this functionality. By default, it uses a 
-logistic spline model, provided by the `mgcv` package. The idea is to visualize
-a smooth line based on the predictions:
+logistic logistic regression. There are two possible methods for fitting: 
+
+spline model, provided by the `mgcv` package. The idea is to visualize
+a smooth line based on the predictions based on the `smooth` argument:
+
+* `smooth = TRUE` (the default) fits a generalized additive model using splines. This allows for more flexible model fits. 
+* `smooth = FALSE` uses an ordinary logistic regression model with linear terms for the predictor.
+
+As an example: 
 
 ```{r}
 segment_logistic %>% 
   cal_plot_logistic(Class, .pred_good)
 ```
 
-If smoothing is not needed, a more straightforward logistic model can be used
-to fit the probabilities. By setting the `smooth` argument to `FALSE`, will make
-the function switch to the results from a  `glm()` model as the base of the
-visualization. 
+The cooresponding `glm()` model produces:
 
 ```{r}
 segment_logistic %>% 
@@ -309,47 +313,45 @@ segment_logistic %>%
   cal_plot_breaks(Class, .pred_good, include_rug = FALSE) 
 ```
 
+So far, the inputs to the functions have been data frames. In tidymodels, the tune package has methods for resampling models as well as functions for tuning hyperparameters. 
 
-## Integration with the tune package
-
-The calibration plots in probably support `tune_results` objects.  The functions
-read the metadata from the tune object, and the `truth` and `estimate` 
-arguments automatically. 
+The calibration plots in probably also support the results of these functions (with class `tune_results`). The functions read the metadata from the tune object, and the `truth` and `estimate` arguments automatically. 
 
 To showcase this feature, we will tune a model based on simulated data. In order
 for the calibration plot to work, the predictions need to be collected. This is
 done by setting `save_pred` to `TRUE`.
 
 ```{r, eval = TRUE}
-library(tidymodels)
-
 set.seed(111)
-
 sim_data <- sim_classification(500)
+sim_folds <- vfold_cv(sim_data, repeats = 3)
 
-rec <- recipe(class ~ ., data = sim_data) %>%
-  step_ns(linear_01, deg_free = tune("linear_01"))
+rf_mod <- rand_forest(min_n = tune()) %>% set_mode("classification")
 
-tuned_model <- tune_grid(
-  object = set_engine(logistic_reg(), "glm"),
-  preprocessor = rec,
-  resamples = vfold_cv(sim_data, v = 2, repeats = 3),
-  
-  # Important: `saved_pred` has to be set to TRUE in order for 
-  #the plotting to be possible
-  
-  control = control_resamples(save_pred = TRUE)
-)
+set.seed(222)
+tuned_model <- 
+  rf_mod %>% 
+  tune_grid(
+    class ~ .,
+    resamples = sim_folds,
+    grid = 4,
+    # Important: `saved_pred` has to be set to TRUE in order for 
+    #the plotting to be possible
+    control = control_resamples(save_pred = TRUE)
+  )
 
 tuned_model
 ```
+
 The plotting functions will automatically collect the predictions. Each of the 
 pre-processing groups will be plotted individually in its own facet.
 
-```{r, eval = TRUE, fig.dim = c(9, 9)}
+```{r}
 tuned_model %>% 
   cal_plot_logistic() 
 ```
+
+A panel is produced for each value of `min_n`, coded with a automatically generated configuration name. This makes sure to use the out-of-sample data to make the plot (instead of just re-predicting the training set). 
 
 ## Preparing for the next stage
 
@@ -385,18 +387,18 @@ combined %>%
   group_by(source) %>%
   cal_plot_breaks(Class, .pred_good)
 ```
+
 If we would like to plot them side by side, we can add `facet_wrap()` as an
 additional step of the plot:
 
 ```{r}
-library(ggplot2)
-
 combined %>% 
   group_by(source) %>% 
   cal_plot_breaks(Class, .pred_good) +
   facet_wrap(~source) +
   theme(legend.position = "none")
 ```
+
 Our goal in the future is to provide calibration functions that create the 
 models, and provide an easy way to visualize.
 
