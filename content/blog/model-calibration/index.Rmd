@@ -71,8 +71,9 @@ There are two main components to model calibration:
 perform.
 - **Remediation** - Adjusting the original values to have better properties.
 
+This post has details on diagnosing issues. 
 
-## The development plan
+## The Development Plan
 
 As with everything in machine learning, there are several options to
 consider when calibrating a model. Through the new features in the tidymodels
@@ -86,7 +87,8 @@ probably. The enhancements are centered around plotting functions meant for
 **diagnosing** the prediction's performance. These are more commonly known as 
 **calibration plots**.
 
-## Calibration plots
+
+## Calibration Plots
 
 The idea behind a calibration plot is that if we group the predictions based on 
 their probability, then we should see an percentage of events ^[We can think of 
@@ -101,7 +103,7 @@ group to indeed be events. The plots shown below can be used as diagnostics to
 see if our predictions are consistent with the observed event rates. 
 
 
-## Example data
+## Example Data
 
 If you would like to follow along, load the probably and dplyr packages 
 into you R session.
@@ -121,7 +123,7 @@ segment_logistic
 ```
 
 
-## Binned plot
+## Binned Plot
 
 On smaller data sets, it is a challenging to obtain an accurate *event rate* 
 for a given probability. For example, if there are 5 predictions with about a 50% 
@@ -176,18 +178,13 @@ plot might be a better solution.
 
 Another approach is to use overlapping ranges, or windows. Like the previous plot, we bin the data and calculate the event rate. However, we can add more bins by allowing them to overlap. If the data set size is small, one strategy is to use a set of wide bins that overlap one another.
 
-There are two variables that control the windows. The **step size**, controls
-the frequency of the windows. If we set a step size of 5%, will create a new
-window every 5% probability (5%, 10%, 15%... etc). The second argument is the (maximum)
-**window size**. If it is set to %10, 
-then a given step will overlap halfway into the previous step, as well as the
-next step. Here is a visual representation of this specific scenario:
+There are two variables that control the windows. The **step size**, controls the frequency of the windows. If we set a step size of 5%, will create a new window every 5% probability (5%, 10%, 15%... etc). The second argument is the (maximum) **window size**. If it is set to 10%, then a given step will overlap halfway into the previous step, as well as the next step. Here is a visual representation of this specific scenario:
 
 ```{r}
 #| echo: false
 #| fig.width: 6
 #| fig.height: 4
-#| out.width: 50%
+#| out.width: 70%
 windows_size <- 0.10
 step_size    <- 0.05
 
@@ -226,7 +223,7 @@ segment_logistic %>%
   cal_plot_windowed(Class, .pred_good, step_size = 0.02)
 ```
 
-## Model-based
+## Model-Based
 
 Another way to visualize the performance is to fit a classification model of the
 events against the estimated probabilities. This is helpful because it avoids the use of
@@ -234,7 +231,7 @@ pre-determined groupings. Another difference, is that we are not plotting
 midpoints of actual results, but rather predictions based on those results. 
 
 The `cal_plot_logistic()` provides this functionality. By default, it uses a 
-logistic logistic regression. There are two possible methods for fitting: 
+logistic regression. There are two possible methods for fitting: 
 
 spline model, provided by the `mgcv` package. The idea is to visualize
 a smooth line based on the predictions based on the `smooth` argument:
