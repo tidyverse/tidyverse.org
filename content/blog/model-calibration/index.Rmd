@@ -97,35 +97,9 @@ outcome, has the value of "tails".]  that match such probability.
 
 For example, if we collect a group of the predictions whose probabilities are 
 estimated to be about 10%. We should expect that about 10% of the those in the 
-group to indeed be events. 
+group to indeed be events. The plots shown below can be used as diagnostics to 
+see if our predictions are consistent with the observed event rates. 
 
-The calibration plot for the ideal model will essentially be perfect incline line
-that start at (0,0) and ends in (1,1). But, as with everything in real life, there
-is really no model that can accomplish this. Sometimes the model will predict
-a 10% probability, and no event is found. Which means that those probabilities
-should be adjusted to have smaller probabilities. 
-
-Let's look at an example of the new calibration plots in probably. We will discuss
-the particulars of the functions in the next section. For now, we are simply 
-introducing what the plot would look like:
-
-```{r, echo = FALSE}
-segment_logistic %>% 
-  cal_plot_breaks(
-    Class, 
-    .pred_good, 
-    include_rug = FALSE,
-    include_points = FALSE,
-    include_ribbon = FALSE
-    )
-```
-
-In the case of this model, in can see that the group in the about 40% probability
-(Bin Midpoint) actually has about 60%  event rate. If we were to calibrate
-our model, and increase the probability for those, then these could change the
-predicted outcome, assuming that the threshold is set for 50%. On the other hand,
-those with 55% - 60% probability, seem have an event rate under 50%. Those could
-also be calibrated to change the prediction, if again, the threshold is set to 50%.
 
 ## Example data
 
@@ -133,8 +107,8 @@ If you would like to follow along, load the probably and dplyr packages
 into you R session.
 
 ```{r}
+library(tidymodels)
 library(probably)
-library(dplyr)
 ```
 
 probably comes with a few data sets. For most of the examples in this post,
@@ -150,14 +124,14 @@ segment_logistic
 ## Binned plot
 
 On smaller data sets, it is a challenging to obtain an accurate *event rate* 
-for a given probability. For example, if there are 5 predictions with a 50% 
+for a given probability. For example, if there are 5 predictions with about a 50% 
 probability, and 3 of those are events, the plot would show a 60% event rate.
-This comparison would not be appropriate because there are no enough predictions
+This comparison would not be appropriate because there are not enough predictions
 to really determine how close to 50% the model really is. 
 
-The most common approach to plotting the performance, is to group the probabilities
+The most common approach to group the probabilities
 into bins, or buckets.  Usually, the data is split into 10 discrete buckets,
-from 0 to 1 (0 - 100%). The *event rate* and the *median of the probabilities* is 
+from 0 to 1 (0 - 100%). The *event rate* and the *bin midpoint* is 
 calculated for each bin. 
 
 In probably, binned calibration plots can be created using `cal_plot_breaks()`. 
@@ -170,6 +144,19 @@ By default, this function will create a calibration plot with 10 buckets (breaks
 segment_logistic %>% 
   cal_plot_breaks(Class, .pred_good)
 ```
+
+```{r}
+#| include: false
+bin_plot_data <- segment_logistic %>% .cal_binary_table_breaks(Class, .pred_good)
+```
+
+The calibration plot for the ideal model will essentially be perfect incline line
+that start at (0,0) and ends in (1,1). In the case of this model, we can see 
+that the seventh point has an event rate of 
+`r round(bin_plot_data$event_rate[7] * 100, 1)`% despite having estimated 
+probabilities ranging from X to X. This indicates that the model is not creating
+predictions in this region that are consistent with the data (i.e., it is 
+under-predicting). 
 
 The number of bins in `cal_plot_breaks()` can be adjusted using `num_breaks`. 
 Here is an example of what the plot looks like if we reduce the bins from 10,
