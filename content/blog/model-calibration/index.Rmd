@@ -82,9 +82,9 @@ Our plan is to implement model calibration in two phases: The first phase will f
 on binary models, and the second phase will focus on multi-class models. 
 
 The first batch of enhancements are now available in the development version of 
-`probably`. The enhancements are centered around plotting functions meant for
+probably. The enhancements are centered around plotting functions meant for
 **diagnosing** the prediction's performance. These are more commonly known as 
-**Calibration Plots**.
+**calibration plots**.
 
 ## Calibration plots
 
@@ -105,7 +105,7 @@ is really no model that can accomplish this. Sometimes the model will predict
 a 10% probability, and no event is found. Which means that those probabilities
 should be adjusted down to 0.
 
-Here is an example of the new Calibration Plots in `probably`. We will discuss
+Here is an example of the new Calibration Plots in probably. We will discuss
 the particulars of the functions in the next section. For now, we are simply 
 introducing what the plot would look like:
 
@@ -129,7 +129,7 @@ also be calibrated to change the prediction, if again, the threshold is set to 5
 
 ## Example data
 
-If you would like to follow along, load the `probably` and `dplyr` packages 
+If you would like to follow along, load the probably and dplyr packages 
 into you R session.
 
 ```{r}
@@ -137,7 +137,7 @@ library(probably)
 library(dplyr)
 ```
 
-`probably` comes with a few data sets. For most of the examples in this post,
+probably comes with a few data sets. For most of the examples in this post,
 we will use `segment_logistic`. It is an example data set that contains
 predictions, and their probabilities. `Class` contains the outcome of 
 "good" and "poor", `.pred_good` contains the probability that the event is "good". 
@@ -160,7 +160,7 @@ into bins, or buckets.  Usually, the data is split into 10 discrete buckets,
 from 0 to 1 (0 - 100%). The *event rate* and the *median of the probabilities* is 
 calculated for each bin. 
 
-In `probably`, binned calibration plots can be created using `cal_plot_breaks()`. 
+In probably, binned calibration plots can be created using `cal_plot_breaks()`. 
 It expects a data set, and the un-quoted variable names that contains the events
 (`truth`), and the probabilities (`estimate`). For the example here, we pass the 
 `segment_logistic` data set, and use `Class` and `.pred_good` as the arguments. 
@@ -217,7 +217,7 @@ tibble(
   theme(aspect.ratio = 1)
 ```
 
-In `probably`, the `cal_plot_windowed()` function provides this functionality. 
+In probably, the `cal_plot_windowed()` function provides this functionality. 
 The default step size is 0.05, and can be changed via the `step_size` argument.
 The default window size is 0.1, and can be changed via the `window_size` argument.
 
@@ -318,10 +318,10 @@ segment_logistic %>%
 ```
 
 
-## Integration with `tune`
+## Integration with the tune package
 
-The calibration plots in `probably` support `tune_results` objects.  The functions
-read the metadata from the `tune` object, and the `truth` and `estimate` 
+The calibration plots in probably support `tune_results` objects.  The functions
+read the metadata from the tune object, and the `truth` and `estimate` 
 arguments automatically. 
 
 To showcase this feature, we will tune a model based on simulated data. In order
@@ -385,7 +385,7 @@ combined <- bind_rows(
 combined 
 ```
 
-The new plot functions support `dplyr` groupings. So, to overlay the two
+The new plot functions support dplyr groupings. So, to overlay the two
 groups, we just need to pass `source` to `group_by()`: 
 
 ```{r}
@@ -413,6 +413,6 @@ models, and provide an easy way to visualize.
 
 As mentioned at the top of this post. We look forward to your feedback as you try
 out these features, and read about our plans for the new future. If you wish
-to send us your thoughts, feel free to open an issue in `probably`'s GitHub repo
+to send us your thoughts, feel free to open an issue in probably's GitHub repo
 here: https://github.com/tidymodels/probably/issues.
 
