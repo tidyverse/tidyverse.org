@@ -10,7 +10,7 @@ description: >
     functions, and our plans for future enhancements. 
 
 photo:
-  url: https://unsplash.com/photos/iLKK0eFTywU
+  url: https://unsplash.com/photos/s3B_pjK7UIs
   author: Graphic Node
 
 categories: [package]
@@ -156,7 +156,7 @@ The calibration plot for the ideal model will essentially be perfect incline lin
 that start at (0,0) and ends in (1,1). In the case of this model, we can see 
 that the seventh point has an event rate of 
 `r round(bin_plot_data$event_rate[7] * 100, 1)`% despite having estimated 
-probabilities ranging from X to X. This indicates that the model is not creating
+probabilities ranging from 60% to 70%. This indicates that the model is not creating
 predictions in this region that are consistent with the data (i.e., it is 
 under-predicting). 
 
@@ -310,6 +310,8 @@ segment_logistic %>%
   cal_plot_breaks(Class, .pred_good, include_rug = FALSE) 
 ```
 
+## Integration with tune
+
 So far, the inputs to the functions have been data frames. In tidymodels, the tune package has methods for resampling models as well as functions for tuning hyperparameters. 
 
 The calibration plots in probably also support the results of these functions (with class `tune_results`). The functions read the metadata from the tune object, and the `truth` and `estimate` arguments automatically. 
@@ -333,7 +335,7 @@ tuned_model <-
     resamples = sim_folds,
     grid = 4,
     # Important: `saved_pred` has to be set to TRUE in order for 
-    #the plotting to be possible
+    # the plotting to be possible
     control = control_resamples(save_pred = TRUE)
   )
 

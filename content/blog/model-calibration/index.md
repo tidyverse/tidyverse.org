@@ -10,12 +10,12 @@ description: >
     functions, and our plans for future enhancements. 
 
 photo:
-  url: https://unsplash.com/photos/iLKK0eFTywU
+  url: https://unsplash.com/photos/s3B_pjK7UIs
   author: Graphic Node
 
 categories: [package]
 tags: [model, plots]
-rmd_hash: 7b25d41c1f1dbfe7
+rmd_hash: 0c11cb47f6f7fdec
 
 ---
 
@@ -119,7 +119,7 @@ In probably, binned calibration plots can be created using [`cal_plot_breaks()`]
 
 </div>
 
-The calibration plot for the ideal model will essentially be perfect incline line that start at (0,0) and ends in (1,1). In the case of this model, we can see that the seventh point has an event rate of 49.1% despite having estimated probabilities ranging from X to X. This indicates that the model is not creating predictions in this region that are consistent with the data (i.e., it is under-predicting).
+The calibration plot for the ideal model will essentially be perfect incline line that start at (0,0) and ends in (1,1). In the case of this model, we can see that the seventh point has an event rate of 49.1% despite having estimated probabilities ranging from 60% to 70%. This indicates that the model is not creating predictions in this region that are consistent with the data (i.e., it is under-predicting).
 
 The number of bins in [`cal_plot_breaks()`](https://probably.tidymodels.org/reference/cal_plot_breaks.html) can be adjusted using `num_breaks`. Here is an example of what the plot looks like if we reduce the bins from 10, to 5:
 
@@ -248,6 +248,8 @@ This can layer can be removed by setting `include_rug` to `FALSE`:
 
 </div>
 
+## Integration with tune
+
 So far, the inputs to the functions have been data frames. In tidymodels, the tune package has methods for resampling models as well as functions for tuning hyperparameters.
 
 The calibration plots in probably also support the results of these functions (with class `tune_results`). The functions read the metadata from the tune object, and the `truth` and `estimate` arguments automatically.
@@ -270,7 +272,7 @@ To showcase this feature, we will tune a model based on simulated data. In order
 <span>    resamples <span class='o'>=</span> <span class='nv'>sim_folds</span>,</span>
 <span>    grid <span class='o'>=</span> <span class='m'>4</span>,</span>
 <span>    <span class='c'># Important: `saved_pred` has to be set to TRUE in order for </span></span>
-<span>    <span class='c'>#the plotting to be possible</span></span>
+<span>    <span class='c'># the plotting to be possible</span></span>
 <span>    control <span class='o'>=</span> <span class='nf'>control_resamples</span><span class='o'>(</span>save_pred <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
 <span>  <span class='o'>)</span></span>
 <span></span>
