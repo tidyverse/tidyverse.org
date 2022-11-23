@@ -72,9 +72,12 @@ Previously, [`pluck()`](https://purrr.tidyverse.org/reference/pluck.html) replac
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/character.html'>character</a></span><span class='o'>(</span><span class='o'>)</span>, b <span class='o'>=</span> <span class='kc'>NULL</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/pluck.html'>pluck</a></span><span class='o'>(</span><span class='s'>"y"</span>, <span class='s'>"a"</span>, .default <span class='o'>=</span> <span class='kc'>NA</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; character(0)</span></span><span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/pluck.html'>pluck</a></span><span class='o'>(</span><span class='s'>"y"</span>, <span class='s'>"b"</span>, .default <span class='o'>=</span> <span class='kc'>NA</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] NA</span></span><span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/pluck.html'>pluck</a></span><span class='o'>(</span><span class='s'>"y"</span>, <span class='s'>"c"</span>, .default <span class='o'>=</span> <span class='kc'>NA</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] NA</span></span></code></pre>
+<span><span class='c'>#&gt; character(0)</span></span>
+<span></span><span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/pluck.html'>pluck</a></span><span class='o'>(</span><span class='s'>"y"</span>, <span class='s'>"b"</span>, .default <span class='o'>=</span> <span class='kc'>NA</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] NA</span></span>
+<span></span><span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/pluck.html'>pluck</a></span><span class='o'>(</span><span class='s'>"y"</span>, <span class='s'>"c"</span>, .default <span class='o'>=</span> <span class='kc'>NA</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] NA</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -88,7 +91,8 @@ This also influences the map family because using an integer vector, character v
 <span><span class='c'>#&gt;  $ : num 1</span></span>
 <span><span class='c'>#&gt;  $ : num 0</span></span>
 <span><span class='c'>#&gt;  $ : num 0</span></span>
-<span><span class='c'>#&gt;  $ : chr(0)</span></span></code></pre>
+<span><span class='c'>#&gt;  $ : chr(0)</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -105,10 +109,13 @@ We've tweaked the map family of functions to be more consistent with general tid
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># previously you could write</span></span>
     <span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_chr</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>4</span>, \<span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nv'>x</span> <span class='o'>+</span> <span class='m'>1</span><span class='o'>)</span></span>
     <span><span class='c'>#&gt; Warning: Automatic coercion from double to character was deprecated in purrr 1.0.0.</span></span>
-    <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Please use an explicit call to `as.character()` within `map_chr()` instead.</span></span><span><span class='c'>#&gt; [1] "2.000000" "3.000000" "4.000000" "5.000000"</span></span><span></span>
+    <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Please use an explicit call to `as.character()` within `map_chr()` instead.</span></span>
+    <span></span><span><span class='c'>#&gt; [1] "2.000000" "3.000000" "4.000000" "5.000000"</span></span>
+    <span></span><span></span>
     <span><span class='c'># now you need something like this:</span></span>
     <span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_chr</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>4</span>, \<span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/base/character.html'>as.character</a></span><span class='o'>(</span><span class='nv'>x</span> <span class='o'>+</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] "2" "3" "4" "5"</span></span></code></pre>
+    <span><span class='c'>#&gt; [1] "2" "3" "4" "5"</span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -120,9 +127,11 @@ We've tweaked the map family of functions to be more consistent with general tid
     <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `map_int()`:</span></span></span>
     <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> In index: 1.</span></span>
     <span><span class='c'>#&gt; <span style='font-weight: bold;'>Caused by error:</span></span></span>
-    <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't coerce from a double vector to an integer vector.</span></span><span></span>
+    <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't coerce from a double vector to an integer vector.</span></span>
+    <span></span><span></span>
     <span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_int</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span>, \<span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nv'>x</span> <span class='o'>*</span> <span class='m'>2</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] 2 4 6</span></span></code></pre>
+    <span><span class='c'>#&gt; [1] 2 4 6</span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -134,10 +143,12 @@ We've tweaked the map family of functions to be more consistent with general tid
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map2.html'>map2</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>2</span>, <span class='nf'><a href='https://rdrr.io/r/base/character.html'>character</a></span><span class='o'>(</span><span class='o'>)</span>, <span class='nv'>paste</span><span class='o'>)</span></span>
     <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `map2()`:</span></span></span>
-    <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't recycle `.x` (size 2) to match `.y` (size 0).</span></span><span></span>
+    <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't recycle `.x` (size 2) to match `.y` (size 0).</span></span>
+    <span></span><span></span>
     <span><span class='c'># Works because length-1 vector gets recycled to length-0</span></span>
     <span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map2.html'>map2</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='nf'><a href='https://rdrr.io/r/base/character.html'>character</a></span><span class='o'>(</span><span class='o'>)</span>, <span class='nv'>paste</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; list()</span></span></code></pre>
+    <span><span class='c'>#&gt; list()</span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -147,9 +158,11 @@ We've tweaked the map family of functions to be more consistent with general tid
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map2.html'>map2_int</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>4</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>10</span>, <span class='m'>20</span><span class='o'>)</span>, <span class='nv'>`+`</span><span class='o'>)</span></span>
     <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `map2_int()`:</span></span></span>
-    <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't recycle `.x` (size 4) to match `.y` (size 2).</span></span><span></span>
+    <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't recycle `.x` (size 4) to match `.y` (size 2).</span></span>
+    <span></span><span></span>
     <span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map2.html'>map2_int</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>4</span>, <span class='nf'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>10</span>, <span class='m'>20</span><span class='o'>)</span>, <span class='m'>2</span><span class='o'>)</span>, <span class='nv'>`+`</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] 11 22 13 24</span></span></code></pre>
+    <span><span class='c'>#&gt; [1] 11 22 13 24</span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -164,12 +177,14 @@ purrr has a number of functions that modify a list: `pluck<-`, [`assign_in()`](h
 <span><span class='nv'>x1</span><span class='o'>$</span><span class='nv'>a</span> <span class='o'>&lt;-</span> <span class='kc'>NULL</span></span>
 <span><span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='nv'>x1</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 1</span></span>
-<span><span class='c'>#&gt;  $ b: num 2</span></span><span></span>
+<span><span class='c'>#&gt;  $ b: num 2</span></span>
+<span></span><span></span>
 <span><span class='nv'>x2</span><span class='o'>[</span><span class='s'>"a"</span><span class='o'>]</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='kc'>NULL</span><span class='o'>)</span></span>
 <span><span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='nv'>x2</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 2</span></span>
 <span><span class='c'>#&gt;  $ a: NULL</span></span>
-<span><span class='c'>#&gt;  $ b: num 2</span></span></code></pre>
+<span><span class='c'>#&gt;  $ b: num 2</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -182,13 +197,15 @@ Now all list modifying functions will create an element containing `NULL`:
 <span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 2</span></span>
 <span><span class='c'>#&gt;  $ a: NULL</span></span>
-<span><span class='c'>#&gt;  $ b: num 2</span></span><span></span>
+<span><span class='c'>#&gt;  $ b: num 2</span></span>
+<span></span><span></span>
 <span><span class='nv'>x3</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/modify.html'>modify_at</a></span><span class='o'>(</span><span class='s'>"b"</span>, \<span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='kc'>NULL</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 2</span></span>
 <span><span class='c'>#&gt;  $ a: num 1</span></span>
-<span><span class='c'>#&gt;  $ b: NULL</span></span></code></pre>
+<span><span class='c'>#&gt;  $ b: NULL</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -200,7 +217,8 @@ If you want to delete the element, you can use the special [`zap()`](https://rla
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_update.html'>list_modify</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='nf'><a href='https://rlang.r-lib.org/reference/zap.html'>zap</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 1</span></span>
-<span><span class='c'>#&gt;  $ b: num 2</span></span></code></pre>
+<span><span class='c'>#&gt;  $ b: num 2</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -234,14 +252,16 @@ As you've seen in the code above, we are moving from magrittr's pipe (`%>%`) to 
 <span><span class='m'>1</span><span class='o'>:</span><span class='m'>10</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='o'>(</span><span class='o'>~</span> <span class='nf'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='o'>(</span><span class='m'>10</span>, <span class='nv'>.x</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_dbl</a></span><span class='o'>(</span><span class='nv'>mean</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt;  [1] 1.207663 1.987222 3.083210 4.183480 4.249881 5.339600 7.008981 7.678494</span></span>
-<span><span class='c'>#&gt;  [9] 9.101524 9.768009</span></span><span></span>
+<span><span class='c'>#&gt;  [1]  0.789012  2.297651  2.711746  3.762179  4.961180  6.604814  7.094367</span></span>
+<span><span class='c'>#&gt;  [8]  8.174061  9.060459 10.236516</span></span>
+<span></span><span></span>
 <span><span class='c'># Now we recommend</span></span>
 <span><span class='m'>1</span><span class='o'>:</span><span class='m'>10</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>mu</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='o'>(</span><span class='m'>10</span>, <span class='nv'>mu</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_dbl</a></span><span class='o'>(</span><span class='nv'>mean</span><span class='o'>)</span> </span>
-<span><span class='c'>#&gt;  [1] 0.9164864 2.1176964 3.2022252 4.0539237 5.5190731 6.3292332 6.7798966</span></span>
-<span><span class='c'>#&gt;  [8] 8.0016283 8.9255523 9.7726539</span></span></code></pre>
+<span><span class='c'>#&gt;  [1]  0.2964402  2.2632161  2.7122449  3.9448994  4.5535061  6.2860283</span></span>
+<span><span class='c'>#&gt;  [7]  6.5556420  8.3111530  9.0064087 10.1510284</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -288,7 +308,8 @@ If there's an error in the function you're mapping, [`map()`](https://purrr.tidy
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `map()`:</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> In index: 51.</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Caused by error in `.f()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Error!</span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Error!</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -304,13 +325,17 @@ We've added [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) (along
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>i</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='nv'>letters</span><span class='o'>[</span><span class='nv'>i</span><span class='o'>]</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] a b c</span></span>
-<span><span class='c'>#&gt; Levels: a b c</span></span><span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>i</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='nv'>letters</span><span class='o'>[</span><span class='nv'>i</span><span class='o'>]</span>, levels <span class='o'>=</span> <span class='nv'>letters</span><span class='o'>[</span><span class='m'>4</span><span class='o'>:</span><span class='m'>1</span><span class='o'>]</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; Levels: a b c</span></span>
+<span></span><span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>i</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='nv'>letters</span><span class='o'>[</span><span class='nv'>i</span><span class='o'>]</span>, levels <span class='o'>=</span> <span class='nv'>letters</span><span class='o'>[</span><span class='m'>4</span><span class='o'>:</span><span class='m'>1</span><span class='o'>]</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] a b c</span></span>
-<span><span class='c'>#&gt; Levels: d c b a</span></span><span></span>
+<span><span class='c'>#&gt; Levels: d c b a</span></span>
+<span></span><span></span>
 <span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>i</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/ISOdatetime.html'>ISOdate</a></span><span class='o'>(</span><span class='nv'>i</span> <span class='o'>+</span> <span class='m'>2022</span>, <span class='m'>10</span>, <span class='m'>5</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] "2023-10-05" "2024-10-05" "2025-10-05"</span></span><span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>i</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/base/ISOdatetime.html'>ISOdate</a></span><span class='o'>(</span><span class='nv'>i</span> <span class='o'>+</span> <span class='m'>2022</span>, <span class='m'>10</span>, <span class='m'>5</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] "2023-10-05" "2024-10-05" "2025-10-05"</span></span>
+<span></span><span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>i</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/base/ISOdatetime.html'>ISOdate</a></span><span class='o'>(</span><span class='nv'>i</span> <span class='o'>+</span> <span class='m'>2022</span>, <span class='m'>10</span>, <span class='m'>5</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "2023-10-05 12:00:00 GMT" "2024-10-05 12:00:00 GMT"</span></span>
-<span><span class='c'>#&gt; [3] "2025-10-05 12:00:00 GMT"</span></span></code></pre>
+<span><span class='c'>#&gt; [3] "2025-10-05 12:00:00 GMT"</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -320,7 +345,8 @@ We've added [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) (along
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='m'>1</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span><span class='nv'>identity</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `map_vec()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't combine `&lt;list&gt;[[1]]` &lt;character&gt; and `&lt;list&gt;[[2]]` &lt;double&gt;.</span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't combine `&lt;list&gt;[[1]]` &lt;character&gt; and `&lt;list&gt;[[2]]` &lt;double&gt;.</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -330,12 +356,14 @@ If you want to require a certain type of output, supply `.ptype`, making [`map_v
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"b"</span><span class='o'>)</span> </span>
 <span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span><span class='nv'>identity</span>, .ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/character.html'>character</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] "a" "b"</span></span><span></span>
+<span><span class='c'>#&gt; [1] "a" "b"</span></span>
+<span></span><span></span>
 <span><span class='c'># will error if the result can't be automatically coerced</span></span>
 <span><span class='c'># to the specified ptype</span></span>
 <span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span><span class='nv'>identity</span>, .ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/integer.html'>integer</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `map_vec()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't convert `&lt;list&gt;[[1]]` &lt;character&gt; to &lt;integer&gt;.</span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't convert `&lt;list&gt;[[1]]` &lt;character&gt; to &lt;integer&gt;.</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -355,13 +383,15 @@ purrr has gained a new pair of functions, [`keep_at()`](https://purrr.tidyverse.
 <span><span class='c'>#&gt; List of 3</span></span>
 <span><span class='c'>#&gt;  $ a: num 1</span></span>
 <span><span class='c'>#&gt;  $ b: num 2</span></span>
-<span><span class='c'>#&gt;  $ c: num 3</span></span><span></span>
+<span><span class='c'>#&gt;  $ c: num 3</span></span>
+<span></span><span></span>
 <span><span class='nv'>x</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/keep_at.html'>discard_at</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"b"</span>, <span class='s'>"c"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 2</span></span>
 <span><span class='c'>#&gt;  $ D: num 4</span></span>
-<span><span class='c'>#&gt;  $ E: num 5</span></span></code></pre>
+<span><span class='c'>#&gt;  $ E: num 5</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -379,7 +409,8 @@ Alternatively, you can supply a function that is called with the names of the el
 <span><span class='c'>#&gt; [1] 2</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; $c</span></span>
-<span><span class='c'>#&gt; [1] 3</span></span></code></pre>
+<span><span class='c'>#&gt; [1] 3</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -395,7 +426,8 @@ You can now also pass such a function to all other `_at()` functions:
 <span><span class='c'>#&gt;  $ b: num 200</span></span>
 <span><span class='c'>#&gt;  $ c: num 300</span></span>
 <span><span class='c'>#&gt;  $ D: num 4</span></span>
-<span><span class='c'>#&gt;  $ E: num 5</span></span></code></pre>
+<span><span class='c'>#&gt;  $ E: num 5</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -430,20 +462,23 @@ These functions have lead us to **supersede** a number of functions. This means 
 <span><span class='c'>#&gt;   ..$ :List of 2</span></span>
 <span><span class='c'>#&gt;   .. ..$ : num 3</span></span>
 <span><span class='c'>#&gt;   .. ..$ : num 4</span></span>
-<span><span class='c'>#&gt;   ..$ : num 5</span></span><span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_flatten.html'>list_flatten</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt;   ..$ : num 5</span></span>
+<span></span><span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_flatten.html'>list_flatten</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 4</span></span>
 <span><span class='c'>#&gt;  $ : num 1</span></span>
 <span><span class='c'>#&gt;  $ : num 2</span></span>
 <span><span class='c'>#&gt;  $ :List of 2</span></span>
 <span><span class='c'>#&gt;   ..$ : num 3</span></span>
 <span><span class='c'>#&gt;   ..$ : num 4</span></span>
-<span><span class='c'>#&gt;  $ : num 5</span></span><span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_flatten.html'>list_flatten</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_flatten.html'>list_flatten</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt;  $ : num 5</span></span>
+<span></span><span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_flatten.html'>list_flatten</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_flatten.html'>list_flatten</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 5</span></span>
 <span><span class='c'>#&gt;  $ : num 1</span></span>
 <span><span class='c'>#&gt;  $ : num 2</span></span>
 <span><span class='c'>#&gt;  $ : num 3</span></span>
 <span><span class='c'>#&gt;  $ : num 4</span></span>
-<span><span class='c'>#&gt;  $ : num 5</span></span></code></pre>
+<span><span class='c'>#&gt;  $ : num 5</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -457,7 +492,8 @@ These functions have lead us to **supersede** a number of functions. This means 
 <span><span class='c'>#&gt;  $ : num 2</span></span>
 <span><span class='c'>#&gt;  $ : num 3</span></span>
 <span><span class='c'>#&gt;  $ : num 4</span></span>
-<span><span class='c'>#&gt;  $ : num 5</span></span></code></pre>
+<span><span class='c'>#&gt;  $ : num 5</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -468,8 +504,10 @@ These functions have lead us to **supersede** a number of functions. This means 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 1 2 3</span></span><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"b"</span>, <span class='s'>"c"</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] "a" "b" "c"</span></span></code></pre>
+<span><span class='c'>#&gt; [1] 1 2 3</span></span>
+<span></span><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"b"</span>, <span class='s'>"c"</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] "a" "b" "c"</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -479,9 +517,11 @@ Because the length must stay the same, it will only succeed if every element has
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>:</span><span class='m'>4</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `list_simplify()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `x[[3]]` must have size 1, not size 2.</span></span><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='nf'><a href='https://rdrr.io/r/base/integer.html'>integer</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `x[[3]]` must have size 1, not size 2.</span></span>
+<span></span><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='nf'><a href='https://rdrr.io/r/base/integer.html'>integer</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `list_simplify()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `x[[3]]` must have size 1, not size 0.</span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `x[[3]]` must have size 1, not size 0.</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -491,7 +531,8 @@ Because the result must be a simpler vector, all the components must be compatib
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='s'>"a"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `list_simplify()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't combine `&lt;list&gt;[[1]]` &lt;double&gt; and `&lt;list&gt;[[3]]` &lt;character&gt;.</span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't combine `&lt;list&gt;[[1]]` &lt;double&gt; and `&lt;list&gt;[[3]]` &lt;character&gt;.</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -507,7 +548,8 @@ If you need to simplify if it's possible, but otherwise leave the input unchange
 <span><span class='c'>#&gt; [1] 2</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; [[3]]</span></span>
-<span><span class='c'>#&gt; [1] "a"</span></span></code></pre>
+<span><span class='c'>#&gt; [1] "a"</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -516,10 +558,12 @@ If you want to be specific the type you want, [`list_simplify()`](https://purrr.
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span>ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/integer.html'>integer</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 1 2 3</span></span><span></span>
+<span><span class='c'>#&gt; [1] 1 2 3</span></span>
+<span></span><span></span>
 <span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span>ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `list_simplify()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't convert `&lt;list&gt;[[1]]` &lt;double&gt; to &lt;factor&lt;&gt;&gt;.</span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't convert `&lt;list&gt;[[1]]` &lt;double&gt; to &lt;factor&lt;&gt;&gt;.</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -530,8 +574,10 @@ If you want to be specific the type you want, [`list_simplify()`](https://purrr.
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_c.html'>list_c</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 1 2 3</span></span><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>:</span><span class='m'>4</span>, <span class='nf'><a href='https://rdrr.io/r/base/integer.html'>integer</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_c.html'>list_c</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 1 2 3 4</span></span></code></pre>
+<span><span class='c'>#&gt; [1] 1 2 3</span></span>
+<span></span><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>:</span><span class='m'>4</span>, <span class='nf'><a href='https://rdrr.io/r/base/integer.html'>integer</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_c.html'>list_c</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] 1 2 3 4</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -564,7 +610,8 @@ There's one other new function that isn't directly related to flattening and fri
 <span><span class='c'>#&gt;  $ x: num 1</span></span>
 <span><span class='c'>#&gt;  $ y:List of 2</span></span>
 <span><span class='c'>#&gt;   ..$ a: num 1</span></span>
-<span><span class='c'>#&gt;   ..$ b: num 1</span></span></code></pre>
+<span><span class='c'>#&gt;   ..$ b: num 1</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -578,7 +625,8 @@ There's one other new function that isn't directly related to flattening and fri
 <span><span class='c'>#&gt; List of 2</span></span>
 <span><span class='c'>#&gt;  $ x: num 1</span></span>
 <span><span class='c'>#&gt;  $ y:List of 1</span></span>
-<span><span class='c'>#&gt;   ..$ b: num 2</span></span></code></pre>
+<span><span class='c'>#&gt;   ..$ b: num 2</span></span>
+<span></span></code></pre>
 
 </div>
 
