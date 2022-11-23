@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [purrr]
-rmd_hash: b31c6fa476b44c62
+rmd_hash: a7f4620bb1bdf7c5
 
 ---
 
@@ -35,9 +35,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're happy to announce the release of [purrr](http://purrr.tidyverse.org/) 1.0.0! purrr enhances R's functional programming toolkit by providing a complete and consistent set of tools for working with functions and vectors.
-
-You can install it from CRAN with:
+We're happy to announce the release of [purrr](http://purrr.tidyverse.org/) 1.0.0! purrr enhances R's functional programming toolkit by providing a complete and consistent set of tools for working with functions and vectors. You can install it from CRAN with:
 
 <div class="highlight">
 
@@ -45,13 +43,7 @@ You can install it from CRAN with:
 
 </div>
 
-purrr is 7 years old, but it's finally made it to 1.0.0! This was an opportunity to really refine the core purrrpose of purrr, making it more purrrsimonious by moving a number of functions to purrrgatory. Hopefully these changes are not cat-istrophic.
-
-In this post, we'll start with an overview of the breaking changes in this release. We'll then briefly review some documentation changes, before moving on to the big new stuff: refinements to the map functions (including progress bars!), new [`keep_at()`](https://purrr.tidyverse.org/reference/keep_at.html) and [`discard_at()`](https://purrr.tidyverse.org/reference/keep_at.html), and changes to flattening and simplification.
-
-One small note: in alignment our 2021 policy [purrr has been re-licensed](https://www.tidyverse.org/blog/2021/12/relicensing-packages/) with the MIT license.
-
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
+purrr is 7 years old, but it's finally made it to 1.0.0! This is a big release, adding some long needed functionality (like progress bars!) as well as really refining the core purpose of purrr. In this post, we'll start with an overview of the breaking changes, then briefly review some documentation changes. Then we'll get to the good stuff: improvements to the map family, new [`keep_at()`](https://purrr.tidyverse.org/reference/keep_at.html) and [`discard_at()`](https://purrr.tidyverse.org/reference/keep_at.html), and improvements to flattening and simplification. You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
 
 <div class="highlight">
 
@@ -61,11 +53,20 @@ You can see a full list of changes in the [release notes](%7B%20github_release%2
 
 ## Breaking changes
 
-First the bad stuff: we've made some changes to the way purrr operates. We've been a bit more aggressive than usual here because A 1.0.0 release is an opportunity to make some bigger changes to the package to ensure it's on firm footing for the next 10 years. Nevertheless, we don't anticipate too many impacts on user code. As part of our new policy, I made pull requests to all [CRAN packages that broke](https://github.com/tidyverse/purrr/issues/969) (except for the 1 that wasn't on GitHub). Out of \~1,400 dependencies only \~40 had problems. I've found making these PRs very empathy building and I'm getting much faster at parachuting into a random package that I have no idea what it does and fixing the problems. This act also gave me confidence that while we're deprecating quite a few functions and changing a few special cases, it shouldn't affect too much code in the wild.
+purrrr 1.0.0 was an opportunity to really refine the core purrrpose of purrr, making it more purrrsimonious by moving a number of functions to purrrgatory. We've done our best to ensure that changes are not cat-istrophic, which I can now explain, having got these puns out of my system.
+
+This release is more aggressive than usual because a 1.0.0 release is our opportunity to make bigger changes that form a strong foundation for the next 10 years. These changes will break some existing code, but we've done our best to make it affect as little code as possible. For example, I [made pull requests](https://github.com/tidyverse/purrr/issues/969) to all \~40 CRAN packages (out of \~1,400) that purrr 1.0.0 broke. Making these fixes helped give me confidence that while we're deprecating quite a few functions and changing a few special cases, it shouldn't affect too much code in the wild.
+
+There are four important changes that you should be aware of:
+
+-   [`pluck()`](https://purrr.tidyverse.org/reference/pluck.html) behaves differently when extracting 0-length vectors.
+-   The map function family uses the tidyverse rules for coercion and recycling.
+-   All functions that modify lists handle `NULL` consistently.
+-   We've deprecated functions that aren't related to the core purpose of purr.
 
 ### pluck and zero-length vectors
 
-Previously, [`pluck()`](https://purrr.tidyverse.org/reference/pluck.html) would replace 0-length vectors with the value of `default`. Now only `NULL` and absent elements will be replaced with `default`:
+Previously, [`pluck()`](https://purrr.tidyverse.org/reference/pluck.html) replaced 0-length vectors with the value of `default`. Now `default` is only use for `NULL`s and absent elements:
 
 <div class="highlight">
 
@@ -77,7 +78,7 @@ Previously, [`pluck()`](https://purrr.tidyverse.org/reference/pluck.html) would 
 
 </div>
 
-This also influences the map family because using an integer vector, character vector, or list automatically calls [`pluck()`](https://purrr.tidyverse.org/reference/pluck.html):
+This also influences the map family because using an integer vector, character vector, or list instead of a function automatically calls [`pluck()`](https://purrr.tidyverse.org/reference/pluck.html):
 
 <div class="highlight">
 
@@ -91,13 +92,13 @@ This also influences the map family because using an integer vector, character v
 
 </div>
 
-We made this change because it makes purrr more consistent with the rest of the tidyverse which distinguishes zero-length vectors from `NULL`s, and it looks like it was a bug in the original implementation of the function.
+We made this change because it makes purrr more consistent with the rest of the tidyverse and it looks like it was a bug in the original implementation of the function.
 
 ### Tidyverse consistency
 
-We've tweak the map family of functions to be more consistent with general tidyverse recycling and coercion rules, as implemented by the vctrs package. [`map_lgl()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), and [`map_dbl()`](https://purrr.tidyverse.org/reference/map.html) now follow the same coercion rules as vctrs. This means that:
+We've tweaked the map family of functions to be more consistent with general tidyverse coercion and recycling, as implemented by the [vctrs](https://vctrs.r-lib.org) package. [`map_lgl()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), and [`map_dbl()`](https://purrr.tidyverse.org/reference/map.html) now follow the same coercion rules as vctrs.
 
--   `map_chr(TRUE, identity)`, `map_chr(0L, identity)`, and `map_chr(1L, identity)` are deprecated because we believe that converting a logical/integer/double to a character vector is potentially dangerous and should require an explicit coercion.
+-   `map_chr(TRUE, identity)`, `map_chr(0L, identity)`, and `map_chr(1L, identity)` have been deprecated because we believe that converting a logical/integer/double to a character vector is potentially dangerous and should require an explicit coercion.
 
     <div class="highlight">
 
@@ -125,7 +126,7 @@ We've tweak the map family of functions to be more consistent with general tidyv
 
     </div>
 
-[`map2()`](https://purrr.tidyverse.org/reference/map2.html), [`modify2()`](https://purrr.tidyverse.org/reference/modify.html), and [`pmap()`](https://purrr.tidyverse.org/reference/pmap.html) use tidyverse recycling rules where vectors of length 1 are recycled to any size but all others must have the same length. This has two major changes:
+[`map2()`](https://purrr.tidyverse.org/reference/map2.html), [`modify2()`](https://purrr.tidyverse.org/reference/modify.html), and [`pmap()`](https://purrr.tidyverse.org/reference/pmap.html) use tidyverse recycling rules, which mean that vectors of length 1 are recycled to any size but all other vectors must have the same length. This has two major changes:
 
 -   Previously, the presence of a zero-length input generated a zero-length output. Now its recycled using the same rules:
 
@@ -154,7 +155,7 @@ We've tweak the map family of functions to be more consistent with general tidyv
 
 ### Assigning `NULL`
 
-There are a number of purrr functions that allow you to modify a list in someway: `pluck<-`, [`assign_in()`](https://purrr.tidyverse.org/reference/modify_in.html), [`modify()`](https://purrr.tidyverse.org/reference/modify.html), [`modify2()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_if()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_if()`](https://purrr.tidyverse.org/reference/modify.html), and [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html). Previously these functions had inconsistent behaviour when you attempted to modify an element with `NULL`: some functions would delete that element, and some would set it to `NULL`. That inconsistency arose because base R handles `NULL` in different ways depending on whether or not use you `$`/`[[` or `[`:
+purrr has a number of functions that modify a list: `pluck<-`, [`assign_in()`](https://purrr.tidyverse.org/reference/modify_in.html), [`modify()`](https://purrr.tidyverse.org/reference/modify.html), [`modify2()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_if()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_at()`](https://purrr.tidyverse.org/reference/modify.html), and [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html). Previously these functions had inconsistent behaviour when you attempted to modify an element with `NULL`: some functions would delete that element, and some would set it to `NULL`. That inconsistency arose because base R handles `NULL` in different ways depending on whether or not use you `$`/`[[` or `[`:
 
 <div class="highlight">
 
@@ -172,7 +173,7 @@ There are a number of purrr functions that allow you to modify a list in someway
 
 </div>
 
-That difference accidentally causes different purrr functions to handle `NULL` differently. Now all list modifying functions will create an element containing `NULL`:
+Now all list modifying functions will create an element containing `NULL`:
 
 <div class="highlight">
 
@@ -191,7 +192,7 @@ That difference accidentally causes different purrr functions to handle `NULL` d
 
 </div>
 
-If you want to delete the element, you'll need to use the special [`zap()`](https://rlang.r-lib.org/reference/zap.html) sentinel:
+If you want to delete the element, you can use the special [`zap()`](https://rlang.r-lib.org/reference/zap.html) sentinel:
 
 <div class="highlight">
 
@@ -203,29 +204,29 @@ If you want to delete the element, you'll need to use the special [`zap()`](http
 
 </div>
 
-[`zap()`](https://rlang.r-lib.org/reference/zap.html) does not work in [`modify()`](https://purrr.tidyverse.org/reference/modify.html) and friends because they are designed to always return the same top-level structure as the input.
+[`zap()`](https://rlang.r-lib.org/reference/zap.html) does not work in `modify*()` because those functions are designed to always return the same top-level structure as the input.
 
 ### Core purpose refinements
 
-As well as changing the behaviour of some functions, we've deprecated a number of functions have been deprecated to keep purrr focused on its core purpose: facilitating functional programming in R. Deprecating these functions makes purrr easier to maintain because it reduces the surface area for bugs and issues, and it makes purrr easier to learn because there's a clearer common thread that ties together all functions.
+We have **deprecated** a number of functions to keep purrr focused on its core purpose: facilitating functional programming in R. Deprecation means that the functions will continue to work, but you'll be warned once every 8 hours if you use them. In several years time, we'll release an update which causes the warnings to occur on every time you use them, and a few years after that they'll transformed to throwing errors.
 
 -   [`cross()`](https://purrr.tidyverse.org/reference/cross.html) and all its variants have been deprecated because they're slow and buggy, and a better approach already exists in [`tidyr::expand_grid()`](https://tidyr.tidyverse.org/reference/expand_grid.html).
 
 -   [`update_list()`](https://purrr.tidyverse.org/reference/update_list.html), [`rerun()`](https://purrr.tidyverse.org/reference/rerun.html), and the use of tidyselect with [`map_at()`](https://purrr.tidyverse.org/reference/map_if.html) and friends have been deprecated because we no longer believe that non-standard evaluation is a good fit for purrr.
 
--   The `lift_*` family of functions has been deprecated because they rely on a style of function manipulation that is uncommon in R.
+-   The `lift_*` family of functions has been deprecated because they promote a style of function manipulation that is not commonly used in R.
 
--   [`prepend()`](https://purrr.tidyverse.org/reference/prepend.html), [`rdunif()`](https://purrr.tidyverse.org/reference/rdunif.html), [`rbernoulli()`](https://purrr.tidyverse.org/reference/rbernoulli.html), [`when()`](https://purrr.tidyverse.org/reference/when.html), and [`list_along()`](https://purrr.tidyverse.org/reference/along.html) have all been deprecated because they don't align with the core purpose of purrr.
+-   [`prepend()`](https://purrr.tidyverse.org/reference/prepend.html), [`rdunif()`](https://purrr.tidyverse.org/reference/rdunif.html), [`rbernoulli()`](https://purrr.tidyverse.org/reference/rbernoulli.html), [`when()`](https://purrr.tidyverse.org/reference/when.html), and [`list_along()`](https://purrr.tidyverse.org/reference/along.html) have been deprecated because they're not directly related to functional programming.
 
--   `splice()` was deprecated because we no longer believe that automatic splicing makes for good UI and there are other ways to achieve the same result.
+-   `splice()` has been deprecated because we no longer believe that automatic splicing makes for good UI and there are other ways to achieve the same result.
 
 Consult the documentation for the alternatives that we now recommend.
 
-Deprecation means that the functions will continue to work, you'll get warned once every 8 hours if you use them. In several years time, we'll release an update which causes the warnings to occur on every time you use them, and a few years after that they'll transformed to throwing errors.
+Deprecating these functions makes purrr easier to maintain because it reduces the surface area for bugs and issues, and it makes purrr easier to learn because there's a clearer common thread that ties together all functions.
 
 ## Documentation
 
-As you've seen in the code above, we are gradually moving to the base pipe (`|>`) instead of magrittr's pipe (`|>`) and R's anonymous function short hand (`\(x) x + 1`) instead of formula syntax (`~ .x + 1`). We believe that it's better to use the new base equivalents because they work everywhere: the base pipe doesn't requite that you load magrittr and the new function shorthand works everywhere, not just in purrr functions. Additionally, being able to specify the argument name for the anonymous function can often lead to clearer code.
+As you've seen in the code above, we are moving from magrittr's pipe (`%>%`) to the base pipe (`|>`) and from formula syntax (`~ .x + 1`) to R's new anonymous function short hand (`\(x) x + 1`). We believe that it's better to use these new base tools because they work everywhere: the base pipe doesn't requite that you load magrittr and the new function shorthand works everywhere, not just in purrr functions. Additionally, being able to specify the argument name for the anonymous function can often lead to clearer code.
 
 <div class="highlight">
 
@@ -233,26 +234,26 @@ As you've seen in the code above, we are gradually moving to the base pipe (`|>`
 <span><span class='m'>1</span><span class='o'>:</span><span class='m'>10</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='o'>(</span><span class='o'>~</span> <span class='nf'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='o'>(</span><span class='m'>10</span>, <span class='nv'>.x</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_dbl</a></span><span class='o'>(</span><span class='nv'>mean</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt;  [1] 1.254891 2.431736 3.090187 3.756923 5.048522 6.120181 7.079650 7.713926</span></span>
-<span><span class='c'>#&gt;  [9] 8.846344 9.834186</span></span><span></span>
+<span><span class='c'>#&gt;  [1] 1.207663 1.987222 3.083210 4.183480 4.249881 5.339600 7.008981 7.678494</span></span>
+<span><span class='c'>#&gt;  [9] 9.101524 9.768009</span></span><span></span>
 <span><span class='c'># Now we recommend</span></span>
 <span><span class='m'>1</span><span class='o'>:</span><span class='m'>10</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>mu</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='o'>(</span><span class='m'>10</span>, <span class='nv'>mu</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_dbl</a></span><span class='o'>(</span><span class='nv'>mean</span><span class='o'>)</span> </span>
-<span><span class='c'>#&gt;  [1]  1.501113  2.122597  3.219413  3.779042  5.054406  6.295067  7.270990</span></span>
-<span><span class='c'>#&gt;  [8]  7.885040  8.912869 10.319867</span></span></code></pre>
+<span><span class='c'>#&gt;  [1] 0.9164864 2.1176964 3.2022252 4.0539237 5.5190731 6.3292332 6.7798966</span></span>
+<span><span class='c'>#&gt;  [8] 8.0016283 8.9255523 9.7726539</span></span></code></pre>
 
 </div>
 
-Note, that due to the [tidyverse R dependency policy](https://www.tidyverse.org/blog/2019/04/r-version-support/), purrr works in R 3.5, 3.6, 4.0, 4.1, and 4.2, but the base pipe and anonymous function syntax are only available in R 4.0 and later. To allow purrr to continue to pass `R CMD check`, the examples are automatically disabled in older versions of R.
+Due to the [tidyverse R dependency policy](https://www.tidyverse.org/blog/2019/04/r-version-support/), purrr works in R 3.5, 3.6, 4.0, 4.1, and 4.2, but the base pipe and anonymous function syntax are only available in R 4.0 and later. So the examples are automatically disabled on R 3.5 and 3.6 to allow purrr to continue to pass `R CMD check`.
 
 ## Mapping
 
-The map functions have received a major overhaul with three big new features:
+With that out of the way, we can now talk about the exciting new features in purrr 1.0.0. We'll start with the map family of functions which have three big new features:
 
--   Progress bar.
+-   Progress bars.
 -   Better errors.
--   New [`map_vec()`](https://purrr.tidyverse.org/reference/map.html).
+-   A new family member: [`map_vec()`](https://purrr.tidyverse.org/reference/map.html).
 
 These are described in the following sections.
 
@@ -268,7 +269,7 @@ The map family of function can now produce a progress bar. This is very useful f
 
 (For interactive use, the progress bar uses some simple heuristics so that it doesn't show up for very simple jobs.)
 
-In most cases, we expect that `.progress = TRUE` will give you a decent progress bar. But if you're wrapping the [`map()`](https://purrr.tidyverse.org/reference/map.html) in a function, you might want to set it to a string that 's used to identify the progress bar:
+In most cases, we expect that `.progress = TRUE` is enough, but if you're wrapping [`map()`](https://purrr.tidyverse.org/reference/map.html) in another function, you might want to set `.progress` to a string that identifies the progress bar:
 
 <div class="highlight">
 
@@ -297,7 +298,7 @@ We have also generally reviewed the error messages throughout purrr in order to 
 
 ### New `map_vec()`
 
-We've added [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) (along with [`map2_vec()`](https://purrr.tidyverse.org/reference/map2.html), and [`pmap_vec()`](https://purrr.tidyverse.org/reference/pmap.html)) to handle more types of vector. [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) extend [`map_lgl()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), [`map_dbl()`](https://purrr.tidyverse.org/reference/map.html), and [`map_chr()`](https://purrr.tidyverse.org/reference/map.html) to make it easier to work with dates, factors, date-times and more:
+We've added [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) (along with [`map2_vec()`](https://purrr.tidyverse.org/reference/map2.html), and [`pmap_vec()`](https://purrr.tidyverse.org/reference/pmap.html)) to handle more types of vector. [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) extends [`map_lgl()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), [`map_dbl()`](https://purrr.tidyverse.org/reference/map.html), and [`map_chr()`](https://purrr.tidyverse.org/reference/map.html) to arbitrary types of vector, like dates, factors, and date-times:
 
 <div class="highlight">
 
@@ -313,7 +314,7 @@ We've added [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) (along
 
 </div>
 
-[`map_vec()`](https://purrr.tidyverse.org/reference/map.html) exists somewhat in the middle of base R's [`sapply()`](https://rdrr.io/r/base/lapply.html) and [`vapply()`](https://rdrr.io/r/base/lapply.html). Unlike [`sapply()`](https://rdrr.io/r/base/lapply.html) it will always return a simpler vector, erroring if there's no common type.
+[`map_vec()`](https://purrr.tidyverse.org/reference/map.html) exists somewhat in the middle of base R's [`sapply()`](https://rdrr.io/r/base/lapply.html) and [`vapply()`](https://rdrr.io/r/base/lapply.html). Unlike [`sapply()`](https://rdrr.io/r/base/lapply.html) it will always return a simpler vector, erroring if there's no common type:
 
 <div class="highlight">
 
@@ -323,26 +324,26 @@ We've added [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) (along
 
 </div>
 
-If you want to require a certain type of output, supply `.ptype`, making [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) behaviour more like [`vapply()`](https://rdrr.io/r/base/lapply.html) (but supporting more types). `ptype` is short for prototype, and should be a vector that exemplifies the type of output you expect.
+If you want to require a certain type of output, supply `.ptype`, making [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) behave more like [`vapply()`](https://rdrr.io/r/base/lapply.html). `ptype` is short for prototype, and should be a vector that exemplifies the type of output you expect.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"b"</span><span class='o'>)</span> </span>
 <span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span><span class='nv'>identity</span>, .ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/character.html'>character</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "a" "b"</span></span><span></span>
-<span><span class='c'># map_vec() will error if the result isn't compatible with ptye</span></span>
-<span><span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span><span class='o'>)</span> </span>
-<span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span><span class='nv'>identity</span>, .ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/character.html'>character</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'># will error if the result can't be automatically coerced</span></span>
+<span><span class='c'># to the specified ptype</span></span>
+<span><span class='nv'>x</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_vec</a></span><span class='o'>(</span><span class='nv'>identity</span>, .ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/integer.html'>integer</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `map_vec()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't convert `&lt;list&gt;[[1]]` &lt;double&gt; to &lt;character&gt;.</span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't convert `&lt;list&gt;[[1]]` &lt;character&gt; to &lt;integer&gt;.</span></span></code></pre>
 
 </div>
 
-We don't expect you to know or memorise the [rules that vctrs uses for coercion](https://vctrs.r-lib.org/reference/faq-compatibility-types.html) our hope is that as we slowly ensure that every tidyverse function follows the same rules that these will be become second nature.
+We don't expect you to know or memorise the [rules that vctrs uses for coercion](https://vctrs.r-lib.org/reference/faq-compatibility-types.html); our hope is that they'll become second nature as we steadily ensure that every tidyverse function follows the same rules.
 
 ## `keep_at()` and `discard_at()`
 
-purrr has gained a new pair of functions [`keep_at()`](https://purrr.tidyverse.org/reference/keep_at.html) and [`discard_at()`](https://purrr.tidyverse.org/reference/keep_at.html): they work similarly to [`keep()`](https://purrr.tidyverse.org/reference/keep.html) and [`discard()`](https://purrr.tidyverse.org/reference/keep.html) but operate on names rather than values:
+purrr has gained a new pair of functions, [`keep_at()`](https://purrr.tidyverse.org/reference/keep_at.html) and [`discard_at()`](https://purrr.tidyverse.org/reference/keep_at.html), that work like [`keep()`](https://purrr.tidyverse.org/reference/keep.html) and [`discard()`](https://purrr.tidyverse.org/reference/keep.html) but operate on names rather than values:
 
 <div class="highlight">
 
@@ -398,26 +399,25 @@ You can now also pass such a function to all other `_at()` functions:
 
 </div>
 
-This should mostly make up for the fact they can no longer take tidyselect specifications via `vars()`.
-
 ## Flattening and simplification
 
-We've revised the functions related the flattening and simplification of lists. These were inconsistent across the tidyverse and caused us a lot of confusion internally because folks used the same words to mean different things. We've also given these functions a common prefix to make it more clear that they all operate on lists. Additionally, [`flatten_dfr()`](https://purrr.tidyverse.org/reference/flatten.html) had some particularly puzzling edge cases when the inputs would be flattened into columns, rather than rows.
+Last, but not least, we've reworked the family functions that flatten and simplify lists. These caused us a lot of confusion internally because folks (and different packages) used the same words to mean different things. Now there are three main functions that share a common prefix that makes it clear that they all operate on lists:
+
+-   [`list_flatten()`](https://purrr.tidyverse.org/reference/list_flatten.html) removes a single level of hierarchy from a list; the output is always a list.
+-   [`list_simplify()`](https://purrr.tidyverse.org/reference/list_simplify.html) reduces a list to a homogeneous vector; the output is always the same length as the input.
+-   [`list_c()`](https://purrr.tidyverse.org/reference/list_c.html), [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html), and [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) concatenate the elements of a list to produce a vector or data frame. There are no constraints on the output.
+
+These functions have lead us to **supersede** a number of functions. This means that they are not going away but we no longer recommend them, and they will receive only critical bug fixes.
 
 -   `flatten()` has been superseded by [`list_flatten()`](https://purrr.tidyverse.org/reference/list_flatten.html).
 -   `flatten_lgl()`, `flatten_int()`, `flatten_dbl()`, and `flatten_chr()` have been superseded by [`list_c()`](https://purrr.tidyverse.org/reference/list_c.html).
--   [`flatten_dfr()`](https://purrr.tidyverse.org/reference/flatten.html) and [`flatten_dfc()`](https://purrr.tidyverse.org/reference/flatten.html) have been superseded by [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) and [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html) respectively.
+-   [`flatten_dfr()`](https://purrr.tidyverse.org/reference/flatten.html) and [`flatten_dfc()`](https://purrr.tidyverse.org/reference/flatten.html) have been superseded by [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) and [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html) respectively. [`flatten_dfr()`](https://purrr.tidyverse.org/reference/flatten.html) had some particularly puzzling edge cases when the inputs would be flattened into columns.
 -   [`map_dfc()`](https://purrr.tidyverse.org/reference/map_dfr.html) and [`map_dfr()`](https://purrr.tidyverse.org/reference/map_dfr.html) (and their `map2` and `pmap` variants) have been superseded in favour of using the appropriate map function along with [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) or [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html).
 -   [`simplify()`](https://purrr.tidyverse.org/reference/as_vector.html), [`simplify_all()`](https://purrr.tidyverse.org/reference/as_vector.html), and [`as_vector()`](https://purrr.tidyverse.org/reference/as_vector.html) have been superseded in favour of [`list_simplify()`](https://purrr.tidyverse.org/reference/list_simplify.html).
--   [`transpose()`](https://purrr.tidyverse.org/reference/transpose.html) has been superseded in favour of [`list_transpose()`](https://purrr.tidyverse.org/reference/list_transpose.html) (#875). It has built-in simplification.
-
-We realise that these functions are used widely in practice so they are superseded: this means that they are not going away but we no longer recommend them, and they will receive only critical bug fixes.
-
-INSERT SOME TABLE
 
 ### Flattening
 
-Firstly, we have [`list_flatten()`](https://purrr.tidyverse.org/reference/list_flatten.html) which removes one layer of hierarchy from a list. In other words, if any of the children of a list are themselves lists, the contents of those lists are inlined into the parent:
+[`list_flatten()`](https://purrr.tidyverse.org/reference/list_flatten.html) which removes one layer of hierarchy from a list. In other words, if any of the children of the list are themselves lists, the contents of those lists are inlined into the parent:
 
 <div class="highlight">
 
@@ -463,7 +463,7 @@ Firstly, we have [`list_flatten()`](https://purrr.tidyverse.org/reference/list_f
 
 ### Simplification
 
-[`list_simplify()`](https://purrr.tidyverse.org/reference/list_simplify.html) maintains the length, but produces a simpler type:
+[`list_simplify()`](https://purrr.tidyverse.org/reference/list_simplify.html) maintains the length of the input, but produces a simpler type:
 
 <div class="highlight">
 
@@ -495,7 +495,7 @@ Because the result must be a simpler vector, all the components must be compatib
 
 </div>
 
-If you need to simplify if possible, set `strict = FALSE`:
+If you need to simplify if it's possible, but otherwise leave the input unchanged, use `strict = FALSE`:
 
 <div class="highlight">
 
@@ -516,7 +516,8 @@ If you want to be specific the type you want, [`list_simplify()`](https://purrr.
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span>ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/integer.html'>integer</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 1 2 3</span></span><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span>ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] 1 2 3</span></span><span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='m'>3</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_simplify.html'>list_simplify</a></span><span class='o'>(</span>ptype <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `list_simplify()`:</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't convert `&lt;list&gt;[[1]]` &lt;double&gt; to &lt;factor&lt;&gt;&gt;.</span></span></code></pre>
 
@@ -524,9 +525,7 @@ If you want to be specific the type you want, [`list_simplify()`](https://purrr.
 
 ### Concatenation
 
-If you don't want to fix either the type or the length of the list, you might want to concatenate all the pieces together. There are three functions depending on whether you want to concatenate a vector, or a data frame by rows or by columns. This is similar to using `do.call(c)` or `do.call(rbind)` but uses vctrs coercion rules
-
-So unlike `list_simplfy()` the elements can be different lengths:
+[`list_c()`](https://purrr.tidyverse.org/reference/list_c.html), [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html), and [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) concatenate all elements together in a similar way to using `do.call(c)` or `do.call(rbind)`[^1] . Unlike `list_simplfy()`, this allows the elements to be different lengths:
 
 <div class="highlight">
 
@@ -536,17 +535,9 @@ So unlike `list_simplfy()` the elements can be different lengths:
 
 </div>
 
-But they still must have compatible types:
+The downside of this flexibility is that these functions break the connection between the input and the output. This reveals that [`map_dfr()`](https://purrr.tidyverse.org/reference/map_dfr.html) and [`map_dfc()`](https://purrr.tidyverse.org/reference/map_dfr.html) don't really belong to the map family because they don't maintain a 1-to-1 mapping between input and output: there's reliable no way to associate a row in the output with an element in an input.
 
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>2</span>, <span class='s'>"a"</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_c.html'>list_c</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `list_c()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't combine `x[[1]]` &lt;double&gt; and `x[[3]]` &lt;character&gt;.</span></span></code></pre>
-
-</div>
-
-This makes it clear that [`map_dfr()`](https://purrr.tidyverse.org/reference/map_dfr.html) and [`map_dfc()`](https://purrr.tidyverse.org/reference/map_dfr.html) don't really belong to the map family because they don't maintain a 1-to-1 mapping between input and output: there's reliable no way to associate a row in the output with an element in an input. For this reason, [`map_dfr()`](https://purrr.tidyverse.org/reference/map_dfr.html) and [`map_dfc()`](https://purrr.tidyverse.org/reference/map_dfr.html) (and the `map2` and `pmap`) variants are superseded and we recommend switching to an explicit call to [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) or [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html) instead:
+For this reason, [`map_dfr()`](https://purrr.tidyverse.org/reference/map_dfr.html) and [`map_dfc()`](https://purrr.tidyverse.org/reference/map_dfr.html) (and the `map2` and `pmap`) variants are superseded and we recommend switching to an explicit call to [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) or [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html) instead:
 
 <div class="highlight">
 
@@ -558,36 +549,15 @@ This makes it clear that [`map_dfr()`](https://purrr.tidyverse.org/reference/map
 
 </div>
 
-This new behaviour has some follow on consequences to [`accumulate()`](https://purrr.tidyverse.org/reference/accumulate.html) and [`accumulate2()`](https://purrr.tidyverse.org/reference/accumulate.html) which previously had an idiosyncratic approach to simplification. Also added a new [`list_transpose()`](https://purrr.tidyverse.org/reference/list_transpose.html) which works similarly to [`transpose()`](https://purrr.tidyverse.org/reference/transpose.html) but again has consistent simplification mechanism.
+This new behaviour has some follow on consequences to [`accumulate()`](https://purrr.tidyverse.org/reference/accumulate.html) and [`accumulate2()`](https://purrr.tidyverse.org/reference/accumulate.html), which previously had an idiosyncratic approach to simplification.
 
 ### `list_update()` functions
 
-There's one other functions not directly related to flattening and friends, but shares the new `list_` prefix so are worth mentioning here: [`list_update()`](https://purrr.tidyverse.org/reference/list_update.html)  
-New [`list_update()`](https://purrr.tidyverse.org/reference/list_update.html) is similar to [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) but it doesn't work recursively (this is a mildly confusing feature of [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) that many folks didn't know about)
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_update.html'>list_update</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; List of 2</span></span>
-<span><span class='c'>#&gt;  $ x: num 1</span></span>
-<span><span class='c'>#&gt;  $ y: num 2</span></span></code></pre>
-
-</div>
-
-Here's a quick comparison of [`list_update()`](https://purrr.tidyverse.org/reference/list_update.html) vs [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html): when there's a list on the left-hand side and the right-hand side, [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) will recurse down. This is sometimes useful if you want to change a value deep inside a list.
+There's one other new function that isn't directly related to flattening and friends, but shares the `list_` prefix: [`list_update()`](https://purrr.tidyverse.org/reference/list_update.html). [`list_update()`](https://purrr.tidyverse.org/reference/list_update.html) is similar to [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) but it doesn't work recursively. This is a mildly confusing feature of [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) that it's easy to miss in the documentation.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span>, y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_update.html'>list_update</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>b <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; List of 2</span></span>
-<span><span class='c'>#&gt;  $ x: num 1</span></span>
-<span><span class='c'>#&gt;  $ y:List of 1</span></span>
-<span><span class='c'>#&gt;   ..$ b: num 2</span></span><span></span>
-<span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span>, y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_update.html'>list_modify</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>b <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 2</span></span>
@@ -598,7 +568,21 @@ Here's a quick comparison of [`list_update()`](https://purrr.tidyverse.org/refer
 
 </div>
 
-In purrr 1.0.0, [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) also gains the ability to control
+[`list_update()`](https://purrr.tidyverse.org/reference/list_update.html) doesn't recurse into sublists making it a bit easier to reason about:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span>, y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_update.html'>list_update</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>b <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; List of 2</span></span>
+<span><span class='c'>#&gt;  $ x: num 1</span></span>
+<span><span class='c'>#&gt;  $ y:List of 1</span></span>
+<span><span class='c'>#&gt;   ..$ b: num 2</span></span></code></pre>
+
+</div>
 
 ## Acknowledgements
+
+[^1]: But of they use the tidyverse coercion rules.
 
