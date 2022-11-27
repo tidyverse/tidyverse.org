@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: e697c7d91512ef95
+rmd_hash: 3336ff6c11a6c6ea
 
 ---
 
@@ -65,9 +65,9 @@ The development version is mostly stable, but is still subject to minor changes 
 
 ## Temporary grouping with `.by`
 
-Verbs that work "by group," such as [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html), [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), [`filter()`](https://dplyr.tidyverse.org/reference/filter.html), and [`slice()`](https://dplyr.tidyverse.org/reference/slice.html), have gained a powerful new argument, `.by`, which allows for inline and temporary grouping. Grouping radically affects the computation of the dplyr verb you use it with, and one of the goals of `.by` is to allow you to place that grouping specification alongside the code that actually uses it. As an added benefit, with `.by` you no longer need to remember to [`ungroup()`](https://dplyr.tidyverse.org/reference/group_by.html) after [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), and [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) won't ever message you about how it's handling the groups!
+Verbs that work "by group," such as [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html), [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), [`filter()`](https://dplyr.tidyverse.org/reference/filter.html), and [`slice()`](https://dplyr.tidyverse.org/reference/slice.html), have gained an experimental new argument, `.by`, which allows for inline and temporary grouping. Grouping radically affects the computation of the dplyr verb you use it with, and one of the goals of `.by` is to allow you to place that grouping specification alongside the code that actually uses it. As an added benefit, with `.by` you no longer need to remember to [`ungroup()`](https://dplyr.tidyverse.org/reference/group_by.html) after [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), and [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) won't ever message you about how it's handling the groups!
 
-This exciting feature was inspired by [data.table](https://cran.r-project.org/package=data.table), which bakes this idea directly into `[`.
+This feature was inspired by [data.table](https://cran.r-project.org/package=data.table), which has always used per-operation grouping.
 
 We'll explore `.by` with this `expenses` dataset, containing various `cost`s tracked across `id` and `region`.
 
@@ -126,14 +126,9 @@ With `.by`, you can now write:
 
 These two particular results look the same, but the behavior of `.by` diverges from [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) when multiple group columns are involved:
 
--   `summarise(.by = )` always returns an ungrouped data frame
-
--   `group_by() %>% summarise()` peels off 1 layer of grouping by default, and messages you that it is doing so unless you set `.groups`
-
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Typically you'd follow this up with `ungroup()` or you'd set `.groups = "drop"`</span></span>
-<span><span class='nv'>expenses</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>expenses</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>region</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>cost <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>cost</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; `summarise()` has grouped output by 'id'. You can override using the `.groups`</span></span>
@@ -167,9 +162,11 @@ These two particular results look the same, but the behavior of `.by` diverges f
 
 </div>
 
+Usage of `.by` always results in an ungrouped data frame, regardless of the number of group columns involved.
+
 You might also recognize that these results aren't returned in exactly the same order. [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) always sorts the grouping keys in ascending order, but `.by` retains the original ordering found in the data. If you need ordered summaries with `.by`, we recommend calling [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) explicitly before or after summarizing.
 
-While we've focused on using `.by` with [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), it also works with other verbs, like [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) and [`slice_max()`](https://dplyr.tidyverse.org/reference/slice.html):
+While here we've focused on using `.by` with [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), it also works with other verbs, like [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) and [`slice_max()`](https://dplyr.tidyverse.org/reference/slice.html):
 
 <div class="highlight">
 
