@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 69b3cf9f7d595cb1
+rmd_hash: a318bc4c00eed202
 
 ---
 
@@ -858,6 +858,4 @@ That gives us something to group on in our [`summarise()`](https://dplyr.tidyver
 <span></span></code></pre>
 
 </div>
-
-## Acknowledgements
 
