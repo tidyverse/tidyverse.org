@@ -85,28 +85,28 @@ expenses
 If I were to ask you to compute the average `cost` per `region`, you'd probably write something like:
 
 ```{r}
-expenses %>%
-  group_by(region) %>%
+expenses |>
+  group_by(region) |>
   summarise(cost = mean(cost))
 ```
 
 With `.by`, you can now write:
 
 ```{r}
-expenses %>%
+expenses |>
   summarise(cost = mean(cost), .by = region)
 ```
 
 These two particular results look the same, but the behavior of `.by` diverges from `group_by()` when multiple group columns are involved:
 
 ```{r}
-expenses %>%
-  group_by(id, region) %>%
+expenses |>
+  group_by(id, region) |>
   summarise(cost = mean(cost))
 ```
 
 ```{r}
-expenses %>%
+expenses |>
   summarise(cost = mean(cost), .by = c(id, region))
 ```
 
@@ -119,10 +119,10 @@ If you need ordered summaries with `.by`, we recommend calling `arrange()` expli
 While here we've focused on using `.by` with `summarise()`, it also works with other verbs, like `mutate()` and `slice_max()`:
 
 ```{r}
-expenses %>%
+expenses |>
   mutate(mean = mean(cost), .by = region)
 
-expenses %>%
+expenses |>
   slice_max(cost, by = region)
 ```
 
@@ -230,7 +230,7 @@ quarter_end <- function(x) {
   as.Date(x)
 }
 
-parties <- parties %>%
+parties <- parties |>
   mutate(start = quarter_start(party), end = quarter_end(party))
 
 parties
@@ -378,7 +378,7 @@ df <- tibble(
   x = c("e", "a", "b", "c", "f", "d", "a")
 )
 
-df %>%
+df |>
   summarise(x = intersect(x, table), .by = g)
 ```
 
@@ -402,7 +402,7 @@ options(lifecycle_verbosity = "warning")
 ```
 
 ```{r}
-df %>%
+df |>
   summarise(x = intersect(x, table), .by = g)
 ```
 
@@ -414,7 +414,7 @@ That said, we still believe that this is a powerful tool, so we've moved these f
 Think of `morph()` as a generic tool for "doing something to each group," with no restrictions on the number of rows returned per group.
 
 ```{r}
-df %>%
+df |>
   morph(x = intersect(x, table), .by = g)
 ```
 
@@ -526,7 +526,7 @@ But we can't just group on `name`, as that would group the 1st line with lines 3
 Instead, we need to create a new *consecutive* grouping variable based on `name`:
 
 ```{r}
-transcript <- transcript %>%
+transcript <- transcript |>
   mutate(id = consecutive_id(name))
 
 transcript
@@ -536,7 +536,7 @@ That gives us something to group on in our `summarise()` call.
 For convenience, we'll also group on `name` so it gets carried through, but it won't affect our groupings.
 
 ```{r}
-transcript %>%
+transcript |>
   summarise(
     text = stringr::str_flatten(text, collapse = " "), 
     .by = c(id, name)

@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 3336ff6c11a6c6ea
+rmd_hash: 08b9c00cb1f1ffee
 
 ---
 
@@ -97,8 +97,8 @@ If I were to ask you to compute the average `cost` per `region`, you'd probably 
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>expenses</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>region</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>expenses</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>region</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>cost <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>cost</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   region  cost</span></span>
@@ -113,7 +113,7 @@ With `.by`, you can now write:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>expenses</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>expenses</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>cost <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>cost</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nv'>region</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   region  cost</span></span>
@@ -128,8 +128,8 @@ These two particular results look the same, but the behavior of `.by` diverges f
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>expenses</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>region</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>expenses</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>region</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>cost <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>cost</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; `summarise()` has grouped output by 'id'. You can override using the `.groups`</span></span>
 <span><span class='c'>#&gt; argument.</span></span>
@@ -148,7 +148,7 @@ These two particular results look the same, but the behavior of `.by` diverges f
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>expenses</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>expenses</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>cost <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>cost</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>region</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 3</span></span></span>
 <span><span class='c'>#&gt;      id region  cost</span></span>
@@ -170,7 +170,7 @@ While here we've focused on using `.by` with [`summarise()`](https://dplyr.tidyv
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>expenses</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>expenses</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>mean <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>cost</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nv'>region</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 7 × 4</span></span></span>
 <span><span class='c'>#&gt;      id region  cost  mean</span></span>
@@ -183,7 +183,7 @@ While here we've focused on using `.by` with [`summarise()`](https://dplyr.tidyv
 <span><span class='c'>#&gt; <span style='color: #555555;'>6</span>     2 A          6  15.2</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>7</span>     3 A          6  15.2</span></span>
 <span></span><span></span>
-<span><span class='nv'>expenses</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span><span class='nv'>expenses</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice_max</a></span><span class='o'>(</span><span class='nv'>cost</span>, by <span class='o'>=</span> <span class='nv'>region</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 3</span></span></span>
 <span><span class='c'>#&gt;      id region  cost</span></span>
@@ -383,7 +383,7 @@ This is because their birthday occurred before the first party date, `2022-01-10
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span></span>
 <span><span class='o'>&#125;</span></span>
 <span></span>
-<span><span class='nv'>parties</span> <span class='o'>&lt;-</span> <span class='nv'>parties</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span><span class='nv'>parties</span> <span class='o'>&lt;-</span> <span class='nv'>parties</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>start <span class='o'>=</span> <span class='nf'>quarter_start</span><span class='o'>(</span><span class='nv'>party</span><span class='o'>)</span>, end <span class='o'>=</span> <span class='nf'>quarter_end</span><span class='o'>(</span><span class='nv'>party</span><span class='o'>)</span><span class='o'>)</span></span>
 <span></span>
 <span><span class='nv'>parties</span></span>
@@ -629,7 +629,7 @@ In dplyr 1.0.0, we introduced a powerful new feature: [`summarise()`](https://dp
 <span>  x <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"e"</span>, <span class='s'>"a"</span>, <span class='s'>"b"</span>, <span class='s'>"c"</span>, <span class='s'>"f"</span>, <span class='s'>"d"</span>, <span class='s'>"a"</span><span class='o'>)</span></span>
 <span><span class='o'>)</span></span>
 <span></span>
-<span><span class='nv'>df</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span><span class='nv'>df</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://generics.r-lib.org/reference/setops.html'>intersect</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>table</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nv'>g</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 2</span></span></span>
 <span><span class='c'>#&gt;       g x    </span></span>
@@ -655,7 +655,7 @@ We agree! In response to this, we've decided to walk back that change to [`summa
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>df</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>df</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://generics.r-lib.org/reference/setops.html'>intersect</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>table</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nv'>g</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Warning: Returning more (or less) than 1 row per `summarise()` group was deprecated in</span></span>
 <span><span class='c'>#&gt; dplyr 1.1.0.</span></span>
@@ -678,7 +678,7 @@ That said, we still believe that this is a powerful tool, so we've moved these f
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>df</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>df</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/morph.html'>morph</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://generics.r-lib.org/reference/setops.html'>intersect</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>table</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nv'>g</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 2</span></span></span>
 <span><span class='c'>#&gt;       g x    </span></span>
@@ -814,7 +814,7 @@ Ideally, we'd be able to flatten this into individual rows containing all of the
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transcript</span> <span class='o'>&lt;-</span> <span class='nv'>transcript</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transcript</span> <span class='o'>&lt;-</span> <span class='nv'>transcript</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>id <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/consecutive_id.html'>consecutive_id</a></span><span class='o'>(</span><span class='nv'>name</span><span class='o'>)</span><span class='o'>)</span></span>
 <span></span>
 <span><span class='nv'>transcript</span></span>
@@ -837,7 +837,7 @@ That gives us something to group on in our [`summarise()`](https://dplyr.tidyver
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transcript</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transcript</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span></span>
 <span>    text <span class='o'>=</span> <span class='nf'>stringr</span><span class='nf'>::</span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_flatten.html'>str_flatten</a></span><span class='o'>(</span><span class='nv'>text</span>, collapse <span class='o'>=</span> <span class='s'>" "</span><span class='o'>)</span>, </span>
 <span>    .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>name</span><span class='o'>)</span></span>
