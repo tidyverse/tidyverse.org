@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 759278aee56a6e50
+rmd_hash: e697c7d91512ef95
 
 ---
 
@@ -41,7 +41,7 @@ TODO:
 
 -   Rewrites of "vector" functions using vctrs, including exciting updates to [`case_when()`](https://dplyr.tidyverse.org/reference/case_when.html)
 
-This pre-release blog post will discuss these new features in more detail. We feel pretty confident about them and can't wait for you to try them out, but we welcome any feedback on the [dplyr issues page](https://github.com/tidyverse/dplyr/issues).
+This pre-release blog post will discuss these new features in more detail. By releasing this post before 1.1.0 is sent to CRAN, we're hoping to get your feedback to catch any potential problems that we've missed! If you do find a bug, or have general feedback about the new features, we welcome discussion on the [dplyr issues page](https://github.com/tidyverse/dplyr/issues).
 
 You can see a full list of changes in the [release notes](https://dplyr.tidyverse.org/dev/news/index.html). There are many additional improvements that couldn't fit in a single blog post!
 
