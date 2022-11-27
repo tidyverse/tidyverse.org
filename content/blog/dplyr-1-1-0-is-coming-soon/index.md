@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 08b9c00cb1f1ffee
+rmd_hash: 69b3cf9f7d595cb1
 
 ---
 
@@ -233,7 +233,8 @@ This join specification matches `x_id` in the left-hand data frame with `y_id` i
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span>     1 A          8</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>3</span>     2 C          7</span></span>
 <span></span><span></span>
-<span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>df1</span>, <span class='nv'>df2</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>x_id</span> <span class='o'>==</span> <span class='nv'>y_id</span>, <span class='nv'>region</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='nv'>df1</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>df2</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>x_id</span> <span class='o'>==</span> <span class='nv'>y_id</span>, <span class='nv'>region</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 4</span></span></span>
 <span><span class='c'>#&gt;    x_id region     x     y</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
@@ -311,7 +312,8 @@ One way to start approaching this problem is to look for the party that happened
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>employees</span>, <span class='nv'>parties</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>birthday</span> <span class='o'>&gt;=</span> <span class='nv'>party</span><span class='o'>)</span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>employees</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>parties</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>birthday</span> <span class='o'>&gt;=</span> <span class='nv'>party</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 251 × 4</span></span></span>
 <span><span class='c'>#&gt;    name       birthday       q party     </span></span>
 <span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;variable&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span>    </span></span>
@@ -334,7 +336,9 @@ This looks like a good start, but we've assigned people with birthdays later in 
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>closest</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>employees</span>, <span class='nv'>parties</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nf'>closest</span><span class='o'>(</span><span class='nv'>birthday</span> <span class='o'>&gt;=</span> <span class='nv'>party</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>closest</span> <span class='o'>&lt;-</span> <span class='nv'>employees</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>parties</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nf'>closest</span><span class='o'>(</span><span class='nv'>birthday</span> <span class='o'>&gt;=</span> <span class='nv'>party</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span></span>
+<span></span>
 <span><span class='nv'>closest</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 100 × 4</span></span></span>
 <span><span class='c'>#&gt;    name       birthday       q party     </span></span>
@@ -406,13 +410,13 @@ Now that we have 4 distinct *ranges* of dates to work with, we'll use an overlap
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span></span>
-<span>  <span class='nv'>employees</span>, </span>
-<span>  <span class='nv'>parties</span>, </span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/between.html'>between</a></span><span class='o'>(</span><span class='nv'>birthday</span>, <span class='nv'>start</span>, <span class='nv'>end</span><span class='o'>)</span><span class='o'>)</span>,</span>
-<span>  unmatched <span class='o'>=</span> <span class='s'>"error"</span>,</span>
-<span>  multiple <span class='o'>=</span> <span class='s'>"error"</span></span>
-<span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>employees</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span></span>
+<span>    <span class='nv'>parties</span>, </span>
+<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/between.html'>between</a></span><span class='o'>(</span><span class='nv'>birthday</span>, <span class='nv'>start</span>, <span class='nv'>end</span><span class='o'>)</span><span class='o'>)</span>,</span>
+<span>    unmatched <span class='o'>=</span> <span class='s'>"error"</span>,</span>
+<span>    multiple <span class='o'>=</span> <span class='s'>"error"</span></span>
+<span>  <span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 100 × 6</span></span></span>
 <span><span class='c'>#&gt;    name       birthday       q party      start      end       </span></span>
 <span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;variable&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span>    </span></span>
@@ -457,7 +461,8 @@ Speaking of `multiple`, we've also given this argument an important default. Whe
 <span><span class='c'>#&gt; <span style='color: #555555;'>3</span>     1 A         12</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>4</span>     2 A          4</span></span>
 <span></span><span></span>
-<span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>df1</span>, <span class='nv'>df2</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>x_id</span> <span class='o'>==</span> <span class='nv'>y_id</span>, <span class='nv'>region</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='nv'>df1</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>df2</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>x_id</span> <span class='o'>==</span> <span class='nv'>y_id</span>, <span class='nv'>region</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Warning in left_join(df1, df2, join_by(x_id == y_id, region)): Each row in `x` is expected to match at most 1 row in `y`.</span></span>
 <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Row 1 of `x` matches multiple rows.</span></span>
 <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> If multiple matches are expected, set `multiple = "all"` to silence this</span></span>

@@ -147,7 +147,8 @@ df1
 
 df2
 
-left_join(df1, df2, join_by(x_id == y_id, region))
+df1 |>
+  left_join(df2, join_by(x_id == y_id, region))
 ```
 
 ### Non-equi joins
@@ -195,7 +196,8 @@ One way to start approaching this problem is to look for the party that happened
 You can do this with an inequality join:
 
 ```{r}
-left_join(employees, parties, join_by(birthday >= party))
+employees |>
+  left_join(parties, join_by(birthday >= party))
 ```
 
 This looks like a good start, but we've assigned people with birthdays later in the year to multiple parties.
@@ -203,7 +205,9 @@ We can restrict this to only the party that is *closest* to the employee's birth
 Rolling joins are activated by wrapping an inequality in `closest()`.
 
 ```{r}
-closest <- left_join(employees, parties, join_by(closest(birthday >= party)))
+closest <- employees |>
+  left_join(parties, join_by(closest(birthday >= party)))
+
 closest
 ```
 
@@ -244,13 +248,13 @@ Since we know that each birthday should be matched to exactly one party, we'll a
 -   `multiple`, which can optionally error if a birthday matches multiple parties
 
 ```{r}
-left_join(
-  employees, 
-  parties, 
-  join_by(between(birthday, start, end)),
-  unmatched = "error",
-  multiple = "error"
-)
+employees |>
+  left_join(
+    parties, 
+    join_by(between(birthday, start, end)),
+    unmatched = "error",
+    multiple = "error"
+  )
 ```
 
 We consider `unmatched` and `multiple` to be two important "quality control" arguments to help you enforce constraints on the join procedure.
@@ -266,7 +270,8 @@ df1
 df2 <- tibble(y_id = c(1, 2, 1, 2), region = c("A", "B", "A", "A"), y = c(9, 10, 12, 4))
 df2
 
-left_join(df1, df2, join_by(x_id == y_id, region))
+df1 |>
+  left_join(df2, join_by(x_id == y_id, region))
 ```
 
 In this case, row 1 of `df1` matched both rows `1` and `3` of `df2`, so the output has 4 rows rather than `df1`'s 3.
