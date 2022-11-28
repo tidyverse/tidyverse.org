@@ -103,14 +103,14 @@ You might also recognize that these results aren't returned in exactly the same 
 `group_by()` always sorts the grouping keys in ascending order, but `.by` retains the original ordering found in the data.
 If you need ordered summaries with `.by`, we recommend calling `arrange()` explicitly before or after summarizing.
 
-While here we've focused on using `.by` with `summarise()`, it also works with other verbs, like `mutate()` and `slice_max()`:
+While here we've focused on using `.by` with `summarise()`, it also works with other verbs, like `mutate()` and `slice()`:
 
 ```{r}
 expenses |>
   mutate(mean = mean(cost), .by = region)
 
 expenses |>
-  slice_max(cost, by = region)
+  slice(2, .by = region)
 ```
 
 `group_by()` won't ever disappear, but we are having a lot of fun writing new code with `.by`, and we think you will too.

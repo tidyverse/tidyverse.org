@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 0796c33be37b1a7f
+rmd_hash: d5490ece490542f1
 
 ---
 
@@ -154,7 +154,7 @@ Usage of `.by` always results in an ungrouped data frame, regardless of the numb
 
 You might also recognize that these results aren't returned in exactly the same order. [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) always sorts the grouping keys in ascending order, but `.by` retains the original ordering found in the data. If you need ordered summaries with `.by`, we recommend calling [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) explicitly before or after summarizing.
 
-While here we've focused on using `.by` with [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), it also works with other verbs, like [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) and [`slice_max()`](https://dplyr.tidyverse.org/reference/slice.html):
+While here we've focused on using `.by` with [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), it also works with other verbs, like [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) and [`slice()`](https://dplyr.tidyverse.org/reference/slice.html):
 
 <div class="highlight">
 
@@ -172,12 +172,12 @@ While here we've focused on using `.by` with [`summarise()`](https://dplyr.tidyv
 <span><span class='c'>#&gt; <span style='color: #555555;'>7</span>     3 A          6  15.2</span></span>
 <span></span><span></span>
 <span><span class='nv'>expenses</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice_max</a></span><span class='o'>(</span><span class='nv'>cost</span>, by <span class='o'>=</span> <span class='nv'>region</span><span class='o'>)</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice</a></span><span class='o'>(</span><span class='m'>2</span>, .by <span class='o'>=</span> <span class='nv'>region</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 3</span></span></span>
 <span><span class='c'>#&gt;      id region  cost</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>     1 A         25</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>     3 B         12</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>     2 A         20</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>     1 B          9</span></span>
 <span></span></code></pre>
 
 </div>
