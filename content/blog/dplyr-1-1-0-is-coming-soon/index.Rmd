@@ -26,7 +26,7 @@ This is an exciting release for dplyr, incorporating a number of features that h
 
 -   `arrange()` improvements with character vectors
 
--   `morph()`, a generalization of `summarise()`
+-   `reframe()`, a generalization of `summarise()`
 
 -   Rewrites of "vector" functions using vctrs, including exciting updates to `case_when()`
 
@@ -355,7 +355,7 @@ We expect to remove this option in a future release.
 
 To learn more low-level details about this change, you can read our [tidyup](https://github.com/tidyverse/tidyups/blob/main/003-dplyr-radix-ordering.md).
 
-## `morph()`, a generalization of `summarise()`
+## `reframe()`, a generalization of `summarise()`
 
 In dplyr 1.0.0, we introduced a powerful new feature: `summarise()` could return per-group results of any length, rather than just length 1.
 For example:
@@ -404,18 +404,21 @@ df |>
 options(lifecycle_verbosity = NULL)
 ```
 
-That said, we still believe that this is a powerful tool, so we've moved these features to a new verb, `morph()`.
-Think of `morph()` as a generic tool for "doing something to each group," with no restrictions on the number of rows returned per group.
+That said, we still believe that this is a powerful tool, so we've moved these features to a new verb, `reframe()`.
+Think of `reframe()` as a generic tool for "doing something to each group," with no restrictions on the number of rows returned per group.
 
 ```{r}
 df |>
-  morph(x = intersect(x, table), .by = g)
+  reframe(x = intersect(x, table), .by = g)
 ```
 
-One big difference between `summarise()` and `morph()` is that `morph()` always returns an ungrouped data frame, even if the input was a grouped data frame with multiple groups.
-This simplifies `morph()` immensely, as it doesn't need to inherit the `.groups` argument of `summarise()`, and never emits any messages.
+One big difference between `summarise()` and `reframe()` is that `reframe()` always returns an ungrouped data frame, even if the input was a grouped data frame with multiple groups.
+This simplifies `reframe()` immensely, as it doesn't need to inherit the `.groups` argument of `summarise()`, and never emits any messages.
 
-We expect that you'll continue to use `summarise()` much more often than `morph()`, but if you ever find yourself applying a function to each group that returns an arbitrary number of rows, `morph()` should be your go-to tool!
+We expect that you'll continue to use `summarise()` much more often than `reframe()`, but if you ever find yourself applying a function to each group that returns an arbitrary number of rows, `reframe()` should be your go-to tool!
+
+`reframe()` is one of the places we could use your feedback!
+We aren't completely confident about this function name yet, so if you have any feedback about it or suggestions for an alternate one, please leave a comment on this [issue](https://github.com/tidyverse/dplyr/issues/6565).
 
 ## Vector function rewrites
 

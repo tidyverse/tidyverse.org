@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 69db2d9dd79edda4
+rmd_hash: 51fc95059a8090a1
 
 ---
 
@@ -27,7 +27,7 @@ rmd_hash: 69db2d9dd79edda4
 
 -   [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) improvements with character vectors
 
--   [`morph()`](https://dplyr.tidyverse.org/reference/morph.html), a generalization of [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html)
+-   [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html), a generalization of [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html)
 
 -   Rewrites of "vector" functions using vctrs, including exciting updates to [`case_when()`](https://dplyr.tidyverse.org/reference/case_when.html)
 
@@ -611,7 +611,7 @@ If you are having trouble converting an existing script over to the new behavior
 
 To learn more low-level details about this change, you can read our [tidyup](https://github.com/tidyverse/tidyups/blob/main/003-dplyr-radix-ordering.md).
 
-## `morph()`, a generalization of `summarise()`
+## `reframe()`, a generalization of `summarise()`
 
 In dplyr 1.0.0, we introduced a powerful new feature: [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) could return per-group results of any length, rather than just length 1. For example:
 
@@ -654,8 +654,8 @@ We agree! In response to this, we've decided to walk back that change to [`summa
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://generics.r-lib.org/reference/setops.html'>intersect</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>table</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nv'>g</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Warning: Returning more (or less) than 1 row per `summarise()` group was deprecated in</span></span>
 <span><span class='c'>#&gt; dplyr 1.1.0.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Please use `morph()` instead.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> When switching from `summarise()` to `morph()`, remember that `morph()`</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Please use `reframe()` instead.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> When switching from `summarise()` to `reframe()`, remember that `reframe()`</span></span>
 <span><span class='c'>#&gt;   always returns an ungrouped data frame and adjust accordingly.</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 2</span></span></span>
 <span><span class='c'>#&gt;       g x    </span></span>
@@ -669,12 +669,12 @@ We agree! In response to this, we've decided to walk back that change to [`summa
 
 </div>
 
-That said, we still believe that this is a powerful tool, so we've moved these features to a new verb, [`morph()`](https://dplyr.tidyverse.org/reference/morph.html). Think of [`morph()`](https://dplyr.tidyverse.org/reference/morph.html) as a generic tool for "doing something to each group," with no restrictions on the number of rows returned per group.
+That said, we still believe that this is a powerful tool, so we've moved these features to a new verb, [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html). Think of [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) as a generic tool for "doing something to each group," with no restrictions on the number of rows returned per group.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>df</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/morph.html'>morph</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://generics.r-lib.org/reference/setops.html'>intersect</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>table</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nv'>g</span><span class='o'>)</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/reframe.html'>reframe</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://generics.r-lib.org/reference/setops.html'>intersect</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>table</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nv'>g</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 2</span></span></span>
 <span><span class='c'>#&gt;       g x    </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span></span></span>
@@ -687,9 +687,11 @@ That said, we still believe that this is a powerful tool, so we've moved these f
 
 </div>
 
-One big difference between [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) and [`morph()`](https://dplyr.tidyverse.org/reference/morph.html) is that [`morph()`](https://dplyr.tidyverse.org/reference/morph.html) always returns an ungrouped data frame, even if the input was a grouped data frame with multiple groups. This simplifies [`morph()`](https://dplyr.tidyverse.org/reference/morph.html) immensely, as it doesn't need to inherit the `.groups` argument of [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), and never emits any messages.
+One big difference between [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) and [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) is that [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) always returns an ungrouped data frame, even if the input was a grouped data frame with multiple groups. This simplifies [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) immensely, as it doesn't need to inherit the `.groups` argument of [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), and never emits any messages.
 
-We expect that you'll continue to use [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) much more often than [`morph()`](https://dplyr.tidyverse.org/reference/morph.html), but if you ever find yourself applying a function to each group that returns an arbitrary number of rows, [`morph()`](https://dplyr.tidyverse.org/reference/morph.html) should be your go-to tool!
+We expect that you'll continue to use [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) much more often than [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html), but if you ever find yourself applying a function to each group that returns an arbitrary number of rows, [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) should be your go-to tool!
+
+[`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) is one of the places we could use your feedback! We aren't completely confident about this function name yet, so if you have any feedback about it or suggestions for an alternate one, please leave a comment on this [issue](https://github.com/tidyverse/dplyr/issues/6565).
 
 ## Vector function rewrites
 
