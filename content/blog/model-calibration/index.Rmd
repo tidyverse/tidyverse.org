@@ -71,7 +71,7 @@ There are two main components to model calibration:
 perform.
 - **Remediation** - Adjusting the original values to have better properties.
 
-## The Development Plan
+### The Development Plan
 
 As with everything in machine learning, there are several options to
 consider when calibrating a model. Through the new features in the tidymodels
@@ -101,7 +101,7 @@ group to indeed be events. The plots shown below can be used as diagnostics to
 see if our predictions are consistent with the observed event rates. 
 
 
-## Example Data
+### Example Data
 
 If you would like to follow along, load the probably and dplyr packages 
 into you R session.
@@ -121,7 +121,7 @@ segment_logistic
 ```
 
 
-## Binned Plot
+### Binned Plot
 
 On smaller data sets, it is a challenging to obtain an accurate *event rate* 
 for a given probability. For example, if there are 5 predictions with about a 50% 
@@ -172,7 +172,7 @@ be based on ensuring that there is enough data in each bin to adequately estimat
 the observed event rate. If your data are small, the next version of the calibration
 plot might be a better solution. 
 
-## Windowed
+### Windowed
 
 Another approach is to use overlapping ranges, or windows. Like the previous plot, we bin the data and calculate the event rate. However, we can add more bins by allowing them to overlap. If the data set size is small, one strategy is to use a set of wide bins that overlap one another.
 
@@ -221,7 +221,7 @@ segment_logistic %>%
   cal_plot_windowed(Class, .pred_good, step_size = 0.02)
 ```
 
-## Model-Based
+### Model-Based
 
 Another way to visualize the performance is to fit a classification model of the
 events against the estimated probabilities. This is helpful because it avoids the use of
@@ -251,9 +251,9 @@ segment_logistic %>%
   cal_plot_logistic(Class, .pred_good, smooth = FALSE)
 ```
 
-## Additional options and features
+### Additional options and features
 
-### Intervals
+#### Intervals
 
 The confidence intervals are visualized using the gray ribbon. The default
 interval is 0.9, but can be changed using the `conf_level` argument.  
@@ -271,14 +271,14 @@ segment_logistic %>%
   cal_plot_breaks(Class, .pred_good, include_ribbon = FALSE)
 ```
 
-### Rugs
+#### Rugs
 
 By default, the calibration plots include a RUGs layer at the top and at the 
 bottom of the visualization.  They are meant to give us an idea of the density
 of events, versus the density of non-events as the probabilities progress from
 0 to 1. 
 
-```{r, echo = FALSE, fig.alt = "Calibration plot with arrows pointing to where the RUGS plots are placed in the graph}
+```{r, echo = FALSE, fig.alt = "Calibration plot with arrows pointing to where the RUGS plots are placed in the graph"}
 segment_logistic %>% 
   cal_plot_breaks(Class, .pred_good) +
   geom_segment(

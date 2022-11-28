@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [model, plots]
-rmd_hash: 2aa33270a5fb6038
+rmd_hash: e7249faf84097cf9
 
 ---
 
@@ -53,7 +53,7 @@ There are two main components to model calibration:
 -   **Diagnosis** - Figuring out how well the original (and re-calibrated) probabilities perform.
 -   **Remediation** - Adjusting the original values to have better properties.
 
-## The Development Plan
+### The Development Plan
 
 As with everything in machine learning, there are several options to consider when calibrating a model. Through the new features in the tidymodels packages, we aspire to make those options as easily accessible as possible.
 
@@ -67,7 +67,7 @@ The idea behind a calibration plot is that if we group the predictions based on 
 
 For example, if we collect a group of the predictions whose probabilities are estimated to be about 10%. We should expect that about 10% of the those in the group to indeed be events. The plots shown below can be used as diagnostics to see if our predictions are consistent with the observed event rates.
 
-## Example Data
+### Example Data
 
 If you would like to follow along, load the probably and dplyr packages into you R session.
 
@@ -100,7 +100,7 @@ The probably package comes with a few data sets. For most of the examples in thi
 
 </div>
 
-## Binned Plot
+### Binned Plot
 
 On smaller data sets, it is a challenging to obtain an accurate *event rate* for a given probability. For example, if there are 5 predictions with about a 50% probability, and 3 of those are events, the plot would show a 60% event rate. This comparison would not be appropriate because there are not enough predictions to really determine how close to 50% the model really is.
 
@@ -132,7 +132,7 @@ The number of bins in [`cal_plot_breaks()`](https://probably.tidymodels.org/refe
 
 The number of breaks is a bit like a tuning parameter for these plots and should be based on ensuring that there is enough data in each bin to adequately estimate the observed event rate. If your data are small, the next version of the calibration plot might be a better solution.
 
-## Windowed
+### Windowed
 
 Another approach is to use overlapping ranges, or windows. Like the previous plot, we bin the data and calculate the event rate. However, we can add more bins by allowing them to overlap. If the data set size is small, one strategy is to use a set of wide bins that overlap one another.
 
@@ -166,7 +166,7 @@ Here is an example of reducing the `step_size` from 0.05, to 0.02. There are mor
 
 </div>
 
-## Model-Based
+### Model-Based
 
 Another way to visualize the performance is to fit a classification model of the events against the estimated probabilities. This is helpful because it avoids the use of pre-determined groupings. Another difference, is that we are not plotting midpoints of actual results, but rather predictions based on those results.
 
@@ -199,9 +199,9 @@ The cooresponding [`glm()`](https://rdrr.io/r/stats/glm.html) model produces:
 
 </div>
 
-## Additional options and features
+### Additional options and features
 
-### Intervals
+#### Intervals
 
 The confidence intervals are visualized using the gray ribbon. The default interval is 0.9, but can be changed using the `conf_level` argument.
 
@@ -210,7 +210,7 @@ The confidence intervals are visualized using the gray ribbon. The default inter
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, conf_level <span class='o'>=</span> <span class='m'>0.8</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-12-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-12-1.png" alt="Calibration plot with a confidence interval set to 0.8" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -221,17 +221,17 @@ If desired, the intervals can be removed by setting the `include_ribbon` argumen
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, include_ribbon <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-13-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-13-1.png" alt="Calibration plot with the confidence interval ribbon turned off" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
-### Rugs
+#### Rugs
 
 By default, the calibration plots include a RUGs layer at the top and at the bottom of the visualization. They are meant to give us an idea of the density of events, versus the density of non-events as the probabilities progress from 0 to 1.
 
 <div class="highlight">
 
-<img src="figs/unnamed-chunk-14-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-14-1.png" alt="Calibration plot with arrows pointing to where the RUGS plots are placed in the graph" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -242,7 +242,7 @@ This can layer can be removed by setting `include_rug` to `FALSE`:
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, include_rug <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span> </span>
 </code></pre>
-<img src="figs/unnamed-chunk-15-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-15-1.png" alt="Calibration plot without RUGS" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -301,7 +301,7 @@ The plotting functions will automatically collect the predictions. Each of the p
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tuned_model</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_logistic</a></span><span class='o'>(</span><span class='o'>)</span> </span>
 </code></pre>
-<img src="figs/unnamed-chunk-17-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-17-1.png" alt="Multiple calibration plots presented in a grid" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -350,7 +350,7 @@ The new plot functions support dplyr groupings. So, to overlay the two groups, w
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>source</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-19-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-19-1.png" alt="Calibration plot with two overlaying probability trends, one is the original and the second is the model" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -364,7 +364,7 @@ If we would like to plot them side by side, we can add [`facet_wrap()`](https://
 <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span><span class='o'>(</span><span class='o'>~</span><span class='nv'>source</span><span class='o'>)</span> <span class='o'>+</span></span>
 <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='o'>(</span>legend.position <span class='o'>=</span> <span class='s'>"none"</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-20-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-20-1.png" alt="Calibration plot with two side-by-side probability trends" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
