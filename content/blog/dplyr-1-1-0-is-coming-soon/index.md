@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 3b2605c7619a1ee1
+rmd_hash: 0796c33be37b1a7f
 
 ---
 
@@ -23,7 +23,7 @@ rmd_hash: 3b2605c7619a1ee1
 
 -   An inline alternative to [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) that implements temporary grouping
 
--   New join features, such as non-equi joins
+-   New join types, such as non-equi joins
 
 -   [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) improvements with character vectors
 
@@ -685,7 +685,7 @@ That said, we still believe that this is a powerful tool, so we've moved these f
 
 </div>
 
-One big difference between [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) and [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) is that [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) always returns an ungrouped data frame, even if the input was a grouped data frame with multiple groups. This simplifies [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) immensely, as it doesn't need to inherit the `.groups` argument of [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), and never emits any messages.
+One big difference between [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) and [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) is that [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) always returns an ungrouped data frame, even if the input was a grouped data frame with multiple group columns. This simplifies [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) immensely, as it doesn't need to inherit the `.groups` argument of [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), and never emits any messages.
 
 We expect that you'll continue to use [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) much more often than [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html), but if you ever find yourself applying a function to each group that returns an arbitrary number of rows, [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) should be your go-to tool!
 
