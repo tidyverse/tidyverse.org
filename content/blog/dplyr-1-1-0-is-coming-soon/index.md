@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: d5490ece490542f1
+rmd_hash: 206c5eea8876ccd7
 
 ---
 
@@ -359,7 +359,7 @@ This is close to what we want, but isn't *quite* right. It turns out that poor D
 
 </div>
 
-This is because their birthday occurred before the first party date, `2022-01-10`, so there wasn't any "previous party" to match them to. To fix this, it's better to be explicit about the quarter start/end dates when performing the join:
+This is because their birthday occurred before the first party date, `2022-01-10`, so there wasn't any "previous party" to match them to. It's a little easier to fix this if we are explicit about the quarter start/end dates that form the ranges to look for matches in:
 
 <div class="highlight">
 
@@ -390,11 +390,7 @@ This is because their birthday occurred before the first party date, `2022-01-10
 
 </div>
 
-Now that we have 4 distinct *ranges* of dates to work with, we'll use an overlap join to figure out which range each birthday fell [`between()`](https://dplyr.tidyverse.org/reference/between.html). Since we know that each birthday should be matched to exactly one party, we'll also take this chance to set two of the new arguments to all of the join functions:
-
--   `unmatched`, which can optionally error if an unmatched birthday exists
-
--   `multiple`, which can optionally error if a birthday matches multiple parties
+Now that we have 4 distinct *ranges* of dates to work with, we'll use an overlap join to figure out which range each birthday fell [`between()`](https://dplyr.tidyverse.org/reference/between.html). Since we know that each birthday should be matched to exactly one party, we'll also take this chance to set `multiple`, a new argument to the join functions that allows you to optionally `"error"` if a birthday is matched to multiple parties.
 
 <div class="highlight">
 
@@ -402,7 +398,6 @@ Now that we have 4 distinct *ranges* of dates to work with, we'll use an overlap
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span></span>
 <span>    <span class='nv'>parties</span>, </span>
 <span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/between.html'>between</a></span><span class='o'>(</span><span class='nv'>birthday</span>, <span class='nv'>start</span>, <span class='nv'>end</span><span class='o'>)</span><span class='o'>)</span>,</span>
-<span>    unmatched <span class='o'>=</span> <span class='s'>"error"</span>,</span>
 <span>    multiple <span class='o'>=</span> <span class='s'>"error"</span></span>
 <span>  <span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 100 × 6</span></span></span>
@@ -423,7 +418,7 @@ Now that we have 4 distinct *ranges* of dates to work with, we'll use an overlap
 
 </div>
 
-We consider `unmatched` and `multiple` to be two important "quality control" arguments to help you enforce constraints on the join procedure.
+We consider `multiple` to be an important "quality control" argument to help you enforce constraints on the join procedure.
 
 ### Multiple matches
 

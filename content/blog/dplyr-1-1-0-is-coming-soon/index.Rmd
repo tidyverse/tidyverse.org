@@ -206,7 +206,7 @@ filter(closest, is.na(party))
 ```
 
 This is because their birthday occurred before the first party date, `2022-01-10`, so there wasn't any "previous party" to match them to.
-To fix this, it's better to be explicit about the quarter start/end dates when performing the join:
+It's a little easier to fix this if we are explicit about the quarter start/end dates that form the ranges to look for matches in:
 
 ```{r}
 # Some helpers from {clock}
@@ -228,23 +228,18 @@ parties
 ```
 
 Now that we have 4 distinct *ranges* of dates to work with, we'll use an overlap join to figure out which range each birthday fell `between()`.
-Since we know that each birthday should be matched to exactly one party, we'll also take this chance to set two of the new arguments to all of the join functions:
-
--   `unmatched`, which can optionally error if an unmatched birthday exists
-
--   `multiple`, which can optionally error if a birthday matches multiple parties
+Since we know that each birthday should be matched to exactly one party, we'll also take this chance to set `multiple`, a new argument to the join functions that allows you to optionally `"error"` if a birthday is matched to multiple parties.
 
 ```{r}
 employees |>
   left_join(
     parties, 
     join_by(between(birthday, start, end)),
-    unmatched = "error",
     multiple = "error"
   )
 ```
 
-We consider `unmatched` and `multiple` to be two important "quality control" arguments to help you enforce constraints on the join procedure.
+We consider `multiple` to be an important "quality control" argument to help you enforce constraints on the join procedure.
 
 ### Multiple matches
 
