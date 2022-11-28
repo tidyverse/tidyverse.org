@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: dplyr-1-1-0-is-coming-soon
 title: dplyr 1.1.0 is coming soon
-date: 2022-11-22
+date: 2022-11-28
 author: Davis Vaughan
 description: >
     dplyr 1.1.0 is coming soon! This post introduces some of the exciting new
@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 206c5eea8876ccd7
+rmd_hash: db0a57b4bf239b5f
 
 ---
 
