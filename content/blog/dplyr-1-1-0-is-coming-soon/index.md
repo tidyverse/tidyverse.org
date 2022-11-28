@@ -15,11 +15,13 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: db0a57b4bf239b5f
+rmd_hash: 20ca6b76de32eceb
 
 ---
 
-[dplyr](https://dplyr.tidyverse.org/dev/) 1.1.0 is coming soon! This is an exciting release for dplyr, incorporating a number of features that have been in flight for years, including:
+[dplyr](https://dplyr.tidyverse.org/dev/) 1.1.0 is coming soon! We haven't started the official release process yet (where we inform maintainers), but that will start in the next few weeks, and then dplyr 1.1.0 is likely to be submitted to CRAN in late January 2023.
+
+This is an exciting release for dplyr, incorporating a number of features that have been in flight for years, including:
 
 -   An inline alternative to [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) that implements temporary grouping
 
