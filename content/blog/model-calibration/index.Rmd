@@ -71,8 +71,6 @@ There are two main components to model calibration:
 perform.
 - **Remediation** - Adjusting the original values to have better properties.
 
-This post has details on diagnosing issues. 
-
 ## The Development Plan
 
 As with everything in machine learning, there are several options to
@@ -142,7 +140,7 @@ It expects a data set, and the un-quoted variable names that contains the events
 `segment_logistic` data set, and use `Class` and `.pred_good` as the arguments. 
 By default, this function will create a calibration plot with 10 buckets (breaks):
 
-```{r}
+```{r, fig.alt = "Calibration plot with 10 bins, created with the cal_plot_breaks() function"}
 segment_logistic %>% 
   cal_plot_breaks(Class, .pred_good)
 ```
@@ -164,7 +162,7 @@ The number of bins in `cal_plot_breaks()` can be adjusted using `num_breaks`.
 Here is an example of what the plot looks like if we reduce the bins from 10,
 to 5:
 
-```{r}
+```{r, fig.alt = "Calibration plot with 5 bins, created with the cal_plot_breaks() function"}
 segment_logistic %>% 
   cal_plot_breaks(Class, .pred_good, num_breaks = 5 )
 ```
@@ -180,7 +178,7 @@ Another approach is to use overlapping ranges, or windows. Like the previous plo
 
 There are two variables that control the windows. The **step size**, controls the frequency of the windows. If we set a step size of 5%, will create a new window every 5% probability (5%, 10%, 15%... etc). The second argument is the (maximum) **window size**. If it is set to 10%, then a given step will overlap halfway into the previous step, as well as the next step. Here is a visual representation of this specific scenario:
 
-```{r}
+```{r, fig.alt = "Plot illustrating the horizontal location of each step and the size of the window"}
 #| echo: false
 #| fig.width: 6
 #| fig.height: 4
@@ -210,7 +208,7 @@ In probably, the `cal_plot_windowed()` function provides this functionality.
 The default step size is 0.05, and can be changed via the `step_size` argument.
 The default window size is 0.1, and can be changed via the `window_size` argument.
 
-```{r}
+```{r, fig.alt = "Calibration plot with 21 windows, created with the cal_plot_windowed() function"}
 segment_logistic %>% 
   cal_plot_windowed(Class, .pred_good)
 ```
@@ -218,7 +216,7 @@ segment_logistic %>%
 Here is an example of reducing the `step_size` from 0.05, to 0.02. There are
 more than double the windows:
 
-```{r}
+```{r, fig.alt = "Calibration plot with more steps than the default, created with the cal_plot_windowed() function"}
 segment_logistic %>% 
   cal_plot_windowed(Class, .pred_good, step_size = 0.02)
 ```
@@ -241,14 +239,14 @@ a smooth line based on the predictions based on the `smooth` argument:
 
 As an example: 
 
-```{r}
+```{r, fig.alt = "Logistic Spline calibration plot, created with the cal_plot_logistic() function"}
 segment_logistic %>% 
   cal_plot_logistic(Class, .pred_good)
 ```
 
 The cooresponding `glm()` model produces:
 
-```{r}
+```{r, fig.alt = "Ordinary logistic calibration plot, created with the cal_plot_logistic() function"}
 segment_logistic %>% 
   cal_plot_logistic(Class, .pred_good, smooth = FALSE)
 ```
@@ -260,7 +258,7 @@ segment_logistic %>%
 The confidence intervals are visualized using the gray ribbon. The default
 interval is 0.9, but can be changed using the `conf_level` argument.  
 
-```{r}
+```{r, fig.alt = "Calibration plot with a confidence interval set to 0.8"}
 segment_logistic %>% 
   cal_plot_breaks(Class, .pred_good, conf_level = 0.8)
 ```
@@ -268,7 +266,7 @@ segment_logistic %>%
 If desired, the intervals can be removed by setting the `include_ribbon` 
 argument to `FALSE`.
 
-```{r}
+```{r, fig.alt = "Calibration plot with the confidence interval ribbon turned off"}
 segment_logistic %>% 
   cal_plot_breaks(Class, .pred_good, include_ribbon = FALSE)
 ```
@@ -280,7 +278,7 @@ bottom of the visualization.  They are meant to give us an idea of the density
 of events, versus the density of non-events as the probabilities progress from
 0 to 1. 
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.alt = "Calibration plot with arrows pointing to where the RUGS plots are placed in the graph}
 segment_logistic %>% 
   cal_plot_breaks(Class, .pred_good) +
   geom_segment(
@@ -305,7 +303,7 @@ segment_logistic %>%
 
 This can layer can be removed by setting `include_rug` to `FALSE`:
 
-```{r}
+```{r, fig.alt = "Calibration plot without RUGS"}
 segment_logistic %>% 
   cal_plot_breaks(Class, .pred_good, include_rug = FALSE) 
 ```
@@ -345,7 +343,7 @@ tuned_model
 The plotting functions will automatically collect the predictions. Each of the 
 pre-processing groups will be plotted individually in its own facet.
 
-```{r}
+```{r, fig.alt = "Multiple calibration plots presented in a grid"}
 tuned_model %>% 
   cal_plot_logistic() 
 ```
@@ -381,7 +379,7 @@ combined
 The new plot functions support dplyr groupings. So, to overlay the two
 groups, we just need to pass `source` to `group_by()`: 
 
-```{r}
+```{r, fig.alt = "Calibration plot with two overlaying probability trends, one is the original and the second is the model"}
 combined %>%
   group_by(source) %>%
   cal_plot_breaks(Class, .pred_good)
@@ -390,7 +388,7 @@ combined %>%
 If we would like to plot them side by side, we can add `facet_wrap()` as an
 additional step of the plot:
 
-```{r}
+```{r, fig.alt = "Calibration plot with two side-by-side probability trends"}
 combined %>% 
   group_by(source) %>% 
   cal_plot_breaks(Class, .pred_good) +

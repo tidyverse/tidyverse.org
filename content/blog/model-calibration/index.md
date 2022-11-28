@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [model, plots]
-rmd_hash: 0c11cb47f6f7fdec
+rmd_hash: 2aa33270a5fb6038
 
 ---
 
@@ -53,15 +53,13 @@ There are two main components to model calibration:
 -   **Diagnosis** - Figuring out how well the original (and re-calibrated) probabilities perform.
 -   **Remediation** - Adjusting the original values to have better properties.
 
-This post has details on diagnosing issues.
-
 ## The Development Plan
 
 As with everything in machine learning, there are several options to consider when calibrating a model. Through the new features in the tidymodels packages, we aspire to make those options as easily accessible as possible.
 
 Our plan is to implement model calibration in two phases: The first phase will focus on binary models, and the second phase will focus on multi-class models.
 
-The first batch of enhancements are now available in the development version of probably. The enhancements are centered around plotting functions meant for **diagnosing** the prediction's performance. These are more commonly known as **calibration plots**.
+The first batch of enhancements are now available in the development version of the probably package. The enhancements are centered around plotting functions meant for **diagnosing** the prediction's performance. These are more commonly known as **calibration plots**.
 
 ## Calibration Plots
 
@@ -80,7 +78,7 @@ If you would like to follow along, load the probably and dplyr packages into you
 
 </div>
 
-probably comes with a few data sets. For most of the examples in this post, we will use `segment_logistic`. It is an example data set that contains predictions, and their probabilities. `Class` contains the outcome of "good" and "poor", `.pred_good` contains the probability that the event is "good".
+The probably package comes with a few data sets. For most of the examples in this post, we will use `segment_logistic`. It is an example data set that contains predictions, and their probabilities. `Class` contains the outcome of "good" and "poor", `.pred_good` contains the probability that the event is "good".
 
 <div class="highlight">
 
@@ -115,7 +113,7 @@ In probably, binned calibration plots can be created using [`cal_plot_breaks()`]
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-4-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-4-1.png" alt="Calibration plot with 10 bins, created with the cal_plot_breaks() function" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -128,7 +126,7 @@ The number of bins in [`cal_plot_breaks()`](https://probably.tidymodels.org/refe
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, num_breaks <span class='o'>=</span> <span class='m'>5</span> <span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-6-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-6-1.png" alt="Calibration plot with 5 bins, created with the cal_plot_breaks() function" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -142,7 +140,7 @@ There are two variables that control the windows. The **step size**, controls th
 
 <div class="highlight">
 
-<img src="figs/unnamed-chunk-7-1.png" width="70%" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-7-1.png" alt="Plot illustrating the horizontal location of each step and the size of the window" width="70%" style="display: block; margin: auto;" />
 
 </div>
 
@@ -153,7 +151,7 @@ In probably, the [`cal_plot_windowed()`](https://probably.tidymodels.org/referen
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_windowed</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-8-1.png" alt="Calibration plot with 21 windows, created with the cal_plot_windowed() function" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -164,7 +162,7 @@ Here is an example of reducing the `step_size` from 0.05, to 0.02. There are mor
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_windowed</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, step_size <span class='o'>=</span> <span class='m'>0.02</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-9-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-9-1.png" alt="Calibration plot with more steps than the default, created with the cal_plot_windowed() function" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -186,7 +184,7 @@ As an example:
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_logistic</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-10-1.png" alt="Logistic Spline calibration plot, created with the cal_plot_logistic() function" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -197,7 +195,7 @@ The cooresponding [`glm()`](https://rdrr.io/r/stats/glm.html) model produces:
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_logistic</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, smooth <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-11-1.png" alt="Ordinary logistic calibration plot, created with the cal_plot_logistic() function" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
