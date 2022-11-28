@@ -1,0 +1,414 @@
+---
+output: hugodown::hugo_document
+slug: dplyr-1-1-0-is-coming-soon
+title: dplyr 1.1.0 is coming soon
+date: 2022-11-28
+author: Davis Vaughan
+description: >
+    dplyr 1.1.0 is coming soon! This post introduces some of the exciting new
+    features coming in 1.1.0, and includes a call-for-feedback as we finalize
+    the release.
+photo:
+  url: https://unsplash.com/photos/aId-xYRTlEc
+  author: Markus Winkler
+categories: [package] 
+tags: [dplyr]
+editor_options: 
+  chunk_output_type: console
+---
+
+[dplyr](https://dplyr.tidyverse.org/dev/) 1.1.0 is coming soon!
+This is an exciting release for dplyr, incorporating a number of features that have been in flight for years, including:
+
+-   An inline alternative to `group_by()` that implements temporary grouping
+
+-   New join types, such as non-equi joins
+
+-   `arrange()` improvements with character vectors
+
+-   `reframe()`, a generalization of `summarise()`
+
+This pre-release blog post will discuss these new features in more detail.
+By releasing this post before 1.1.0 is sent to CRAN, we're hoping to get your feedback to catch any potential problems that we've missed!
+If you do find a bug, or have general feedback about the new features, we welcome discussion on the [dplyr issues page](https://github.com/tidyverse/dplyr/issues).
+
+You can see a full list of changes in the [release notes](https://dplyr.tidyverse.org/dev/news/index.html).
+There are many additional improvements that couldn't fit in a single blog post!
+
+dplyr 1.1.0 is not on CRAN yet, but you can install the development version from GitHub with:
+
+```{r, eval = FALSE}
+pak::pak("tidyverse/dplyr")
+```
+
+The development version is mostly stable, but is still subject to minor changes before the official release.
+We don't encourage relying on it for production usage, but we would love for you to try out these new features.
+
+```{r setup, warning=FALSE, message=FALSE}
+library(dplyr)
+library(clock)
+set.seed(12345)
+```
+
+## Temporary grouping with `.by`
+
+Verbs that work "by group," such as `mutate()`, `summarise()`, `filter()`, and `slice()`, have gained an experimental new argument, `.by`, which allows for inline and temporary grouping.
+Grouping radically affects the computation of the dplyr verb you use it with, and one of the goals of `.by` is to allow you to place that grouping specification alongside the code that actually uses it.
+As an added benefit, with `.by` you no longer need to remember to `ungroup()` after `summarise()`, and `summarise()` won't ever message you about how it's handling the groups!
+
+This feature was inspired by [data.table](https://cran.r-project.org/package=data.table), which has always used per-operation grouping.
+
+We'll explore `.by` with this `expenses` dataset, containing various `cost`s tracked across `id` and `region`.
+
+```{r}
+expenses <- tibble(
+  id = c(1, 2, 1, 3, 1, 2, 3),
+  region = c("A", "A", "A", "B", "B", "A", "A"),
+  cost = c(25, 20, 19, 12, 9, 6, 6)
+)
+expenses
+```
+
+If I were to ask you to compute the average `cost` per `region`, you'd probably write something like:
+
+```{r}
+expenses |>
+  group_by(region) |>
+  summarise(cost = mean(cost))
+```
+
+With `.by`, you can now write:
+
+```{r}
+expenses |>
+  summarise(cost = mean(cost), .by = region)
+```
+
+These two particular results look the same, but the behavior of `.by` diverges from `group_by()` when multiple group columns are involved:
+
+```{r}
+expenses |>
+  group_by(id, region) |>
+  summarise(cost = mean(cost))
+```
+
+```{r}
+expenses |>
+  summarise(cost = mean(cost), .by = c(id, region))
+```
+
+Usage of `.by` always results in an ungrouped data frame, regardless of the number of group columns involved.
+
+You might also recognize that these results aren't returned in exactly the same order.
+`group_by()` always sorts the grouping keys in ascending order, but `.by` retains the original ordering found in the data.
+If you need ordered summaries with `.by`, we recommend calling `arrange()` explicitly before or after summarizing.
+
+While here we've focused on using `.by` with `summarise()`, it also works with other verbs, like `mutate()` and `slice()`:
+
+```{r}
+expenses |>
+  mutate(mean = mean(cost), .by = region)
+
+expenses |>
+  slice(2, .by = region)
+```
+
+`group_by()` won't ever disappear, but we are having a lot of fun writing new code with `.by`, and we think you will too.
+
+## Join improvements
+
+All of the join functions in dplyr, such as `left_join()`, now accept a flexible join specification created through the new `join_by()` helper.
+`join_by()` allows you to specify your join conditions as expressions rather than as named character vectors.
+
+```{r}
+join_by(x_id == y_id, region)
+```
+
+This join specification matches `x_id` in the left-hand data frame with `y_id` in the right-hand one, and also matches between a commonly named `region` column, computing the following equi-join:
+
+```{r}
+df1 <- tibble(x_id = c(1, 2, 2), region = c("A", "B", "A"), x = c(5, 10, 4))
+df2 <- tibble(y_id = c(2, 1, 2), region = c("A", "A", "C"), y = c(12, 8, 7))
+
+df1
+
+df2
+
+df1 |>
+  left_join(df2, join_by(x_id == y_id, region))
+```
+
+### Non-equi joins
+
+Allowing expressions in `join_by()` opens up a whole new world of joins in dplyr known as *non-equi joins*.
+As the name somewhat implies, these are joins that involve binary conditions other than equality.
+There are 4 particularly useful types of non-equi joins:
+
+-   **Cross joins** match every pair of rows and were already supported in dplyr.
+
+-   **Inequality joins** match using `>`, `>=`, `<`, or `<=` instead of `==`.
+
+-   **Rolling joins** are based on inequality joins, but only find the closest match.
+
+-   **Overlap joins** are also based on inequality joins, but are specialized for working with ranges.
+
+Non-equi joins were requested back in 2016, and were the highest requested dplyr feature at the time they were finally implemented, with over [147 thumbs up](https://github.com/tidyverse/dplyr/issues/2240)!
+data.table has had support for non-equi joins for many years, and their implementation greatly inspired the one used in dplyr.
+
+To demonstrate the different types of non-equi joins, imagine that you are in charge of the party planning committee for your office.
+Unfortunately, you only get to have one party per quarter, but it is your job to ensure that every employee is assigned to a single party.
+Upper management has provided the following 4 party dates:
+
+```{r}
+parties <- tibble(
+  q = 1:4,
+  party = date_parse(c("2022-01-10", "2022-04-04", "2022-07-11", "2022-10-03"))
+)
+
+parties
+```
+
+With this set of employees:
+
+```{r}
+employees <- tibble(
+  name = wakefield::name(100),
+  birthday = date_parse("2022-01-01") + (sample(365, 100, replace = TRUE) - 1)
+)
+
+employees
+```
+
+One way to start approaching this problem is to look for the party that happened directly before each birthday.
+You can do this with an inequality join:
+
+```{r}
+employees |>
+  left_join(parties, join_by(birthday >= party))
+```
+
+This looks like a good start, but we've assigned people with birthdays later in the year to multiple parties.
+We can restrict this to only the party that is *closest* to the employee's birthday by using a rolling join.
+Rolling joins are activated by wrapping an inequality in `closest()`.
+
+```{r}
+closest <- employees |>
+  left_join(parties, join_by(closest(birthday >= party)))
+
+closest
+```
+
+This is close to what we want, but isn't *quite* right.
+It turns out that poor Della hasn't been assigned to a party.
+
+```{r}
+filter(closest, is.na(party))
+```
+
+This is because their birthday occurred before the first party date, `2022-01-10`, so there wasn't any "previous party" to match them to.
+It's a little easier to fix this if we are explicit about the quarter start/end dates that form the ranges to look for matches in:
+
+```{r}
+# Some helpers from {clock}
+quarter_start <- function(x) {
+  x <- as_year_quarter_day(x)
+  x <- calendar_start(x, "quarter")
+  as_date(x)
+}
+quarter_end <- function(x) {
+  x <- as_year_quarter_day(x)
+  x <- calendar_end(x, "quarter")
+  as.Date(x)
+}
+
+parties <- parties |>
+  mutate(start = quarter_start(party), end = quarter_end(party))
+
+parties
+```
+
+Now that we have 4 distinct *ranges* of dates to work with, we'll use an overlap join to figure out which range each birthday fell `between()`.
+Since we know that each birthday should be matched to exactly one party, we'll also take this chance to set `multiple`, a new argument to the join functions that allows you to optionally `"error"` if a birthday is matched to multiple parties.
+
+```{r}
+employees |>
+  left_join(
+    parties, 
+    join_by(between(birthday, start, end)),
+    multiple = "error"
+  )
+```
+
+We consider `multiple` to be an important "quality control" argument to help you enforce constraints on the join procedure.
+
+### Multiple matches
+
+Speaking of `multiple`, we've also given this argument an important default.
+When doing data analysis with equi-joins, it is often surprising when a join returns more rows than were present in the left-hand side table.
+
+```{r}
+df1
+
+df2 <- tibble(y_id = c(1, 2, 1, 2), region = c("A", "B", "A", "A"), y = c(9, 10, 12, 4))
+df2
+
+df1 |>
+  left_join(df2, join_by(x_id == y_id, region))
+```
+
+In this case, row 1 of `df1` matched both rows `1` and `3` of `df2`, so the output has 4 rows rather than `df1`'s 3.
+While this is standard SQL behavior, community feedback has shown that many people don't expect this, and a number of people were horrified to learn that this was even possible!
+Because of this, we've made this case a warning by default, which you can silence with `multiple = "all"`.
+
+## `arrange()` improvements with character vectors
+
+`arrange()` now uses a new custom backend for generating the ordering.
+This generally improves performance, but it is especially apparent with character vectors.
+
+```{r}
+# 10,000 random strings, sampled up to 1,000,000 rows
+dictionary <- stringi::stri_rand_strings(10000, length = 10, pattern = "[a-z]")
+str <- tibble(x = sample(dictionary, size = 1e6, replace = TRUE))
+str
+```
+
+```{r, eval=FALSE}
+# dplyr 1.0.10
+bench::mark(arrange(str, x), iterations = 100)
+#> # A tibble: 1 × 6
+#>   expression          min   median `itr/sec` mem_alloc `gc/sec`
+#>   <bch:expr>     <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
+#> 1 arrange(str, x)   4.38s    4.89s     0.204    12.7MB    0.148
+
+# dplyr 1.1.0
+bench::mark(arrange(str, x), iterations = 100)
+#> # A tibble: 1 × 6
+#>   expression          min   median `itr/sec` mem_alloc `gc/sec`
+#>   <bch:expr>     <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
+#> 1 arrange(str, x)  42.3ms   46.6ms      20.8    22.4MB     46.0
+```
+
+For those keeping score, that is a 100x improvement!
+Now, I'll be honest, I'm being a bit tricky here.
+The new backend for `arrange()` comes with a meaningful change in behavior - it now sorts character strings in the C locale by default, rather than in the much slower system locale (American English, for me).
+We made this change for two main reasons:
+
+-   Much faster performance by default
+
+-   Improved reproducibility across R sessions, where different computers might use different system locales
+
+For English users, we expect this change to have fairly minimal impact.
+The largest difference in ordering between the C and American English locales has to do with capitalization.
+In the C locale, uppercase letters are always placed before *any* lowercase letters.
+In the American English locale, uppercase letters are placed directly after their lowercase equivalent.
+
+```{r}
+df <- tibble(x = c("a", "B", "A", "b"))
+
+arrange(df, x)
+```
+
+If you do need to order with a specific locale, you can specify the new `.locale` argument, which takes a locale identifier string, just like `stringr::str_sort()`.
+
+```{r}
+arrange(df, x, .locale = "en")
+```
+
+To use this optional `.locale` feature, you must have the stringi package installed, but you likely already do because it is installed with the tidyverse by default.
+
+It is also worth noting that using `.locale` is still much faster than relying on the system locale.
+
+```{r, eval=FALSE}
+# Compare with ~5 seconds above with dplyr 1.0.10
+
+bench::mark(arrange(str, x, .locale = "en"), iterations = 100)
+#> # A tibble: 1 × 6
+#>   expression                           min median `itr/sec` mem_alloc
+#>   <bch:expr>                      <bch:tm> <bch:>     <dbl> <bch:byt>
+#> 1 arrange(str, x, .locale = "en")    377ms  430ms      2.21    27.9MB
+#> # … with 1 more variable: `gc/sec` <dbl>
+```
+
+For non-English Latin script languages, such as Spanish, you may see more of a change, as characters such as `ñ` are ordered after `z` rather than before `n` in the C locale:
+
+```{r}
+df <- tibble(x = c("\u00F1", "n", "z"))
+df
+
+arrange(df, x)
+
+arrange(df, x, .locale = "es")
+```
+
+We are optimistic that this change is an overall net positive.
+We anticipate that many users use `arrange()` to simply group similar looking observations together, and we expect that the main places you'll need to care about localized ordering are the few places when you are generating human readable output, such as a table or a chart, at which point you might consider using `.locale`.
+
+If you are having trouble converting an existing script over to the new behavior, you can set the temporary global option `options(dplyr.legacy_locale = TRUE)`, which will revert to the pre-1.1.0 behavior of using the system locale.
+We expect to remove this option in a future release.
+
+To learn more low-level details about this change, you can read our [tidyup](https://github.com/tidyverse/tidyups/blob/main/003-dplyr-radix-ordering.md).
+
+## `reframe()`, a generalization of `summarise()`
+
+In dplyr 1.0.0, we introduced a powerful new feature: `summarise()` could return per-group results of any length, rather than just length 1.
+For example:
+
+```{r, include=FALSE}
+options(lifecycle_verbosity = "quiet")
+```
+
+```{r}
+table <- c("a", "b", "d", "f")
+
+df <- tibble(
+  g = c(1, 1, 1, 2, 2, 2, 2),
+  x = c("e", "a", "b", "c", "f", "d", "a")
+)
+
+df |>
+  summarise(x = intersect(x, table), .by = g)
+```
+
+```{r, include=FALSE}
+options(lifecycle_verbosity = NULL)
+```
+
+While extremely powerful, community feedback has raised the valid concern that allowing `summarise()` to return any number of rows per group:
+
+-   Increases the chance for accidental bugs
+
+-   Is against the spirit of a "summary," which implies 1 row per group
+
+-   Makes translation to dbplyr very difficult
+
+We agree!
+In response to this, we've decided to walk back that change to `summarise()`, which will now throw a warning when either 0 or \>1 rows are returned per group:
+
+```{r, include=FALSE}
+options(lifecycle_verbosity = "warning")
+```
+
+```{r}
+df |>
+  summarise(x = intersect(x, table), .by = g)
+```
+
+```{r, include=FALSE}
+options(lifecycle_verbosity = NULL)
+```
+
+That said, we still believe that this is a powerful tool, so we've moved these features to a new verb, `reframe()`.
+Think of `reframe()` as a generic tool for "doing something to each group," with no restrictions on the number of rows returned per group.
+
+```{r}
+df |>
+  reframe(x = intersect(x, table), .by = g)
+```
+
+One big difference between `summarise()` and `reframe()` is that `reframe()` always returns an ungrouped data frame, even if the input was a grouped data frame with multiple group columns.
+This simplifies `reframe()` immensely, as it doesn't need to inherit the `.groups` argument of `summarise()`, and never emits any messages.
+
+We expect that you'll continue to use `summarise()` much more often than `reframe()`, but if you ever find yourself applying a function to each group that returns an arbitrary number of rows, `reframe()` should be your go-to tool!
+
+`reframe()` is one of the places we could use your feedback!
+We aren't completely confident about this function name yet, so if you have any feedback about it or suggestions for an alternate one, please leave a comment on this [issue](https://github.com/tidyverse/dplyr/issues/6565).
