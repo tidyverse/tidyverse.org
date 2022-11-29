@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [stringr, tidyverse]
-rmd_hash: 7d8ee2f585f90ae9
+rmd_hash: 979efefa6bfa4cee
 
 ---
 
@@ -32,6 +32,7 @@ TODO:
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [ ] Update release link
 -->
 
 We're chuffed to announce the release of [stringr](https://stringr.tidyverse.org) 1.5.0. stringr provides a cohesive set of functions designed to make working with strings as easy as possible.
@@ -44,7 +45,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will give you an overview of the biggest changes (you can get a detailed list of all changes from the [release notes](%7B%20github_release%20%7D)). Firstly, we need to update you on some (small) breaking changes we've made to make stringr more consistent with the rest of the tidyverse. Then we'll give a quick overview of improvement to documentation and stringr's new license. Then we'll finish off by diving into the many small, but useful, functions that we've accumulated in the three and half years since the last release.
+This blog post will give you an overview of the biggest changes (you can get a detailed list of all changes from the [release notes](%7B%20github_release%20%7D)). Firstly, we need to update you on some (small) breaking changes we've made to make stringr more consistent with the rest of the tidyverse. Then, we'll give a quick overview of improvement to documentation and stringr's new license. Lastly, we'll finish off by diving into the many small, but useful functions that we've accumulated in the three and half years since the last release.
 
 <div class="highlight">
 
@@ -54,7 +55,7 @@ This blog post will give you an overview of the biggest changes (you can get a d
 
 ## Breaking changes
 
-Lets start with the important stuff: the breaking changes. We've tried to keep these small and we don't believe they'll affect much code in the wild (only affected \~20 of the \~1600 packages that use stringr). But we're believe they're important as a consistent set of rules makes the tidyverse as a whole more predictable and easier to learn.
+Lets start with the important stuff: the breaking changes. We've tried to keep these small and we don't believe they'll affect much code in the wild (only affected \~20 of the \~1,600 packages that use stringr). But we're believe they're important as a consistent set of rules makes the tidyverse as a whole more predictable and easier to learn.
 
 ### Recycling rules
 
@@ -64,7 +65,8 @@ stringr functions now consistently implement the tidyverse recycling rules[^1], 
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_detect.html'>str_detect</a></span><span class='o'>(</span><span class='nv'>letters</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"x"</span>, <span class='s'>"y"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `str_detect()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't recycle `string` (size 26) to match `pattern` (size 2).</span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't recycle `string` (size 26) to match `pattern` (size 2).</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -74,8 +76,10 @@ Secondly, a 0-length vector no longer implies a 0-length output. Instead it's re
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_detect.html'>str_detect</a></span><span class='o'>(</span><span class='nv'>letters</span>, <span class='nf'><a href='https://rdrr.io/r/base/character.html'>character</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `str_detect()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't recycle `string` (size 26) to match `pattern` (size 0).</span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_detect.html'>str_detect</a></span><span class='o'>(</span><span class='s'>"x"</span>, <span class='nf'><a href='https://rdrr.io/r/base/character.html'>character</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; logical(0)</span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't recycle `string` (size 26) to match `pattern` (size 0).</span></span>
+<span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_detect.html'>str_detect</a></span><span class='o'>(</span><span class='s'>"x"</span>, <span class='nf'><a href='https://rdrr.io/r/base/character.html'>character</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; logical(0)</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -87,23 +91,26 @@ Finally, stringr functions are generally a little stricter because we require th
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_detect.html'>str_detect</a></span><span class='o'>(</span><span class='nv'>mean</span>, <span class='s'>"x"</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `str_detect()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `string` must be a vector, not a function.</span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `string` must be a vector, not a function.</span></span>
+<span></span></code></pre>
 
 </div>
 
 ### Empty patterns
 
-In many stringr functions, `""` will match or split on every character motivated. This is motivated by base R's [`strsplit()`](https://rdrr.io/r/base/strsplit.html):
+In many stringr functions, `""` will match or split on every character. This is motivated by base R's [`strsplit()`](https://rdrr.io/r/base/strsplit.html):
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/strsplit.html'>strsplit</a></span><span class='o'>(</span><span class='s'>"abc"</span>, <span class='s'>""</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
-<span><span class='c'>#&gt; [1] "a" "b" "c"</span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_split.html'>str_split</a></span><span class='o'>(</span><span class='s'>"abc"</span>, <span class='s'>""</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
-<span><span class='c'>#&gt; [1] "a" "b" "c"</span></span></code></pre>
+<span><span class='c'>#&gt; [1] "a" "b" "c"</span></span>
+<span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_split.html'>str_split</a></span><span class='o'>(</span><span class='s'>"abc"</span>, <span class='s'>""</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
+<span><span class='c'>#&gt; [1] "a" "b" "c"</span></span>
+<span></span></code></pre>
 
 </div>
 
-When creating stringr (over 13 years ago!) I took this idea and ran with it, implementing similar support in every function where it might possibly work. But I missed an important problem with [`str_detect()`](https://stringr.tidyverse.org/reference/str_detect.html).
+When creating stringr (over 13 years ago!), I took this idea and ran with it, implementing similar support in every function where it might possibly work. But I missed an important problem with [`str_detect()`](https://stringr.tidyverse.org/reference/str_detect.html).
 
 What should `str_detect(X, "")` return? You can argue two ways:
 
@@ -116,7 +123,8 @@ This inconsistency potentially leads to some subtle bugs, so use of `""` in [`st
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_detect.html'>str_detect</a></span><span class='o'>(</span><span class='nv'>letters</span>, <span class='s'>""</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `str_detect()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `pattern` can't be the empty string (`""`).</span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `pattern` can't be the empty string (`""`).</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -124,13 +132,13 @@ This inconsistency potentially leads to some subtle bugs, so use of `""` in [`st
 
 Now that we've got the breaking changes out of the way we can focus on the new stuff 😃. Most importantly, there's a new vignette that provides some advice if you're transition from (or to) base R's string functions: `vignette("from-base", package = "stringr")`. It was written by [Sara Stoudt](https://sastoudt.github.io) during the 2019 Tidyverse developer day, and has finally made it to the released version!
 
-We've also spend a bunch of time reviewing the documentation, particularly the topic titles and descriptions. They're now more informative and less duplicative, hopefully make it easier to find the function that you're looking for. See the complete list of functions in the [reference index](https://stringr.tidyverse.org/reference/index.html).
+We've also spent a bunch of time reviewing the documentation, particularly the topic titles and descriptions. They're now more informative and less duplicative, hopefully make it easier to find the function that you're looking for. See the complete list of functions in the [reference index](https://stringr.tidyverse.org/reference/index.html).
 
 Finally, stringr is now officially [re-licensed as MIT](https://www.tidyverse.org/blog/2021/12/relicensing-packages/).
 
 ## New features
 
-The biggest improvement is to [`str_view()`](https://stringr.tidyverse.org/reference/str_view.html) which has gained a bunch of new features, including using the cli package to work in more places. We also have a grab bag of new functions that fill in small functionality gaps.
+The biggest improvement is to [`str_view()`](https://stringr.tidyverse.org/reference/str_view.html) which has gained a bunch of new features, including using the [cli](https://cli.r-lib.org/) package to work in more places. We also have a grab bag of new functions that fill in small functionality gaps.
 
 ### `str_view()`
 
@@ -142,12 +150,14 @@ The biggest improvement is to [`str_view()`](https://stringr.tidyverse.org/refer
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"\\"</span>, <span class='s'>"\"\nabcdef\n\""</span><span class='o'>)</span></span>
     <span><span class='nv'>x</span></span>
-    <span><span class='c'>#&gt; [1] "\\"             "\"\nabcdef\n\""</span></span><span></span>
+    <span><span class='c'>#&gt; [1] "\\"             "\"\nabcdef\n\""</span></span>
+    <span></span><span></span>
     <span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_view.html'>str_view</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span></span>
     <span><span class='c'>#&gt; <span style='color: #555555;'>[1] │</span> \</span></span>
     <span><span class='c'>#&gt; <span style='color: #555555;'>[2] │</span> "</span></span>
     <span><span class='c'>#&gt;     <span style='color: #555555;'>│</span> abcdef</span></span>
-    <span><span class='c'>#&gt;     <span style='color: #555555;'>│</span> "</span></span></code></pre>
+    <span><span class='c'>#&gt;     <span style='color: #555555;'>│</span> "</span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -156,7 +166,8 @@ The biggest improvement is to [`str_view()`](https://stringr.tidyverse.org/refer
     <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_view.html'>str_view</a></span><span class='o'>(</span><span class='s'>"\t"</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; <span style='color: #555555;'>[1] │</span> <span style='color: #00BBBB;'>&#123;\t&#125;</span></span></span></code></pre>
+    <span><span class='c'>#&gt; <span style='color: #555555;'>[1] │</span> <span style='color: #00BBBB;'>&#123;\t&#125;</span></span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -185,7 +196,8 @@ The biggest improvement is to [`str_view()`](https://stringr.tidyverse.org/refer
     <span><span class='c'>#&gt; <span style='color: #555555;'>[38] │</span> hucklebe<span style='color: #00BBBB;'>&lt;rr&gt;</span>y</span></span>
     <span><span class='c'>#&gt; <span style='color: #555555;'>[47] │</span> lych<span style='color: #00BBBB;'>&lt;ee&gt;</span></span></span>
     <span><span class='c'>#&gt; <span style='color: #555555;'>[50] │</span> mulbe<span style='color: #00BBBB;'>&lt;rr&gt;</span>y</span></span>
-    <span><span class='c'>#&gt; ... and 9 more</span></span></code></pre>
+    <span><span class='c'>#&gt; ... and 9 more</span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -200,8 +212,10 @@ There are three new functions related to comparing strings:
     <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_equal.html'>str_equal</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"A"</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] FALSE</span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_equal.html'>str_equal</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"A"</span>, ignore_case <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] TRUE</span></span></code></pre>
+    <span><span class='c'>#&gt; [1] FALSE</span></span>
+    <span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_equal.html'>str_equal</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"A"</span>, ignore_case <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
+    <span><span class='c'>#&gt; [1] TRUE</span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -210,9 +224,11 @@ There are three new functions related to comparing strings:
     <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_order.html'>str_rank</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"c"</span>, <span class='s'>"b"</span>, <span class='s'>"b"</span><span class='o'>)</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] 1 4 2 2</span></span><span><span class='c'># compare to:</span></span>
+    <span><span class='c'>#&gt; [1] 1 4 2 2</span></span>
+    <span></span><span><span class='c'># compare to:</span></span>
     <span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_order.html'>str_order</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"c"</span>, <span class='s'>"b"</span>, <span class='s'>"b"</span><span class='o'>)</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] 1 3 4 2</span></span></code></pre>
+    <span><span class='c'>#&gt; [1] 1 3 4 2</span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -221,8 +237,10 @@ There are three new functions related to comparing strings:
     <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_unique.html'>str_unique</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"a"</span>, <span class='s'>"A"</span><span class='o'>)</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] "a" "A"</span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_unique.html'>str_unique</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"a"</span>, <span class='s'>"A"</span><span class='o'>)</span>, ignore_case <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] "a"</span></span></code></pre>
+    <span><span class='c'>#&gt; [1] "a" "A"</span></span>
+    <span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_unique.html'>str_unique</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"a"</span>, <span class='s'>"A"</span><span class='o'>)</span>, ignore_case <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
+    <span><span class='c'>#&gt; [1] "a"</span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -235,9 +253,11 @@ There are three new functions related to comparing strings:
     <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_split.html'>str_split_1</a></span><span class='o'>(</span><span class='s'>"x-y-z"</span>, <span class='s'>"-"</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] "x" "y" "z"</span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_split.html'>str_split_1</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"x-y"</span>, <span class='s'>"a-b-c"</span><span class='o'>)</span>, <span class='s'>"-"</span><span class='o'>)</span></span>
+    <span><span class='c'>#&gt; [1] "x" "y" "z"</span></span>
+    <span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_split.html'>str_split_1</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"x-y"</span>, <span class='s'>"a-b-c"</span><span class='o'>)</span>, <span class='s'>"-"</span><span class='o'>)</span></span>
     <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `str_split_1()`:</span></span></span>
-    <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `string` must be a single string, not a character vector.</span></span></code></pre>
+    <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `string` must be a single string, not a character vector.</span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -249,11 +269,14 @@ There are three new functions related to comparing strings:
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a-b-c"</span>, <span class='s'>"d-e"</span>, <span class='s'>"f-g-h-i"</span><span class='o'>)</span></span>
     <span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_split.html'>str_split_i</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='s'>"-"</span>, <span class='m'>2</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] "b" "e" "g"</span></span><span></span>
+    <span><span class='c'>#&gt; [1] "b" "e" "g"</span></span>
+    <span></span><span></span>
     <span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_split.html'>str_split_i</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='s'>"-"</span>, <span class='m'>4</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] NA  NA  "i"</span></span><span></span>
+    <span><span class='c'>#&gt; [1] NA  NA  "i"</span></span>
+    <span></span><span></span>
     <span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_split.html'>str_split_i</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='s'>"-"</span>, <span class='o'>-</span><span class='m'>1</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] "c" "e" "i"</span></span></code></pre>
+    <span><span class='c'>#&gt; [1] "c" "e" "i"</span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -273,8 +296,10 @@ There are three new functions related to comparing strings:
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"Chapter 1"</span>, <span class='s'>"Section 2.3"</span>, <span class='s'>"Chapter 3"</span>, <span class='s'>"Section 4.1.1"</span><span class='o'>)</span></span>
     <span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_extract.html'>str_extract</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='s'>"([A-Za-z]+) ([0-9.]+)"</span>, group <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] "Chapter" "Section" "Chapter" "Section"</span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_extract.html'>str_extract</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='s'>"([A-Za-z]+) ([0-9.]+)"</span>, group <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] "1"     "2.3"   "3"     "4.1.1"</span></span></code></pre>
+    <span><span class='c'>#&gt; [1] "Chapter" "Section" "Chapter" "Section"</span></span>
+    <span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_extract.html'>str_extract</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='s'>"([A-Za-z]+) ([0-9.]+)"</span>, group <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span></span>
+    <span><span class='c'>#&gt; [1] "1"     "2.3"   "3"     "4.1.1"</span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -283,12 +308,16 @@ There are three new functions related to comparing strings:
     <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_flatten.html'>str_flatten_comma</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"cats"</span>, <span class='s'>"dogs"</span>, <span class='s'>"mice"</span><span class='o'>)</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] "cats, dogs, mice"</span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_flatten.html'>str_flatten_comma</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"cats"</span>, <span class='s'>"dogs"</span>, <span class='s'>"mice"</span><span class='o'>)</span>, last <span class='o'>=</span> <span class='s'>" and "</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] "cats, dogs and mice"</span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_flatten.html'>str_flatten_comma</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"cats"</span>, <span class='s'>"dogs"</span>, <span class='s'>"mice"</span><span class='o'>)</span>, last <span class='o'>=</span> <span class='s'>", and "</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] "cats, dogs, and mice"</span></span><span></span>
+    <span><span class='c'>#&gt; [1] "cats, dogs, mice"</span></span>
+    <span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_flatten.html'>str_flatten_comma</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"cats"</span>, <span class='s'>"dogs"</span>, <span class='s'>"mice"</span><span class='o'>)</span>, last <span class='o'>=</span> <span class='s'>" and "</span><span class='o'>)</span></span>
+    <span><span class='c'>#&gt; [1] "cats, dogs and mice"</span></span>
+    <span></span><span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_flatten.html'>str_flatten_comma</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"cats"</span>, <span class='s'>"dogs"</span>, <span class='s'>"mice"</span><span class='o'>)</span>, last <span class='o'>=</span> <span class='s'>", and "</span><span class='o'>)</span></span>
+    <span><span class='c'>#&gt; [1] "cats, dogs, and mice"</span></span>
+    <span></span><span></span>
     <span><span class='c'># correctly handles the two element case with the Oxford comma</span></span>
     <span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_flatten.html'>str_flatten_comma</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"cats"</span>, <span class='s'>"dogs"</span><span class='o'>)</span>, last <span class='o'>=</span> <span class='s'>", and "</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; [1] "cats and dogs"</span></span></code></pre>
+    <span><span class='c'>#&gt; [1] "cats and dogs"</span></span>
+    <span></span></code></pre>
 
     </div>
 
@@ -298,8 +327,10 @@ There are three new functions related to comparing strings:
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>fruit</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"apple"</span>, <span class='s'>"banana"</span>, <span class='s'>"pear"</span>, <span class='s'>"pineapple"</span><span class='o'>)</span></span>
     <span><span class='nv'>fruit</span><span class='o'>[</span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_like.html'>str_like</a></span><span class='o'>(</span><span class='nv'>fruit</span>, <span class='s'>"%apple"</span><span class='o'>)</span><span class='o'>]</span></span>
-    <span><span class='c'>#&gt; [1] "apple"     "pineapple"</span></span><span><span class='nv'>fruit</span><span class='o'>[</span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_like.html'>str_like</a></span><span class='o'>(</span><span class='nv'>fruit</span>, <span class='s'>"p__r"</span><span class='o'>)</span><span class='o'>]</span></span>
-    <span><span class='c'>#&gt; [1] "pear"</span></span></code></pre>
+    <span><span class='c'>#&gt; [1] "apple"     "pineapple"</span></span>
+    <span></span><span><span class='nv'>fruit</span><span class='o'>[</span><span class='nf'><a href='https://stringr.tidyverse.org/reference/str_like.html'>str_like</a></span><span class='o'>(</span><span class='nv'>fruit</span>, <span class='s'>"p__r"</span><span class='o'>)</span><span class='o'>]</span></span>
+    <span><span class='c'>#&gt; [1] "pear"</span></span>
+    <span></span></code></pre>
 
     </div>
 
