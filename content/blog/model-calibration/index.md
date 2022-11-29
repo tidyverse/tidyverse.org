@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [model, plots]
-rmd_hash: ea6871aa8933a561
+rmd_hash: 749e1ed11258c5d0
 
 ---
 
@@ -32,9 +32,10 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-I am very excited to introduce work currently underway on the probably package. We are looking to create early awareness and receive feedback from the community. That is why the enhancements discussed here are not yet on CRAN.
+I am very excited to introduce work currently underway on the probably package.  
+We are looking to create early awareness and receive feedback from the community. That is why the enhancements discussed here are not yet on CRAN.
 
-While the article is meant to introduce new package functionality, we also have the goal of introducing model calibration conceptually; we want to provide sufficient background for those who may not be familiar with model calibration. If you are already familiar with this technique, feel free to skip to the [Setup](#example-data) section to get started.
+While the article is meant to introduce new package functionality, we also have the goal of introducing model calibration conceptually. We want to provide sufficient background for those who may not be familiar with model calibration. If you are already familiar with this technique, feel free to skip to the [Setup](#example-data) section to get started.
 
 To install the version of probably used here:
 
@@ -65,7 +66,7 @@ The first batch of enhancements are now available in the development version of 
 
 The idea behind a calibration plot is that if we group the predictions based on their probability, then we should see a percentage of events [^1] that match such probability.
 
-For example, if we collect a group of the predictions whose probabilities are estimated to be about 10%, we should expect that about 10% of the those in the group to indeed be events. The plots shown below can be used as diagnostics to see if our predictions are consistent with the observed event rates.
+For example, if we collect a group of the predictions whose probabilities are estimated to be about 10%, then we should expect that about 10% of the those in the group to indeed be events. The plots shown below can be used as diagnostics to see if our predictions are consistent with the observed event rates.
 
 ### Example Data
 
@@ -172,9 +173,8 @@ Another way to visualize the performance is to fit a classification model of the
 
 The [`cal_plot_logistic()`](https://probably.tidymodels.org/reference/cal_plot_breaks.html) provides this functionality. By default, it uses a logistic regression. There are two possible methods for fitting:
 
-spline model, provided by the `mgcv` package. The idea is to visualize a smooth line based on the predictions based on the `smooth` argument:
-
 -   `smooth = TRUE` (the default) fits a generalized additive model using splines. This allows for more flexible model fits.
+
 -   `smooth = FALSE` uses an ordinary logistic regression model with linear terms for the predictor.
 
 As an example:
