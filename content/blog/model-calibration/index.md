@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: model-calibration
 title: Model Calibration
-date: 2022-11-17
+date: 2022-11-29
 author: Edgar Ruiz
 description: >
     Model Calibration is coming to tidymodels. This post covers the new plotting
@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [model, plots]
-rmd_hash: 749e1ed11258c5d0
+rmd_hash: 296b26e4ad1acd01
 
 ---
 
