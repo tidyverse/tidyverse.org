@@ -44,8 +44,8 @@ install.packages("stringr")
 
 This blog post will give you an overview of the biggest changes (you can get a detailed list of all changes from the [release notes](%7B%20github_release%20%7D)).
 Firstly, we need to update you on some (small) breaking changes we've made to make stringr more consistent with the rest of the tidyverse.
-Then we'll give a quick overview of improvement to documentation and stringr's new license.
-Then we'll finish off by diving into the many small, but useful, functions that we've accumulated in the three and half years since the last release.
+Then, we'll give a quick overview of improvement to documentation and stringr's new license.
+Lastly, we'll finish off by diving into the many small, but useful functions that we've accumulated in the three and half years since the last release.
 
 ```{r setup}
 library(stringr)
@@ -54,7 +54,7 @@ library(stringr)
 ## Breaking changes
 
 Lets start with the important stuff: the breaking changes.
-We've tried to keep these small and we don't believe they'll affect much code in the wild (only affected \~20 of the \~1600 packages that use stringr).
+We've tried to keep these small and we don't believe they'll affect much code in the wild (only affected \~20 of the \~1,600 packages that use stringr).
 But we're believe they're important as a consistent set of rules makes the tidyverse as a whole more predictable and easier to learn.
 
 ### Recycling rules
@@ -94,7 +94,7 @@ str_detect(mean, "x")
 
 ### Empty patterns
 
-In many stringr functions, `""` will match or split on every character motivated.
+In many stringr functions, `""` will match or split on every character.
 This is motivated by base R's `strsplit()`:
 
 ```{r}
@@ -102,7 +102,7 @@ strsplit("abc", "")[[1]]
 str_split("abc", "")[[1]]
 ```
 
-When creating stringr (over 13 years ago!) I took this idea and ran with it, implementing similar support in every function where it might possibly work.
+When creating stringr (over 13 years ago!), I took this idea and ran with it, implementing similar support in every function where it might possibly work.
 But I missed an important problem with `str_detect()`.
 
 What should `str_detect(X, "")` return?
@@ -125,7 +125,7 @@ Now that we've got the breaking changes out of the way we can focus on the new s
 Most importantly, there's a new vignette that provides some advice if you're transition from (or to) base R's string functions: `vignette("from-base", package = "stringr")`.
 It was written by [Sara Stoudt](https://sastoudt.github.io) during the 2019 Tidyverse developer day, and has finally made it to the released version!
 
-We've also spend a bunch of time reviewing the documentation, particularly the topic titles and descriptions.
+We've also spent a bunch of time reviewing the documentation, particularly the topic titles and descriptions.
 They're now more informative and less duplicative, hopefully make it easier to find the function that you're looking for.
 See the complete list of functions in the [reference index](https://stringr.tidyverse.org/reference/index.html).
 
@@ -133,7 +133,7 @@ Finally, stringr is now officially [re-licensed as MIT](https://www.tidyverse.or
 
 ## New features
 
-The biggest improvement is to `str_view()` which has gained a bunch of new features, including using the cli package to work in more places.
+The biggest improvement is to `str_view()` which has gained a bunch of new features, including using the [cli](https://cli.r-lib.org/) package to work in more places.
 We also have a grab bag of new functions that fill in small functionality gaps.
 
 ### `str_view()`
