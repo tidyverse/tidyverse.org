@@ -41,12 +41,12 @@ library(ggplot2)
 library(tidymodels)
 ```
 
-I am very excited to introduce work currently underway.  We are looking to create 
-early awareness, and to receive feedback from the community. That is why the 
-enhancements discussed here are not yet in CRAN. 
+I am very excited to introduce work currently underway on the probably package.  We are looking to create 
+early awareness and receive feedback from the community. That is why the 
+enhancements discussed here are not yet on CRAN. 
 
-Even though the article is meant to introduce new package functionality. We also
-have the goal of introducing model calibration conceptually. We want to provide
+While the article is meant to introduce new package functionality, we also
+have the goal of introducing model calibration conceptually; we want to provide
 sufficient background for those who may not be familiar with model calibration.
 If you are already familiar with this technique, feel free to skip to the 
 [Setup](#example-data) section to get started. 
@@ -60,7 +60,7 @@ remotes::install_github("tidymodels/probably")
 
 ## Model Calibration
 
-*The goal of model calibration is to ensure that the estimated class probabilities 
+*The goal of model calibration is to ensure that the estimated class probabilities are
 consistent with what would naturally occur.* If a model has poor calibration, 
 we might be able to post-process the original predictions to coerce them to have
 better properties. 
@@ -77,7 +77,7 @@ As with everything in machine learning, there are several options to
 consider when calibrating a model. Through the new features in the tidymodels
 packages, we aspire to make those options as easily accessible as possible. 
 
-Our plan is to implement model calibration in two phases: The first phase will focus
+Our plan is to implement model calibration in two phases: the first phase will focus
 on binary models, and the second phase will focus on multi-class models. 
 
 The first batch of enhancements are now available in the development version of 
@@ -89,14 +89,14 @@ the probably package. The enhancements are centered around plotting functions me
 ## Calibration Plots
 
 The idea behind a calibration plot is that if we group the predictions based on 
-their probability, then we should see an percentage of events ^[We can think of 
+their probability, then we should see a percentage of events ^[We can think of 
 an **event** as the outcome that is being tracked by the probability. For 
-example, in a model predicting "heads" or "tails", and we want to calibrate the
+example, if a model predicts "heads" or "tails" and we want to calibrate the
 probability for "tails", then the **event** is when the column containing the 
 outcome, has the value of "tails".]  that match such probability. 
 
 For example, if we collect a group of the predictions whose probabilities are 
-estimated to be about 10%. We should expect that about 10% of the those in the 
+estimated to be about 10%, we should expect that about 10% of the those in the 
 group to indeed be events. The plots shown below can be used as diagnostics to 
 see if our predictions are consistent with the observed event rates. 
 
@@ -104,7 +104,7 @@ see if our predictions are consistent with the observed event rates.
 ### Example Data
 
 If you would like to follow along, load the probably and dplyr packages 
-into you R session.
+into your R session.
 
 ```{r}
 library(tidymodels)
@@ -112,9 +112,9 @@ library(probably)
 ```
 
 The probably package comes with a few data sets. For most of the examples in this post,
-we will use `segment_logistic`. It is an example data set that contains
+we will use `segment_logistic`, an example data set that contains predicted probabilities and classes from a logistic regression model for a binary outcome `Class`, taking values `"good"` or `"bad"`.
 predictions, and their probabilities. `Class` contains the outcome of 
-"good" and "poor", `.pred_good` contains the probability that the event is "good". 
+`.pred_good` contains the probability that the event is "good". 
 
 ```{r}
 segment_logistic
@@ -123,24 +123,24 @@ segment_logistic
 
 ### Binned Plot
 
-On smaller data sets, it is a challenging to obtain an accurate *event rate* 
+On smaller data sets, it is challenging to obtain an accurate *event rate* 
 for a given probability. For example, if there are 5 predictions with about a 50% 
 probability, and 3 of those are events, the plot would show a 60% event rate.
 This comparison would not be appropriate because there are not enough predictions
-to really determine how close to 50% the model really is. 
+to determine how close to 50% the model really is. 
 
-The most common approach to group the probabilities
+The most common approach is to group the probabilities
 into bins, or buckets.  Usually, the data is split into 10 discrete buckets,
 from 0 to 1 (0 - 100%). The *event rate* and the *bin midpoint* is 
 calculated for each bin. 
 
-In probably, binned calibration plots can be created using `cal_plot_breaks()`. 
-It expects a data set, and the un-quoted variable names that contains the events
+In the probably package, binned calibration plots can be created using `cal_plot_breaks()`. 
+It expects a data set (`.data`), the un-quoted variable names that contain the events
 (`truth`), and the probabilities (`estimate`). For the example here, we pass the 
 `segment_logistic` data set, and use `Class` and `.pred_good` as the arguments. 
 By default, this function will create a calibration plot with 10 buckets (breaks):
 
-```{r, fig.alt = "Calibration plot with 10 bins, created with the cal_plot_breaks() function"}
+```{r, fig.alt = "A ggplot line plot with predicted probabilities on the x axis and event rates on the y axis, both ranging from 0 to 1. A dashed line lies on the identity line y equals x, and is loosely followed by a solid line that joins a series of dots representing the midpoint for each of 10 bins. Past predicted probabilities of 0.5, the dots consistently lie below the dashed line."}
 segment_logistic %>% 
   cal_plot_breaks(Class, .pred_good)
 ```
@@ -162,7 +162,7 @@ The number of bins in `cal_plot_breaks()` can be adjusted using `num_breaks`.
 Here is an example of what the plot looks like if we reduce the bins from 10,
 to 5:
 
-```{r, fig.alt = "Calibration plot with 5 bins, created with the cal_plot_breaks() function"}
+```{r, fig.alt = "A calibration like that above, but with half as many bins. In this version of the plot, the solid line is less jagged, though still shows that dots consistently lie below the dashed line beyond a predicted probability of 0.5."}
 segment_logistic %>% 
   cal_plot_breaks(Class, .pred_good, num_breaks = 5 )
 ```
@@ -176,7 +176,7 @@ plot might be a better solution.
 
 Another approach is to use overlapping ranges, or windows. Like the previous plot, we bin the data and calculate the event rate. However, we can add more bins by allowing them to overlap. If the data set size is small, one strategy is to use a set of wide bins that overlap one another.
 
-There are two variables that control the windows. The **step size**, controls the frequency of the windows. If we set a step size of 5%, will create a new window every 5% probability (5%, 10%, 15%... etc). The second argument is the (maximum) **window size**. If it is set to 10%, then a given step will overlap halfway into the previous step, as well as the next step. Here is a visual representation of this specific scenario:
+There are two variables that control the windows. The **step size** controls the frequency of the windows. If we set a step size of 5%, windows will be created for each 5% increment in predicted probability (5%, 10%, 15%, etc). The second argument is the (maximum) **window size**. If it is set to 10%—and the step size is set at 5%—then a given step will overlap halfway into both the previous step and the next step. Here is a visual representation of this specific scenario:
 
 ```{r, fig.alt = "Plot illustrating the horizontal location of each step and the size of the window"}
 #| echo: false
@@ -206,14 +206,14 @@ tibble(
 
 In probably, the `cal_plot_windowed()` function provides this functionality. 
 The default step size is 0.05, and can be changed via the `step_size` argument.
-The default window size is 0.1, and can be changed via the `window_size` argument.
+The default window size is 0.1, and can be changed via the `window_size` argument:
 
 ```{r, fig.alt = "Calibration plot with 21 windows, created with the cal_plot_windowed() function"}
 segment_logistic %>% 
   cal_plot_windowed(Class, .pred_good)
 ```
 
-Here is an example of reducing the `step_size` from 0.05, to 0.02. There are
+Here is an example of reducing the `step_size` from 0.05 to 0.02. There are
 more than double the windows:
 
 ```{r, fig.alt = "Calibration plot with more steps than the default, created with the cal_plot_windowed() function"}
@@ -225,7 +225,7 @@ segment_logistic %>%
 
 Another way to visualize the performance is to fit a classification model of the
 events against the estimated probabilities. This is helpful because it avoids the use of
-pre-determined groupings. Another difference, is that we are not plotting 
+pre-determined groupings. Another difference is that we are not plotting 
 midpoints of actual results, but rather predictions based on those results. 
 
 The `cal_plot_logistic()` provides this functionality. By default, it uses a 
@@ -244,7 +244,7 @@ segment_logistic %>%
   cal_plot_logistic(Class, .pred_good)
 ```
 
-The cooresponding `glm()` model produces:
+The corresponding `glm()` model produces:
 
 ```{r, fig.alt = "Ordinary logistic calibration plot, created with the cal_plot_logistic() function"}
 segment_logistic %>% 
@@ -275,7 +275,7 @@ segment_logistic %>%
 
 By default, the calibration plots include a RUGs layer at the top and at the 
 bottom of the visualization.  They are meant to give us an idea of the density
-of events, versus the density of non-events as the probabilities progress from
+of events and non-events as the probabilities progress from
 0 to 1. 
 
 ```{r, echo = FALSE, fig.alt = "Calibration plot with arrows pointing to where the RUGS plots are placed in the graph"}
@@ -301,7 +301,7 @@ segment_logistic %>%
   geom_text(x = 0.5, y = 0.13, label = "Density of non-events", color = "#ff88ff")
 ```
 
-This can layer can be removed by setting `include_rug` to `FALSE`:
+This layer can be removed by setting `include_rug` to `FALSE`:
 
 ```{r, fig.alt = "Calibration plot without RUGS"}
 segment_logistic %>% 
@@ -312,11 +312,11 @@ segment_logistic %>%
 
 So far, the inputs to the functions have been data frames. In tidymodels, the tune package has methods for resampling models as well as functions for tuning hyperparameters. 
 
-The calibration plots in probably also support the results of these functions (with class `tune_results`). The functions read the metadata from the tune object, and the `truth` and `estimate` arguments automatically. 
+The calibration plots in the probably package also support the results of these functions (with class `tune_results`). The functions read the metadata from the tune object, and the `truth` and `estimate` arguments automatically. 
 
 To showcase this feature, we will tune a model based on simulated data. In order
 for the calibration plot to work, the predictions need to be collected. This is
-done by setting `save_pred` to `TRUE`.
+done by setting `save_pred` to `TRUE` in `tune_grid()`'s control settings.
 
 ```{r, eval = TRUE}
 set.seed(111)
@@ -348,7 +348,7 @@ tuned_model %>%
   cal_plot_logistic() 
 ```
 
-A panel is produced for each value of `min_n`, coded with a automatically generated configuration name. This makes sure to use the out-of-sample data to make the plot (instead of just re-predicting the training set). 
+A panel is produced for each value of `min_n`, coded with an automatically generated configuration name. This makes sure to use the out-of-sample data to make the plot (instead of just re-predicting the training set). 
 
 ## Preparing for the next stage
 
@@ -358,8 +358,8 @@ made sure that the plotting functions are ready now to accept multiple probabili
 sets.
 
 In this post, we will showcase that functionality by "manually" creating a quick 
-calibration model, we we can use it to compare to the original probabilities. We will
-need both of them to be on the same data frame, and to have a way of
+calibration model and comparing its output to the original probabilities. We will
+need both of them in the same data frame, as well as a variable
 distinguishing the original probabilities from the calibrated probabilities. In
 this case we will create a variable called `source`:
 
@@ -397,13 +397,13 @@ combined %>%
 ```
 
 Our goal in the future is to provide calibration functions that create the 
-models, and provide an easy way to visualize.
+models, and provide an easy way to visualize them.
 
 
 ## Conclusion
 
-As mentioned at the top of this post. We look forward to your feedback as you try
-out these features, and read about our plans for the new future. If you wish
+As mentioned at the top of this post, we welcome your feedback as you try
+out these features and read about our plans for the future. If you wish
 to send us your thoughts, feel free to open an issue in probably's GitHub repo
 here: https://github.com/tidymodels/probably/issues.
 
