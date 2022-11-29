@@ -145,9 +145,9 @@ segment_logistic %>%
   cal_plot_breaks(Class, .pred_good)
 ```
 
-```{r}
-#| include: false
-bin_plot_data <- segment_logistic %>% .cal_binary_table_breaks(Class, .pred_good)
+```{r, include = FALSE, eval = TRUE}
+bin_plot_data <- segment_logistic %>% 
+  .cal_binary_table_breaks(Class, .pred_good)
 ```
 
 The calibration plot for the ideal model will essentially be perfect incline line
@@ -167,10 +167,9 @@ segment_logistic %>%
   cal_plot_breaks(Class, .pred_good, num_breaks = 5 )
 ```
 
-The number of breaks is a bit like a tuning parameter for these plots and should
-be based on ensuring that there is enough data in each bin to adequately estimate
-the observed event rate. If your data are small, the next version of the calibration
-plot might be a better solution. 
+The number of breaks should be based on ensuring that there is enough data in 
+each bin to adequately estimate the observed event rate. If your data are small, 
+the next version of the calibration plot might be a better solution. 
 
 ### Windowed
 
@@ -200,7 +199,10 @@ tibble(
 ) %>% 
   ggplot(aes(x = step, y = group)) + 
   geom_errorbar(aes(xmin = lower, xmax = upper)) +
-  labs(y = NULL, x = "predicted probability") +
+  labs(
+    y = "Step Number",
+    x = "Step location and size"
+    ) +
   theme_minimal()
 ```
 
@@ -253,7 +255,7 @@ segment_logistic %>%
 
 ### Additional options and features
 
-#### Intervals
+#### **Intervals**
 
 The confidence intervals are visualized using the gray ribbon. The default
 interval is 0.9, but can be changed using the `conf_level` argument.  
@@ -271,7 +273,7 @@ segment_logistic %>%
   cal_plot_breaks(Class, .pred_good, include_ribbon = FALSE)
 ```
 
-#### Rugs
+#### **Rugs**
 
 By default, the calibration plots include a RUGs layer at the top and at the 
 bottom of the visualization.  They are meant to give us an idea of the density
@@ -318,7 +320,7 @@ To showcase this feature, we will tune a model based on simulated data. In order
 for the calibration plot to work, the predictions need to be collected. This is
 done by setting `save_pred` to `TRUE` in `tune_grid()`'s control settings.
 
-```{r, eval = TRUE}
+```{r}
 set.seed(111)
 sim_data <- sim_classification(500)
 sim_folds <- vfold_cv(sim_data, repeats = 3)

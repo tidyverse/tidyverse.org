@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [model, plots]
-rmd_hash: e7249faf84097cf9
+rmd_hash: ea6871aa8933a561
 
 ---
 
@@ -32,9 +32,9 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-I am very excited to introduce work currently underway. We are looking to create early awareness, and to receive feedback from the community. That is why the enhancements discussed here are not yet in CRAN.
+I am very excited to introduce work currently underway on the probably package. We are looking to create early awareness and receive feedback from the community. That is why the enhancements discussed here are not yet on CRAN.
 
-Even though the article is meant to introduce new package functionality. We also have the goal of introducing model calibration conceptually. We want to provide sufficient background for those who may not be familiar with model calibration. If you are already familiar with this technique, feel free to skip to the [Setup](#example-data) section to get started.
+While the article is meant to introduce new package functionality, we also have the goal of introducing model calibration conceptually; we want to provide sufficient background for those who may not be familiar with model calibration. If you are already familiar with this technique, feel free to skip to the [Setup](#example-data) section to get started.
 
 To install the version of probably used here:
 
@@ -46,7 +46,7 @@ To install the version of probably used here:
 
 ## Model Calibration
 
-*The goal of model calibration is to ensure that the estimated class probabilities consistent with what would naturally occur.* If a model has poor calibration, we might be able to post-process the original predictions to coerce them to have better properties.
+*The goal of model calibration is to ensure that the estimated class probabilities are consistent with what would naturally occur.* If a model has poor calibration, we might be able to post-process the original predictions to coerce them to have better properties.
 
 There are two main components to model calibration:
 
@@ -57,19 +57,19 @@ There are two main components to model calibration:
 
 As with everything in machine learning, there are several options to consider when calibrating a model. Through the new features in the tidymodels packages, we aspire to make those options as easily accessible as possible.
 
-Our plan is to implement model calibration in two phases: The first phase will focus on binary models, and the second phase will focus on multi-class models.
+Our plan is to implement model calibration in two phases: the first phase will focus on binary models, and the second phase will focus on multi-class models.
 
 The first batch of enhancements are now available in the development version of the probably package. The enhancements are centered around plotting functions meant for **diagnosing** the prediction's performance. These are more commonly known as **calibration plots**.
 
 ## Calibration Plots
 
-The idea behind a calibration plot is that if we group the predictions based on their probability, then we should see an percentage of events [^1] that match such probability.
+The idea behind a calibration plot is that if we group the predictions based on their probability, then we should see a percentage of events [^1] that match such probability.
 
-For example, if we collect a group of the predictions whose probabilities are estimated to be about 10%. We should expect that about 10% of the those in the group to indeed be events. The plots shown below can be used as diagnostics to see if our predictions are consistent with the observed event rates.
+For example, if we collect a group of the predictions whose probabilities are estimated to be about 10%, we should expect that about 10% of the those in the group to indeed be events. The plots shown below can be used as diagnostics to see if our predictions are consistent with the observed event rates.
 
 ### Example Data
 
-If you would like to follow along, load the probably and dplyr packages into you R session.
+If you would like to follow along, load the probably and dplyr packages into your R session.
 
 <div class="highlight">
 
@@ -78,7 +78,7 @@ If you would like to follow along, load the probably and dplyr packages into you
 
 </div>
 
-The probably package comes with a few data sets. For most of the examples in this post, we will use `segment_logistic`. It is an example data set that contains predictions, and their probabilities. `Class` contains the outcome of "good" and "poor", `.pred_good` contains the probability that the event is "good".
+The probably package comes with a few data sets. For most of the examples in this post, we will use `segment_logistic`, an example data set that contains predicted probabilities and classes from a logistic regression model for a binary outcome `Class`, taking values `"good"` or `"bad"`. predictions, and their probabilities. `Class` contains the outcome of `.pred_good` contains the probability that the event is "good".
 
 <div class="highlight">
 
@@ -102,18 +102,18 @@ The probably package comes with a few data sets. For most of the examples in thi
 
 ### Binned Plot
 
-On smaller data sets, it is a challenging to obtain an accurate *event rate* for a given probability. For example, if there are 5 predictions with about a 50% probability, and 3 of those are events, the plot would show a 60% event rate. This comparison would not be appropriate because there are not enough predictions to really determine how close to 50% the model really is.
+On smaller data sets, it is challenging to obtain an accurate *event rate* for a given probability. For example, if there are 5 predictions with about a 50% probability, and 3 of those are events, the plot would show a 60% event rate. This comparison would not be appropriate because there are not enough predictions to determine how close to 50% the model really is.
 
-The most common approach to group the probabilities into bins, or buckets. Usually, the data is split into 10 discrete buckets, from 0 to 1 (0 - 100%). The *event rate* and the *bin midpoint* is calculated for each bin.
+The most common approach is to group the probabilities into bins, or buckets. Usually, the data is split into 10 discrete buckets, from 0 to 1 (0 - 100%). The *event rate* and the *bin midpoint* is calculated for each bin.
 
-In probably, binned calibration plots can be created using [`cal_plot_breaks()`](https://probably.tidymodels.org/reference/cal_plot_breaks.html). It expects a data set, and the un-quoted variable names that contains the events (`truth`), and the probabilities (`estimate`). For the example here, we pass the `segment_logistic` data set, and use `Class` and `.pred_good` as the arguments. By default, this function will create a calibration plot with 10 buckets (breaks):
+In the probably package, binned calibration plots can be created using [`cal_plot_breaks()`](https://probably.tidymodels.org/reference/cal_plot_breaks.html). It expects a data set (`.data`), the un-quoted variable names that contain the events (`truth`), and the probabilities (`estimate`). For the example here, we pass the `segment_logistic` data set, and use `Class` and `.pred_good` as the arguments. By default, this function will create a calibration plot with 10 buckets (breaks):
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-4-1.png" alt="Calibration plot with 10 bins, created with the cal_plot_breaks() function" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-4-1.png" alt="A ggplot line plot with predicted probabilities on the x axis and event rates on the y axis, both ranging from 0 to 1. A dashed line lies on the identity line y equals x, and is loosely followed by a solid line that joins a series of dots representing the midpoint for each of 10 bins. Past predicted probabilities of 0.5, the dots consistently lie below the dashed line." width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -126,17 +126,17 @@ The number of bins in [`cal_plot_breaks()`](https://probably.tidymodels.org/refe
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>segment_logistic</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks</a></span><span class='o'>(</span><span class='nv'>Class</span>, <span class='nv'>.pred_good</span>, num_breaks <span class='o'>=</span> <span class='m'>5</span> <span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-6-1.png" alt="Calibration plot with 5 bins, created with the cal_plot_breaks() function" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-6-1.png" alt="A calibration like that above, but with half as many bins. In this version of the plot, the solid line is less jagged, though still shows that dots consistently lie below the dashed line beyond a predicted probability of 0.5." width="700px" style="display: block; margin: auto;" />
 
 </div>
 
-The number of breaks is a bit like a tuning parameter for these plots and should be based on ensuring that there is enough data in each bin to adequately estimate the observed event rate. If your data are small, the next version of the calibration plot might be a better solution.
+The number of breaks should be based on ensuring that there is enough data in each bin to adequately estimate the observed event rate. If your data are small, the next version of the calibration plot might be a better solution.
 
 ### Windowed
 
 Another approach is to use overlapping ranges, or windows. Like the previous plot, we bin the data and calculate the event rate. However, we can add more bins by allowing them to overlap. If the data set size is small, one strategy is to use a set of wide bins that overlap one another.
 
-There are two variables that control the windows. The **step size**, controls the frequency of the windows. If we set a step size of 5%, will create a new window every 5% probability (5%, 10%, 15%... etc). The second argument is the (maximum) **window size**. If it is set to 10%, then a given step will overlap halfway into the previous step, as well as the next step. Here is a visual representation of this specific scenario:
+There are two variables that control the windows. The **step size** controls the frequency of the windows. If we set a step size of 5%, windows will be created for each 5% increment in predicted probability (5%, 10%, 15%, etc). The second argument is the (maximum) **window size**. If it is set to 10%---and the step size is set at 5%---then a given step will overlap halfway into both the previous step and the next step. Here is a visual representation of this specific scenario:
 
 <div class="highlight">
 
@@ -144,7 +144,7 @@ There are two variables that control the windows. The **step size**, controls th
 
 </div>
 
-In probably, the [`cal_plot_windowed()`](https://probably.tidymodels.org/reference/cal_plot_breaks.html) function provides this functionality. The default step size is 0.05, and can be changed via the `step_size` argument. The default window size is 0.1, and can be changed via the `window_size` argument.
+In probably, the [`cal_plot_windowed()`](https://probably.tidymodels.org/reference/cal_plot_breaks.html) function provides this functionality. The default step size is 0.05, and can be changed via the `step_size` argument. The default window size is 0.1, and can be changed via the `window_size` argument:
 
 <div class="highlight">
 
@@ -155,7 +155,7 @@ In probably, the [`cal_plot_windowed()`](https://probably.tidymodels.org/referen
 
 </div>
 
-Here is an example of reducing the `step_size` from 0.05, to 0.02. There are more than double the windows:
+Here is an example of reducing the `step_size` from 0.05 to 0.02. There are more than double the windows:
 
 <div class="highlight">
 
@@ -168,7 +168,7 @@ Here is an example of reducing the `step_size` from 0.05, to 0.02. There are mor
 
 ### Model-Based
 
-Another way to visualize the performance is to fit a classification model of the events against the estimated probabilities. This is helpful because it avoids the use of pre-determined groupings. Another difference, is that we are not plotting midpoints of actual results, but rather predictions based on those results.
+Another way to visualize the performance is to fit a classification model of the events against the estimated probabilities. This is helpful because it avoids the use of pre-determined groupings. Another difference is that we are not plotting midpoints of actual results, but rather predictions based on those results.
 
 The [`cal_plot_logistic()`](https://probably.tidymodels.org/reference/cal_plot_breaks.html) provides this functionality. By default, it uses a logistic regression. There are two possible methods for fitting:
 
@@ -188,7 +188,7 @@ As an example:
 
 </div>
 
-The cooresponding [`glm()`](https://rdrr.io/r/stats/glm.html) model produces:
+The corresponding [`glm()`](https://rdrr.io/r/stats/glm.html) model produces:
 
 <div class="highlight">
 
@@ -201,7 +201,7 @@ The cooresponding [`glm()`](https://rdrr.io/r/stats/glm.html) model produces:
 
 ### Additional options and features
 
-#### Intervals
+#### **Intervals**
 
 The confidence intervals are visualized using the gray ribbon. The default interval is 0.9, but can be changed using the `conf_level` argument.
 
@@ -225,9 +225,9 @@ If desired, the intervals can be removed by setting the `include_ribbon` argumen
 
 </div>
 
-#### Rugs
+#### **Rugs**
 
-By default, the calibration plots include a RUGs layer at the top and at the bottom of the visualization. They are meant to give us an idea of the density of events, versus the density of non-events as the probabilities progress from 0 to 1.
+By default, the calibration plots include a RUGs layer at the top and at the bottom of the visualization. They are meant to give us an idea of the density of events and non-events as the probabilities progress from 0 to 1.
 
 <div class="highlight">
 
@@ -235,7 +235,7 @@ By default, the calibration plots include a RUGs layer at the top and at the bot
 
 </div>
 
-This can layer can be removed by setting `include_rug` to `FALSE`:
+This layer can be removed by setting `include_rug` to `FALSE`:
 
 <div class="highlight">
 
@@ -250,9 +250,9 @@ This can layer can be removed by setting `include_rug` to `FALSE`:
 
 So far, the inputs to the functions have been data frames. In tidymodels, the tune package has methods for resampling models as well as functions for tuning hyperparameters.
 
-The calibration plots in probably also support the results of these functions (with class `tune_results`). The functions read the metadata from the tune object, and the `truth` and `estimate` arguments automatically.
+The calibration plots in the probably package also support the results of these functions (with class `tune_results`). The functions read the metadata from the tune object, and the `truth` and `estimate` arguments automatically.
 
-To showcase this feature, we will tune a model based on simulated data. In order for the calibration plot to work, the predictions need to be collected. This is done by setting `save_pred` to `TRUE`.
+To showcase this feature, we will tune a model based on simulated data. In order for the calibration plot to work, the predictions need to be collected. This is done by setting `save_pred` to `TRUE` in `tune_grid()`'s control settings.
 
 <div class="highlight">
 
@@ -305,13 +305,13 @@ The plotting functions will automatically collect the predictions. Each of the p
 
 </div>
 
-A panel is produced for each value of `min_n`, coded with a automatically generated configuration name. This makes sure to use the out-of-sample data to make the plot (instead of just re-predicting the training set).
+A panel is produced for each value of `min_n`, coded with an automatically generated configuration name. This makes sure to use the out-of-sample data to make the plot (instead of just re-predicting the training set).
 
 ## Preparing for the next stage
 
 As mentioned in the outset of this post, the goal is to also provide a way to calibrate the model, and to apply the calibration to future predictions. We have made sure that the plotting functions are ready now to accept multiple probability sets.
 
-In this post, we will showcase that functionality by "manually" creating a quick calibration model, we we can use it to compare to the original probabilities. We will need both of them to be on the same data frame, and to have a way of distinguishing the original probabilities from the calibrated probabilities. In this case we will create a variable called `source`:
+In this post, we will showcase that functionality by "manually" creating a quick calibration model and comparing its output to the original probabilities. We will need both of them in the same data frame, as well as a variable distinguishing the original probabilities from the calibrated probabilities. In this case we will create a variable called `source`:
 
 <div class="highlight">
 
@@ -368,11 +368,11 @@ If we would like to plot them side by side, we can add [`facet_wrap()`](https://
 
 </div>
 
-Our goal in the future is to provide calibration functions that create the models, and provide an easy way to visualize.
+Our goal in the future is to provide calibration functions that create the models, and provide an easy way to visualize them.
 
 ## Conclusion
 
-As mentioned at the top of this post. We look forward to your feedback as you try out these features, and read about our plans for the new future. If you wish to send us your thoughts, feel free to open an issue in probably's GitHub repo here: <https://github.com/tidymodels/probably/issues>.
+As mentioned at the top of this post, we welcome your feedback as you try out these features and read about our plans for the future. If you wish to send us your thoughts, feel free to open an issue in probably's GitHub repo here: <https://github.com/tidymodels/probably/issues>.
 
-[^1]: We can think of an **event** as the outcome that is being tracked by the probability. For example, in a model predicting "heads" or "tails", and we want to calibrate the probability for "tails", then the **event** is when the column containing the outcome, has the value of "tails".
+[^1]: We can think of an **event** as the outcome that is being tracked by the probability. For example, if a model predicts "heads" or "tails" and we want to calibrate the probability for "tails", then the **event** is when the column containing the outcome, has the value of "tails".
 
