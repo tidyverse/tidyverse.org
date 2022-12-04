@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: stringr-1-5-0
 title: stringr 1.5.0
-date: 2022-11-05
+date: 2022-12-05
 author: Hadley Wickham
 description: >
     It's been a long three years but a new version of stringr is now on
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [stringr, tidyverse]
-rmd_hash: 5ed2b64d6a2c75c3
+rmd_hash: 76821b0497a9e468
 
 ---
 
