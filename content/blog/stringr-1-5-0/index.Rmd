@@ -1,0 +1,260 @@
+---
+output: hugodown::hugo_document
+
+slug: stringr-1-5-0
+title: stringr 1.5.0
+date: 2022-11-05
+author: Hadley Wickham
+description: >
+    It's been a long three years but a new version of stringr is now on
+    CRAN! This release includes a bunch of small but useful new functions
+    and some increased consistency with the rest of the tidyverse.
+
+photo:
+  url: https://unsplash.com/photos/XGqS569rdgk
+  author: Amie Bell
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [stringr, tidyverse]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+* [ ] Update release link
+-->
+```
+We're chuffed to announce the release of [stringr](https://stringr.tidyverse.org) 1.5.0.
+stringr provides a cohesive set of functions designed to make working with strings as easy as possible.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("stringr")
+```
+
+This blog post will give you an overview of the biggest changes (you can get a detailed list of all changes from the [release notes](https://stringr.tidyverse.org/news/index.html)).
+Firstly, we need to update you on some (small) breaking changes we've made to make stringr more consistent with the rest of the tidyverse.
+Then, we'll give a quick overview of improvements to documentation and stringr's new license.
+Lastly, we'll finish off by diving into a few of the many small, but useful, functions that we've accumulated in the three and half years since the last release.
+
+```{r setup}
+library(stringr)
+```
+
+## Breaking changes
+
+Lets start with the important stuff: the breaking changes.
+We've tried to keep these small and we don't believe they'll affect much code in the wild (they only affected \~20 of the \~1,600 packages that use stringr).
+But we're believe they're important to make as a consistent set of rules makes the tidyverse as a whole more predictable and easier to learn.
+
+### Recycling rules
+
+stringr functions now consistently implement the tidyverse recycling rules[^1], which are stricter than the previous rules in two ways.
+Firstly, we no longer recycle shorter vectors that are an integer multiple of longer vectors:
+
+[^1]: You might wonder why we developed our own set of recycling rules for the tidyverse instead of using the base R rules.
+    That's because, unfortunately, there isn't a consistent set of rules used by base R, but a [suite of variations](https://vctrs.r-lib.org/articles/type-size.html#appendix-recycling-in-base-r).
+
+```{r}
+#| error: true
+
+str_detect(letters, c("x", "y"))
+```
+
+Secondly, a 0-length vector no longer implies a 0-length output.
+Instead it's recycled using the usual rules:
+
+```{r}
+#| error: true
+
+str_detect(letters, character())
+str_detect("x", character())
+```
+
+Neither of these situations occurs very commonly in data analysis, so this change primarily brings consistency with the rest of the tidyverse without affecting much existing code.
+
+Finally, stringr functions are generally a little stricter because we require the inputs to be vectors of some type.
+Again, this is unlikely to affect your data analysis code and will result in a clearer error if you accidentally pass in something weird:
+
+```{r}
+#| error: TRUE
+
+str_detect(mean, "x")
+```
+
+### Empty patterns
+
+In many stringr functions, `""` will match or split on every character.
+This is motivated by base R's `strsplit()`:
+
+```{r}
+strsplit("abc", "")[[1]]
+str_split("abc", "")[[1]]
+```
+
+When creating stringr (over 13 years ago!), I took this idea and ran with it, implementing similar support in every function where it might possibly work.
+But I missed an important problem with `str_detect()`.
+
+What should `str_detect(X, "")` return?
+You can argue two ways:
+
+-   To be consistent with `str_split()`, it should return `TRUE` whenever there are characters to match, i.e. `x != ""`.
+-   It's common to build up a set of possible matches by doing `str_flatten(matches, "|")`. What should this match if `matches` is empty? Ideally it would match nothing implying that `str_detect(x, "")` should be equivalent to `x == ""`.
+
+This inconsistency potentially leads to some subtle bugs, so use of `""` in `str_detect()` (and a few other related functions) is now an error:
+
+```{r}
+#| error: true
+
+str_detect(letters, "")
+```
+
+## Documentation and licensing
+
+Now that we've got the breaking changes out of the way we can focus on the new stuff 😃.
+Most importantly, there's a new vignette that provides some advice if you're transition from (or to) base R's string functions: `vignette("from-base", package = "stringr")`.
+It was written by [Sara Stoudt](https://sastoudt.github.io) during the 2019 Tidyverse developer day, and has finally made it to the released version!
+
+We've also spent a bunch of time reviewing the documentation, particularly the topic titles and descriptions.
+They're now more informative and less duplicative, hopefully make it easier to find the function that you're looking for.
+See the complete list of functions in the [reference index](https://stringr.tidyverse.org/reference/index.html).
+
+Finally, stringr is now officially [re-licensed as MIT](https://www.tidyverse.org/blog/2021/12/relicensing-packages/).
+
+## New features
+
+The biggest improvement is to `str_view()` which has gained a bunch of new features, including using the [cli](https://cli.r-lib.org/) package so it can work in more places.
+We also have a grab bag of new functions that fill in small functionality gaps.
+
+### `str_view()`
+
+`str_view()` uses ANSI colouring rather than an HTML widget.
+This means it works in more places and requires fewer dependencies.
+`str_view()` now:
+
+-   Displays strings with special characters:
+
+    ```{r}
+    x <- c("\\", "\"\nabcdef\n\"")
+    x
+
+    str_view(x)
+    ```
+
+-   Highlights unusual whitespace characters:
+
+    ```{r}
+    str_view("\t")
+    ```
+
+-   By default, only shows matching strings:
+
+    ```{r}
+    str_view(fruit, "(.)\\1")
+    ```
+
+    (This makes `str_view_all()` redundant and hence deprecated.)
+
+### Comparing strings
+
+There are three new functions related to comparing strings:
+
+-   `str_equal()` compares two character vectors using Unicode rules, optionally ignoring case:
+
+    ```{r}
+    str_equal("a", "A")
+    str_equal("a", "A", ignore_case = TRUE)
+    ```
+
+-   `str_rank()` completes the set of order/rank/sort functions:
+
+    ```{r}
+    str_rank(c("a", "c", "b", "b"))
+    # compare to:
+    str_order(c("a", "c", "b", "b"))
+    ```
+
+-   `str_unique()` returns unique values, optionally ignoring case:
+
+    ```{r}
+    str_unique(c("a", "a", "A"))
+    str_unique(c("a", "a", "A"), ignore_case = TRUE)
+    ```
+
+### Splitting
+
+`str_split()` gains two useful variants:
+
+-   `str_split_1()` is tailored for the special case of splitting up a single string.
+    It returns a character vector, not a list, and errors if you try and give it multiple values:
+
+    ```{r}
+    #| error: true
+
+    str_split_1("x-y-z", "-")
+    str_split_1(c("x-y", "a-b-c"), "-")
+    ```
+
+    It's a shortcut for the common pattern of `unlist(str_split(x, " "))`.
+
+-   `str_split_i()` extracts a single piece from the split string:
+
+    ```{r}
+    x <- c("a-b-c", "d-e", "f-g-h-i")
+    str_split_i(x, "-", 2)
+
+    str_split_i(x, "-", 4)
+
+    str_split_i(x, "-", -1)
+    ```
+
+### Miscellaneous
+
+-   `str_escape()` escapes regular expression metacharacters, providing an alternative to `fixed()` if you want to compose a pattern from user supplied strings:
+
+    ```{r}
+    str_view("[hello]", str_escape("[]"))
+    ```
+
+-   `str_extract()` can now extract a capturing group instead of the complete match:
+
+    ```{r}
+    x <- c("Chapter 1", "Section 2.3", "Chapter 3", "Section 4.1.1")
+    str_extract(x, "([A-Za-z]+) ([0-9.]+)", group = 1)
+    str_extract(x, "([A-Za-z]+) ([0-9.]+)", group = 2)
+    ```
+
+-   `str_flatten()` gains a `last` argument which is used to power the new `str_flatten_comma()`:
+
+    ```{r}
+    str_flatten_comma(c("cats", "dogs", "mice"))
+    str_flatten_comma(c("cats", "dogs", "mice"), last = " and ")
+    str_flatten_comma(c("cats", "dogs", "mice"), last = ", and ")
+
+    # correctly handles the two element case with the Oxford comma
+    str_flatten_comma(c("cats", "dogs"), last = ", and ")
+    ```
+
+-   `str_like()` works like `str_detect()` but uses SQL's LIKE syntax:
+
+    ```{r}
+    fruit <- c("apple", "banana", "pear", "pineapple")
+    fruit[str_like(fruit, "%apple")]
+    fruit[str_like(fruit, "p__r")]
+    ```
+
+## Acknowledgements
+
+A big thanks to all 114 folks who contributed to this release through pull requests and issues!
+[\@aaronrudkin](https://github.com/aaronrudkin), [\@adisarid](https://github.com/adisarid), [\@AleSR13](https://github.com/AleSR13), [\@anfederico](https://github.com/anfederico), [\@AR1337](https://github.com/AR1337), [\@arisp99](https://github.com/arisp99), [\@avila](https://github.com/avila), [\@balthasars](https://github.com/balthasars), [\@batpigandme](https://github.com/batpigandme), [\@bbarros50](https://github.com/bbarros50), [\@bbo2adwuff](https://github.com/bbo2adwuff), [\@bensenmansen](https://github.com/bensenmansen), [\@bfgray3](https://github.com/bfgray3), [\@Bisaloo](https://github.com/Bisaloo), [\@bonmac](https://github.com/bonmac), [\@botan](https://github.com/botan), [\@bshor](https://github.com/bshor), [\@carlganz](https://github.com/carlganz), [\@chintanp](https://github.com/chintanp), [\@chrimaho](https://github.com/chrimaho), [\@chris2b5](https://github.com/chris2b5), [\@clemenshug](https://github.com/clemenshug), [\@courtiol](https://github.com/courtiol), [\@dachosen1](https://github.com/dachosen1), [\@dan-reznik](https://github.com/dan-reznik), [\@datawookie](https://github.com/datawookie), [\@david-romano](https://github.com/david-romano), [\@DavisVaughan](https://github.com/DavisVaughan), [\@dbarrows](https://github.com/dbarrows), [\@deann88](https://github.com/deann88), [\@denrou](https://github.com/denrou), [\@deschen1](https://github.com/deschen1), [\@dsg38](https://github.com/dsg38), [\@dtburk](https://github.com/dtburk), [\@elbersb](https://github.com/elbersb), [\@geotheory](https://github.com/geotheory), [\@ghost](https://github.com/ghost), [\@GrimTrigger88](https://github.com/GrimTrigger88), [\@hadley](https://github.com/hadley), [\@iago-pssjd](https://github.com/iago-pssjd), [\@IndigoJay](https://github.com/IndigoJay), [\@jashapiro](https://github.com/jashapiro), [\@JBGruber](https://github.com/JBGruber), [\@jennybc](https://github.com/jennybc), [\@jimhester](https://github.com/jimhester), [\@jjesusfilho](https://github.com/jjesusfilho), [\@jmbarbone](https://github.com/jmbarbone), [\@joethorley](https://github.com/joethorley), [\@jonas-hag](https://github.com/jonas-hag), [\@jonthegeek](https://github.com/jonthegeek), [\@joshyam-k](https://github.com/joshyam-k), [\@jpeacock29](https://github.com/jpeacock29), [\@jzadra](https://github.com/jzadra), [\@KasperThystrup](https://github.com/KasperThystrup), [\@kendonB](https://github.com/kendonB), [\@kieran-mace](https://github.com/kieran-mace), [\@kiernann](https://github.com/kiernann), [\@Kodiologist](https://github.com/Kodiologist), [\@leej3](https://github.com/leej3), [\@leowill01](https://github.com/leowill01), [\@LimaRAF](https://github.com/LimaRAF), [\@lmwang9527](https://github.com/lmwang9527), [\@Ludsfer](https://github.com/Ludsfer), [\@lz01](https://github.com/lz01), [\@Marcade80](https://github.com/Marcade80), [\@Mashin6](https://github.com/Mashin6), [\@MattCowgill](https://github.com/MattCowgill), [\@maxheld83](https://github.com/maxheld83), [\@mgirlich](https://github.com/mgirlich), [\@MichaelChirico](https://github.com/MichaelChirico), [\@michaelweylandt](https://github.com/michaelweylandt), [\@mikeaalv](https://github.com/mikeaalv), [\@misea](https://github.com/misea), [\@mitchelloharawild](https://github.com/mitchelloharawild), [\@mkvasnicka](https://github.com/mkvasnicka), [\@mrcaseb](https://github.com/mrcaseb), [\@mtnbikerjoshua](https://github.com/mtnbikerjoshua), [\@mwip](https://github.com/mwip), [\@nachovoss](https://github.com/nachovoss), [\@neonira](https://github.com/neonira), [\@Nischal-Karki-ATW](https://github.com/Nischal-Karki-ATW), [\@oliverbeagley](https://github.com/oliverbeagley), [\@orgadish](https://github.com/orgadish), [\@pachadotdev](https://github.com/pachadotdev), [\@PathosEthosLogos](https://github.com/PathosEthosLogos), [\@pdelboca](https://github.com/pdelboca), [\@petermeissner](https://github.com/petermeissner), [\@phargarten2](https://github.com/phargarten2), [\@programLyrique](https://github.com/programLyrique), [\@psads-git](https://github.com/psads-git), [\@psychelzh](https://github.com/psychelzh), [\@PursuitOfDataScience](https://github.com/PursuitOfDataScience), [\@richardjtelford](https://github.com/richardjtelford), [\@richelbilderbeek](https://github.com/richelbilderbeek), [\@rjpat](https://github.com/rjpat), [\@romatik](https://github.com/romatik), [\@rressler](https://github.com/rressler), [\@rwbaer](https://github.com/rwbaer), [\@salim-b](https://github.com/salim-b), [\@sammo3182](https://github.com/sammo3182), [\@sastoudt](https://github.com/sastoudt), [\@SchmidtPaul](https://github.com/SchmidtPaul), [\@seasmith](https://github.com/seasmith), [\@selesnow](https://github.com/selesnow), [\@slee981](https://github.com/slee981), [\@Tal1987](https://github.com/Tal1987), [\@tanzatanza](https://github.com/tanzatanza), [\@THChan11](https://github.com/THChan11), [\@travis-leith](https://github.com/travis-leith), [\@vladtarko](https://github.com/vladtarko), [\@wdenton](https://github.com/wdenton), [\@wurli](https://github.com/wurli), [\@Yingjie4Science](https://github.com/Yingjie4Science), and [\@zeehio](https://github.com/zeehio).
