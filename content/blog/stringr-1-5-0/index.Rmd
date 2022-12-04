@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: stringr-1-5-0
 title: stringr 1.5.0
-date: 2022-10-31
+date: 2022-11-05
 author: Hadley Wickham
 description: >
     It's been a long three years but a new version of stringr is now on
@@ -43,10 +43,10 @@ You can install it from CRAN with:
 install.packages("stringr")
 ```
 
-This blog post will give you an overview of the biggest changes (you can get a detailed list of all changes from the [release notes](%7B%20github_release%20%7D)).
+This blog post will give you an overview of the biggest changes (you can get a detailed list of all changes from the [release notes](https://stringr.tidyverse.org/news/index.html)).
 Firstly, we need to update you on some (small) breaking changes we've made to make stringr more consistent with the rest of the tidyverse.
-Then, we'll give a quick overview of improvement to documentation and stringr's new license.
-Lastly, we'll finish off by diving into the many small, but useful functions that we've accumulated in the three and half years since the last release.
+Then, we'll give a quick overview of improvements to documentation and stringr's new license.
+Lastly, we'll finish off by diving into a few of the many small, but useful, functions that we've accumulated in the three and half years since the last release.
 
 ```{r setup}
 library(stringr)
@@ -55,8 +55,8 @@ library(stringr)
 ## Breaking changes
 
 Lets start with the important stuff: the breaking changes.
-We've tried to keep these small and we don't believe they'll affect much code in the wild (only affected \~20 of the \~1,600 packages that use stringr).
-But we're believe they're important as a consistent set of rules makes the tidyverse as a whole more predictable and easier to learn.
+We've tried to keep these small and we don't believe they'll affect much code in the wild (they only affected \~20 of the \~1,600 packages that use stringr).
+But we're believe they're important to make as a consistent set of rules makes the tidyverse as a whole more predictable and easier to learn.
 
 ### Recycling rules
 
@@ -110,7 +110,7 @@ What should `str_detect(X, "")` return?
 You can argue two ways:
 
 -   To be consistent with `str_split()`, it should return `TRUE` whenever there are characters to match, i.e. `x != ""`.
--   It's not common to build up a set of possible matches by doing `str_flatten(matches, "|")`. What should this match if `matches` is empty? Ideally it would match nothing implying that `str_detect(x, "")` should be equivalent to `x == ""`.
+-   It's common to build up a set of possible matches by doing `str_flatten(matches, "|")`. What should this match if `matches` is empty? Ideally it would match nothing implying that `str_detect(x, "")` should be equivalent to `x == ""`.
 
 This inconsistency potentially leads to some subtle bugs, so use of `""` in `str_detect()` (and a few other related functions) is now an error:
 
@@ -134,7 +134,7 @@ Finally, stringr is now officially [re-licensed as MIT](https://www.tidyverse.or
 
 ## New features
 
-The biggest improvement is to `str_view()` which has gained a bunch of new features, including using the [cli](https://cli.r-lib.org/) package to work in more places.
+The biggest improvement is to `str_view()` which has gained a bunch of new features, including using the [cli](https://cli.r-lib.org/) package so it can work in more places.
 We also have a grab bag of new functions that fill in small functionality gaps.
 
 ### `str_view()`
@@ -143,7 +143,7 @@ We also have a grab bag of new functions that fill in small functionality gaps.
 This means it works in more places and requires fewer dependencies.
 `str_view()` now:
 
--   Displays strings with special characters.
+-   Displays strings with special characters:
 
     ```{r}
     x <- c("\\", "\"\nabcdef\n\"")
@@ -152,13 +152,13 @@ This means it works in more places and requires fewer dependencies.
     str_view(x)
     ```
 
--   Highlights unusual whitespace characters.
+-   Highlights unusual whitespace characters:
 
     ```{r}
     str_view("\t")
     ```
 
--   By default, only show matching strings.
+-   By default, only shows matching strings:
 
     ```{r}
     str_view(fruit, "(.)\\1")
@@ -170,7 +170,7 @@ This means it works in more places and requires fewer dependencies.
 
 There are three new functions related to comparing strings:
 
--   `str_equal()` compares two character vectors using unicode rules, optionally ignoring case
+-   `str_equal()` compares two character vectors using Unicode rules, optionally ignoring case:
 
     ```{r}
     str_equal("a", "A")
@@ -258,4 +258,3 @@ There are three new functions related to comparing strings:
 
 A big thanks to all 114 folks who contributed to this release through pull requests and issues!
 [\@aaronrudkin](https://github.com/aaronrudkin), [\@adisarid](https://github.com/adisarid), [\@AleSR13](https://github.com/AleSR13), [\@anfederico](https://github.com/anfederico), [\@AR1337](https://github.com/AR1337), [\@arisp99](https://github.com/arisp99), [\@avila](https://github.com/avila), [\@balthasars](https://github.com/balthasars), [\@batpigandme](https://github.com/batpigandme), [\@bbarros50](https://github.com/bbarros50), [\@bbo2adwuff](https://github.com/bbo2adwuff), [\@bensenmansen](https://github.com/bensenmansen), [\@bfgray3](https://github.com/bfgray3), [\@Bisaloo](https://github.com/Bisaloo), [\@bonmac](https://github.com/bonmac), [\@botan](https://github.com/botan), [\@bshor](https://github.com/bshor), [\@carlganz](https://github.com/carlganz), [\@chintanp](https://github.com/chintanp), [\@chrimaho](https://github.com/chrimaho), [\@chris2b5](https://github.com/chris2b5), [\@clemenshug](https://github.com/clemenshug), [\@courtiol](https://github.com/courtiol), [\@dachosen1](https://github.com/dachosen1), [\@dan-reznik](https://github.com/dan-reznik), [\@datawookie](https://github.com/datawookie), [\@david-romano](https://github.com/david-romano), [\@DavisVaughan](https://github.com/DavisVaughan), [\@dbarrows](https://github.com/dbarrows), [\@deann88](https://github.com/deann88), [\@denrou](https://github.com/denrou), [\@deschen1](https://github.com/deschen1), [\@dsg38](https://github.com/dsg38), [\@dtburk](https://github.com/dtburk), [\@elbersb](https://github.com/elbersb), [\@geotheory](https://github.com/geotheory), [\@ghost](https://github.com/ghost), [\@GrimTrigger88](https://github.com/GrimTrigger88), [\@hadley](https://github.com/hadley), [\@iago-pssjd](https://github.com/iago-pssjd), [\@IndigoJay](https://github.com/IndigoJay), [\@jashapiro](https://github.com/jashapiro), [\@JBGruber](https://github.com/JBGruber), [\@jennybc](https://github.com/jennybc), [\@jimhester](https://github.com/jimhester), [\@jjesusfilho](https://github.com/jjesusfilho), [\@jmbarbone](https://github.com/jmbarbone), [\@joethorley](https://github.com/joethorley), [\@jonas-hag](https://github.com/jonas-hag), [\@jonthegeek](https://github.com/jonthegeek), [\@joshyam-k](https://github.com/joshyam-k), [\@jpeacock29](https://github.com/jpeacock29), [\@jzadra](https://github.com/jzadra), [\@KasperThystrup](https://github.com/KasperThystrup), [\@kendonB](https://github.com/kendonB), [\@kieran-mace](https://github.com/kieran-mace), [\@kiernann](https://github.com/kiernann), [\@Kodiologist](https://github.com/Kodiologist), [\@leej3](https://github.com/leej3), [\@leowill01](https://github.com/leowill01), [\@LimaRAF](https://github.com/LimaRAF), [\@lmwang9527](https://github.com/lmwang9527), [\@Ludsfer](https://github.com/Ludsfer), [\@lz01](https://github.com/lz01), [\@Marcade80](https://github.com/Marcade80), [\@Mashin6](https://github.com/Mashin6), [\@MattCowgill](https://github.com/MattCowgill), [\@maxheld83](https://github.com/maxheld83), [\@mgirlich](https://github.com/mgirlich), [\@MichaelChirico](https://github.com/MichaelChirico), [\@michaelweylandt](https://github.com/michaelweylandt), [\@mikeaalv](https://github.com/mikeaalv), [\@misea](https://github.com/misea), [\@mitchelloharawild](https://github.com/mitchelloharawild), [\@mkvasnicka](https://github.com/mkvasnicka), [\@mrcaseb](https://github.com/mrcaseb), [\@mtnbikerjoshua](https://github.com/mtnbikerjoshua), [\@mwip](https://github.com/mwip), [\@nachovoss](https://github.com/nachovoss), [\@neonira](https://github.com/neonira), [\@Nischal-Karki-ATW](https://github.com/Nischal-Karki-ATW), [\@oliverbeagley](https://github.com/oliverbeagley), [\@orgadish](https://github.com/orgadish), [\@pachadotdev](https://github.com/pachadotdev), [\@PathosEthosLogos](https://github.com/PathosEthosLogos), [\@pdelboca](https://github.com/pdelboca), [\@petermeissner](https://github.com/petermeissner), [\@phargarten2](https://github.com/phargarten2), [\@programLyrique](https://github.com/programLyrique), [\@psads-git](https://github.com/psads-git), [\@psychelzh](https://github.com/psychelzh), [\@PursuitOfDataScience](https://github.com/PursuitOfDataScience), [\@richardjtelford](https://github.com/richardjtelford), [\@richelbilderbeek](https://github.com/richelbilderbeek), [\@rjpat](https://github.com/rjpat), [\@romatik](https://github.com/romatik), [\@rressler](https://github.com/rressler), [\@rwbaer](https://github.com/rwbaer), [\@salim-b](https://github.com/salim-b), [\@sammo3182](https://github.com/sammo3182), [\@sastoudt](https://github.com/sastoudt), [\@SchmidtPaul](https://github.com/SchmidtPaul), [\@seasmith](https://github.com/seasmith), [\@selesnow](https://github.com/selesnow), [\@slee981](https://github.com/slee981), [\@Tal1987](https://github.com/Tal1987), [\@tanzatanza](https://github.com/tanzatanza), [\@THChan11](https://github.com/THChan11), [\@travis-leith](https://github.com/travis-leith), [\@vladtarko](https://github.com/vladtarko), [\@wdenton](https://github.com/wdenton), [\@wurli](https://github.com/wurli), [\@Yingjie4Science](https://github.com/Yingjie4Science), and [\@zeehio](https://github.com/zeehio).
-

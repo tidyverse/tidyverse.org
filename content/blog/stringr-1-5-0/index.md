@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: stringr-1-5-0
 title: stringr 1.5.0
-date: 2022-10-31
+date: 2022-11-05
 author: Hadley Wickham
 description: >
     It's been a long three years but a new version of stringr is now on
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [stringr, tidyverse]
-rmd_hash: 979efefa6bfa4cee
+rmd_hash: 5ed2b64d6a2c75c3
 
 ---
 
@@ -45,7 +45,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will give you an overview of the biggest changes (you can get a detailed list of all changes from the [release notes](%7B%20github_release%20%7D)). Firstly, we need to update you on some (small) breaking changes we've made to make stringr more consistent with the rest of the tidyverse. Then, we'll give a quick overview of improvement to documentation and stringr's new license. Lastly, we'll finish off by diving into the many small, but useful functions that we've accumulated in the three and half years since the last release.
+This blog post will give you an overview of the biggest changes (you can get a detailed list of all changes from the [release notes](https://stringr.tidyverse.org/news/index.html)). Firstly, we need to update you on some (small) breaking changes we've made to make stringr more consistent with the rest of the tidyverse. Then, we'll give a quick overview of improvements to documentation and stringr's new license. Lastly, we'll finish off by diving into a few of the many small, but useful, functions that we've accumulated in the three and half years since the last release.
 
 <div class="highlight">
 
@@ -55,7 +55,7 @@ This blog post will give you an overview of the biggest changes (you can get a d
 
 ## Breaking changes
 
-Lets start with the important stuff: the breaking changes. We've tried to keep these small and we don't believe they'll affect much code in the wild (only affected \~20 of the \~1,600 packages that use stringr). But we're believe they're important as a consistent set of rules makes the tidyverse as a whole more predictable and easier to learn.
+Lets start with the important stuff: the breaking changes. We've tried to keep these small and we don't believe they'll affect much code in the wild (they only affected \~20 of the \~1,600 packages that use stringr). But we're believe they're important to make as a consistent set of rules makes the tidyverse as a whole more predictable and easier to learn.
 
 ### Recycling rules
 
@@ -115,7 +115,7 @@ When creating stringr (over 13 years ago!), I took this idea and ran with it, im
 What should `str_detect(X, "")` return? You can argue two ways:
 
 -   To be consistent with [`str_split()`](https://stringr.tidyverse.org/reference/str_split.html), it should return `TRUE` whenever there are characters to match, i.e. `x != ""`.
--   It's not common to build up a set of possible matches by doing `str_flatten(matches, "|")`. What should this match if `matches` is empty? Ideally it would match nothing implying that `str_detect(x, "")` should be equivalent to `x == ""`.
+-   It's common to build up a set of possible matches by doing `str_flatten(matches, "|")`. What should this match if `matches` is empty? Ideally it would match nothing implying that `str_detect(x, "")` should be equivalent to `x == ""`.
 
 This inconsistency potentially leads to some subtle bugs, so use of `""` in [`str_detect()`](https://stringr.tidyverse.org/reference/str_detect.html) (and a few other related functions) is now an error:
 
@@ -130,7 +130,7 @@ This inconsistency potentially leads to some subtle bugs, so use of `""` in [`st
 
 ## Documentation and licensing
 
-Now that we've got the breaking changes out of the way we can focus on the new stuff 😃. Most importantly, there's a new vignette that provides some advice if you're transition from (or to) base R's string functions: `vignette("from-base", package = "stringr")`. It was written by [Sara Stoudt](https://sastoudt.github.io) during the 2019 Tidyverse developer day, and has finally made it to the released version!
+Now that we've got the breaking changes out of the way we can focus on the new stuff 😃. Most importantly, there's a new vignette that provides some advice if you're transition from (or to) base R's string functions: [`vignette("from-base", package = "stringr")`](https://stringr.tidyverse.org/articles/from-base.html). It was written by [Sara Stoudt](https://sastoudt.github.io) during the 2019 Tidyverse developer day, and has finally made it to the released version!
 
 We've also spent a bunch of time reviewing the documentation, particularly the topic titles and descriptions. They're now more informative and less duplicative, hopefully make it easier to find the function that you're looking for. See the complete list of functions in the [reference index](https://stringr.tidyverse.org/reference/index.html).
 
@@ -138,13 +138,13 @@ Finally, stringr is now officially [re-licensed as MIT](https://www.tidyverse.or
 
 ## New features
 
-The biggest improvement is to [`str_view()`](https://stringr.tidyverse.org/reference/str_view.html) which has gained a bunch of new features, including using the [cli](https://cli.r-lib.org/) package to work in more places. We also have a grab bag of new functions that fill in small functionality gaps.
+The biggest improvement is to [`str_view()`](https://stringr.tidyverse.org/reference/str_view.html) which has gained a bunch of new features, including using the [cli](https://cli.r-lib.org/) package so it can work in more places. We also have a grab bag of new functions that fill in small functionality gaps.
 
 ### `str_view()`
 
 [`str_view()`](https://stringr.tidyverse.org/reference/str_view.html) uses ANSI colouring rather than an HTML widget. This means it works in more places and requires fewer dependencies. [`str_view()`](https://stringr.tidyverse.org/reference/str_view.html) now:
 
--   Displays strings with special characters.
+-   Displays strings with special characters:
 
     <div class="highlight">
 
@@ -161,7 +161,7 @@ The biggest improvement is to [`str_view()`](https://stringr.tidyverse.org/refer
 
     </div>
 
--   Highlights unusual whitespace characters.
+-   Highlights unusual whitespace characters:
 
     <div class="highlight">
 
@@ -171,7 +171,7 @@ The biggest improvement is to [`str_view()`](https://stringr.tidyverse.org/refer
 
     </div>
 
--   By default, only show matching strings.
+-   By default, only shows matching strings:
 
     <div class="highlight">
 
@@ -207,7 +207,7 @@ The biggest improvement is to [`str_view()`](https://stringr.tidyverse.org/refer
 
 There are three new functions related to comparing strings:
 
--   [`str_equal()`](https://stringr.tidyverse.org/reference/str_equal.html) compares two character vectors using unicode rules, optionally ignoring case
+-   [`str_equal()`](https://stringr.tidyverse.org/reference/str_equal.html) compares two character vectors using Unicode rules, optionally ignoring case:
 
     <div class="highlight">
 
