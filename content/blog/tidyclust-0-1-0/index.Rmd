@@ -31,26 +31,26 @@ TODO:
 * [X] `usethis::use_tidy_thanks()`
 -->
 
-We're very pleased to announce the release of [tidyclust](https://tidyclust.tidymodels.org/) 0.1.0. tidyclust is the tidymodels extension to fit and use clustering models.
+We're very pleased to announce the release of [tidyclust](https://tidyclust.tidymodels.org/) 0.1.0. tidyclust is the tidymodels extension for working with clustering models.
 
 You can install it from CRAN with:
 
 ```{r, eval = FALSE}
-install.packages("{package}")
+install.packages("tidyclust")
 ```
 
-This blog post will introduce tidyclust, how to use it with the rest of tidymodels, and how we can interact and evaluate the fitted cluster models.
+This blog post will introduce tidyclust, how to use it with the rest of tidymodels, and how we can interact and evaluate the fitted clustering models.
 
 ```{r setup}
 library(tidymodels)
 library(tidyclust)
 ```
 
-## Specifying cluster models
+## Specifying clustering models
 
-The first thing we need to do is decide on the type of clustering model we want to fit. The pkgdown site provides a [list of all clustering specifications](https://tidyclust.tidymodels.org/reference/index.html#specifications) provided by tidyclust. We are slowly adding more types of models and [suggestions in issues](https://github.com/tidymodels/tidyclust/issues) are highly welcome!
+The first thing we need to do is decide on the type of clustering model we want to fit. The pkgdown site provides a [list of all clustering specifications](https://tidyclust.tidymodels.org/reference/index.html#specifications) provided by tidyclust. We are slowly adding more types of models—[suggestions in issues](https://github.com/tidymodels/tidyclust/issues) are highly welcome!
 
-We will use a K-Means model for these examples using `k_means()` to create a specification. tidyclust as with the rest of tidymodels tries to use informative names for functions and arguments, so we will be using `num_clusters` instead of `k`
+We will use a K-Means model for these examples using `k_means()` to create a specification. As with other packages in the tidymodels, tidyclust tries to make use of informative names for functions and arguments; as such, the argument denoting the number of clusters is `num_clusters` rather than `k`.
 
 ```{r}
 kmeans_spec <- k_means(num_clusters = 4) %>%
@@ -58,13 +58,13 @@ kmeans_spec <- k_means(num_clusters = 4) %>%
 kmeans_spec
 ```
 
-We can use the `set_engine()`, `set_mode()`, and `set_args()` we are familiar with from parsnip. The specification itself isn't worth much if we don't apply it to some data. We will use the ames data set from the modeldata package
+We can use the `set_engine()`, `set_mode()`, and `set_args()` functions we are familiar with from parsnip. The specification itself isn't worth much if we don't apply it to some data. We will use the ames data set from the modeldata package
 
 ```{r}
 data("ames", package = "modeldata")
 ```
 
-this data set contains a number of categorical variables that unaltered can't be used with a k-means model. Some light preprocessing can be done using the recipes package.
+This data set contains a number of categorical variables that unaltered can't be used with a K-Means model. Some light preprocessing can be done using the recipes package.
 
 ```{r}
 rec_spec <- recipe(~ ., data = ames) %>%
@@ -74,7 +74,7 @@ rec_spec <- recipe(~ ., data = ames) %>%
   step_pca(all_numeric_predictors(), threshold = 0.8)
 ```
 
-This recipe ensures that all the variables are numeric, normalized and have PCA applied to them to remove some of the correlation and number of features. Notice how we didn't specify an outcome as clustering models are unsupervised, meaning that we don't have outcomes.
+This recipe normalizes all of the numeric variables before applying PCA to create a more minimal set of uncorrelated features. Notice how we didn't specify an outcome as clustering models are unsupervised, meaning that we don't have outcomes.
 
 These two specifications can be combined in a `workflow()` 
 
@@ -89,7 +89,7 @@ kmeans_fit <- fit(kmeans_wf, data = ames)
 kmeans_fit
 ```
 
-We have arbitrarily set the number of clusters to 4 above. But if we wanted to figure out what values would be "optimal" we would have to fit multiple models. We can do this with `tune_cluster()`, for this we need to use `tune()` to specify that `num_clusters` is the argument we want to try with multiple values
+We have arbitrarily set the number of clusters to 4 above. If we wanted to figure out what values would be "optimal," we would have to fit multiple models. We can do this with `tune_cluster()`; to make use of this function, though, we first need to use `tune()` to specify that `num_clusters` is the argument we want to try with multiple values
 
 ```{r}
 kmeans_spec <- kmeans_spec %>% 
@@ -99,7 +99,7 @@ kmeans_wf <- workflow(rec_spec, kmeans_spec)
 kmeans_wf
 ```
 
-Using bootstraps to fit multiple models for each value of `num_clusters` and we can use `tune_cluster` much the same way we use `tune_grid()`
+We can use `tune_cluster()` in the same way we use `tune_grid()`, using bootstraps to fit multiple models for each value of `num_clusters`
 
 ```{r}
 set.seed(1234)
@@ -119,13 +119,13 @@ collect_metrics(tune_res)
 
 ## Extraction
 
-Going back to the first model with fit, in tidyclust there are 3 main things we can do with a fitted cluster model:
+Going back to the first model we fit, tidyclust provides three main tools for interfacing with a fitted cluster model:
 
 - extract cluster assignments
 - extract centroid locations
 - prediction with new data
 
-Each of these tasks has a function associated with them. First, we have `extract_cluster_assignment()`, which can be used on fitted tidyclust objects, alone or as a part of a workflow and it returns the cluster assignment as a factor named `.cluster`in a tibble.
+Each of these tasks has a function associated with them. First, we have `extract_cluster_assignment()`, which can be used on fitted tidyclust objects, alone or as a part of a workflow, and it returns the cluster assignment as a factor named `.cluster` in a tibble.
 
 ```{r}
 extract_cluster_assignment(kmeans_fit)
@@ -137,7 +137,7 @@ The location of the clusters can be found using `extract_centroids()` which agai
 extract_centroids(kmeans_fit)
 ```
 
-Lastly, if the model has a notion that translates to "prediction", then `predict()` will give you those results as well. In the case of K-means, this is being interpreted as "which centroid is this observation closest to".
+Lastly, if the model has a notion that translates to "prediction," then `predict()` will give you those results as well. In the case of K-Means, this is being interpreted as "which centroid is this observation closest to."
 
 ```{r}
 predict(kmeans_fit, new_data = slice_sample(ames, n = 10))
