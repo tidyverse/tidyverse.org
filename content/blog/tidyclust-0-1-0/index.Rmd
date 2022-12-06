@@ -58,7 +58,7 @@ kmeans_spec <- k_means(num_clusters = 4) %>%
 kmeans_spec
 ```
 
-We can use the `set_engine()`, `set_mode()`, and `set_args()` functions we are familiar with from parsnip. The specification itself isn't worth much if we don't apply it to some data. We will use the ames data set from the modeldata package
+We can use the `set_engine()`, `set_mode()`, and `set_args()` functions we are familiar with from parsnip. The specification itself isn't worth much if we don't apply it to some data. We will use the ames data set from the modeldata package.
 
 ```{r}
 data("ames", package = "modeldata")
@@ -82,14 +82,14 @@ These two specifications can be combined in a `workflow()`
 kmeans_wf <- workflow(rec_spec, kmeans_spec)
 ```
 
-This workflow can then be fit to the `ames` data set
+This workflow can then be fit to the `ames` data set.
 
 ```{r}
 kmeans_fit <- fit(kmeans_wf, data = ames)
 kmeans_fit
 ```
 
-We have arbitrarily set the number of clusters to 4 above. If we wanted to figure out what values would be "optimal," we would have to fit multiple models. We can do this with `tune_cluster()`; to make use of this function, though, we first need to use `tune()` to specify that `num_clusters` is the argument we want to try with multiple values
+We have arbitrarily set the number of clusters to 4 above. If we wanted to figure out what values would be "optimal," we would have to fit multiple models. We can do this with `tune_cluster()`; to make use of this function, though, we first need to use `tune()` to specify that `num_clusters` is the argument we want to try with multiple values.
 
 ```{r}
 kmeans_spec <- kmeans_spec %>% 
@@ -99,7 +99,7 @@ kmeans_wf <- workflow(rec_spec, kmeans_spec)
 kmeans_wf
 ```
 
-We can use `tune_cluster()` in the same way we use `tune_grid()`, using bootstraps to fit multiple models for each value of `num_clusters`
+We can use `tune_cluster()` in the same way we use `tune_grid()`, using bootstraps to fit multiple models for each value of `num_clusters`.
 
 ```{r}
 set.seed(1234)

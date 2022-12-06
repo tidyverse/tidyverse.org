@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, tidyclust]
-rmd_hash: cdd426cca2591870
+rmd_hash: 4b519bcf574454f3
 
 ---
 
@@ -62,7 +62,7 @@ This blog post will introduce tidyclust, how to use it with the rest of tidymode
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>lag()</span>     masks <span style='color: #0000BB;'>stats</span>::lag()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>recipes</span>::<span style='color: #00BB00;'>step()</span>  masks <span style='color: #0000BB;'>stats</span>::step()</span></span>
-<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Search for functions across packages at <span style='color: #00BB00;'>https://www.tidymodels.org/find/</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Use <span style='color: #00BB00;'>tidymodels_prefer()</span> to resolve common conflicts.</span></span>
 <span></span><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/tidymodels/tidyclust'>tidyclust</a></span><span class='o'>)</span></span></code></pre>
 
 </div>
@@ -88,7 +88,7 @@ We will use a K-Means model for these examples using [`k_means()`](https://rdrr.
 
 </div>
 
-We can use the [`set_engine()`](https://parsnip.tidymodels.org/reference/set_engine.html), [`set_mode()`](https://parsnip.tidymodels.org/reference/set_args.html), and [`set_args()`](https://parsnip.tidymodels.org/reference/set_args.html) functions we are familiar with from parsnip. The specification itself isn't worth much if we don't apply it to some data. We will use the ames data set from the modeldata package
+We can use the [`set_engine()`](https://parsnip.tidymodels.org/reference/set_engine.html), [`set_mode()`](https://parsnip.tidymodels.org/reference/set_args.html), and [`set_args()`](https://parsnip.tidymodels.org/reference/set_args.html) functions we are familiar with from parsnip. The specification itself isn't worth much if we don't apply it to some data. We will use the ames data set from the modeldata package.
 
 <div class="highlight">
 
@@ -118,7 +118,7 @@ These two specifications can be combined in a `workflow()`
 
 </div>
 
-This workflow can then be fit to the `ames` data set
+This workflow can then be fit to the `ames` data set.
 
 <div class="highlight">
 
@@ -147,7 +147,7 @@ This workflow can then be fit to the `ames` data set
 
 </div>
 
-We have arbitrarily set the number of clusters to 4 above. If we wanted to figure out what values would be "optimal," we would have to fit multiple models. We can do this with [`tune_cluster()`](https://rdrr.io/pkg/tidyclust/man/tune_cluster.html); to make use of this function, though, we first need to use [`tune()`](https://hardhat.tidymodels.org/reference/tune.html) to specify that `num_clusters` is the argument we want to try with multiple values
+We have arbitrarily set the number of clusters to 4 above. If we wanted to figure out what values would be "optimal," we would have to fit multiple models. We can do this with [`tune_cluster()`](https://rdrr.io/pkg/tidyclust/man/tune_cluster.html); to make use of this function, though, we first need to use [`tune()`](https://hardhat.tidymodels.org/reference/tune.html) to specify that `num_clusters` is the argument we want to try with multiple values.
 
 <div class="highlight">
 
@@ -179,7 +179,7 @@ We have arbitrarily set the number of clusters to 4 above. If we wanted to figur
 
 </div>
 
-We can use [`tune_cluster()`](https://rdrr.io/pkg/tidyclust/man/tune_cluster.html) in the same way we use `tune_grid()`, using bootstraps to fit multiple models for each value of `num_clusters`
+We can use [`tune_cluster()`](https://rdrr.io/pkg/tidyclust/man/tune_cluster.html) in the same way we use `tune_grid()`, using bootstraps to fit multiple models for each value of `num_clusters`.
 
 <div class="highlight">
 
