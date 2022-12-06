@@ -31,7 +31,7 @@ TODO:
 * [X] `usethis::use_tidy_thanks()`
 -->
 
-We're very pleased to announce the release of [tidyclust](https://tidyclust.tidymodels.org/) 0.1.0. tidyclust is the tidymodels extension for working with clustering models.
+We're very pleased to announce the release of [tidyclust](https://tidyclust.tidymodels.org/) 0.1.0. tidyclust is the tidymodels extension for working with clustering models. This package wouldn't have been possible without the great work of [Kelly Bodwin](https://twitter.com/KellyBodwin).
 
 You can install it from CRAN with:
 
@@ -42,7 +42,7 @@ install.packages("tidyclust")
 This blog post will introduce tidyclust, how to use it with the rest of tidymodels, and how we can interact and evaluate the fitted clustering models.
 
 ```{r setup}
-library(tidymodels)
+library(tidymodels) 
 library(tidyclust)
 ```
 
@@ -82,7 +82,7 @@ These two specifications can be combined in a `workflow()`
 kmeans_wf <- workflow(rec_spec, kmeans_spec)
 ```
 
-And fit them together
+This workflow can then be fit to the `ames` data set
 
 ```{r}
 kmeans_fit <- fit(kmeans_wf, data = ames)
@@ -111,7 +111,7 @@ tune_res <- tune_cluster(
 )
 ```
 
-and the respective `collect_*()` functions work as with tune output
+The different [collect functions](https://tune.tidymodels.org/reference/collect_predictions.html) such as `collect_metrics()` works as they would do with tune output.
 
 ```{r}
 collect_metrics(tune_res)
@@ -131,7 +131,7 @@ Each of these tasks has a function associated with them. First, we have `extract
 extract_cluster_assignment(kmeans_fit)
 ```
 
-The location of the clusters can be found using `extract_centroids()` which again returns a tibble, with `.cluster` being a factor with the same levels as earlier.
+The location of the clusters can be found using `extract_centroids()` which again returns a tibble, with `.cluster` being a factor with the same levels as what we got from `extract_cluster_assignment()`.
 
 ```{r}
 extract_centroids(kmeans_fit)
@@ -143,7 +143,7 @@ Lastly, if the model has a notion that translates to "prediction," then `predict
 predict(kmeans_fit, new_data = slice_sample(ames, n = 10))
 ```
 
-Please check the [pkgdown site](https://tidyclust.tidymodels.org/) for more in-depth articles.
+Please check the [pkgdown site](https://tidyclust.tidymodels.org/) for more in-depth articles. We couldn't be happier to have this package on CRAN and we encouraging you to check it out.
 
 ## Acknowledgements
 
