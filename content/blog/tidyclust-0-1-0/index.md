@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, tidyclust]
-rmd_hash: 4b519bcf574454f3
+rmd_hash: de36f0bbb22b5d3c
 
 ---
 
@@ -62,7 +62,7 @@ This blog post will introduce tidyclust, how to use it with the rest of tidymode
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>lag()</span>     masks <span style='color: #0000BB;'>stats</span>::lag()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>recipes</span>::<span style='color: #00BB00;'>step()</span>  masks <span style='color: #0000BB;'>stats</span>::step()</span></span>
-<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Use <span style='color: #00BB00;'>tidymodels_prefer()</span> to resolve common conflicts.</span></span>
+<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Use suppressPackageStartupMessages() to eliminate package startup messages</span></span>
 <span></span><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/tidymodels/tidyclust'>tidyclust</a></span><span class='o'>)</span></span></code></pre>
 
 </div>
@@ -110,7 +110,7 @@ This data set contains a number of categorical variables that unaltered can't be
 
 This recipe normalizes all of the numeric variables before applying PCA to create a more minimal set of uncorrelated features. Notice how we didn't specify an outcome as clustering models are unsupervised, meaning that we don't have outcomes.
 
-These two specifications can be combined in a `workflow()`
+These two specifications can be combined in a `workflow()`.
 
 <div class="highlight">
 
