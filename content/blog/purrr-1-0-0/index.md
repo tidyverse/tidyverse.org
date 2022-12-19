@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [purrr]
-rmd_hash: 5f3e6f13284d1155
+rmd_hash: bf1693bb8ef914f0
 
 ---
 
@@ -192,7 +192,7 @@ purrr has a number of functions that modify a list: `pluck<-()`, [`assign_in()`]
 
 </div>
 
-Now all list modifying functions will create an element containing `NULL`:
+Now functions that edit a list will create an element containing `NULL`:
 
 <div class="highlight">
 
