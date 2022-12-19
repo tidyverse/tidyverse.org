@@ -78,9 +78,9 @@ There are four important changes that you should be aware of:
 -   `pluck()` behaves differently when extracting 0-length vectors.
 -   The `map()` family uses the tidyverse rules for coercion and recycling.
 -   All functions that modify lists handle `NULL` consistently.
--   We've deprecated functions that aren't related to the core purpose of purr.
+-   We've deprecated functions that aren't related to the core purpose of purrr.
 
-### pluck and zero-length vectors
+### `pluck()` and zero-length vectors
 
 Previously, `pluck()` replaced 0-length vectors with the value of `default`.
 Now `default` is only used for `NULL`s and absent elements:
@@ -131,7 +131,7 @@ In particular:
 This has two major changes:
 
 -   Previously, the presence of a zero-length input generated a zero-length output.
-    Now its recycled using the same rules:
+    Now it's recycled using the same rules:
 
     ```{r}
     #| error: true
@@ -152,7 +152,7 @@ This has two major changes:
 
 ### Assigning `NULL`
 
-purrr has a number of functions that modify a list: `pluck<-`, `assign_in()`, `modify()`, `modify2()`, `modify_if()`, `modify_at()`, and `list_modify()`.
+purrr has a number of functions that modify a list: `pluck<-()`, `assign_in()`, `modify()`, `modify2()`, `modify_if()`, `modify_at()`, and `list_modify()`.
 Previously, these functions had inconsistent behaviour when you attempted to modify an element with `NULL`: some functions would delete that element, and some would set it to `NULL`.
 That inconsistency arose because base R handles `NULL` in different ways depending on whether or not use you `$`/`[[` or `[`:
 
@@ -192,7 +192,7 @@ x3 |>
 
 We have **deprecated** a number of functions to keep purrr focused on its core purpose: facilitating functional programming in R.
 Deprecation means that the functions will continue to work, but you'll be warned once every 8 hours if you use them.
-In several years time, we'll release an update which causes the warnings to occur on every time you use them, and a few years after that they'll transformed to throwing errors.
+In several years time, we'll release an update which causes the warnings to occur on every time you use them, and a few years after that they'll be transformed to throwing errors.
 
 -   `cross()` and all its variants have been deprecated because they're slow and buggy, and a better approach already exists in `tidyr::expand_grid()`.
 
@@ -211,7 +211,7 @@ Deprecating these functions makes purrr easier to maintain because it reduces th
 ## Documentation
 
 As you've seen in the code above, we are moving from magrittr's pipe (`%>%`) to the base pipe (`|>`) and from formula syntax (`~ .x + 1`) to R's new anonymous function short hand (`\(x) x + 1`).
-We believe that it's better to use these new base tools because they work everywhere: the base pipe doesn't requite that you load magrittr and the new function shorthand works everywhere, not just in purrr functions.
+We believe that it's better to use these new base tools because they work everywhere: the base pipe doesn't require that you load magrittr and the new function shorthand works everywhere, not just in purrr functions.
 Additionally, being able to specify the argument name for the anonymous function can often lead to clearer code.
 
 ```{r}
@@ -249,7 +249,7 @@ options(cli.progress_show_after = 0)
 options(cli.progress_clear = FALSE)
 ```
 
-The map family of function can now produce a progress bar.
+The map family can now produce a progress bar.
 This is very useful for long running jobs:
 
 ```{asciicast progress}
@@ -286,8 +286,8 @@ If you hit a confusing error message, please let us know!
 
 ### New `map_vec()`
 
-We've added `map_vec()` (along with `map2_vec()`, and `pmap_vec()`) to handle more types of vector.
-`map_vec()` extends `map_lgl()`, `map_int()`, `map_dbl()`, and `map_chr()` to arbitrary types of vector, like dates, factors, and date-times:
+We've added `map_vec()` (along with `map2_vec()`, and `pmap_vec()`) to handle more types of vectors.
+`map_vec()` extends `map_lgl()`, `map_int()`, `map_dbl()`, and `map_chr()` to arbitrary types of vectors, like dates, factors, and date-times:
 
 ```{r}
 1:3 |> map_vec(\(i) factor(letters[i]))
@@ -355,7 +355,7 @@ x |>
 
 ## Flattening and simplification
 
-Last, but not least, we've reworked the family functions that flatten and simplify lists.
+Last, but not least, we've reworked the family of functions that flatten and simplify lists.
 These caused us a lot of confusion internally because folks (and different packages) used the same words to mean different things.
 Now there are three main functions that share a common prefix that makes it clear that they all operate on lists:
 
@@ -374,7 +374,7 @@ This means that they are not going away but we no longer recommend them, and the
 
 ### Flattening
 
-`list_flatten()` which removes one layer of hierarchy from a list.
+`list_flatten()` removes one layer of hierarchy from a list.
 In other words, if any of the children of the list are themselves lists, the contents of those lists are inlined into the parent:
 
 ```{r}
@@ -420,7 +420,7 @@ If you need to simplify if it's possible, but otherwise leave the input unchange
 list_simplify(list(1, 2, "a"), strict = FALSE)
 ```
 
-If you want to be specific the type you want, `list_simplify()` can take the same prototype argument as `map_vec()`:
+If you want to be specific about the type you want, `list_simplify()` can take the same prototype argument as `map_vec()`:
 
 ```{r}
 #| error: true
@@ -432,9 +432,9 @@ list(1, 2, 3) |> list_simplify(ptype = factor())
 ### Concatenation
 
 `list_c()`, `list_cbind()`, and `list_rbind()` concatenate all elements together in a similar way to using `do.call(c)` or `do.call(rbind)`[^1] .
-Unlike `list_simplfy()`, this allows the elements to be different lengths:
+Unlike `list_simplify()`, this allows the elements to be different lengths:
 
-[^1]: But of they use the tidyverse coercion rules.
+[^1]: But if they used the tidyverse coercion rules.
 
 ```{r}
 list(1, 2, 3) |> list_c()
@@ -459,7 +459,7 @@ paths |>
 
 This new behaviour has some follow on consequences to `accumulate()` and `accumulate2()`, which previously had an idiosyncratic approach to simplification.
 
-### `list_update()` functions
+### `list_update()`
 
 There's one other new function that isn't directly related to flattening and friends, but shares the `list_` prefix: `list_update()`.
 `list_update()` is similar to `list_modify()` but it doesn't work recursively.
