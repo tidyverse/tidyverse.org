@@ -6,8 +6,8 @@ title: purrr 1.0.0
 date: 2022-11-10
 author: Hadley Wickham
 description: >
-    purrr 1.0.0 brings a basket of updates to purrr. We deprecated a number of
-    seldom used functions to hone in on the core purpose of purrr while 
+    purrr 1.0.0 brings a basket of updates. We deprecated a number of
+    seldom used functions to hone in on the core purpose of purrr and 
     implemented a swath of new features including progress bars, improved 
     error reporting, and much much more!
 
@@ -48,9 +48,9 @@ install.packages("purrr")
 ```
 
 purrr is 7 years old, but it's finally made it to 1.0.0!
-This is a big release, adding some long needed functionality (like progress bars!) as well as really refining the core purpose of purrr.
+This is a big release, adding some long-needed functionality (like progress bars!) as well as really refining the core purpose of purrr.
 In this post, we'll start with an overview of the breaking changes, then briefly review some documentation changes.
-Then we'll get to the good stuff: improvements to the map family, new `keep_at()` and `discard_at()`, and improvements to flattening and simplification.
+Then we'll get to the good stuff: improvements to the `map` family, new `keep_at()` and `discard_at()` functions, and improvements to flattening and simplification.
 You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
 
 ```{r setup}
@@ -65,7 +65,7 @@ We've done our best to ensure that changes are not cat-istrophic, which I can no
 This release is more aggressive than usual because a 1.0.0 release is our opportunity to make bigger changes that form a strong foundation for the next 10 years.
 These changes will break some existing code, but we've done our best to make it affect as little code as possible.
 For example, I [made pull requests](https://github.com/tidyverse/purrr/issues/969) to all \~40 CRAN packages (out of \~1,400) that purrr 1.0.0 broke.
-Making these fixes helped give me confidence that while we're deprecating quite a few functions and changing a few special cases, it shouldn't affect too much code in the wild.
+Making these fixes helped give me confidence that, though we're deprecating quite a few functions and changing a few special cases, it shouldn't affect too much code in the wild.
 
 There are four important changes that you should be aware of:
 
@@ -77,7 +77,7 @@ There are four important changes that you should be aware of:
 ### pluck and zero-length vectors
 
 Previously, `pluck()` replaced 0-length vectors with the value of `default`.
-Now `default` is only use for `NULL`s and absent elements:
+Now `default` is only used for `NULL`s and absent elements:
 
 ```{r}
 x <- list(y = list(a = character(), b = NULL))
@@ -97,7 +97,7 @@ We made this change because it makes purrr more consistent with the rest of the 
 
 ### Tidyverse consistency
 
-We've tweaked the map family of functions to be more consistent with general tidyverse coercion and recycling, as implemented by the [vctrs](https://vctrs.r-lib.org) package.
+We've tweaked the map family of functions to be more consistent with general tidyverse coercion and recycling rules, as implemented by the [vctrs](https://vctrs.r-lib.org) package.
 `map_lgl()`, `map_int()`, `map_int()`, and `map_dbl()` now follow the same coercion rules as vctrs.
 
 -   `map_chr(TRUE, identity)`, `map_chr(0L, identity)`, and `map_chr(1L, identity)` have been deprecated because we believe that converting a logical/integer/double to a character vector is potentially dangerous and should require an explicit coercion.
@@ -146,7 +146,7 @@ This has two major changes:
 ### Assigning `NULL`
 
 purrr has a number of functions that modify a list: `pluck<-`, `assign_in()`, `modify()`, `modify2()`, `modify_if()`, `modify_at()`, and `list_modify()`.
-Previously these functions had inconsistent behaviour when you attempted to modify an element with `NULL`: some functions would delete that element, and some would set it to `NULL`.
+Previously, these functions had inconsistent behaviour when you attempted to modify an element with `NULL`: some functions would delete that element, and some would set it to `NULL`.
 That inconsistency arose because base R handles `NULL` in different ways depending on whether or not use you `$`/`[[` or `[`:
 
 ```{r}
