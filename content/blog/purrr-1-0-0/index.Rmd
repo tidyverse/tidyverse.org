@@ -37,10 +37,17 @@ TODO:
 ```{r}
 #| include: false
 asciicast::init_knitr_engine()
+set.seed(1014)
 ```
 
 We're happy to announce the release of [purrr](http://purrr.tidyverse.org/) 1.0.0!
 purrr enhances R's functional programming toolkit by providing a complete and consistent set of tools for working with functions and vectors.
+In the words of ChatGPT:
+
+> With purrr, you can easily "kitten" your functions together to perform complex operations, "paws" for a moment to debug and troubleshoot your code, while "feline" good about the elegant and readable code that you write.
+> Whether you're a "cat"-egorical beginner or a seasoned functional programming "purr"-fessional, purrr has something to offer.
+> So why not "pounce" on the opportunity to try it out and see how it can "meow"-velously improve your R coding experience?
+
 You can install it from CRAN with:
 
 ```{r, eval = FALSE}
@@ -59,18 +66,17 @@ library(purrr)
 
 ## Breaking changes
 
-purrrr 1.0.0 was an opportunity to really refine the core purrrpose of purrr, making it more purrrsimonious by moving a number of functions to purrrgatory.
-We've done our best to ensure that changes are not cat-istrophic, which I can now explain, having got these puns out of my system.
+purrrr 1.0.0 was an opportunity to really refine its core purpose: facilitating functional programming in R.
+This release is more aggressive than usual because a 1.0.0 release is our opportunity to make bigger changes in order to form a strong foundation for the next 10+ years.
 
-This release is more aggressive than usual because a 1.0.0 release is our opportunity to make bigger changes that form a strong foundation for the next 10 years.
 These changes will break some existing code, but we've done our best to make it affect as little code as possible.
-For example, I [made pull requests](https://github.com/tidyverse/purrr/issues/969) to all \~40 CRAN packages (out of \~1,400) that purrr 1.0.0 broke.
+Out of the \~1400 CRAN packages that user purrr, only \~40 were negatively affected, and I [made pull requests](https://github.com/tidyverse/purrr/issues/969) to fix them all.
 Making these fixes helped give me confidence that, though we're deprecating quite a few functions and changing a few special cases, it shouldn't affect too much code in the wild.
 
 There are four important changes that you should be aware of:
 
 -   `pluck()` behaves differently when extracting 0-length vectors.
--   The map function family uses the tidyverse rules for coercion and recycling.
+-   The `map()` family uses the tidyverse rules for coercion and recycling.
 -   All functions that modify lists handle `NULL` consistently.
 -   We've deprecated functions that aren't related to the core purpose of purr.
 
@@ -98,7 +104,8 @@ We made this change because it makes purrr more consistent with the rest of the 
 ### Tidyverse consistency
 
 We've tweaked the map family of functions to be more consistent with general tidyverse coercion and recycling rules, as implemented by the [vctrs](https://vctrs.r-lib.org) package.
-`map_lgl()`, `map_int()`, `map_int()`, and `map_dbl()` now follow the same coercion rules as vctrs.
+`map_lgl()`, `map_int()`, `map_int()`, and `map_dbl()` now follow the same [coercion rules](https://vctrs.r-lib.org/articles/type-size.html#coercing-to-common-type) as vctrs.
+In particular:
 
 -   `map_chr(TRUE, identity)`, `map_chr(0L, identity)`, and `map_chr(1L, identity)` have been deprecated because we believe that converting a logical/integer/double to a character vector is potentially dangerous and should require an explicit coercion.
 
@@ -473,3 +480,4 @@ list(x = 1, y = list(a = 1)) |>
 ```
 
 ## Acknowledgements
+

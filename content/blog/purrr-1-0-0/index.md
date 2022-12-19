@@ -6,8 +6,8 @@ title: purrr 1.0.0
 date: 2022-11-10
 author: Hadley Wickham
 description: >
-    purrr 1.0.0 brings a basket of updates to purrr. We deprecated a number of
-    seldom used functions to hone in on the core purpose of purrr while 
+    purrr 1.0.0 brings a basket of updates. We deprecated a number of
+    seldom used functions to hone in on the core purpose of purrr and 
     implemented a swath of new features including progress bars, improved 
     error reporting, and much much more!
 
@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [purrr]
-rmd_hash: a7f4620bb1bdf7c5
+rmd_hash: b37274dc823136b6
 
 ---
 
@@ -35,7 +35,11 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're happy to announce the release of [purrr](http://purrr.tidyverse.org/) 1.0.0! purrr enhances R's functional programming toolkit by providing a complete and consistent set of tools for working with functions and vectors. You can install it from CRAN with:
+We're happy to announce the release of [purrr](http://purrr.tidyverse.org/) 1.0.0! purrr enhances R's functional programming toolkit by providing a complete and consistent set of tools for working with functions and vectors. In the words of ChatGPT:
+
+> With purrr, you can easily "kitten" your functions together to perform complex operations, "paws" for a moment to debug and troubleshoot your code, while "feline" good about the elegant and readable code that you write. Whether you're a "cat"-egorical beginner or a seasoned functional programming "purr"-fessional, purrr has something to offer. So why not "pounce" on the opportunity to try it out and see how it can "meow"-velously improve your R coding experience?
+
+You can install it from CRAN with:
 
 <div class="highlight">
 
@@ -43,7 +47,7 @@ We're happy to announce the release of [purrr](http://purrr.tidyverse.org/) 1.0.
 
 </div>
 
-purrr is 7 years old, but it's finally made it to 1.0.0! This is a big release, adding some long needed functionality (like progress bars!) as well as really refining the core purpose of purrr. In this post, we'll start with an overview of the breaking changes, then briefly review some documentation changes. Then we'll get to the good stuff: improvements to the map family, new [`keep_at()`](https://purrr.tidyverse.org/reference/keep_at.html) and [`discard_at()`](https://purrr.tidyverse.org/reference/keep_at.html), and improvements to flattening and simplification. You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
+purrr is 7 years old, but it's finally made it to 1.0.0! This is a big release, adding some long-needed functionality (like progress bars!) as well as really refining the core purpose of purrr. In this post, we'll start with an overview of the breaking changes, then briefly review some documentation changes. Then we'll get to the good stuff: improvements to the `map` family, new [`keep_at()`](https://purrr.tidyverse.org/reference/keep_at.html) and [`discard_at()`](https://purrr.tidyverse.org/reference/keep_at.html) functions, and improvements to flattening and simplification. You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
 
 <div class="highlight">
 
@@ -53,20 +57,20 @@ purrr is 7 years old, but it's finally made it to 1.0.0! This is a big release, 
 
 ## Breaking changes
 
-purrrr 1.0.0 was an opportunity to really refine the core purrrpose of purrr, making it more purrrsimonious by moving a number of functions to purrrgatory. We've done our best to ensure that changes are not cat-istrophic, which I can now explain, having got these puns out of my system.
+purrrr 1.0.0 was an opportunity to really refine its core purpose: facilitating functional programming in R. This release is more aggressive than usual because a 1.0.0 release is our opportunity to make bigger changes in order to form a strong foundation for the next 10+ years.
 
-This release is more aggressive than usual because a 1.0.0 release is our opportunity to make bigger changes that form a strong foundation for the next 10 years. These changes will break some existing code, but we've done our best to make it affect as little code as possible. For example, I [made pull requests](https://github.com/tidyverse/purrr/issues/969) to all \~40 CRAN packages (out of \~1,400) that purrr 1.0.0 broke. Making these fixes helped give me confidence that while we're deprecating quite a few functions and changing a few special cases, it shouldn't affect too much code in the wild.
+These changes will break some existing code, but we've done our best to make it affect as little code as possible. Out of the \~1400 CRAN packages that user purrr, only \~40 were negatively affected, and I [made pull requests](https://github.com/tidyverse/purrr/issues/969) to fix them all. Making these fixes helped give me confidence that, though we're deprecating quite a few functions and changing a few special cases, it shouldn't affect too much code in the wild.
 
 There are four important changes that you should be aware of:
 
 -   [`pluck()`](https://purrr.tidyverse.org/reference/pluck.html) behaves differently when extracting 0-length vectors.
--   The map function family uses the tidyverse rules for coercion and recycling.
+-   The [`map()`](https://purrr.tidyverse.org/reference/map.html) family uses the tidyverse rules for coercion and recycling.
 -   All functions that modify lists handle `NULL` consistently.
 -   We've deprecated functions that aren't related to the core purpose of purr.
 
 ### pluck and zero-length vectors
 
-Previously, [`pluck()`](https://purrr.tidyverse.org/reference/pluck.html) replaced 0-length vectors with the value of `default`. Now `default` is only use for `NULL`s and absent elements:
+Previously, [`pluck()`](https://purrr.tidyverse.org/reference/pluck.html) replaced 0-length vectors with the value of `default`. Now `default` is only used for `NULL`s and absent elements:
 
 <div class="highlight">
 
@@ -100,7 +104,7 @@ We made this change because it makes purrr more consistent with the rest of the 
 
 ### Tidyverse consistency
 
-We've tweaked the map family of functions to be more consistent with general tidyverse coercion and recycling, as implemented by the [vctrs](https://vctrs.r-lib.org) package. [`map_lgl()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), and [`map_dbl()`](https://purrr.tidyverse.org/reference/map.html) now follow the same coercion rules as vctrs.
+We've tweaked the map family of functions to be more consistent with general tidyverse coercion and recycling rules, as implemented by the [vctrs](https://vctrs.r-lib.org) package. [`map_lgl()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), and [`map_dbl()`](https://purrr.tidyverse.org/reference/map.html) now follow the same [coercion rules](https://vctrs.r-lib.org/articles/type-size.html#coercing-to-common-type) as vctrs. In particular:
 
 -   `map_chr(TRUE, identity)`, `map_chr(0L, identity)`, and `map_chr(1L, identity)` have been deprecated because we believe that converting a logical/integer/double to a character vector is potentially dangerous and should require an explicit coercion.
 
@@ -168,7 +172,7 @@ We've tweaked the map family of functions to be more consistent with general tid
 
 ### Assigning `NULL`
 
-purrr has a number of functions that modify a list: `pluck<-`, [`assign_in()`](https://purrr.tidyverse.org/reference/modify_in.html), [`modify()`](https://purrr.tidyverse.org/reference/modify.html), [`modify2()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_if()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_at()`](https://purrr.tidyverse.org/reference/modify.html), and [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html). Previously these functions had inconsistent behaviour when you attempted to modify an element with `NULL`: some functions would delete that element, and some would set it to `NULL`. That inconsistency arose because base R handles `NULL` in different ways depending on whether or not use you `$`/`[[` or `[`:
+purrr has a number of functions that modify a list: `pluck<-`, [`assign_in()`](https://purrr.tidyverse.org/reference/modify_in.html), [`modify()`](https://purrr.tidyverse.org/reference/modify.html), [`modify2()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_if()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_at()`](https://purrr.tidyverse.org/reference/modify.html), and [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html). Previously, these functions had inconsistent behaviour when you attempted to modify an element with `NULL`: some functions would delete that element, and some would set it to `NULL`. That inconsistency arose because base R handles `NULL` in different ways depending on whether or not use you `$`/`[[` or `[`:
 
 <div class="highlight">
 
@@ -252,15 +256,15 @@ As you've seen in the code above, we are moving from magrittr's pipe (`%>%`) to 
 <span><span class='m'>1</span><span class='o'>:</span><span class='m'>10</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='o'>(</span><span class='o'>~</span> <span class='nf'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='o'>(</span><span class='m'>10</span>, <span class='nv'>.x</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_dbl</a></span><span class='o'>(</span><span class='nv'>mean</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt;  [1]  0.789012  2.297651  2.711746  3.762179  4.961180  6.604814  7.094367</span></span>
-<span><span class='c'>#&gt;  [8]  8.174061  9.060459 10.236516</span></span>
+<span><span class='c'>#&gt;  [1]  0.5586355  1.8213041  2.8764412  4.1521664  5.1160393  6.1271905</span></span>
+<span><span class='c'>#&gt;  [7]  6.9109806  8.2808301  9.2373940 10.6269104</span></span>
 <span></span><span></span>
 <span><span class='c'># Now we recommend</span></span>
 <span><span class='m'>1</span><span class='o'>:</span><span class='m'>10</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>mu</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='o'>(</span><span class='m'>10</span>, <span class='nv'>mu</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_dbl</a></span><span class='o'>(</span><span class='nv'>mean</span><span class='o'>)</span> </span>
-<span><span class='c'>#&gt;  [1]  0.2964402  2.2632161  2.7122449  3.9448994  4.5535061  6.2860283</span></span>
-<span><span class='c'>#&gt;  [7]  6.5556420  8.3111530  9.0064087 10.1510284</span></span>
+<span><span class='c'>#&gt;  [1]  0.4638639  2.0966712  3.4441928  3.7806185  5.3373228  6.1854820</span></span>
+<span><span class='c'>#&gt;  [7]  6.5873300  8.3116138  9.4824697 10.4590034</span></span>
 <span></span></code></pre>
 
 </div>
