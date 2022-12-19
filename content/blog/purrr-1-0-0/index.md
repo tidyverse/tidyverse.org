@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: purrr-1-0-0
 title: purrr 1.0.0
-date: 2022-11-10
+date: 2022-12-20
 author: Hadley Wickham
 description: >
     purrr 1.0.0 brings a basket of updates. We deprecated a number of
@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [purrr]
-rmd_hash: b37274dc823136b6
+rmd_hash: feb0697f5ccab761
 
 ---
 
@@ -47,7 +47,7 @@ You can install it from CRAN with:
 
 </div>
 
-purrr is 7 years old, but it's finally made it to 1.0.0! This is a big release, adding some long-needed functionality (like progress bars!) as well as really refining the core purpose of purrr. In this post, we'll start with an overview of the breaking changes, then briefly review some documentation changes. Then we'll get to the good stuff: improvements to the `map` family, new [`keep_at()`](https://purrr.tidyverse.org/reference/keep_at.html) and [`discard_at()`](https://purrr.tidyverse.org/reference/keep_at.html) functions, and improvements to flattening and simplification. You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
+purrr is 7 years old and it's finally made it to 1.0.0! This is a big release, adding some long-needed functionality (like progress bars!) as well as really refining the core purpose of purrr. In this post, we'll start with an overview of the breaking changes, then briefly review some documentation changes. Then we'll get to the good stuff: improvements to the `map` family, new [`keep_at()`](https://purrr.tidyverse.org/reference/keep_at.html) and [`discard_at()`](https://purrr.tidyverse.org/reference/keep_at.html) functions, and improvements to flattening and simplification. You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
 
 <div class="highlight">
 
@@ -57,7 +57,7 @@ purrr is 7 years old, but it's finally made it to 1.0.0! This is a big release, 
 
 ## Breaking changes
 
-purrrr 1.0.0 was an opportunity to really refine its core purpose: facilitating functional programming in R. This release is more aggressive than usual because a 1.0.0 release is our opportunity to make bigger changes in order to form a strong foundation for the next 10+ years.
+We've used the 1.0.0 release as an opportunity to really refine the core purpose of purrr: facilitating functional programming in R. We've been more aggressive with deprecations and breaking changes than usual, because a 1.0.0 release signals that purrr is now [stable](https://lifecycle.r-lib.org/articles/stages.html#stable), making it our last opportunity for major changes.
 
 These changes will break some existing code, but we've done our best to make it affect as little code as possible. Out of the \~1400 CRAN packages that user purrr, only \~40 were negatively affected, and I [made pull requests](https://github.com/tidyverse/purrr/issues/969) to fix them all. Making these fixes helped give me confidence that, though we're deprecating quite a few functions and changing a few special cases, it shouldn't affect too much code in the wild.
 
