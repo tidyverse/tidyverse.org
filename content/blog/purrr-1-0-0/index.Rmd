@@ -107,7 +107,7 @@ We've tweaked the map family of functions to be more consistent with general tid
 `map_lgl()`, `map_int()`, `map_int()`, and `map_dbl()` now follow the same [coercion rules](https://vctrs.r-lib.org/articles/type-size.html#coercing-to-common-type) as vctrs.
 In particular:
 
--   `map_chr(TRUE, identity)`, `map_chr(0L, identity)`, and `map_chr(1L, identity)` have been deprecated because we believe that converting a logical/integer/double to a character vector is potentially dangerous and should require an explicit coercion.
+-   `map_chr(TRUE, identity)`, `map_chr(0L, identity)`, and `map_chr(1.5, identity)` have been deprecated because we believe that converting a logical/integer/double to a character vector is potentially dangerous and should require an explicit coercion.
 
     ```{r}
     # previously you could write
@@ -198,7 +198,7 @@ In several years time, we'll release an update which causes the warnings to occu
 
 -   `update_list()`, `rerun()`, and the use of tidyselect with `map_at()` and friends have been deprecated because we no longer believe that non-standard evaluation is a good fit for purrr.
 
--   The `lift_*` family of functions has been deprecated because they promote a style of function manipulation that is not commonly used in R.
+-   The `lift_*` family of functions has been superseded because they promote a style of function manipulation that is not commonly used in R.
 
 -   `prepend()`, `rdunif()`, `rbernoulli()`, `when()`, and `list_along()` have been deprecated because they're not directly related to functional programming.
 
@@ -224,6 +224,19 @@ Additionally, being able to specify the argument name for the anonymous function
 1:10 |>
   map(\(mu) rnorm(10, mu)) |>
   map_dbl(mean) 
+```
+
+We also recommend using an anonymous function instead of passing additional arguments to map.
+This avoids a certain class of moderately esoteric argument matching woes and, we believe, is generally easier to read.
+
+```{r}
+mu <- c(1, 10, 100)
+
+# Previously we wrote
+mu |> map_dbl(rnorm, n = 1)
+
+# Now we recommend
+mu |> map_dbl(\(mu) rnorm(1, mean = mu))
 ```
 
 Due to the [tidyverse R dependency policy](https://www.tidyverse.org/blog/2019/04/r-version-support/), purrr works in R 3.5, 3.6, 4.0, 4.1, and 4.2, but the base pipe and anonymous function syntax are only available in R 4.0 and later.
@@ -457,7 +470,7 @@ paths |>
   list_rbind(names_to = "path")
 ```
 
-This new behaviour has some follow on consequences to `accumulate()` and `accumulate2()`, which previously had an idiosyncratic approach to simplification.
+This new behaviour also affects to `accumulate()` and `accumulate2()`, which previously had an idiosyncratic approach to simplification.
 
 ### `list_update()`
 

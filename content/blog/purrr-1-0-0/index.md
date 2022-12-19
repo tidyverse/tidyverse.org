@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [purrr]
-rmd_hash: feb0697f5ccab761
+rmd_hash: 5f3e6f13284d1155
 
 ---
 
@@ -32,7 +32,7 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 We're happy to announce the release of [purrr](http://purrr.tidyverse.org/) 1.0.0! purrr enhances R's functional programming toolkit by providing a complete and consistent set of tools for working with functions and vectors. In the words of ChatGPT:
@@ -66,9 +66,9 @@ There are four important changes that you should be aware of:
 -   [`pluck()`](https://purrr.tidyverse.org/reference/pluck.html) behaves differently when extracting 0-length vectors.
 -   The [`map()`](https://purrr.tidyverse.org/reference/map.html) family uses the tidyverse rules for coercion and recycling.
 -   All functions that modify lists handle `NULL` consistently.
--   We've deprecated functions that aren't related to the core purpose of purr.
+-   We've deprecated functions that aren't related to the core purpose of purrr.
 
-### pluck and zero-length vectors
+### `pluck()` and zero-length vectors
 
 Previously, [`pluck()`](https://purrr.tidyverse.org/reference/pluck.html) replaced 0-length vectors with the value of `default`. Now `default` is only used for `NULL`s and absent elements:
 
@@ -106,7 +106,7 @@ We made this change because it makes purrr more consistent with the rest of the 
 
 We've tweaked the map family of functions to be more consistent with general tidyverse coercion and recycling rules, as implemented by the [vctrs](https://vctrs.r-lib.org) package. [`map_lgl()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), and [`map_dbl()`](https://purrr.tidyverse.org/reference/map.html) now follow the same [coercion rules](https://vctrs.r-lib.org/articles/type-size.html#coercing-to-common-type) as vctrs. In particular:
 
--   `map_chr(TRUE, identity)`, `map_chr(0L, identity)`, and `map_chr(1L, identity)` have been deprecated because we believe that converting a logical/integer/double to a character vector is potentially dangerous and should require an explicit coercion.
+-   `map_chr(TRUE, identity)`, `map_chr(0L, identity)`, and `map_chr(1.5, identity)` have been deprecated because we believe that converting a logical/integer/double to a character vector is potentially dangerous and should require an explicit coercion.
 
     <div class="highlight">
 
@@ -141,7 +141,7 @@ We've tweaked the map family of functions to be more consistent with general tid
 
 [`map2()`](https://purrr.tidyverse.org/reference/map2.html), [`modify2()`](https://purrr.tidyverse.org/reference/modify.html), and [`pmap()`](https://purrr.tidyverse.org/reference/pmap.html) use tidyverse recycling rules, which mean that vectors of length 1 are recycled to any size but all other vectors must have the same length. This has two major changes:
 
--   Previously, the presence of a zero-length input generated a zero-length output. Now its recycled using the same rules:
+-   Previously, the presence of a zero-length input generated a zero-length output. Now it's recycled using the same rules:
 
     <div class="highlight">
 
@@ -172,7 +172,7 @@ We've tweaked the map family of functions to be more consistent with general tid
 
 ### Assigning `NULL`
 
-purrr has a number of functions that modify a list: `pluck<-`, [`assign_in()`](https://purrr.tidyverse.org/reference/modify_in.html), [`modify()`](https://purrr.tidyverse.org/reference/modify.html), [`modify2()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_if()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_at()`](https://purrr.tidyverse.org/reference/modify.html), and [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html). Previously, these functions had inconsistent behaviour when you attempted to modify an element with `NULL`: some functions would delete that element, and some would set it to `NULL`. That inconsistency arose because base R handles `NULL` in different ways depending on whether or not use you `$`/`[[` or `[`:
+purrr has a number of functions that modify a list: `pluck<-()`, [`assign_in()`](https://purrr.tidyverse.org/reference/modify_in.html), [`modify()`](https://purrr.tidyverse.org/reference/modify.html), [`modify2()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_if()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_at()`](https://purrr.tidyverse.org/reference/modify.html), and [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html). Previously, these functions had inconsistent behaviour when you attempted to modify an element with `NULL`: some functions would delete that element, and some would set it to `NULL`. That inconsistency arose because base R handles `NULL` in different ways depending on whether or not use you `$`/`[[` or `[`:
 
 <div class="highlight">
 
@@ -230,13 +230,13 @@ If you want to delete the element, you can use the special [`zap()`](https://rla
 
 ### Core purpose refinements
 
-We have **deprecated** a number of functions to keep purrr focused on its core purpose: facilitating functional programming in R. Deprecation means that the functions will continue to work, but you'll be warned once every 8 hours if you use them. In several years time, we'll release an update which causes the warnings to occur on every time you use them, and a few years after that they'll transformed to throwing errors.
+We have **deprecated** a number of functions to keep purrr focused on its core purpose: facilitating functional programming in R. Deprecation means that the functions will continue to work, but you'll be warned once every 8 hours if you use them. In several years time, we'll release an update which causes the warnings to occur on every time you use them, and a few years after that they'll be transformed to throwing errors.
 
 -   [`cross()`](https://purrr.tidyverse.org/reference/cross.html) and all its variants have been deprecated because they're slow and buggy, and a better approach already exists in [`tidyr::expand_grid()`](https://tidyr.tidyverse.org/reference/expand_grid.html).
 
 -   [`update_list()`](https://purrr.tidyverse.org/reference/update_list.html), [`rerun()`](https://purrr.tidyverse.org/reference/rerun.html), and the use of tidyselect with [`map_at()`](https://purrr.tidyverse.org/reference/map_if.html) and friends have been deprecated because we no longer believe that non-standard evaluation is a good fit for purrr.
 
--   The `lift_*` family of functions has been deprecated because they promote a style of function manipulation that is not commonly used in R.
+-   The `lift_*` family of functions has been superseded because they promote a style of function manipulation that is not commonly used in R.
 
 -   [`prepend()`](https://purrr.tidyverse.org/reference/prepend.html), [`rdunif()`](https://purrr.tidyverse.org/reference/rdunif.html), [`rbernoulli()`](https://purrr.tidyverse.org/reference/rbernoulli.html), [`when()`](https://purrr.tidyverse.org/reference/when.html), and [`list_along()`](https://purrr.tidyverse.org/reference/along.html) have been deprecated because they're not directly related to functional programming.
 
@@ -248,7 +248,7 @@ Deprecating these functions makes purrr easier to maintain because it reduces th
 
 ## Documentation
 
-As you've seen in the code above, we are moving from magrittr's pipe (`%>%`) to the base pipe (`|>`) and from formula syntax (`~ .x + 1`) to R's new anonymous function short hand (`\(x) x + 1`). We believe that it's better to use these new base tools because they work everywhere: the base pipe doesn't requite that you load magrittr and the new function shorthand works everywhere, not just in purrr functions. Additionally, being able to specify the argument name for the anonymous function can often lead to clearer code.
+As you've seen in the code above, we are moving from magrittr's pipe (`%>%`) to the base pipe (`|>`) and from formula syntax (`~ .x + 1`) to R's new anonymous function short hand (`\(x) x + 1`). We believe that it's better to use these new base tools because they work everywhere: the base pipe doesn't require that you load magrittr and the new function shorthand works everywhere, not just in purrr functions. Additionally, being able to specify the argument name for the anonymous function can often lead to clearer code.
 
 <div class="highlight">
 
@@ -269,6 +269,23 @@ As you've seen in the code above, we are moving from magrittr's pipe (`%>%`) to 
 
 </div>
 
+We also recommend using an anonymous function instead of passing additional arguments to map. This avoids a certain class of moderately esoteric argument matching woes and, we believe, is generally easier to read.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>mu</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>1</span>, <span class='m'>10</span>, <span class='m'>100</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Previously we wrote</span></span>
+<span><span class='nv'>mu</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_dbl</a></span><span class='o'>(</span><span class='nv'>rnorm</span>, n <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1]  0.5706199 11.3604613 99.9291426</span></span>
+<span></span><span></span>
+<span><span class='c'># Now we recommend</span></span>
+<span><span class='nv'>mu</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map_dbl</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>mu</span><span class='o'>)</span> <span class='nf'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='o'>(</span><span class='m'>1</span>, mean <span class='o'>=</span> <span class='nv'>mu</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1]   0.7278463   7.5533200 100.0654866</span></span>
+<span></span></code></pre>
+
+</div>
+
 Due to the [tidyverse R dependency policy](https://www.tidyverse.org/blog/2019/04/r-version-support/), purrr works in R 3.5, 3.6, 4.0, 4.1, and 4.2, but the base pipe and anonymous function syntax are only available in R 4.0 and later. So the examples are automatically disabled on R 3.5 and 3.6 to allow purrr to continue to pass `R CMD check`.
 
 ## Mapping
@@ -283,7 +300,7 @@ These are described in the following sections.
 
 ### Progress bars
 
-The map family of function can now produce a progress bar. This is very useful for long running jobs:
+The map family can now produce a progress bar. This is very useful for long running jobs:
 
 <div class="highlight">
 
@@ -323,7 +340,7 @@ We have also generally reviewed the error messages throughout purrr in order to 
 
 ### New `map_vec()`
 
-We've added [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) (along with [`map2_vec()`](https://purrr.tidyverse.org/reference/map2.html), and [`pmap_vec()`](https://purrr.tidyverse.org/reference/pmap.html)) to handle more types of vector. [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) extends [`map_lgl()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), [`map_dbl()`](https://purrr.tidyverse.org/reference/map.html), and [`map_chr()`](https://purrr.tidyverse.org/reference/map.html) to arbitrary types of vector, like dates, factors, and date-times:
+We've added [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) (along with [`map2_vec()`](https://purrr.tidyverse.org/reference/map2.html), and [`pmap_vec()`](https://purrr.tidyverse.org/reference/pmap.html)) to handle more types of vectors. [`map_vec()`](https://purrr.tidyverse.org/reference/map.html) extends [`map_lgl()`](https://purrr.tidyverse.org/reference/map.html), [`map_int()`](https://purrr.tidyverse.org/reference/map.html), [`map_dbl()`](https://purrr.tidyverse.org/reference/map.html), and [`map_chr()`](https://purrr.tidyverse.org/reference/map.html) to arbitrary types of vectors, like dates, factors, and date-times:
 
 <div class="highlight">
 
@@ -437,7 +454,7 @@ You can now also pass such a function to all other `_at()` functions:
 
 ## Flattening and simplification
 
-Last, but not least, we've reworked the family functions that flatten and simplify lists. These caused us a lot of confusion internally because folks (and different packages) used the same words to mean different things. Now there are three main functions that share a common prefix that makes it clear that they all operate on lists:
+Last, but not least, we've reworked the family of functions that flatten and simplify lists. These caused us a lot of confusion internally because folks (and different packages) used the same words to mean different things. Now there are three main functions that share a common prefix that makes it clear that they all operate on lists:
 
 -   [`list_flatten()`](https://purrr.tidyverse.org/reference/list_flatten.html) removes a single level of hierarchy from a list; the output is always a list.
 -   [`list_simplify()`](https://purrr.tidyverse.org/reference/list_simplify.html) reduces a list to a homogeneous vector; the output is always the same length as the input.
@@ -453,7 +470,7 @@ These functions have lead us to **supersede** a number of functions. This means 
 
 ### Flattening
 
-[`list_flatten()`](https://purrr.tidyverse.org/reference/list_flatten.html) which removes one layer of hierarchy from a list. In other words, if any of the children of the list are themselves lists, the contents of those lists are inlined into the parent:
+[`list_flatten()`](https://purrr.tidyverse.org/reference/list_flatten.html) removes one layer of hierarchy from a list. In other words, if any of the children of the list are themselves lists, the contents of those lists are inlined into the parent:
 
 <div class="highlight">
 
@@ -557,7 +574,7 @@ If you need to simplify if it's possible, but otherwise leave the input unchange
 
 </div>
 
-If you want to be specific the type you want, [`list_simplify()`](https://purrr.tidyverse.org/reference/list_simplify.html) can take the same prototype argument as [`map_vec()`](https://purrr.tidyverse.org/reference/map.html):
+If you want to be specific about the type you want, [`list_simplify()`](https://purrr.tidyverse.org/reference/list_simplify.html) can take the same prototype argument as [`map_vec()`](https://purrr.tidyverse.org/reference/map.html):
 
 <div class="highlight">
 
@@ -573,7 +590,7 @@ If you want to be specific the type you want, [`list_simplify()`](https://purrr.
 
 ### Concatenation
 
-[`list_c()`](https://purrr.tidyverse.org/reference/list_c.html), [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html), and [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) concatenate all elements together in a similar way to using `do.call(c)` or `do.call(rbind)`[^1] . Unlike `list_simplfy()`, this allows the elements to be different lengths:
+[`list_c()`](https://purrr.tidyverse.org/reference/list_c.html), [`list_cbind()`](https://purrr.tidyverse.org/reference/list_c.html), and [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) concatenate all elements together in a similar way to using `do.call(c)` or `do.call(rbind)`[^1] . Unlike [`list_simplify()`](https://purrr.tidyverse.org/reference/list_simplify.html), this allows the elements to be different lengths:
 
 <div class="highlight">
 
@@ -599,9 +616,9 @@ For this reason, [`map_dfr()`](https://purrr.tidyverse.org/reference/map_dfr.htm
 
 </div>
 
-This new behaviour has some follow on consequences to [`accumulate()`](https://purrr.tidyverse.org/reference/accumulate.html) and [`accumulate2()`](https://purrr.tidyverse.org/reference/accumulate.html), which previously had an idiosyncratic approach to simplification.
+This new behaviour also affects to [`accumulate()`](https://purrr.tidyverse.org/reference/accumulate.html) and [`accumulate2()`](https://purrr.tidyverse.org/reference/accumulate.html), which previously had an idiosyncratic approach to simplification.
 
-### `list_update()` functions
+### `list_update()`
 
 There's one other new function that isn't directly related to flattening and friends, but shares the `list_` prefix: [`list_update()`](https://purrr.tidyverse.org/reference/list_update.html). [`list_update()`](https://purrr.tidyverse.org/reference/list_update.html) is similar to [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) but it doesn't work recursively. This is a mildly confusing feature of [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) that it's easy to miss in the documentation.
 
@@ -636,5 +653,7 @@ There's one other new function that isn't directly related to flattening and fri
 
 ## Acknowledgements
 
-[^1]: But of they use the tidyverse coercion rules.
+A massive thanks to all 162 contributors who have helped make purrr 1.0.0 happen! [@adamroyjones](https://github.com/adamroyjones), [@afoltzm](https://github.com/afoltzm), [@agilebean](https://github.com/agilebean), [@ahjames11](https://github.com/ahjames11), [@AHoerner](https://github.com/AHoerner), [@alberto-dellera](https://github.com/alberto-dellera), [@alex-gable](https://github.com/alex-gable), [@AliciaSchep](https://github.com/AliciaSchep), [@ArtemSokolov](https://github.com/ArtemSokolov), [@AshesITR](https://github.com/AshesITR), [@asmlgkj](https://github.com/asmlgkj), [@aubryvetepi](https://github.com/aubryvetepi), [@balwierz](https://github.com/balwierz), [@bastianilso](https://github.com/bastianilso), [@batpigandme](https://github.com/batpigandme), [@bebersb](https://github.com/bebersb), [@behrman](https://github.com/behrman), [@benjaminschwetz](https://github.com/benjaminschwetz), [@billdenney](https://github.com/billdenney), [@Breza](https://github.com/Breza), [@brunj7](https://github.com/brunj7), [@BrunoGrandePhD](https://github.com/BrunoGrandePhD), [@CGMossa](https://github.com/CGMossa), [@cgoo4](https://github.com/cgoo4), [@chsafouane](https://github.com/chsafouane), [@chumbleycode](https://github.com/chumbleycode), [@ColinFay](https://github.com/ColinFay), [@CorradoLanera](https://github.com/CorradoLanera), [@CPRyan](https://github.com/CPRyan), [@czeildi](https://github.com/czeildi), [@dan-reznik](https://github.com/dan-reznik), [@DanChaltiel](https://github.com/DanChaltiel), [@datawookie](https://github.com/datawookie), [@dave-lovell](https://github.com/dave-lovell), [@davidsjoberg](https://github.com/davidsjoberg), [@DavisVaughan](https://github.com/DavisVaughan), [@deann88](https://github.com/deann88), [@dfalbel](https://github.com/dfalbel), [@dhslone](https://github.com/dhslone), [@dlependorf](https://github.com/dlependorf), [@dllazarov](https://github.com/dllazarov), [@dpprdan](https://github.com/dpprdan), [@dracodoc](https://github.com/dracodoc), [@echasnovski](https://github.com/echasnovski), [@edo91](https://github.com/edo91), [@edoardo-oliveri-sdg](https://github.com/edoardo-oliveri-sdg), [@erictleung](https://github.com/erictleung), [@eyayaw](https://github.com/eyayaw), [@felixhell2004](https://github.com/felixhell2004), [@florianm](https://github.com/florianm), [@florisvdh](https://github.com/florisvdh), [@flying-sheep](https://github.com/flying-sheep), [@fpinter](https://github.com/fpinter), [@frankzhang21](https://github.com/frankzhang21), [@gaborcsardi](https://github.com/gaborcsardi), [@GarrettMooney](https://github.com/GarrettMooney), [@gdurif](https://github.com/gdurif), [@ge-li](https://github.com/ge-li), [@ggrothendieck](https://github.com/ggrothendieck), [@grayskripko](https://github.com/grayskripko), [@gregleleu](https://github.com/gregleleu), [@gregorp](https://github.com/gregorp), [@hadley](https://github.com/hadley), [@hendrikvanb](https://github.com/hendrikvanb), [@holgerbrandl](https://github.com/holgerbrandl), [@hriebl](https://github.com/hriebl), [@hsloot](https://github.com/hsloot), [@huftis](https://github.com/huftis), [@iago-pssjd](https://github.com/iago-pssjd), [@iamnicogomez](https://github.com/iamnicogomez), [@IndrajeetPatil](https://github.com/IndrajeetPatil), [@irudnyts](https://github.com/irudnyts), [@izahn](https://github.com/izahn), [@jameslairdsmith](https://github.com/jameslairdsmith), [@jedwards24](https://github.com/jedwards24), [@jemus42](https://github.com/jemus42), [@jennybc](https://github.com/jennybc), [@jhrcook](https://github.com/jhrcook), [@jimhester](https://github.com/jimhester), [@jimjam-slam](https://github.com/jimjam-slam), [@jnolis](https://github.com/jnolis), [@joelgombin](https://github.com/joelgombin), [@jonathan-g](https://github.com/jonathan-g), [@jpmarindiaz](https://github.com/jpmarindiaz), [@jxu](https://github.com/jxu), [@jzadra](https://github.com/jzadra), [@karchjd](https://github.com/karchjd), [@karjamatti](https://github.com/karjamatti), [@kbzsl](https://github.com/kbzsl), [@krlmlr](https://github.com/krlmlr), [@lahvak](https://github.com/lahvak), [@lambdamoses](https://github.com/lambdamoses), [@lasuk](https://github.com/lasuk), [@lionel-](https://github.com/lionel-), [@lorenzwalthert](https://github.com/lorenzwalthert), [@LukasWallrich](https://github.com/LukasWallrich), [@LukaszDerylo](https://github.com/LukaszDerylo), [@malcolmbarrett](https://github.com/malcolmbarrett), [@MarceloRTonon](https://github.com/MarceloRTonon), [@mattwarkentin](https://github.com/mattwarkentin), [@maxheld83](https://github.com/maxheld83), [@Maximilian-Stefan-Ernst](https://github.com/Maximilian-Stefan-Ernst), [@mccroweyclinton-EPA](https://github.com/mccroweyclinton-EPA), [@medewitt](https://github.com/medewitt), [@meowcat](https://github.com/meowcat), [@mgirlich](https://github.com/mgirlich), [@mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [@mitchelloharawild](https://github.com/mitchelloharawild), [@mkoohafkan](https://github.com/mkoohafkan), [@mlane3](https://github.com/mlane3), [@mmuurr](https://github.com/mmuurr), [@moodymudskipper](https://github.com/moodymudskipper), [@mpettis](https://github.com/mpettis), [@nealrichardson](https://github.com/nealrichardson), [@Nelson-Gon](https://github.com/Nelson-Gon), [@neuwirthe](https://github.com/neuwirthe), [@njtierney](https://github.com/njtierney), [@oduilln](https://github.com/oduilln), [@papageorgiou](https://github.com/papageorgiou), [@pat-s](https://github.com/pat-s), [@paulponcet](https://github.com/paulponcet), [@petyaracz](https://github.com/petyaracz), [@phargarten2](https://github.com/phargarten2), [@philiporlando](https://github.com/philiporlando), [@q-w-a](https://github.com/q-w-a), [@QuLogic](https://github.com/QuLogic), [@ramiromagno](https://github.com/ramiromagno), [@rcorty](https://github.com/rcorty), [@reisner](https://github.com/reisner), [@Rekyt](https://github.com/Rekyt), [@roboes](https://github.com/roboes), [@romainfrancois](https://github.com/romainfrancois), [@rorynolan](https://github.com/rorynolan), [@salim-b](https://github.com/salim-b), [@sar8421](https://github.com/sar8421), [@ScoobyQ](https://github.com/ScoobyQ), [@sda030](https://github.com/sda030), [@sgschreiber](https://github.com/sgschreiber), [@sheffe](https://github.com/sheffe), [@Shians](https://github.com/Shians), [@ShixiangWang](https://github.com/ShixiangWang), [@shosaco](https://github.com/shosaco), [@siavash-babaei](https://github.com/siavash-babaei), [@stephenashton-dhsc](https://github.com/stephenashton-dhsc), [@stschiff](https://github.com/stschiff), [@surdina](https://github.com/surdina), [@tdawry](https://github.com/tdawry), [@thebioengineer](https://github.com/thebioengineer), [@TimTaylor](https://github.com/TimTaylor), [@TimTeaFan](https://github.com/TimTeaFan), [@tomjemmett](https://github.com/tomjemmett), [@torbjorn](https://github.com/torbjorn), [@tvatter](https://github.com/tvatter), [@TylerGrantSmith](https://github.com/TylerGrantSmith), [@vorpalvorpal](https://github.com/vorpalvorpal), [@vspinu](https://github.com/vspinu), [@wch](https://github.com/wch), [@werkstattcodes](https://github.com/werkstattcodes), [@williamlai2](https://github.com/williamlai2), [@yogat3ch](https://github.com/yogat3ch), [@yutannihilation](https://github.com/yutannihilation), and [@zeehio](https://github.com/zeehio).
+
+[^1]: But if they used the tidyverse coercion rules.
 
