@@ -14,7 +14,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, recipes, parsnip, rsample]
-rmd_hash: c92bbff3ad4fadcc
+rmd_hash: 821e34ef7c8dcd2d
 
 ---
 
@@ -59,16 +59,16 @@ To illustrate, we'll make use of a dataset `silly_data` with a number of differe
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='nv'>goofy_data</span><span class='o'>)</span></span><span><span class='c'>#&gt; tibble [100 × 10] (S3: tbl_df/tbl/data.frame)</span></span>
-<span><span class='c'>#&gt;  $ class: Factor w/ 2 levels "class_1","class_2": 1 2 1 2 2 2 1 1 1 1 ...</span></span>
-<span><span class='c'>#&gt;  $ a    : int [1:100] 5 6 6 5 5 5 1 4 1 6 ...</span></span>
-<span><span class='c'>#&gt;  $ b    : num [1:100] 2.0698 -0.0604 2.7331 -0.3537 1.3103 ...</span></span>
-<span><span class='c'>#&gt;  $ c    : Factor w/ 3 levels "-1","0","1": 2 3 2 2 2 2 2 3 1 3 ...</span></span>
-<span><span class='c'>#&gt;  $ d    : num [1:100] 0.28 0.612 0.162 0.595 0.401 ...</span></span>
-<span><span class='c'>#&gt;  $ e    : num [1:100] 0.693 0.927 0.984 0.905 0.816 ...</span></span>
-<span><span class='c'>#&gt;  $ f    : Factor w/ 7 levels "-3","-2","-1",..: 3 4 5 4 5 4 5 3 4 4 ...</span></span>
-<span><span class='c'>#&gt;  $ g    : num [1:100] 1.912 -1.098 -1.453 0.337 -0.332 ...</span></span>
-<span><span class='c'>#&gt;  $ h    : num [1:100] -2.012 1.389 0.156 0.105 -0.85 ...</span></span>
-<span><span class='c'>#&gt;  $ i    : chr [1:100] "white" "maroon" "white" "white" ...</span></span></code></pre>
+<span><span class='c'>#&gt;  $ class: Factor w/ 2 levels "class_1","class_2": 1 1 2 2 1 1 2 1 2 1 ...</span></span>
+<span><span class='c'>#&gt;  $ a    : int [1:100] 2 5 6 7 5 6 3 5 5 3 ...</span></span>
+<span><span class='c'>#&gt;  $ b    : num [1:100] -2.959 -0.247 0.086 0.835 1.195 ...</span></span>
+<span><span class='c'>#&gt;  $ c    : Factor w/ 3 levels "-1","0","1": 2 2 2 2 2 2 1 1 1 2 ...</span></span>
+<span><span class='c'>#&gt;  $ d    : num [1:100] 0.1919 0.7206 0.0432 0.7988 0.1029 ...</span></span>
+<span><span class='c'>#&gt;  $ e    : num [1:100] 0.363 0.791 0.39 0.201 0.33 ...</span></span>
+<span><span class='c'>#&gt;  $ f    : Factor w/ 6 levels "-3","-2","-1",..: 4 4 3 4 3 4 5 4 4 3 ...</span></span>
+<span><span class='c'>#&gt;  $ g    : num [1:100] -0.471 1.155 -0.664 0.85 0.335 ...</span></span>
+<span><span class='c'>#&gt;  $ h    : num [1:100] 0.5344 -0.588 -0.0227 -1.3731 1.0961 ...</span></span>
+<span><span class='c'>#&gt;  $ i    : chr [1:100] "maroon" "white" "white" "maroon" ...</span></span></code></pre>
 
 </div>
 
