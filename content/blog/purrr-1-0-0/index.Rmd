@@ -58,7 +58,7 @@ purrr is 7 years old and it's finally made it to 1.0.0!
 This is a big release, adding some long-needed functionality (like progress bars!) as well as really refining the core purpose of purrr.
 In this post, we'll start with an overview of the breaking changes, then briefly review some documentation changes.
 Then we'll get to the good stuff: improvements to the `map` family, new `keep_at()` and `discard_at()` functions, and improvements to flattening and simplification.
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
+You can see a full list of changes in the [release notes](https://github.com/tidyverse/purrr/releases/tag/v1.0.0).
 
 ```{r setup}
 library(purrr)
@@ -471,10 +471,10 @@ paths |>
 
 This new behaviour also affects to `accumulate()` and `accumulate2()`, which previously had an idiosyncratic approach to simplification.
 
-### `list_update()`
+### `list_assign()`
 
-There's one other new function that isn't directly related to flattening and friends, but shares the `list_` prefix: `list_update()`.
-`list_update()` is similar to `list_modify()` but it doesn't work recursively.
+There's one other new function that isn't directly related to flattening and friends, but shares the `list_` prefix: `list_assign()`.
+`list_assign()` is similar to `list_modify()` but it doesn't work recursively.
 This is a mildly confusing feature of `list_modify()` that it's easy to miss in the documentation.
 
 ```{r}
@@ -483,11 +483,11 @@ list(x = 1, y = list(a = 1)) |>
   str()
 ```
 
-`list_update()` doesn't recurse into sublists making it a bit easier to reason about:
+`list_assign()` doesn't recurse into sublists making it a bit easier to reason about:
 
 ```{r}
 list(x = 1, y = list(a = 1)) |> 
-  list_update(y = list(b = 2)) |> 
+  list_assign(y = list(b = 2)) |> 
   str()
 ```
 

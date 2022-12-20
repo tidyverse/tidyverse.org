@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [purrr]
-rmd_hash: bf1693bb8ef914f0
+rmd_hash: d6ea0a27deb42fc2
 
 ---
 
@@ -47,7 +47,7 @@ You can install it from CRAN with:
 
 </div>
 
-purrr is 7 years old and it's finally made it to 1.0.0! This is a big release, adding some long-needed functionality (like progress bars!) as well as really refining the core purpose of purrr. In this post, we'll start with an overview of the breaking changes, then briefly review some documentation changes. Then we'll get to the good stuff: improvements to the `map` family, new [`keep_at()`](https://purrr.tidyverse.org/reference/keep_at.html) and [`discard_at()`](https://purrr.tidyverse.org/reference/keep_at.html) functions, and improvements to flattening and simplification. You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
+purrr is 7 years old and it's finally made it to 1.0.0! This is a big release, adding some long-needed functionality (like progress bars!) as well as really refining the core purpose of purrr. In this post, we'll start with an overview of the breaking changes, then briefly review some documentation changes. Then we'll get to the good stuff: improvements to the `map` family, new [`keep_at()`](https://purrr.tidyverse.org/reference/keep_at.html) and [`discard_at()`](https://purrr.tidyverse.org/reference/keep_at.html) functions, and improvements to flattening and simplification. You can see a full list of changes in the [release notes](https://github.com/tidyverse/purrr/releases/tag/v1.0.0).
 
 <div class="highlight">
 
@@ -172,7 +172,7 @@ We've tweaked the map family of functions to be more consistent with general tid
 
 ### Assigning `NULL`
 
-purrr has a number of functions that modify a list: `pluck<-()`, [`assign_in()`](https://purrr.tidyverse.org/reference/modify_in.html), [`modify()`](https://purrr.tidyverse.org/reference/modify.html), [`modify2()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_if()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_at()`](https://purrr.tidyverse.org/reference/modify.html), and [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html). Previously, these functions had inconsistent behaviour when you attempted to modify an element with `NULL`: some functions would delete that element, and some would set it to `NULL`. That inconsistency arose because base R handles `NULL` in different ways depending on whether or not use you `$`/`[[` or `[`:
+purrr has a number of functions that modify a list: `pluck<-()`, [`assign_in()`](https://purrr.tidyverse.org/reference/modify_in.html), [`modify()`](https://purrr.tidyverse.org/reference/modify.html), [`modify2()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_if()`](https://purrr.tidyverse.org/reference/modify.html), [`modify_at()`](https://purrr.tidyverse.org/reference/modify.html), and [`list_modify()`](https://purrr.tidyverse.org/reference/list_assign.html). Previously, these functions had inconsistent behaviour when you attempted to modify an element with `NULL`: some functions would delete that element, and some would set it to `NULL`. That inconsistency arose because base R handles `NULL` in different ways depending on whether or not use you `$`/`[[` or `[`:
 
 <div class="highlight">
 
@@ -197,7 +197,7 @@ Now functions that edit a list will create an element containing `NULL`:
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x3</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_update.html'>list_modify</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='kc'>NULL</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_assign.html'>list_modify</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='kc'>NULL</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 2</span></span>
 <span><span class='c'>#&gt;  $ a: NULL</span></span>
@@ -218,7 +218,7 @@ If you want to delete the element, you can use the special [`zap()`](https://rla
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>x3</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_update.html'>list_modify</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='nf'><a href='https://rlang.r-lib.org/reference/zap.html'>zap</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_assign.html'>list_modify</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='nf'><a href='https://rlang.r-lib.org/reference/zap.html'>zap</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 1</span></span>
 <span><span class='c'>#&gt;  $ b: num 2</span></span>
@@ -618,14 +618,14 @@ For this reason, [`map_dfr()`](https://purrr.tidyverse.org/reference/map_dfr.htm
 
 This new behaviour also affects to [`accumulate()`](https://purrr.tidyverse.org/reference/accumulate.html) and [`accumulate2()`](https://purrr.tidyverse.org/reference/accumulate.html), which previously had an idiosyncratic approach to simplification.
 
-### `list_update()`
+### `list_assign()`
 
-There's one other new function that isn't directly related to flattening and friends, but shares the `list_` prefix: [`list_update()`](https://purrr.tidyverse.org/reference/list_update.html). [`list_update()`](https://purrr.tidyverse.org/reference/list_update.html) is similar to [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) but it doesn't work recursively. This is a mildly confusing feature of [`list_modify()`](https://purrr.tidyverse.org/reference/list_update.html) that it's easy to miss in the documentation.
+There's one other new function that isn't directly related to flattening and friends, but shares the `list_` prefix: [`list_assign()`](https://purrr.tidyverse.org/reference/list_assign.html). [`list_assign()`](https://purrr.tidyverse.org/reference/list_assign.html) is similar to [`list_modify()`](https://purrr.tidyverse.org/reference/list_assign.html) but it doesn't work recursively. This is a mildly confusing feature of [`list_modify()`](https://purrr.tidyverse.org/reference/list_assign.html) that it's easy to miss in the documentation.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span>, y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_update.html'>list_modify</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>b <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_assign.html'>list_modify</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>b <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 2</span></span>
 <span><span class='c'>#&gt;  $ x: num 1</span></span>
@@ -636,12 +636,12 @@ There's one other new function that isn't directly related to flattening and fri
 
 </div>
 
-[`list_update()`](https://purrr.tidyverse.org/reference/list_update.html) doesn't recurse into sublists making it a bit easier to reason about:
+[`list_assign()`](https://purrr.tidyverse.org/reference/list_assign.html) doesn't recurse into sublists making it a bit easier to reason about:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span>, y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_update.html'>list_update</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>b <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://purrr.tidyverse.org/reference/list_assign.html'>list_assign</a></span><span class='o'>(</span>y <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>b <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 2</span></span>
 <span><span class='c'>#&gt;  $ x: num 1</span></span>
