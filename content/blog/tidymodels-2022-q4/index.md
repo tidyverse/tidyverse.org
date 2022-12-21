@@ -14,7 +14,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, recipes, parsnip, rsample]
-rmd_hash: 821e34ef7c8dcd2d
+rmd_hash: 0b23f6f3a65bf163
 
 ---
 
@@ -54,21 +54,21 @@ We'll highlight a few especially notable changes below: more specialized role se
 
 The [recipes package for preprocessing](https://recipes.tidymodels.org/) supports tidyselect-style variable selection, and includes some of its own selectors to support common modeling workflows.
 
-To illustrate, we'll make use of a dataset `silly_data` with a number of different variable types:
+To illustrate, we'll make use of a dataset `goofy_data` with a number of different variable types:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='nv'>goofy_data</span><span class='o'>)</span></span><span><span class='c'>#&gt; tibble [100 × 10] (S3: tbl_df/tbl/data.frame)</span></span>
-<span><span class='c'>#&gt;  $ class: Factor w/ 2 levels "class_1","class_2": 1 1 2 2 1 1 2 1 2 1 ...</span></span>
-<span><span class='c'>#&gt;  $ a    : int [1:100] 2 5 6 7 5 6 3 5 5 3 ...</span></span>
-<span><span class='c'>#&gt;  $ b    : num [1:100] -2.959 -0.247 0.086 0.835 1.195 ...</span></span>
-<span><span class='c'>#&gt;  $ c    : Factor w/ 3 levels "-1","0","1": 2 2 2 2 2 2 1 1 1 2 ...</span></span>
-<span><span class='c'>#&gt;  $ d    : num [1:100] 0.1919 0.7206 0.0432 0.7988 0.1029 ...</span></span>
-<span><span class='c'>#&gt;  $ e    : num [1:100] 0.363 0.791 0.39 0.201 0.33 ...</span></span>
-<span><span class='c'>#&gt;  $ f    : Factor w/ 6 levels "-3","-2","-1",..: 4 4 3 4 3 4 5 4 4 3 ...</span></span>
-<span><span class='c'>#&gt;  $ g    : num [1:100] -0.471 1.155 -0.664 0.85 0.335 ...</span></span>
-<span><span class='c'>#&gt;  $ h    : num [1:100] 0.5344 -0.588 -0.0227 -1.3731 1.0961 ...</span></span>
-<span><span class='c'>#&gt;  $ i    : chr [1:100] "maroon" "white" "white" "maroon" ...</span></span></code></pre>
+<span><span class='c'>#&gt;  $ class: Factor w/ 2 levels "class_1","class_2": 2 1 1 1 1 2 2 1 1 2 ...</span></span>
+<span><span class='c'>#&gt;  $ a    : int [1:100] 7 2 3 3 6 6 6 3 4 4 ...</span></span>
+<span><span class='c'>#&gt;  $ b    : num [1:100] -1.114 -1.795 -0.83 -0.858 1.427 ...</span></span>
+<span><span class='c'>#&gt;  $ c    : Factor w/ 3 levels "-1","0","1": 3 3 3 2 3 2 1 1 1 1 ...</span></span>
+<span><span class='c'>#&gt;  $ d    : num [1:100] 0.5168 0.0575 0.1609 0.3959 0.1046 ...</span></span>
+<span><span class='c'>#&gt;  $ e    : num [1:100] 0.016 0.613 0.4421 0.7851 0.0519 ...</span></span>
+<span><span class='c'>#&gt;  $ f    : Factor w/ 5 levels "-2","-1","0",..: 4 3 2 5 1 3 2 4 3 4 ...</span></span>
+<span><span class='c'>#&gt;  $ g    : num [1:100] -0.616 0.587 -0.613 1.582 1.43 ...</span></span>
+<span><span class='c'>#&gt;  $ h    : num [1:100] 0.401 0.442 -1.139 0.382 0.474 ...</span></span>
+<span><span class='c'>#&gt;  $ i    : chr [1:100] "white" "white" "white" "white" ...</span></span></code></pre>
 
 </div>
 
@@ -150,28 +150,28 @@ All new selectors have `*_predictors()` variants. You can read more about recipe
 
 ## Grouped resampling
 
-The most recent release of rsample introduced support for stratification with grouped resampling. Consider the following data set, giving whether a number of `household`s `chops` the `n_melons` melons in their fridge:
+The most recent release of rsample introduced support for stratification with grouped resampling. Consider the following toy data set on the number of melons in a household:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>melons</span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4,928 × 3</span></span></span>
-<span><span class='c'>#&gt;    household chops n_melons</span></span>
-<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> 1         Yes        114</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> 1         Yes        179</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> 1         Yes        163</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> 1         Yes         35</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> 1         Yes         93</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> 1         Yes         55</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> 1         Yes        165</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> 1         Yes         30</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> 1         Yes        140</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> 1         Yes          7</span></span>
+<span><span class='c'>#&gt;    household n_melons chops</span></span>
+<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> 1              114 Yes  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> 1              179 Yes  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> 1              163 Yes  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> 1               35 Yes  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> 1               93 Yes  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> 1               55 Yes  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> 1              165 Yes  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> 1               30 Yes  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> 1              140 Yes  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> 1                7 Yes  </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># … with 4,918 more rows</span></span></span></code></pre>
 
 </div>
 
-There are 100 different households in this dataset, each of which either chops their melons or keeps them whole. At different points in time, they have some number of melons in their fridge.
+There are 100 different households in this dataset. Each member of the household has some number of melons `n_melons` in their fridge. A household, i.e., all its members, either `chops` their melons or keeps them whole.
 
 Each of the resampling functions in rsample have a `group_*`ed analogue. From rsample's ["Common Patterns" article](https://rsample.tidymodels.org/articles/Common_Patterns.html#grouped-resampling):
 
@@ -198,7 +198,7 @@ However, note that there are only a few households that don't chop their melons,
 
 </div>
 
-If we're ultimately interested in modeling whether a household chops their melons, we ought to ensure that both values of `chops` are well-represented in both the training and testing set. The argument `strata = chops` indicates that sampling by `household` will occur within values of `chops`.
+If we're ultimately interested in modeling whether a household chops their melons, we ought to ensure that both values of `chops` are well-represented in both the training and testing set. The argument `strata = chops` indicates that sampling by `household` will occur within values of `chops`. Note that the strata must be constant in each group, so here, all members of a household need to either chop or not.
 
 <div class="highlight">
 
@@ -238,7 +238,7 @@ The figure below demonstrates this speedup in [an experiment](https://gist.githu
 
 <div class="highlight">
 
-<img src="speedup.png" alt="A ggplot titled 'tidymodels got a lot faster!' displaying the relative speedup between parsnip 1.0.2 and 1.0.3. The number of rows in training data is on the x axis, ranging from one hundred to one million, and the factor of speedup (1.0.2 over 1.0.3) is on the y axis, ranging from 1 to 5. Three lines, colored by 'number of folds,' noting 5, 10, or 20 resamples, stretch from the bottom left to top right of the plot. This shows that, as training data gets larger, the magnitude of speedup with the new parsnip version gets larger and larger." width="100%" style="display: block; margin: auto;" />
+<img src="figs/speedup-1.png" alt="A ggplot line plot displaying the relative speedup between parsnip 1.0.2 and 1.0.3. The number of rows in training data is on the x axis, ranging from one hundred to one million, and the factor of speedup (1.0.2 over 1.0.3) is on the y axis, ranging from 1 to 5. Three lines, colored by 'number of folds,' noting 5, 10, or 20 resamples, stretch from the bottom left to top right of the plot. This shows that, as training data gets larger, the magnitude of speedup with the new parsnip version gets larger and larger." width="100%" style="display: block; margin: auto;" />
 
 </div>
 
@@ -256,7 +256,7 @@ We'd like to thank those in the community that contributed to tidymodels in the 
 -   dials: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@hfrick](https://github.com/hfrick), and [@Tadge-Analytics](https://github.com/Tadge-Analytics).
 -   parsnip: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@exsell-jc](https://github.com/exsell-jc), [@fkohrt](https://github.com/fkohrt), [@hfrick](https://github.com/hfrick), [@jonthegeek](https://github.com/jonthegeek), [@Marwolaeth](https://github.com/Marwolaeth), [@mattwarkentin](https://github.com/mattwarkentin), [@schoonees](https://github.com/schoonees), [@simonpcouch](https://github.com/simonpcouch), [@sweiner123](https://github.com/sweiner123), and [@topepo](https://github.com/topepo).
 -   recipes: [@andeek](https://github.com/andeek), [@DavisVaughan](https://github.com/DavisVaughan), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@hfrick](https://github.com/hfrick), [@joeycouse](https://github.com/joeycouse), [@mdancho84](https://github.com/mdancho84), and [@mobius-eng](https://github.com/mobius-eng).
--   rsample: [@DavisVaughan](https://github.com/DavisVaughan), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@hfrick](https://github.com/hfrick), [@mikemahoney218](https://github.com/mikemahoney218), [@pgg1309](https://github.com/pgg1309), and [@topepo](https://github.com/topepo).
+-   rsample: [@bschneidr](https://github.com/bschneidr), [@DavisVaughan](https://github.com/DavisVaughan), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@hfrick](https://github.com/hfrick), [@mikemahoney218](https://github.com/mikemahoney218), [@pgg1309](https://github.com/pgg1309), and [@topepo](https://github.com/topepo).
 -   stacks: [@simonpcouch](https://github.com/simonpcouch).
 -   workflows: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@hfrick](https://github.com/hfrick), [@simonpcouch](https://github.com/simonpcouch), [@talegari](https://github.com/talegari), and [@xiaochi-liu](https://github.com/xiaochi-liu).
 

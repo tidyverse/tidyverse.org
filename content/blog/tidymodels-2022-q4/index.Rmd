@@ -77,7 +77,7 @@ library(tidymodels)
 
 The [recipes package for preprocessing](https://recipes.tidymodels.org/) supports tidyselect-style variable selection, and includes some of its own selectors to support common modeling workflows.
 
-To illustrate, we'll make use of a dataset `silly_data` with a number of different variable types:
+To illustrate, we'll make use of a dataset `goofy_data` with a number of different variable types:
 
 ```{r}
 #| include: FALSE
@@ -135,7 +135,7 @@ All new selectors have `*_predictors()` variants. You can read more about recipe
 
 ## Grouped resampling
 
-The most recent release of rsample introduced support for stratification with grouped resampling. Consider the following data set, giving whether a number of `household`s `chops` the `n_melons` melons in their fridge:
+The most recent release of rsample introduced support for stratification with grouped resampling. Consider the following toy data set on the number of melons in a household:
 
 ```{r}
 #| include: FALSE
@@ -160,14 +160,15 @@ melons <-
   ungroup() %>%
   mutate(n_melons = as.integer(round(n_melons)),
          household = as.factor(household)) %>%
-  filter(n_melons < 500)
+  filter(n_melons < 500) %>%
+  select(household, n_melons, chops)
 ```
 
 ```{r}
 melons
 ```
 
-There are `r length(unique(melons$household))` different households in this dataset, each of which either chops their melons or keeps them whole. At different points in time, they have some number of melons in their fridge.
+There are `r length(unique(melons$household))` different households in this dataset. Each member of the household has some number of melons `n_melons` in their fridge. A household, i.e., all its members, either `chops` their melons or keeps them whole.
 
 Each of the resampling functions in rsample have a `group_*`ed analogue. From rsample's ["Common Patterns" article](https://rsample.tidymodels.org/articles/Common_Patterns.html#grouped-resampling):
 
@@ -206,7 +207,7 @@ melons %>%
        fill = "Household\nChops Melons")
 ```
 
-If we're ultimately interested in modeling whether a household chops their melons, we ought to ensure that both values of `chops` are well-represented in both the training and testing set. The argument `strata = chops` indicates that sampling by `household` will occur within values of `chops`.
+If we're ultimately interested in modeling whether a household chops their melons, we ought to ensure that both values of `chops` are well-represented in both the training and testing set. The argument `strata = chops` indicates that sampling by `household` will occur within values of `chops`. Note that the strata must be constant in each group, so here, all members of a household need to either chop or not.
 
 ```{r}
 #| include: FALSE
