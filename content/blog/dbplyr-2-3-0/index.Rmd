@@ -1,0 +1,124 @@
+---
+output: hugodown::hugo_document
+
+slug: dbplyr-2-3-0
+title: dbplyr 2.3.0
+date: 2022-12-20
+author: Hadley Wickham
+description: >
+    dbplyr 2.3.0 brings improvements to SQL generation, improved error messages,
+    a handful of new translations, and a bunch of backend specific improvements.
+
+photo:
+  url: https://unsplash.com/photos/05HLFQu8bFw
+  author: Viktor Talashuk 
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [dplyr, dbplyr]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We're chuffed to announce the release of [dbplyr](http://dbplyr.tidyverse.org/) 2.3.0. dbplyr is a database backend for dplyr that allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr translates it to SQL for you.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("{package}")
+```
+
+This blog post will highlight some of the most important new features: eliminating subqueries for many verb combinations, better errors, and a handful of new translations.  As usual, release comes with a large number of improvements to translations for individual backends. See the full list in the [release notes]({ github_release })
+
+```{r setup}
+library(dbplyr)
+library(dplyr, warn.conflicts = FALSE)
+```
+
+## SQL optimisation
+
+dbplyr now produces fewer subqueries resulting in shorter, more readable, and,
+in some cases, faster SQL. Queries use `SELECT *` even after a join, where possible and the following combination of verbs now avoids subqueries much of the time:
+
+* `*_join()` + `select()` and `select()` + `*_join()`.
+* `mutate()` + `filter()` and `filter()` + `filter()` (@mgirlich, #792).
+* `distinct()`.
+* `summarise()` + `filter()` now translates to `HAVING`.
+* `left/inner_join()` + `left/inner_join()`.
+
+Here are a couple of examples of queries that are now much more compact:
+
+```{r}
+lf1 <- lazy_frame(x = 1, a = "a", .name = "lf1")
+lf2 <- lazy_frame(x = 1, b = "b", .name = "lf2")
+lf3 <- lazy_frame(x = 1, c = "c", .name = "lf3")
+
+lf1 |> 
+  left_join(lf2, by = "x") |> 
+  left_join(lf3, by = "x") |> 
+  select(b, c)
+
+lf1 |> 
+  group_by(x) |> 
+  summarise(a = mean(a, na.rm = TRUE), n = n()) |> 
+  filter(n > 5)
+```
+
+(As ususal in these blog posts, I'm using `lazy_frame()` to focus on the SQL generation, without having to set up a dummy database.)
+
+## Improved errors
+
+Variables that aren't found in either the data or in the environment now
+produce an error:
+  
+```{r}
+#| error: true
+lf <- lazy_frame(x = 1,y = 2)
+
+lf |> mutate(x = z + 1)
+```
+
+(Previously they were silently translated to SQL variables.)
+
+We've also generally reviewed the error messages to ensure they show more clearly where the error happened:
+  
+```{r}
+#| error: true
+lf |> mutate(x = y %/% 1)
+
+lf |> mutate(across(x:y, "a"))
+```
+
+## New translations
+
+`stringr::str_like()` (new in stringr 1.5.0) is translated to `LIKE`:
+
+```{r}
+lf1 |> 
+  filter(stringr::str_like(a, "abc"))
+```
+
+dbplyr 2.3.0 is also supports features coming in [dplyr 1.1.0](https://www.tidyverse.org/blog/2022/11/dplyr-1-1-0-is-coming-soon/): 
+
+* The `.by` argument is supported as alternative to `group_by()`.
+* Passing `...` to `across()` is deprecated because the evaluation timing 
+  of `...` is ambiguous.
+* New `pick()` and `case_match()` functions are translated.
+* `case_when()` now supports the `.default` argument.
+
+This version does not support the new `join_by()` syntax, but we're working on it and will release an update after dplyr 1.1.0 is out.
+
+## Acknowledgements
+
+The vast majority of this release (particularly the SQL optimisations) are from [Maximilian Girlich](https://github.com/mgirlich); thanks so much for continued work on this package.
