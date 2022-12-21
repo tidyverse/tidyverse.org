@@ -30,6 +30,7 @@ options(pillar.advice = FALSE, pillar.min_title_chars = Inf, width = 120)
 ```{r}
 #| label: get-repo-info
 #| include: FALSE
+#| cache: TRUE
 
 since <- "2022-10-19"
 
@@ -242,8 +243,113 @@ We recently made a performance tweak, released as part of parsnip 1.0.3, that re
 
 The figure below demonstrates this speedup in [an experiment](https://gist.github.com/simonpcouch/651d0ea4d968b455ded8194578dabf52) involving fitting a simple linear regression model on resamples of simulated data. Simulated datasets with between one hundred and one million rows were partitioned into five, ten, or twenty folds and fitted with the new version of parsnip as well as the version preceding it. With smaller datasets, the speedup is negligible, but fit times decrease by a factor of three to five once training data reaches one million rows.
 
-```{r speedup, echo = FALSE, fig.alt = "A ggplot titled 'tidymodels got a lot faster!' displaying the relative speedup between parsnip 1.0.2 and 1.0.3. The number of rows in training data is on the x axis, ranging from one hundred to one million, and the factor of speedup (1.0.2 over 1.0.3) is on the y axis, ranging from 1 to 5. Three lines, colored by 'number of folds,' noting 5, 10, or 20 resamples, stretch from the bottom left to top right of the plot. This shows that, as training data gets larger, the magnitude of speedup with the new parsnip version gets larger and larger.", out.width = '100%'}
-knitr::include_graphics("speedup.png")
+```{r}
+#| include: FALSE
+#| eval: FALSE
+# benchmarking the parsnip 1.0.3 release speedup
+file_path <- file.path("content", "blog", "tidymodels-2022-q4")
+
+# with v1.0.2 ------------------------------------------------------------
+# likely need to restart your R session after this step
+pak::pkg_install("tidymodels/parsnip@v1.0.2")
+
+num_samples <- 10^(3:7)
+num_resamples <- c(5, 10, 20)
+nrow <- length(num_samples) * length(num_resamples)
+
+res_v102 <- 
+  tibble(
+    version = character(nrow), 
+    num_samples = numeric(nrow),
+    num_resamples = numeric(nrow),
+    time_to_fit = numeric(nrow)
+  )
+
+set.seed(1)
+
+for (i in seq_along(num_samples)) {
+  dat <- tibble(x = rnorm(num_samples[i]), y = x + rnorm(num_samples[i], sd = .2))
+  
+  for (j in seq_along(num_resamples)) {
+    folds <- vfold_cv(dat, v = num_resamples[j])
+    
+    timing <- 
+      system.time({
+        fit_resamples(linear_reg(), y ~ x, folds)
+      })
+    
+    idx <- (length(num_samples) * (j - 1)) + i
+    res_v102[idx,] <- list("v1.0.2", num_samples[i], num_resamples[j], timing[["elapsed"]])
+  }
+}
+
+save(res_v102, file = file.path(file_path, "res_v102.rda"))
+
+# with v1.0.3 ------------------------------------------------------------
+# likely need to restart your R session after this step
+pak::pkg_install("tidymodels/parsnip@v1.0.3")
+
+res_v103 <- 
+  tibble(
+    version = character(nrow), 
+    num_samples = numeric(nrow),
+    num_resamples = numeric(nrow),
+    time_to_fit = numeric(nrow)
+  )
+
+set.seed(1)
+
+for (i in seq_along(num_samples)) {
+  dat <- tibble(x = rnorm(num_samples[i]), y = x + rnorm(num_samples[i], sd = .2))
+  
+  for (j in seq_along(num_resamples)) {
+    folds <- vfold_cv(dat, v = num_resamples[j])
+    
+    timing <- 
+      system.time({
+        fit_resamples(linear_reg(), y ~ x, folds)
+      })
+    
+    idx <- (length(num_samples) * (j - 1)) + i
+    res_v103[idx,] <- list("v1.0.3", num_samples[i], num_resamples[j], timing[["elapsed"]])
+  }
+}
+
+save(res_v103, file = file.path(file_path, "res_v103.rda"))
+
+# plotting ---------------------------------------------------------------
+load(file.path(file_path, "res_v102.rda"))
+load(file.path(file_path, "res_v103.rda"))
+res <- bind_rows(res_v102, res_v103)
+
+save(res, file = file.path(file_path, "speedup.rda"))
+```
+
+```{r}
+#| include: FALSE
+load(file.path("content", "blog", "tidymodels-2022-q4", "speedup.rda"))
+```
+
+```{r speedup, echo = FALSE, fig.alt = "A ggplot line plot displaying the relative speedup between parsnip 1.0.2 and 1.0.3. The number of rows in training data is on the x axis, ranging from one hundred to one million, and the factor of speedup (1.0.2 over 1.0.3) is on the y axis, ranging from 1 to 5. Three lines, colored by 'number of folds,' noting 5, 10, or 20 resamples, stretch from the bottom left to top right of the plot. This shows that, as training data gets larger, the magnitude of speedup with the new parsnip version gets larger and larger.", out.width = '100%'}
+res %>%
+  pivot_wider(
+    id_cols = c(num_samples, num_resamples), 
+    names_from = version, 
+    values_from = time_to_fit
+  ) %>%
+  mutate(speedup = `v1.0.2` / `v1.0.3`) %>%
+  select(-starts_with("v")) %>%
+  mutate(num_resamples = factor(num_resamples, levels = c("20", "10", "5"), ordered = TRUE)) %>%
+  ggplot() +
+  aes(x = num_samples, y = speedup, col = num_resamples) +
+  geom_line() +
+  scale_x_log10() +
+  labs(
+    x = "Number of Rows in Training Data", 
+    y = "Speedup (v1.0.2 / v1.0.3)",
+    col = "Number \nof Folds"
+  ) +
+  scale_color_viridis_d(end = .8)
 ```
 
 You can read more about parsnip 1.0.3 in the [release notes](https://parsnip.tidymodels.org/news/index.html#parsnip-103).
