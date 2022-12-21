@@ -14,7 +14,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, recipes, parsnip, rsample]
-rmd_hash: 0b23f6f3a65bf163
+rmd_hash: 89d5c086e58a4094
 
 ---
 
@@ -58,17 +58,19 @@ To illustrate, we'll make use of a dataset `goofy_data` with a number of differe
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='nv'>goofy_data</span><span class='o'>)</span></span><span><span class='c'>#&gt; tibble [100 × 10] (S3: tbl_df/tbl/data.frame)</span></span>
-<span><span class='c'>#&gt;  $ class: Factor w/ 2 levels "class_1","class_2": 2 1 1 1 1 2 2 1 1 2 ...</span></span>
-<span><span class='c'>#&gt;  $ a    : int [1:100] 7 2 3 3 6 6 6 3 4 4 ...</span></span>
-<span><span class='c'>#&gt;  $ b    : num [1:100] -1.114 -1.795 -0.83 -0.858 1.427 ...</span></span>
-<span><span class='c'>#&gt;  $ c    : Factor w/ 3 levels "-1","0","1": 3 3 3 2 3 2 1 1 1 1 ...</span></span>
-<span><span class='c'>#&gt;  $ d    : num [1:100] 0.5168 0.0575 0.1609 0.3959 0.1046 ...</span></span>
-<span><span class='c'>#&gt;  $ e    : num [1:100] 0.016 0.613 0.4421 0.7851 0.0519 ...</span></span>
-<span><span class='c'>#&gt;  $ f    : Factor w/ 5 levels "-2","-1","0",..: 4 3 2 5 1 3 2 4 3 4 ...</span></span>
-<span><span class='c'>#&gt;  $ g    : num [1:100] -0.616 0.587 -0.613 1.582 1.43 ...</span></span>
-<span><span class='c'>#&gt;  $ h    : num [1:100] 0.401 0.442 -1.139 0.382 0.474 ...</span></span>
-<span><span class='c'>#&gt;  $ i    : chr [1:100] "white" "white" "white" "white" ...</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='nv'>goofy_data</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; tibble [100 × 10] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class='c'>#&gt;  $ class: Factor w/ 2 levels "class_1","class_2": 1 1 2 2 1 1 2 1 1 2 ...</span></span>
+<span><span class='c'>#&gt;  $ a    : Factor w/ 8 levels "-3","-2","-1",..: 6 2 5 6 5 4 4 3 3 5 ...</span></span>
+<span><span class='c'>#&gt;  $ b    : Factor w/ 8 levels "-3","-2","-1",..: 5 2 5 5 5 5 4 5 3 4 ...</span></span>
+<span><span class='c'>#&gt;  $ c    : int [1:100] 0 -1 0 0 0 1 -1 1 1 0 ...</span></span>
+<span><span class='c'>#&gt;  $ d    : int [1:100] 0 1 0 0 1 1 0 1 0 1 ...</span></span>
+<span><span class='c'>#&gt;  $ e    : int [1:100] 0 0 1 0 0 0 0 1 1 1 ...</span></span>
+<span><span class='c'>#&gt;  $ f    : num [1:100] -0.3855 -0.0528 1.2838 0.4769 -0.1916 ...</span></span>
+<span><span class='c'>#&gt;  $ g    : num [1:100] 1.358 1.191 1.064 0.431 1.748 ...</span></span>
+<span><span class='c'>#&gt;  $ h    : num [1:100] 1.192 -0.144 -0.907 0.983 1.265 ...</span></span>
+<span><span class='c'>#&gt;  $ i    : chr [1:100] "white" "white" "maroon" "white" ...</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -78,7 +80,8 @@ Imagine a classification problem on the `goofy_data` where we'd like to predict 
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>class</span> <span class='o'>~</span> <span class='nv'>.</span>, <span class='nv'>goofy_data</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
 <span>  <span class='nf'>step_normalize</span><span class='o'>(</span><span class='nf'>all_numeric_predictors</span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
-<span>  <span class='nf'>prep</span><span class='o'>(</span><span class='o'>)</span></span><span><span class='c'>#&gt; Recipe</span></span>
+<span>  <span class='nf'>prep</span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; Recipe</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; Inputs:</span></span>
 <span><span class='c'>#&gt; </span></span>
@@ -90,7 +93,8 @@ Imagine a classification problem on the `goofy_data` where we'd like to predict 
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; Operations:</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Centering and scaling for a, b, d, e, g, h [trained]</span></span></code></pre>
+<span><span class='c'>#&gt; Centering and scaling for c, d, e, f, g, h [trained]</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -100,7 +104,8 @@ Or making dummy variables out of each of the nominal predictors:
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>class</span> <span class='o'>~</span> <span class='nv'>.</span>, <span class='nv'>goofy_data</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
 <span>  <span class='nf'>step_dummy</span><span class='o'>(</span><span class='nf'>all_nominal_predictors</span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
-<span>  <span class='nf'>prep</span><span class='o'>(</span><span class='o'>)</span></span><span><span class='c'>#&gt; Recipe</span></span>
+<span>  <span class='nf'>prep</span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; Recipe</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; Inputs:</span></span>
 <span><span class='c'>#&gt; </span></span>
@@ -112,7 +117,8 @@ Or making dummy variables out of each of the nominal predictors:
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; Operations:</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Dummy variables from c, f, i [trained]</span></span></code></pre>
+<span><span class='c'>#&gt; Dummy variables from a, b, i [trained]</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -122,7 +128,8 @@ Operations like those above have been long-standing functionality in recipes, an
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>class</span> <span class='o'>~</span> <span class='nv'>.</span>, <span class='nv'>goofy_data</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
 <span>  <span class='nf'>step_normalize</span><span class='o'>(</span><span class='nf'>all_double_predictors</span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
-<span>  <span class='nf'>prep</span><span class='o'>(</span><span class='o'>)</span></span><span><span class='c'>#&gt; Recipe</span></span>
+<span>  <span class='nf'>prep</span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; Recipe</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; Inputs:</span></span>
 <span><span class='c'>#&gt; </span></span>
@@ -134,7 +141,8 @@ Operations like those above have been long-standing functionality in recipes, an
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; Operations:</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Centering and scaling for b, d, e, g, h [trained]</span></span></code></pre>
+<span><span class='c'>#&gt; Centering and scaling for f, g, h [trained]</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -154,7 +162,8 @@ The most recent release of rsample introduced support for stratification with gr
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>melons</span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4,928 × 3</span></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>melons</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4,928 × 3</span></span></span>
 <span><span class='c'>#&gt;    household n_melons chops</span></span>
 <span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> 1              114 Yes  </span></span>
@@ -167,7 +176,8 @@ The most recent release of rsample introduced support for stratification with gr
 <span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> 1               30 Yes  </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> 1              140 Yes  </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>10</span> 1                7 Yes  </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># … with 4,918 more rows</span></span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #555555;'># … with 4,918 more rows</span></span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -186,7 +196,9 @@ For example, the grouped `initial_split()` variant will allot the training and t
 <span><span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span></span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='o'>(</span><span class='nf'>training</span><span class='o'>(</span><span class='nv'>resample</span><span class='o'>)</span><span class='o'>$</span><span class='nv'>household</span><span class='o'>)</span> <span class='o'><a href='https://rdrr.io/r/base/match.html'>%in%</a></span> </span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='o'>(</span><span class='nf'>testing</span><span class='o'>(</span><span class='nv'>resample</span><span class='o'>)</span><span class='o'>$</span><span class='nv'>household</span><span class='o'>)</span></span>
-<span><span class='o'>)</span></span><span><span class='c'>#&gt; [1] 0</span></span></code></pre>
+<span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] 0</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -213,7 +225,9 @@ Note that this resampling scheme still resulted in different `household`s being 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span></span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='o'>(</span><span class='nf'>training</span><span class='o'>(</span><span class='nv'>resample_stratified</span><span class='o'>)</span><span class='o'>$</span><span class='nv'>household</span><span class='o'>)</span> <span class='o'><a href='https://rdrr.io/r/base/match.html'>%in%</a></span> </span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='o'>(</span><span class='nf'>testing</span><span class='o'>(</span><span class='nv'>resample_stratified</span><span class='o'>)</span><span class='o'>$</span><span class='nv'>household</span><span class='o'>)</span></span>
-<span><span class='o'>)</span></span><span><span class='c'>#&gt; [1] 0</span></span></code></pre>
+<span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] 0</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -224,7 +238,9 @@ Also, though, it ensured that similar proportions of `chops` values are allotted
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/diff.html'>diff</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span></span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nf'>training</span><span class='o'>(</span><span class='nv'>resample_stratified</span><span class='o'>)</span><span class='o'>$</span><span class='nv'>chops</span> <span class='o'>==</span> <span class='s'>"Yes"</span><span class='o'>)</span>,</span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nf'>testing</span><span class='o'>(</span><span class='nv'>resample_stratified</span><span class='o'>)</span><span class='o'>$</span><span class='nv'>chops</span> <span class='o'>==</span> <span class='s'>"Yes"</span><span class='o'>)</span></span>
-<span><span class='o'>)</span><span class='o'>)</span></span><span><span class='c'>#&gt; [1] 0.01000042</span></span></code></pre>
+<span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] 0.01000042</span></span>
+<span></span></code></pre>
 
 </div>
 

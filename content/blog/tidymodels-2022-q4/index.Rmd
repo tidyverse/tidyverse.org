@@ -87,8 +87,10 @@ assign_letter <- function(names) {
 
 goofy_data <- 
   sim_classification(num_linear = 3) %>%
-  mutate(across(ends_with("_1"), ~ as.factor(round(.x)))) %>%
-  mutate(two_factor_1 = as.integer(two_factor_1)) %>%
+  mutate(
+    across(starts_with("non_linear"), ~ as.integer(round(.x))),
+    across(starts_with("two_factor"), ~ as.factor(round(.x)))
+  ) %>%
   rowwise() %>%
   mutate(char = rnorm(1), char = if_else(char > .5, "maroon", "white")) %>%
   ungroup() %>%
