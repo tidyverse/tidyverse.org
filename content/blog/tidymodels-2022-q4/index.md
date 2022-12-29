@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2022-q4
 title: "Q4 2022 tidymodels digest"
-date: 2022-12-28
+date: 2022-12-29
 author: Simon Couch
 description: >
     The tidymodels team has been busy working on all sorts of new features across the ecosystem.
@@ -14,7 +14,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, recipes, parsnip, rsample]
-rmd_hash: 89d5c086e58a4094
+rmd_hash: b6114efead6a5329
 
 ---
 
@@ -60,16 +60,16 @@ To illustrate, we'll make use of a dataset `goofy_data` with a number of differe
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='nv'>goofy_data</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; tibble [100 × 10] (S3: tbl_df/tbl/data.frame)</span></span>
-<span><span class='c'>#&gt;  $ class: Factor w/ 2 levels "class_1","class_2": 1 1 2 2 1 1 2 1 1 2 ...</span></span>
-<span><span class='c'>#&gt;  $ a    : Factor w/ 8 levels "-3","-2","-1",..: 6 2 5 6 5 4 4 3 3 5 ...</span></span>
-<span><span class='c'>#&gt;  $ b    : Factor w/ 8 levels "-3","-2","-1",..: 5 2 5 5 5 5 4 5 3 4 ...</span></span>
-<span><span class='c'>#&gt;  $ c    : int [1:100] 0 -1 0 0 0 1 -1 1 1 0 ...</span></span>
-<span><span class='c'>#&gt;  $ d    : int [1:100] 0 1 0 0 1 1 0 1 0 1 ...</span></span>
-<span><span class='c'>#&gt;  $ e    : int [1:100] 0 0 1 0 0 0 0 1 1 1 ...</span></span>
-<span><span class='c'>#&gt;  $ f    : num [1:100] -0.3855 -0.0528 1.2838 0.4769 -0.1916 ...</span></span>
-<span><span class='c'>#&gt;  $ g    : num [1:100] 1.358 1.191 1.064 0.431 1.748 ...</span></span>
-<span><span class='c'>#&gt;  $ h    : num [1:100] 1.192 -0.144 -0.907 0.983 1.265 ...</span></span>
-<span><span class='c'>#&gt;  $ i    : chr [1:100] "white" "white" "maroon" "white" ...</span></span>
+<span><span class='c'>#&gt;  $ class: Factor w/ 2 levels "class_1","class_2": 1 1 2 1 2 1 1 2 2 2 ...</span></span>
+<span><span class='c'>#&gt;  $ a    : Factor w/ 7 levels "-3","-2","-1",..: 4 4 3 2 4 5 2 2 3 5 ...</span></span>
+<span><span class='c'>#&gt;  $ b    : Factor w/ 9 levels "-4","-3","-2",..: 9 5 4 3 4 7 4 2 3 6 ...</span></span>
+<span><span class='c'>#&gt;  $ c    : int [1:100] 0 0 0 0 0 0 0 -1 0 1 ...</span></span>
+<span><span class='c'>#&gt;  $ d    : int [1:100] 0 1 1 1 0 1 1 0 0 1 ...</span></span>
+<span><span class='c'>#&gt;  $ e    : int [1:100] 1 0 1 0 0 1 1 0 1 1 ...</span></span>
+<span><span class='c'>#&gt;  $ f    : num [1:100] 1.01 -1.99 2.18 2.3 -3.01 ...</span></span>
+<span><span class='c'>#&gt;  $ g    : num [1:100] -0.845 1.456 1.948 1.354 1.085 ...</span></span>
+<span><span class='c'>#&gt;  $ h    : num [1:100] -0.285 0.59 -0.938 1.447 0.424 ...</span></span>
+<span><span class='c'>#&gt;  $ i    : chr [1:100] "white" "maroon" "maroon" "maroon" ...</span></span>
 <span></span></code></pre>
 
 </div>
