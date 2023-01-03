@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr, dbplyr]
-rmd_hash: f6409bd0e74ec340
+rmd_hash: 3ec4c9222720c933
 
 ---
 
@@ -33,7 +33,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're chuffed to announce the release of [dbplyr](http://dbplyr.tidyverse.org/) 2.2.3. dbplyr is a database backend for dplyr that allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr translates it to SQL for you.
+We're chuffed to announce the release of [dbplyr](http://dbplyr.tidyverse.org/) 2.3.0. dbplyr is a database backend for dplyr that allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr translates it to SQL for you.
 
 You can install it from CRAN with:
 
@@ -43,7 +43,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will highlight some of the most important new features: eliminating subqueries for many verb combinations, better errors, and a handful of new translations. As usual, release comes with a large number of improvements to translations for individual backends. See the full list in the [release notes](%7B%20github_release%20%7D)
+This blog post will highlight some of the most important new features: eliminating subqueries for many verb combinations, better errors, and a handful of new translations. As usual, this release comes with a large number of improvements to translations for individual backends. See the full list in the [release notes](%7B%20github_release%20%7D)
 
 <div class="highlight">
 
@@ -57,7 +57,7 @@ This blog post will highlight some of the most important new features: eliminati
 dbplyr now produces fewer subqueries resulting in shorter, more readable, and, in some cases, faster SQL. Queries use `SELECT *` even after a join, where possible and the following combination of verbs now avoids subqueries much of the time:
 
 -   `*_join()` + [`select()`](https://dplyr.tidyverse.org/reference/select.html) and [`select()`](https://dplyr.tidyverse.org/reference/select.html) + `*_join()`.
--   [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) + [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) and [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) + [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) (@mgirlich, #792).
+-   [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) + [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) and [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) + [`filter()`](https://dplyr.tidyverse.org/reference/filter.html)
 -   [`distinct()`](https://dplyr.tidyverse.org/reference/distinct.html).
 -   [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) + [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) now translates to `HAVING`.
 -   `left/inner_join()` + `left/inner_join()`.
