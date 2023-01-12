@@ -18,6 +18,7 @@ categories: [package]
 tags: [forcats]
 ---
 
+```{=html}
 <!--
 TODO:
 * [ ] Look over / edit the post's title in the yaml
@@ -30,8 +31,9 @@ TODO:
 * [ ] Add intro sentence, e.g. the standard tagline for the package
 * [ ] `usethis::use_tidy_thanks()`
 -->
-
-We're so happy to announce the release of [forcats](https://forcats.tidyverse.org) 1.0.0. The goal of the forcats package is to provide a suite of tools that solve common problems with factors, including changing the order of levels or the values.
+```
+We're so happy to announce the release of [forcats](https://forcats.tidyverse.org) 1.0.0.
+The goal of the forcats package is to provide a suite of tools that solve common problems with factors, including changing the order of levels or the values.
 
 You can install it from CRAN with:
 
@@ -39,7 +41,9 @@ You can install it from CRAN with:
 install.packages("forcats")
 ```
 
-While this is the 1.0.0 release of forcats, this is mainly a signal that we think forcats is stable, and don't anticipated any major changes in the future. This blog post will outline the only major new features in this version: `fct_na_level_to_value()` and `fct_na_value_to_level()`. As usual, you can see a full list of changes in the [release notes](https://github.com/tidyverse/forcats/releases/tag/v1.0.0).
+While this is the 1.0.0 release of forcats, this is mainly a signal that we think forcats is stable, and don't anticipated any major changes in the future.
+This blog post will outline the only major new features in this version: `fct_na_level_to_value()` and `fct_na_value_to_level()`.
+As usual, you can see a full list of changes in the [release notes](https://github.com/tidyverse/forcats/releases/tag/v1.0.0).
 
 ```{r setup}
 library(forcats)
@@ -78,10 +82,11 @@ as.integer(f2)
 When the `NA` is stored in the levels, there's no missing value in the underlying integer values, because the value of level 3 is `NA`.
 
 `NA`s in the values tend to be best for data analysis, since `is.na()` works as you'd expect.
-`NA`s in the levels can be useful for display if you need to control where they appear in a table or a plot. 
+`NA`s in the levels can be useful for display if you need to control where they appear in a table or a plot.
 forcats now comes with tools for converting between these two forms: `fct_na_value_to_level()` and `fct_na_level_to_value()`.
 
-Here's a practical example of why it matters from `vignette("forcats")`. In the plot below, I've attempted to use `fct_infreq()` to reorder the levels of the factor so that the highest frequency levels are at the top of the bar chart:
+Here's a practical example of why it matters from `vignette("forcats")`.
+In the plot below, I've attempted to use `fct_infreq()` to reorder the levels of the factor so that the highest frequency levels are at the top of the bar chart:
 
 ```{r fct-infreq-hair}
 #| fig-asp: 1
@@ -134,7 +139,9 @@ starwars |>
   labs(y = "Hair color")
 ```
 
-Pulling the factor manipulation out into it's own mini-pipeline makes it easier to make other adjustments. For example, the code below uses a more informative label for the missing level, and lumps together all the hair colours with less than 2 observations. I've left the (Other) category as a bar at the end, but by rearranging the other of `fct_infreq()` and `fct_lump_min()` I could other with the others, if I wanted.
+Pulling the factor manipulation out into it's own mini-pipeline makes it easier to make other adjustments.
+For example, the code below uses a more informative label for the missing level, and lumps together all the hair colours with less than 2 observations.
+I've left the (Other) category as a bar at the end, but by rearranging the other of `fct_infreq()` and `fct_lump_min()` I could other with the others, if I wanted.
 
 ```{r}
 #| fig-width: 4
@@ -154,7 +161,8 @@ starwars |>
   labs(y = "Hair color")
 ```
 
-Looking closely at what got lumped together made me realise that there's also an existing "Unknown" level that should probably be represented as a missing value. One way to fix that is with `fct_na_level_to_value()`:
+Looking closely at what got lumped together made me realise that there's also an existing "Unknown" level that should probably be represented as a missing value.
+One way to fix that is with `fct_na_level_to_value()`:
 
 ```{r}
 #| fig-width: 4
@@ -176,4 +184,3 @@ starwars |>
 ```
 
 ## Acknowledgements
-

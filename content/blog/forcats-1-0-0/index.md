@@ -6,17 +6,17 @@ title: forcats 1.0.0
 date: 2023-01-12
 author: Hadley Wickham
 description: >
-    forcats 1.0.0 is here making it clear the forcats is stable member of the
-    tidyverse.
+    There are no major new features in this version of forcats, but the 1.0.0
+    label now clearly advertises that this a stable member of the tidyverse.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/NWwv0ETyzxc
+  author: Diego Morales
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
-tags: []
-rmd_hash: e6ec0d91ddb1e09d
+tags: [forcats]
+rmd_hash: d9cbee59439a126d
 
 ---
 
@@ -25,10 +25,10 @@ TODO:
 * [ ] Look over / edit the post's title in the yaml
 * [ ] Edit (or delete) the description; note this appears in the Twitter card
 * [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [ ] Add intro sentence, e.g. the standard tagline for the package
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
