@@ -21,14 +21,14 @@ tags: [forcats]
 ```{=html}
 <!--
 TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
 * [x] Find photo & update yaml metadata
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] `hugodown::use_tidy_thumbnails()`
-* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [x] Add intro sentence, e.g. the standard tagline for the package
 * [ ] `usethis::use_tidy_thanks()`
 -->
 ```
@@ -41,8 +41,8 @@ You can install it from CRAN with:
 install.packages("forcats")
 ```
 
-While this is the 1.0.0 release of forcats, this is mainly a signal that we think forcats is stable, and don't anticipated any major changes in the future.
-This blog post will outline the only major new features in this version: `fct_na_level_to_value()` and `fct_na_value_to_level()`.
+While this is the 1.0.0 release of forcats, this version number is mainly a signal that we think forcats is stable, and don't anticipated any major changes in the future.
+This blog post will outline the only major new feature in this version: better tools for dealing with the two ways that missing values can be represented in factors.
 As usual, you can see a full list of changes in the [release notes](https://github.com/tidyverse/forcats/releases/tag/v1.0.0).
 
 ```{r setup}
@@ -54,38 +54,37 @@ library(forcats)
 There are two ways to represent a missing value in a factor:
 
 -   You can include it in the values of the factor; it does not appear in the levels and `is.na()` reports it as missing.
-    This is how missing values are encoded in a factor by default:
+    This is how missing values are encoded by default:
 
     ```{r}
-    f1 <- factor(c("x", "y", NA))
+    f1 <- factor(c("x", "y", NA, NA, "x"))
     levels(f1)
     is.na(f1)
     ```
 
--   You can include it in the levels of the factor and `is.na()` does not report it as missing.
+-   You can include it in the levels of the factor, thus `is.na()` does not report it as missing.
     This requires a little more work to create, because, by default, `factor()` uses `exclude = NA`, meaning that missing values are not included in the levels.
     You can force `NA` to be included by setting `exclude = NULL`:
 
     ```{r}
-    f2 <- factor(c("x", "y", NA), exclude = NULL)
+    f2 <- factor(c("x", "y", NA, NA, "x"), exclude = NULL)
     levels(f2)
     is.na(f2)
     ```
 
-You can see the difference a little more clearly by looking at the underlying integer value of the factor:
+You can see the difference a little more clearly by looking at the underlying integer value of the factor.
+When the `NA` is stored in the levels, there's no missing value in the underlying integer values, because the value of level 3 is `NA`.
 
 ```{r}
 as.integer(f1)
 as.integer(f2)
 ```
 
-When the `NA` is stored in the levels, there's no missing value in the underlying integer values, because the value of level 3 is `NA`.
+`NA`s in the values tend to be best for data analysis, because `is.na()` works as you'd expect.
+`NA`s in the levels are useful if you need to control where missing values are shown in a table or a plot.
+To make it easier to switch between these forms, forcats now comes `fct_na_value_to_level()` and `fct_na_level_to_value()`.
 
-`NA`s in the values tend to be best for data analysis, since `is.na()` works as you'd expect.
-`NA`s in the levels can be useful for display if you need to control where they appear in a table or a plot.
-forcats now comes with tools for converting between these two forms: `fct_na_value_to_level()` and `fct_na_level_to_value()`.
-
-Here's a practical example of why it matters from `vignette("forcats")`.
+Here's a practical example of why it matters.
 In the plot below, I've attempted to use `fct_infreq()` to reorder the levels of the factor so that the highest frequency levels are at the top of the bar chart:
 
 ```{r fct-infreq-hair}
@@ -106,9 +105,9 @@ ggplot(starwars, aes(y = fct_rev(fct_infreq(hair_color)))) +
   labs(y = "Hair color")
 ```
 
-But unfortunately, because the `NA`s are stored in the values, `fct_infreq()` has no ability to affect them, and hence they appear in their default position.
+Unfortunately, however, because the `NA`s are stored in the values, `fct_infreq()` has no ability to affect them, so they appear in their default position, after all the other values (it might not be obvious that that they're after the other values here, but remember in plots y values have their smallest values at the bottom and highest values at the top).
 
-We can make `fct_infreq()` do what we want by making an explicit `NA` level:
+We can make `fct_infreq()` do what we want by moving the `NA` from the values to the levels:
 
 ```{r}
 #| fig-asp: 1
@@ -121,7 +120,7 @@ ggplot(starwars, aes(y = fct_rev(fct_infreq(fct_na_value_to_level(hair_color))))
   labs(y = "Hair color")
 ```
 
-That code is getting a little verbose so we might want to pull it out into a separate dplyr step:
+That code is getting a little verbose so lets pull it out into a separate dplyr step and pull the factor transformation in to its own mini pipeline:
 
 ```{r}
 #| fig-asp: 1
@@ -139,9 +138,9 @@ starwars |>
   labs(y = "Hair color")
 ```
 
-Pulling the factor manipulation out into it's own mini-pipeline makes it easier to make other adjustments.
-For example, the code below uses a more informative label for the missing level, and lumps together all the hair colours with less than 2 observations.
-I've left the (Other) category as a bar at the end, but by rearranging the other of `fct_infreq()` and `fct_lump_min()` I could other with the others, if I wanted.
+This structure makes it easier to make other adjustments.
+For example, the code below uses a more informative label for the missing level and lumps together all the hair colours with less than 2 observations.
+I've left the (Other) category as a bar at the end, but by rearranging the order of `fct_infreq()` and `fct_lump_min()` I could cause it to also sort in frequency order.
 
 ```{r}
 #| fig-width: 4
@@ -161,7 +160,7 @@ starwars |>
   labs(y = "Hair color")
 ```
 
-Looking closely at what got lumped together made me realise that there's also an existing "Unknown" level that should probably be represented as a missing value.
+Looking closely at what got lumped together made me realise that there's an existing "Unknown" level that should probably be represented as a missing value.
 One way to fix that is with `fct_na_level_to_value()`:
 
 ```{r}
