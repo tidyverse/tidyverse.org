@@ -41,7 +41,7 @@ You can install it from CRAN with:
 install.packages("forcats")
 ```
 
-While this is the 1.0.0 release of forcats, this version number is mainly a signal that we think forcats is stable, and don't anticipated any major changes in the future.
+While this is the 1.0.0 release of forcats, this version number is mainly a signal that we think forcats is stable, and we don't anticipate any major changes in the future.
 This blog post will outline the only major new feature in this version: better tools for dealing with the two ways that missing values can be represented in factors.
 As usual, you can see a full list of changes in the [release notes](https://github.com/tidyverse/forcats/releases/tag/v1.0.0).
 
@@ -72,13 +72,14 @@ There are two ways to represent a missing value in a factor:
     is.na(f2)
     ```
 
-You can see the difference a little more clearly by looking at the underlying integer value of the factor.
-When the `NA` is stored in the levels, there's no missing value in the underlying integer values, because the value of level 3 is `NA`.
+You can see the difference a little more clearly by looking at the underlying integer values of the factor:
 
 ```{r}
 as.integer(f1)
 as.integer(f2)
 ```
+
+When the `NA` is stored in the levels, there's no missing value in the underlying integer values, because the value of level 3 is `NA`.
 
 `NA`s in the values tend to be best for data analysis, because `is.na()` works as you'd expect.
 `NA`s in the levels are useful if you need to control where missing values are shown in a table or a plot.
@@ -139,8 +140,8 @@ starwars |>
 ```
 
 This structure makes it easier to make other adjustments.
-For example, the code below uses a more informative label for the missing level and lumps together all the hair colours with less than 2 observations.
-I've left the (Other) category as a bar at the end, but by rearranging the order of `fct_infreq()` and `fct_lump_min()` I could cause it to also sort in frequency order.
+For example, the code below uses a more informative label for the missing level and lumps together the colours with less than 2 observations.
+I've left the (Other) category as a bar at the end, but if I wanted to I could cause it to sort in frequency order by flipping the order of `fct_infreq()` and `fct_lump_min()` .
 
 ```{r}
 #| fig-width: 4
