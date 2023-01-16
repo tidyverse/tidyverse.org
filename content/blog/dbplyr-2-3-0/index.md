@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: dbplyr-2-3-0
 title: dbplyr 2.3.0
-date: 2022-12-20
+date: 2023-01-16
 author: Hadley Wickham
 description: >
     dbplyr 2.3.0 brings improvements to SQL generation, improved error messages,
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr, dbplyr]
-rmd_hash: 3ec4c9222720c933
+rmd_hash: 21883fbdd40cd91a
 
 ---
 
@@ -27,7 +27,7 @@ TODO:
 * [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
 * [x] Find photo & update yaml metadata
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
-* [] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
@@ -123,6 +123,7 @@ We've also generally reviewed the error messages to ensure they show more clearl
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>lf</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>y</span> <span class='o'><a href='https://rdrr.io/r/base/Arithmetic.html'>%/%</a></span> <span class='m'>1</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `purrr::pmap()` at </span><a href='file:///Users/hadleywickham/Documents/dplyr/dbplyr/R/lazy-select-query.R'><span style='font-weight: bold;'>dbplyr/R/lazy-select-query.R:282:2</span></a><span style='font-weight: bold;'>:</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> In index: 1.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> With name: x.</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Caused by error in `y %/% 1`:</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> %/% is not available in this SQL variant</span></span>
 <span></span><span></span>
@@ -155,12 +156,14 @@ dbplyr 2.3.0 is also supports features coming in [dplyr 1.1.0](https://www.tidyv
 
 -   The `.by` argument is supported as alternative to [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html).
 -   Passing `...` to [`across()`](https://dplyr.tidyverse.org/reference/across.html) is deprecated because the evaluation timing of `...` is ambiguous.
--   New [`pick()`](https://dplyr.tidyverse.org/reference/pick.html) and [`case_match()`](https://dplyr.tidyverse.org/reference/case_match.html) functions are translated.
+-   New `pick()` and `case_match()` functions are translated.
 -   [`case_when()`](https://dplyr.tidyverse.org/reference/case_when.html) now supports the `.default` argument.
 
-This version does not support the new [`join_by()`](https://dplyr.tidyverse.org/reference/join_by.html) syntax, but we're working on it and will release an update after dplyr 1.1.0 is out.
+This version does not support the new `join_by()` syntax, but we're working on it and will release an update after dplyr 1.1.0 is out.
 
 ## Acknowledgements
 
 The vast majority of this release (particularly the SQL optimisations) are from [Maximilian Girlich](https://github.com/mgirlich); thanks so much for continued work on this package.
+
+We'd also like to thank all 74 contributors who help in someway, whether it was filing issues or contributing code and documentation: [@a4sberg](https://github.com/a4sberg), [@ablack3](https://github.com/ablack3), [@akgold](https://github.com/akgold), [@aleighbrown](https://github.com/aleighbrown), [@andreassoteriadesmoj](https://github.com/andreassoteriadesmoj), [@apalacio9502](https://github.com/apalacio9502), [@baileych](https://github.com/baileych), [@barnesparker](https://github.com/barnesparker), [@bhuvanesh1707](https://github.com/bhuvanesh1707), [@bkraft4257](https://github.com/bkraft4257), [@bobbymc0](https://github.com/bobbymc0), [@brian-law-rstudio](https://github.com/brian-law-rstudio), [@bthe](https://github.com/bthe), [@But2ene](https://github.com/But2ene), [@capitantyler](https://github.com/capitantyler), [@carlganz](https://github.com/carlganz), [@cboettig](https://github.com/cboettig), [@chwpearse](https://github.com/chwpearse), [@copernican](https://github.com/copernican), [@DSLituiev](https://github.com/DSLituiev), [@ehudtr7](https://github.com/ehudtr7), [@eitsupi](https://github.com/eitsupi), [@ejneer](https://github.com/ejneer), [@eutwt](https://github.com/eutwt), [@ewright-vcan](https://github.com/ewright-vcan), [@fabkury](https://github.com/fabkury), [@fh-afrachioni](https://github.com/fh-afrachioni), [@fh-mthomson](https://github.com/fh-mthomson), [@filipemsc](https://github.com/filipemsc), [@gadenbuie](https://github.com/gadenbuie), [@gbouzill](https://github.com/gbouzill), [@giocomai](https://github.com/giocomai), [@hadley](https://github.com/hadley), [@hershelm](https://github.com/hershelm), [@iangow](https://github.com/iangow), [@iMissile](https://github.com/iMissile), [@IndrajeetPatil](https://github.com/IndrajeetPatil), [@j-wester](https://github.com/j-wester), [@Janlow](https://github.com/Janlow), [@jasonmhoule](https://github.com/jasonmhoule), [@jensmassberg](https://github.com/jensmassberg), [@jmbarbone](https://github.com/jmbarbone), [@joe-rodd](https://github.com/joe-rodd), [@kongdd](https://github.com/kongdd), [@krlmlr](https://github.com/krlmlr), [@lschneiderbauer](https://github.com/lschneiderbauer), [@machow](https://github.com/machow), [@mgarbuzov](https://github.com/mgarbuzov), [@mgirlich](https://github.com/mgirlich), [@MichaelChirico](https://github.com/MichaelChirico), [@moodymudskipper](https://github.com/moodymudskipper), [@multimeric](https://github.com/multimeric), [@namarkus](https://github.com/namarkus), [@noamross](https://github.com/noamross), [@NZambranoc](https://github.com/NZambranoc), [@oriolarques](https://github.com/oriolarques), [@overmar](https://github.com/overmar), [@owenjonesuob](https://github.com/owenjonesuob), [@p-schaefer](https://github.com/p-schaefer), [@rohitg33](https://github.com/rohitg33), [@rowrowrowyourboat](https://github.com/rowrowrowyourboat), [@rsund](https://github.com/rsund), [@samssann](https://github.com/samssann), [@samterfa](https://github.com/samterfa), [@schradj](https://github.com/schradj), [@scvail195](https://github.com/scvail195), [@slhck](https://github.com/slhck), [@splaisan](https://github.com/splaisan), [@stephenashton-dhsc](https://github.com/stephenashton-dhsc), [@ThomasMorland](https://github.com/ThomasMorland), [@thothal](https://github.com/thothal), [@viswaduttp](https://github.com/viswaduttp), [@XoliloX](https://github.com/XoliloX), and [@yuhenghuang](https://github.com/yuhenghuang).
 
