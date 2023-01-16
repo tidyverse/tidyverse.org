@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr, dbplyr]
-rmd_hash: 21883fbdd40cd91a
+rmd_hash: 87e49bef90f73332
 
 ---
 
@@ -43,7 +43,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will highlight some of the most important new features: eliminating subqueries for many verb combinations, better errors, and a handful of new translations. As usual, this release comes with a large number of improvements to translations for individual backends. See the full list in the [release notes](%7B%20github_release%20%7D)
+This post will highlight some of the most important new features in 2.3.0: eliminating subqueries for many verb combinations, better errors, and a handful of new translations. As usual, this release comes with a large number of improvements to translations for individual backends and you can see the full list in the [release notes](%7B%20github_release%20%7D)
 
 <div class="highlight">
 
@@ -54,11 +54,11 @@ This blog post will highlight some of the most important new features: eliminati
 
 ## SQL optimisation
 
-dbplyr now produces fewer subqueries resulting in shorter, more readable, and, in some cases, faster SQL. Queries use `SELECT *` even after a join, where possible and the following combination of verbs now avoids subqueries much of the time:
+dbplyr now produces fewer subqueries resulting in shorter, more readable, and, in some cases, faster SQL. The following combinations of verbs no longer require subqueries:
 
 -   `*_join()` + [`select()`](https://dplyr.tidyverse.org/reference/select.html) and [`select()`](https://dplyr.tidyverse.org/reference/select.html) + `*_join()`.
--   [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) + [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) and [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) + [`filter()`](https://dplyr.tidyverse.org/reference/filter.html)
--   [`distinct()`](https://dplyr.tidyverse.org/reference/distinct.html).
+-   [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) + [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) and [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) + [`filter()`](https://dplyr.tidyverse.org/reference/filter.html).
+-   [`select()`](https://dplyr.tidyverse.org/reference/select.html)/[`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html)/[`filter()`](https://dplyr.tidyverse.org/reference/filter.html) + [`distinct()`](https://dplyr.tidyverse.org/reference/distinct.html).
 -   [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) + [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) now translates to `HAVING`.
 -   `left/inner_join()` + `left/inner_join()`.
 
@@ -96,6 +96,8 @@ Here are a couple of examples of queries that are now much more compact:
 </div>
 
 (As ususal in these blog posts, I'm using [`lazy_frame()`](https://dbplyr.tidyverse.org/reference/tbl_lazy.html) to focus on the SQL generation, without having to set up a dummy database.)
+
+Additionally, where possible, dbplyr now uses `SELECT *` after a join instead of explicitly selecting every column.
 
 ## Improved errors
 
@@ -159,11 +161,11 @@ dbplyr 2.3.0 is also supports features coming in [dplyr 1.1.0](https://www.tidyv
 -   New `pick()` and `case_match()` functions are translated.
 -   [`case_when()`](https://dplyr.tidyverse.org/reference/case_when.html) now supports the `.default` argument.
 
-This version does not support the new `join_by()` syntax, but we're working on it and will release an update after dplyr 1.1.0 is out.
+This version does not support the new `join_by()` syntax, but we're working on it, and we'll release an update after dplyr 1.1.0 is out.
 
 ## Acknowledgements
 
-The vast majority of this release (particularly the SQL optimisations) are from [Maximilian Girlich](https://github.com/mgirlich); thanks so much for continued work on this package.
+The vast majority of this release (particularly the SQL optimisations) are from [Maximilian Girlich](https://github.com/mgirlich); thanks so much for your continued work on this package.
 
 We'd also like to thank all 74 contributors who help in someway, whether it was filing issues or contributing code and documentation: [@a4sberg](https://github.com/a4sberg), [@ablack3](https://github.com/ablack3), [@akgold](https://github.com/akgold), [@aleighbrown](https://github.com/aleighbrown), [@andreassoteriadesmoj](https://github.com/andreassoteriadesmoj), [@apalacio9502](https://github.com/apalacio9502), [@baileych](https://github.com/baileych), [@barnesparker](https://github.com/barnesparker), [@bhuvanesh1707](https://github.com/bhuvanesh1707), [@bkraft4257](https://github.com/bkraft4257), [@bobbymc0](https://github.com/bobbymc0), [@brian-law-rstudio](https://github.com/brian-law-rstudio), [@bthe](https://github.com/bthe), [@But2ene](https://github.com/But2ene), [@capitantyler](https://github.com/capitantyler), [@carlganz](https://github.com/carlganz), [@cboettig](https://github.com/cboettig), [@chwpearse](https://github.com/chwpearse), [@copernican](https://github.com/copernican), [@DSLituiev](https://github.com/DSLituiev), [@ehudtr7](https://github.com/ehudtr7), [@eitsupi](https://github.com/eitsupi), [@ejneer](https://github.com/ejneer), [@eutwt](https://github.com/eutwt), [@ewright-vcan](https://github.com/ewright-vcan), [@fabkury](https://github.com/fabkury), [@fh-afrachioni](https://github.com/fh-afrachioni), [@fh-mthomson](https://github.com/fh-mthomson), [@filipemsc](https://github.com/filipemsc), [@gadenbuie](https://github.com/gadenbuie), [@gbouzill](https://github.com/gbouzill), [@giocomai](https://github.com/giocomai), [@hadley](https://github.com/hadley), [@hershelm](https://github.com/hershelm), [@iangow](https://github.com/iangow), [@iMissile](https://github.com/iMissile), [@IndrajeetPatil](https://github.com/IndrajeetPatil), [@j-wester](https://github.com/j-wester), [@Janlow](https://github.com/Janlow), [@jasonmhoule](https://github.com/jasonmhoule), [@jensmassberg](https://github.com/jensmassberg), [@jmbarbone](https://github.com/jmbarbone), [@joe-rodd](https://github.com/joe-rodd), [@kongdd](https://github.com/kongdd), [@krlmlr](https://github.com/krlmlr), [@lschneiderbauer](https://github.com/lschneiderbauer), [@machow](https://github.com/machow), [@mgarbuzov](https://github.com/mgarbuzov), [@mgirlich](https://github.com/mgirlich), [@MichaelChirico](https://github.com/MichaelChirico), [@moodymudskipper](https://github.com/moodymudskipper), [@multimeric](https://github.com/multimeric), [@namarkus](https://github.com/namarkus), [@noamross](https://github.com/noamross), [@NZambranoc](https://github.com/NZambranoc), [@oriolarques](https://github.com/oriolarques), [@overmar](https://github.com/overmar), [@owenjonesuob](https://github.com/owenjonesuob), [@p-schaefer](https://github.com/p-schaefer), [@rohitg33](https://github.com/rohitg33), [@rowrowrowyourboat](https://github.com/rowrowrowyourboat), [@rsund](https://github.com/rsund), [@samssann](https://github.com/samssann), [@samterfa](https://github.com/samterfa), [@schradj](https://github.com/schradj), [@scvail195](https://github.com/scvail195), [@slhck](https://github.com/slhck), [@splaisan](https://github.com/splaisan), [@stephenashton-dhsc](https://github.com/stephenashton-dhsc), [@ThomasMorland](https://github.com/ThomasMorland), [@thothal](https://github.com/thothal), [@viswaduttp](https://github.com/viswaduttp), [@XoliloX](https://github.com/XoliloX), and [@yuhenghuang](https://github.com/yuhenghuang).
 

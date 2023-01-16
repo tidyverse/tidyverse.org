@@ -18,6 +18,7 @@ categories: [package]
 tags: [dplyr, dbplyr]
 ---
 
+```{=html}
 <!--
 TODO:
 * [x] Look over / edit the post's title in the yaml
@@ -30,8 +31,9 @@ TODO:
 * [x] Add intro sentence, e.g. the standard tagline for the package
 * [ ] `usethis::use_tidy_thanks()`
 -->
-
-We're chuffed to announce the release of [dbplyr](http://dbplyr.tidyverse.org/) 2.3.0. dbplyr is a database backend for dplyr that allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr translates it to SQL for you.
+```
+We're chuffed to announce the release of [dbplyr](http://dbplyr.tidyverse.org/) 2.3.0.
+dbplyr is a database backend for dplyr that allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr translates it to SQL for you.
 
 You can install it from CRAN with:
 
@@ -39,7 +41,8 @@ You can install it from CRAN with:
 install.packages("{package}")
 ```
 
-This blog post will highlight some of the most important new features: eliminating subqueries for many verb combinations, better errors, and a handful of new translations.  As usual, this release comes with a large number of improvements to translations for individual backends. See the full list in the [release notes]({ github_release })
+This post will highlight some of the most important new features in 2.3.0: eliminating subqueries for many verb combinations, better errors, and a handful of new translations.
+As usual, this release comes with a large number of improvements to translations for individual backends and you can see the full list in the [release notes](%7B%20github_release%20%7D)
 
 ```{r setup}
 library(dbplyr)
@@ -48,14 +51,14 @@ library(dplyr, warn.conflicts = FALSE)
 
 ## SQL optimisation
 
-dbplyr now produces fewer subqueries resulting in shorter, more readable, and,
-in some cases, faster SQL. Queries use `SELECT *` even after a join, where possible and the following combination of verbs now avoids subqueries much of the time:
+dbplyr now produces fewer subqueries resulting in shorter, more readable, and, in some cases, faster SQL.
+The following combinations of verbs no longer require subqueries:
 
-* `*_join()` + `select()` and `select()` + `*_join()`.
-* `mutate()` + `filter()` and `filter()` + `filter()`
-* `distinct()`.
-* `summarise()` + `filter()` now translates to `HAVING`.
-* `left/inner_join()` + `left/inner_join()`.
+-   `*_join()` + `select()` and `select()` + `*_join()`.
+-   `mutate()` + `filter()` and `filter()` + `filter()`.
+-   `select()`/`mutate()`/`filter()` + `distinct()`.
+-   `summarise()` + `filter()` now translates to `HAVING`.
+-   `left/inner_join()` + `left/inner_join()`.
 
 Here are a couple of examples of queries that are now much more compact:
 
@@ -77,11 +80,12 @@ lf1 |>
 
 (As ususal in these blog posts, I'm using `lazy_frame()` to focus on the SQL generation, without having to set up a dummy database.)
 
+Additionally, where possible, dbplyr now uses `SELECT *` after a join instead of explicitly selecting every column.
+
 ## Improved errors
 
-Variables that aren't found in either the data or in the environment now
-produce an error:
-  
+Variables that aren't found in either the data or in the environment now produce an error:
+
 ```{r}
 #| error: true
 lf <- lazy_frame(x = 1,y = 2)
@@ -92,7 +96,7 @@ lf |> mutate(x = z + 1)
 (Previously they were silently translated to SQL variables.)
 
 We've also generally reviewed the error messages to ensure they show more clearly where the error happened:
-  
+
 ```{r}
 #| error: true
 lf |> mutate(x = y %/% 1)
@@ -109,18 +113,17 @@ lf1 |>
   filter(stringr::str_like(a, "abc"))
 ```
 
-dbplyr 2.3.0 is also supports features coming in [dplyr 1.1.0](https://www.tidyverse.org/blog/2022/11/dplyr-1-1-0-is-coming-soon/): 
+dbplyr 2.3.0 is also supports features coming in [dplyr 1.1.0](https://www.tidyverse.org/blog/2022/11/dplyr-1-1-0-is-coming-soon/):
 
-* The `.by` argument is supported as alternative to `group_by()`.
-* Passing `...` to `across()` is deprecated because the evaluation timing 
-  of `...` is ambiguous.
-* New `pick()` and `case_match()` functions are translated.
-* `case_when()` now supports the `.default` argument.
+-   The `.by` argument is supported as alternative to `group_by()`.
+-   Passing `...` to `across()` is deprecated because the evaluation timing of `...` is ambiguous.
+-   New `pick()` and `case_match()` functions are translated.
+-   `case_when()` now supports the `.default` argument.
 
-This version does not support the new `join_by()` syntax, but we're working on it and will release an update after dplyr 1.1.0 is out.
+This version does not support the new `join_by()` syntax, but we're working on it, and we'll release an update after dplyr 1.1.0 is out.
 
 ## Acknowledgements
 
-The vast majority of this release (particularly the SQL optimisations) are from [Maximilian Girlich](https://github.com/mgirlich); thanks so much for continued work on this package.
+The vast majority of this release (particularly the SQL optimisations) are from [Maximilian Girlich](https://github.com/mgirlich); thanks so much for your continued work on this package.
 
-We'd also like to thank all 74 contributors who help in someway, whether it was filing issues or contributing code and documentation: [&#x0040;a4sberg](https://github.com/a4sberg), [&#x0040;ablack3](https://github.com/ablack3), [&#x0040;akgold](https://github.com/akgold), [&#x0040;aleighbrown](https://github.com/aleighbrown), [&#x0040;andreassoteriadesmoj](https://github.com/andreassoteriadesmoj), [&#x0040;apalacio9502](https://github.com/apalacio9502), [&#x0040;baileych](https://github.com/baileych), [&#x0040;barnesparker](https://github.com/barnesparker), [&#x0040;bhuvanesh1707](https://github.com/bhuvanesh1707), [&#x0040;bkraft4257](https://github.com/bkraft4257), [&#x0040;bobbymc0](https://github.com/bobbymc0), [&#x0040;brian-law-rstudio](https://github.com/brian-law-rstudio), [&#x0040;bthe](https://github.com/bthe), [&#x0040;But2ene](https://github.com/But2ene), [&#x0040;capitantyler](https://github.com/capitantyler), [&#x0040;carlganz](https://github.com/carlganz), [&#x0040;cboettig](https://github.com/cboettig), [&#x0040;chwpearse](https://github.com/chwpearse), [&#x0040;copernican](https://github.com/copernican), [&#x0040;DSLituiev](https://github.com/DSLituiev), [&#x0040;ehudtr7](https://github.com/ehudtr7), [&#x0040;eitsupi](https://github.com/eitsupi), [&#x0040;ejneer](https://github.com/ejneer), [&#x0040;eutwt](https://github.com/eutwt), [&#x0040;ewright-vcan](https://github.com/ewright-vcan), [&#x0040;fabkury](https://github.com/fabkury), [&#x0040;fh-afrachioni](https://github.com/fh-afrachioni), [&#x0040;fh-mthomson](https://github.com/fh-mthomson), [&#x0040;filipemsc](https://github.com/filipemsc), [&#x0040;gadenbuie](https://github.com/gadenbuie), [&#x0040;gbouzill](https://github.com/gbouzill), [&#x0040;giocomai](https://github.com/giocomai), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hershelm](https://github.com/hershelm), [&#x0040;iangow](https://github.com/iangow), [&#x0040;iMissile](https://github.com/iMissile), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;j-wester](https://github.com/j-wester), [&#x0040;Janlow](https://github.com/Janlow), [&#x0040;jasonmhoule](https://github.com/jasonmhoule), [&#x0040;jensmassberg](https://github.com/jensmassberg), [&#x0040;jmbarbone](https://github.com/jmbarbone), [&#x0040;joe-rodd](https://github.com/joe-rodd), [&#x0040;kongdd](https://github.com/kongdd), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;lschneiderbauer](https://github.com/lschneiderbauer), [&#x0040;machow](https://github.com/machow), [&#x0040;mgarbuzov](https://github.com/mgarbuzov), [&#x0040;mgirlich](https://github.com/mgirlich), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;multimeric](https://github.com/multimeric), [&#x0040;namarkus](https://github.com/namarkus), [&#x0040;noamross](https://github.com/noamross), [&#x0040;NZambranoc](https://github.com/NZambranoc), [&#x0040;oriolarques](https://github.com/oriolarques), [&#x0040;overmar](https://github.com/overmar), [&#x0040;owenjonesuob](https://github.com/owenjonesuob), [&#x0040;p-schaefer](https://github.com/p-schaefer), [&#x0040;rohitg33](https://github.com/rohitg33), [&#x0040;rowrowrowyourboat](https://github.com/rowrowrowyourboat), [&#x0040;rsund](https://github.com/rsund), [&#x0040;samssann](https://github.com/samssann), [&#x0040;samterfa](https://github.com/samterfa), [&#x0040;schradj](https://github.com/schradj), [&#x0040;scvail195](https://github.com/scvail195), [&#x0040;slhck](https://github.com/slhck), [&#x0040;splaisan](https://github.com/splaisan), [&#x0040;stephenashton-dhsc](https://github.com/stephenashton-dhsc), [&#x0040;ThomasMorland](https://github.com/ThomasMorland), [&#x0040;thothal](https://github.com/thothal), [&#x0040;viswaduttp](https://github.com/viswaduttp), [&#x0040;XoliloX](https://github.com/XoliloX), and [&#x0040;yuhenghuang](https://github.com/yuhenghuang).
+We'd also like to thank all 74 contributors who help in someway, whether it was filing issues or contributing code and documentation: [\@a4sberg](https://github.com/a4sberg), [\@ablack3](https://github.com/ablack3), [\@akgold](https://github.com/akgold), [\@aleighbrown](https://github.com/aleighbrown), [\@andreassoteriadesmoj](https://github.com/andreassoteriadesmoj), [\@apalacio9502](https://github.com/apalacio9502), [\@baileych](https://github.com/baileych), [\@barnesparker](https://github.com/barnesparker), [\@bhuvanesh1707](https://github.com/bhuvanesh1707), [\@bkraft4257](https://github.com/bkraft4257), [\@bobbymc0](https://github.com/bobbymc0), [\@brian-law-rstudio](https://github.com/brian-law-rstudio), [\@bthe](https://github.com/bthe), [\@But2ene](https://github.com/But2ene), [\@capitantyler](https://github.com/capitantyler), [\@carlganz](https://github.com/carlganz), [\@cboettig](https://github.com/cboettig), [\@chwpearse](https://github.com/chwpearse), [\@copernican](https://github.com/copernican), [\@DSLituiev](https://github.com/DSLituiev), [\@ehudtr7](https://github.com/ehudtr7), [\@eitsupi](https://github.com/eitsupi), [\@ejneer](https://github.com/ejneer), [\@eutwt](https://github.com/eutwt), [\@ewright-vcan](https://github.com/ewright-vcan), [\@fabkury](https://github.com/fabkury), [\@fh-afrachioni](https://github.com/fh-afrachioni), [\@fh-mthomson](https://github.com/fh-mthomson), [\@filipemsc](https://github.com/filipemsc), [\@gadenbuie](https://github.com/gadenbuie), [\@gbouzill](https://github.com/gbouzill), [\@giocomai](https://github.com/giocomai), [\@hadley](https://github.com/hadley), [\@hershelm](https://github.com/hershelm), [\@iangow](https://github.com/iangow), [\@iMissile](https://github.com/iMissile), [\@IndrajeetPatil](https://github.com/IndrajeetPatil), [\@j-wester](https://github.com/j-wester), [\@Janlow](https://github.com/Janlow), [\@jasonmhoule](https://github.com/jasonmhoule), [\@jensmassberg](https://github.com/jensmassberg), [\@jmbarbone](https://github.com/jmbarbone), [\@joe-rodd](https://github.com/joe-rodd), [\@kongdd](https://github.com/kongdd), [\@krlmlr](https://github.com/krlmlr), [\@lschneiderbauer](https://github.com/lschneiderbauer), [\@machow](https://github.com/machow), [\@mgarbuzov](https://github.com/mgarbuzov), [\@mgirlich](https://github.com/mgirlich), [\@MichaelChirico](https://github.com/MichaelChirico), [\@moodymudskipper](https://github.com/moodymudskipper), [\@multimeric](https://github.com/multimeric), [\@namarkus](https://github.com/namarkus), [\@noamross](https://github.com/noamross), [\@NZambranoc](https://github.com/NZambranoc), [\@oriolarques](https://github.com/oriolarques), [\@overmar](https://github.com/overmar), [\@owenjonesuob](https://github.com/owenjonesuob), [\@p-schaefer](https://github.com/p-schaefer), [\@rohitg33](https://github.com/rohitg33), [\@rowrowrowyourboat](https://github.com/rowrowrowyourboat), [\@rsund](https://github.com/rsund), [\@samssann](https://github.com/samssann), [\@samterfa](https://github.com/samterfa), [\@schradj](https://github.com/schradj), [\@scvail195](https://github.com/scvail195), [\@slhck](https://github.com/slhck), [\@splaisan](https://github.com/splaisan), [\@stephenashton-dhsc](https://github.com/stephenashton-dhsc), [\@ThomasMorland](https://github.com/ThomasMorland), [\@thothal](https://github.com/thothal), [\@viswaduttp](https://github.com/viswaduttp), [\@XoliloX](https://github.com/XoliloX), and [\@yuhenghuang](https://github.com/yuhenghuang).
