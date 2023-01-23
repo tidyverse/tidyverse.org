@@ -45,7 +45,7 @@ install.packages("tidyr")
 
 This post highlights the biggest changes in this release:
 
--   A new family of `separate_*()` functions extend `separate()` and `extract()` and come with useful debugging features.
+-   A new family of `separate_*()` functions supersede `separate()` and `extract()` and come with useful debugging features.
 
 -   `unnest_wider()` and `unnest_longer()` gain a bundle of useful improvements.
 
@@ -66,7 +66,7 @@ library(dplyr, warn.conflicts = FALSE)
 The biggest feature of this release is a new, experimental, family of functions for separating string columns:
 
 |                                  | Make columns                | Make rows                    |
-|----------------------------------|-----------------------------|------------------------------|
+|--------------------------|-----------------------|-----------------------|
 | Separate with delimiter          | `separate_wider_delim()`    | `separate_longer_delim()`    |
 | Separate by position             | `separate_wider_position()` | `separate_longer_position()` |
 | Separate with regular expression | `separate_wider_regex()`    |                              |
@@ -74,7 +74,7 @@ The biggest feature of this release is a new, experimental, family of functions 
 These functions collectively supersede `extract()`, `separate()`, and `separate_rows()` because they have more consistent names and arguments, have better performance (thanks to stringr), and provide a new approach for handling problems.
 
 |                                  | Make columns                     | Make rows         |
-|----------------------------------|----------------------------------|-------------------|
+|---------------------------|---------------------------|------------------|
 | Separate with delimiter          | `separate(sep = string)`         | `separate_rows()` |
 | Separate by position             | `separate(sep = integer vector)` | N/A               |
 | Separate with regular expression | `extract()`                      |                   |
@@ -278,7 +278,7 @@ mtcars |>
 
 # Specify both (to drop variables)
 mtcars |> 
-  nest(.by = cyl, data = mpg:drat)
+  nest(data = mpg:drat, .by = cyl)
 ```
 
 If this function is all we hope it to be, we're likely to supersede `dplyr::nest_by()` and `dplyr::group_nest()` in the future.

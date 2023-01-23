@@ -7,7 +7,7 @@ date: 2023-01-23
 author: Hadley Wickham
 description: >
     tidyr 1.3.0 brings a new family of string separating functions,
-    along with a improvements to `unnest_longer()`, `unnest_wider()`,
+    along with improvements to `unnest_longer()`, `unnest_wider()`,
     `pivot_longer()`, and `nest()`.
 
 photo:
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidyr]
-rmd_hash: de8e9f9e5e109488
+rmd_hash: aa80cfd6936cd5a5
 
 ---
 
@@ -46,9 +46,9 @@ You can install it from CRAN with:
 
 This post highlights the biggest changes in this release:
 
--   A new family of `separate_` functions extend [`separate()`](https://tidyr.tidyverse.org/reference/separate.html) and [`extract()`](https://tidyr.tidyverse.org/reference/extract.html) and come with useful debugging features.
+-   A new family of `separate_*()` functions supersede [`separate()`](https://tidyr.tidyverse.org/reference/separate.html) and [`extract()`](https://tidyr.tidyverse.org/reference/extract.html) and come with useful debugging features.
 
--   [`unnest_wider()`](https://tidyr.tidyverse.org/reference/unnest_wider.html) and [`unnest_longer()`](https://tidyr.tidyverse.org/reference/unnest_longer.html) include a bundle of useful improvements.
+-   [`unnest_wider()`](https://tidyr.tidyverse.org/reference/unnest_wider.html) and [`unnest_longer()`](https://tidyr.tidyverse.org/reference/unnest_longer.html) gain a bundle of useful improvements.
 
 -   [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) gets a new `cols_vary` argument.
 
@@ -63,23 +63,23 @@ You should also notice generally improved errors with this release: we check fun
 
 </div>
 
-## `separate_` family of functions
+## `separate_*()` family of functions
 
-The biggest feature of this release is a new, experimental, family of functions for separating string columns into multiple variables:
+The biggest feature of this release is a new, experimental, family of functions for separating string columns:
 
 |                                  | Make columns                | Make rows                    |
-|------------------------|------------------------|-------------------------|
+|--------------------------|-----------------------|-----------------------|
 | Separate with delimiter          | [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    | [`separate_longer_delim()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html)    |
 | Separate by position             | [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) | [`separate_longer_position()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html) |
 | Separate with regular expression | [`separate_wider_regex()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    |                              |
 
-These functions collectively supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) because they have a more consistent names and arguments, have better performance (thanks to stringr), and provide a new approach for handling problems.
+These functions collectively supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) because they have more consistent names and arguments, have better performance (thanks to stringr), and provide a new approach for handling problems.
 
-|                                  | Make columns                    | Make rows         |
-|------------------------|------------------------|------------------------|
-| Separate with delimiter          | `separate(by = string)`         | [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) |
-| Separate by position             | `separate(by = integer vector)` | N/A               |
-| Separate with regular expression | [`extract()`](https://tidyr.tidyverse.org/reference/extract.html)                     |                   |
+|                                  | Make columns                     | Make rows         |
+|---------------------------|---------------------------|-------------------|
+| Separate with delimiter          | `separate(sep = string)`         | [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) |
+| Separate by position             | `separate(sep = integer vector)` | N/A               |
+| Separate with regular expression | [`extract()`](https://tidyr.tidyverse.org/reference/extract.html)                      |                   |
 
 Here I'll focus on the `wider` functions because they generally present the most interesting challenges. Let's start by grabbing some census data with the [tidycensus](https://walker-data.com/tidycensus/) package:
 
@@ -277,7 +277,7 @@ This adds three new variables: `x_ok` tells you if the `x` could be separated as
 
 </div>
 
-`too_few` and `too_many` also work with [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html), and `too_few` works with [`separate_wider_regex()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html). The longer variants don't need these arguments because varying numbers of rows don't matter in the same way that varying numbers of column do:
+`too_few` and `too_many` also work with [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html), and `too_few` works with [`separate_wider_regex()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html). The longer variants don't need these arguments because varying numbers of rows don't matter in the same way that varying numbers of columns do:
 
 <div class="highlight">
 
@@ -301,7 +301,7 @@ These functions are still experimental so we are actively seeking feedback. Plea
 
 [`unnest_longer()`](https://tidyr.tidyverse.org/reference/unnest_longer.html) and [`unnest_wider()`](https://tidyr.tidyverse.org/reference/unnest_wider.html) have both received some quality of life and consistency improvements. Most importantly:
 
--   [`unnest_wider()`](https://tidyr.tidyverse.org/reference/unnest_wider.html) now gives a better error when unnest an unnamed vector:
+-   [`unnest_wider()`](https://tidyr.tidyverse.org/reference/unnest_wider.html) now gives a better error when unnesting an unnamed vector:
 
     <div class="highlight">
 
@@ -331,7 +331,7 @@ These functions are still experimental so we are actively seeking feedback. Plea
 
     And this same behaviour now also applies to partially named vectors.
 
--   [`unnest_longer()`](https://tidyr.tidyverse.org/reference/unnest_longer.html) has gained a `keep_empty` argument like [`unnest()`](https://tidyr.tidyverse.org/reference/unnest.html), and it treats `NULL` and empty vectors the same way:
+-   [`unnest_longer()`](https://tidyr.tidyverse.org/reference/unnest_longer.html) has gained a `keep_empty` argument like [`unnest()`](https://tidyr.tidyverse.org/reference/unnest.html), and it now treats `NULL` and empty vectors the same way:
 
     <div class="highlight">
 
@@ -419,7 +419,7 @@ You can now request to create the output column-by-column with `cols_vary = "slo
 
 A nested data frame is a data frame where one (or more) columns is a list of data frames. Nested data frames are a powerful tool that allow you to turn groups into rows and can facilitate certain types of data manipulation that would be very tricky otherwise. (One place to learn more about them is my 2016 talk "[Managing many models with R](https://www.youtube.com/watch?v=rz3_FDVt9eg)".)
 
-Over the years we've made a number at getting the correct interface for nesting, including [`tidyr::nest()`](https://tidyr.tidyverse.org/reference/nest.html), [`dplyr::nest_by()`](https://dplyr.tidyverse.org/reference/nest_by.html), and [`dplyr::group_nest()`](https://dplyr.tidyverse.org/reference/group_nest.html). In this version of tidyr we've taken one more stab it by adding a new argument to [`nest()`](https://tidyr.tidyverse.org/reference/nest.html): `.by`, inspired by the upcoming [dplyr 1.1.0](https://www.tidyverse.org/blog/2022/11/dplyr-1-1-0-is-coming-soon/) release. This means that [`nest()`](https://tidyr.tidyverse.org/reference/nest.html) allows you to specify either the variables you want to nest by, or the variables to appear in the nested data.
+Over the years we've made a number of attempts at getting the correct interface for nesting, including [`tidyr::nest()`](https://tidyr.tidyverse.org/reference/nest.html), [`dplyr::nest_by()`](https://dplyr.tidyverse.org/reference/nest_by.html), and [`dplyr::group_nest()`](https://dplyr.tidyverse.org/reference/group_nest.html). In this version of tidyr we've taken one more stab at it by adding a new argument to [`nest()`](https://tidyr.tidyverse.org/reference/nest.html): `.by`, inspired by the upcoming [dplyr 1.1.0](https://www.tidyverse.org/blog/2022/11/dplyr-1-1-0-is-coming-soon/) release. This means that [`nest()`](https://tidyr.tidyverse.org/reference/nest.html) now allows you to specify the variables you want to nest by as an alternative to specifying the variables that appear in the nested data.
 
 <div class="highlight">
 
@@ -445,7 +445,7 @@ Over the years we've made a number at getting the correct interface for nesting,
 <span></span><span></span>
 <span><span class='c'># Specify both (to drop variables)</span></span>
 <span><span class='nv'>mtcars</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/nest.html'>nest</a></span><span class='o'>(</span>.by <span class='o'>=</span> <span class='nv'>cyl</span>, data <span class='o'>=</span> <span class='nv'>mpg</span><span class='o'>:</span><span class='nv'>drat</span><span class='o'>)</span></span>
+<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/nest.html'>nest</a></span><span class='o'>(</span>data <span class='o'>=</span> <span class='nv'>mpg</span><span class='o'>:</span><span class='nv'>drat</span>, .by <span class='o'>=</span> <span class='nv'>cyl</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
 <span><span class='c'>#&gt;     <span style='font-weight: bold;'>cyl</span> <span style='font-weight: bold;'>data</span>             </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>           </span></span>
@@ -456,9 +456,7 @@ Over the years we've made a number at getting the correct interface for nesting,
 
 </div>
 
-If this function is all we hope it to be, we're likely to supersede [`dplyr::nest_by()`](https://dplyr.tidyverse.org/reference/nest_by.html) and [`dplyr::group_nest()`](https://dplyr.tidyverse.org/reference/group_nest.html) in the future. This has the nice property of placing the function for nesting and unnesting in the same package (tidyr).
-
-## 
+If this function is all we hope it to be, we're likely to supersede [`dplyr::nest_by()`](https://dplyr.tidyverse.org/reference/nest_by.html) and [`dplyr::group_nest()`](https://dplyr.tidyverse.org/reference/group_nest.html) in the future. This has the nice property of placing the functions for nesting and unnesting in the same package (tidyr).
 
 ## Acknowledgements
 
