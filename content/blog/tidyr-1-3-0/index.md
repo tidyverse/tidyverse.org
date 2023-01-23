@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidyr]
-rmd_hash: aa80cfd6936cd5a5
+rmd_hash: 783411b400b9183c
 
 ---
 
@@ -25,13 +25,13 @@ rmd_hash: aa80cfd6936cd5a5
 TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
 * [x] Find photo & update yaml metadata
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 We're pleased to announce the release of [tidyr](https://tidyr.tidyverse.org) 1.3.0. tidyr provides a set of tools for transforming data frames to and from tidy data, where each variable is a column and each observation is a row. Tidy data is a convention for matching the semantics and structure of your data that makes using the rest of the tidyverse (and many other R packages) much easier.
@@ -459,4 +459,6 @@ Over the years we've made a number of attempts at getting the correct interface 
 If this function is all we hope it to be, we're likely to supersede [`dplyr::nest_by()`](https://dplyr.tidyverse.org/reference/nest_by.html) and [`dplyr::group_nest()`](https://dplyr.tidyverse.org/reference/group_nest.html) in the future. This has the nice property of placing the functions for nesting and unnesting in the same package (tidyr).
 
 ## Acknowledgements
+
+A big thanks to all 51 contributors who helped make this release possible, by writing code and documentating, asking questions, and reporting bugs! [@AdrianS85](https://github.com/AdrianS85), [@ahcyip](https://github.com/ahcyip), [@allenbaron](https://github.com/allenbaron), [@AnBarbosaBr](https://github.com/AnBarbosaBr), [@ArthurAndrews](https://github.com/ArthurAndrews), [@bart1](https://github.com/bart1), [@billdenney](https://github.com/billdenney), [@bknakker](https://github.com/bknakker), [@bwiernik](https://github.com/bwiernik), [@crissthiandi](https://github.com/crissthiandi), [@daattali](https://github.com/daattali), [@DavisVaughan](https://github.com/DavisVaughan), [@dcaud](https://github.com/dcaud), [@DSLituiev](https://github.com/DSLituiev), [@elgabbas](https://github.com/elgabbas), [@fabiangehring](https://github.com/fabiangehring), [@hadley](https://github.com/hadley), [@ilikegitlab](https://github.com/ilikegitlab), [@jennybc](https://github.com/jennybc), [@jic007](https://github.com/jic007), [@Joao-O-Santos](https://github.com/Joao-O-Santos), [@joeycouse](https://github.com/joeycouse), [@jonspring](https://github.com/jonspring), [@kevinushey](https://github.com/kevinushey), [@krlmlr](https://github.com/krlmlr), [@lionel-](https://github.com/lionel-), [@lotard](https://github.com/lotard), [@lschneiderbauer](https://github.com/lschneiderbauer), [@lucylgao](https://github.com/lucylgao), [@markfairbanks](https://github.com/markfairbanks), [@martina-starc](https://github.com/martina-starc), [@MatthieuStigler](https://github.com/MatthieuStigler), [@mattnolan001](https://github.com/mattnolan001), [@mattroumaya](https://github.com/mattroumaya), [@mdkrause](https://github.com/mdkrause), [@mgirlich](https://github.com/mgirlich), [@millermc38](https://github.com/millermc38), [@modche](https://github.com/modche), [@moodymudskipper](https://github.com/moodymudskipper), [@mspittler](https://github.com/mspittler), [@olivroy](https://github.com/olivroy), [@piokol23](https://github.com/piokol23), [@ppreshant](https://github.com/ppreshant), [@ramiromagno](https://github.com/ramiromagno), [@Rengervn](https://github.com/Rengervn), [@rjake](https://github.com/rjake), [@roohitk](https://github.com/roohitk), [@struckma](https://github.com/struckma), [@tjmahr](https://github.com/tjmahr), [@weirichs](https://github.com/weirichs), and [@wurli](https://github.com/wurli).
 
