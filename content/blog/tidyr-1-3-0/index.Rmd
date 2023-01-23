@@ -7,7 +7,7 @@ date: 2023-01-23
 author: Hadley Wickham
 description: >
     tidyr 1.3.0 brings a new family of string separating functions,
-    along with a improvements to `unnest_longer()`, `unnest_wider()`,
+    along with improvements to `unnest_longer()`, `unnest_wider()`,
     `pivot_longer()`, and `nest()`.
 
 photo:
@@ -45,9 +45,9 @@ install.packages("tidyr")
 
 This post highlights the biggest changes in this release:
 
--   A new family of `separate_` functions extend `separate()` and `extract()` and come with useful debugging features.
+-   A new family of `separate_*()` functions extend `separate()` and `extract()` and come with useful debugging features.
 
--   `unnest_wider()` and `unnest_longer()` include a bundle of useful improvements.
+-   `unnest_wider()` and `unnest_longer()` gain a bundle of useful improvements.
 
 -   `pivot_longer()` gets a new `cols_vary` argument.
 
@@ -61,23 +61,23 @@ library(tidyr)
 library(dplyr, warn.conflicts = FALSE)
 ```
 
-## `separate_` family of functions
+## `separate_*()` family of functions
 
-The biggest feature of this release is a new, experimental, family of functions for separating string columns into multiple variables:
+The biggest feature of this release is a new, experimental, family of functions for separating string columns:
 
 |                                  | Make columns                | Make rows                    |
-|------------------------|------------------------|-------------------------|
+|----------------------------------|-----------------------------|------------------------------|
 | Separate with delimiter          | `separate_wider_delim()`    | `separate_longer_delim()`    |
 | Separate by position             | `separate_wider_position()` | `separate_longer_position()` |
 | Separate with regular expression | `separate_wider_regex()`    |                              |
 
-These functions collectively supersede `extract()`, `separate()`, and `separate_rows()` because they have a more consistent names and arguments, have better performance (thanks to stringr), and provide a new approach for handling problems.
+These functions collectively supersede `extract()`, `separate()`, and `separate_rows()` because they have more consistent names and arguments, have better performance (thanks to stringr), and provide a new approach for handling problems.
 
-|                                  | Make columns                    | Make rows         |
-|------------------------|------------------------|------------------------|
-| Separate with delimiter          | `separate(by = string)`         | `separate_rows()` |
-| Separate by position             | `separate(by = integer vector)` | N/A               |
-| Separate with regular expression | `extract()`                     |                   |
+|                                  | Make columns                     | Make rows         |
+|----------------------------------|----------------------------------|-------------------|
+| Separate with delimiter          | `separate(sep = string)`         | `separate_rows()` |
+| Separate by position             | `separate(sep = integer vector)` | N/A               |
+| Separate with regular expression | `extract()`                      |                   |
 
 Here I'll focus on the `wider` functions because they generally present the most interesting challenges.
 Let's start by grabbing some census data with the [tidycensus](https://walker-data.com/tidycensus/) package:
@@ -183,7 +183,7 @@ df |>
 ```
 
 `too_few` and `too_many` also work with `separate_wider_position()`, and `too_few` works with `separate_wider_regex()`.
-The longer variants don't need these arguments because varying numbers of rows don't matter in the same way that varying numbers of column do:
+The longer variants don't need these arguments because varying numbers of rows don't matter in the same way that varying numbers of columns do:
 
 ```{r}
 df |> separate_longer_delim(x, delim = "-")
@@ -197,7 +197,7 @@ Please try them out and let us know if you find them useful or if there are othe
 `unnest_longer()` and `unnest_wider()` have both received some quality of life and consistency improvements.
 Most importantly:
 
--   `unnest_wider()` now gives a better error when unnest an unnamed vector:
+-   `unnest_wider()` now gives a better error when unnesting an unnamed vector:
 
     ```{r}
     #| error: true
@@ -214,7 +214,7 @@ Most importantly:
 
     And this same behaviour now also applies to partially named vectors.
 
--   `unnest_longer()` has gained a `keep_empty` argument like `unnest()`, and it treats `NULL` and empty vectors the same way:
+-   `unnest_longer()` has gained a `keep_empty` argument like `unnest()`, and it now treats `NULL` and empty vectors the same way:
 
     ```{r}
     df <- tibble(
@@ -263,9 +263,9 @@ A nested data frame is a data frame where one (or more) columns is a list of dat
 Nested data frames are a powerful tool that allow you to turn groups into rows and can facilitate certain types of data manipulation that would be very tricky otherwise.
 (One place to learn more about them is my 2016 talk "[Managing many models with R](https://www.youtube.com/watch?v=rz3_FDVt9eg)".)
 
-Over the years we've made a number at getting the correct interface for nesting, including `tidyr::nest()`, `dplyr::nest_by()`, and `dplyr::group_nest()`.
-In this version of tidyr we've taken one more stab it by adding a new argument to `nest()`: `.by`, inspired by the upcoming [dplyr 1.1.0](https://www.tidyverse.org/blog/2022/11/dplyr-1-1-0-is-coming-soon/) release.
-This means that `nest()` allows you to specify either the variables you want to nest by, or the variables to appear in the nested data.
+Over the years we've made a number of attempts at getting the correct interface for nesting, including `tidyr::nest()`, `dplyr::nest_by()`, and `dplyr::group_nest()`.
+In this version of tidyr we've taken one more stab at it by adding a new argument to `nest()`: `.by`, inspired by the upcoming [dplyr 1.1.0](https://www.tidyverse.org/blog/2022/11/dplyr-1-1-0-is-coming-soon/) release.
+This means that `nest()` now allows you to specify the variables you want to nest by as an alternative to specifying the variables that appear in the nested data.
 
 ```{r}
 # Specify what to nest by
@@ -282,8 +282,6 @@ mtcars |>
 ```
 
 If this function is all we hope it to be, we're likely to supersede `dplyr::nest_by()` and `dplyr::group_nest()` in the future.
-This has the nice property of placing the function for nesting and unnesting in the same package (tidyr).
-
-## 
+This has the nice property of placing the functions for nesting and unnesting in the same package (tidyr).
 
 ## Acknowledgements
