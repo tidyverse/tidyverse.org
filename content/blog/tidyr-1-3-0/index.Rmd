@@ -1,0 +1,289 @@
+---
+output: hugodown::hugo_document
+
+slug: tidyr-1-3-0
+title: tidyr 1.3.0
+date: 2023-01-24
+author: Hadley Wickham
+description: >
+    tidyr 1.3.0 brings a new family of string separating functions,
+    along with improvements to `unnest_longer()`, `unnest_wider()`,
+    `pivot_longer()`, and `nest()`.
+
+photo:
+  url: https://unsplash.com/photos/TEDo1eO8te4
+  author: Jan Kopřiva
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [tidyr]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+```
+We're pleased to announce the release of [tidyr](https://tidyr.tidyverse.org) 1.3.0.
+tidyr provides a set of tools for transforming data frames to and from tidy data, where each variable is a column and each observation is a row.
+Tidy data is a convention for matching the semantics and structure of your data that makes using the rest of the tidyverse (and many other R packages) much easier.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("tidyr")
+```
+
+This post highlights the biggest changes in this release:
+
+-   A new family of `separate_*()` functions supersede `separate()` and `extract()` and come with useful debugging features.
+
+-   `unnest_wider()` and `unnest_longer()` gain a bundle of useful improvements.
+
+-   `pivot_longer()` gets a new `cols_vary` argument.
+
+-   `nest(.by)` provides a new (and hopefully final) way to create nested datasets.
+
+You should also notice generally improved errors with this release: we check function arguments more aggressively, and take care to always report the name of the function that you called, not some internal helper.
+As usual, you can find a full set of changes in the [release notes](http://github.com/tidyverse/tidyr/releases/tag/v1.3.0).
+
+```{r setup}
+library(tidyr)
+library(dplyr, warn.conflicts = FALSE)
+```
+
+## `separate_*()` family of functions
+
+The biggest feature of this release is a new, experimental family of functions for separating string columns:
+
+|                                  | Make columns                | Make rows                    |
+|--------------------------|-----------------------|-----------------------|
+| Separate with delimiter          | `separate_wider_delim()`    | `separate_longer_delim()`    |
+| Separate by position             | `separate_wider_position()` | `separate_longer_position()` |
+| Separate with regular expression | `separate_wider_regex()`    |                              |
+
+These functions collectively supersede `extract()`, `separate()`, and `separate_rows()` because they have more consistent names and arguments, have better performance (thanks to stringr), and provide a new approach for handling problems.
+
+|                                  | Make columns                     | Make rows         |
+|---------------------------|---------------------------|------------------|
+| Separate with delimiter          | `separate(sep = string)`         | `separate_rows()` |
+| Separate by position             | `separate(sep = integer vector)` | N/A               |
+| Separate with regular expression | `extract()`                      |                   |
+
+Here I'll focus on the `wider` functions because they generally present the most interesting challenges.
+Let's start by grabbing some census data with the [tidycensus](https://walker-data.com/tidycensus/) package:
+
+```{r}
+vt_census <- tidycensus::get_decennial(
+  geography = "block",
+  state = "VT",
+  county = "Washington",
+  variables = "P1_001N",
+  year = 2020
+)
+vt_census
+```
+
+The `GEOID` column is made up of four components: a 2-digit state identifier, a 3-digit county identifier, a 6-digit tract identifier, and a 4-digit block identifier.
+We can use `separate_wider_position()` to extract these into their own variables:
+
+```{r}
+vt_census |>
+  select(GEOID) |> 
+  separate_wider_position(
+    GEOID,
+    widths = c(state = 2, county = 3, tract = 6, block = 4)
+  )
+```
+
+The `name` column contains this same information in a text form, with each component separated by a comma.
+We can use `separate_wider_delim()` to break up this sort of data into individual variables:
+
+```{r}
+vt_census |>
+  select(NAME) |> 
+  separate_wider_delim(
+    NAME,
+    delim = ", ",
+    names = c("block", "block_group", "tract", "county", "state")
+  )
+```
+
+You'll notice that each row contains a lot of duplicated information ("Block", "Block Group", ...).
+You could certainly use `mutate()` and string manipulation to clean this up, but there's a more direct approach that you can use if you're familiar with regular expressions.
+The new `separate_wider_regex()` takes a vector of regular expressions that are matched in order, from left to right.
+If you name the regular expression, it will appear in the output; otherwise, it will be dropped.
+I think this leads to a particularly elegant solution to many problems.
+
+```{r}
+vt_census |>
+  select(NAME) |> 
+  separate_wider_regex(
+    NAME,
+    patterns = c(
+      "Block ", block = "\\d+", ", ",
+      "Block Group ", block_group = "\\d+", ", ",
+      "Census Tract ", tract = "\\d+.\\d+", ", ",
+      county = "[^,]+", ", ",
+      state = ".*"
+    )
+  )
+```
+
+These functions also have a new way to report problems.
+Let's start with a very simple example:
+
+```{r}
+#| error: true
+df <- tibble(
+  id = 1:3,
+  x = c("a", "a-b", "a-b-c")
+)
+
+df |> separate_wider_delim(x, delim = "-", names = c("x", "y"))
+```
+
+We've requested two columns in the output (`x` and `y`), but the first row has only one element and the last row has three elements, so `separate_wider_delim()` can't do what we've asked.
+The error lays out your options for resolving the problem using the `too_few` and `too_many` arguments.
+I'd recommend always starting with `"debug"` to get more information about the problem:
+
+```{r}
+probs <- df |> 
+  separate_wider_delim(
+    x,
+    delim = "-",
+    names = c("a", "b"),
+    too_few = "debug",
+    too_many = "debug"
+  )
+probs
+```
+
+This adds three new variables: `x_ok` tells you if the `x` could be separated as you requested, `x_pieces` tells you the actual number of pieces, and `x_remainder` shows you anything that remains after the columns you asked for.
+You can use this information to fix the problems in the input, or you can use the other options to `too_few` and `too_many` to tell `separate_wider_delim()` to fix them for you:
+
+```{r}
+df |> 
+  separate_wider_delim(
+    x,
+    delim = "-",
+    names = c("a", "b"),
+    too_few = "align_start",
+    too_many = "drop"
+  )
+```
+
+`too_few` and `too_many` also work with `separate_wider_position()`, and `too_few` works with `separate_wider_regex()`.
+The `longer` variants don't need these arguments because varying numbers of rows don't matter in the same way that varying numbers of columns do:
+
+```{r}
+df |> separate_longer_delim(x, delim = "-")
+```
+
+These functions are still experimental so we are actively seeking feedback.
+Please try them out and let us know if you find them useful or if there are other features you'd like to see.
+
+## `unnest_wider()` and `unnest_longer()` improvements
+
+`unnest_longer()` and `unnest_wider()` have both received some quality of life and consistency improvements.
+Most importantly:
+
+-   `unnest_wider()` now gives a better error when unnesting an unnamed vector:
+
+    ```{r}
+    #| error: true
+    df <- tibble(
+      id = 1:2,
+      x = list(c("a", "b"), c("d", "e", "f"))
+    )
+    df |> 
+      unnest_wider(x)
+
+    df |> 
+      unnest_wider(x, names_sep = "_")
+    ```
+
+    And this same behaviour now also applies to partially named vectors.
+
+-   `unnest_longer()` has gained a `keep_empty` argument like `unnest()`, and it now treats `NULL` and empty vectors the same way:
+
+    ```{r}
+    df <- tibble(
+      id = 1:3,
+      x = list(NULL, integer(), 1:3)
+    )
+
+    df |> unnest_longer(x)
+    df |> unnest_longer(x, keep_empty = TRUE)
+    ```
+
+## `pivot_longer(cols_vary)`
+
+By default, `pivot_longer()` creates its output row-by-row:
+
+```{r}
+df <- tibble(
+  x = 1:2,
+  y = 3:4,
+  z = 5:6
+)
+
+df |> 
+  pivot_longer(
+    everything(),
+    names_to = "name",
+    values_to = "value"
+  )
+```
+
+You can now request to create the output column-by-column with `cols_vary = "slowest":`
+
+```{r}
+df |> 
+  pivot_longer(
+    everything(),
+    names_to = "name",
+    values_to = "value",
+    cols_vary = "slowest"
+  )
+```
+
+## `nest(.by)`
+
+A nested data frame is a data frame where one (or more) columns is a list of data frames.
+Nested data frames are a powerful tool that allow you to turn groups into rows and can facilitate certain types of data manipulation that would be very tricky otherwise.
+(One place to learn more about them is my 2016 talk "[Managing many models with R](https://www.youtube.com/watch?v=rz3_FDVt9eg)".)
+
+Over the years we've made a number of attempts at getting the correct interface for nesting, including `tidyr::nest()`, `dplyr::nest_by()`, and `dplyr::group_nest()`.
+In this version of tidyr we've taken one more stab at it by adding a new argument to `nest()`: `.by`, inspired by the upcoming [dplyr 1.1.0](https://www.tidyverse.org/blog/2022/11/dplyr-1-1-0-is-coming-soon/) release.
+This means that `nest()` now allows you to specify the variables you want to nest by as an alternative to specifying the variables that appear in the nested data.
+
+```{r}
+# Specify what to nest by
+mtcars |> 
+  nest(.by = cyl)
+
+# Specify what should be nested
+mtcars |> 
+  nest(data = -cyl)
+
+# Specify both (to drop variables)
+mtcars |> 
+  nest(data = mpg:drat, .by = cyl)
+```
+
+If this function is all we hope it to be, we're likely to supersede `dplyr::nest_by()` and `dplyr::group_nest()` in the future.
+This has the nice property of placing the functions for nesting and unnesting in the same package (tidyr).
+
+## Acknowledgements
+
+A big thanks to all 51 contributors who helped make this release possible, by writing code and documentating, asking questions, and reporting bugs! [&#x0040;AdrianS85](https://github.com/AdrianS85), [&#x0040;ahcyip](https://github.com/ahcyip), [&#x0040;allenbaron](https://github.com/allenbaron), [&#x0040;AnBarbosaBr](https://github.com/AnBarbosaBr), [&#x0040;ArthurAndrews](https://github.com/ArthurAndrews), [&#x0040;bart1](https://github.com/bart1), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;bknakker](https://github.com/bknakker), [&#x0040;bwiernik](https://github.com/bwiernik), [&#x0040;crissthiandi](https://github.com/crissthiandi), [&#x0040;daattali](https://github.com/daattali), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dcaud](https://github.com/dcaud), [&#x0040;DSLituiev](https://github.com/DSLituiev), [&#x0040;elgabbas](https://github.com/elgabbas), [&#x0040;fabiangehring](https://github.com/fabiangehring), [&#x0040;hadley](https://github.com/hadley), [&#x0040;ilikegitlab](https://github.com/ilikegitlab), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jic007](https://github.com/jic007), [&#x0040;Joao-O-Santos](https://github.com/Joao-O-Santos), [&#x0040;joeycouse](https://github.com/joeycouse), [&#x0040;jonspring](https://github.com/jonspring), [&#x0040;kevinushey](https://github.com/kevinushey), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;lotard](https://github.com/lotard), [&#x0040;lschneiderbauer](https://github.com/lschneiderbauer), [&#x0040;lucylgao](https://github.com/lucylgao), [&#x0040;markfairbanks](https://github.com/markfairbanks), [&#x0040;martina-starc](https://github.com/martina-starc), [&#x0040;MatthieuStigler](https://github.com/MatthieuStigler), [&#x0040;mattnolan001](https://github.com/mattnolan001), [&#x0040;mattroumaya](https://github.com/mattroumaya), [&#x0040;mdkrause](https://github.com/mdkrause), [&#x0040;mgirlich](https://github.com/mgirlich), [&#x0040;millermc38](https://github.com/millermc38), [&#x0040;modche](https://github.com/modche), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;mspittler](https://github.com/mspittler), [&#x0040;olivroy](https://github.com/olivroy), [&#x0040;piokol23](https://github.com/piokol23), [&#x0040;ppreshant](https://github.com/ppreshant), [&#x0040;ramiromagno](https://github.com/ramiromagno), [&#x0040;Rengervn](https://github.com/Rengervn), [&#x0040;rjake](https://github.com/rjake), [&#x0040;roohitk](https://github.com/roohitk), [&#x0040;struckma](https://github.com/struckma), [&#x0040;tjmahr](https://github.com/tjmahr), [&#x0040;weirichs](https://github.com/weirichs), and [&#x0040;wurli](https://github.com/wurli).
