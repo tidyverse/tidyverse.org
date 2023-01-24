@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidyr-1-3-0
 title: tidyr 1.3.0
-date: 2023-01-23
+date: 2023-01-24
 author: Hadley Wickham
 description: >
     tidyr 1.3.0 brings a new family of string separating functions,
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidyr]
-rmd_hash: 783411b400b9183c
+rmd_hash: 2c73fa0338002355
 
 ---
 
@@ -54,7 +54,7 @@ This post highlights the biggest changes in this release:
 
 -   `nest(.by)` provides a new (and hopefully final) way to create nested datasets.
 
-You should also notice generally improved errors with this release: we check function arguments more aggressively and take care to always report the name of the function that you called, not some internal helper. As usual, you can find a full set of changes in the [release notes](http://github.com/tidyverse/tidyr/releases/tag/v1.3.0).
+You should also notice generally improved errors with this release: we check function arguments more aggressively, and take care to always report the name of the function that you called, not some internal helper. As usual, you can find a full set of changes in the [release notes](http://github.com/tidyverse/tidyr/releases/tag/v1.3.0).
 
 <div class="highlight">
 
@@ -65,7 +65,7 @@ You should also notice generally improved errors with this release: we check fun
 
 ## `separate_*()` family of functions
 
-The biggest feature of this release is a new, experimental, family of functions for separating string columns:
+The biggest feature of this release is a new, experimental family of functions for separating string columns:
 
 |                                  | Make columns                | Make rows                    |
 |--------------------------|-----------------------|-----------------------|
@@ -118,7 +118,7 @@ Here I'll focus on the `wider` functions because they generally present the most
 
 </div>
 
-The `GEOID` column is made up of four components: a 2 digit state identifier, a 3 digit county identifier, a 6 digit tract identifier, and a 4 digit block identifier. We could use [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) to extract these into their own variables:
+The `GEOID` column is made up of four components: a 2-digit state identifier, a 3-digit county identifier, a 6-digit tract identifier, and a 4-digit block identifier. We can use [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) to extract these into their own variables:
 
 <div class="highlight">
 
@@ -277,7 +277,7 @@ This adds three new variables: `x_ok` tells you if the `x` could be separated as
 
 </div>
 
-`too_few` and `too_many` also work with [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html), and `too_few` works with [`separate_wider_regex()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html). The longer variants don't need these arguments because varying numbers of rows don't matter in the same way that varying numbers of columns do:
+`too_few` and `too_many` also work with [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html), and `too_few` works with [`separate_wider_regex()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html). The `longer` variants don't need these arguments because varying numbers of rows don't matter in the same way that varying numbers of columns do:
 
 <div class="highlight">
 
