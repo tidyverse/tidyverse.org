@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: forcats-1-0-0
 title: forcats 1.0.0
-date: 2023-01-12
+date: 2023-01-27
 author: Hadley Wickham
 description: >
     There are no major new features in this version of forcats, but the 1.0.0
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [forcats]
-rmd_hash: 03b72b685c8bd4a4
+rmd_hash: 2ecf603cd50b81f4
 
 ---
 
@@ -43,7 +43,7 @@ You can install it from CRAN with:
 
 </div>
 
-While this is the 1.0.0 release of forcats, this version number is mainly a signal that we think forcats is stable, and don't anticipated any major changes in the future. This blog post will outline the only major new feature in this version: better tools for dealing with the two ways that missing values can be represented in factors. As usual, you can see a full list of changes in the [release notes](https://github.com/tidyverse/forcats/releases/tag/v1.0.0).
+While this is the 1.0.0 release of forcats, this version number is mainly to signal that we think forcats is stable, and that we don't anticipate any major changes in the future. This blog post will outline the only major new feature in this version: better tools for dealing with the two ways that missing values can be represented in factors. As usual, you can see a full list of changes in the [release notes](https://github.com/tidyverse/forcats/releases/tag/v1.0.0).
 
 <div class="highlight">
 
@@ -81,7 +81,7 @@ There are two ways to represent a missing value in a factor:
 
     </div>
 
-You can see the difference a little more clearly by looking at the underlying integer value of the factor. When the `NA` is stored in the levels, there's no missing value in the underlying integer values, because the value of level 3 is `NA`.
+You can see the difference a little more clearly by looking at the underlying integer values of the factor:
 
 <div class="highlight">
 
@@ -92,6 +92,8 @@ You can see the difference a little more clearly by looking at the underlying in
 <span></span></code></pre>
 
 </div>
+
+When the `NA` is stored in the levels, there's no missing value in the underlying integer values, because the value of level 3 is `NA`.
 
 `NA`s in the values tend to be best for data analysis, because [`is.na()`](https://rdrr.io/r/base/NA.html) works as you'd expect. `NA`s in the levels are useful if you need to control where missing values are shown in a table or a plot. To make it easier to switch between these forms, forcats now comes [`fct_na_value_to_level()`](https://forcats.tidyverse.org/reference/fct_na_value_to_level.html) and [`fct_na_level_to_value()`](https://forcats.tidyverse.org/reference/fct_na_value_to_level.html).
 
@@ -143,7 +145,7 @@ That code is getting a little verbose so lets pull it out into a separate dplyr 
 
 </div>
 
-This structure makes it easier to make other adjustments. For example, the code below uses a more informative label for the missing level and lumps together all the hair colours with less than 2 observations. I've left the (Other) category as a bar at the end, but by rearranging the order of [`fct_infreq()`](https://forcats.tidyverse.org/reference/fct_inorder.html) and [`fct_lump_min()`](https://forcats.tidyverse.org/reference/fct_lump.html) I could cause it to also sort in frequency order.
+This structure makes it easier to make other adjustments. For example, the code below uses a more informative label for the missing level and lumps together the colours with less than 2 observations. I've left the (Other) category as a bar at the end, but if I wanted to I could cause it to sort in frequency order by flipping the order of [`fct_infreq()`](https://forcats.tidyverse.org/reference/fct_inorder.html) and [`fct_lump_min()`](https://forcats.tidyverse.org/reference/fct_lump.html) .
 
 <div class="highlight">
 
