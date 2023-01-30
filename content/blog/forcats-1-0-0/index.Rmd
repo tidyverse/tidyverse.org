@@ -1,0 +1,186 @@
+---
+output: hugodown::hugo_document
+
+slug: forcats-1-0-0
+title: forcats 1.0.0
+date: 2023-01-30
+author: Hadley Wickham
+description: >
+    There are no major new features in this version of forcats, but the 1.0.0
+    label now clearly advertises that this a stable member of the tidyverse.
+
+photo:
+  url: https://unsplash.com/photos/NWwv0ETyzxc
+  author: Diego Morales
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [forcats]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+```
+We're so happy to announce the release of [forcats](https://forcats.tidyverse.org) 1.0.0.
+The goal of the forcats package is to provide a suite of tools that solve common problems with factors, including changing the order of levels or the values.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("forcats")
+```
+
+While this is the 1.0.0 release of forcats, this version number is mainly to signal that we think forcats is stable, and that we don't anticipate any major changes in the future.
+This blog post will outline the only major new feature in this version: better tools for dealing with the two ways that missing values can be represented in factors.
+As usual, you can see a full list of changes in the [release notes](https://github.com/tidyverse/forcats/releases/tag/v1.0.0).
+
+```{r setup}
+library(forcats)
+```
+
+## `NA` in levels vs `NA` in values
+
+There are two ways to represent a missing value in a factor:
+
+-   You can include it in the values of the factor; it does not appear in the levels and `is.na()` reports it as missing.
+    This is how missing values are encoded by default:
+
+    ```{r}
+    f1 <- factor(c("x", "y", NA, NA, "x"))
+    levels(f1)
+    is.na(f1)
+    ```
+
+-   You can include it in the levels of the factor, thus `is.na()` does not report it as missing.
+    This requires a little more work to create, because, by default, `factor()` uses `exclude = NA`, meaning that missing values are not included in the levels.
+    You can force `NA` to be included by setting `exclude = NULL`:
+
+    ```{r}
+    f2 <- factor(c("x", "y", NA, NA, "x"), exclude = NULL)
+    levels(f2)
+    is.na(f2)
+    ```
+
+You can see the difference a little more clearly by looking at the underlying integer values of the factor:
+
+```{r}
+as.integer(f1)
+as.integer(f2)
+```
+
+When the `NA` is stored in the levels, there's no missing value in the underlying integer values, because the value of level 3 is `NA`.
+
+`NA`s in the values tend to be best for data analysis, because `is.na()` works as you'd expect.
+`NA`s in the levels are useful if you need to control where missing values are shown in a table or a plot.
+To make it easier to switch between these forms, forcats now comes `fct_na_value_to_level()` and `fct_na_level_to_value()`.
+
+Here's a practical example of why it matters.
+In the plot below, I've attempted to use `fct_infreq()` to reorder the levels of the factor so that the highest frequency levels are at the top of the bar chart:
+
+```{r fct-infreq-hair}
+#| fig-asp: 1
+#| fig-width: 4
+#| fig.alt: >
+#|   The bar chart of hair color, now ordered so that the least
+#|   frequent colours come first and the most frequent colors come last.
+#|   This makes it easy to see that the most common hair color is none 
+#|   (~35), followed by brown (~18), then black (~12). Surprisingly,
+#|   NAs are at the top of the graph, even though there are ~5 NAs and 
+#|   other colors have smaller values.
+library(ggplot2)
+library(dplyr, warn.conflicts = FALSE)
+
+ggplot(starwars, aes(y = fct_rev(fct_infreq(hair_color)))) + 
+  geom_bar() + 
+  labs(y = "Hair color")
+```
+
+Unfortunately, however, because the `NA`s are stored in the values, `fct_infreq()` has no ability to affect them, so they appear in their default position, after all the other values (it might not be obvious that that they're after the other values here, but remember in plots y values have their smallest values at the bottom and highest values at the top).
+
+We can make `fct_infreq()` do what we want by moving the `NA` from the values to the levels:
+
+```{r}
+#| fig-asp: 1
+#| fig-width: 4
+#| fig-alt: >
+#|   The bar chart of hair color, now ordered so that NAs are 
+#|   ordered where you'd expect: in between white (4) and black (12).
+ggplot(starwars, aes(y = fct_rev(fct_infreq(fct_na_value_to_level(hair_color))))) + 
+  geom_bar() + 
+  labs(y = "Hair color")
+```
+
+That code is getting a little verbose so lets pull it out into a separate dplyr step and pull the factor transformation in to its own mini pipeline:
+
+```{r}
+#| fig-asp: 1
+#| fig-width: 4
+#| results: false
+starwars |> 
+  mutate(
+    hair_color = hair_color |> 
+      fct_na_value_to_level() |> 
+      fct_infreq() |> 
+      fct_rev()
+  ) |> 
+  ggplot(aes(y = hair_color)) + 
+  geom_bar() + 
+  labs(y = "Hair color")
+```
+
+This structure makes it easier to make other adjustments.
+For example, the code below uses a more informative label for the missing level and lumps together the colours with less than 2 observations.
+I've left the (Other) category as a bar at the end, but if I wanted to I could cause it to sort in frequency order by flipping the order of `fct_infreq()` and `fct_lump_min()` .
+
+```{r}
+#| fig-width: 4
+#| fig-alt: >
+#|   The bar chart of hair color, with NA hair colour now labelled as (Unknown)
+#|   and the low frequency bars lumped into (Other).
+starwars |> 
+  mutate(
+    hair_color = hair_color |> 
+      fct_na_value_to_level("(Unknown)") |> 
+      fct_infreq() |> 
+      fct_lump_min(2, other_level = "(Other)") |> 
+      fct_rev() 
+  ) |> 
+  ggplot(aes(y = hair_color)) + 
+  geom_bar() + 
+  labs(y = "Hair color")
+```
+
+Looking closely at what got lumped together made me realise that there's an existing "Unknown" level that should probably be represented as a missing value.
+One way to fix that is with `fct_na_level_to_value()`:
+
+```{r}
+#| fig-width: 4
+#| fig-alt: >
+#|   The bar chart of hair color, with "unknown" hair colour now lumped in
+#|   with (Unknown) instead of other
+starwars |> 
+  mutate(
+    hair_color = hair_color |> 
+      fct_na_level_to_value("Unknown") |> 
+      fct_na_value_to_level("(Unknown)") |> 
+      fct_infreq() |> 
+      fct_lump_min(2, other_level = "(Other)") |> 
+      fct_rev() 
+  ) |> 
+  ggplot(aes(y = hair_color)) + 
+  geom_bar() + 
+  labs(y = "Hair color")
+```
+
+## Acknowledgements
