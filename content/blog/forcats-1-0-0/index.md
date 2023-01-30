@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: forcats-1-0-0
 title: forcats 1.0.0
-date: 2023-01-27
+date: 2023-01-30
 author: Hadley Wickham
 description: >
     There are no major new features in this version of forcats, but the 1.0.0
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [forcats]
-rmd_hash: 2ecf603cd50b81f4
+rmd_hash: 3c5b51d53d82bce8
 
 ---
 
