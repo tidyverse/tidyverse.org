@@ -14,7 +14,7 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 3dc87e3095893e1f
+rmd_hash: 05504f7ab41dd907
 
 ---
 
@@ -62,8 +62,8 @@ In dplyr, grouping radically affects the computation of the verb that you use it
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transactions</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>company</span>, <span class='nv'>year</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>company</span>, <span class='nv'>year</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>total <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>revenue</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 4</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># Groups:   company, year [4]</span></span></span>
@@ -85,8 +85,8 @@ Similarly, if we just wanted the total revenue in a summary table, we would have
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transactions</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>company</span>, <span class='nv'>year</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>company</span>, <span class='nv'>year</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>total <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>revenue</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; `summarise()` has grouped output by 'company'. You can override using the</span></span>
 <span><span class='c'>#&gt; `.groups` argument.</span></span>
@@ -108,7 +108,7 @@ In dplyr 1.1.0, we've introduced an alternative to [`group_by()`](https://dplyr.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transactions</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>total <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>revenue</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>company</span>, <span class='nv'>year</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 4</span></span></span>
 <span><span class='c'>#&gt;   company  year revenue total</span></span>
@@ -120,7 +120,7 @@ In dplyr 1.1.0, we've introduced an alternative to [`group_by()`](https://dplyr.
 <span><span class='c'>#&gt; <span style='color: #555555;'>5</span> B        <span style='text-decoration: underline;'>2</span>023      12    30</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>6</span> B        <span style='text-decoration: underline;'>2</span>023      18    30</span></span>
 <span></span><span></span>
-<span><span class='nv'>transactions</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span><span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>total <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>revenue</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>company</span>, <span class='nv'>year</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 3</span></span></span>
 <span><span class='c'>#&gt;   company  year total</span></span>
@@ -153,7 +153,7 @@ As you begin to use per-operation grouping in dplyr, you'll likely notice that s
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transactions</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice_max</a></span><span class='o'>(</span><span class='nv'>revenue</span>, n <span class='o'>=</span> <span class='m'>2</span>, by <span class='o'>=</span> <span class='nv'>company</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 3</span></span></span>
 <span><span class='c'>#&gt;   company  year revenue</span></span>
@@ -171,14 +171,14 @@ This is purely a technical difference resulting from the fact that some verbs co
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Uses `by` to be consistent with `n` and `prop`</span></span>
-<span><span class='nv'>transactions</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span><span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice_max</a></span><span class='o'>(</span><span class='nv'>revenue</span>, n <span class='o'>=</span> <span class='m'>2</span>, .by <span class='o'>=</span> <span class='nv'>company</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `slice_max()`:</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't specify an argument named `.by` in this verb.</span></span>
 <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Did you mean to use `by` instead?</span></span>
 <span></span><span></span>
 <span><span class='c'># Uses `.by` to be consistent with `.preserve`</span></span>
-<span><span class='nv'>transactions</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span><span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice</a></span><span class='o'>(</span><span class='nv'>revenue</span>, by <span class='o'>=</span> <span class='nv'>company</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `slice()`:</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't specify an argument named `by` in this verb.</span></span>
@@ -195,7 +195,7 @@ That said, if you do want to start using `.by`, there are a few differences from
 
 -   `.by` always returns an ungrouped data frame. This is one of the main reasons to use `.by`, but is worth keeping in mind if you have existing code that takes advantage of the persistent grouping from [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html).
 
--   `.by` uses tidy-selection. [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html), on the other hand, works more like [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) in that it allows you to create grouping columns on the fly, i.e. `df %>% group_by(month = floor_date(date, "month"))`. With `.by`, you must create your grouping columns ahead of time. An added benefit of `.by`'s usage of tidy-selection is that you can supply an external character vector of grouping variables using `.by = all_of(groups_vec)`.
+-   `.by` uses tidy-selection. [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html), on the other hand, works more like [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) in that it allows you to create grouping columns on the fly, i.e. `df |> group_by(month = floor_date(date, "month"))`. With `.by`, you must create your grouping columns ahead of time. An added benefit of `.by`'s usage of tidy-selection is that you can supply an external character vector of grouping variables using `.by = all_of(groups_vec)`.
 
 -   `.by` doesn't sort grouping keys. [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) always sorts keys in ascending order, which affects the results of verbs like [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html).
 
@@ -203,7 +203,7 @@ The last point might seem strange, but consider what would happen if we preferre
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transactions2</span> <span class='o'>&lt;-</span> <span class='nv'>transactions</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transactions2</span> <span class='o'>&lt;-</span> <span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nv'>company</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/desc.html'>desc</a></span><span class='o'>(</span><span class='nv'>year</span><span class='o'>)</span><span class='o'>)</span></span>
 <span></span>
 <span><span class='nv'>transactions2</span></span>
@@ -223,8 +223,8 @@ The last point might seem strange, but consider what would happen if we preferre
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Note that `group_by()` re-ordered</span></span>
-<span><span class='nv'>transactions2</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>company</span>, <span class='nv'>year</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span><span class='nv'>transactions2</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>company</span>, <span class='nv'>year</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>total <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>revenue</span><span class='o'>)</span>, .groups <span class='o'>=</span> <span class='s'>"drop"</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 3</span></span></span>
 <span><span class='c'>#&gt;   company  year total</span></span>
@@ -235,7 +235,7 @@ The last point might seem strange, but consider what would happen if we preferre
 <span><span class='c'>#&gt; <span style='color: #555555;'>4</span> B        <span style='text-decoration: underline;'>2</span>023    30</span></span>
 <span></span><span></span>
 <span><span class='c'># But `.by` used whatever order was already there</span></span>
-<span><span class='nv'>transactions2</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span><span class='nv'>transactions2</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span>total <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>revenue</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>company</span>, <span class='nv'>year</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 3</span></span></span>
 <span><span class='c'>#&gt;   company  year total</span></span>
@@ -263,7 +263,7 @@ The idea behind `.by` turns out to be useful in contexts outside of dplyr. In [t
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Specify what to nest by</span></span>
-<span><span class='nv'>transactions</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span><span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/nest.html'>nest</a></span><span class='o'>(</span>.by <span class='o'>=</span> <span class='nv'>company</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   company data            </span></span>
@@ -272,7 +272,7 @@ The idea behind `.by` turns out to be useful in contexts outside of dplyr. In [t
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> B       <span style='color: #555555;'>&lt;tibble [3 × 2]&gt;</span></span></span>
 <span></span><span></span>
 <span><span class='c'># Specify what to nest</span></span>
-<span><span class='nv'>transactions</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span><span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/nest.html'>nest</a></span><span class='o'>(</span>data <span class='o'>=</span> <span class='o'>-</span><span class='nv'>company</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   company data            </span></span>
@@ -281,7 +281,7 @@ The idea behind `.by` turns out to be useful in contexts outside of dplyr. In [t
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> B       <span style='color: #555555;'>&lt;tibble [3 × 2]&gt;</span></span></span>
 <span></span><span></span>
 <span><span class='c'># Specify both, allowing you to drop `year` along the way</span></span>
-<span><span class='nv'>transactions</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span><span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/nest.html'>nest</a></span><span class='o'>(</span>data <span class='o'>=</span> <span class='nv'>revenue</span>, .by <span class='o'>=</span> <span class='nv'>company</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   company data            </span></span>
