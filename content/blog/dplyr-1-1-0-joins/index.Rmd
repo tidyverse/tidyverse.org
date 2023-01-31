@@ -2,38 +2,24 @@
 output: hugodown::hugo_document
 slug: dplyr-1-1-0-joins
 title: "dplyr 1.1.0: Joins"
-date: 2023-01-30
+date: 2023-01-31
 author: Davis Vaughan
 description: >
     In dplyr 1.1.0, joins have been greatly reworked, introducing: a new way to
     specify join columns, various new types of joins, and two new quality
     control arguments.
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
-# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+  url: https://unsplash.com/photos/Cecb0_8Hx-o
+  author: Duy Pham
 categories: [package] 
-tags: []
+tags: [dplyr]
 editor_options: 
   chunk_output_type: console
 ---
 
-```{=html}
-<!--
-TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] `hugodown::use_tidy_thumbnails()`
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] `usethis::use_tidy_thanks()`
--->
-```
 dplyr 1.1.0 is out now!
-In this post, we will discuss various new updates to joins.
+This is post 1 of 4 detailing some of the new features in this release.
+In this post, we will discuss various new updates to dplyr's joins.
 
 You can install it from CRAN with:
 
@@ -58,7 +44,6 @@ transactions <- tibble(
 )
 transactions
 
-# TODO: Figure out RStudio initial year
 companies <- tibble(
   id = c("A", "B"),
   name = c("Patagonia", "RStudio")
@@ -96,10 +81,9 @@ We'll look at more of these next.
 To make things a little more interesting, we'll add one more column to `companies`, and one more row:
 
 ```{r}
-# TODO: Figure out RStudio and Patagonia initial year
 companies <- tibble(
   id = c("A", "B", "B"),
-  since = c(1976, 2010, 2022),
+  since = c(1973, 2009, 2022),
   name = c("Patagonia", "RStudio", "Posit")
 )
 
@@ -108,7 +92,7 @@ companies
 
 This table now also tracks name changes that have happened over the course of a company's history.
 In 2022, we changed our name from RStudio to Posit, so we've tracked that as an additional row in our dataset.
-Note that both RStudio and Posit are given an `id` of `"B"`, which links back to the `transactions` table.
+Note that both RStudio and Posit are given an `id` of `B`, which links back to the `transactions` table.
 
 If we were to join these two tables together, ideally we'd bring over the name that was in effect when the transaction took place.
 For example, for the transaction in 2021, the company was still RStudio, so ideally we'd only match up against the RStudio row in `companies`.
@@ -130,6 +114,7 @@ Company `A` matches correctly, but since we only joined on the company id, we ge
 This is a problem, as we were expecting a 1:1 match for each row in `transactions`.
 Multiple matches in equality joins like this one are typically unexpected -- in fact, many people don't even know this is possible even though it is technically default SQL behavior -- so we've also added a new warning to alert you when this happens.
 If multiple matches are expected, explicitly set `multiple = "all"` to silence this warning.
+This also serves as a code "sign post" for future readers of your code to let them know that this is a join that is expected to increase the number of rows in the data.
 If multiple matches *aren't* expected, you can also set `multiple = "error"` to immediately halt the analysis.
 We expect this will be useful as a quality control check for production code where you might rerun analyses with new data on a rolling basis.
 
@@ -140,17 +125,16 @@ Let's zoom in to just 2021:
 filter(faulty, company == "B", year == 2021)
 ```
 
-In this case, we wanted a match with RStudio, but not with Posit (because the name hasn't changed yet).
+We want to retain the match with RStudio, but not with Posit (because the name hasn't changed yet).
 One way to express this is by using the `year` and `since` columns to state that you only want a match if the transaction `year` occurred *after* a name change:
 
 ```{r}
 # `year[i] >= since`?
-2021 >= 2010
+2021 >= 2009
 2021 >= 2022
 ```
 
-These expressions return results that correspond with the matches we actually want for 2021.
-With `join_by()`, we can now express this inequality directly inside the join specification:
+Because `join_by()` accepts expressions, we can express this inequality directly inside the join specification:
 
 ```{r}
 join_by(company == id, year >= since)
@@ -165,12 +149,12 @@ This eliminated the 2021 match to Posit, as expected!
 This type of join is known as an *inequality join*, i.e. it involves at least one join expression containing one of the following inequality conditions: `>=`, `>`, `<=`, or `<`.
 
 However, we still have 2 matches corresponding to the 2023 year.
-In this case we only wanted the match to Posit.
-The current result does make sense if we try to run the same row-by-row analysis as before:
+In this case, we only wanted the match to Posit.
+We can understand why we are still getting multiple matches here by running the same row-by-row analysis as before:
 
 ```{r}
 # `year[i] >= since`? Both are true!
-2023 >= 2010
+2023 >= 2009
 2023 >= 2022
 ```
 
@@ -180,9 +164,16 @@ To remove the last problematic match of the 2023 transaction to the RStudio name
 
 Inequality conditions like `year >= since` are powerful, but since the condition is only bounded on one side it is common for them to return a large number of matches.
 Since multiple matches are the typical case with inequality joins, we don't get a warning like with the equality join, but we clearly still haven't gotten the join right.
+As a reminder, here are where we still have too many matches:
+
+```{r}
+transactions |>
+  inner_join(companies, join_by(company == id, year >= since)) |>
+  filter(company == "B", year == 2023)
+```
 
 We need a way to filter down the matches returned from `year >= since` to only the most recent name change.
-In other words, we prefer the Posit match over the RStudio match because 2022 is *closer* to the transaction year of 2023 than 2010 is.
+In other words, we prefer the Posit match over the RStudio match because 2022 is *closer* to the transaction year of 2023 than 2009 is.
 We can express this in `join_by()` by using a helper named `closest()`.
 
 ```{r}
@@ -201,7 +192,7 @@ We saw that `multiple` can help protect us from having too many matches, but wha
 Consider what happens if we add a new company to `transactions` without a corresponding match in `companies`.
 
 ```{r}
-transactions <- transactions %>%
+transactions <- transactions |>
   tibble::add_row(company = "C", year = 2023, revenue = 15)
 
 transactions

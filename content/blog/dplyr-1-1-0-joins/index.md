@@ -2,38 +2,24 @@
 output: hugodown::hugo_document
 slug: dplyr-1-1-0-joins
 title: "dplyr 1.1.0: Joins"
-date: 2023-01-30
+date: 2023-01-31
 author: Davis Vaughan
 description: >
     In dplyr 1.1.0, joins have been greatly reworked, introducing: a new way to
     specify join columns, various new types of joins, and two new quality
     control arguments.
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
-# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+  url: https://unsplash.com/photos/Cecb0_8Hx-o
+  author: Duy Pham
 categories: [package] 
-tags: []
+tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 7cff9ace70674e94
+rmd_hash: 9b31d03464d70f53
 
 ---
 
-<!--
-TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://rdrr.io/pkg/usethis/man/use_tidy_thanks.html)
--->
-
-dplyr 1.1.0 is out now! In this post, we will discuss various new updates to joins.
+dplyr 1.1.0 is out now! This is post 1 of 4 detailing some of the new features in this release. In this post, we will discuss various new updates to dplyr's joins.
 
 You can install it from CRAN with:
 
@@ -69,7 +55,6 @@ Consider the following two tables, `transactions` and `companies`. `transactions
 <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> B        <span style='text-decoration: underline;'>2</span>021      10</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>4</span> B        <span style='text-decoration: underline;'>2</span>023      12</span></span>
 <span></span><span></span>
-<span><span class='c'># TODO: Figure out RStudio initial year</span></span>
 <span><span class='nv'>companies</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/pkg/tibble/man/tibble.html'>tibble</a></span><span class='o'>(</span></span>
 <span>  id <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"A"</span>, <span class='s'>"B"</span><span class='o'>)</span>,</span>
 <span>  name <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"Patagonia"</span>, <span class='s'>"RStudio"</span><span class='o'>)</span></span>
@@ -137,10 +122,9 @@ To make things a little more interesting, we'll add one more column to `companie
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># TODO: Figure out RStudio and Patagonia initial year</span></span>
-<span><span class='nv'>companies</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/pkg/tibble/man/tibble.html'>tibble</a></span><span class='o'>(</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>companies</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/pkg/tibble/man/tibble.html'>tibble</a></span><span class='o'>(</span></span>
 <span>  id <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"A"</span>, <span class='s'>"B"</span>, <span class='s'>"B"</span><span class='o'>)</span>,</span>
-<span>  since <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>1976</span>, <span class='m'>2010</span>, <span class='m'>2022</span><span class='o'>)</span>,</span>
+<span>  since <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>1973</span>, <span class='m'>2009</span>, <span class='m'>2022</span><span class='o'>)</span>,</span>
 <span>  name <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"Patagonia"</span>, <span class='s'>"RStudio"</span>, <span class='s'>"Posit"</span><span class='o'>)</span></span>
 <span><span class='o'>)</span></span>
 <span></span>
@@ -148,14 +132,14 @@ To make things a little more interesting, we'll add one more column to `companie
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 3</span></span></span>
 <span><span class='c'>#&gt;   id    since name     </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A      <span style='text-decoration: underline;'>1</span>976 Patagonia</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> B      <span style='text-decoration: underline;'>2</span>010 RStudio  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A      <span style='text-decoration: underline;'>1</span>973 Patagonia</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> B      <span style='text-decoration: underline;'>2</span>009 RStudio  </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> B      <span style='text-decoration: underline;'>2</span>022 Posit</span></span>
 <span></span></code></pre>
 
 </div>
 
-This table now also tracks name changes that have happened over the course of a company's history. In 2022, we changed our name from RStudio to Posit, so we've tracked that as an additional row in our dataset. Note that both RStudio and Posit are given an `id` of `"B"`, which links back to the `transactions` table.
+This table now also tracks name changes that have happened over the course of a company's history. In 2022, we changed our name from RStudio to Posit, so we've tracked that as an additional row in our dataset. Note that both RStudio and Posit are given an `id` of `B`, which links back to the `transactions` table.
 
 If we were to join these two tables together, ideally we'd bring over the name that was in effect when the transaction took place. For example, for the transaction in 2021, the company was still RStudio, so ideally we'd only match up against the RStudio row in `companies`. If we colored the expected matches, they'd look something like this:
 
@@ -176,17 +160,17 @@ How can we do this? We can try the same join from before, but we won't like the 
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 5</span></span></span>
 <span><span class='c'>#&gt;   company  year revenue since name     </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A        <span style='text-decoration: underline;'>2</span>019      50  <span style='text-decoration: underline;'>1</span>976 Patagonia</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> A        <span style='text-decoration: underline;'>2</span>020       4  <span style='text-decoration: underline;'>1</span>976 Patagonia</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>010 RStudio  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A        <span style='text-decoration: underline;'>2</span>019      50  <span style='text-decoration: underline;'>1</span>973 Patagonia</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> A        <span style='text-decoration: underline;'>2</span>020       4  <span style='text-decoration: underline;'>1</span>973 Patagonia</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>009 RStudio  </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>4</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>022 Posit    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> B        <span style='text-decoration: underline;'>2</span>023      12  <span style='text-decoration: underline;'>2</span>010 RStudio  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> B        <span style='text-decoration: underline;'>2</span>023      12  <span style='text-decoration: underline;'>2</span>009 RStudio  </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>6</span> B        <span style='text-decoration: underline;'>2</span>023      12  <span style='text-decoration: underline;'>2</span>022 Posit</span></span>
 <span></span></code></pre>
 
 </div>
 
-Company `A` matches correctly, but since we only joined on the company id, we get *multiple matches* for each of company `B`'s transactions and end up with more rows than we started with. This is a problem, as we were expecting a 1:1 match for each row in `transactions`. Multiple matches in equality joins like this one are typically unexpected -- in fact, many people don't even know this is possible even though it is technically default SQL behavior -- so we've also added a new warning to alert you when this happens. If multiple matches are expected, explicitly set `multiple = "all"` to silence this warning. If multiple matches *aren't* expected, you can also set `multiple = "error"` to immediately halt the analysis. We expect this will be useful as a quality control check for production code where you might rerun analyses with new data on a rolling basis.
+Company `A` matches correctly, but since we only joined on the company id, we get *multiple matches* for each of company `B`'s transactions and end up with more rows than we started with. This is a problem, as we were expecting a 1:1 match for each row in `transactions`. Multiple matches in equality joins like this one are typically unexpected -- in fact, many people don't even know this is possible even though it is technically default SQL behavior -- so we've also added a new warning to alert you when this happens. If multiple matches are expected, explicitly set `multiple = "all"` to silence this warning. This also serves as a code "sign post" for future readers of your code to let them know that this is a join that is expected to increase the number of rows in the data. If multiple matches *aren't* expected, you can also set `multiple = "error"` to immediately halt the analysis. We expect this will be useful as a quality control check for production code where you might rerun analyses with new data on a rolling basis.
 
 To actually fix this issue, we'll need to expand our join specification to include another condition. Let's zoom in to just 2021:
 
@@ -196,18 +180,18 @@ To actually fix this issue, we'll need to expand our join specification to inclu
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 5</span></span></span>
 <span><span class='c'>#&gt;   company  year revenue since name   </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>010 RStudio</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>009 RStudio</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>022 Posit</span></span>
 <span></span></code></pre>
 
 </div>
 
-In this case, we wanted a match with RStudio, but not with Posit (because the name hasn't changed yet). One way to express this is by using the `year` and `since` columns to state that you only want a match if the transaction `year` occurred *after* a name change:
+We want to retain the match with RStudio, but not with Posit (because the name hasn't changed yet). One way to express this is by using the `year` and `since` columns to state that you only want a match if the transaction `year` occurred *after* a name change:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># `year[i] &gt;= since`?</span></span>
-<span><span class='m'>2021</span> <span class='o'>&gt;=</span> <span class='m'>2010</span></span>
+<span><span class='m'>2021</span> <span class='o'>&gt;=</span> <span class='m'>2009</span></span>
 <span><span class='c'>#&gt; [1] TRUE</span></span>
 <span></span><span><span class='m'>2021</span> <span class='o'>&gt;=</span> <span class='m'>2022</span></span>
 <span><span class='c'>#&gt; [1] FALSE</span></span>
@@ -215,7 +199,7 @@ In this case, we wanted a match with RStudio, but not with Posit (because the na
 
 </div>
 
-These expressions return results that correspond with the matches we actually want for 2021. With [`join_by()`](https://rdrr.io/pkg/dplyr/man/join_by.html), we can now express this inequality directly inside the join specification:
+Because [`join_by()`](https://rdrr.io/pkg/dplyr/man/join_by.html) accepts expressions, we can express this inequality directly inside the join specification:
 
 <div class="highlight">
 
@@ -234,10 +218,10 @@ These expressions return results that correspond with the matches we actually wa
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 5</span></span></span>
 <span><span class='c'>#&gt;   company  year revenue since name     </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A        <span style='text-decoration: underline;'>2</span>019      50  <span style='text-decoration: underline;'>1</span>976 Patagonia</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> A        <span style='text-decoration: underline;'>2</span>020       4  <span style='text-decoration: underline;'>1</span>976 Patagonia</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>010 RStudio  </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> B        <span style='text-decoration: underline;'>2</span>023      12  <span style='text-decoration: underline;'>2</span>010 RStudio  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A        <span style='text-decoration: underline;'>2</span>019      50  <span style='text-decoration: underline;'>1</span>973 Patagonia</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> A        <span style='text-decoration: underline;'>2</span>020       4  <span style='text-decoration: underline;'>1</span>973 Patagonia</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>009 RStudio  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> B        <span style='text-decoration: underline;'>2</span>023      12  <span style='text-decoration: underline;'>2</span>009 RStudio  </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>5</span> B        <span style='text-decoration: underline;'>2</span>023      12  <span style='text-decoration: underline;'>2</span>022 Posit</span></span>
 <span></span></code></pre>
 
@@ -245,12 +229,12 @@ These expressions return results that correspond with the matches we actually wa
 
 This eliminated the 2021 match to Posit, as expected! This type of join is known as an *inequality join*, i.e. it involves at least one join expression containing one of the following inequality conditions: `>=`, `>`, `<=`, or `<`.
 
-However, we still have 2 matches corresponding to the 2023 year. In this case we only wanted the match to Posit. The current result does make sense if we try to run the same row-by-row analysis as before:
+However, we still have 2 matches corresponding to the 2023 year. In this case, we only wanted the match to Posit. We can understand why we are still getting multiple matches here by running the same row-by-row analysis as before:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># `year[i] &gt;= since`? Both are true!</span></span>
-<span><span class='m'>2023</span> <span class='o'>&gt;=</span> <span class='m'>2010</span></span>
+<span><span class='m'>2023</span> <span class='o'>&gt;=</span> <span class='m'>2009</span></span>
 <span><span class='c'>#&gt; [1] TRUE</span></span>
 <span></span><span><span class='m'>2023</span> <span class='o'>&gt;=</span> <span class='m'>2022</span></span>
 <span><span class='c'>#&gt; [1] TRUE</span></span>
@@ -262,9 +246,23 @@ To remove the last problematic match of the 2023 transaction to the RStudio name
 
 ## Rolling joins
 
-Inequality conditions like `year >= since` are powerful, but since the condition is only bounded on one side it is common for them to return a large number of matches. Since multiple matches are the typical case with inequality joins, we don't get a warning like with the equality join, but we clearly still haven't gotten the join right.
+Inequality conditions like `year >= since` are powerful, but since the condition is only bounded on one side it is common for them to return a large number of matches. Since multiple matches are the typical case with inequality joins, we don't get a warning like with the equality join, but we clearly still haven't gotten the join right. As a reminder, here are where we still have too many matches:
 
-We need a way to filter down the matches returned from `year >= since` to only the most recent name change. In other words, we prefer the Posit match over the RStudio match because 2022 is *closer* to the transaction year of 2023 than 2010 is. We can express this in [`join_by()`](https://rdrr.io/pkg/dplyr/man/join_by.html) by using a helper named `closest()`.
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://rdrr.io/pkg/dplyr/man/mutate-joins.html'>inner_join</a></span><span class='o'>(</span><span class='nv'>companies</span>, <span class='nf'><a href='https://rdrr.io/pkg/dplyr/man/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>company</span> <span class='o'>==</span> <span class='nv'>id</span>, <span class='nv'>year</span> <span class='o'>&gt;=</span> <span class='nv'>since</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://rdrr.io/pkg/dplyr/man/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>company</span> <span class='o'>==</span> <span class='s'>"B"</span>, <span class='nv'>year</span> <span class='o'>==</span> <span class='m'>2023</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 5</span></span></span>
+<span><span class='c'>#&gt;   company  year revenue since name   </span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> B        <span style='text-decoration: underline;'>2</span>023      12  <span style='text-decoration: underline;'>2</span>009 RStudio</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> B        <span style='text-decoration: underline;'>2</span>023      12  <span style='text-decoration: underline;'>2</span>022 Posit</span></span>
+<span></span></code></pre>
+
+</div>
+
+We need a way to filter down the matches returned from `year >= since` to only the most recent name change. In other words, we prefer the Posit match over the RStudio match because 2022 is *closer* to the transaction year of 2023 than 2009 is. We can express this in [`join_by()`](https://rdrr.io/pkg/dplyr/man/join_by.html) by using a helper named `closest()`.
 
 <div class="highlight">
 
@@ -273,9 +271,9 @@ We need a way to filter down the matches returned from `year >= since` to only t
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 5</span></span></span>
 <span><span class='c'>#&gt;   company  year revenue since name     </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A        <span style='text-decoration: underline;'>2</span>019      50  <span style='text-decoration: underline;'>1</span>976 Patagonia</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> A        <span style='text-decoration: underline;'>2</span>020       4  <span style='text-decoration: underline;'>1</span>976 Patagonia</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>010 RStudio  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A        <span style='text-decoration: underline;'>2</span>019      50  <span style='text-decoration: underline;'>1</span>973 Patagonia</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> A        <span style='text-decoration: underline;'>2</span>020       4  <span style='text-decoration: underline;'>1</span>973 Patagonia</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>009 RStudio  </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>4</span> B        <span style='text-decoration: underline;'>2</span>023      12  <span style='text-decoration: underline;'>2</span>022 Posit</span></span>
 <span></span></code></pre>
 
@@ -289,7 +287,7 @@ I mentioned earlier that we expected a 1:1 match between `transactions` and `com
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transactions</span> <span class='o'>&lt;-</span> <span class='nv'>transactions</span> <span class='o'><a href='https://rdrr.io/pkg/magrittr/man/pipe.html'>%&gt;%</a></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>transactions</span> <span class='o'>&lt;-</span> <span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'>tibble</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/pkg/tibble/man/add_row.html'>add_row</a></span><span class='o'>(</span>company <span class='o'>=</span> <span class='s'>"C"</span>, year <span class='o'>=</span> <span class='m'>2023</span>, revenue <span class='o'>=</span> <span class='m'>15</span><span class='o'>)</span></span>
 <span></span>
 <span><span class='nv'>transactions</span></span>
@@ -315,9 +313,9 @@ I mentioned earlier that we expected a 1:1 match between `transactions` and `com
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 5</span></span></span>
 <span><span class='c'>#&gt;   company  year revenue since name     </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A        <span style='text-decoration: underline;'>2</span>019      50  <span style='text-decoration: underline;'>1</span>976 Patagonia</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> A        <span style='text-decoration: underline;'>2</span>020       4  <span style='text-decoration: underline;'>1</span>976 Patagonia</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>010 RStudio  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A        <span style='text-decoration: underline;'>2</span>019      50  <span style='text-decoration: underline;'>1</span>973 Patagonia</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> A        <span style='text-decoration: underline;'>2</span>020       4  <span style='text-decoration: underline;'>1</span>973 Patagonia</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>009 RStudio  </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>4</span> B        <span style='text-decoration: underline;'>2</span>023      12  <span style='text-decoration: underline;'>2</span>022 Posit</span></span>
 <span></span></code></pre>
 
@@ -353,9 +351,9 @@ If you've been questioning why I've been using an [`inner_join()`](https://rdrr.
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 5</span></span></span>
 <span><span class='c'>#&gt;   company  year revenue since name     </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A        <span style='text-decoration: underline;'>2</span>019      50  <span style='text-decoration: underline;'>1</span>976 Patagonia</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> A        <span style='text-decoration: underline;'>2</span>020       4  <span style='text-decoration: underline;'>1</span>976 Patagonia</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>010 RStudio  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A        <span style='text-decoration: underline;'>2</span>019      50  <span style='text-decoration: underline;'>1</span>973 Patagonia</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> A        <span style='text-decoration: underline;'>2</span>020       4  <span style='text-decoration: underline;'>1</span>973 Patagonia</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> B        <span style='text-decoration: underline;'>2</span>021      10  <span style='text-decoration: underline;'>2</span>009 RStudio  </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>4</span> B        <span style='text-decoration: underline;'>2</span>023      12  <span style='text-decoration: underline;'>2</span>022 Posit    </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>5</span> C        <span style='text-decoration: underline;'>2</span>023      15    <span style='color: #BB0000;'>NA</span> <span style='color: #BB0000;'>NA</span></span></span>
 <span></span></code></pre>
