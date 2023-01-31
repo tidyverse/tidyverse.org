@@ -8,23 +8,15 @@ description: >
     dplyr now supports an experimental per-operation grouping syntax through a new argument
     named `.by`. This serves as an alternative to `group_by()`.
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://www.pexels.com/photo/fruit-stand-375897/
+  author: Clem Onojeghuo
 categories: [package] 
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 9e2ded95ac1c7970
+rmd_hash: 3dc87e3095893e1f
 
 ---
-
-<!--
-TODO:
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
--->
 
 Today we are going to look at one of the major new features in [dplyr 1.1.0](https://dplyr.tidyverse.org/news/index.html#dplyr-110), per-operation grouping with `.by`/`by`. This is an exciting alternative to [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) that only applies grouping within a single dplyr verb.
 
