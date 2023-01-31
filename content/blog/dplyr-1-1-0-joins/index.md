@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 7460116e794a3df3
+rmd_hash: 59d6daca94a39f55
 
 ---
 
@@ -283,7 +283,7 @@ We need a way to filter down the matches returned from `year >= since` to only t
 
 `closest(year >= since)` finds all of the matches in `since` for a particular `year`, and then filters them down to only the closest match to that `year`. This is known as a *rolling join*, because in this case it *rolls* the most recent name change forward to match up with the transaction. Rolling joins were popularized by data.table, and are related to `ASOF` joins supported by some SQL flavors.
 
-There is a third new class of joins supported by [`join_by()`](https://dplyr.tidyverse.org/reference/join_by.html) that we won't discuss today known as *overlap joins*. These are particularly useful in time series where you are looking for cases where a date or range of dates from one table *overlaps* a range of dates in another table. There are three helpers for overlap joins: [`between()`](https://dplyr.tidyverse.org/reference/between.html), `overlaps()`, and [`within()`](https://rdrr.io/r/base/with.html), which you can read more about [in the documentation](https://dplyr.tidyverse.org/reference/join_by.html#overlap-joins).
+There is a third new class of joins supported by [`join_by()`](https://dplyr.tidyverse.org/reference/join_by.html) that we won't discuss today known as *overlap joins*. These are particularly useful in time series where you are looking for cases where a date or range of dates from one table *overlaps* a range of dates in another table. There are three helpers for overlap joins: [`between()`](https://dplyr.tidyverse.org/reference/join_by.html#overlap-joins), [`overlaps()`](https://dplyr.tidyverse.org/reference/join_by.html#overlap-joins), and [`within()`](https://dplyr.tidyverse.org/reference/join_by.html#overlap-joins), which you can read more about [in the documentation](https://dplyr.tidyverse.org/reference/join_by.html#overlap-joins).
 
 ## Unmatched rows
 
