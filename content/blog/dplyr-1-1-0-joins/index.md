@@ -5,9 +5,9 @@ title: "dplyr 1.1.0: Joins"
 date: 2023-01-31
 author: Davis Vaughan
 description: >
-    In dplyr 1.1.0, joins have been greatly reworked, introducing: a new way to
-    specify join columns, various new types of joins, and two new quality
-    control arguments.
+    In dplyr 1.1.0, joins have been greatly reworked, including a new way to
+    specify join columns, support for inequality, rolling, and overlap joins, and two new
+    quality control arguments.
 photo:
   url: https://unsplash.com/photos/Cecb0_8Hx-o
   author: Duy Pham
@@ -15,11 +15,11 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 0b9bcb6ce2a59e18
+rmd_hash: 7460116e794a3df3
 
 ---
 
-[dplyr 1.1.0](https://dplyr.tidyverse.org/news/index.html#dplyr-110) is out now! This is post 1 of 4 detailing some of the new features in this release. In this post, we will discuss various new updates to dplyr's joins.
+[dplyr 1.1.0](https://dplyr.tidyverse.org/news/index.html#dplyr-110) is out now! This is a giant release, so we're splitting the release announcement up into four blog posts which we'll post over the course of this week. Today, we're focusing on joins, including the new [`join_by()`](https://dplyr.tidyverse.org/reference/join_by.html) syntax, new warnings for multiple matches, inequality joins, rolling joins, and new tools for handling unmatched rows. To learn more about joins, you might want to read the updated [joins chapter](https://r4ds.hadley.nz/joins.html) in the upcoming 2nd edition of [R for Data Science](https://r4ds.hadley.nz).
 
 You can install it from CRAN with:
 
@@ -86,7 +86,7 @@ To join these two tables together, we might use an inner join:
 
 </div>
 
-This works great, but has always felt a little clunky. Specifying `c(company = "id")` is a little unnatural for new users, especially if they are used to "equivalence" in R being expressed with `==`. We've improved on this with a new helper, [`join_by()`](https://dplyr.tidyverse.org/reference/join_by.html), which takes expressions in a way that allows you to more naturally express this join:
+This works great, but has always felt a little clunky. Specifying `c(company = "id")` is a little awkward because it uses `=`, not `==`: here we're asserting that we want `company` to equal `id`, not naming a function argument or performing assignment. We've improved on this with a new helper, [`join_by()`](https://dplyr.tidyverse.org/reference/join_by.html), which takes expressions in a way that allows you to more naturally express this join:
 
 <div class="highlight">
 
@@ -116,7 +116,7 @@ This *join specification* can be used as the `by` argument in any of the `*_join
 
 This small quality of life improvement is just one of the many new features that come with [`join_by()`](https://dplyr.tidyverse.org/reference/join_by.html). We'll look at more of these next.
 
-## Inequality joins
+## Multiple matches
 
 To make things a little more interesting, we'll add one more column to `companies`, and one more row:
 
@@ -170,7 +170,9 @@ How can we do this? We can try the same join from before, but we won't like the 
 
 </div>
 
-Company `A` matches correctly, but since we only joined on the company id, we get *multiple matches* for each of company `B`'s transactions and end up with more rows than we started with. This is a problem, as we were expecting a 1:1 match for each row in `transactions`. Multiple matches in equality joins like this one are typically unexpected -- in fact, many people don't even know this is possible even though it is technically default SQL behavior -- so we've also added a new warning to alert you when this happens. If multiple matches are expected, explicitly set `multiple = "all"` to silence this warning. This also serves as a code "sign post" for future readers of your code to let them know that this is a join that is expected to increase the number of rows in the data. If multiple matches *aren't* expected, you can also set `multiple = "error"` to immediately halt the analysis. We expect this will be useful as a quality control check for production code where you might rerun analyses with new data on a rolling basis.
+Company `A` matches correctly, but since we only joined on the company id, we get *multiple matches* for each of company `B`'s transactions and end up with more rows than we started with. This is a problem, as we were expecting a 1:1 match for each row in `transactions`. Multiple matches in equality joins like this one are typically unexpected (even though they are baked in to SQL) so we've also added a new warning to alert you when this happens. If multiple matches are expected, you can explicitly set `multiple = "all"` to silence this warning. This also serves as a code "sign post" for future readers of your code to let them know that this is a join that is expected to increase the number of rows in the data. If multiple matches *aren't* expected, you can also set `multiple = "error"` to immediately halt the analysis. We expect this will be useful as a quality control check for production code where you might rerun analyses with new data on a rolling basis.
+
+## Inequality joins
 
 To actually fix this issue, we'll need to expand our join specification to include another condition. Let's zoom in to just 2021:
 
@@ -281,7 +283,9 @@ We need a way to filter down the matches returned from `year >= since` to only t
 
 `closest(year >= since)` finds all of the matches in `since` for a particular `year`, and then filters them down to only the closest match to that `year`. This is known as a *rolling join*, because in this case it *rolls* the most recent name change forward to match up with the transaction. Rolling joins were popularized by data.table, and are related to `ASOF` joins supported by some SQL flavors.
 
-## `unmatched` rows
+There is a third new class of joins supported by [`join_by()`](https://dplyr.tidyverse.org/reference/join_by.html) that we won't discuss today known as *overlap joins*. These are particularly useful in time series where you are looking for cases where a date or range of dates from one table *overlaps* a range of dates in another table. There are three helpers for overlap joins: [`between()`](https://dplyr.tidyverse.org/reference/between.html), `overlaps()`, and [`within()`](https://rdrr.io/r/base/with.html), which you can read more about [in the documentation](https://dplyr.tidyverse.org/reference/join_by.html#overlap-joins).
+
+## Unmatched rows
 
 I mentioned earlier that we expected a 1:1 match between `transactions` and `companies`. We saw that `multiple` can help protect us from having too many matches, but what about not having enough? Consider what happens if we add a new company to `transactions` without a corresponding match in `companies`.
 
