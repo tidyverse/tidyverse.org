@@ -5,8 +5,9 @@ title: "dplyr 1.1.0: Per-operation grouping"
 date: 2023-02-01
 author: Davis Vaughan
 description: >
-    dplyr now supports an experimental per-operation grouping syntax through a new argument
-    named `.by`. This serves as an alternative to `group_by()`.
+    dplyr now supports an experimental per-operation grouping syntax. This serves as an
+    alternative to `group_by()` and always returns an ungrouped data frame, meaning that you
+    never need to remember to `ungroup()`.
 photo:
   url: https://www.pexels.com/photo/fruit-stand-375897/
   author: Clem Onojeghuo
@@ -14,11 +15,11 @@ categories: [package]
 tags: [dplyr]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 05504f7ab41dd907
+rmd_hash: 57ea80ae35db61ce
 
 ---
 
-Today we are going to look at one of the major new features in [dplyr 1.1.0](https://dplyr.tidyverse.org/news/index.html#dplyr-110), per-operation grouping with `.by`/`by`. This is an exciting alternative to [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) that only applies grouping within a single dplyr verb.
+Today we are going to look at one of the major new features in [dplyr 1.1.0](https://dplyr.tidyverse.org/news/index.html#dplyr-110), per-operation grouping with [`.by`/`by`](https://dplyr.tidyverse.org/reference/dplyr_by.html). Per-operation grouping is an experimental alternative to [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) which is only active within a single dplyr verb.
 
 You can install it from CRAN with:
 
@@ -36,7 +37,7 @@ You can install it from CRAN with:
 
 ## Persistent grouping with `group_by()`
 
-In dplyr, grouping radically affects the computation of the verb that you use it with. Since the very beginning of dplyr, you've been able to perform grouped operations with [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html). This grouping is *persistent*, meaning that it typically sticks around in some form for more than one operation. For example, this `transactions` dataset tracks revenue brought in from various transactions across multiple companies. If we wanted to add a column for the total yearly revenue per company, we might do:
+In dplyr, grouping radically affects the computation of the verb that you use it with. Since the very beginning of dplyr, you've been able to perform grouped operations by modifying your data frame with [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html). This grouping is *persistent*, meaning that it typically sticks around in some form for more than one operation. As an example, take a look at this `transactions` dataset which tracks revenue brought in from various transactions across multiple companies. If we wanted to add a column for the total yearly revenue per company, we might do:
 
 <div class="highlight">
 
@@ -79,9 +80,9 @@ In dplyr, grouping radically affects the computation of the verb that you use it
 
 </div>
 
-Notice that the result is still grouped by both `company` and `year`. This is sometimes useful if you need to compute additional grouped results (with the exact same grouping columns) in a follow up operation, but often many people follow this [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) with an [`ungroup()`](https://dplyr.tidyverse.org/reference/group_by.html).
+Notice that the result is still grouped by both `company` and `year`. This is useful if you need to follow up with additional grouped operations (with the exact same grouping columns), but many people follow this [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) with an [`ungroup()`](https://dplyr.tidyverse.org/reference/group_by.html).
 
-Similarly, if we just wanted the total revenue in a summary table, we would have used [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), which peels off 1 layer of grouping by default:
+If we only need the totals, we could also use [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), which peels off 1 layer of grouping by default:
 
 <div class="highlight">
 
@@ -102,9 +103,11 @@ Similarly, if we just wanted the total revenue in a summary table, we would have
 
 </div>
 
+Here the grouping of the output isn't exactly the same as the input, but we still consider this persistent grouping because some of the groups outlive the verb they were used with.
+
 ## Per-operation grouping with `.by`/`by`
 
-In dplyr 1.1.0, we've introduced an alternative to [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) known as `.by` that allow for *per-operation* grouping instead:
+In dplyr 1.1.0, we've added an alternative to [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) known as [`.by`](https://dplyr.tidyverse.org/reference/dplyr_by.html) that introduces the idea of *per-operation* grouping:
 
 <div class="highlight">
 
@@ -135,11 +138,13 @@ In dplyr 1.1.0, we've introduced an alternative to [`group_by()`](https://dplyr.
 
 There are a few things about `.by` worth noting:
 
--   The result is always ungrouped. With `.by`, you never need to remember to call [`ungroup()`](https://dplyr.tidyverse.org/reference/group_by.html).
+-   The result is always ungrouped, regardless of the number of grouping columns. With `.by`, you never need to remember to call [`ungroup()`](https://dplyr.tidyverse.org/reference/group_by.html).
 
--   We use tidy-select to group by multiple columns.
+-   We used tidy-select to group by multiple columns.
 
-One of the things we like about `.by` is that it allows you to place the grouping specification alongside the code that actually uses it, rather than in a separate [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) line. This idea was actually inspired by data.table's grouping syntax, which looks like:
+-   [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) didn't emit a message about regrouping.
+
+One of the things we like about `.by` is that it allows you to place the grouping specification alongside the code that uses it, rather than in a separate [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) line. This idea was inspired by data.table's grouping syntax, which looks like:
 
 <div class="highlight">
 
@@ -147,9 +152,11 @@ One of the things we like about `.by` is that it allows you to place the groupin
 
 </div>
 
+To see a complete list of dplyr verbs that support `.by`, look [here](https://dplyr.tidyverse.org/reference/dplyr_by.html#supported-verbs).
+
 ### `.by` or `by`?
 
-As you begin to use per-operation grouping in dplyr, you'll likely notice that some verbs use `.by` and others use `by`, for example:
+As you use per-operation grouping in dplyr, you'll likely notice that some verbs use `.by` and others use `by`, for example:
 
 <div class="highlight">
 
@@ -166,7 +173,7 @@ As you begin to use per-operation grouping in dplyr, you'll likely notice that s
 
 </div>
 
-This is purely a technical difference resulting from the fact that some verbs consistently use a `.` prefix for their arguments, and others don't. Most dplyr verbs use `.by`, and we've tried to ensure that the cases that are most likely to result in typos instead generate an informative error:
+This is a technical difference resulting from the fact that some verbs consistently use a `.` prefix for their arguments, and others don't (see our design notes on the [dot prefix](https://design.tidyverse.org/dots-prefix.html) for more details). Most dplyr verbs use `.by`, and we've tried to ensure that the cases that are most likely to result in typos instead generate an informative error:
 
 <div class="highlight">
 
@@ -189,17 +196,17 @@ This is purely a technical difference resulting from the fact that some verbs co
 
 ### Translating from `group_by()`
 
-You shouldn't feel pressured to translate existing code using [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) to use `.by` instead. [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) definitely won't ever disappear, and is not currently being superseded.
+You shouldn't feel pressured to translate existing code using [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) to use `.by` instead. [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) won't ever disappear, and is not currently being superseded.
 
 That said, if you do want to start using `.by`, there are a few differences from [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) to be aware of.
 
--   `.by` always returns an ungrouped data frame. This is one of the main reasons to use `.by`, but is worth keeping in mind if you have existing code that takes advantage of the persistent grouping from [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html).
+-   `.by` always returns an ungrouped data frame. This is one of the main reasons to use `.by`, but is worth keeping in mind if you have existing code that takes advantage of persistent grouping from [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html).
 
 -   `.by` uses tidy-selection. [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html), on the other hand, works more like [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) in that it allows you to create grouping columns on the fly, i.e. `df |> group_by(month = floor_date(date, "month"))`. With `.by`, you must create your grouping columns ahead of time. An added benefit of `.by`'s usage of tidy-selection is that you can supply an external character vector of grouping variables using `.by = all_of(groups_vec)`.
 
 -   `.by` doesn't sort grouping keys. [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) always sorts keys in ascending order, which affects the results of verbs like [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html).
 
-The last point might seem strange, but consider what would happen if we preferred our transactions data in order by descending year.
+The last point might seem strange, but consider what happens if we preferred our transactions data in order by descending year so that the most recent transactions are at the top.
 
 <div class="highlight">
 
@@ -249,6 +256,8 @@ The last point might seem strange, but consider what would happen if we preferre
 </div>
 
 Notice that `.by` doesn't re-sort the grouping keys. Instead, the previous call to [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) is "respected" in the summary (this is also useful in combination with the new `.locale` argument to [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html)).
+
+We expect that most code won't depend on the ordering of these group keys, but it is worth keeping in mind if you are switching to `.by`. If you did rely on sorted group keys, you'll need to explicitly call [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) either before or after the call to `summarise(.by =)`.
 
 ## `nest(.by = )`
 
