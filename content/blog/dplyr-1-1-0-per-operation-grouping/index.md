@@ -12,14 +12,16 @@ photo:
   url: https://www.pexels.com/photo/fruit-stand-375897/
   author: Clem Onojeghuo
 categories: [package] 
-tags: [dplyr]
+tags: [dplyr, dplyr-1-1-0]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 57ea80ae35db61ce
+rmd_hash: 1171e52abb20bf0f
 
 ---
 
-Today we are going to look at one of the major new features in [dplyr 1.1.0](https://dplyr.tidyverse.org/news/index.html#dplyr-110), per-operation grouping with [`.by`/`by`](https://dplyr.tidyverse.org/reference/dplyr_by.html). Per-operation grouping is an experimental alternative to [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) which is only active within a single dplyr verb.
+Today we are going to look at one of the major new features in [dplyr 1.1.0](https://dplyr.tidyverse.org/news/index.html#dplyr-110), per-operation grouping with [`.by`/`by`](https://dplyr.tidyverse.org/reference/dplyr_by.html). Per-operation grouping is an experimental alternative to [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) which is only active within a single dplyr verb. This is another of the new dplyr features that was inspired by [data.table](https://cran.r-project.org/web/packages/data.table/index.html), this time by their own grouping syntax with `by`.
+
+To see the other blog posts in this series, head [here](https://www.tidyverse.org/tags/dplyr-1-1-0/).
 
 You can install it from CRAN with:
 
@@ -140,7 +142,7 @@ There are a few things about `.by` worth noting:
 
 -   The result is always ungrouped, regardless of the number of grouping columns. With `.by`, you never need to remember to call [`ungroup()`](https://dplyr.tidyverse.org/reference/group_by.html).
 
--   We used tidy-select to group by multiple columns.
+-   We used [tidyselect](https://tidyselect.r-lib.org/reference/language.html) to group by multiple columns.
 
 -   [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) didn't emit a message about regrouping.
 
@@ -257,7 +259,7 @@ The last point might seem strange, but consider what happens if we preferred our
 
 Notice that `.by` doesn't re-sort the grouping keys. Instead, the previous call to [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) is "respected" in the summary (this is also useful in combination with the new `.locale` argument to [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html)).
 
-We expect that most code won't depend on the ordering of these group keys, but it is worth keeping in mind if you are switching to `.by`. If you did rely on sorted group keys, you'll need to explicitly call [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) either before or after the call to `summarise(.by =)`.
+We expect that most code won't depend on the ordering of these group keys, but it is worth keeping in mind if you are switching to `.by`. If you did rely on sorted group keys, you currently need to explicitly call [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) either before or after the call to `summarise(.by =)`. In a future release, we may add [an argument](https://github.com/tidyverse/dplyr/issues/6663) to control this.
 
 ## `nest(.by = )`
 
