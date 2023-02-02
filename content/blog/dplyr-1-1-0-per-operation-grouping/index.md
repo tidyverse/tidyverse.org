@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr, dplyr-1-1-0]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 1171e52abb20bf0f
+rmd_hash: 0967513ea02a4d31
 
 ---
 
@@ -284,7 +284,7 @@ The idea behind `.by` turns out to be useful in contexts outside of dplyr. In [t
 <span></span><span></span>
 <span><span class='c'># Specify what to nest</span></span>
 <span><span class='nv'>transactions</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/nest.html'>nest</a></span><span class='o'>(</span>data <span class='o'>=</span> <span class='o'>-</span><span class='nv'>company</span><span class='o'>)</span></span>
+<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/nest.html'>nest</a></span><span class='o'>(</span>data <span class='o'>=</span> <span class='o'>!</span><span class='nv'>company</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   company data            </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          </span></span>
