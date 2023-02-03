@@ -1,0 +1,198 @@
+---
+output: hugodown::hugo_document
+slug: dplyr-1-1-0-vctrs
+title: "dplyr 1.1.0: The power of vctrs"
+date: 2023-02-02
+author: Davis Vaughan
+description: >
+    All of the dplyr vector functions, like `between()` and `case_when()`, are now powered by
+    vctrs. We've also added two powerful new helpers: `case_match()` and `consecutive_id()`.
+photo:
+  url: https://unsplash.com/photos/n6vS3xlnsCc
+  author: Armand Khoury
+categories: [package] 
+tags: [dplyr, dplyr-1-1-0]
+editor_options: 
+  chunk_output_type: console
+---
+
+Today's [dplyr 1.1.0](https://dplyr.tidyverse.org/news/index.html#dplyr-110) post is focused on various updates to vector functions, like `case_when()` and `between()`.
+If you missed our previous posts, you can also see the other [blog posts](https://www.tidyverse.org/tags/dplyr-1-1-0/) in this series.
+All of dplyr's vector functions are now backed by [vctrs](https://vctrs.r-lib.org/), which typically results in better error messages, better performance, and greater versatility.
+
+```{r, eval = FALSE}
+install.packages("dplyr")
+```
+
+```{r setup, warning=FALSE, message=FALSE}
+library(dplyr)
+```
+
+## `case_when()`
+
+If you've used `case_when()` before, you've probably written a statement like this:
+
+```{r}
+x <- c(1, 12, -5, 6, -2, NA, 0)
+```
+
+```{r, eval=FALSE}
+case_when(
+  x >= 10 ~ "large",
+  x >= 0 ~ "small",
+  x < 0 ~ NA
+)
+#> Error: `NA` must be <character>, not <logical>.
+```
+
+Like me, you've probably forgotten that `case_when()` has historically been strict about the types on the right-hand side of the `~`, which means that I needed to use `NA_character_` here instead of `NA`.
+Luckily, the switch to vctrs means that the above code now "just works":
+
+```{r}
+case_when(
+  x >= 10 ~ "large",
+  x >= 0 ~ "small",
+  x < 0 ~ NA
+)
+```
+
+You've probably also written a statement like this:
+
+```{r}
+case_when(
+  x >= 10 ~ "large",
+  x >= 0 ~ "small",
+  is.na(x) ~ "missing",
+  TRUE ~ "other"
+)
+```
+
+In this case, we have a fall-through "default" captured by `TRUE ~`.
+This has always felt a little awkward and is fairly difficult to explain to new R users.
+To make this clearer, we've added an explicit `.default` argument that we encourage you to use instead:
+
+```{r}
+case_when(
+  x >= 10 ~ "large",
+  x >= 0 ~ "small",
+  is.na(x) ~ "missing",
+  .default = "other"
+)
+```
+
+`.default` will always be processed last, regardless of where you put it in the call to `case_when()`, so we recommend placing it at the very end.
+
+We haven't started any formal deprecation process for `TRUE ~` yet, but now that there is a better solution available we encourage you to switch over.
+We do plan to deprecate this feature in the future because it involves some slightly problematic recycling rules (but we wouldn't even begin this process for at least a year).
+
+## `case_match()`
+
+Another type of `case_when()` statement you've probably written is some kind of value remapping like:
+
+```{r}
+x <- c("USA", "Canada", "Wales", "UK", "China", NA, "Mexico", "Russia")
+
+case_when(
+  x %in% c("USA", "Canada", "Mexico") ~ "North America",
+  x %in% c("Wales", "UK") ~ "Europe",
+  x %in% "China" ~ "Asia"
+)
+```
+
+Remapping values in this way is so common that SQL gives it its own name - the "simple" case statement.
+To streamline this further, we've taken out some of the repetition involved with `x %in%` by introducing `case_match()`, a variant of `case_when()` that allows you to specify one or more *values* on the left-hand side of the `~`, rather than logical vectors.
+
+```{r}
+case_match(
+  x,
+  c("USA", "Canada", "Mexico") ~ "North America",
+  c("France", "UK") ~ "Europe",
+  "China" ~ "Asia"
+)
+```
+
+I think that `case_match()` is particularly neat because it can be wrapped into an ad-hoc replacement helper if you just need to collapse or replace a few problematic values in a vector, while leaving everything else unchanged:
+
+```{r}
+replace_match <- function(x, ...) {
+  case_match(x, ..., .default = x, .ptype = x)
+}
+
+replace_match(
+  x, 
+  "USA" ~ "United States", 
+  c("UK", "Wales") ~ "United Kingdom",
+  NA ~ "[Missing]"
+)
+```
+
+## `consecutive_id()`
+
+At Posit, we have regular company update meetings.
+Since we are all remote, these meetings are over Zoom.
+Zoom has a neat feature where it can record the transcript of your call, and it will report who was speaking and what they said.
+It looks something like this:
+
+```{r}
+transcript <- tribble(
+  ~name, ~text,
+  "Hadley", "I'll never learn Python.",
+  "Davis", "But aren't you speaking at PyCon?",
+  "Hadley", "So?",
+  "Hadley", "That doesn't influence my decision.",
+  "Hadley", "I'm not budging!",
+  "Mara", "Typical, Hadley. Stubborn as always.",
+  "Davis", "Fair enough!",
+  "Davis", "Let's move on."
+)
+
+transcript
+```
+
+We were working with this data and wanted a way to collapse each continuous thought down to one line.
+For example, rows 3-5 all contain a single idea from Hadley, so we'd like those to be collapsed into a single line.
+This isn't quite as straightforward as a simple group-by-`name` and `summarise()`:
+
+```{r}
+transcript |>
+  summarise(text = stringr::str_flatten(text, collapse = " "), .by = name)
+```
+
+This isn't quite right because it collapsed the first row where Hadley says "I'll never learn Python" alongside rows 3-5.
+We need a way to identify consecutive *runs* representing when a single person is speaking, which is exactly what `consecutive_id()` is for!
+
+```{r}
+transcript |>
+  mutate(id = consecutive_id(name))
+```
+
+`consecutive_id()` takes one or more columns and generates an integer vector that increments every time a value in one of those columns changes.
+This gives us something we can group on to correctly flatten our `text`.
+
+```{r}
+transcript |>
+  mutate(id = consecutive_id(name)) |>
+  summarise(text = stringr::str_flatten(text, collapse = " "), .by = c(id, name))
+```
+
+Grouping by `id` alone is actually enough, but I've also grouped by `name` for a convenient way to drag the name along into the summary table.
+
+`consecutive_id()` is inspired by [`data.table::rleid()`](https://rdatatable.gitlab.io/data.table/reference/rleid.html), which serves a similar purpose.
+
+## Miscellaneous updates
+
+-   `between()` is no longer restricted to length 1 `left` and `right` boundaries.
+    They are now allowed to be length 1 or the same length as `x`.
+    Additionally, `between()` now works with any type supported by vctrs, rather than just with numerics and date-times.
+
+-   `if_else()` has received the same updates as `case_when()`.
+    In particular, it is no longer as strict about typed missing values.
+
+-   The ranking functions, like `dense_rank()`, now allow data frame inputs as a way to rank by multiple columns at once.
+
+-   `first()`, `last()`, and `nth()` have all gained an `na_rm` argument since they are summary functions.
+
+-   `na_if()` now casts `y` to the type of `x` to make it clear that it is type stable on `x`.
+    In particular, this means you can no longer do `na_if(<tbl>, 0)`, which previously accidentally allowed you to attempt to replace missing values in every column with `0`.
+    This function has always been intended as a vector function, and this is considered off-label usage.
+    It also now replaces `NaN` values in double and complex vectors.
