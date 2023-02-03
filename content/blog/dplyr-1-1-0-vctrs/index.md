@@ -14,13 +14,11 @@ categories: [package]
 tags: [dplyr, dplyr-1-1-0]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 6ecd87faf47ecc28
+rmd_hash: 2fa9c7c2be5db2e5
 
 ---
 
-Today's [dplyr 1.1.0](https://dplyr.tidyverse.org/news/index.html#dplyr-110) post is focused on various updates to vector functions, like [`case_when()`](https://dplyr.tidyverse.org/reference/case_when.html) and [`between()`](https://dplyr.tidyverse.org/reference/between.html). All of dplyr's vector functions are now backed by [vctrs](https://vctrs.r-lib.org/), which typically results in better error messages, better performance, and greater versatility.
-
-To see the other blog posts in this series, head [here](https://www.tidyverse.org/tags/dplyr-1-1-0/).
+Today's [dplyr 1.1.0](https://dplyr.tidyverse.org/news/index.html#dplyr-110) post is focused on various updates to vector functions, like [`case_when()`](https://dplyr.tidyverse.org/reference/case_when.html) and [`between()`](https://dplyr.tidyverse.org/reference/between.html). If you missed our previous posts, you can also see the other [blog posts](https://www.tidyverse.org/tags/dplyr-1-1-0/) in this series. All of dplyr's vector functions are now backed by [vctrs](https://vctrs.r-lib.org/), which typically results in better error messages, better performance, and greater versatility.
 
 <div class="highlight">
 
@@ -55,7 +53,7 @@ If you've used [`case_when()`](https://dplyr.tidyverse.org/reference/case_when.h
 
 </div>
 
-Like me, you've probably forgotten that [`case_when()`](https://dplyr.tidyverse.org/reference/case_when.html) has historically been strict about the types on the right-hand side of the `~`, which means that I needed to use `NA_character_` here instead of `NA`. Luckily, the switch to vctrs means that the above code "just works" now:
+Like me, you've probably forgotten that [`case_when()`](https://dplyr.tidyverse.org/reference/case_when.html) has historically been strict about the types on the right-hand side of the `~`, which means that I needed to use `NA_character_` here instead of `NA`. Luckily, the switch to vctrs means that the above code now "just works":
 
 <div class="highlight">
 
