@@ -12,10 +12,10 @@ photo:
   url: https://unsplash.com/photos/aId-xYRTlEc
   author: Markus Winkler
 categories: [package] 
-tags: [dplyr]
+tags: [dplyr, dplyr-1-1-0]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 20ca6b76de32eceb
+rmd_hash: 8285893513da160d
 
 ---
 
@@ -513,7 +513,7 @@ In this case, row 1 of `df1` matched both rows `1` and `3` of `df2`, so the outp
 
 For those keeping score, that is a 100x improvement! Now, I'll be honest, I'm being a bit tricky here. The new backend for [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) comes with a meaningful change in behavior - it now sorts character strings in the C locale by default, rather than in the much slower system locale (American English, for me). We made this change for two main reasons:
 
--   Much faster performance by default
+-   Much faster performance by default, because it can use {vctrs} radix sort (inspired by data.table)
 
 -   Improved reproducibility across R sessions, where different computers might use different system locales
 
