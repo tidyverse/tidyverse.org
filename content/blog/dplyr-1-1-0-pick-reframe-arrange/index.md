@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: dplyr-1-1-0-pick-reframe-arrange
 title: "dplyr 1.1.0: `pick()`, `reframe()`, and `arrange()`"
-date: 2023-02-06
+date: 2023-02-07
 author: Davis Vaughan
 description: >
     This final post contains a grab-bag of new features, including: `pick()` for column
@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr, dplyr-1-1-0]
 editor_options: 
   chunk_output_type: console
-rmd_hash: c0e2737c997cf0e8
+rmd_hash: b7a0116b40fbb542
 
 ---
 
