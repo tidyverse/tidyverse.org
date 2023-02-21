@@ -2,34 +2,34 @@
 output: hugodown::hugo_document
 
 slug: dtplyr-1-3-0
-title: dtplyr 1 3 0
+title: dtplyr 1.3.0
 date: 2023-02-21
 author: Hadley Wickham
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    dtplyr brings initial support for dplyr 1.1.0 features, new translations, 
+    and a breaking change.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/uwI8R_FyLrI
+  author: Neil Cooper
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr, dtplyr]
-rmd_hash: 0ec88a8c8a639295
+rmd_hash: 9d8dd88bef34a707
 
 ---
 
 <!--
 TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
@@ -105,4 +105,6 @@ This release also includes three translation improvements that yield improved pe
 -   [`slice()`](https://dplyr.tidyverse.org/reference/slice.html) uses an intermediate variable to reduce computation time of row selection.
 
 ## Acknowledgements
+
+A massive thanks to [Mark Fairbanks](https://github.com/markfairbanks) who did most of the work for this releases, ably aided by the other dplyr maintainers [@eutwt](https://github.com/eutwt) and [Maximilian Girlich](https://github.com/mgirlich). And thanks to everyone else who helped make this release possible, whether it was with code, documentation, or insightful comments: [@abalter](https://github.com/abalter), [@akaviaLab](https://github.com/akaviaLab), [@camnesia](https://github.com/camnesia), [@caparks2](https://github.com/caparks2), [@DavisVaughan](https://github.com/DavisVaughan), [@eipi10](https://github.com/eipi10), [@hadley](https://github.com/hadley), [@jmbarbone](https://github.com/jmbarbone), [@johnF-moore](https://github.com/johnF-moore), [@lschneiderbauer](https://github.com/lschneiderbauer), and [@NicChr](https://github.com/NicChr).
 
