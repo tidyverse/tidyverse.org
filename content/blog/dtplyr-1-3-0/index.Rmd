@@ -50,7 +50,7 @@ library(dplyr, warn.conflicts = FALSE)
 
 ## Breaking changes
 
-In previous versions, dtplyr automatically registered translations whenever you used a data.table. This [caused problems](https://github.com/tidyverse/dtplyr/issues/312) because merely loading dtplyr could cause otherwise ok code to fail because dplyr and tidyr functions would now return `lazy_dt` objects instead of `data.table` objects. To avoid this problem, we have removed those S3 methods, so to take advantage of dtplyr's translations, you now must explicitly opt-in by using `lazy_dt()`.
+In previous versions, dtplyr automatically registered translations whenever you used a data.table. This [caused problems](https://github.com/tidyverse/dtplyr/issues/312) because merely loading dtplyr could cause otherwise ok code to fail because dplyr and tidyr functions would now return `lazy_dt` objects instead of `data.table` objects. To avoid this problem, we have removed those S3 methods. So, to take advantage of dtplyr's translations, you now must explicitly opt-in by using `lazy_dt()`.
 
 ## dplyr 1.1.0
 
@@ -68,7 +68,7 @@ dt |>
   show_query()
 ```
 
-Per-operation grouping was one of the dplyr 1.1.0 features inspired by data.table, so it's neat to see it come full circle in this dtplyr release. Future releases will add support for other dplyr 1.1.0 features like the new `join_by()` syntax and `reframe()`.
+Per-operation grouping was one of the dplyr 1.1.0 features inspired by data.table, so it's neat to see it come full circle in this dtplyr release. Future releases will add support for other dplyr 1.1.0 features like the new [`join_by()`](https://www.tidyverse.org/blog/2023/01/dplyr-1-1-0-joins/#join_by) syntax and [`reframe()`](https://www.tidyverse.org/blog/2023/02/dplyr-1-1-0-pick-reframe-arrange/#reframe).
 
 ## Improved translations
 
@@ -80,7 +80,7 @@ dt |> mutate(r = min_rank(x)) |> show_query()
 dt |> mutate(r = dense_rank(x)) |> show_query()
 ```
 
-This release also includes three translation improvements that yield improved performance:
+This release also includes three translation improvements that yield better performance:
 
 * Where possible, `arrange()` will use `setorder()` instead of `order()`.
 
