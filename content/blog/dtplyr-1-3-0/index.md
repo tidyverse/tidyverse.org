@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr, dtplyr]
-rmd_hash: 9d8dd88bef34a707
+rmd_hash: 73b0cf91886140e4
 
 ---
 
@@ -30,7 +30,7 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 We're thrilled to announce the release of [dtplyr](https://dtplyr.tidyverse.org) 1.3.0. dtplyr gives you the speed of [data.table](http://r-datatable.com/) with the syntax of dplyr; you write dplyr (and tidyr) code and dtplyr translates it to the data.table equivalent.
