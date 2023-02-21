@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr, dtplyr]
-rmd_hash: 73b0cf91886140e4
+rmd_hash: b76be215815ba741
 
 ---
 
@@ -43,9 +43,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will give you an overview of the changes in this version: dtplyr no longer adds translations directly to data.tables, some dplyr 1.1.0 updates, and some performance improvements.
-
-You can see a full list of changes in the [release notes](https://github.com/tidyverse/dtplyr/releases/tag/v1.3.0)
+This blog post will give you an overview of the changes in this version: dtplyr no longer adds translations directly to data.tables, some dplyr 1.1.0 updates, and some performance improvements. As always, you can see a full list of changes in the [release notes](https://github.com/tidyverse/dtplyr/releases/tag/v1.3.0)
 
 <div class="highlight">
 
@@ -56,7 +54,7 @@ You can see a full list of changes in the [release notes](https://github.com/tid
 
 ## Breaking changes
 
-In previous versions, dtplyr automatically registered translations whenever you used a data.table. This [caused problems](https://github.com/tidyverse/dtplyr/issues/312) because merely loading dtplyr could cause otherwise ok code to fail because dplyr and tidyr functions would now return `lazy_dt` objects instead of `data.table` objects. To avoid this problem, we have removed those S3 methods, so to take advantage of dtplyr's translations, you now must explicitly opt-in by using [`lazy_dt()`](https://dtplyr.tidyverse.org/reference/lazy_dt.html).
+In previous versions, dtplyr registered translations that kicked in whenever you used a data.table. This [caused problems](https://github.com/tidyverse/dtplyr/issues/312) because merely loading dtplyr could cause otherwise ok code to fail because dplyr and tidyr functions would now return `lazy_dt` objects instead of `data.table` objects. To avoid this problem, we have removed those S3 methods and now must explicitly opt-in to dtplyr translations by using [`lazy_dt()`](https://dtplyr.tidyverse.org/reference/lazy_dt.html).
 
 ## dplyr 1.1.0
 
@@ -79,7 +77,7 @@ This release brings support for dplyr 1.1.0's [per-operation grouping](https://w
 
 </div>
 
-Per-operation grouping was one of the dplyr 1.1.0 features inspired by data.table, so it's neat to see it come full circle in this dtplyr release. Future releases will add support for other dplyr 1.1.0 features like the new [`join_by()`](https://dplyr.tidyverse.org/reference/join_by.html) syntax and [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html).
+Per-operation grouping was one of the dplyr 1.1.0 features inspired by data.table, so it's neat to see it come full circle in this dtplyr release. Future releases will add support for other dplyr 1.1.0 features like the new [`join_by()`](https://www.tidyverse.org/blog/2023/01/dplyr-1-1-0-joins/#join_by) syntax and [`reframe()`](https://www.tidyverse.org/blog/2023/02/dplyr-1-1-0-pick-reframe-arrange/#reframe).
 
 ## Improved translations
 
@@ -87,7 +85,14 @@ dtplyr gains new translations for [`add_count()`](https://dplyr.tidyverse.org/re
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>dt</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>r <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/row_number.html'>min_rank</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>dt</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/count.html'>add_count</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; copy(`_DT2`)[, `:=`(n = .N)]</span></span>
+<span></span><span></span>
+<span><span class='nv'>dt</span> <span class='o'>|&gt;</span> <span class='nf'>tidyr</span><span class='nf'>::</span><span class='nf'><a href='https://tidyr.tidyverse.org/reference/unite.html'>unite</a></span><span class='o'>(</span><span class='s'>"z"</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>y</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; copy(`_DT2`)[, `:=`(z = paste(x, y, sep = "_"))][, `:=`(c("x", </span></span>
+<span><span class='c'>#&gt; "y"), NULL)]</span></span>
+<span></span><span></span>
+<span><span class='nv'>dt</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>r <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/row_number.html'>min_rank</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; copy(`_DT2`)[, `:=`(r = frank(x, ties.method = "min", na.last = "keep"))]</span></span>
 <span></span><span></span>
 <span><span class='nv'>dt</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>r <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/row_number.html'>dense_rank</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query</a></span><span class='o'>(</span><span class='o'>)</span></span>
@@ -96,7 +101,7 @@ dtplyr gains new translations for [`add_count()`](https://dplyr.tidyverse.org/re
 
 </div>
 
-This release also includes three translation improvements that yield improved performance:
+This release also includes three translation improvements that yield better performance:
 
 -   Where possible, [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) will use `setorder()` instead of [`order()`](https://rdrr.io/r/base/order.html).
 
