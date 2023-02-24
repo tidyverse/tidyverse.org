@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr, dtplyr]
-rmd_hash: b76be215815ba741
+rmd_hash: 53da4f088eb5df37
 
 ---
 
@@ -101,15 +101,9 @@ dtplyr gains new translations for [`add_count()`](https://dplyr.tidyverse.org/re
 
 </div>
 
-This release also includes three translation improvements that yield better performance:
-
--   Where possible, [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) will use `setorder()` instead of [`order()`](https://rdrr.io/r/base/order.html).
-
--   Where possible, [`select()`](https://dplyr.tidyverse.org/reference/select.html) now drops columns by reference (i.e. with `var := NULL`).
-
--   [`slice()`](https://dplyr.tidyverse.org/reference/slice.html) uses an intermediate variable to reduce computation time of row selection.
+This release also includes three translation improvements that yield better performance. When data has previously been copied [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) will use `setorder()` instead of [`order()`](https://rdrr.io/r/base/order.html) and [`select()`](https://dplyr.tidyverse.org/reference/select.html) will drop unwanted columns by reference (i.e. with `var := NULL`). And [`slice()`](https://dplyr.tidyverse.org/reference/slice.html) now uses an intermediate variable to reduce computation time of row selection.
 
 ## Acknowledgements
 
-A massive thanks to [Mark Fairbanks](https://github.com/markfairbanks) who did most of the work for this releases, ably aided by the other dplyr maintainers [@eutwt](https://github.com/eutwt) and [Maximilian Girlich](https://github.com/mgirlich). And thanks to everyone else who helped make this release possible, whether it was with code, documentation, or insightful comments: [@abalter](https://github.com/abalter), [@akaviaLab](https://github.com/akaviaLab), [@camnesia](https://github.com/camnesia), [@caparks2](https://github.com/caparks2), [@DavisVaughan](https://github.com/DavisVaughan), [@eipi10](https://github.com/eipi10), [@hadley](https://github.com/hadley), [@jmbarbone](https://github.com/jmbarbone), [@johnF-moore](https://github.com/johnF-moore), [@lschneiderbauer](https://github.com/lschneiderbauer), and [@NicChr](https://github.com/NicChr).
+A massive thanks to [Mark Fairbanks](https://github.com/markfairbanks) who did most of the work for this release, ably aided by the other dtplyr maintainers [@eutwt](https://github.com/eutwt) and [Maximilian Girlich](https://github.com/mgirlich). And thanks to everyone else who helped make this release possible, whether it was with code, documentation, or insightful comments: [@abalter](https://github.com/abalter), [@akaviaLab](https://github.com/akaviaLab), [@camnesia](https://github.com/camnesia), [@caparks2](https://github.com/caparks2), [@DavisVaughan](https://github.com/DavisVaughan), [@eipi10](https://github.com/eipi10), [@hadley](https://github.com/hadley), [@jmbarbone](https://github.com/jmbarbone), [@johnF-moore](https://github.com/johnF-moore), [@lschneiderbauer](https://github.com/lschneiderbauer), and [@NicChr](https://github.com/NicChr).
 

@@ -88,15 +88,10 @@ dt |> mutate(r = min_rank(x)) |> show_query()
 dt |> mutate(r = dense_rank(x)) |> show_query()
 ```
 
-This release also includes three translation improvements that yield better performance:
-
--   Where possible, `arrange()` will use `setorder()` instead of `order()`.
-
--   Where possible, `select()` now drops columns by reference (i.e. with `var := NULL`).
-
--   `slice()` uses an intermediate variable to reduce computation time of row selection.
+This release also includes three translation improvements that yield better performance.
+When data has previously been copied `arrange()` will use `setorder()` instead of `order()` and `select()` will drop unwanted columns by reference (i.e. with `var := NULL`). And `slice()` now uses an intermediate variable to reduce computation time of row selection.
 
 ## Acknowledgements
 
-A massive thanks to [Mark Fairbanks](https://github.com/markfairbanks) who did most of the work for this releases, ably aided by the other dplyr maintainers [\@eutwt](https://github.com/eutwt) and [Maximilian Girlich](https://github.com/mgirlich).
+A massive thanks to [Mark Fairbanks](https://github.com/markfairbanks) who did most of the work for this release, ably aided by the other dtplyr maintainers [\@eutwt](https://github.com/eutwt) and [Maximilian Girlich](https://github.com/mgirlich).
 And thanks to everyone else who helped make this release possible, whether it was with code, documentation, or insightful comments: [\@abalter](https://github.com/abalter), [\@akaviaLab](https://github.com/akaviaLab), [\@camnesia](https://github.com/camnesia), [\@caparks2](https://github.com/caparks2), [\@DavisVaughan](https://github.com/DavisVaughan), [\@eipi10](https://github.com/eipi10), [\@hadley](https://github.com/hadley), [\@jmbarbone](https://github.com/jmbarbone), [\@johnF-moore](https://github.com/johnF-moore), [\@lschneiderbauer](https://github.com/lschneiderbauer), and [\@NicChr](https://github.com/NicChr).
