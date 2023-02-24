@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: dtplyr-1-3-0
 title: dtplyr 1.3.0
-date: 2023-02-21
+date: 2023-02-24
 author: Hadley Wickham
 description: >
     dtplyr brings initial support for dplyr 1.1.0 features, new translations, 
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr, dtplyr]
-rmd_hash: 2e887306c089eb73
+rmd_hash: 1d413a29eebb66b2
 
 ---
 
