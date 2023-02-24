@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr, dtplyr]
-rmd_hash: 53da4f088eb5df37
+rmd_hash: 2e887306c089eb73
 
 ---
 
@@ -43,7 +43,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will give you an overview of the changes in this version: dtplyr no longer adds translations directly to data.tables, some dplyr 1.1.0 updates, and some performance improvements. As always, you can see a full list of changes in the [release notes](https://github.com/tidyverse/dtplyr/releases/tag/v1.3.0)
+This blog post will give you an overview of the changes in this version: dtplyr no longer adds translations directly to data.tables, it includes some dplyr 1.1.0 updates, and we have made some performance improvements. As always, you can see a full list of changes in the [release notes](https://github.com/tidyverse/dtplyr/releases/tag/v1.3.0)
 
 <div class="highlight">
 
@@ -54,7 +54,7 @@ This blog post will give you an overview of the changes in this version: dtplyr 
 
 ## Breaking changes
 
-In previous versions, dtplyr registered translations that kicked in whenever you used a data.table. This [caused problems](https://github.com/tidyverse/dtplyr/issues/312) because merely loading dtplyr could cause otherwise ok code to fail because dplyr and tidyr functions would now return `lazy_dt` objects instead of `data.table` objects. To avoid this problem, we have removed those S3 methods and now must explicitly opt-in to dtplyr translations by using [`lazy_dt()`](https://dtplyr.tidyverse.org/reference/lazy_dt.html).
+In previous versions, dtplyr registered translations that kicked in whenever you used a data.table. This [caused problems](https://github.com/tidyverse/dtplyr/issues/312) because merely loading dtplyr could cause otherwise ok code to fail because dplyr and tidyr functions would now return `lazy_dt` objects instead of `data.table` objects. To avoid this problem, we have removed those S3 methods so you must now explicitly opt-in to dtplyr translations by using [`lazy_dt()`](https://dtplyr.tidyverse.org/reference/lazy_dt.html).
 
 ## dplyr 1.1.0
 

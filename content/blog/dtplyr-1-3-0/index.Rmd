@@ -41,7 +41,7 @@ You can install it from CRAN with:
 install.packages("dtplyr")
 ```
 
-This blog post will give you an overview of the changes in this version: dtplyr no longer adds translations directly to data.tables, some dplyr 1.1.0 updates, and some performance improvements.
+This blog post will give you an overview of the changes in this version: dtplyr no longer adds translations directly to data.tables, it includes some dplyr 1.1.0 updates, and we have made some performance improvements.
 As always, you can see a full list of changes in the [release notes](https://github.com/tidyverse/dtplyr/releases/tag/v1.3.0)
 
 ```{r setup}
@@ -53,7 +53,7 @@ library(dplyr, warn.conflicts = FALSE)
 
 In previous versions, dtplyr registered translations that kicked in whenever you used a data.table.
 This [caused problems](https://github.com/tidyverse/dtplyr/issues/312) because merely loading dtplyr could cause otherwise ok code to fail because dplyr and tidyr functions would now return `lazy_dt` objects instead of `data.table` objects.
-To avoid this problem, we have removed those S3 methods and now must explicitly opt-in to dtplyr translations by using `lazy_dt()`.
+To avoid this problem, we have removed those S3 methods so you must now explicitly opt-in to dtplyr translations by using `lazy_dt()`.
 
 ## dplyr 1.1.0
 
@@ -89,7 +89,8 @@ dt |> mutate(r = dense_rank(x)) |> show_query()
 ```
 
 This release also includes three translation improvements that yield better performance.
-When data has previously been copied `arrange()` will use `setorder()` instead of `order()` and `select()` will drop unwanted columns by reference (i.e. with `var := NULL`). And `slice()` now uses an intermediate variable to reduce computation time of row selection.
+When data has previously been copied `arrange()` will use `setorder()` instead of `order()` and `select()` will drop unwanted columns by reference (i.e. with `var := NULL`).
+And `slice()` now uses an intermediate variable to reduce computation time of row selection.
 
 ## Acknowledgements
 
