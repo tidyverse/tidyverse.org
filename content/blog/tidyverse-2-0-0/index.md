@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidyverse]
-rmd_hash: 81cd1f649868a4f0
+rmd_hash: ba8c161f95604766
 
 ---
 
@@ -32,7 +32,7 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're tickled pink to announce the release of [tidyverse](http://tidyverse.tidyverse.org/) 2.0.0. The tidyverse is a set of packages that work in harmony because they share common data representations and API design. The tidyverse package is a "meta" package designed to make it easy to install and load core packages from the tidyverse in a single command. This is great for teaching and interactive use, but for package development purposes we recommend that authors import only the specific packages that they use. For a complete list of changes, please see the release notes.
+We're tickled pink to announce the release of [tidyverse](http://tidyverse.tidyverse.org/) 2.0.0. The tidyverse is a set of packages that work in harmony because they share common data representations and API design. The tidyverse package is a "meta" package designed to make it easy to install and load core packages from the tidyverse in a single command. This is great for teaching and interactive use, but for package-development purposes we recommend that authors import only the specific packages that they use. For a complete list of changes, please see the release notes.
 
 You can install it from CRAN with:
 
@@ -42,7 +42,7 @@ You can install it from CRAN with:
 
 </div>
 
-There's only really one big change in this tidyverse 2.0.0: lubridate is now a core member of the tidyverse! This means it's attached automatically when you load the tidyverse:
+There's only really one big change in tidyverse 2.0.0: lubridate is now a core member of the tidyverse! This means it's attached automatically when you load the tidyverse:
 
 <div class="highlight">
 
