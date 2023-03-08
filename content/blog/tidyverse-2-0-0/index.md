@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidyverse]
-rmd_hash: ccecf212304aebcd
+rmd_hash: 81cd1f649868a4f0
 
 ---
 
