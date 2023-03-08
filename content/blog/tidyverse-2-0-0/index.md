@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidyverse]
-rmd_hash: 2d0305a71de1f01d
+rmd_hash: ccecf212304aebcd
 
 ---
 
@@ -115,4 +115,6 @@ Or declare a session wide preference:
 <span></span></code></pre>
 
 </div>
+
+The conflicted package is fairly established, but it hasn't seen a huge amount of use, so if you think of something that would make it better, [please let us know!](https://github.com/r-lib/conflicted/issues).
 
