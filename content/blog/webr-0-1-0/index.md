@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive] 
 tags: [webr, webassembly, wasm]
-rmd_hash: 437b82cae1f4f7d0
+rmd_hash: ee932a724739a18e
 
 ---
 
@@ -193,9 +193,9 @@ Fairly recently, the Shiny team announced [Shiny for Python](https://shiny.rstud
 
 ## Acknowledgements
 
-A massive thank you to all early webR users for their willingness to experiment and their feedback and design discussions in the form of GitHub issues and pull requests,
+A massive thank you to all early webR users for their willingness to experiment and their feedback in the form of GitHub issues and pull requests,
 
-[@barryrowlingson](https://github.com/barryrowlingson), [@christianp](https://github.com/christianp), [@ekianjo](https://github.com/ekianjo), [@georgestagg](https://github.com/georgestagg), [@jason-variadiclabs](https://github.com/jason-variadiclabs), [@jjesusfilho](https://github.com/jjesusfilho), [@kdpsingh](https://github.com/kdpsingh), [@lionel-](https://github.com/lionel-), [@psychemedia](https://github.com/psychemedia), [@SugarRayLua](https://github.com/SugarRayLua), [@unclecode](https://github.com/unclecode), and [@wch](https://github.com/wch).
+[@Anurodhyadav](https://github.com/Anurodhyadav), [@barryrowlingson](https://github.com/barryrowlingson), [@christianp](https://github.com/christianp), [@ekianjo](https://github.com/ekianjo), [@georgestagg](https://github.com/georgestagg), [@HTUser-1](https://github.com/HTUser-1), [@jason-variadiclabs](https://github.com/jason-variadiclabs), [@jjesusfilho](https://github.com/jjesusfilho), [@kdpsingh](https://github.com/kdpsingh), [@lionel-](https://github.com/lionel-), [@psychemedia](https://github.com/psychemedia), [@Sjesc](https://github.com/Sjesc), [@SugarRayLua](https://github.com/SugarRayLua) [@unclecode](https://github.com/unclecode), and [@wch](https://github.com/wch).
 
 [^1]: I am aware of at least one early adopter using webR as a way to access R on their Apple iPad.
 
