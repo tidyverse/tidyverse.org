@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive] 
 tags: [webr, webassembly, wasm]
-rmd_hash: ee932a724739a18e
+rmd_hash: 2d43a5ad37986376
 
 ---
 
@@ -36,8 +36,8 @@ TODO:
 * [ ] Change r-wasm/jupyterlite-webr-kernel GitHub repo public
 * [x] Update r-wasm/webR repo for AWS and r-wasm.org URLs
 * [ ] Push npm update for r-wasm/webr package
-* [ ] Update static service worker URLs
-* [ ] Update webR shortcode URLs
+* [x] Update static service worker URLs
+* [x] Update webR shortcode URLs
 * [ ] Update post date
 -->
 <!-- Initialise webR in the page -->
