@@ -1,0 +1,87 @@
+---
+output: hugodown::hugo_document
+
+slug: tidyverse-2-0-0
+title: tidyverse 2.0.0
+date: 2023-03-08
+author: Hadley Wickham
+description: >
+    Now including lubridate!
+
+photo:
+  url: https://unsplash.com/photos/fUnfEz3VLv4
+  author: Graham Holtshausen
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [tidyverse]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+```
+We're tickled pink to announce the release of [tidyverse](http://tidyverse.tidyverse.org/) 2.0.0.
+The tidyverse is a set of packages that work in harmony because they share common data representations and API design.
+The tidyverse package is a "meta" package designed to make it easy to install and load core packages from the tidyverse in a single command.
+This is great for teaching and interactive use, but for package-development purposes we recommend that authors import only the specific packages that they use.
+For a complete list of changes, please see the release notes.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("tidyverse")
+```
+
+There's only really one big change in tidyverse 2.0.0: lubridate is now a core member of the tidyverse!
+This means it's attached automatically when you load the tidyverse:
+
+```{r}
+library(tidyverse)
+```
+
+You'll notice one other small change to the tidyverse message: we now advertise the [conflicted package](https://conflicted.r-lib.org).
+This package has been around for a while, but we wanted to promote it a bit more heavily because it's so useful.
+
+conflicted provides an alternative conflict resolution strategy, when multiple packages export a function of the same name.
+R's default conflict resolution system gives precedence to the most recently loaded package.
+This can make it hard to detect conflicts, particularly when they're introduced by an update to an existing package.
+conflicted takes a different approach, turning conflicts into errors and forcing you to choose which function to use.
+
+To use conflicted, all you need to do is load it:
+
+```{r}
+library(conflicted)
+```
+
+Using any function that's defined in multiple packages will now throw an error:
+
+```{r}
+#| error: true
+filter(mtcars, cyl == 8)
+```
+
+As the error suggests, to resolve the problem you can either namespace individual calls:
+
+```{r}
+dplyr::filter(mtcars, am & cyl == 8)
+```
+
+Or declare a session wide preference:
+
+```{r}
+conflicts_prefer(dplyr::filter())
+filter(mtcars, am & cyl == 8)
+```
+
+The conflicted package is fairly established, but it hasn't seen a huge amount of use, so if you think of something that would make it better, [please let us know!](https://github.com/r-lib/conflicted/issues).
