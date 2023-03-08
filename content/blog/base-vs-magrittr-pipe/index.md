@@ -13,7 +13,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other] 
 tags: [magrittr]
-rmd_hash: b5b0c621351ee821
+rmd_hash: 7d7b84d4fffc579a
 
 ---
 
@@ -30,15 +30,15 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-In R's 4.1.0 release in May of 2021, a native pipe operator, `|>`, was introduced. Its behavior is by and large the same as that of magrittr's pipe operator, [`%>%`](https://magrittr.tidyverse.org/reference/pipe.html), in so far as it allows you to "pipe" an object forward from its left-hand side to a function or call expression on the right.
+**Note:** The following has been adapted from a section of the forthcoming second edition of [R for Data Science](https://r4ds.hadley.nz/) that had to be removed due to length limitations.
 
-<div class="highlight">
+## Pipes
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>lhs</span> <span class='o'>%&gt;%</span> <span class='nv'>rhs</span></span></code></pre>
+With the 4.1.0 release of R, a native pipe operator, `|>`, was introduced. Its behavior is by and large the same as that of the [`%>%`](https://magrittr.tidyverse.org/reference/pipe.html) pipe provided by the **magrittr** package. Both operators (`|>` and `%>%`) let you "pipe" an object forward to a function or call expression, thereby allowing you to express a sequence of operations that transform an object.
 
-</div>
+To learn more about the basic utility of pipes, see [The pipe](https://r4ds.hadley.nz/data-transform.html#the-pipe) section of R for Data Science.
 
-## Differences
+## `|>` vs. `%>%`
 
 While `|>` and `%>%` behave identically for simple cases, there are a few crucial differences. These are most likely to affect you if you're a long-term user of `%>%` who has taken advantage of some of the more advanced features. But they're still good to know about even if you've never used `%>%` because you're likely to encounter some of them when reading wild-caught code.
 
