@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive] 
 tags: [webr, webassembly, wasm]
-rmd_hash: 9487a70f854d3148
+rmd_hash: 437b82cae1f4f7d0
 
 ---
 
@@ -31,10 +31,13 @@ TODO:
 * [X] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
-* [ ] Update temporary URLS to r-wasm.org
+* [x] Update temporary URLS to r-wasm.org
+* [x] Check for evalR API changes
 * [ ] Change r-wasm/jupyterlite-webr-kernel GitHub repo public
-* [ ] Update georgestagg/webR repo for AWS and r-wasm.org URLs
+* [x] Update r-wasm/webR repo for AWS and r-wasm.org URLs
 * [ ] Push npm update for r-wasm/webr package
+* [ ] Update static service worker URLs
+* [ ] Update webR shortcode URLs
 * [ ] Update post date
 -->
 <!-- Initialise webR in the page -->
@@ -57,25 +60,25 @@ WebR is a version of the open-source R interpreter compiled for WebAssembly, alo
 
 By compiling R to WebAssembly a user can visit a website and run R code directly within the web browser, without R installed on their device or a supporting computational R server. All that is required is a normal web server, including the type of cloud hosting service provided by Github Pages or Netlify.
 
-## How it Works
+## How it works
 
 WebR's core is based around compiling the open-source R interpreter for [WebAssembly](https://webassembly.org), using the [Emscripten](https://emscripten.org) compiler suite along with [LLVM Flang](https://flang.llvm.org/docs/) to work with R's pre-existing C and Fortran based source code.
 
 WebAssembly (often abbreviated as Wasm) is a standard defining a virtual stack machine along with a corresponding *bytecode*. Efficient Wasm engines have already been implemented in most modern web browsers, which allows for the deployment of high performance Wasm applications on the web.
 
-While it's certainly possible for an interested programmer to write Wasm *bytecode* by hand, it is not required to do so. Similar to how code and data is compiled into *machine code* for a certain computer processor, code and data can be compiled into the Wasm *bytecode* by compiler software that supports the Wasm standard.
+While it's certainly possible for an interested programmer to write Wasm bytecode by hand, it is not required to do so. Similar to how code and data is compiled into *machine code* for a certain computer processor, code and data can be compiled into the Wasm bytecode by compiler software that supports the Wasm standard.
 
-However, unlike with traditional *machine code*, the Wasm virtual machine (VM) is consistent across multiple different types of environment, architecture, and device -- in theory the same *bytecode* binary can run anywhere without having to be recompiled for that environment. In this way the Wasm VM is similar to Java's JVM. However, in comparison to the JVM, Wasm has been designed and built from the ground up for use on the modern web, requiring strict sandboxing and security controls.
+However, unlike with traditional machine code, the Wasm virtual machine (VM) is consistent across multiple different types of environment, architecture, and device -- in theory the same bytecode binary can run anywhere without having to be recompiled for that environment. In this way the Wasm VM is similar to Java's JVM. However, in comparison to the JVM, Wasm has been designed and built from the ground up for use on the modern web, requiring strict sandboxing and security controls.
 
 Future use for WebAssembly has also been identified in server-side web development, containerisation, cloud computing, and more. With these applications, Wasm has been suggested as a universal binary format of the future. Multiple implementations of the Wasm VM already exist designed to run *outside* a web browser, through proposed Wasm standards such as [WASI](https://wasi.dev).
 
-## What's Possible?
+## What's possible?
 
 Undoubtedly, webR opens a world of possibilities for the interactive use of R and data science on the web.
 
-### An Online R Console
+### An online R console
 
-A web-based interactive R console is included in the webR source repository as a demonstration of integrating webR into a wider web application. A publicly accessible instance of the webR console can be found at <https://d32gvqr14tcs6a.cloudfront.net/latest/>.
+A web-based interactive R console is included in the webR source repository as a demonstration of integrating webR into a wider web application. A publicly accessible instance of the webR console can be found at <https://webr.r-wasm.org/latest/>.
 
 <a href="webr-repl.png" target="_blank">![A screenshot showing the demo webR console creating a plot](webr-repl.png)</a>
 
@@ -85,13 +88,13 @@ It's possible to perform data analysis on reasonably large datasets by uploading
 
 <a href="webr-repl2.png" target="_blank">![A screenshot showing the demo webR console loading a data file](webr-repl2.png)</a>
 
-Note that uploading and downloading files to the VFS in this way does not actually involve transferring any data over the network. However, webR has been built so that it is possible to load data into webR over the network by using R's built in functions that can download from URL, such as `read_csv()`[^2].
+Note that uploading and downloading files to the VFS in this way does not actually involve transferring any data over the network. However, webR has been built so that it is possible to load data into webR over the network by using R's built in functions that can download from URL, such as [`read.csv()`](https://rdrr.io/r/utils/read.table.html)[^2].
 
 <a href="webr-repl3.png" target="_blank">![A screenshot showing the demo webR console loading a data file from URL](webr-repl3.png)</a>
 
 Plotting is also supported (**Plotting** tab, top right), meaning a user can produce beautiful plot output with the webR console, closing the loop of reading data, performing analysis, and producing output. It is entirely feasible that a casual user could perform the basics of data science entirely within their web browser using webR.
 
-### An Educational Tool
+### An educational tool
 
 Consider the following code block containing some simple R code. After a short loading period while the webR binary and supporting files are downloaded, a **Run code** button is enabled on the code block, with the code itself able to be edited and remixed on the fly. Feel free to try this out now!
 
@@ -113,7 +116,7 @@ The following interactive code block produces an R plot that is directly embedde
 
 In my experience this way of interacting and experimenting with R code without the mental overhead of context switching from a web browser to an R console, or copying and pasting lines of example code, feels extremely fresh and exciting. An exciting potential application for webR is providing high-quality educational web content in exactly this kind of format.
 
-### Reproducible Reports
+### Reproducible reports
 
 A core principle of good science is that results should be repeatable and reproducible by others. Unfortunately the misuse of data analysis, leading to unreliable results, [is a known issue](https://en.wikipedia.org/wiki/Misuse_of_statistics).
 
@@ -125,25 +128,25 @@ While a Jupyter notebook usually requires a Python and Jupyter installation to f
 
 WebR aims to provide that same experience for Jupyter notebooks based on R. As part of the initial release of webR, we are also releasing a [webR kernel for JupyterLite](https://github.com/r-wasm/jupyterlite-webr-kernel), allowing users to write and execute reproducible Jupyter notebooks for R directly in the web browser.
 
-A JupyterLite instance with the webR kernel available can be found at <https://dqdbfx49kw9ym.cloudfront.net/>, along with a sample R Jupyter notebook demonstrating a reproducible report.
+A JupyterLite instance with the webR kernel available can be found at <https://jupyter.r-wasm.org/>, along with a sample R Jupyter notebook demonstrating a reproducible report.
 
 <a href="jupyter.png" target="_blank">![A screenshot showing the webR JupyterLite kernel](jupyter.png)</a>
 
 The JupyterLite kernel for R is still in the early stages of development and [includes some limitations](https://github.com/r-wasm/jupyterlite-webr-kernel#limitations), but the core infrastructure is in place with the release of webR.
 
-### R Packages
+### R packages
 
 R has a rich history of user-created extensions through the use of R packages. Most packages are a combination of R and C or C++ code, and so many packages must be compiled from source for the system they are running on. Unfortunately, it is not possible to install packages in this way in webR. Such an installation process would require an entire C/C++ to WebAssembly compiler toolchain running in the web page!
 
 For the moment, downloading pre-compiled Wasm binaries is the only supported way to install packages in webR. A pre-installed `webr` support package provides a helper function <code>webr::install()</code> which can be used to install packages from a CRAN-like repository. As part of the webR release we have provided a small repository of binary R packages compiled for Wasm, publicly hosted with URL `https://repo.r-wasm.org/`.
 
-## Using WebR in Your Own Projects
+## Using webR in your own projects
 
-WebR aims to be as quick and easy to use as possible for those familiar with JavaScript web development. While a short introduction to using webR follows in this blog post, we think the best way to get up and running is by reading the Getting Started section of the [webR documentation](https://webr.quarto.pub/docs/). The documentation goes into further detail about how to download webR, technical requirements for serving web pages that use webR, and provides more detailed examples.
+WebR aims to be as quick and easy to use as possible for those familiar with JavaScript web development. While a short introduction to using webR follows in this blog post, we think the best way to get up and running is by reading the Getting Started section of the [webR documentation](https://docs.r-wasm.org/webr/latest/). The documentation goes into further detail about how to download webR, technical requirements for serving web pages that use webR, and provides more detailed examples.
 
 ### Downloading and using webR from npm
 
-For a project with dependencies managed by npm, then [webR JavaScript package](https://www.npmjs.com/package/@r-wasm/webr) can be installed by using the command,
+For a project with dependencies managed by npm, the [webR JavaScript package](https://www.npmjs.com/package/@r-wasm/webr) can be installed by using the command,
 
 ``` bash
 npm i @r-wasm/webr
@@ -160,13 +163,13 @@ await webR.init();
 
 Once a new instance of the `WebR()` class has been created, webR will begin to download WebAssembly binaries from the public CDN, and R will be started.
 
-### Downloading WebR Release Packages
+### Downloading webR release packages
 
-Full release packages for webR can also be downloaded from the webR [GitHub Releases](https://github.com/georgestagg/webR/releases) page. The full release packages include the webR JavaScript loader, along with WebAssembly binaries for R and its supporting libraries.
+Full release packages for webR can also be downloaded from the webR [GitHub Releases](https://github.com/r-wasm/webR/releases) page. The full release packages include the webR JavaScript loader, along with WebAssembly binaries for R and its supporting libraries.
 
 Hosting a full release package on a web server makes it possible to use webR entirely on your own infrastructure, rather than relying on downloading Wasm binaries from the public CDN.
 
-### An Example of Executing R Code
+### An example of executing R code
 
 Once R is ready the JavaScript promise returned by `webR.init()` will resolve. At this point R code can be evaluated and results converted into JavaScript objects,
 
@@ -178,9 +181,9 @@ console.log(output);
 
 In the above example the `result` object can be thought of as a reference to a specific R object, and is converted into a standard JavaScript array using the `toArray()` function.
 
-Further examples and details of how to interact with the R console and work with R objects can be found in the [webR documentation](https://webr.quarto.pub/docs/examples.html).
+Further examples and details of how to interact with the R console and work with R objects can be found in the [webR documentation](https://docs.r-wasm.org/webr/latest/examples.html).
 
-## The Future of WebR
+## The future of webR
 
 Going forward we plan to expand and improve webR, including compiling more R packages for the webR public package repository. It is our hope that we can provide the same web-based computational infrastructure for R that [Pyodide](https://pyodide.org/en/stable/) has provided for the Python ecosystem.
 
