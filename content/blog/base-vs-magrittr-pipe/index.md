@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: base-vs-magrittr-pipe
 title: Differences between the base R and magrittr pipes
-date: 2023-03-07
+date: 2023-03-08
 author: Hadley Wickham
 description: >
     A discussion of the (relatively minor) differences between the native R pipe, 
@@ -13,7 +13,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other] 
 tags: [magrittr]
-rmd_hash: 7d7b84d4fffc579a
+rmd_hash: 2caa2e68998eab4e
 
 ---
 
