@@ -22,49 +22,54 @@
     runButton.disabled = true;
     let canvas = undefined;
     await globalThis.webR.init();
-    await webR.evalR('canvas(width={{ .Get "width" | safeJS }}, height={{ .Get "height" | safeJS }})');
-    const result = await webR.captureR(editor.getValue(), webR.objs.emptyEnv, {
+    await webR.evalRVoid('canvas(width={{ .Get "width" | safeJS }}, height={{ .Get "height" | safeJS }})');
+    const result = await webRCodeShelter.captureR(editor.getValue(), {
       withAutoprint: true,
       captureStreams: true,
-      captureConditions: false
+      captureConditions: false,
+      env: webR.objs.emptyEnv,
     });
-    await webR.evalR("dev.off()");
-    const out = result.output.filter(
-      evt => evt.type == 'stdout' || evt.type == 'stderr'
-    ).map((evt) => evt.data).join('\n');
+    try {
+      await webR.evalRVoid("dev.off()");
+      const out = result.output.filter(
+        evt => evt.type == 'stdout' || evt.type == 'stderr'
+      ).map((evt) => evt.data).join('\n');
 
-    const msgs = await webR.flush();
-    msgs.forEach(msg => {
-      if (msg.type === 'canvasExec'){
-        if (!canvas) {
-          canvas = document.createElement('canvas');
-          canvas.setAttribute('width', 2 * {{ .Get "width" | safeJS }});
-          canvas.setAttribute('height', 2 * {{ .Get "height" | safeJS }});
-          canvas.style.width="700px";
-          canvas.style.display="block";
-          canvas.style.margin="auto";
+      const msgs = await webR.flush();
+      msgs.forEach(msg => {
+        if (msg.type === 'canvasExec'){
+          if (!canvas) {
+            canvas = document.createElement('canvas');
+            canvas.setAttribute('width', 2 * {{ .Get "width" | safeJS }});
+            canvas.setAttribute('height', 2 * {{ .Get "height" | safeJS }});
+            canvas.style.width="700px";
+            canvas.style.display="block";
+            canvas.style.margin="auto";
+          }
+          Function(`this.getContext('2d').${msg.data}`).bind(canvas)();
         }
-        Function(`this.getContext('2d').${msg.data}`).bind(canvas)();
+      });
+
+      outputDiv.innerHTML = '';
+      const pre = document.createElement("pre");
+      if (/\S/.test(out)) {
+        const code = document.createElement("code");
+        code.innerText = out;
+        pre.appendChild(code);
+      } else {
+        pre.style.visibility = 'hidden';
       }
-    });
+      outputDiv.appendChild(pre);
 
-    outputDiv.innerHTML = '';
-    const pre = document.createElement("pre");
-    if (/\S/.test(out)) {
-      const code = document.createElement("code");
-      code.innerText = out;
-      pre.appendChild(code);
-    } else {
-      pre.style.visibility = 'hidden';
+      if (canvas) {
+        const p = document.createElement("p");
+        p.appendChild(canvas);
+        outputDiv.appendChild(p);
+      }
+    } finally {
+      webRCodeShelter.purge();
+      runButton.disabled = false;
     }
-    outputDiv.appendChild(pre);
-
-    if (canvas) {
-      const p = document.createElement("p");
-      p.appendChild(canvas);
-      outputDiv.appendChild(p);
-    }
-    runButton.disabled = false;
   }
 
   await globalThis.webR.init();
