@@ -2,12 +2,12 @@
 output: hugodown::hugo_document
 
 slug: cran-checks-compiled-code
-title: "New CRAN Requirements for Packages with C and C++"
+title: "New CRAN requirements for packages with C and C++"
 date: 2023-03-13
 author: Andy Teucher
 description: >
     A few recent changes in CRAN requirements for packages containing C or C++
-    code have caused package developers some headhaches. This post outlines
+    code have caused package developers some headaches. This post outlines
     the issues and provides solutions the tidyverse team has used to address them.
 
 photo:
@@ -16,8 +16,7 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn, programming]
-tags: [cran, c, c++]
-rmd_hash: 276e59c68016f8c7
+rmd_hash: ccd4cbdf603a062c
 
 ---
 
@@ -36,7 +35,7 @@ TODO:
 
 The R package landscape is dynamic, with changes in infrastructure common, especially when CRAN makes changes to their policies and requirements. This is particularly true for packages that include low-level compiled code, requiring developers to be nimble in responding to these changes.
 
-The tidyverse team at Posit is in the unique situation where we have a concentration of skilled developers whose job it is to create and maintain open source packages. This internal community provides the opportunity to collaborate to develop best practices and discover solutions to problems that arise. When we can, we like to share what we've learned so other developers can benefit.
+The tidyverse team at Posit is in the unique situation where we have a concentration of developers working full-time on creating and maintaining open source packages. This internal community provides the opportunity to collaborate to develop shared practices and discover solutions to problems that arise. When we can, we like to share what we've learned so other developers can benefit.
 
 There have been a few recent changes at CRAN for packages containing C and C++ code that developers have had to adapt to, and we would like to share some of our learning:
 
@@ -47,7 +46,7 @@ Many package authors might have noticed a new NOTE on R-devel when submitting a 
     * checking C++ specification ...
       NOTE Specified C++11: please drop specification unless essential
 
-This NOTE is now appearing during R CMD check on R-devel for packages where the DESCRIPTION file has the following:
+This NOTE is now appearing during `R CMD check` on R-devel for packages where the DESCRIPTION file has the following:
 
     SystemRequirements: C++11 
 
@@ -58,7 +57,7 @@ To understand the NOTE, a bit of history will be helpful (thanks to Winston Chan
 -   In R 3.5 and below, on systems with an old compiler, R would default to using the C++98 standard when compiling the code. If a package needed a C++11 compiler, the DESCRIPTION file needed to have `SystemRequirements: C++11`, and the various `src/Makevars*` files needed to set `CXX_STD=CXX11`.
 -   In R 3.6.2, R began defaulting to compiling packages with the C++11 standard, as long as the compiler supported C++11 (which was true on most systems).
 -   In R 4.0, C++11 became the minimum supported compiler, so `SystemRequirements: C++11` was no longer necessary.
--   In (the forthcoming) R 4.3, the [default C++ standard is C++17](https://developer.r-project.org/blosxom.cgi/R-devel/NEWS/2023/01/27#n2023-01-27) where available. R CMD check now [raises a NOTE](https://developer.r-project.org/blosxom.cgi/R-devel/NEWS/2023/01/31) if anything older than the default is specified in `SystemRequirements:` or `CXX_STD` in the various `src/Makevars*` files. This NOTE will block submission to CRAN --- if the standard you specify is necessary for your package you will likely need to explain why.
+-   In (the forthcoming) R 4.3, the [default C++ standard is C++17](https://developer.r-project.org/blosxom.cgi/R-devel/NEWS/2023/01/27#n2023-01-27) where available. `R CMD check` now [raises a NOTE](https://developer.r-project.org/blosxom.cgi/R-devel/NEWS/2023/01/31) if anything older than the default is specified in `SystemRequirements:` or `CXX_STD` in the various `src/Makevars*` files. This NOTE will block submission to CRAN --- if the standard you specify is necessary for your package you will likely need to explain why.
 
 ### How to fix it
 
@@ -70,11 +69,11 @@ After making these changes, the package should install without trouble on R 3.6 
 -   You can use a configure script at the top level of the package, and have it add `CXX_STD=CXX11` for R 3.5 and below. An example (unmerged) [pull request to the readxl](https://github.com/tidyverse/readxl/pull/722/files) package demonstrates this approach. You will also need to add `Biarch: true` in your DESCRIPTION file. This appears to be the approach preferred by CRAN.
 -   For users with R \<= 3.5 on a system with an older compiler, package authors can instruct users to edit their `~/.R/Makevars` file to include this line: `CXX_STD=CXX11`.
 
-The tidyverse has a [policy of supporting four previous versions](https://www.tidyverse.org/blog/2019/04/r-version-support/) of R. Currently that includes R 3.5, but with the upcoming release of R 4.3 the minimum version we will support is R 3.6. As we won't be supporting R 3.5 in the near future, you should not feel pressured to either unless you have a compelling reason.
+The tidyverse has a [policy of supporting four previous versions](https://www.tidyverse.org/blog/2019/04/r-version-support/) of R. Currently that includes R 3.5, but with the upcoming release of R 4.3 (which should be this Spring some time) the minimum version we will support is R 3.6. As we won't be supporting R 3.5 in the near future, you should not feel pressured to either unless you have a compelling reason.
 
 ## WARNING regarding the use of <code>sprintf()</code> in C/C++
 
-Another recent change in CRAN checks on R-devel that authors might encounter is the disallowing of the use of the C functions <code>sprintf()</code> and `vsprintf()`. R CMD check on R-devel may throw warnings that look something like this:
+Another recent change in CRAN checks on R-devel that authors might encounter is the disallowing of the use of the C functions <code>sprintf()</code> and `vsprintf()`. `R CMD check` on R-devel may throw warnings that look something like this:
 
     checking compiled code ... WARNING
     File 'fs/libs/fs.so':
@@ -87,7 +86,7 @@ Another recent change in CRAN checks on R-devel that authors might encounter is 
 
 According to the [NEWS for R-devel](https://developer.r-project.org/blosxom.cgi/R-devel/NEWS/2022/12/24#n2022-12-24) (which will be R 4.3):
 
-> The use of sprintf and vsprintf from C/C++ has been deprecated in macOS 13 and is a known security risk. R CMD check now reports (on all platforms) if their use is found in compiled code: replace by snprintf or vsnprintf respectively.
+> The use of sprintf and vsprintf from C/C++ has been deprecated in macOS 13 and is a known security risk. `R CMD check` now reports (on all platforms) if their use is found in compiled code: replace by snprintf or vsnprintf respectively.
 
 These are considered to be a security risk because they potentially allow [buffer overflows](https://en.wikipedia.org/wiki/Buffer_overflow) that write more bytes than are available in the output buffer. This is a risk if the text that is being passed to <code>sprintf()</code> comes from an uncontrolled source.
 
@@ -155,6 +154,8 @@ In most cases, this should be a simple fix: replace <code>sprintf()</code> with 
 
 </div>
 
+Notice that the return value of `sprintf()` and `snprintf()` are different. `sprintf()` returns the total number of characters written (excluding the null-terminator), while `snprintf()` returns the number of character that would have been written had `n` been sufficiently large.
+
 If the destination is not a static buffer, the easiest thing to do is pass in the size of the array:
 
 <div class="highlight">
@@ -215,7 +216,7 @@ Here is an example where the authors of [Cubist](https://topepo.github.io/Cubist
 
 Function declarations without a prototype are very common, and unfortunately are thus likely to appear in libraries that you include in your package. This may require you to patch that code in your package. The [readxl](https://readxl.tidyverse.org) package includes the [libxls C library](https://github.com/libxls/libxls), which was patched [in readxl here](https://github.com/tidyverse/readxl/commit/afdc9b90cfc2bb1e1c5490c7ba3af5ecfc4a7876) to deal with this issue.
 
-The ideal solution in cases like this would be to submit patches to the upstream libraries so you don't have to deal with the ongoing maintenance of your local patches, but that is not always possible.
+The ideal solution in cases like this would be to submit patches to the upstream libraries so you don't have to deal with the ongoing maintenance of your local patches, but that is not always possible. Generally, you can explain this problem when submitting your package, and as long as you've have notified the upstream maintainer, CRAN should accept your updated package.
 
 ### Unspecified types in function signature
 
