@@ -16,7 +16,7 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn, programming]
-rmd_hash: ccd4cbdf603a062c
+rmd_hash: a35d2937a6e92f4d
 
 ---
 
@@ -124,7 +124,7 @@ Here is a very simple example:
 
 ### How to fix it
 
-In most cases, this should be a simple fix: replace <code>sprintf()</code> with `snprintf()` and `vsprintf()` with `vsnprintf()`. These `n` variants take a second parameter that specifies the maximum number of bytes written. If the output is a static buffer, you can use `sizeof()`:
+In most cases, this should be a simple fix: replace <code>sprintf()</code> with `snprintf()` and `vsprintf()` with `vsnprintf()`. These `n` variants take a second parameter `size`, that specifies the maximum number of bytes written. If the output is a static buffer, you can use `sizeof()`:
 
 <div class="highlight">
 
@@ -154,7 +154,7 @@ In most cases, this should be a simple fix: replace <code>sprintf()</code> with 
 
 </div>
 
-Notice that the return value of `sprintf()` and `snprintf()` are different. `sprintf()` returns the total number of characters written (excluding the null-terminator), while `snprintf()` returns the number of character that would have been written had `n` been sufficiently large.
+Notice that the return value of `sprintf()` and `snprintf()` are slightly different. `sprintf()` returns the total number of characters written (excluding the null-terminator), while `snprintf()` returns the length of the formatted string, whether or not it has been truncated to match `size`.
 
 If the destination is not a static buffer, the easiest thing to do is pass in the size of the array:
 
