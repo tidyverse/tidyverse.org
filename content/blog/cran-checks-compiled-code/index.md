@@ -16,7 +16,7 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn, programming]
-rmd_hash: ab2b4dfd4c47e2ef
+rmd_hash: d9504147c9ce3b50
 
 ---
 
@@ -152,31 +152,7 @@ In most cases, this should be a simple fix: replace <code>sprintf()</code> with 
 
 Notice that the return value of `sprintf()` and `snprintf()` are slightly different. `sprintf()` returns the total number of characters written (excluding the null-terminator), while `snprintf()` returns the length of the formatted string, whether or not it has been truncated to match `size`.
 
-It is a bit trickier if the destination is not a static buffer, so you'll have to determine the maximum `size` by carefully thinking about the code:
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://cpp11.r-lib.org'>cpp11</a></span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nf'><a href='https://cpp11.r-lib.org/reference/cpp_source.html'>cpp_function</a></span><span class='o'>(</span><span class='s'>'</span></span>
-<span><span class='s'>  int say_height_safely(int height) &#123;</span></span>
-<span><span class='s'>    int n;</span></span>
-<span><span class='s'>    char *out = new char(30);</span></span>
-<span><span class='s'>    n = snprintf(out, 30, "My height is %i cm\\n", height);</span></span>
-<span><span class='s'>    Rprintf(out);</span></span>
-<span><span class='s'>    delete[] out;</span></span>
-<span><span class='s'>    return n;</span></span>
-<span><span class='s'>  &#125;</span></span>
-<span><span class='s'>'</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nf'>say_height_safely</span><span class='o'>(</span><span class='m'>18245</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; My height is 18245 cm</span></span>
-<span></span><span><span class='c'>#&gt; [1] 22</span></span>
-<span></span></code></pre>
-
-</div>
-
-Here is a [real-world example](https://github.com/tidyverse/readr/commit/9143718735136c05c52c467b996dff799f77b888) of replacing `sprintf()` with `snprintf()` in `grisu3.c` (which is bundled into readr and vroom from [here](https://github.com/juj/MathGeoLib/blob/master/src/Math/grisu3.c)). In this case the size of the output buffer is not known, but reasonable assumptions can be made based on what we know will be passed to the function.
+It is a bit trickier if the destination is not a static buffer, so you'll have to determine the maximum `size` by carefully thinking about the code.
 
 ## WARNING regarding the use of strict prototypes in C
 

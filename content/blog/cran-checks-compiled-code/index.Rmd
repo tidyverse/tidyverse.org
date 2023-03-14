@@ -145,26 +145,7 @@ Notice that the return value of `sprintf()` and `snprintf()` are slightly differ
 returns the total number of characters written (excluding the null-terminator), while `snprintf()`
 returns the length of the formatted string, whether or not it has been truncated to match `size`.
 
-It is a bit trickier if the destination is not a static buffer, so you'll have to determine the maximum `size` by carefully thinking about the code:
-
-```{r}
-library(cpp11)
-
-cpp_function('
-  int say_height_safely(int height) {
-    int n;
-    char *out = new char(30);
-    n = snprintf(out, 30, "My height is %i cm\\n", height);
-    Rprintf(out);
-    delete[] out;
-    return n;
-  }
-')
-
-say_height_safely(18245)
-```
-
-Here is a [real-world example](https://github.com/tidyverse/readr/commit/9143718735136c05c52c467b996dff799f77b888) of replacing `sprintf()` with `snprintf()` in `grisu3.c` (which is bundled into readr and vroom from [here](https://github.com/juj/MathGeoLib/blob/master/src/Math/grisu3.c)). In this case the size of the output buffer is not known, but reasonable assumptions can be made based on what we know will be passed to the function.
+It is a bit trickier if the destination is not a static buffer, so you'll have to determine the maximum `size` by carefully thinking about the code.
 
 ## WARNING regarding the use of strict prototypes in C
 
