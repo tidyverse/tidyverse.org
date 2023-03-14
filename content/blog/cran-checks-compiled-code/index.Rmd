@@ -127,20 +127,17 @@ In most cases, this should be a simple fix: replace <code>sprintf()</code> with 
 ```{r}
 cpp_function('
   int say_height_safely(int height) {
-    // "My height is xxx cm" is 19 characters but we need 
+    // "My height is xxx cm\\n" is 20 characters but we need 
     // to add one for the null-terminator
-    char out[19 + 1];
+    char out[20 + 1];
     int n;
     n = snprintf(out, sizeof(out), "My height is %i cm\\n", height);
     Rprintf(out);
-    if (n >= sizeof(out)) {
-       Rprintf("\\nTruncated because input is longer than allowed!\\n");
-    }
     return n;
   }
 ')
 
-say_height_safely(18)
+say_height_safely(182)
 say_height_safely(1824)
 ```
 
