@@ -16,7 +16,7 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn, programming]
-rmd_hash: d70093569f289ca1
+rmd_hash: ab2b4dfd4c47e2ef
 
 ---
 
@@ -176,7 +176,7 @@ It is a bit trickier if the destination is not a static buffer, so you'll have t
 
 </div>
 
-Here is a [real-world example](https://github.com/tidyverse/readr/commit/9143718735136c05c52c467b996dff799f77b888) of replacing `sprintf()` with `snprintf()` in the `grisu3.c` file, which is bundled into readr and vroom. In this case the size of the output buffer is not known, but reasonable assumptions can be made based on what we know will be passed to the function.
+Here is a [real-world example](https://github.com/tidyverse/readr/commit/9143718735136c05c52c467b996dff799f77b888) of replacing `sprintf()` with `snprintf()` in `grisu3.c` (which is bundled into readr and vroom from [here](https://github.com/juj/MathGeoLib/blob/master/src/Math/grisu3.c)). In this case the size of the output buffer is not known, but reasonable assumptions can be made based on what we know will be passed to the function.
 
 ## WARNING regarding the use of strict prototypes in C
 
