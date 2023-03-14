@@ -16,7 +16,7 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn, programming]
-rmd_hash: 35afe48a6f4a1626
+rmd_hash: d70093569f289ca1
 
 ---
 
@@ -143,9 +143,9 @@ In most cases, this should be a simple fix: replace <code>sprintf()</code> with 
 <span><span class='nf'>say_height_safely</span><span class='o'>(</span><span class='m'>182</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; My height is 182 cm</span></span>
 <span></span><span><span class='c'>#&gt; [1] 20</span></span>
-<span></span><span><span class='nf'>say_height_safely</span><span class='o'>(</span><span class='m'>1824</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; My height is 1824 cm</span></span>
-<span></span><span><span class='c'>#&gt; [1] 21</span></span>
+<span></span><span><span class='nf'>say_height_safely</span><span class='o'>(</span><span class='m'>1824567</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; My height is 1824567</span></span>
+<span></span><span><span class='c'>#&gt; [1] 24</span></span>
 <span></span></code></pre>
 
 </div>
