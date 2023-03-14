@@ -16,7 +16,7 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn, programming]
-rmd_hash: a35d2937a6e92f4d
+rmd_hash: 100f06cdd20ed132
 
 ---
 
@@ -124,7 +124,7 @@ Here is a very simple example:
 
 ### How to fix it
 
-In most cases, this should be a simple fix: replace <code>sprintf()</code> with `snprintf()` and `vsprintf()` with `vsnprintf()`. These `n` variants take a second parameter `size`, that specifies the maximum number of bytes written. If the output is a static buffer, you can use `sizeof()`:
+In most cases, this should be a simple fix: replace <code>sprintf()</code> with `snprintf()` and `vsprintf()` with `vsnprintf()`. These `n` variants take a second parameter `size`, that specifies the maximum number of bytes to be written, *including the automatically appended null-terminator*. If the output is a static buffer, you can use `sizeof()`:
 
 <div class="highlight">
 
@@ -134,7 +134,7 @@ In most cases, this should be a simple fix: replace <code>sprintf()</code> with 
 <span><span class='s'>    // to add one for the null-terminator</span></span>
 <span><span class='s'>    char out[19 + 1];</span></span>
 <span><span class='s'>    int n;</span></span>
-<span><span class='s'>    n = snprintf(out, sizeof(out), "My height is %i cm", height);</span></span>
+<span><span class='s'>    n = snprintf(out, sizeof(out), "My height is %i cm\\n", height);</span></span>
 <span><span class='s'>    Rprintf(out);</span></span>
 <span><span class='s'>    if (n &gt;= sizeof(out)) &#123;</span></span>
 <span><span class='s'>       Rprintf("\\nTruncated because input is longer than allowed!\\n");</span></span>
@@ -143,43 +143,39 @@ In most cases, this should be a simple fix: replace <code>sprintf()</code> with 
 <span><span class='s'>  &#125;</span></span>
 <span><span class='s'>'</span><span class='o'>)</span></span>
 <span></span>
-<span><span class='nf'>say_height_safely</span><span class='o'>(</span><span class='m'>182</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; My height is 182 cm</span></span>
+<span><span class='nf'>say_height_safely</span><span class='o'>(</span><span class='m'>18</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; My height is 18 cm</span></span>
 <span></span><span><span class='c'>#&gt; [1] 19</span></span>
 <span></span><span><span class='nf'>say_height_safely</span><span class='o'>(</span><span class='m'>1824</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; My height is 1824 c</span></span>
 <span><span class='c'>#&gt; Truncated because input is longer than allowed!</span></span>
-<span></span><span><span class='c'>#&gt; [1] 20</span></span>
+<span></span><span><span class='c'>#&gt; [1] 21</span></span>
 <span></span></code></pre>
 
 </div>
 
 Notice that the return value of `sprintf()` and `snprintf()` are slightly different. `sprintf()` returns the total number of characters written (excluding the null-terminator), while `snprintf()` returns the length of the formatted string, whether or not it has been truncated to match `size`.
 
-If the destination is not a static buffer, the easiest thing to do is pass in the size of the array:
+It is a bit trickier if the destination is not a static buffer, so you must set a maximum `size` that you think is reasonable:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://cpp11.r-lib.org/reference/cpp_source.html'>cpp_function</a></span><span class='o'>(</span><span class='s'>'</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://cpp11.r-lib.org'>cpp11</a></span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nf'><a href='https://cpp11.r-lib.org/reference/cpp_source.html'>cpp_function</a></span><span class='o'>(</span><span class='s'>'</span></span>
 <span><span class='s'>  int say_height_safely(int height) &#123;</span></span>
-<span><span class='s'>    // "My height is xxx cm" is 19 characters but we need </span></span>
-<span><span class='s'>    // to add one for the null-terminator</span></span>
-<span><span class='s'>    size_t size = 19 + 1; </span></span>
-<span><span class='s'>    char out[size]; </span></span>
-<span><span class='s'>    int n; </span></span>
-<span><span class='s'>    n = snprintf(out, size, "My height is %i cm", height);</span></span>
+<span><span class='s'>    int n;</span></span>
+<span><span class='s'>    char *out = new char(30);</span></span>
+<span><span class='s'>    n = snprintf(out, 30, "My height is %i cm\\n", height);</span></span>
 <span><span class='s'>    Rprintf(out);</span></span>
-<span><span class='s'>    if (n &gt;= sizeof(out)) &#123;</span></span>
-<span><span class='s'>       Rprintf("\\nTruncated because input is longer than allowed!\\n");</span></span>
-<span><span class='s'>    &#125;</span></span>
+<span><span class='s'>    delete[] out;</span></span>
 <span><span class='s'>    return n;</span></span>
 <span><span class='s'>  &#125;</span></span>
 <span><span class='s'>'</span><span class='o'>)</span></span>
 <span></span>
-<span><span class='nf'>say_height_safely</span><span class='o'>(</span><span class='m'>1824</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; My height is 1824 c</span></span>
-<span><span class='c'>#&gt; Truncated because input is longer than allowed!</span></span>
-<span></span><span><span class='c'>#&gt; [1] 20</span></span>
+<span><span class='nf'>say_height_safely</span><span class='o'>(</span><span class='m'>18245</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; My height is 18245 cm</span></span>
+<span></span><span><span class='c'>#&gt; [1] 22</span></span>
 <span></span></code></pre>
 
 </div>
