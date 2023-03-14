@@ -16,7 +16,7 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn, programming]
-rmd_hash: 100f06cdd20ed132
+rmd_hash: 35afe48a6f4a1626
 
 ---
 
@@ -69,7 +69,7 @@ After making these changes, the package should install without trouble on R 3.6 
 -   You can use a configure script at the top level of the package, and have it add `CXX_STD=CXX11` for R 3.5 and below. An example (unmerged) [pull request to the readxl](https://github.com/tidyverse/readxl/pull/722/files) package demonstrates this approach. You will also need to add `Biarch: true` in your DESCRIPTION file. This appears to be the approach preferred by CRAN.
 -   For users with R \<= 3.5 on a system with an older compiler, package authors can instruct users to edit their `~/.R/Makevars` file to include this line: `CXX_STD=CXX11`.
 
-The tidyverse has a [policy of supporting four previous versions](https://www.tidyverse.org/blog/2019/04/r-version-support/) of R. Currently that includes R 3.5, but with the upcoming release of R 4.3 (which should be this Spring some time) the minimum version we will support is R 3.6. As we won't be supporting R 3.5 in the near future, you should not feel pressured to either unless you have a compelling reason.
+The tidyverse has a [policy of supporting four previous versions](https://www.tidyverse.org/blog/2019/04/r-version-support/) of R. Currently that includes R 3.5, but with the upcoming release of R 4.3 (which should be this Spring some time) the minimum version we will support is R 3.6. As we won't be supporting R 3.5 in the near future, you should not feel pressured to either.
 
 ## WARNING regarding the use of <code>sprintf()</code> in C/C++
 
@@ -130,25 +130,21 @@ In most cases, this should be a simple fix: replace <code>sprintf()</code> with 
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://cpp11.r-lib.org/reference/cpp_source.html'>cpp_function</a></span><span class='o'>(</span><span class='s'>'</span></span>
 <span><span class='s'>  int say_height_safely(int height) &#123;</span></span>
-<span><span class='s'>    // "My height is xxx cm" is 19 characters but we need </span></span>
+<span><span class='s'>    // "My height is xxx cm\\n" is 20 characters but we need </span></span>
 <span><span class='s'>    // to add one for the null-terminator</span></span>
-<span><span class='s'>    char out[19 + 1];</span></span>
+<span><span class='s'>    char out[20 + 1];</span></span>
 <span><span class='s'>    int n;</span></span>
 <span><span class='s'>    n = snprintf(out, sizeof(out), "My height is %i cm\\n", height);</span></span>
 <span><span class='s'>    Rprintf(out);</span></span>
-<span><span class='s'>    if (n &gt;= sizeof(out)) &#123;</span></span>
-<span><span class='s'>       Rprintf("\\nTruncated because input is longer than allowed!\\n");</span></span>
-<span><span class='s'>    &#125;</span></span>
 <span><span class='s'>    return n;</span></span>
 <span><span class='s'>  &#125;</span></span>
 <span><span class='s'>'</span><span class='o'>)</span></span>
 <span></span>
-<span><span class='nf'>say_height_safely</span><span class='o'>(</span><span class='m'>18</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; My height is 18 cm</span></span>
-<span></span><span><span class='c'>#&gt; [1] 19</span></span>
+<span><span class='nf'>say_height_safely</span><span class='o'>(</span><span class='m'>182</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; My height is 182 cm</span></span>
+<span></span><span><span class='c'>#&gt; [1] 20</span></span>
 <span></span><span><span class='nf'>say_height_safely</span><span class='o'>(</span><span class='m'>1824</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; My height is 1824 c</span></span>
-<span><span class='c'>#&gt; Truncated because input is longer than allowed!</span></span>
+<span><span class='c'>#&gt; My height is 1824 cm</span></span>
 <span></span><span><span class='c'>#&gt; [1] 21</span></span>
 <span></span></code></pre>
 
@@ -156,7 +152,7 @@ In most cases, this should be a simple fix: replace <code>sprintf()</code> with 
 
 Notice that the return value of `sprintf()` and `snprintf()` are slightly different. `sprintf()` returns the total number of characters written (excluding the null-terminator), while `snprintf()` returns the length of the formatted string, whether or not it has been truncated to match `size`.
 
-It is a bit trickier if the destination is not a static buffer, so you must set a maximum `size` that you think is reasonable:
+It is a bit trickier if the destination is not a static buffer, so you'll have to determine the maximum `size` by carefully thinking about the code:
 
 <div class="highlight">
 
@@ -179,6 +175,8 @@ It is a bit trickier if the destination is not a static buffer, so you must set 
 <span></span></code></pre>
 
 </div>
+
+Here is a [real-world example](https://github.com/tidyverse/readr/commit/9143718735136c05c52c467b996dff799f77b888) of replacing `sprintf()` with `snprintf()` in the `grisu3.c` file, which is bundled into readr and vroom. In this case the size of the output buffer is not known, but reasonable assumptions can be made based on what we know will be passed to the function.
 
 ## WARNING regarding the use of strict prototypes in C
 
