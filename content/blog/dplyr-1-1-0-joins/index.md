@@ -15,7 +15,7 @@ categories: [package]
 tags: [dplyr, dplyr-1-1-0]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 5fdf91574c78da73
+rmd_hash: 1009ccbbd2c89b6d
 
 ---
 
@@ -121,6 +121,12 @@ This *join specification* can be used as the `by` argument in any of the `*_join
 This small quality of life improvement is just one of the many new features that come with [`join_by()`](https://dplyr.tidyverse.org/reference/join_by.html). We'll look at more of these next.
 
 ## Multiple matches
+
+------------------------------------------------------------------------
+
+**Update**: As of March 22, dplyr 1.1.1 is available on CRAN, which alters the behavior of multiple match detection so that you see warnings much less often. Read [all about it](/blog/2023/03/dplyr-1-1-1/) or install it now with `install.packages("dplyr")`.
+
+------------------------------------------------------------------------
 
 To make things a little more interesting, we'll add one more column to `companies`, and one more row:
 
