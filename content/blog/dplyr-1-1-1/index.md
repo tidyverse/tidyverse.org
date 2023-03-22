@@ -13,11 +13,11 @@ categories: [package]
 tags: [dplyr, dplyr-1-1-0]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 8d1edc67093cf019
+rmd_hash: b01f556beb3988a0
 
 ---
 
-We're stoked to announce the release of [dplyr 1.1.1](https://dplyr.tidyverse.org/). This blog post will outline the two most important features of this release:
+We're stoked to announce the release of [dplyr 1.1.1](https://dplyr.tidyverse.org/). We don't typically blog about patch releases, because they generally only fix bugs without significantly changing behavior, but this one includes two important updates:
 
 -   Addressing various performance regressions
 -   Refining the `multiple` match warning thrown by dplyr's joins
