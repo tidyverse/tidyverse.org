@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: cran-checks-compiled-code
 title: "New CRAN requirements for packages with C and C++"
-date: 2023-03-13
+date: 2023-03-30
 author: Andy Teucher
 description: >
     A few recent changes in CRAN requirements for packages containing C or C++
@@ -16,7 +16,7 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn, programming]
-rmd_hash: d9504147c9ce3b50
+rmd_hash: 22d12496d5bbad1c
 
 ---
 
