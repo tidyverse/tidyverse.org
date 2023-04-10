@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: base-vs-magrittr-pipe
 title: Differences between the base R and magrittr pipes
-date: 2023-03-08
+date: 2023-04-11
 author: Hadley Wickham
 description: >
     A discussion of the (relatively minor) differences between the native R pipe, 
@@ -70,3 +70,23 @@ But they're still good to know about even if you've never used `%>%` because you
 -   `%>%` allows you to drop the parentheses when calling a function with no other arguments; `|>` always requires the parentheses.
 
 -   `%>%` allows you to start a pipe with `.` to create a function rather than immediately executing the pipe; this is not supported by the base pipe.
+
+## Using the native pipe in packages
+
+Because the native pipe wasn't introduced until 4.1.0, code using `|>` in function reference examples or vignettes will not work on older versions of R, as it is not valid syntax.
+
+Does this mean that you need to increase the minimum R version your package depends on in order to use `|>`?
+Not necessarily. 
+
+For example, the base pipe is used in purrr's 1.0.0 release. As can be seen in the [source for the “purrr <-> base R” vignette](https://github.com/tidyverse/purrr/commit/df4630c6e8cd5028386ee96b9036f1755f26adc4), certain code chunks are evaluated conditionally based on the version of R being used. The setup chunk for the vignette includes: `modern_r <- getRversion() >= "4.1.0"`. The results of this are then used in the `eval` argument to determine whether or not a code chunk that relies on "modern R" syntax should be run, as can be seen in the following example:
+
+````{verbatim}
+```{r, eval = modern_r}
+set.seed(2020)
+means |> 
+  lapply(rnorm, n = 5, sd = 1) |> 
+  sapply(median)
+```
+````
+
+Since function-reference examples aren't in `.Rmd` files, `R CMD check --no-examples` is used on < R 4.1.

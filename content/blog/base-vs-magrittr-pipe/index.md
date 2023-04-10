@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: base-vs-magrittr-pipe
 title: Differences between the base R and magrittr pipes
-date: 2023-03-08
+date: 2023-04-11
 author: Hadley Wickham
 description: >
     A discussion of the (relatively minor) differences between the native R pipe, 
@@ -13,7 +13,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other] 
 tags: [magrittr]
-rmd_hash: 2caa2e68998eab4e
+rmd_hash: da641bf1fd07239f
 
 ---
 
@@ -34,9 +34,15 @@ TODO:
 
 ## Pipes
 
-With the 4.1.0 release of R, a native pipe operator, `|>`, was introduced. Its behavior is by and large the same as that of the [`%>%`](https://magrittr.tidyverse.org/reference/pipe.html) pipe provided by the **magrittr** package. Both operators (`|>` and `%>%`) let you "pipe" an object forward to a function or call expression, thereby allowing you to express a sequence of operations that transform an object.
+With the 4.1.0 release of R, a native pipe operator, `|>`, was introduced. As described in the [R News](https://cran.r-project.org/doc/manuals/r-devel/NEWS.html):
+
+> R now provides a simple native forward pipe syntax `|>`. The simple form of the forward pipe inserts the left-hand side as the first argument in the right-hand side call. The pipe implementation as a syntax transformation was motivated by suggestions from Jim Hester and Lionel Henry.
+
+The behaviour of the native pipe is by and large the same as that of the [`%>%`](https://magrittr.tidyverse.org/reference/pipe.html) pipe provided by the **magrittr** package. Both operators (`|>` and `%>%`) let you "pipe" an object forward to a function or call expression, thereby allowing you to express a sequence of operations that transform an object.
 
 To learn more about the basic utility of pipes, see [The pipe](https://r4ds.hadley.nz/data-transform.html#the-pipe) section of R for Data Science.
+
+Luckily there's no need to commit entirely to one pipe or the other --- you can use the base pipe for the majority of cases where it's sufficient and use the magrittr pipe when you really need its special features.
 
 ## `|>` vs. `%>%`
 
@@ -46,7 +52,7 @@ While `|>` and `%>%` behave identically for simple cases, there are a few crucia
 
 -   The `|>` placeholder is deliberately simple and can't replicate many features of the `%>%` placeholder: you can't pass it to multiple arguments, and it doesn't have any special behavior when the placeholder is used inside another function. For example, `df %>% split(.$var)` is equivalent to `split(df, df$var)`, and `df %>% {split(.$x, .$y)}` is equivalent to `split(df$x, df$y)`.
 
-    With `%>%`, you can use `.` on the left-hand side of operators like `$`, `[[`, `[` , so you can extract a single column from a data frame with (e.g.) `mtcars %>% .$cyl`. A future version of R may add similar support for `|>` and `_`. For the special case of extracting a column out of a data frame, you can also use [`dplyr::pull()`](https://dplyr.tidyverse.org/reference/pull.html):
+    With `%>%`, you can use `.` on the left-hand side of operators like `$`, `[[`, `[` , so you can extract a single column from a data frame with (e.g.) `mtcars %>% .$cyl`. A future version of R may add similar support for `|>` and `_`. For the special case of extracting a column out of a data frame, you can also use `dplyr::pull()`:
 
     <div class="highlight">
 
@@ -58,5 +64,25 @@ While `|>` and `%>%` behave identically for simple cases, there are a few crucia
 
 -   `%>%` allows you to start a pipe with `.` to create a function rather than immediately executing the pipe; this is not supported by the base pipe.
 
-Luckily there's no need to commit entirely to one pipe or the other --- you can use the base pipe for the majority of cases where it's sufficient and use the magrittr pipe when you really need its special features.
+## Using the native pipe in packages
+
+Because the native pipe wasn't introduced until 4.1.0, code using `|>` in function reference examples or vignettes will not work on older versions of R, as it is not valid syntax.
+
+Does this mean that you need to increase the minimum R version your package depends on in order to use `|>`? Not necessarily.
+
+For example, the base pipe is used in purrr's 1.0.0 release. As can be seen in the [source for the "purrr \<-\> base R" vignette](https://github.com/tidyverse/purrr/commit/df4630c6e8cd5028386ee96b9036f1755f26adc4), certain code chunks are evaluated conditionally based on the version of R being used. The setup chunk for the vignette includes: `modern_r <- getRversion() >= "4.1.0"`. The results of this are then used in the `eval` argument to determine whether or not a code chunk that relies on "modern R" syntax should be run, as can be seen in the following example:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'>```{r, eval = modern_r}
+set.seed(2020)
+means |> 
+  lapply(rnorm, n = 5, sd = 1) |> 
+  sapply(median)
+```
+</code></pre>
+
+</div>
+
+Since function-reference examples aren't in `.Rmd` files, `R CMD check --no-examples` is used on \< R 4.1.
 
