@@ -79,13 +79,13 @@ knn_model_final <- finalize_model(knn_model_spec, best_param)
 knn_fit <- fit(knn_model_final, mpg ~ ., mtcars)
 ```
 
-Voilâ! `knn_fit` is a properly resampled model that is ready to `predict()` on new data:
+Voilà! `knn_fit` is a properly resampled model that is ready to `predict()` on new data:
 
 ```{r}
 predict(knn_fit, mtcars[1, ])
 ```
 
-The newest release of tune introduced a shorthand interface for going from tuning results to final fit called `fit_best()`. The function wraps each of those three functions with sensible defaults to shorten the process to a final model fit.
+The newest release of tune introduced a shorthand interface for going from tuning results to final fit called `fit_best()`. The function wraps each of those three functions with sensible defaults to abbreviate the process described above.
 
 ```{r}
 knn_fit_2 <- fit_best(tuning_res)
@@ -97,7 +97,7 @@ The newest release of workflowsets also includes a method for workflow set objec
 
 ## Interactive issue logging
 
-Imagine, in the previous example, we made some subtle error in specifying the tuning process. For example, mistakenly passing a function to `extract` elements of the proposed workflows that contains some mistakes:
+Imagine, in the previous example, we made some subtle error in specifying the tuning process. For example, passing a function to `extract` elements of the proposed workflows that injects some warnings and errors into the tuning process:
  
 ```{r, eval = FALSE}
 raise_concerns <- function(x) {
@@ -116,7 +116,7 @@ tuning_res <-
 
 Warnings and errors can come up in all sorts of places while tuning hyperparameters. Often, with obvious issues, we can raise errors early on and halt the tuning process, but with more subtle concerns, we don't want to be too restrictive; it's sometimes better to defer to the underlying modeling packages to decide what's a dire issue versus something that can be worked around.
 
-In the past, we've raised warnings and issues as they occur, printing context on the issue to the console before logging to the tuning result. In the above example, this would look like:
+In the past, we've raised warnings and issues as they occur, printing context on the issue to the console before logging the issue in the tuning result. In the above example, this would look like:
 
 ```
 ! Bootstrap1: preprocessor 1/1, model 1/1 (extracts): Ummm, wait. :o
