@@ -15,11 +15,11 @@ photo:
 
 categories: [roundup] 
 tags: [tidymodels, tune, workflowsets]
-rmd_hash: ab588fee789f4bd8
+rmd_hash: 162c42e385520ed9
 
 ---
 
-The tidymodels team recently released new versions of the tune, finetune, and workflowsets packages, and we're super stoked about it! Each of these three packages facilitates tuning hyperparameters in the tidymodels, and their new releases work to make the experience of hyperparameter tuning more joyful.
+The tidymodels team recently released new versions of the tune, finetune, and workflowsets packages, and we're super stoked about it! Each of these three packages facilitates tuning hyperparameters in , and their new releases work to make the experience of hyperparameter tuning more joyful.
 
 You can install these releases from CRAN with:
 
@@ -46,7 +46,7 @@ You can see the full lists of changes in the release notes for each package:
 
 ## A shorthand for fitting the optimal model
 
-In the tidymodels, the result of tuning a set of hyperparameters is a data structure describing the candidate models, their predictions, and the performance metrics associated with those predictions. For example, tuning the number of `neighbors` in a `nearest_neighbors()` model over a regular grid:
+In , the result of tuning a set of hyperparameters is a data structure describing the candidate models, their predictions, and the performance metrics associated with those predictions. For example, tuning the number of `neighbors` in a `nearest_neighbors()` model over a regular grid:
 
 <div class="highlight">
 
@@ -68,40 +68,40 @@ In the tidymodels, the result of tuning a set of hyperparameters is a data struc
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 4</span></span></span>
 <span><span class='c'>#&gt;   splits          id         .metrics          .notes          </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap1 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap2 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap3 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap4 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap5 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap1 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> <span style='color: #555555;'>&lt;split [32/9]&gt;</span>  Bootstrap2 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap3 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap4 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap5 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span></span><span></span>
 <span><span class='c'># examine proposed hyperparameters and associated metrics</span></span>
 <span><span class='nf'><a href='https://tune.tidymodels.org/reference/collect_predictions.html'>collect_metrics</a></span><span class='o'>(</span><span class='nv'>tuning_res</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 18 × 7</span></span></span>
 <span><span class='c'>#&gt;    neighbors .metric .estimator  mean     n std_err .config             </span></span>
 <span><span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>               </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span>         2 rmse    standard   3.42      5  0.344  Preprocessor1_Model1</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span>         2 rsq     standard   0.744     5  0.037<span style='text-decoration: underline;'>5</span> Preprocessor1_Model1</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span>         3 rmse    standard   3.31      5  0.336  Preprocessor1_Model2</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span>         3 rsq     standard   0.764     5  0.041<span style='text-decoration: underline;'>6</span> Preprocessor1_Model2</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span>         5 rmse    standard   3.32      5  0.255  Preprocessor1_Model3</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span>         5 rsq     standard   0.775     5  0.041<span style='text-decoration: underline;'>8</span> Preprocessor1_Model3</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span>         7 rmse    standard   3.35      5  0.238  Preprocessor1_Model4</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span>         7 rsq     standard   0.785     5  0.040<span style='text-decoration: underline;'>3</span> Preprocessor1_Model4</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span>         8 rmse    standard   3.37      5  0.245  Preprocessor1_Model5</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span>         8 rsq     standard   0.787     5  0.038<span style='text-decoration: underline;'>3</span> Preprocessor1_Model5</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>11</span>        10 rmse    standard   3.45      5  0.273  Preprocessor1_Model6</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>12</span>        10 rsq     standard   0.786     5  0.035<span style='text-decoration: underline;'>2</span> Preprocessor1_Model6</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>13</span>        12 rmse    standard   3.55      5  0.294  Preprocessor1_Model7</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>14</span>        12 rsq     standard   0.781     5  0.031<span style='text-decoration: underline;'>8</span> Preprocessor1_Model7</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>15</span>        13 rmse    standard   3.60      5  0.301  Preprocessor1_Model8</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>16</span>        13 rsq     standard   0.776     5  0.030<span style='text-decoration: underline;'>1</span> Preprocessor1_Model8</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>17</span>        14 rmse    standard   3.66      5  0.307  Preprocessor1_Model9</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>18</span>        14 rsq     standard   0.772     5  0.028<span style='text-decoration: underline;'>6</span> Preprocessor1_Model9</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span>         2 rmse    standard   2.85      5  0.253  Preprocessor1_Model1</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span>         2 rsq     standard   0.776     5  0.055<span style='text-decoration: underline;'>5</span> Preprocessor1_Model1</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span>         4 rmse    standard   2.74      5  0.308  Preprocessor1_Model2</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span>         4 rsq     standard   0.786     5  0.049<span style='text-decoration: underline;'>2</span> Preprocessor1_Model2</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span>         5 rmse    standard   2.75      5  0.325  Preprocessor1_Model3</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span>         5 rsq     standard   0.784     5  0.048<span style='text-decoration: underline;'>0</span> Preprocessor1_Model3</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span>         6 rmse    standard   2.74      5  0.332  Preprocessor1_Model4</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span>         6 rsq     standard   0.784     5  0.045<span style='text-decoration: underline;'>5</span> Preprocessor1_Model4</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span>         7 rmse    standard   2.73      5  0.334  Preprocessor1_Model5</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span>         7 rsq     standard   0.784     5  0.043<span style='text-decoration: underline;'>1</span> Preprocessor1_Model5</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>11</span>         8 rmse    standard   2.72      5  0.335  Preprocessor1_Model6</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>12</span>         8 rsq     standard   0.784     5  0.040<span style='text-decoration: underline;'>9</span> Preprocessor1_Model6</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>13</span>        10 rmse    standard   2.72      5  0.343  Preprocessor1_Model7</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>14</span>        10 rsq     standard   0.783     5  0.037<span style='text-decoration: underline;'>3</span> Preprocessor1_Model7</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>15</span>        11 rmse    standard   2.73      5  0.347  Preprocessor1_Model8</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>16</span>        11 rsq     standard   0.781     5  0.036<span style='text-decoration: underline;'>2</span> Preprocessor1_Model8</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>17</span>        14 rmse    standard   2.79      5  0.348  Preprocessor1_Model9</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>18</span>        14 rsq     standard   0.772     5  0.033<span style='text-decoration: underline;'>4</span> Preprocessor1_Model9</span></span>
 <span></span></code></pre>
 
 </div>
 
-Given these tuning results, the next steps are to choose the "best" hyperparameters, assign those hyperparameters to the model, and fit the finalized model on the training set. Previously in the tidymodels, this has felt like:
+Given these tuning results, the next steps are to choose the "best" hyperparameters, assign those hyperparameters to the model, and fit the finalized model on the training set. Previously in , this has felt like:
 
 <div class="highlight">
 
@@ -124,7 +124,7 @@ Voilà! `knn_fit` is a properly resampled model that is ready to [`predict()`](h
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 1</span></span></span>
 <span><span class='c'>#&gt;   .pred</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>  20.9</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>  21.8</span></span>
 <span></span></code></pre>
 
 </div>
@@ -139,7 +139,7 @@ The newest release of tune introduced a shorthand interface for going from tunin
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 1</span></span></span>
 <span><span class='c'>#&gt;   .pred</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>  20.9</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>  21.8</span></span>
 <span></span></code></pre>
 
 </div>
@@ -243,11 +243,11 @@ The `.Last.tune.result` helper stores the most recent tuning result in the objec
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 4</span></span></span>
 <span><span class='c'>#&gt;   splits          id         .metrics          .notes          </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [32/14]&gt;</span> Bootstrap1 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap2 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> <span style='color: #555555;'>&lt;split [32/14]&gt;</span> Bootstrap3 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap4 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap5 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap1 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap2 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap3 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap4 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap5 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span></span><span></span>
 <span><span class='c'># all is not lost!</span></span>
 <span><span class='nv'>.Last.tune.result</span></span>
@@ -256,11 +256,11 @@ The `.Last.tune.result` helper stores the most recent tuning result in the objec
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 4</span></span></span>
 <span><span class='c'>#&gt;   splits          id         .metrics          .notes          </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [32/14]&gt;</span> Bootstrap1 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap2 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> <span style='color: #555555;'>&lt;split [32/14]&gt;</span> Bootstrap3 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap4 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap5 <span style='color: #555555;'>&lt;tibble [18 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap1 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap2 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap3 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap4 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap5 <span style='color: #555555;'>&lt;tibble [16 × 5]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span></span><span></span>
 <span><span class='c'># assign to object after the fact</span></span>
 <span><span class='nv'>res</span> <span class='o'>&lt;-</span> <span class='nv'>.Last.tune.result</span></span></code></pre>
