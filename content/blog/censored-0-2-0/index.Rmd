@@ -1,0 +1,158 @@
+---
+output: hugodown::hugo_document
+
+slug: censored-0-2-0
+title: censored 0.2.0
+date: 2023-04-19
+author: Hannah Frick
+description: >
+    censored 0.2.0 is on CRAN! censored has two new engines for random forests 
+    and parametric survival models.
+
+photo:
+  url: https://unsplash.com/photos/TuAZPj1uaZs
+  author: Sam Poullain
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [tidymodels, parsnip, censored]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're thrilled to announce the release of [censored](https://censored.tidymodels.org/) 0.2.0. censored is a parsnip extension package for survival models.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("censored")
+```
+
+This blog post will introduce you to a new argument name, `eval_time`, and two new engines for fitting random forests and parametric survival models.
+
+You can see a full list of changes in the [release notes](https://github.com/tidymodels/censored/releases/tag/v0.2.0).
+
+```{r setup, include = FALSE}
+library(tidymodels)
+library(censored)
+tidymodels_prefer()
+theme_set(theme_minimal())
+```
+
+## Introducting `eval_time`
+
+As we continue to add support for survival analysis across tidymodels, we have seen a need to be more explicit about which time we mean when we say "time": event time, observed time, censoring time, time at which to predict survival probability at? The last one is a particular mouthful. We now refer to this time as "evaluation time". In preparation for dynamic survival performance metrics which can be calculated at different evaluation time points, the argument to set these evaluation time points for `predict()` is now called `eval_time` instead of just `time`.
+
+```{r}
+cox <- proportional_hazards() |> 
+  set_engine("survival") |> 
+  set_mode("censored regression") |> 
+  fit(Surv(time, status) ~ ., data = lung)
+pred <- predict(cox, lung[1:3, ], type = "survival", eval_time = c(100, 500))
+pred
+```
+
+The predictions follow the tidymodels principle of one row per observation, and the nested tibble contains the predicted survival probability, `.pred_survival`, as well as the corresponding evaluation time. The column for the evaluation time is now called `.eval_time` instead of `.time`.
+
+```{r}
+pred$.pred[[2]]
+```
+
+## New engines
+
+censored contains engines for parametric, semi-parametric, and tree-based models. This release adds two new engines:
+
+- the `"aorsf"` engine for random forests via `rand_forest()`
+- the `"flexsurvspline"` engine for parametric models via `survival_reg()`
+
+### New `"aorsf"` engine for `rand_forest()`
+
+This engine has been contributed by [Byron Jaeger](https://github.com/bcjaeger) and enables users to fit oblique random survival forests with the aorsf package. What's with the oblique you ask?
+
+Oblique describes how the decision trees that form the random forest make their splits at each node: If the split is based on a single predictor, the resulting tree is called _axis-based_ because the split is perpendicular to the axis of the predictor. If the split is based on a linear combination of predictors, there is a lot more flexibility in how the data is split: the split does not need to be perpendicular to any of the predictor axes. Such trees are called _oblique_. 
+
+The documentation for the [aorsf](https://docs.ropensci.org/aorsf) package includes a nice illustration of this with the splits for an axis-based tree on the left and an oblique tree on the right:
+
+![Two scatter plots of data with two predictors, X1 and X2, and two classes, coded as pink dots and orange squares. The lefthand plot shows the splits of an axis-based decision tree which are at a right angle to the axis. The resulting partition generally separates the classes well but not perfectly. The righthand plot shows the splits of an oblique tree which achieves perfect separation on this example because it can cut across the predictor space diagnonally.](https://docs.ropensci.org/aorsf/reference/figures/tree_axis_v_oblique.png)
+
+To fit such a model, set the engine for a random forest to `"aorsf"`:
+
+```{r}
+lung <- na.omit(lung)
+
+forest <- rand_forest() |> 
+  set_engine("aorsf") |> 
+  set_mode("censored regression") |> 
+  fit(Surv(time, status) ~ ., data = lung)
+
+pred <- predict(forest, lung[1:3, ], type = "survival", eval_time = c(100, 500))
+pred$.pred[[1]]
+```
+
+### New `"flexsurvspline"` engine for `survival_reg()`
+
+This engine has been contributed by [Matt Warkentin](https://github.com/mattwarkentin) and enables users to fit a parametric survival model with splines via `flexsurv::flexsurvspline()`. 
+
+This model uses natural cubic splines to model a transformation of the survival function, e.g., the log cumulative hazard. This gives a lot more flexibility to a parametric model allowing us, for example, to represent more irregular hazard curves. Let's illustrate that with a data set of survival times of breast cancer patients, based on the example from [Jackson (2016)](https://www.jstatsoft.org/article/view/v070i08). 
+
+The flexibility of the model is governed by `k`, the number of knots in the spline. We set `scale = "odds"` for a proportional hazards model. 
+
+```{r}
+data(bc, package = "flexsurv")
+
+fit_splines <- survival_reg() |> 
+  set_engine("flexsurvspline", k = 5, scale = "odds") |> 
+  fit(Surv(recyrs, censrec) ~ group, data = bc)
+```
+
+For comparison, we also fit a parametric model without splines.
+
+```{r}
+fit_gengamma <- survival_reg(dist = "gengamma") |> 
+  set_engine("flexsurv") |> 
+  fit(Surv(recyrs, censrec) ~ group, data = bc)
+```
+
+We can predict the hazard for the three levels of the prognostic `group`
+
+```{r}
+bc_groups <- tibble(group = c("Poor","Medium","Good"))
+
+pred_splines <- predict(fit_splines, new_data = bc_groups, type = "hazard", 
+                        eval_time = seq(0.1, 8, by = 0.1)) |> 
+  mutate(model = "splines") |> 
+  bind_cols(bc_groups)
+
+pred_gengamma <- predict(fit_gengamma, new_data = bc_groups, type = "hazard", 
+                         eval_time = seq(0.1, 8, by = 0.1)) |> 
+  mutate(model = "gengamma") |> 
+  bind_cols(bc_groups)
+```
+
+and plot the predictions of both models which show a lot more flexibility for the splines model.
+
+```{r, fig.alt = ""}
+bind_rows(pred_splines, pred_gengamma) %>% 
+  tidyr::unnest(cols = .pred) |> 
+  ggplot() +
+  geom_line(aes(x = .eval_time, y = .pred_hazard, group = group, col = group)) +
+  facet_wrap(~ model)
+```
+
+
+## Acknowledgements
+
+Special thanks to Matt Warkentin and Byron Jaeger for the new engines! A big thank you to all the people who have contributed to censored since the release of v0.1.0:
+
+[&#x0040;bcjaeger](https://github.com/bcjaeger), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;therneau](https://github.com/therneau), and [&#x0040;topepo](https://github.com/topepo).
