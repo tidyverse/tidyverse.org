@@ -405,16 +405,11 @@ Two truths:
 
 - One ought to ask themselves "does this really need to be a join?" when combining data sources in package code.
 
-Some ways to intuit whether joins are necessary:
+Some ways to intuit about join efficiency:
 
-- Does the complete information I need live somewhere farther up the call stack or in a package environment?
-
-    - If so, could I pass it as an argument or retrieve it from a package environment?
-
-    - If not, could it? i.e. if the elements of the join are not indices of a loop, or are indices that could easily be subsetted on after the fact, do the join just once higher up in the call stack.
+- If this join happens multiple times, is it possible to express it as one join and then subset it when needed? i.e. if a join happens inside of a loop but the elements of the join are not indices of the loop, it's likely possible to pull that join outside of the loop and then `vec_slice()` its results inside of the loop.
 
 - Am I using the complete outputted join result or just a portion? If I end up only making use of column names, or values in one column, or pairings between two columns, I may be able to instead use `$.tbl_df` or `[.tbl_df`.
-
 
 As an example, imagine we have another tibble that tells us additional information about the `make_model`s that I drove in high school:
 
