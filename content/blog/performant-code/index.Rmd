@@ -158,19 +158,20 @@ Many of the core functions in dplyr have alternatives in vctrs and tibble that c
 The dplyr code:
 
 ```{r filter, eval = FALSE}
-filter(mtcars_tbl, hp > 100)
+mtcars_tbl %>%
+  filter(hp > 100)
 ```
 
 ...can be replaced by:
 
 ```{r filter-alt, eval = FALSE}
-vec_slice(mtcars_tbl, mtcars$hp > 100)
+vec_slice(mtcars_tbl, mtcars_tbl$hp > 100)
 ```
 
-Note that the second argument that determines which rows to keep requires you to actually pass the column `mtcars$hp` rather than its reference `hp`. If you feel cozier with square brackets, you can also use `[.tbl_df`:
+Note that the second argument that determines which rows to keep requires you to actually pass the column `mtcars_tbl$hp` rather than its reference `hp`. If you feel cozier with square brackets, you can also use `[.tbl_df`:
 
 ```{r filter-alt-2, eval = FALSE}
-mtcars_tbl[mtcars$hp > 100, ]
+mtcars_tbl[mtcars_tbl$hp > 100, ]
 ```
 
 `[.tbl_df` is the [method for subsetting with a single square bracket when applied to tibbles](https://tibble.tidyverse.org/reference/subsetting.html). Tibbles have their own methods for extracting and replacing subsets of data frames. They generally behave similarly to the analogous methods for `data.frame`s, but have small differences to improve consistency and safety.
@@ -182,7 +183,7 @@ res <-
   bench::mark(
     dplyr = filter(mtcars_tbl, hp > 100),
     vctrs = vec_slice(mtcars_tbl, mtcars_tbl$hp > 100),
-    `[.tbl_df` = mtcars_tbl[mtcars$hp > 100, ]
+    `[.tbl_df` = mtcars_tbl[mtcars_tbl$hp > 100, ]
   ) %>%
     select(expression, median)
 
@@ -263,7 +264,7 @@ bench::mark(
 
 Note that `[.tbl_df` always sets `drop = FALSE`.
 
-`[.tbl_df` can also be used as an alternative interface to `select()` with a `.before` or `.after` argument as well as `relocate()`. For instance, to place that column `year` we made in the last section as the second column, we could write:
+`[.tbl_df` can also be used as an alternative interface to `select()` or `relocate()` with a `.before` or `.after` argument. For instance, to place that column `year` we made in the last section as the second column, we could write:
 
 ```{r left-cols, include = FALSE}
 left_cols <- c("make_model", "year")
@@ -322,7 +323,7 @@ mtcars_tbl$hp
 mtcars_tbl[["hp"]]
 ```
 
-Note that `$` will raise a warning if the subsetted column doesn't exist, while `[[` will silently return `NULL`.
+Note that, for tibbles, `$` will raise a warning if the subsetted column doesn't exist, while `[[` will silently return `NULL`.
 
 With benchmarks:
 
