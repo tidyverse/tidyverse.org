@@ -14,7 +14,7 @@ photo:
 
 categories: [programming] 
 tags: [package, vctrs]
-rmd_hash: 46b560d16fcf3e18
+rmd_hash: 907bc17ee71d90c3
 
 ---
 
@@ -162,9 +162,11 @@ The other nice part about [`bench::mark()`](http://bench.r-lib.org/reference/mar
 There are two important lessons to take in from this output:
 
 -   The `sum(unlist())` approach was wicked fast compared to [`Reduce()`](https://rdrr.io/r/base/funprog.html).
--   Both of these expressions were fast. Even the slower of the two took 2.3µs---to put that in perspective, that expression could complete 435534 iterations in a second! Keeping this bigger picture in mind is always important when benchmarking; if code runs fast enough to not be an issue in practical situations, then it need not be optimized in favor of less readable or safe code.
+-   Both of these expressions were fast. Even the slower of the two took 2.3µs---to put that in perspective, that expression could complete 435540 iterations in a second! Keeping this bigger picture in mind is always important when benchmarking; if code runs fast enough to not be an issue in practical situations, then it need not be optimized in favor of less readable or safe code.
 
 The results of little experiments like this one can be surprising at first. Over time, though, you will develop intuition for the fastest way to solve problems you commonly solve, and will write fast code the first time around!
+
+In this case, using [`Reduce()`](https://rdrr.io/r/base/funprog.html) means calling [`sum()`](https://rdrr.io/r/base/sum.html) many times, approximately once for each element of the list, and while [`sum()`](https://rdrr.io/r/base/sum.html) isn't particularly slow, calling an R function many times tends to have non-negligible overhead. With the `sum(unlist())` approach, there are only 2 R function calls---one for [`unlist()`](https://rdrr.io/r/base/unlist.html) and one for [`sum()`](https://rdrr.io/r/base/sum.html)---which both immediately drop into C code.
 
 ### vctrs
 
@@ -217,7 +219,8 @@ The dplyr code:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>hp</span> <span class='o'>&gt;</span> <span class='m'>100</span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>mtcars_tbl</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>hp</span> <span class='o'>&gt;</span> <span class='m'>100</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
@@ -225,15 +228,15 @@ The dplyr code:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_slice</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>mtcars</span><span class='o'>$</span><span class='nv'>hp</span> <span class='o'>&gt;</span> <span class='m'>100</span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_slice</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>mtcars_tbl</span><span class='o'>$</span><span class='nv'>hp</span> <span class='o'>&gt;</span> <span class='m'>100</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
-Note that the second argument that determines which rows to keep requires you to actually pass the column `mtcars$hp` rather than its reference `hp`. If you feel cozier with square brackets, you can also use `[.tbl_df`:
+Note that the second argument that determines which rows to keep requires you to actually pass the column `mtcars_tbl$hp` rather than its reference `hp`. If you feel cozier with square brackets, you can also use `[.tbl_df`:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>mtcars_tbl</span><span class='o'>[</span><span class='nv'>mtcars</span><span class='o'>$</span><span class='nv'>hp</span> <span class='o'>&gt;</span> <span class='m'>100</span>, <span class='o'>]</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>mtcars_tbl</span><span class='o'>[</span><span class='nv'>mtcars_tbl</span><span class='o'>$</span><span class='nv'>hp</span> <span class='o'>&gt;</span> <span class='m'>100</span>, <span class='o'>]</span></span></code></pre>
 
 </div>
 
@@ -247,7 +250,7 @@ The benchmarks for these different approaches are:
 <span>  <span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/mark.html'>mark</a></span><span class='o'>(</span></span>
 <span>    dplyr <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>hp</span> <span class='o'>&gt;</span> <span class='m'>100</span><span class='o'>)</span>,</span>
 <span>    vctrs <span class='o'>=</span> <span class='nf'><a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_slice</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>mtcars_tbl</span><span class='o'>$</span><span class='nv'>hp</span> <span class='o'>&gt;</span> <span class='m'>100</span><span class='o'>)</span>,</span>
-<span>    `[.tbl_df` <span class='o'>=</span> <span class='nv'>mtcars_tbl</span><span class='o'>[</span><span class='nv'>mtcars</span><span class='o'>$</span><span class='nv'>hp</span> <span class='o'>&gt;</span> <span class='m'>100</span>, <span class='o'>]</span></span>
+<span>    `[.tbl_df` <span class='o'>=</span> <span class='nv'>mtcars_tbl</span><span class='o'>[</span><span class='nv'>mtcars_tbl</span><span class='o'>$</span><span class='nv'>hp</span> <span class='o'>&gt;</span> <span class='m'>100</span>, <span class='o'>]</span></span>
 <span>  <span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>expression</span>, <span class='nv'>median</span><span class='o'>)</span></span>
 <span></span>
@@ -255,14 +258,14 @@ The benchmarks for these different approaches are:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr      291.39µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        4.67µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [.tbl_df     23.7µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr      295.22µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        4.63µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [.tbl_df    23.86µs</span></span>
 <span></span></code></pre>
 
 </div>
 
-The bigger picture of benchmarking is worth re-iterating here. While the `filter()` approach was by far the slowest expression of the three, it still only took 291µs---able to complete 3432 iterations in a second. If I'm interactively analyzing data, I won't even notice the difference in evaluation time between these expressions, let alone care about it; the benefits of expressiveness and safety that `filter()` provide far outweigh the drawback of this slowdown. If `filter()` is called 3432 times in the backend of a machine learning pipeline, though, these alternatives may be worth transitioning to.
+The bigger picture of benchmarking is worth re-iterating here. While the `filter()` approach was by far the slowest expression of the three, it still only took 295µs---able to complete 3387 iterations in a second. If I'm interactively analyzing data, I won't even notice the difference in evaluation time between these expressions, let alone care about it; the benefits of expressiveness and safety that `filter()` provide far outweigh the drawback of this slowdown. If `filter()` is called 3387 times in the backend of a machine learning pipeline, though, these alternatives may be worth transitioning to.
 
 Some examples of changes like this made to tidymodels packages: [tidymodels/parsnip#935](https://github.com/tidymodels/parsnip/pull/935), [tidymodels/parsnip#933](https://github.com/tidymodels/parsnip/pull/933), [tidymodels/parsnip#901](https://github.com/tidymodels/parsnip/pull/901).
 
@@ -289,15 +292,15 @@ The dplyr code:
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/mark.html'>mark</a></span><span class='o'>(</span></span>
-<span>  dplyr        <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, year <span class='o'>=</span> <span class='m'>1974L</span><span class='o'>)</span>,</span>
+<span>  dplyr <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, year <span class='o'>=</span> <span class='m'>1974L</span><span class='o'>)</span>,</span>
 <span>  `$&lt;-.tbl_df` <span class='o'>=</span> <span class='o'>&#123;</span><span class='nv'>mtcars_tbl</span><span class='o'>$</span><span class='nv'>year</span> <span class='o'>&lt;-</span> <span class='m'>1974L</span>; <span class='nv'>mtcars_tbl</span><span class='o'>&#125;</span></span>
 <span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>expression</span>, <span class='nv'>median</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr       306.2µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> $&lt;-.tbl_df   13.1µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr       305.6µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> $&lt;-.tbl_df   13.2µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -329,15 +332,15 @@ The dplyr code:
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/mark.html'>mark</a></span><span class='o'>(</span></span>
-<span>  dplyr      <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>hp</span><span class='o'>)</span>,</span>
+<span>  dplyr <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>hp</span><span class='o'>)</span>,</span>
 <span>  `[.tbl_df` <span class='o'>=</span> <span class='nv'>mtcars_tbl</span><span class='o'>[</span><span class='s'>"hp"</span><span class='o'>]</span></span>
 <span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>expression</span>, <span class='nv'>median</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr      455.37µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> [.tbl_df     8.36µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr       451.2µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> [.tbl_df     8.28µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -356,15 +359,15 @@ Of course, the nice part about `select()`, and something we make use of in tidym
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr      470.99µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> [.tbl_df     8.53µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr      459.08µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> [.tbl_df     8.49µs</span></span>
 <span></span></code></pre>
 
 </div>
 
 Note that `[.tbl_df` always sets `drop = FALSE`.
 
-`[.tbl_df` can also be used as an alternative interface to `select()` with a `.before` or `.after` argument as well as `relocate()`. For instance, to place that column `year` we made in the last section as the second column, we could write:
+`[.tbl_df` can also be used as an alternative interface to `select()` or `relocate()` with a `.before` or `.after` argument. For instance, to place that column `year` we made in the last section as the second column, we could write:
 
 <div class="highlight">
 
@@ -397,8 +400,8 @@ No, thanks, but it is a good bit faster than tidyselect-based alternatives:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> mutate       1.19ms</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> relocate   721.72µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> mutate       1.13ms</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> relocate   689.78µs</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [.tbl_df    19.56µs</span></span>
 <span></span></code></pre>
 
@@ -432,14 +435,14 @@ The dplyr code:
 
 </div>
 
-Note that `$` will raise a warning if the subsetted column doesn't exist, while `[[` will silently return `NULL`.
+Note that, for tibbles, `$` will raise a warning if the subsetted column doesn't exist, while `[[` will silently return `NULL`.
 
 With benchmarks:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/mark.html'>mark</a></span><span class='o'>(</span></span>
-<span>  dplyr      <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/pull.html'>pull</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>hp</span><span class='o'>)</span>,</span>
+<span>  dplyr <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/pull.html'>pull</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>hp</span><span class='o'>)</span>,</span>
 <span>  `$.tbl_df` <span class='o'>=</span> <span class='nv'>mtcars_tbl</span><span class='o'>$</span><span class='nv'>hp</span>,</span>
 <span>  `[[.tbl_df` <span class='o'>=</span> <span class='nv'>mtcars_tbl</span><span class='o'>[[</span><span class='s'>"hp"</span><span class='o'>]</span><span class='o'>]</span></span>
 <span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
@@ -447,8 +450,8 @@ With benchmarks:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        90.9µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> $.tbl_df      656ns</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        89.4µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> $.tbl_df      615ns</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [[.tbl_df     2.3µs</span></span>
 <span></span></code></pre>
 
@@ -470,8 +473,8 @@ Some examples of changes like this made to tidymodels packages: [tidymodels/pars
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr          44µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        14.8µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        44.1µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        14.4µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -490,15 +493,15 @@ As for column-binding:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        61.5µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        26.4µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        61.3µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        26.9µs</span></span>
 <span></span></code></pre>
 
 </div>
 
 Some examples of changes like this made to tidymodels packages: [tidymodels/tune#636](https://github.com/tidymodels/tune/pull/636).
 
-#### `group_by()` + `summarize()`
+#### Grouping
 
 In general, the introduction of groups makes these substitutions much trickier. In those cases, it's likely best to weigh (via profiling) how significant the slowdown is and, if it's not too bad, opt not to make any changes. For code that relies on `group_by()` and sees heavy traffic, see `vctrs::list_unchop()`, `vctrs::vec_chop()`, and `vctrs::vec_rep_each()`.
 
@@ -508,41 +511,41 @@ Tibbles are great, and I don't want to interface with any other data frame-y thi
 
 -   `as_tibble()` on a tibble is not "free":
 
-<div class="highlight">
+    <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/mark.html'>mark</a></span><span class='o'>(</span></span>
-<span>  on_tbl_df <span class='o'>=</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/as_tibble.html'>as_tibble</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span><span class='o'>)</span>,</span>
-<span>  on_data.frame <span class='o'>=</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/as_tibble.html'>as_tibble</a></span><span class='o'>(</span><span class='nv'>mtcars</span>, rownames <span class='o'>=</span> <span class='s'>"make_model"</span><span class='o'>)</span></span>
-<span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>expression</span>, <span class='nv'>median</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
-<span><span class='c'>#&gt;   expression      median</span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> on_tbl_df       51.1µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> on_data.frame  239.3µs</span></span>
-<span></span></code></pre>
+    <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/mark.html'>mark</a></span><span class='o'>(</span></span>
+     <span>  on_tbl_df <span class='o'>=</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/as_tibble.html'>as_tibble</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span><span class='o'>)</span>,</span>
+     <span>  on_data.frame <span class='o'>=</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/as_tibble.html'>as_tibble</a></span><span class='o'>(</span><span class='nv'>mtcars</span>, rownames <span class='o'>=</span> <span class='s'>"make_model"</span><span class='o'>)</span></span>
+     <span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+     <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>expression</span>, <span class='nv'>median</span><span class='o'>)</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
+     <span><span class='c'>#&gt;   expression      median</span></span>
+     <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> on_tbl_df       51.1µs</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> on_data.frame  240.7µs</span></span>
+     <span></span></code></pre>
 
-</div>
+    </div>
 
 -   Building a tibble from scratch using `tibble()` actually takes quite a while as well. `tibble()` handles vector recycling and name checking, builds columns sequentially, all that good stuff. If you need that, use `tibble()`, but if you're building a tibble from well-understood inputs, use `new_tibble()`, which minimizes validation checks. For a middle ground between `tibble()` and `new_tibble(list())` in terms of both performance and safety, use the `df_list()` function from the vctrs package in place of `list()`.
 
-<div class="highlight">
+    <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/mark.html'>mark</a></span><span class='o'>(</span></span>
-<span>  tibble <span class='o'>=</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span><span class='o'>:</span><span class='m'>2</span>, b <span class='o'>=</span> <span class='m'>3</span><span class='o'>:</span><span class='m'>4</span><span class='o'>)</span>,</span>
-<span>  new_tibble_df_list <span class='o'>=</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/new_tibble.html'>new_tibble</a></span><span class='o'>(</span><span class='nf'><a href='https://vctrs.r-lib.org/reference/df_list.html'>df_list</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span><span class='o'>:</span><span class='m'>2</span>, b <span class='o'>=</span> <span class='m'>3</span><span class='o'>:</span><span class='m'>4</span><span class='o'>)</span>, nrow <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span>,</span>
-<span>  new_tibble_list <span class='o'>=</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/new_tibble.html'>new_tibble</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span><span class='o'>:</span><span class='m'>2</span>, b <span class='o'>=</span> <span class='m'>3</span><span class='o'>:</span><span class='m'>4</span><span class='o'>)</span>, nrow <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span></span>
-<span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>expression</span>, <span class='nv'>median</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
-<span><span class='c'>#&gt;   expression           median</span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tibble             167.69µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> new_tibble_df_list  17.02µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> new_tibble_list      4.96µs</span></span>
-<span></span></code></pre>
+    <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/mark.html'>mark</a></span><span class='o'>(</span></span>
+     <span>  tibble <span class='o'>=</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span><span class='o'>:</span><span class='m'>2</span>, b <span class='o'>=</span> <span class='m'>3</span><span class='o'>:</span><span class='m'>4</span><span class='o'>)</span>,</span>
+     <span>  new_tibble_df_list <span class='o'>=</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/new_tibble.html'>new_tibble</a></span><span class='o'>(</span><span class='nf'><a href='https://vctrs.r-lib.org/reference/df_list.html'>df_list</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span><span class='o'>:</span><span class='m'>2</span>, b <span class='o'>=</span> <span class='m'>3</span><span class='o'>:</span><span class='m'>4</span><span class='o'>)</span>, nrow <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span>,</span>
+     <span>  new_tibble_list <span class='o'>=</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/new_tibble.html'>new_tibble</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>1</span><span class='o'>:</span><span class='m'>2</span>, b <span class='o'>=</span> <span class='m'>3</span><span class='o'>:</span><span class='m'>4</span><span class='o'>)</span>, nrow <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span></span>
+     <span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+     <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>expression</span>, <span class='nv'>median</span><span class='o'>)</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
+     <span><span class='c'>#&gt;   expression           median</span></span>
+     <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tibble              167.5µs</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> new_tibble_df_list   16.9µs</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> new_tibble_list         5µs</span></span>
+     <span></span></code></pre>
 
-</div>
+    </div>
 
 Note that `new_tibble()` *will not check the lengths of its inputs.* Carry out simple recycling yourself, and be sure to use the `nrow` argument to get basic length checks.
 
@@ -637,8 +640,8 @@ This is indeed quite a bit faster:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> right_join  449.5µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> manual       21.1µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> right_join  451.7µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> manual       21.2µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -706,8 +709,8 @@ The performance improvement in these situations can be quite substantial:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> nest          1.5ms</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs          23µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> nest         1.55ms</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs       23.45µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -716,7 +719,16 @@ More complex nests require a good bit of facility with the vctrs package. [`vec_
 
 ### Combining strings
 
-The glue package is super helpful for writing expressive and correct strings with data. It is quite a bit slower than [`paste0()`](https://rdrr.io/r/base/paste.html), though.
+The glue package is super helpful for writing expressive and correct strings with data, though it is quite a bit slower than [`paste0()`](https://rdrr.io/r/base/paste.html). At the same time, [`paste0()`](https://rdrr.io/r/base/paste.html) has some tricky recycling behavior. For a middle ground in terms of both performance and safety, this short wrapper has been quite helpful:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>vec_paste0</span> <span class='o'>&lt;-</span> <span class='kr'>function</span> <span class='o'>(</span><span class='nv'>...</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
+<span>  <span class='nv'>args</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://vctrs.r-lib.org/reference/vec_recycle.html'>vec_recycle_common</a></span><span class='o'>(</span><span class='nv'>...</span><span class='o'>)</span></span>
+<span>  <span class='nf'><a href='https://rlang.r-lib.org/reference/exec.html'>exec</a></span><span class='o'>(</span><span class='nv'>paste0</span>, <span class='o'>!</span><span class='o'>!</span><span class='o'>!</span><span class='nv'>args</span><span class='o'>)</span></span>
+<span><span class='o'>&#125;</span></span></code></pre>
+
+</div>
 
 <div class="highlight">
 
@@ -724,20 +736,22 @@ The glue package is super helpful for writing expressive and correct strings wit
 <span></span>
 <span><span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/mark.html'>mark</a></span><span class='o'>(</span></span>
 <span>  glue <span class='o'>=</span> <span class='nf'>glue</span><span class='nf'>::</span><span class='nf'><a href='https://glue.tidyverse.org/reference/glue.html'>glue</a></span><span class='o'>(</span><span class='s'>"My name is &#123;name&#125;."</span><span class='o'>)</span>,</span>
+<span>  vec_paste0 <span class='o'>=</span> <span class='nf'>vec_paste0</span><span class='o'>(</span><span class='s'>"My name is "</span>, <span class='nv'>name</span>, <span class='s'>"."</span><span class='o'>)</span>,</span>
 <span>  paste0 <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='o'>(</span><span class='s'>"My name is "</span>, <span class='nv'>name</span>, <span class='s'>"."</span><span class='o'>)</span>,</span>
 <span>  check <span class='o'>=</span> <span class='kc'>FALSE</span></span>
 <span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>expression</span>, <span class='nv'>median</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> glue         38.8µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> paste0        861ns</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> glue        39.24µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vec_paste0   4.02µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> paste0     861.04ns</span></span>
 <span></span></code></pre>
 
 </div>
 
-My rule of thumb is to use `glue()` for errors, when the function will stop executing anyway. For simple pastes that are intended to be called repeatedly, use [`paste0()`](https://rdrr.io/r/base/paste.html). There's a lot of gray area in between those two contexts---intuit (or profile) as you will.
+My rule of thumb is to use `glue()` for errors, when the function will stop executing anyway. For simple pastes that are intended to be called repeatedly, use `vec_paste0()`. There's a lot of gray area in between those two contexts---intuit (or profile) as you will.
 
 ## Wrapping up
 
