@@ -125,6 +125,8 @@ There are two important lessons to take in from this output:
 
 The results of little experiments like this one can be surprising at first. Over time, though, you will develop intuition for the fastest way to solve problems you commonly solve, and will write fast code the first time around! 
 
+In this case, using `Reduce()` means calling `sum()` many times, approximately once for each element of the list, and while `sum()` isn't particularly slow, calling an R function many times tends to have non-negligible overhead. With the `sum(unlist())` approach, there are only 2 R function calls---one for `unlist()` and one for `sum()`---which both immediately drop into C code.
+
 ### vctrs
 
 The problems I commonly solve---and possibly you as well, as a reader of this post---often involve lots of dplyr and tidyr. When profiling the tidymodels packages, I've come across many places where calls to dplyr and tidyr took more time than I'd like them to, but had a lot to learn about how to speed up those operations. _Enter the vctrs package!_
