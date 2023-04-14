@@ -14,7 +14,7 @@ photo:
 
 categories: [programming] 
 tags: [package, vctrs]
-rmd_hash: 279c2e518967db17
+rmd_hash: 0ffb8d9febf606f4
 
 ---
 
@@ -151,8 +151,8 @@ You may have some other ideas of how to solve this problem! How do we figure out
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> approach_1   2.25µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> approach_2 492.03ns</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> approach_1    2.3µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> approach_2    492ns</span></span>
 <span></span></code></pre>
 
 </div>
@@ -162,7 +162,7 @@ The other nice part about [`bench::mark()`](http://bench.r-lib.org/reference/mar
 There are two important lessons to take in from this output:
 
 -   The `sum(unlist())` approach was wicked fast compared to [`Reduce()`](https://rdrr.io/r/base/funprog.html).
--   Both of these expressions were fast. Even the slower of the two took 2.25µs---to put that in perspective, that expression could complete 443460 iterations in a second! Keeping this bigger picture in mind is always important when benchmarking; if code runs fast enough to not be an issue in practical situations, then it need not be optimized in favor of less readable or safe code.
+-   Both of these expressions were fast. Even the slower of the two took 2.3µs---to put that in perspective, that expression could complete 435540 iterations in a second! Keeping this bigger picture in mind is always important when benchmarking; if code runs fast enough to not be an issue in practical situations, then it need not be optimized in favor of less readable or safe code.
 
 The results of little experiments like this one can be surprising at first. Over time, though, you will develop intuition for the fastest way to solve problems you commonly solve, and will write fast code the first time around!
 
@@ -258,14 +258,14 @@ The benchmarks for these different approaches are:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr       291.8µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr      291.02µs</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        4.63µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [.tbl_df     23.9µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [.tbl_df    23.86µs</span></span>
 <span></span></code></pre>
 
 </div>
 
-The bigger picture of benchmarking is worth re-iterating here. While the `filter()` approach was by far the slowest expression of the three, it still only took 292µs---able to complete 3427 iterations in a second. If I'm interactively analyzing data, I won't even notice the difference in evaluation time between these expressions, let alone care about it; the benefits of expressiveness and safety that `filter()` provide far outweigh the drawback of this slowdown. If `filter()` is called 3427 times in the backend of a machine learning pipeline, though, these alternatives may be worth transitioning to.
+The bigger picture of benchmarking is worth re-iterating here. While the `filter()` approach was by far the slowest expression of the three, it still only took 291µs---able to complete 3436 iterations in a second. If I'm interactively analyzing data, I won't even notice the difference in evaluation time between these expressions, let alone care about it; the benefits of expressiveness and safety that `filter()` provide far outweigh the drawback of this slowdown. If `filter()` is called 3436 times in the backend of a machine learning pipeline, though, these alternatives may be worth transitioning to.
 
 Some examples of changes like this made to tidymodels packages: [tidymodels/parsnip#935](https://github.com/tidymodels/parsnip/pull/935), [tidymodels/parsnip#933](https://github.com/tidymodels/parsnip/pull/933), [tidymodels/parsnip#901](https://github.com/tidymodels/parsnip/pull/901).
 
@@ -299,8 +299,8 @@ The dplyr code:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr         303µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> $&lt;-.tbl_df   13.4µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr       303.7µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> $&lt;-.tbl_df   13.2µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -339,8 +339,8 @@ The dplyr code:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr      451.08µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> [.tbl_df     8.49µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr       450.3µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> [.tbl_df     8.12µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -359,8 +359,8 @@ Of course, the nice part about `select()`, and something we make use of in tidym
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr      459.65µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> [.tbl_df     8.45µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr       455.9µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> [.tbl_df      8.4µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -401,8 +401,8 @@ No, thanks, but it is a good bit faster than tidyselect-based alternatives:
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> mutate       1.13ms</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> relocate   691.42µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [.tbl_df    19.27µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> relocate   689.23µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [.tbl_df    19.35µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -450,7 +450,7 @@ With benchmarks:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        89.9µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr          91µs</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> $.tbl_df      615ns</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [[.tbl_df     2.3µs</span></span>
 <span></span></code></pre>
@@ -493,8 +493,8 @@ As for column-binding:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        61.1µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        26.4µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        61.3µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        26.6µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -521,8 +521,8 @@ Tibbles are great, and I don't want to interface with any other data frame-y thi
      <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
      <span><span class='c'>#&gt;   expression      median</span></span>
      <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-     <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> on_tbl_df       50.9µs</span></span>
-     <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> on_data.frame  240.1µs</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> on_tbl_df       51.3µs</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> on_data.frame  244.5µs</span></span>
      <span></span></code></pre>
 
     </div>
@@ -540,9 +540,9 @@ Tibbles are great, and I don't want to interface with any other data frame-y thi
      <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
      <span><span class='c'>#&gt;   expression           median</span></span>
      <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-     <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tibble                168µs</span></span>
-     <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> new_tibble_df_list   16.9µs</span></span>
-     <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> new_tibble_list         5µs</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tibble             170.07µs</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> new_tibble_df_list  16.97µs</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> new_tibble_list      5.08µs</span></span>
      <span></span></code></pre>
 
     </div>
@@ -565,61 +565,67 @@ Some ways to intuit about join efficiency:
 
 -   Am I using the complete outputted join result or just a portion? If I end up only making use of column names, or values in one column, or pairings between two columns, I may be able to instead use `$.tbl_df` or `[.tbl_df`.
 
-As an example, imagine we have another tibble that tells us additional information about the `make_model`s that I drove in high school:
+As an example, imagine we have another tibble that tells us additional information about the `make_model`s that I've driven:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>simons_cars</span> <span class='o'>&lt;-</span> </span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>my_cars</span> <span class='o'>&lt;-</span> </span>
 <span>  <span class='nf'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='o'>(</span></span>
-<span>    make_model <span class='o'>=</span> <span class='s'>"Honda Civic"</span>,</span>
-<span>    vibey <span class='o'>=</span> <span class='s'>"Yes"</span></span>
+<span>    make_model <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"Honda Civic"</span>, <span class='s'>"Subaru Forester"</span><span class='o'>)</span>,</span>
+<span>    color <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"Grey"</span>, <span class='s'>"White"</span><span class='o'>)</span></span>
 <span>  <span class='o'>)</span></span>
 <span></span>
-<span><span class='nv'>simons_cars</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 2</span></span></span>
-<span><span class='c'>#&gt;   make_model  vibey</span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Honda Civic Yes</span></span>
+<span><span class='nv'>my_cars</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
+<span><span class='c'>#&gt;   make_model      color</span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Honda Civic     Grey </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> Subaru Forester White</span></span>
 <span></span></code></pre>
 
 </div>
 
-I *could* use a join to subset down to only the cars I drove in high school and append this additional information like so:
+I *could* use a join to subset down to cars in `mtcars_tbl` and add this information on the cars I've driven:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>right_join</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>simons_cars</span>, <span class='s'>"make_model"</span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>inner_join</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>my_cars</span>, <span class='s'>"make_model"</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 13</span></span></span>
 <span><span class='c'>#&gt;   make_model    mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Honda Civic  30.4     4  75.7    52  4.93  1.62  18.5     1     1     4     2</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 1 more variable: vibey &lt;chr&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 1 more variable: color &lt;chr&gt;</span></span></span>
 <span></span></code></pre>
 
 </div>
 
-Another way to express this, though, is to keep rows that match the `make_model` in `simons_cars` and then add that `vibey` column on after:
+Another way to express this, though, if I can safely assume that each of my cars would have only one or zero matches in `mtcars_tbl`, is to find entries in `mtcars_tbl$make_model` that match entries in `my_cars$make_model`, subset down to those matches, and then bind columns:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>supplement_simons_cars</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
-<span>  <span class='nv'>res</span> <span class='o'>&lt;-</span>   </span>
-<span>    <span class='nf'><a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_slice</a></span><span class='o'>(</span></span>
-<span>      <span class='nv'>mtcars_tbl</span>, </span>
-<span>      <span class='nv'>mtcars_tbl</span><span class='o'>$</span><span class='nv'>make_model</span> <span class='o'><a href='https://rdrr.io/r/base/match.html'>%in%</a></span> <span class='nv'>simons_cars</span><span class='o'>$</span><span class='nv'>make_model</span></span>
-<span>    <span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>supplement_my_cars</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
+<span>  <span class='c'># locate matches, assuming only 0 or 1 matches possible</span></span>
+<span>  <span class='nv'>loc</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://vctrs.r-lib.org/reference/vec_match.html'>vec_match</a></span><span class='o'>(</span><span class='nv'>my_cars</span><span class='o'>$</span><span class='nv'>make_model</span>, <span class='nv'>mtcars_tbl</span><span class='o'>$</span><span class='nv'>make_model</span><span class='o'>)</span></span>
 <span>  </span>
-<span>  <span class='nv'>res</span><span class='o'>$</span><span class='nv'>vibey</span> <span class='o'>&lt;-</span> <span class='nv'>simons_cars</span><span class='o'>$</span><span class='nv'>vibey</span></span>
+<span>  <span class='c'># keep only the matches</span></span>
+<span>  <span class='nv'>loc_mine</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/which.html'>which</a></span><span class='o'>(</span><span class='o'>!</span><span class='nf'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='o'>(</span><span class='nv'>loc</span><span class='o'>)</span><span class='o'>)</span></span>
+<span>  <span class='nv'>loc_mtcars</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_slice</a></span><span class='o'>(</span><span class='nv'>loc</span>, <span class='o'>!</span><span class='nf'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='o'>(</span><span class='nv'>loc</span><span class='o'>)</span><span class='o'>)</span></span>
 <span>  </span>
-<span>  <span class='nv'>res</span></span>
+<span>  <span class='c'># drop duplicated join column</span></span>
+<span>  <span class='nv'>my_cars_join</span> <span class='o'>&lt;-</span> <span class='nv'>my_cars</span><span class='o'>[</span><span class='nf'><a href='https://generics.r-lib.org/reference/setops.html'>setdiff</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='o'>(</span><span class='nv'>my_cars</span><span class='o'>)</span>, <span class='s'>"make_model"</span><span class='o'>)</span><span class='o'>]</span></span>
+<span></span>
+<span>  <span class='nf'><a href='https://vctrs.r-lib.org/reference/vec_bind.html'>vec_cbind</a></span><span class='o'>(</span></span>
+<span>    <span class='nf'><a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_slice</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>loc_mtcars</span><span class='o'>)</span>,</span>
+<span>    <span class='nf'><a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_slice</a></span><span class='o'>(</span><span class='nv'>my_cars_join</span>, <span class='nv'>loc_mine</span><span class='o'>)</span></span>
+<span>  <span class='o'>)</span></span>
 <span><span class='o'>&#125;</span></span>
 <span></span>
-<span><span class='nf'>supplement_simons_cars</span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='nf'>supplement_my_cars</span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 13</span></span></span>
 <span><span class='c'>#&gt;   make_model    mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Honda Civic  30.4     4  75.7    52  4.93  1.62  18.5     1     1     4     2</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 1 more variable: vibey &lt;chr&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 1 more variable: color &lt;chr&gt;</span></span></span>
 <span></span></code></pre>
 
 </div>
@@ -629,26 +635,26 @@ This is indeed quite a bit faster:
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='http://bench.r-lib.org/reference/mark.html'>mark</a></span><span class='o'>(</span></span>
-<span>  right_join <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>right_join</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>simons_cars</span>, <span class='s'>"make_model"</span><span class='o'>)</span>,</span>
-<span>  manual <span class='o'>=</span> <span class='nf'>supplement_simons_cars</span><span class='o'>(</span><span class='o'>)</span></span>
+<span>  inner_join <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>inner_join</a></span><span class='o'>(</span><span class='nv'>mtcars_tbl</span>, <span class='nv'>my_cars</span>, <span class='s'>"make_model"</span><span class='o'>)</span>,</span>
+<span>  manual <span class='o'>=</span> <span class='nf'>supplement_my_cars</span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>expression</span>, <span class='nv'>median</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> right_join  448.9µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> manual       21.1µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> inner_join  464.8µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> manual       51.3µs</span></span>
 <span></span></code></pre>
 
 </div>
 
-At the same time, if this problem were even a little bit more complex, e.g. if I drove more than one car in high school or wanted to keep the remaining rows and assert that all other cars were not vibey, then expressing this join with more bare-bones operations quickly becomes less readable and more error-prone. In those cases, too, joins in dplyr have a relatively small amount of overhead when compared to the vctrs backends underlying them. So, optimize carefully!
+At the same time, if this problem were even a little bit more complex, e.g. if there were possibly multiple matching `make_models` in `mtcars_tbl` or if I wanted to keep all rows in `mtcars_tbl` regardless of whether I had driven the car, then expressing this join with more bare-bones operations quickly becomes less readable and more error-prone. In those cases, too, joins in dplyr have a relatively small amount of overhead when compared to the vctrs backends underlying them. So, optimize carefully!
 
 Some examples of writing out joins in tidymodels packages: [tidymodels/parsnip#932](https://github.com/tidymodels/parsnip/pull/932), [tidymodels/parsnip#931](https://github.com/tidymodels/parsnip/pull/931), [tidymodels/parsnip#921](https://github.com/tidymodels/parsnip/pull/921), and [tidymodels/recipes#1121](https://github.com/tidymodels/recipes/pull/1121).
 
 ### `nest()`
 
-[`nest()`](https://tidyr.tidyverse.org/reference/nest.html)s are subject to similar considerations as joins. When they allow for expressive or principled user interfaces, use them, but manipulate them sparingly in backends. Writing out [`nest()`](https://tidyr.tidyverse.org/reference/nest.html) calls *can* result in substantial speedups, though, and the process is not quite as gnarly as writing out a join. For code that relies on [`nest()`](https://tidyr.tidyverse.org/reference/nest.html)s and sees heavy traffic, rewriting with vctrs may be worth the effort.
+`nest()`s are subject to similar considerations as joins. When they allow for expressive or principled user interfaces, use them, but manipulate them sparingly in backends. Writing out `nest()` calls *can* result in substantial speedups, though, and the process is not quite as gnarly as writing out a join. For code that relies on `nest()`s and sees heavy traffic, rewriting with vctrs may be worth the effort.
 
 For example, consider nesting `mtcars_tbl` by `cyl`:
 
@@ -665,7 +671,7 @@ For example, consider nesting `mtcars_tbl` by `cyl`:
 
 </div>
 
-For some basic nests, like nesting by values in one column, [`vec_split()`](https://vctrs.r-lib.org/reference/vec_split.html) can do the trick.
+For some basic nests, like nesting by values in one column, `vec_split()` can do the trick.
 
 <div class="highlight">
 
@@ -705,17 +711,17 @@ The performance improvement in these situations can be quite substantial:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> nest         1.49ms</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs       22.96µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> nest         1.69ms</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs       23.45µs</span></span>
 <span></span></code></pre>
 
 </div>
 
-More complex nests require a good bit of facility with the vctrs package. [`vec_split()`](https://vctrs.r-lib.org/reference/vec_split.html), [`list_unchop()`](https://vctrs.r-lib.org/reference/vec_chop.html), and [`vec_chop()`](https://vctrs.r-lib.org/reference/vec_chop.html) are all good places to start, and these examples of writing out nests in tidymodels packages make use of other vctrs patterns: [tidymodels/tune#657](https://github.com/tidymodels/tune/pull/657), [tidymodels/tune#657](https://github.com/tidymodels/tune/pull/656), [tidymodels/tune#640](https://github.com/tidymodels/tune/pull/640), and [tidymodels/recipes#1121](https://github.com/tidymodels/recipes/pull/1121).
+More complex nests require a good bit of facility with the vctrs package. `vec_split()`, `list_unchop()`, and `vec_chop()` are all good places to start, and these examples of writing out nests in tidymodels packages make use of other vctrs patterns: [tidymodels/tune#657](https://github.com/tidymodels/tune/pull/657), [tidymodels/tune#657](https://github.com/tidymodels/tune/pull/656), [tidymodels/tune#640](https://github.com/tidymodels/tune/pull/640), and [tidymodels/recipes#1121](https://github.com/tidymodels/recipes/pull/1121).
 
 ### Combining strings
 
-The glue package is super helpful for writing expressive and correct strings with data, though it is quite a bit slower than [`paste0()`](https://rdrr.io/r/base/paste.html). At the same time, [`paste0()`](https://rdrr.io/r/base/paste.html) has some tricky recycling behavior. For a middle ground in terms of both performance and safety, this short wrapper has been quite helpful:
+The glue package is super helpful for writing expressive and correct strings with data, though it is quite a bit slower than `paste0()`. At the same time, `paste0()` has some tricky recycling behavior. For a middle ground in terms of both performance and safety, this short wrapper has been quite helpful:
 
 <div class="highlight">
 
@@ -740,7 +746,7 @@ The glue package is super helpful for writing expressive and correct strings wit
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> glue        38.91µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> glue        39.48µs</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vec_paste0   3.94µs</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> paste0     861.01ns</span></span>
 <span></span></code></pre>

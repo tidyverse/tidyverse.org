@@ -411,53 +411,58 @@ Some ways to intuit about join efficiency:
 
 - Am I using the complete outputted join result or just a portion? If I end up only making use of column names, or values in one column, or pairings between two columns, I may be able to instead use `$.tbl_df` or `[.tbl_df`.
 
-As an example, imagine we have another tibble that tells us additional information about the `make_model`s that I drove in high school:
+As an example, imagine we have another tibble that tells us additional information about the `make_model`s that I've driven:
 
-```{r simons-car}
-simons_cars <- 
+```{r my-cars}
+my_cars <- 
   tibble(
-    make_model = "Honda Civic",
-    vibey = "Yes"
+    make_model = c("Honda Civic", "Subaru Forester"),
+    color = c("Grey", "White")
   )
 
-simons_cars
+my_cars
 ```
 
-I _could_ use a join to subset down to only the cars I drove in high school and append this additional information like so:
+I _could_ use a join to subset down to cars in `mtcars_tbl` and add this information on the cars I've driven:
 
-```{r right-join}
-right_join(mtcars_tbl, simons_cars, "make_model")
+```{r inner-join}
+inner_join(mtcars_tbl, my_cars, "make_model")
 ```
 
-Another way to express this, though, is to keep rows that match the `make_model` in `simons_cars` and then add that `vibey` column on after:
+Another way to express this, though, if I can safely assume that each of my cars would have only one or zero matches in `mtcars_tbl`, is to find entries in `mtcars_tbl$make_model` that match entries in `my_cars$make_model`, subset down to those matches, and then bind columns:
 
-```{r supplement-simons-cars}
-supplement_simons_cars <- function() {
-  res <-   
-    vec_slice(
-      mtcars_tbl, 
-      mtcars_tbl$make_model %in% simons_cars$make_model
-    )
+```{r supplement-my-cars}
+supplement_my_cars <- function() {
+  # locate matches, assuming only 0 or 1 matches possible
+  loc <- vec_match(my_cars$make_model, mtcars_tbl$make_model)
   
-  res$vibey <- simons_cars$vibey
+  # keep only the matches
+  loc_mine <- which(!is.na(loc))
+  loc_mtcars <- vec_slice(loc, !is.na(loc))
   
-  res
+  # drop duplicated join column
+  my_cars_join <- my_cars[setdiff(names(my_cars), "make_model")]
+
+  vec_cbind(
+    vec_slice(mtcars_tbl, loc_mtcars),
+    vec_slice(my_cars_join, loc_mine)
+  )
 }
 
-supplement_simons_cars()
+supplement_my_cars()
 ```
 
 This is indeed quite a bit faster:
 
 ```{r bm-join}
 bench::mark(
-  right_join = right_join(mtcars_tbl, simons_cars, "make_model"),
-  manual = supplement_simons_cars()
+  inner_join = inner_join(mtcars_tbl, my_cars, "make_model"),
+  manual = supplement_my_cars()
 ) %>%
   select(expression, median)
 ```
 
-At the same time, if this problem were even a little bit more complex, e.g. if I drove more than one car in high school or wanted to keep the remaining rows and assert that all other cars were not vibey, then expressing this join with more bare-bones operations quickly becomes less readable and more error-prone. In those cases, too, joins in dplyr have a relatively small amount of overhead when compared to the vctrs backends underlying them. So, optimize carefully!
+At the same time, if this problem were even a little bit more complex, e.g. if there were possibly multiple matching `make_models` in `mtcars_tbl` or if I wanted to keep all rows in `mtcars_tbl` regardless of whether I had driven the car, then expressing this join with more bare-bones operations quickly becomes less readable and more error-prone. In those cases, too, joins in dplyr have a relatively small amount of overhead when compared to the vctrs backends underlying them. So, optimize carefully!
 
 Some examples of writing out joins in tidymodels packages: [tidymodels/parsnip#932](https://github.com/tidymodels/parsnip/pull/932), [tidymodels/parsnip#931](https://github.com/tidymodels/parsnip/pull/931), [tidymodels/parsnip#921](https://github.com/tidymodels/parsnip/pull/921), and [tidymodels/recipes#1121](https://github.com/tidymodels/recipes/pull/1121).
 
