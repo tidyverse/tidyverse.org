@@ -409,7 +409,7 @@ Some ways to intuit about join efficiency:
 
 - If this join happens multiple times, is it possible to express it as one join and then subset it when needed? i.e. if a join happens inside of a loop but the elements of the join are not indices of the loop, it's likely possible to pull that join outside of the loop and then `vec_slice()` its results inside of the loop.
 
-- Am I using the complete outputted join result or just a portion? If I end up only making use of column names, or values in one column, or pairings between two columns, I may be able to instead use `$.tbl_df` or `[.tbl_df`.
+- Am I using the complete outputted join result or just a portion? If I end up only making use of column names, or values in one column (as with joins approximating [lookup tables](https://adv-r.hadley.nz/subsetting.html?q=lookup#lookup-tables)), or pairings between two columns, I may be able to instead use `$.tbl_df` or `[.tbl_df`.
 
 As an example, imagine we have another tibble that tells us additional information about the `make_model`s that I've driven:
 
@@ -462,7 +462,7 @@ bench::mark(
   select(expression, median)
 ```
 
-At the same time, if this problem were even a little bit more complex, e.g. if there were possibly multiple matching `make_models` in `mtcars_tbl` or if I wanted to keep all rows in `mtcars_tbl` regardless of whether I had driven the car, then expressing this join with more bare-bones operations quickly becomes less readable and more error-prone. In those cases, too, joins in dplyr have a relatively small amount of overhead when compared to the vctrs backends underlying them. So, optimize carefully!
+At the same time, if either of these problems were even a little bit more complex, e.g. if there were possibly multiple matching `make_models` in `mtcars_tbl` or if I wanted to keep all rows in `mtcars_tbl` regardless of whether I had driven the car, then expressing this join with more bare-bones operations quickly becomes less readable and more error-prone. In those cases, too, joins in dplyr have a relatively small amount of overhead when compared to the vctrs backends underlying them. So, optimize carefully!
 
 Some examples of writing out joins in tidymodels packages: [tidymodels/parsnip#932](https://github.com/tidymodels/parsnip/pull/932), [tidymodels/parsnip#931](https://github.com/tidymodels/parsnip/pull/931), [tidymodels/parsnip#921](https://github.com/tidymodels/parsnip/pull/921), and [tidymodels/recipes#1121](https://github.com/tidymodels/recipes/pull/1121).
 

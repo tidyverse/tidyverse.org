@@ -14,7 +14,7 @@ photo:
 
 categories: [programming] 
 tags: [package, vctrs]
-rmd_hash: 24b6bed18b026a66
+rmd_hash: 0bcbbf835de13be3
 
 ---
 
@@ -151,7 +151,7 @@ You may have some other ideas of how to solve this problem! How do we figure out
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> approach_1   2.34µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> approach_1    2.3µs</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> approach_2    492ns</span></span>
 <span></span></code></pre>
 
@@ -162,7 +162,7 @@ The other nice part about [`bench::mark()`](http://bench.r-lib.org/reference/mar
 There are two important lessons to take in from this output:
 
 -   The `sum(unlist())` approach was wicked fast compared to [`Reduce()`](https://rdrr.io/r/base/funprog.html).
--   Both of these expressions were fast. Even the slower of the two took 2.34µs---to put that in perspective, that expression could complete 427892 iterations in a second! Keeping this bigger picture in mind is always important when benchmarking; if code runs fast enough to not be an issue in practical situations, then it need not be optimized in favor of less readable or safe code.
+-   Both of these expressions were fast. Even the slower of the two took 2.3µs---to put that in perspective, that expression could complete 435545 iterations in a second! Keeping this bigger picture in mind is always important when benchmarking; if code runs fast enough to not be an issue in practical situations, then it need not be optimized in favor of less readable or safe code.
 
 The results of little experiments like this one can be surprising at first. Over time, though, you will develop intuition for the fastest way to solve problems you commonly solve, and will write fast code the first time around!
 
@@ -258,14 +258,14 @@ The benchmarks for these different approaches are:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr      291.61µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        4.71µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [.tbl_df    23.86µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr      298.25µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        4.67µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [.tbl_df    23.94µs</span></span>
 <span></span></code></pre>
 
 </div>
 
-The bigger picture of benchmarking is worth re-iterating here. While the `filter()` approach was by far the slowest expression of the three, it still only took 292µs---able to complete 3429 iterations in a second. If I'm interactively analyzing data, I won't even notice the difference in evaluation time between these expressions, let alone care about it; the benefits of expressiveness and safety that `filter()` provide far outweigh the drawback of this slowdown. If `filter()` is called 3429 times in the backend of a machine learning pipeline, though, these alternatives may be worth transitioning to.
+The bigger picture of benchmarking is worth re-iterating here. While the `filter()` approach was by far the slowest expression of the three, it still only took 298µs---able to complete 3353 iterations in a second. If I'm interactively analyzing data, I won't even notice the difference in evaluation time between these expressions, let alone care about it; the benefits of expressiveness and safety that `filter()` provide far outweigh the drawback of this slowdown. If `filter()` is called 3353 times in the backend of a machine learning pipeline, though, these alternatives may be worth transitioning to.
 
 Some examples of changes like this made to tidymodels packages: [tidymodels/parsnip#935](https://github.com/tidymodels/parsnip/pull/935), [tidymodels/parsnip#933](https://github.com/tidymodels/parsnip/pull/933), [tidymodels/parsnip#901](https://github.com/tidymodels/parsnip/pull/901).
 
@@ -299,8 +299,8 @@ The dplyr code:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr       305.6µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> $&lt;-.tbl_df   13.1µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr       306.3µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> $&lt;-.tbl_df   13.2µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -339,8 +339,8 @@ The dplyr code:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr       453.5µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> [.tbl_df      8.2µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr      456.41µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> [.tbl_df     8.24µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -359,8 +359,8 @@ Of course, the nice part about `select()`, and something we make use of in tidym
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr      459.86µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> [.tbl_df     8.45µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr      466.13µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> [.tbl_df     8.53µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -400,9 +400,9 @@ No, thanks, but it is a good bit faster than tidyselect-based alternatives:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> mutate       1.13ms</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> relocate   689.78µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [.tbl_df    19.31µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> mutate       1.15ms</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> relocate   691.03µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [.tbl_df    19.39µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -450,7 +450,7 @@ With benchmarks:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        89.3µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        89.5µs</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> $.tbl_df      615ns</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> [[.tbl_df     2.3µs</span></span>
 <span></span></code></pre>
@@ -473,7 +473,7 @@ Some examples of changes like this made to tidymodels packages: [tidymodels/pars
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        44.4µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        44.2µs</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        14.6µs</span></span>
 <span></span></code></pre>
 
@@ -493,8 +493,8 @@ As for column-binding:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        61.1µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        26.6µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dplyr        61.6µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        26.5µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -521,7 +521,7 @@ Tibbles are great, and I don't want to interface with any other data frame-y thi
      <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
      <span><span class='c'>#&gt;   expression      median</span></span>
      <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-     <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> on_tbl_df         51µs</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> on_tbl_df       51.6µs</span></span>
      <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> on_data.frame    241µs</span></span>
      <span></span></code></pre>
 
@@ -540,9 +540,9 @@ Tibbles are great, and I don't want to interface with any other data frame-y thi
      <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
      <span><span class='c'>#&gt;   expression           median</span></span>
      <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-     <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tibble                167µs</span></span>
-     <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> new_tibble_df_list     17µs</span></span>
-     <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> new_tibble_list         5µs</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tibble             166.87µs</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> new_tibble_df_list  16.93µs</span></span>
+     <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> new_tibble_list      5.04µs</span></span>
      <span></span></code></pre>
 
     </div>
@@ -563,7 +563,7 @@ Some ways to intuit about join efficiency:
 
 -   If this join happens multiple times, is it possible to express it as one join and then subset it when needed? i.e. if a join happens inside of a loop but the elements of the join are not indices of the loop, it's likely possible to pull that join outside of the loop and then `vec_slice()` its results inside of the loop.
 
--   Am I using the complete outputted join result or just a portion? If I end up only making use of column names, or values in one column, or pairings between two columns, I may be able to instead use `$.tbl_df` or `[.tbl_df`.
+-   Am I using the complete outputted join result or just a portion? If I end up only making use of column names, or values in one column (as with joins approximating [lookup tables](https://adv-r.hadley.nz/subsetting.html?q=lookup#lookup-tables)), or pairings between two columns, I may be able to instead use `$.tbl_df` or `[.tbl_df`.
 
 As an example, imagine we have another tibble that tells us additional information about the `make_model`s that I've driven:
 
@@ -642,13 +642,13 @@ This is indeed quite a bit faster:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> inner_join  449.9µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> manual       50.8µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> inner_join  451.2µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> manual       51.2µs</span></span>
 <span></span></code></pre>
 
 </div>
 
-At the same time, if this problem were even a little bit more complex, e.g. if there were possibly multiple matching `make_models` in `mtcars_tbl` or if I wanted to keep all rows in `mtcars_tbl` regardless of whether I had driven the car, then expressing this join with more bare-bones operations quickly becomes less readable and more error-prone. In those cases, too, joins in dplyr have a relatively small amount of overhead when compared to the vctrs backends underlying them. So, optimize carefully!
+At the same time, if either of these problems were even a little bit more complex, e.g. if there were possibly multiple matching `make_models` in `mtcars_tbl` or if I wanted to keep all rows in `mtcars_tbl` regardless of whether I had driven the car, then expressing this join with more bare-bones operations quickly becomes less readable and more error-prone. In those cases, too, joins in dplyr have a relatively small amount of overhead when compared to the vctrs backends underlying them. So, optimize carefully!
 
 Some examples of writing out joins in tidymodels packages: [tidymodels/parsnip#932](https://github.com/tidymodels/parsnip/pull/932), [tidymodels/parsnip#931](https://github.com/tidymodels/parsnip/pull/931), [tidymodels/parsnip#921](https://github.com/tidymodels/parsnip/pull/921), and [tidymodels/recipes#1121](https://github.com/tidymodels/recipes/pull/1121).
 
@@ -721,7 +721,7 @@ The performance improvement in these situations can be quite substantial:
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> nest          1.6ms</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        67.8µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vctrs        67.9µs</span></span>
 <span></span></code></pre>
 
 </div>
@@ -755,9 +755,9 @@ The glue package is super helpful for writing expressive and correct strings wit
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
 <span><span class='c'>#&gt;   expression   median</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> glue        39.16µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vec_paste0   3.98µs</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> paste0     861.04ns</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> glue        39.07µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> vec_paste0   3.94µs</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> paste0     861.01ns</span></span>
 <span></span></code></pre>
 
 </div>
