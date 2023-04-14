@@ -16,9 +16,9 @@ categories: [programming]
 tags: [package, vctrs]
 ---
 
-The tidyverse packages provide safe, powerful, and expressive interfaces to solve data science problems. Behind the scenes of the tidyverse is a set of lower-level tools that its developers use to build these interfaces. While these lower-level approaches are often more performant than their tidy analogues, their interfaces are often less readable and safe. For most use cases in interactive data analysis, the advantages of tidyverse interfaces far outweigh the drawback in computational speed; when speed becomes an issue, though, such as in package code used in computationally intensive settings, transitioning tidy code to use these lower-level interfaces in their backend can offer substantial increases in computational performance.
+The tidyverse packages provide safe, powerful, and expressive interfaces to solve data science problems. Behind the scenes of the tidyverse is a set of lower-level tools that its developers use to build these interfaces. While these lower-level approaches are often more performant than their tidy analogues, their interfaces are often less readable and safe. For most use cases in interactive data analysis, the advantages of tidyverse interfaces far outweigh the drawback in computational speed. When speed becomes an issue, such as in package code used in computationally intensive settings, transitioning tidy code to use these lower-level interfaces in their backend can offer substantial increases in computational performance.
 
-This blog post will outline alternatives to tools I love from packages like dplyr and tidyr that I use to speed up computational bottlenecks. These recommendations come from my experiences developing the [tidymodels](https://www.tidymodels.org/) packages, a collection of packages for modeling and machine learning using tidyverse principles. As such, I've included a number of "worked examples" with each proposed alternative, showing how the tidymodels team has used these same tricks to [speed up our code](https://www.simonpcouch.com/blog/speedups-2023/) quite a bit. Before I do that, though, let's make friends with some new R packages.
+This post will outline alternatives to tools I love from packages like dplyr and tidyr that I use to speed up computational bottlenecks. These recommendations come from my experiences developing the [tidymodels](https://www.tidymodels.org/) packages, a collection of packages for modeling and machine learning using tidyverse principles. As such, I've included a number of "worked examples" with each proposed alternative, showing how the tidymodels team has used these same tricks to [speed up our code](https://www.simonpcouch.com/blog/speedups-2023/) quite a bit. Before I do that, though, let's make friends with some new R packages.
 
 ## Tools of the trade
 
@@ -28,7 +28,7 @@ First, loading the tidyverse:
 library(tidyverse)
 ```
 
-The most important tools to help you understand what's slowing your code down, though, have little to do with the tidyverse at all!
+The most important tools to help you understand what's slowing your code down have little to do with the tidyverse at all!
 
 ### profvis
 
@@ -116,7 +116,7 @@ res <-
 res %>% select(expression, median)
 ```
 
-The other nice part about `mark()` is that it will check that each approach gives the same output, so that you don't mistakenly compare apples and oranges.
+The other nice part about `bench::mark()` is that it will check that each approach gives the same output, so that you don't mistakenly compare apples and oranges.
 
 ```{r median-time, include = FALSE}
 median_time <- res$median[[1]]
@@ -131,7 +131,7 @@ The results of little experiments like this one can be surprising at first. Over
 
 ### vctrs
 
-The problems I commonly solve---and possibly you as well, as a reader of this post---often involve lots of dplyr and tidyr. When profiling the tidymodels, I've come across many places in our packages where calls to dplyr and tidyr took more time than I'd like them to, but had a lot to learn about how to speed up those operations. _Enter the vctrs package!_
+The problems I commonly solve---and possibly you as well, as a reader of this post---often involve lots of dplyr and tidyr. When profiling the tidymodels packages, I've come across many places where calls to dplyr and tidyr took more time than I'd like them to, but had a lot to learn about how to speed up those operations. _Enter the vctrs package!_
 
 ```{r load-vctrs, message = FALSE, warning = FALSE}
 library(vctrs)
@@ -141,7 +141,7 @@ If you use dplyr and tidyr like I do, turns out you're also a vctrs user! dplyr 
 
 ## Rewriting tidy code
 
-For every change I make to tidymodels packages that just rewrites dplyr and tidyr code in vctrs and tibble, I make probably two or three making simpler optimizations. Reducing duplicated computations, implementing early returns where possible, using vectorized implementations, and other tooling-agnostic changes will likely take you far when optimizing R code. Profiling is your ground truth! When profiling indicates that otherwise well-factored code is slowed by tidy interfaces, though, all is not lost.
+For every performance improvement I make by rewriting dplyr and tidyr code in vctrs and tibble, I make probably two or three simpler optimizations. Tool-agnostic practices such as reducing duplicated computations, implementing early returns where possible, and using vectorized implementations will likely take you far when optimizing R code. Profiling is your ground truth! When profiling indicates that otherwise well-factored code is slowed by tidy interfaces, though, all is not lost.
 
 We'll demonstrate different ways to speed up tidy code using a version of the base R data frame `mtcars` converted to a tibble:
 
@@ -151,9 +151,9 @@ mtcars_tbl <- as_tibble(mtcars, rownames = "make_model")
 mtcars_tbl
 ```
 
-### One-for-One Replacements
+### One-for-one replacements
 
-Many of the core functions in dplyr have alternatives in vctrs and tibble that can be quickly transitioned. There are a couple considerations associated with each, though, and some of them make piping a bit more awkward---most of the time, when I switch these out, I write out the pipe `%>%` as well.
+Many of the core functions in dplyr have alternatives in vctrs and tibble that can be quickly transitioned. There are a couple considerations associated with each, though, and some of them make piping a bit more awkward---most of the time, when I switch these out, I remove the pipe `%>%` as well.
 
 #### `filter()`
 
@@ -163,7 +163,7 @@ The dplyr code:
 filter(mtcars_tbl, hp > 100)
 ```
 
-...can be substituted with:
+...can be replaced by:
 
 ```{r filter-alt, eval = FALSE}
 vec_slice(mtcars_tbl, mtcars$hp > 100)
@@ -261,7 +261,7 @@ mark(
   select(expression, median)
 ```
 
-Note that `[.tbl_df` sets `drop = TRUE`, so no need to manually specify that argument if you're used to doing so for `data.frame`s. Be sure that you're subsetting a tibble rather than a data frame, though.
+Note that `[.tbl_df` sets `drop = FALSE`, so no need to manually specify that argument if you're used to doing so for `data.frame`s. Be sure that you're subsetting a tibble rather than a data frame, though.
 
 `[.tbl_df` can also be used as an alternative interface to `select()` with a `.before` or `.after` argument as well as `relocate()`. For instance, to place that column `year` we made in the last section as the second column, we could write:
 
@@ -274,7 +274,7 @@ left_cols <- c("make_model", "year")
 
 mtcars_tbl[
   c(left_cols, 
-    colnames(mtcars_tbl[!colnames(mtcars_tbl) %in% left_cols])
+    setdiff(colnames(mtcars_tbl), left_cols)
   )
 ]
 ```
@@ -381,7 +381,7 @@ mark(
   select(expression, median)
 ```
 
-- Building a tibble from scratch using `tibble()` actually takes quite a while as well. `tibble()` handles vector recycling and name checking, builds columns sequentially, all that good stuff. If you need that, use `tibble()`, but if you're building a tibble from well-understood inputs, use `new_tibble(list())`. For a middle ground between `tibble()` and `new_tibble(list())` in terms of both performance and safety, use the `df_list()` function from the vctrs package in place of `list()`.
+- Building a tibble from scratch using `tibble()` actually takes quite a while as well. `tibble()` handles vector recycling and name checking, builds columns sequentially, all that good stuff. If you need that, use `tibble()`, but if you're building a tibble from well-understood inputs, use `new_tibble()`, which minimizes validation checks. For a middle ground between `tibble()` and `new_tibble(list())` in terms of both performance and safety, use the `df_list()` function from the vctrs package in place of `list()`.
 
 ```{r bm-tibble}
 mark(
@@ -396,7 +396,7 @@ Note that `new_tibble()` *will not check the lengths of its inputs.* Carry out s
 
 Some examples of changes like this made to tidymodels packages: [tidymodels/parsnip#945](https://github.com/tidymodels/parsnip/pull/932), [tidymodels/parsnip#934](https://github.com/tidymodels/parsnip/pull/934), [tidymodels/parsnip#929](https://github.com/tidymodels/parsnip/pull/929), [tidymodels/parsnip#923](https://github.com/tidymodels/parsnip/pull/923), [tidymodels/parsnip#902](https://github.com/tidymodels/parsnip/pull/902), [tidymodels/dials#277](https://github.com/tidymodels/dials/pull/277), and [tidymodels/tune#637](https://github.com/tidymodels/tune/pull/637).
 
-### Becoming Join-Critical
+### Becoming join-critical
 
 Two truths:
 
@@ -527,4 +527,4 @@ My rule of thumb is to use `glue()` for errors, when the function will stop exec
 
 This post contains a number of tricks that offer especially performant alternatives to interfaces from dplyr and tidyr. Making use of these backend tools is certainly a trade-off; what is gained in computational performance is also offset by a decline in readability and safety, so developers ought to consider carefully when optimizations are worth the effort and risk.
 
-Thanks to Davis Vaughan for the guidance in getting started with vctrs. Also, thanks to both Davis Vaughan and Lionel Henry for their efforts in helping the tidymodels team address the bottlenecks our work on optimizations surfaced in tidyverse packages.
+Thanks to Davis Vaughan for the guidance in getting started with vctrs. Also, thanks to both Davis Vaughan and Lionel Henry for their efforts in helping the tidymodels team address the bottlenecks that have been surfaced by our work on optimizations in tidyverse packages.
