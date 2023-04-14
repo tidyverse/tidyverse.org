@@ -470,36 +470,39 @@ Some examples of writing out joins in tidymodels packages: [tidymodels/parsnip#9
 
 `nest()`s are subject to similar considerations as joins. When they allow for expressive or principled user interfaces, use them, but manipulate them sparingly in backends. Writing out `nest()` calls _can_ result in substantial speedups, though, and the process is not quite as gnarly as writing out a join. For code that relies on `nest()`s and sees heavy traffic, rewriting with vctrs may be worth the effort.
 
-For example, consider nesting `mtcars_tbl` by `cyl`:
+For example, consider nesting `mtcars_tbl` by `cyl` and `am`:
 
 ```{r nest}
-nest(mtcars_tbl, .by = cyl)
+nest(mtcars_tbl, .by = c(cyl, am))
 ```
 
-For some basic nests, like nesting by values in one column, `vec_split()` can do the trick.
+For some basic nests, `vec_split()` can do the trick.
 
 ```{r nest-alt}
+nest_cols <- c("cyl", "am")
+
 res <- 
   vec_split(
-    x = mtcars_tbl[!colnames(mtcars_tbl) == "cyl"],
-    by = mtcars_tbl$cyl
+    x = mtcars_tbl[setdiff(colnames(mtcars_tbl), nest_cols)],
+    by = mtcars_tbl[nest_cols]
   )
 
-new_tibble(list(cyl = res$key, data = res$val))
+vec_cbind(res$key, new_tibble(list(data = res$val)))
 ```
 
 The performance improvement in these situations can be quite substantial:
 
 ```{r bm-nest}
 bench::mark(
-  nest = nest(mtcars_tbl, .by = cyl),
+  nest = nest(mtcars_tbl, .by = c(cyl, am)),
   vctrs = {
-    res <-
+    res <- 
       vec_split(
-        x = mtcars_tbl[!colnames(mtcars_tbl) == "cyl"],
-        by = mtcars_tbl$cyl
+        x = mtcars_tbl[setdiff(colnames(mtcars_tbl), nest_cols)],
+        by = mtcars_tbl[nest_cols]
       )
-    new_tibble(list(cyl = res$key, data = res$val))
+    
+    vec_cbind(res$key, new_tibble(list(data = res$val)))
   }
 ) %>%
   select(expression, median)
