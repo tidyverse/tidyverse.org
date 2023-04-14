@@ -80,10 +80,6 @@ Profiling should be your first line of defense against slow-running code. Often,
 
 profvis is a powerful tool to surface code slowdowns. Often, though, it may not be immediately clear how to _fix_ that slowdown. The bench package allows users to quickly test out how long different approaches to solving a problem take.
 
-```{r load-bench, message = FALSE, warning = FALSE}
-library(bench)
-```
-
 For example, say we want to take the sum of the numbers in a list, but we've identified via profiling that this operation is slowing our code down:
 
 ```{r numbers}
@@ -104,11 +100,11 @@ Another could involve converting to a vector with `unlist()` and then using `sum
 sum(unlist(numbers))
 ```
 
-You may have some other ideas of how to solve this problem! How do we figure out which one is fastest, though? The `mark()` function from bench takes in different proposals to solve the same problem and returns a tibble with information about how long they took (among other things.)
+You may have some other ideas of how to solve this problem! How do we figure out which one is fastest, though? The `bench::mark()` function from bench takes in different proposals to solve the same problem and returns a tibble with information about how long they took (among other things.)
 
 ```{r bm-reduce}
 res <-
-  mark(
+  bench::mark(
     approach_1 = Reduce(sum, numbers),
     approach_2 = sum(unlist(numbers))
   )
@@ -179,7 +175,7 @@ The benchmarks for these different approaches are:
 
 ```{r bm-filter}
 res <-
-  mark(
+  bench::mark(
     dplyr = filter(mtcars_tbl, hp > 100),
     vctrs = vec_slice(mtcars_tbl, mtcars_tbl$hp > 100),
     `[.tbl_df` = mtcars_tbl[mtcars$hp > 100, ]
@@ -214,7 +210,7 @@ mtcars_tbl$year <- 1974L
 ...with benchmarks:
 
 ```{r bm-mutate}
-mark(
+bench::mark(
   dplyr        = mutate(mtcars_tbl, year = 1974L),
   `$<-.tbl_df` = {mtcars_tbl$year <- 1974L; mtcars_tbl}
 ) %>%
@@ -242,7 +238,7 @@ mtcars_tbl["hp"]
 ...with benchmarks:
 
 ```{r bm-select}
-mark(
+bench::mark(
   dplyr      = select(mtcars_tbl, hp),
   `[.tbl_df` = mtcars_tbl["hp"]
 ) %>%
@@ -254,7 +250,7 @@ Of course, the nice part about `select()`, and something we make use of in tidym
 ```{r bm-select-2}
 cols <- c("hp", "wt")
 
-mark(
+bench::mark(
   dplyr = select(mtcars_tbl, all_of(cols)),
   `[.tbl_df` = mtcars_tbl[cols]
 ) %>% 
@@ -282,7 +278,7 @@ mtcars_tbl[
 No, thanks, but it is a good bit faster than tidyselect-based alternatives:
 
 ```{r bm-relocate}
-mark(
+bench::mark(
   mutate = mutate(mtcars_tbl, year = 1974L, .after = make_model),
   relocate = relocate(mtcars_tbl, year, .after = make_model),
   `[.tbl_df` = 
@@ -327,7 +323,7 @@ Note that `$` will raise a warning if the subsetted column doesn't exist, while 
 With benchmarks:
 
 ```{r bm-pull}
-mark(
+bench::mark(
   dplyr      = pull(mtcars_tbl, hp),
   `$.tbl_df` = mtcars_tbl$hp,
   `[[.tbl_df` = mtcars_tbl[["hp"]]
@@ -342,7 +338,7 @@ Some examples of changes like this made to tidymodels packages: [tidymodels/pars
 `bind_rows()` and `bind_cols()` can be substituted for `vec_rbind()` and `vec_cbind()`, respectively. First, row-binding:
 
 ```{r bm-bind-rows}
-mark(
+bench::mark(
   dplyr = bind_rows(mtcars_tbl, mtcars_tbl),
   vctrs = vec_rbind(mtcars_tbl, mtcars_tbl)
 ) %>%
@@ -354,7 +350,7 @@ As for column-binding:
 ```{r bm-bind-cols}
 tbl <- tibble(year = rep(1974L, nrow(mtcars_tbl)))
 
-mark(
+bench::mark(
   dplyr = bind_cols(mtcars_tbl, tbl),
   vctrs = vec_cbind(mtcars_tbl, tbl)
 ) %>%
@@ -374,7 +370,7 @@ Tibbles are great, and I don't want to interface with any other data frame-y thi
 - `as_tibble()` on a tibble is not "free":
 
 ```{r bm-as-tibble}
-mark(
+bench::mark(
   on_tbl_df = as_tibble(mtcars_tbl),
   on_data.frame = as_tibble(mtcars, rownames = "make_model")
 ) %>% 
@@ -384,7 +380,7 @@ mark(
 - Building a tibble from scratch using `tibble()` actually takes quite a while as well. `tibble()` handles vector recycling and name checking, builds columns sequentially, all that good stuff. If you need that, use `tibble()`, but if you're building a tibble from well-understood inputs, use `new_tibble()`, which minimizes validation checks. For a middle ground between `tibble()` and `new_tibble(list())` in terms of both performance and safety, use the `df_list()` function from the vctrs package in place of `list()`.
 
 ```{r bm-tibble}
-mark(
+bench::mark(
   tibble = tibble(a = 1:2, b = 3:4),
   new_tibble_df_list = new_tibble(df_list(a = 1:2, b = 3:4), nrow = 2),
   new_tibble_list = new_tibble(list(a = 1:2, b = 3:4), nrow = 2)
@@ -454,7 +450,7 @@ supplement_simons_cars()
 This is indeed quite a bit faster:
 
 ```{r bm-join}
-mark(
+bench::mark(
   right_join = right_join(mtcars_tbl, simons_cars, "make_model"),
   manual = supplement_simons_cars()
 ) %>%
@@ -490,7 +486,7 @@ new_tibble(list(cyl = res$key, data = res$val))
 The performance improvement in these situations can be quite substantial:
 
 ```{r bm-nest}
-mark(
+bench::mark(
   nest = nest(mtcars_tbl, .by = cyl),
   vctrs = {
     res <-
@@ -513,7 +509,7 @@ The glue package is super helpful for writing expressive and correct strings wit
 ```{r bm-glue}
 name <- "Simon"
 
-mark(
+bench::mark(
   glue = glue::glue("My name is {name}."),
   paste0 = paste0("My name is ", name, "."),
   check = FALSE
