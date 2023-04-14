@@ -373,24 +373,24 @@ Tibbles are great, and I don't want to interface with any other data frame-y thi
 
 - `as_tibble()` on a tibble is not "free":
 
-```{r bm-as-tibble}
-bench::mark(
-  on_tbl_df = as_tibble(mtcars_tbl),
-  on_data.frame = as_tibble(mtcars, rownames = "make_model")
-) %>% 
-  select(expression, median)
-```
+   ```{r bm-as-tibble}
+   bench::mark(
+     on_tbl_df = as_tibble(mtcars_tbl),
+     on_data.frame = as_tibble(mtcars, rownames = "make_model")
+   ) %>% 
+     select(expression, median)
+   ```
 
 - Building a tibble from scratch using `tibble()` actually takes quite a while as well. `tibble()` handles vector recycling and name checking, builds columns sequentially, all that good stuff. If you need that, use `tibble()`, but if you're building a tibble from well-understood inputs, use `new_tibble()`, which minimizes validation checks. For a middle ground between `tibble()` and `new_tibble(list())` in terms of both performance and safety, use the `df_list()` function from the vctrs package in place of `list()`.
 
-```{r bm-tibble}
-bench::mark(
-  tibble = tibble(a = 1:2, b = 3:4),
-  new_tibble_df_list = new_tibble(df_list(a = 1:2, b = 3:4), nrow = 2),
-  new_tibble_list = new_tibble(list(a = 1:2, b = 3:4), nrow = 2)
-) %>% 
-  select(expression, median)
-```
+   ```{r bm-tibble}
+   bench::mark(
+     tibble = tibble(a = 1:2, b = 3:4),
+     new_tibble_df_list = new_tibble(df_list(a = 1:2, b = 3:4), nrow = 2),
+     new_tibble_list = new_tibble(list(a = 1:2, b = 3:4), nrow = 2)
+   ) %>% 
+     select(expression, median)
+   ```
 
 Note that `new_tibble()` *will not check the lengths of its inputs.* Carry out simple recycling yourself, and be sure to use the `nrow` argument to get basic length checks.
 
