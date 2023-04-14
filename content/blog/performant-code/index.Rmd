@@ -508,20 +508,28 @@ More complex nests require a good bit of facility with the vctrs package. `vec_s
 
 ### Combining strings
 
-The glue package is super helpful for writing expressive and correct strings with data. It is quite a bit slower than `paste0()`, though.
+The glue package is super helpful for writing expressive and correct strings with data, though it is quite a bit slower than `paste0()`. At the same time, `paste0()` has some tricky recycling behavior. For a middle ground in terms of both performance and safety, this short wrapper has been quite helpful:
+
+```{r vec-paste0}
+vec_paste0 <- function (...) {
+  args <- vec_recycle_common(...)
+  exec(paste0, !!!args)
+}
+```
 
 ```{r bm-glue}
 name <- "Simon"
 
 bench::mark(
   glue = glue::glue("My name is {name}."),
+  vec_paste0 = vec_paste0("My name is ", name, "."),
   paste0 = paste0("My name is ", name, "."),
   check = FALSE
 ) %>% 
   select(expression, median)
 ```
 
-My rule of thumb is to use `glue()` for errors, when the function will stop executing anyway. For simple pastes that are intended to be called repeatedly, use `paste0()`. There's a lot of gray area in between those two contexts---intuit (or profile) as you will.
+My rule of thumb is to use `glue()` for errors, when the function will stop executing anyway. For simple pastes that are intended to be called repeatedly, use `vec_paste0()`. There's a lot of gray area in between those two contexts---intuit (or profile) as you will.
 
 ## Wrapping up
 
