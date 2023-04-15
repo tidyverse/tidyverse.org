@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: base-vs-magrittr-pipe
 title: Differences between the base R and magrittr pipes
-date: 2023-04-11
+date: 2023-04-17
 author: Hadley Wickham
 description: >
     A discussion of the (relatively minor) differences between the native R pipe, 
@@ -13,7 +13,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other] 
 tags: [magrittr]
-rmd_hash: da641bf1fd07239f
+rmd_hash: 70bed631277c9e73
 
 ---
 
@@ -34,7 +34,7 @@ TODO:
 
 ## Pipes
 
-With the 4.1.0 release of R, a native pipe operator, `|>`, was introduced. As described in the [R News](https://cran.r-project.org/doc/manuals/r-devel/NEWS.html):
+R 4.1.0 introduced a native pipe operator, `|>`. As described in the [R News](https://cran.r-project.org/doc/manuals/r-devel/NEWS.html):
 
 > R now provides a simple native forward pipe syntax `|>`. The simple form of the forward pipe inserts the left-hand side as the first argument in the right-hand side call. The pipe implementation as a syntax transformation was motivated by suggestions from Jim Hester and Lionel Henry.
 
@@ -66,23 +66,11 @@ While `|>` and `%>%` behave identically for simple cases, there are a few crucia
 
 ## Using the native pipe in packages
 
-Because the native pipe wasn't introduced until 4.1.0, code using `|>` in function reference examples or vignettes will not work on older versions of R, as it is not valid syntax.
+Because the native pipe wasn't introduced until 4.1.0, code using `|>` in function reference examples or vignettes will not work on older versions of R, as it is not valid syntax. This is a problem for the tidyverse because our [versioning policies](https://www.tidyverse.org/blog/2019/04/r-version-support/) mean that our packages need to work on R 3.5.0 and later.
 
-Does this mean that you need to increase the minimum R version your package depends on in order to use `|>`? Not necessarily.
+Does this mean that you need to increase the minimum R version your package depends on in order to use `|>`? Not necessarily: there are two techniques we can use to keep vignettes and examples working.
 
-For example, the base pipe is used in purrr's 1.0.0 release. As can be seen in the [source for the "purrr \<-\> base R" vignette](https://github.com/tidyverse/purrr/commit/df4630c6e8cd5028386ee96b9036f1755f26adc4), certain code chunks are evaluated conditionally based on the version of R being used. The setup chunk for the vignette includes: `modern_r <- getRversion() >= "4.1.0"`. The results of this are then used in the `eval` argument to determine whether or not a code chunk that relies on "modern R" syntax should be run, as can be seen in the following example:
+For example, the base pipe is used in purrr 1.0.0. As can be seen in the [source for the "purrr \<-\> base R" vignette](https://github.com/tidyverse/purrr/commit/df4630c6e8cd5028386ee96b9036f1755f26adc4), certain code chunks are evaluated conditionally based on the version of R being used. The setup chunk for the vignette includes: `modern_r <- getRversion() >= "4.1.0"`. The results of this are then used in the `eval` argument to determine whether or not a code chunk that relies on "modern R" syntax should be run.
 
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'>```{r, eval = modern_r}
-set.seed(2020)
-means |> 
-  lapply(rnorm, n = 5, sd = 1) |> 
-  sapply(median)
-```
-</code></pre>
-
-</div>
-
-Since function-reference examples aren't in `.Rmd` files, `R CMD check --no-examples` is used on \< R 4.1.
+The other place we use the base pipe is in examples. To disable these we use a bit of a hack that requires three files [`configure`](https://github.com/tidyverse/purrr/blob/main/configure), [`cleanup`](https://github.com/tidyverse/purrr/blob/main/cleanup), and [`tools/examples.R`](https://github.com/tidyverse/purrr/blob/main/tools/examples.R). The basic idea is for pre-R 4.1.0 we re-define the `\examples{}` tag to display an informative message but not run the code; this ensures that `R CMD check` continues to work even on older versions of R.
 
