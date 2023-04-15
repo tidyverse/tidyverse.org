@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, parsnip, censored]
-rmd_hash: e70978e438f2e53f
+rmd_hash: c1360eb5c4d63da3
 
 ---
 
@@ -47,9 +47,9 @@ This blog post will introduce you to a new argument name, `eval_time`, and two n
 
 You can see a full list of changes in the [release notes](https://github.com/tidymodels/censored/releases/tag/v0.2.0).
 
-## Introducting `eval_time`
+## Introducing `eval_time`
 
-As we continue to add support for survival analysis across tidymodels, we have seen a need to be more explicit about which time we mean when we say "time": event time, observed time, censoring time, time at which to predict survival probability at? The last one is a particular mouthful. We now refer to this time as "evaluation time". In preparation for dynamic survival performance metrics which can be calculated at different evaluation time points, the argument to set these evaluation time points for [`predict()`](https://rdrr.io/r/stats/predict.html) is now called `eval_time` instead of just `time`.
+As we continue to add support for survival analysis across tidymodels, we have seen a need to be more explicit about which time we mean when we say "time": event time, observed time, censoring time, time at which to predict survival probability at? The last one is a particular mouthful. We now refer to this time as "evaluation time." In preparation for dynamic survival performance metrics which can be calculated at different evaluation time points, the argument to set these evaluation time points for [`predict()`](https://rdrr.io/r/stats/predict.html) is now called `eval_time` instead of just `time`.
 
 <div class="highlight">
 
@@ -92,9 +92,9 @@ censored contains engines for parametric, semi-parametric, and tree-based models
 
 ### New `"aorsf"` engine for `rand_forest()`
 
-This engine has been contributed by [Byron Jaeger](https://github.com/bcjaeger) and enables users to fit oblique random survival forests with the aorsf package. What's with the oblique you ask?
+This engine has been contributed by [Byron Jaeger](https://github.com/bcjaeger) and enables users to fit oblique random survival forests with the aorsf package. What's with the *oblique* you ask?
 
-Oblique describes how the decision trees that form the random forest make their splits at each node: If the split is based on a single predictor, the resulting tree is called *axis-based* because the split is perpendicular to the axis of the predictor. If the split is based on a linear combination of predictors, there is a lot more flexibility in how the data is split: the split does not need to be perpendicular to any of the predictor axes. Such trees are called *oblique*.
+Oblique describes how the decision trees that form the random forest make their splits at each node. If the split is based on a single predictor, the resulting tree is called *axis-based* because the split is perpendicular to the axis of the predictor. If the split is based on a linear combination of predictors, there is a lot more flexibility in how the data is split: the split does not need to be perpendicular to any of the predictor axes. Such trees are called *oblique*.
 
 The documentation for the [aorsf](https://docs.ropensci.org/aorsf) package includes a nice illustration of this with the splits for an axis-based tree on the left and an oblique tree on the right:
 
@@ -116,8 +116,8 @@ To fit such a model, set the engine for a random forest to `"aorsf"`:
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 2</span></span></span>
 <span><span class='c'>#&gt;   .eval_time .pred_survival</span></span>
 <span><span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>        100          0.946</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>        500          0.339</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>        100          0.928</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>        500          0.368</span></span>
 <span></span></code></pre>
 
 </div>
@@ -150,7 +150,7 @@ For comparison, we also fit a parametric model without splines.
 
 </div>
 
-We can predict the hazard for the three levels of the prognostic `group`
+We can predict the hazard for the three levels of the prognostic `group`.
 
 <div class="highlight">
 
@@ -168,17 +168,18 @@ We can predict the hazard for the three levels of the prognostic `group`
 
 </div>
 
-and plot the predictions of both models which show a lot more flexibility for the splines model.
+Plotting the predictions of both models shows a lot more flexibility in the splines model.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>bind_rows</span><span class='o'>(</span><span class='nv'>pred_splines</span>, <span class='nv'>pred_gengamma</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+<span>  <span class='nf'>mutate</span><span class='o'>(</span>group <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='nv'>group</span>, levels <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"Poor"</span>,<span class='s'>"Medium"</span>,<span class='s'>"Good"</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'>tidyr</span><span class='nf'>::</span><span class='nf'><a href='https://tidyr.tidyverse.org/reference/unnest.html'>unnest</a></span><span class='o'>(</span>cols <span class='o'>=</span> <span class='nv'>.pred</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'>ggplot</span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span></span>
 <span>  <span class='nf'>geom_line</span><span class='o'>(</span><span class='nf'>aes</span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>.eval_time</span>, y <span class='o'>=</span> <span class='nv'>.pred_hazard</span>, group <span class='o'>=</span> <span class='nv'>group</span>, col <span class='o'>=</span> <span class='nv'>group</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span></span>
 <span>  <span class='nf'>facet_wrap</span><span class='o'>(</span><span class='o'>~</span> <span class='nv'>model</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-8-1.png" alt="Two panels side by side, showing the predicted hazard curves for the three prognostic groups from the parametric model on the left and the spline model on the right. The curves for the spline model show more wiggliness, having more flexibility to adapt to the data than the curves from the parametric model which have to follow a generalized gamma distribution." width="700px" style="display: block; margin: auto;" />
 
 </div>
 

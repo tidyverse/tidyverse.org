@@ -124,7 +124,7 @@ fit_gengamma <- survival_reg(dist = "gengamma") |>
   fit(Surv(recyrs, censrec) ~ group, data = bc)
 ```
 
-We can predict the hazard for the three levels of the prognostic `group`
+We can predict the hazard for the three levels of the prognostic `group`.
 
 ```{r}
 bc_groups <- tibble(group = c("Poor","Medium","Good"))
@@ -140,10 +140,11 @@ pred_gengamma <- predict(fit_gengamma, new_data = bc_groups, type = "hazard",
   bind_cols(bc_groups)
 ```
 
-and plot the predictions of both models which show a lot more flexibility for the splines model.
+Plotting the predictions of both models shows a lot more flexibility in the splines model.
 
-```{r, fig.alt = ""}
+```{r, fig.alt = "Two panels side by side, showing the predicted hazard curves for the three prognostic groups from the parametric model on the left and the spline model on the right. The curves for the spline model show more wiggliness, having more flexibility to adapt to the data than the curves from the parametric model which have to follow a generalized gamma distribution."}
 bind_rows(pred_splines, pred_gengamma) %>% 
+  mutate(group = factor(group, levels = c("Poor","Medium","Good"))) |> 
   tidyr::unnest(cols = .pred) |> 
   ggplot() +
   geom_line(aes(x = .eval_time, y = .pred_hazard, group = group, col = group)) +
