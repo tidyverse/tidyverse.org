@@ -16,7 +16,7 @@ categories: [programming]
 tags: [package, vctrs]
 ---
 
-The tidyverse packages provide safe, powerful, and expressive interfaces to solve data science problems. Behind the scenes of the tidyverse is a set of lower-level tools that its developers use to build these interfaces. While these lower-level approaches are often more performant than their tidy analogues, their interfaces are often less readable and safe. For most use cases in interactive data analysis, the advantages of tidyverse interfaces far outweigh the drawback in computational speed. When speed becomes an issue, though, transitioning tidy code to use these lower-level interfaces in their backend can offer substantial increases in computational performance.
+The tidyverse packages provide safe, powerful, and expressive interfaces to solve data science problems. Behind the scenes of the tidyverse is a set of lower-level tools that its developers use to build these interfaces. While these lower-level approaches are more performant than their tidy analogues, their interfaces are often less readable and safe. For most use cases in interactive data analysis, the advantages of tidyverse interfaces far outweigh the drawback in computational speed. When speed becomes an issue, though, transitioning tidy code to use these lower-level interfaces in their backend can offer substantial increases in computational performance.
 
 This post will outline alternatives to tools I love from packages like dplyr and tidyr that I use to speed up computational bottlenecks. These recommendations come from my experiences developing the [tidymodels](https://www.tidymodels.org/) packages, a collection of packages for modeling and machine learning using tidyverse principles. As such, most of these suggestions are best suited to package code, as the noted trade-off is more likely to be worth it in those settings---however, there may also be cases in analytical code, especially in production and/or with very large data sets, where these tips will be helpful. I've included a number of "worked examples" with each proposed alternative, showing how the tidymodels team has used these same tricks to [speed up our code](https://www.simonpcouch.com/blog/speedups-2023/) quite a bit. Before I do that, though, let's make friends with some new R packages.
 
@@ -54,7 +54,7 @@ slow_function <- function() {
   
   step_2()
   
-  return(TRUE)
+  TRUE
 }
 ```
 
@@ -395,7 +395,7 @@ Tibbles are great, and I don't want to interface with any other data frame-y thi
      select(expression, median)
    ```
 
-Note that `new_tibble()` *will not check the lengths of its inputs.* Carry out simple recycling yourself, and be sure to use the `nrow` argument to get basic length checks.
+   Note that `new_tibble()` *will not check the lengths of its inputs.* Carry out simple recycling yourself, and be sure to use the `nrow` argument to get basic length checks.
 
 Some examples of changes like this made to tidymodels packages: [tidymodels/parsnip#945](https://github.com/tidymodels/parsnip/pull/932), [tidymodels/parsnip#934](https://github.com/tidymodels/parsnip/pull/934), [tidymodels/parsnip#929](https://github.com/tidymodels/parsnip/pull/929), [tidymodels/parsnip#923](https://github.com/tidymodels/parsnip/pull/923), [tidymodels/parsnip#902](https://github.com/tidymodels/parsnip/pull/902), [tidymodels/dials#277](https://github.com/tidymodels/dials/pull/277), and [tidymodels/tune#637](https://github.com/tidymodels/tune/pull/637).
 
