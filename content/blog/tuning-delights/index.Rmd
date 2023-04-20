@@ -1,0 +1,189 @@
+---
+output: hugodown::hugo_document
+
+slug: tuning-delights
+title: Tuning hyperparameters with tidymodels is a delight
+date: 2023-04-20
+author: Simon Couch
+description: >
+    New releases of the tune, finetune, and workflowsets packages have made 
+    optimizing model parameters with tidymodels even more pleasant.
+
+photo:
+  url: https://unsplash.com/photos/Wrx0iVcYKmM
+  author: Mario La Pergola
+
+categories: [roundup] 
+tags: [tidymodels, tune, workflowsets]
+---
+
+The tidymodels team recently released new versions of the tune, finetune, and workflowsets packages, and we're super stoked about it! Each of these three packages facilitates tuning hyperparameters in , and their new releases work to make the experience of hyperparameter tuning more joyful.
+
+You can install these releases from CRAN with:
+
+```{r, eval = FALSE}
+install.packages(c("tune", "workflowsets", "finetune"))
+```
+
+This blog post will highlight some of new changes in these packages that we're most excited about.
+
+You can see the full lists of changes in the release notes for each package:
+
+* [tune v1.1.0](https://github.com/tidymodels/tune/releases/tag/v1.1.0)
+* [workflowsets v1.0.1](https://github.com/tidymodels/workflowsets/releases/tag/v1.0.1)
+* [finetune v1.1.0](https://github.com/tidymodels/finetune/releases/tag/v1.1.0)
+
+```{r setup, message = FALSE, warning = FALSE}
+library(tidymodels)
+library(finetune)
+```
+
+## A shorthand for fitting the optimal model
+
+In , the result of tuning a set of hyperparameters is a data structure describing the candidate models, their predictions, and the performance metrics associated with those predictions. For example, tuning the number of `neighbors` in a `nearest_neighbors()` model over a regular grid:
+
+```{r}
+# tune the `neighbors` hyperparameter
+knn_model_spec <- nearest_neighbor("regression", neighbors = tune())
+
+tuning_res <- 
+  tune_grid(
+    knn_model_spec,
+    mpg ~ .,
+    bootstraps(mtcars, 5),
+    control = control_grid(save_workflow = TRUE)
+  )
+
+# check out the resulting object
+tuning_res
+
+# examine proposed hyperparameters and associated metrics
+collect_metrics(tuning_res)
+```
+
+Given these tuning results, the next steps are to choose the "best" hyperparameters, assign those hyperparameters to the model, and fit the finalized model on the training set. Previously in , this has felt like:
+
+```{r}
+# choose a method to define "best" and extract the resulting parameters
+best_param <- select_best(tuning_res, "rmse") 
+
+# assign those parameters to model
+knn_model_final <- finalize_model(knn_model_spec, best_param)
+
+# fit the finalized model to the training set
+knn_fit <- fit(knn_model_final, mpg ~ ., mtcars)
+```
+
+Voilà! `knn_fit` is a properly resampled model that is ready to `predict()` on new data:
+
+```{r}
+predict(knn_fit, mtcars[1, ])
+```
+
+The newest release of tune introduced a shorthand interface for going from tuning results to final fit called `fit_best()`. The function wraps each of those three functions with sensible defaults to abbreviate the process described above.
+
+```{r}
+knn_fit_2 <- fit_best(tuning_res)
+
+predict(knn_fit_2, mtcars[1, ])
+```
+
+This function is closely related to the `last_fit()` function. They both give you access to a workflow fitted on the training data but are situated somewhat differently in the modeling workflow. `fit_best()` picks up after a tuning function like `tune_grid()` to take you from tuning results to fitted workflow, ready for you to predict and assess further. `last_fit()` assumes you have made your choice of hyperparameters and finalized your workflow to then take you from finalized workflow to fitted workflow and further to performance assessment on the test data. While `fit_best()` gives a fitted workflow, `last_fit()` gives you the performance results. If you want the fitted workflow, you can extract it from the result of `last_fit()` via `extract_workflow()`.
+
+The newest release of the workflowsets package also includes a `fit_best()` method for workflow set objects. Given a set of $n$ tuning results, that method will sift through all of the possible models to find and fit the optimal model configuration.
+
+## Interactive issue logging
+
+Imagine, in the previous example, we made some subtle error in specifying the tuning process. For example, passing a function to `extract` elements of the proposed workflows that injects some warnings and errors into the tuning process:
+ 
+```{r, eval = FALSE}
+raise_concerns <- function(x) {
+  warning("Ummm, wait. :o")
+  stop("Eep! Nooo!")
+}
+
+tuning_res <-
+  tune_grid(
+    knn_model_spec,
+    mpg ~ .,
+    bootstraps(mtcars, 5),
+    control = control_grid(extract = raise_concerns)
+  )
+```
+
+Warnings and errors can come up in all sorts of places while tuning hyperparameters. Often, with obvious issues, we can raise errors early on and halt the tuning process, but with more subtle concerns, we don't want to be too restrictive; it's sometimes better to defer to the underlying modeling packages to decide what's a dire issue versus something that can be worked around.
+
+In the past, we've raised warnings and issues as they occur, printing context on the issue to the console before logging the issue in the tuning result. In the above example, this would look like:
+
+```
+! Bootstrap1: preprocessor 1/1, model 1/1 (extracts): Ummm, wait. :o
+x Bootstrap1: preprocessor 1/1, model 1/1 (extracts): Error in extractor(object): Eep! Nooo!
+! Bootstrap2: preprocessor 1/1, model 1/1 (extracts): Ummm, wait. :o
+x Bootstrap2: preprocessor 1/1, model 1/1 (extracts): Error in extractor(object): Eep! Nooo!
+! Bootstrap3: preprocessor 1/1, model 1/1 (extracts): Ummm, wait. :o
+x Bootstrap3: preprocessor 1/1, model 1/1 (extracts): Error in extractor(object): Eep! Nooo!
+! Bootstrap4: preprocessor 1/1, model 1/1 (extracts): Ummm, wait. :o
+x Bootstrap4: preprocessor 1/1, model 1/1 (extracts): Error in extractor(object): Eep! Nooo!
+! Bootstrap5: preprocessor 1/1, model 1/1 (extracts): Ummm, wait. :o
+x Bootstrap5: preprocessor 1/1, model 1/1 (extracts): Error in extractor(object): Eep! Nooo!
+
+```
+
+The above messages are super descriptive about where issues occur—they note in which resample, from which proposed modeling workflow, and in which part of the fitting process the issues occurred in. At the same time, they are quite repetitive; if there's an issue during hyperparameter tuning, it probably occurs in every resample, always in the same place. If, instead, we were evaluating this model against 1,000 resamples, or there were more than just two issues, this output could get very overwhelming very quickly.
+
+The new releases of our tuning packages include tools to determine which tuning issues are unique, and for each unique issue, only print out the message once while maintaining a dynamic count of how many times the issue occurred. With the new tune release, the same output would look like:
+
+<div class="highlight">
+
+<pre class='chroma'><span><span class='c'>#&gt; → <span style='color: #BBBB00; font-weight: bold;'>A</span> | <span style='color: #BBBB00;'>warning</span>: Ummm, wait. :o</span></span>
+<span></span><span><span class='c'>#&gt; → <span style='color: #BB0000; font-weight: bold;'>B</span> | <span style='color: #BB0000;'>error</span>:   Eep! Nooo!</span></span>
+<span><span class='c'>#&gt; There were issues with some computations   <span style='color: #BBBB00; font-weight: bold;'>A</span>: x5   <span style='color: #BB0000; font-weight: bold;'>B</span>: x5</span></span>
+<span></span></code></pre>
+
+</div>
+
+This interface is hopefully less overwhelming for users. When the messages attached to these issues aren't enough to debug the issue, the complete set of information about the issues lives inside of the tuning result object, and can be retrieved with `collect_notes(tuning_res)`. To turn off the interactive logging, set the `verbose` control option to `TRUE`.
+
+## Speedups
+
+Each of these three releases, as well as releases of core tidymodels packages they depend on like parsnip, recipes, and hardhat, include a plethora of changes meant to optimize computational performance. Especially for modeling practitioners who work with many resamples and/or small data sets, our modeling workflows will feel a whole lot snappier:
+
+![A ggplot2 line graph plotting relative change in time to evaluate model fits with the tidymodels packages. Fits on datasets with 100 training rows are 2 to 3 times faster, while fits on datasets with 100,000 or more rows take about the same amount of time as they used to.](https://simonpcouch.com/blog/speedups-2023/index_files/figure-html/unnamed-chunk-10-1.png)
+
+With 100-row training data sets, the time to resample models with tune and friends has been at least halved. These releases are the first iteration of a set of changes to reduce the evaluation time of tidymodels code, and users can expect further optimizations in coming releases! See [this post on my blog](https://www.simonpcouch.com/blog/speedups-2023/) for more information about those speedups.
+
+## Bonus points
+
+Although they're smaller in scope, we wanted to highlight two additional developments in tuning hyperparameters with tidymodels. 
+
+### Workflow set support for tidyclust
+
+The recent tidymodels package [tidyclust](github.com/tidymodels/tidyclust) introduced support for fitting and tuning clustering models in tidymodels. That package's function [`tune_cluster()`](https://tidyclust.tidymodels.org/reference/tune_cluster.html) is now an option for tuning in [`workflow_map()`](https://workflowsets.tidymodels.org/reference/workflow_map.html), meaning that users can fit sets of clustering models and preprocessors using workflow sets. These changes further integrate the tidyclust package into tidymodels framework.
+
+### Refined retrieval of intermediate results
+
+The `.Last.tune.result` helper stores the most recent tuning result in the object `.Last.tune.result` as a fail-safe in cases of interrupted tuning, uncaught tuning errors, and simply forgetting to assign tuning results to an object. 
+
+```{r}
+# be a silly goose and forget to assign results
+tune_grid(
+  knn_model_spec,
+  mpg ~ .,
+  bootstraps(mtcars, 5),
+  control = control_grid(save_workflow = TRUE)
+)
+
+# all is not lost!
+.Last.tune.result
+
+# assign to object after the fact
+res <- .Last.tune.result
+```
+
+These three releases introduce support for the `.Last.tune.result` object in more settings and refine support in existing implementations.
+
+## Acknowledgements
+
+Thanks to [&#x0040;walrossker](https://github.com/walrossker), [&#x0040;Freestyleyang](https://github.com/Freestyleyang), and  [&#x0040;Jeffrothschild](https://github.com/Jeffrothschild) for their contributions to these packages since their last releases.
+
+Happy modeling, y'all!
