@@ -40,7 +40,7 @@ library(finetune)
 
 ## A shorthand for fitting the optimal model
 
-In , the result of tuning a set of hyperparameters is a data structure describing the candidate models, their predictions, and the performance metrics associated with those predictions. For example, tuning the number of `neighbors` in a `nearest_neighbors()` model over a regular grid:
+In tidymodels, the result of tuning a set of hyperparameters is a data structure describing the candidate models, their predictions, and the performance metrics associated with those predictions. For example, tuning the number of `neighbors` in a `nearest_neighbors()` model over a regular grid:
 
 ```{r}
 # tune the `neighbors` hyperparameter
@@ -61,7 +61,7 @@ tuning_res
 collect_metrics(tuning_res)
 ```
 
-Given these tuning results, the next steps are to choose the "best" hyperparameters, assign those hyperparameters to the model, and fit the finalized model on the training set. Previously in , this has felt like:
+Given these tuning results, the next steps are to choose the "best" hyperparameters, assign those hyperparameters to the model, and fit the finalized model on the training set. Previously in tidymodels, this has felt like:
 
 ```{r}
 # choose a method to define "best" and extract the resulting parameters
@@ -90,7 +90,7 @@ predict(knn_fit_2, mtcars[1, ])
 
 This function is closely related to the `last_fit()` function. They both give you access to a workflow fitted on the training data but are situated somewhat differently in the modeling workflow. `fit_best()` picks up after a tuning function like `tune_grid()` to take you from tuning results to fitted workflow, ready for you to predict and assess further. `last_fit()` assumes you have made your choice of hyperparameters and finalized your workflow to then take you from finalized workflow to fitted workflow and further to performance assessment on the test data. While `fit_best()` gives a fitted workflow, `last_fit()` gives you the performance results. If you want the fitted workflow, you can extract it from the result of `last_fit()` via `extract_workflow()`.
 
-The newest release of the workflowsets package also includes a `fit_best()` method for workflow set objects. Given a set of $n$ tuning results, that method will sift through all of the possible models to find and fit the optimal model configuration.
+The newest release of the workflowsets package also includes a `fit_best()` method for workflow set objects. Given a set of tuning results, that method will sift through all of the possible models to find and fit the optimal model configuration.
 
 ## Interactive issue logging
 
