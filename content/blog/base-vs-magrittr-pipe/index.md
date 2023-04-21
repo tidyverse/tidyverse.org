@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: base-vs-magrittr-pipe
 title: Differences between the base R and magrittr pipes
-date: 2023-04-17
+date: 2023-04-21
 author: Hadley Wickham
 description: >
     A discussion of the (relatively minor) differences between the native R pipe, 
@@ -13,7 +13,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other] 
 tags: [magrittr]
-rmd_hash: 70bed631277c9e73
+rmd_hash: 3f7097a99f43b212
 
 ---
 
@@ -52,7 +52,7 @@ While `|>` and `%>%` behave identically for simple cases, there are a few crucia
 
 -   The `|>` placeholder is deliberately simple and can't replicate many features of the `%>%` placeholder: you can't pass it to multiple arguments, and it doesn't have any special behavior when the placeholder is used inside another function. For example, `df %>% split(.$var)` is equivalent to `split(df, df$var)`, and `df %>% {split(.$x, .$y)}` is equivalent to `split(df$x, df$y)`.
 
-    With `%>%`, you can use `.` on the left-hand side of operators like `$`, `[[`, `[` , so you can extract a single column from a data frame with (e.g.) `mtcars %>% .$cyl`. A future version of R may add similar support for `|>` and `_`. For the special case of extracting a column out of a data frame, you can also use `dplyr::pull()`:
+    With `%>%`, you can use `.` on the left-hand side of operators like `$`, `[[`, `[` , so you can extract a single column from a data frame with (e.g.) `mtcars %>% .$cyl`. R added support for this feature in R 4.3.0. For the special case of extracting a column out of a data frame, you can also use `dplyr::pull()`:
 
     <div class="highlight">
 
