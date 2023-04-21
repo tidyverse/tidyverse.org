@@ -1,0 +1,203 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-2023-q1
+title: "Q1 2023 tidymodels digest"
+date: 2023-04-21
+author: Emil Hvitfeldt
+description: >
+    The tidymodels team has been busy working on all sorts of new features across the ecosystem.
+photo:
+  url: https://unsplash.com/photos/l-rtCtc_4c0
+  author: Chi Liu
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [roundup] 
+tags: [tidymodels, recipes, yardstick, dials]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+```{r}
+#| include: false
+#| label: startup
+
+library(tidymodels)
+library(embed)
+
+data("ames", package = "modeldata")
+
+tidymodels_prefer()
+theme_set(theme_bw())
+options(pillar.advice = FALSE, pillar.min_title_chars = Inf, width = 120)
+```
+
+```{r}
+#| label: get-repo-info
+#| include: FALSE
+#| cache: TRUE
+
+since <- "2022-12-30"
+
+source("repo-functions.R")
+
+tm_data <- 
+  map_dfr(tm_pkgs, get_current_release) %>% 
+  filter(date > ymd(since)) %>% 
+  mutate(
+    repo = paste0("tidymodels/", package),
+    thanks = map_chr(repo, return_tidy_thanks, from = since),
+    thanks = glue("- {package}: {thanks}"),
+    news = glue("- {package} [({version})](https://{package}.tidymodels.org/news/index.html)")
+  )
+
+txt_pkg_list <- knitr::combine_words(tm_data$package)
+```
+
+The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles.
+
+Since the beginning of 2021, we have been publishing [quarterly updates](https://www.tidyverse.org/categories/roundup/) here on the tidyverse blog summarizing what's new in the tidymodels ecosystem. The purpose of these regular posts is to share useful new features and any updates you may have missed. You can check out the [`tidymodels` tag](https://www.tidyverse.org/tags/tidymodels/) to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused, like these posts from the past couple of months:
+
+-   [Tuning hyperparameters with tidymodels is a delight](https://www.tidyverse.org/blog/2023/04/tuning-delights/)
+-   [censored 0.2.0](https://www.tidyverse.org/blog/2023/04/censored-0-2-0/)
+-   [The tidymodels is getting a whole lot faster](https://www.simonpcouch.com/blog/speedups-2023/)
+
+Since [our last roundup post](https://www.tidyverse.org/blog/2022/12/tidymodels-2022-q4/), there have been CRAN releases of `r nrow(tm_data)` tidymodels packages. Here are links to their NEWS files:
+
+```{r}
+#| echo: FALSE
+#| results: asis
+
+cat(tm_data$news, sep = "\n")
+```
+
+We'll highlight a few especially notable changes below: more informative errors and faster code. First, loading the collection of packages:
+
+```{r}
+#| eval: FALSE
+library(tidymodels)
+library(embed)
+
+data("ames", package = "modeldata")
+```
+
+## More informative errors
+
+We like to make sure that the functions do what they are supposed to do. In the last months we are focused on making it so functions throw errors in such a way that they are easier for the users to pinpoint what went wrong and where. Since the modeling pipeline can be quite complicated, getting uninformative errors are a no-go.
+
+Across the tidymodels, error messages will now indicate the user-facing function that caused the error rather than the internal function that it came from.
+
+From dials, an error that looked like
+
+```r
+degree(range = c(1L, 5L))
+#> Error in `new_quant_param()`:
+#> ! Since `type = 'double'`, please use that data type for the range.
+```
+
+Now says that the error came from `degree()` rather than `new_quant_param()`
+
+```{r}
+#| error: TRUE
+degree(range = c(1L, 5L))
+```
+
+The same thing can be seen with the yardstick metrics
+
+``` r
+mtcars |>
+  accuracy(vs, am)
+#> Error in `dplyr::summarise()`:
+#> ℹ In argument: `.estimate = metric_fn(truth = vs, estimate = am, na_rm =
+#>   na_rm)`.
+#> Caused by error in `validate_class()`:
+#> ! `truth` should be a factor but a numeric was supplied.
+```
+
+which now errors much better
+
+```{r}
+#| error: TRUE
+mtcars |>
+  accuracy(vs, am)
+```
+
+Lastly, one of the biggest improvements came in recipes, which now shows which step caused the error instead of saying it happened in `prep()` or `bake()`. This is a huge improvement since you are likely to have many steps.
+
+Before
+
+``` r
+recipe(~., data = ames) |>
+  step_novel(Neighborhood, new_level = "Gilbert") |>
+  prep()
+#> Error in `prep()`:
+#> ! Columns already contain the new level: Neighborhood
+```
+
+Now
+
+```{r}
+#| error: TRUE
+recipe(~., data = ames) |>
+  step_novel(Neighborhood, new_level = "Gilbert") |>
+  prep()
+```
+
+While these changes might seem trivial, they make a big difference. Especially when the errors are coming when you are using `fit_resamples()` or `tune_grid()`.
+
+## Things are getting faster 
+
+As we have written about in [The tidymodels is getting a whole lot faster](https://www.simonpcouch.com/blog/speedups-2023/) and [Writing performant code with tidy tools
+](https://www.tidyverse.org/blog/2023/04/performant-packages/), we have been working on tightening up the performance of the tidymodels code. These changes are mostly related to the infrastructure code, meaning that the speedup will bring you to closer underlying implementations.
+
+A different kind of speedup is found with the addition of the [step_pca_truncated()](https://embed.tidymodels.org/reference/step_pca_truncated.html) step added in the embed package.
+
+[Principal Component Analysis](https://en.wikipedia.org/wiki/Principal_component_analysis) is a really powerful and fast method for dimensionality reduction of large data sets. However, for data with many columns, it can be computationally expensive to calculate all the principal components. `step_pca_truncated()` works in much the same way as `step_pca()` but it only calculates the number of components it needs
+
+```{r}
+pca_normal <- recipe(Sale_Price ~ ., data = ames) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_pca(all_numeric_predictors(), num_comp = 3)
+
+pca_truncated <- recipe(Sale_Price ~ ., data = ames) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_pca_truncated(all_numeric_predictors(), num_comp = 3)
+```
+
+```{r}
+tictoc::tic()
+prep(pca_normal) |> bake(ames)
+tictoc::toc()
+```
+
+```{r}
+tictoc::tic()
+prep(pca_truncated) |> bake(ames)
+tictoc::toc()
+```
+
+The speedup will be orders of magnitude larger for very wide data.
+
+## Acknowledgements
+
+We'd like to thank those in the community that contributed to tidymodels in the last quarter:
+
+```{r}
+#| echo: FALSE
+#| results: asis
+
+cat(tm_data$thanks, sep = "\n")
+```
+
+We're grateful for all of the tidymodels community, from observers to users to contributors, and wish you all a happy new year!
