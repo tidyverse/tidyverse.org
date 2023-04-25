@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other]
 tags: ["spring cleaning", "package maintenance"]
-rmd_hash: 4003ad5ad4da44a6
+rmd_hash: aa0c90c022f19182
 
 ---
 
@@ -35,6 +35,12 @@ TODO:
 * [ ] `Add intro sentence, e.g. the standard tagline for the package
 * [ ] `usethis::use_tidy_thanks()`
 -->
+<style>
+p.caption {
+  color:#696969; 
+  font-style: italic;
+}
+</style>
 
 As Spring arrives in the Northern hemisphere, the sun's rays reach into the dark corners and illuminate the dust that has been gathering over the winter. This is when our thoughts start to turn to Spring cleaning - a time to clear out the clutter that has accumulated over the past year. It represents a fresh start and a new beginning, and leaves us feeling rejuvenated and ready to take on the rest of the year. This applies not only to our homes, but also to the code that we maintain - there are often bits and pieces that we know need attention but never seem to make it to the top of the priority list.
 
@@ -58,12 +64,9 @@ Package maintainers then install the development version of usethis to get the c
 
 <div class="figure" style="text-align: center">
 
-<a href="https://github.com/r-lib/usethis/issues/1791" target="_blank"><img src="img/usethis-upkeep-issue.png" alt="&lt;p style=&quot;color:#696969; font-style: italic;&quot;&gt;2023 Upkeep Issue for usethis&lt;/p&gt;
-" width="700px" /></a>
+<a href="https://github.com/r-lib/usethis/issues/1791" target="_blank"><img src="img/usethis-upkeep-issue.png" alt="2023 Upkeep Issue for usethis" width="700px" /></a>
 <p class="caption">
-<p style="color:#696969; font-style: italic;">
 2023 Upkeep Issue for usethis
-</p>
 </p>
 
 </div>
@@ -112,11 +115,9 @@ And then called `use_upkeep_issue()` in my rmapshaper package directory:
 
 <div class="figure" style="text-align: center">
 
-<a href="https://github.com/ateucher/rmapshaper/issues/154" target="_blank"><img src="img/rmapshaper-upkeep-issue.png" alt="&lt;p style=&quot;color:#696969; font-style: italic;&quot;&gt;Upkeep issue for rmapshaper&lt;/p&gt;" width="700px" /></a>
+<a href="https://github.com/ateucher/rmapshaper/issues/154" target="_blank"><img src="img/rmapshaper-upkeep-issue.png" alt="Upkeep issue for rmapshaper" width="700px" /></a>
 <p class="caption">
-<p style="color:#696969; font-style: italic;">
 Upkeep issue for rmapshaper
-</p>
 </p>
 
 </div>
