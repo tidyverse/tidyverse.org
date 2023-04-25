@@ -86,6 +86,29 @@ knitr::include_graphics("img/george-certificate.png")
 
 ## Spring cleaning and you!
 
-In the most recent version of usethis, we have created a general purpose `use_upkeep_issue()` function for package authors to use if they wish to do a Spring Cleaning of their own. It is a fairly opinionated list of tasks but we believe taking care of them will generally make your package better, easier to maintain, and more enjoyable for your users. Some of the tasks are meant to be performed only once (and once completed shouldn't show up in subsequent lists), and some should be reviewed periodically. If you want to include additional tasks, you can add an (unexported) function named `upkeep_bullets()` to your own package that returns a character vector of tasks. These will be added to your upkeep checklist.
+In the most recent version of usethis, we have created a general purpose `use_upkeep_issue()` function for package authors to use if they wish to do a Spring Cleaning of their own. It is a fairly opinionated list of tasks but we believe taking care of them will generally make your package better, easier to maintain, and more enjoyable for your users. Some of the tasks are meant to be performed only once (and once completed shouldn't show up in subsequent lists), and some should be reviewed periodically. If you want to include additional tasks, you can add an (unexported) function named `upkeep_bullets()` to your own package that returns a character vector of tasks. These will be added to your upkeep checklist. 
+
+Here is an example of an upkeep issue I created for my package rmapshaper. I created an internal function `upkeep_bullets()` in the package, with an extra bullet I wanted to add to the upkeep issue: 
+
+```{r, eval=FALSE}
+upkeep_bullets <- function() "Update bundled mapshaper node library."
+```
+
+And then called `use_upkeep_issue()` in my rmapshaper package directory:
+
+```{r, eval=FALSE}
+devtools::load_all()
+#> ℹ Loading rmapshaper
+usethis::use_upkeep_issue()
+#> ✔ Setting active project to '/Users/andyteucher/dev/ateucher/rmapshaper'
+#> • Open URL 'https://github.com/ateucher/rmapshaper/issues/154'
+```
+
+```{r, echo=FALSE}
+#| fig-link: https://github.com/ateucher/rmapshaper/issues/154
+#| fig-cap: >
+#|  <p style="color:#696969; font-style: italic;">Upkeep issue for rmapshaper</p>
+knitr::include_graphics("img/rmapshaper-upkeep-issue.png")
+```
 
 We hope that this might inspire you to take care of those nagging maintenance issues, whether it be in the Spring (whenever that is in your part of the world), or any other time. We'd love to hear if you find this helpful, or if there's a way that it could be better, please [let us know](https://github.com/r-lib/usethis/issues).

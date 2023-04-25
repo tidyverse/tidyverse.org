@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other]
 tags: ["spring cleaning", "package maintenance"]
-rmd_hash: 33bbdeff328dcef5
+rmd_hash: 4003ad5ad4da44a6
 
 ---
 
@@ -87,6 +87,41 @@ We also try to have a little fun during the wrapup meeting! I made a small R pac
 ## Spring cleaning and you!
 
 In the most recent version of usethis, we have created a general purpose `use_upkeep_issue()` function for package authors to use if they wish to do a Spring Cleaning of their own. It is a fairly opinionated list of tasks but we believe taking care of them will generally make your package better, easier to maintain, and more enjoyable for your users. Some of the tasks are meant to be performed only once (and once completed shouldn't show up in subsequent lists), and some should be reviewed periodically. If you want to include additional tasks, you can add an (unexported) function named `upkeep_bullets()` to your own package that returns a character vector of tasks. These will be added to your upkeep checklist.
+
+Here is an example of an upkeep issue I created for my package rmapshaper. I created an internal function `upkeep_bullets()` in the package, with an extra bullet I wanted to add to the upkeep issue:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>upkeep_bullets</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='o'>)</span> <span class='s'>"Update bundled mapshaper node library."</span></span></code></pre>
+
+</div>
+
+And then called `use_upkeep_issue()` in my rmapshaper package directory:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>devtools</span><span class='nf'>::</span><span class='nf'><a href='https://devtools.r-lib.org/reference/load_all.html'>load_all</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; ℹ Loading rmapshaper</span></span>
+<span><span class='nf'>usethis</span><span class='nf'>::</span><span class='nf'><a href='https://usethis.r-lib.org/reference/use_upkeep_issue.html'>use_upkeep_issue</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; ✔ Setting active project to '/Users/andyteucher/dev/ateucher/rmapshaper'</span></span>
+<span><span class='c'>#&gt; • Open URL 'https://github.com/ateucher/rmapshaper/issues/154'</span></span></code></pre>
+
+</div>
+
+<div class="highlight">
+
+<div class="figure" style="text-align: center">
+
+<a href="https://github.com/ateucher/rmapshaper/issues/154" target="_blank"><img src="img/rmapshaper-upkeep-issue.png" alt="&lt;p style=&quot;color:#696969; font-style: italic;&quot;&gt;Upkeep issue for rmapshaper&lt;/p&gt;" width="700px" /></a>
+<p class="caption">
+<p style="color:#696969; font-style: italic;">
+Upkeep issue for rmapshaper
+</p>
+</p>
+
+</div>
+
+</div>
 
 We hope that this might inspire you to take care of those nagging maintenance issues, whether it be in the Spring (whenever that is in your part of the world), or any other time. We'd love to hear if you find this helpful, or if there's a way that it could be better, please [let us know](https://github.com/r-lib/usethis/issues).
 
