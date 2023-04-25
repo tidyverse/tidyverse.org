@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other]
 tags: ["spring cleaning", "package maintenance"]
-rmd_hash: e660d6d3725ef050
+rmd_hash: 33bbdeff328dcef5
 
 ---
 
@@ -54,7 +54,21 @@ We formalize these tasks into a checklist ([who doesn't love checklists](https:/
 
 Package maintainers then install the development version of usethis to get the current checklist, and call `usethis::use_tidy_upkeep_issue()` in their package to create the issue. If there are any tasks that aren't relevant to that particular repo it's easy to just edit the issue and remove it. To be really meta, here is the 2023 Spring Cleaning [upkeep issue for usethis](https://github.com/r-lib/usethis/issues/1791), created by usethis:
 
-[![The 2023 Upkeep Issue for usethis](img/usethis-upkeep-issue.png)](https://github.com/r-lib/usethis/issues/1791)
+<div class="highlight">
+
+<div class="figure" style="text-align: center">
+
+<a href="https://github.com/r-lib/usethis/issues/1791" target="_blank"><img src="img/usethis-upkeep-issue.png" alt="&lt;p style=&quot;color:#696969; font-style: italic;&quot;&gt;2023 Upkeep Issue for usethis&lt;/p&gt;
+" width="700px" /></a>
+<p class="caption">
+<p style="color:#696969; font-style: italic;">
+2023 Upkeep Issue for usethis
+</p>
+</p>
+
+</div>
+
+</div>
 
 We separated the tasks into "Necessary" and "Optional". The necessary tasks were those we needed to complete for all of our packages, and also were simple enough that we could be sure we would able to complete them. The optional items were those that were nice to have, and/or would take longer to complete. We try to complete the work, including reviewing and merging any related [pull requests](https://github.com/tidymodels/dials/pull/275), all within the week, with the intention of closing the upkeep issue by Friday.
 
