@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other]
 tags: ["spring cleaning", "package maintenance"]
-rmd_hash: 14ce8ca9ca446a03
+rmd_hash: e660d6d3725ef050
 
 ---
 
@@ -60,7 +60,9 @@ We separated the tasks into "Necessary" and "Optional". The necessary tasks were
 
 ## Wrapup
 
-Finally, we end the week with a wrapup meeting - we do a retrospective on what worked, what didn't, and what we would change for next time. For example, we found that a couple of items on this year's checklist that were too complex to complete within the week, especially across many repos. So we decided to start a practice of converting those "too big" tasks into issues of their own --- you can see an example in the [testthat upkeep issue](https://github.com/r-lib/testthat/issues/1749). This makes it more likely that we can cleanly complete the checklist but still flag those lingering things we would like to finish. We also try to have a little fun during the wrapup meeting! I made a small R package called [chatrbox](https://github.com/ateucher/chatrbox) that uses [ChatGPT](https://openai.com/blog/chatgpt) to generate R-themed Spring Cleaning text snippets. And Tracy Teal used [quarto](https://quarto.org/) to make certificates of achievement for each of us, complete with inspirational messages made with chatrbox!
+Finally, we end the week with a wrapup meeting - we do a retrospective on what worked, what didn't, and what we would change for next time. For example, we found that a couple of items on this year's checklist that were too complex to complete within the week, especially across many repos. So we decided to start a practice of converting those "too big" tasks into issues of their own --- you can see an example in the [testthat upkeep issue](https://github.com/r-lib/testthat/issues/1749). This makes it more likely that we can cleanly complete the checklist but still flag those lingering things we would like to finish.
+
+We also try to have a little fun during the wrapup meeting! I made a small R package called [chatrbox](https://github.com/ateucher/chatrbox) that uses [ChatGPT](https://openai.com/blog/chatgpt) to generate R-themed Spring Cleaning text snippets. And Tracy Teal used [quarto](https://quarto.org/) to make certificates of achievement for each of us, complete with inspirational messages made with chatrbox!
 
 <div class="highlight">
 
