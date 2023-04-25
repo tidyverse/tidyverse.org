@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other]
 tags: ["spring cleaning", "package maintenance"]
-rmd_hash: 26e8ab10a3b2a518
+rmd_hash: 14ce8ca9ca446a03
 
 ---
 
@@ -54,23 +54,17 @@ We formalize these tasks into a checklist ([who doesn't love checklists](https:/
 
 Package maintainers then install the development version of usethis to get the current checklist, and call `usethis::use_tidy_upkeep_issue()` in their package to create the issue. If there are any tasks that aren't relevant to that particular repo it's easy to just edit the issue and remove it. To be really meta, here is the 2023 Spring Cleaning [upkeep issue for usethis](https://github.com/r-lib/usethis/issues/1791), created by usethis:
 
-<div class="highlight">
+[![The 2023 Upkeep Issue for usethis](img/usethis-upkeep-issue.png)](https://github.com/r-lib/usethis/issues/1791)
 
-<img src="img/usethis-upkeep-issue.png" alt="Screenshot of an example upkeep issue in the usethis repository" width="700px" style="display: block; margin: auto;" />
-
-</div>
-
-We separated the tasks into "Necessary" and "Optional". The necessary tasks were those we needed to complete for all of our packages, and also were simple enough that we could be sure we would able to complete them. The optional items were those that were nice to have, and/or would take longer to complete.
-
-As always, the work to address the upkeep issues is submitted via [pull requests](https://github.com/tidymodels/dials/pull/275) - we try to complete the work, review, and merge all within the week with the intention of closing the upkeep issue by Friday. Any checklist items not completed in Spring Cleaning week are converted to their own issues (see the example in the above screenshot).
+We separated the tasks into "Necessary" and "Optional". The necessary tasks were those we needed to complete for all of our packages, and also were simple enough that we could be sure we would able to complete them. The optional items were those that were nice to have, and/or would take longer to complete. We try to complete the work, including reviewing and merging any related [pull requests](https://github.com/tidymodels/dials/pull/275), all within the week, with the intention of closing the upkeep issue by Friday.
 
 ## Wrapup
 
-Finally, we end the week with a wrap-up meeting - we do a retrospective on what worked, what didn't, and what we would change for next time. We also try to have a little fun! I made a small R package called [chatrbox](https://github.com/ateucher/chatrbox) that uses [ChatGPT](https://openai.com/blog/chatgpt) to generate R-themed Spring Cleaning text snippets. And Tracy Teal used [quarto](https://quarto.org/) to make certificates of achievement for each of us, complete with inspirational messages made with chatrbox!
+Finally, we end the week with a wrapup meeting - we do a retrospective on what worked, what didn't, and what we would change for next time. For example, we found that a couple of items on this year's checklist that were too complex to complete within the week, especially across many repos. So we decided to start a practice of converting those "too big" tasks into issues of their own --- you can see an example in the [testthat upkeep issue](https://github.com/r-lib/testthat/issues/1749). This makes it more likely that we can cleanly complete the checklist but still flag those lingering things we would like to finish. We also try to have a little fun during the wrapup meeting! I made a small R package called [chatrbox](https://github.com/ateucher/chatrbox) that uses [ChatGPT](https://openai.com/blog/chatgpt) to generate R-themed Spring Cleaning text snippets. And Tracy Teal used [quarto](https://quarto.org/) to make certificates of achievement for each of us, complete with inspirational messages made with chatrbox!
 
 <div class="highlight">
 
-<img src="img/george-certificate.png" alt="A certificate of excellence in Spring Cleaning for George Stagg, with AI-generated text in the form of a tweet about software licensing in the style of Shakespeare" width="700px" style="display: block; margin: auto;" />
+<img src="img/george-certificate.png" alt="A certificate of excellence in Spring Cleaning for George Stagg, with AI-generated text in the form of a tweet about software licensing in the style of Shakespeare. The generated text says: &quot;Of software fair, be wary and take heed, For licensing terms doth often mislead. Choose wisely, lest thou shouldst freely bruise.&quot; #SoftwareLicensing #ShakespeareanTweets" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
