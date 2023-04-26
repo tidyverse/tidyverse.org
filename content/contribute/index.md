@@ -26,4 +26,4 @@ If you're a bit more experienced with the tidyverse and are looking to improve y
 
 If you are a more experienced programmer, you might want to help out with the package development. Before you do a pull request, you should always file an issue and make sure someone from the tidyverse team agrees that it's a problem, and is happy with your basic proposal for fixing it. We don't want you to spend a bunch of time on something that we don't think is a good idea.
 
-Make sure to read the [tidyverse style guide](https://style.tidyverse.org/) to ensure that your new code and documentation matches the existing style and our [code review principles](https://code-review.tidyverse.org/) for advice on how to submit a great pull request. Using these guides makes the overall review process much smoother!
+Make sure to read the [tidyverse style guide](https://style.tidyverse.org/) to ensure that your new code and documentation matches the existing style, and our [code review principles](https://code-review.tidyverse.org/) for advice on how to submit a great pull request. Using these guides makes the overall review process much smoother!
