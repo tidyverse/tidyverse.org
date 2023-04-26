@@ -16,7 +16,7 @@ If you're interested in answering questions, some good places to start are the [
 
 If you've found a bug, first create a minimal [reprex](/help#reprex). Spend some time trying to make it as minimal as possible: the more time you spend doing this, the easier it will be for the tidyverse team to fix it. Then file it on the GitHub repo of the appropriate package.
 
-To be as efficient as possible, development of tidyverse packages tends to be very bursty. Nothing happens for a long time, until a sufficient quantity of issues accumulates. Then there's a burst of intense activity as we focus our efforts. That makes development more efficient because it avoids expensive context switching between problems. This process makes a good reprex particularly important because it might be multiple months between your initial report and when we start working on it. If you can't reproduce the bug, we can't fix it!
+To be as efficient as possible, development of tidyverse packages tends to be very bursty. Nothing happens for a long time, until a sufficient quantity of issues accumulates. Then there's a burst of intense activity as we focus our efforts. That makes development more efficient because it avoids expensive context switching between problems. This process makes a good reprex particularly important because it might be multiple months between your initial report and when we start working on it. If you can't reproduce the bug, we can't fix it! To learn more about our development process, you can read about our views on [collaboration](https://code-review.tidyverse.org/collaboration/).
 
 ## Contribute documentation 
 
@@ -26,4 +26,4 @@ If you're a bit more experienced with the tidyverse and are looking to improve y
 
 If you are a more experienced programmer, you might want to help out with the package development. Before you do a pull request, you should always file an issue and make sure someone from the tidyverse team agrees that it's a problem, and is happy with your basic proposal for fixing it. We don't want you to spend a bunch of time on something that we don't think is a good idea.
 
-Also make sure to read the [tidyverse style guide](http://style.tidyverse.org/) which will make sure that your new code and documentation matches the existing style. This makes the review process much smoother.
+Make sure to read the [tidyverse style guide](https://style.tidyverse.org/) to ensure that your new code and documentation matches the existing style and our [code review principles](https://code-review.tidyverse.org/) for advice on how to submit a great pull request. Using these guides makes the overall review process much smoother!
