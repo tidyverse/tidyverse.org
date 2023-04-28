@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2023-q1
 title: "Q1 2023 tidymodels digest"
-date: 2023-04-21
+date: 2023-04-28
 author: Emil Hvitfeldt
 description: >
     The tidymodels team has been busy working on all sorts of new features across the ecosystem.
@@ -14,7 +14,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, recipes, yardstick, dials]
-rmd_hash: 328e7ab528557112
+rmd_hash: 7ef5aa70ab4b43a6
 
 ---
 
@@ -55,7 +55,7 @@ Since [our last roundup post](https://www.tidyverse.org/blog/2022/12/tidymodels-
 -   hardhat [(1.3.0)](https://hardhat.tidymodels.org/news/index.html)
 -   modeldata [(1.1.0)](https://modeldata.tidymodels.org/news/index.html)
 -   parsnip [(1.1.0)](https://parsnip.tidymodels.org/news/index.html)
--   recipes [(1.0.5)](https://recipes.tidymodels.org/news/index.html)
+-   recipes [(1.0.6)](https://recipes.tidymodels.org/news/index.html)
 -   rules [(1.0.2)](https://rules.tidymodels.org/news/index.html)
 -   spatialsample [(0.3.0)](https://spatialsample.tidymodels.org/news/index.html)
 -   stacks [(1.0.2)](https://stacks.tidymodels.org/news/index.html)
@@ -83,7 +83,7 @@ We'll highlight a few especially notable changes below: more informative errors 
 
 ## More informative errors
 
-We like to make sure that the functions do what they are supposed to do. In the last months we are focused on making it so functions throw errors in such a way that they are easier for the users to pinpoint what went wrong and where. Since the modeling pipeline can be quite complicated, getting uninformative errors are a no-go.
+In the last few months we have been focused on refining error messages so that they are easier for the users to pinpoint what went wrong and where. Since the modeling pipeline can be quite complicated, getting uninformative errors is a no-go.
 
 Across the tidymodels, error messages will now indicate the user-facing function that caused the error rather than the internal function that it came from.
 
@@ -118,7 +118,7 @@ mtcars |>
 #> ! `truth` should be a factor but a numeric was supplied.
 ```
 
-which now errors much better
+which now errors much more informatively
 
 <div class="highlight">
 
@@ -130,7 +130,7 @@ which now errors much better
 
 </div>
 
-Lastly, one of the biggest improvements came in recipes, which now shows which step caused the error instead of saying it happened in [`prep()`](https://recipes.tidymodels.org/reference/prep.html) or [`bake()`](https://recipes.tidymodels.org/reference/bake.html). This is a huge improvement since you are likely to have many steps.
+Lastly, one of the biggest improvements came in recipes, which now shows which step caused the error instead of saying it happened in [`prep()`](https://recipes.tidymodels.org/reference/prep.html) or [`bake()`](https://recipes.tidymodels.org/reference/bake.html). This is a huge improvement since preprocessing pipelines which often string together many preprocessing steps.
 
 Before
 
@@ -150,13 +150,13 @@ Now
 <span>  <span class='nf'><a href='https://recipes.tidymodels.org/reference/step_novel.html'>step_novel</a></span><span class='o'>(</span><span class='nv'>Neighborhood</span>, new_level <span class='o'>=</span> <span class='s'>"Gilbert"</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://recipes.tidymodels.org/reference/prep.html'>prep</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `step_novel()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='font-weight: bold;'>Caused by error in `prep()`:</span></span></span>
+<span><span class='c'>#&gt; <span style='font-weight: bold;'>Caused by error in `prep()` at recipes/R/recipe.R:437:8:</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Columns already contain the new level: Neighborhood</span></span>
 <span></span></code></pre>
 
 </div>
 
-While these changes might seem trivial, they make a big difference. Especially when the errors are coming when you are using `fit_resamples()` or `tune_grid()`.
+Especially when calls to recipes functions are deeply nested inside the call stack, like in `fit_resamples()` or `tune_grid()`, these changes make a big difference.
 
 ## Things are getting faster
 
@@ -197,7 +197,7 @@ A different kind of speedup is found with the addition of the [step_pca_truncate
 <span><span class='c'>#&gt; <span style='color: #555555;'>10</span>     <span style='text-decoration: underline;'>189</span>000  -<span style='color: #BB0000; text-decoration: underline;'>8</span><span style='color: #BB0000;'>368.</span> -<span style='color: #BB0000; text-decoration: underline;'>2</span><span style='color: #BB0000;'>219.</span>  126.</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 2,920 more rows</span></span></span>
 <span></span><span><span class='nf'>tictoc</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/pkg/tictoc/man/tic.html'>toc</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; 0.871 sec elapsed</span></span>
+<span><span class='c'>#&gt; 0.782 sec elapsed</span></span>
 <span></span></code></pre>
 
 </div>
@@ -207,21 +207,21 @@ A different kind of speedup is found with the addition of the [step_pca_truncate
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>tictoc</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/pkg/tictoc/man/tic.html'>tic</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='nf'><a href='https://recipes.tidymodels.org/reference/prep.html'>prep</a></span><span class='o'>(</span><span class='nv'>pca_truncated</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://recipes.tidymodels.org/reference/bake.html'>bake</a></span><span class='o'>(</span><span class='nv'>ames</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2,930 × 4</span></span></span>
-<span><span class='c'>#&gt;    Sale_Price    PC1    PC2   PC3</span></span>
-<span><span class='c'>#&gt;         <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span>     <span style='text-decoration: underline;'>215</span>000 <span style='text-decoration: underline;'>31</span>793.  <span style='text-decoration: underline;'>4</span>151. -<span style='color: #BB0000;'>197.</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span>     <span style='text-decoration: underline;'>105</span>000 <span style='text-decoration: underline;'>12</span>198.  -<span style='color: #BB0000;'>611.</span> -<span style='color: #BB0000;'>524.</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span>     <span style='text-decoration: underline;'>172</span>000 <span style='text-decoration: underline;'>14</span>911.  -<span style='color: #BB0000;'>265.</span> <span style='text-decoration: underline;'>7</span>568.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span>     <span style='text-decoration: underline;'>244</span>000 <span style='text-decoration: underline;'>12</span>072. -<span style='color: #BB0000; text-decoration: underline;'>1</span><span style='color: #BB0000;'>813.</span>  918.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span>     <span style='text-decoration: underline;'>189</span>900 <span style='text-decoration: underline;'>14</span>418.  -<span style='color: #BB0000;'>345.</span> -<span style='color: #BB0000;'>302.</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span>     <span style='text-decoration: underline;'>195</span>500 <span style='text-decoration: underline;'>10</span>704. -<span style='color: #BB0000; text-decoration: underline;'>1</span><span style='color: #BB0000;'>367.</span> -<span style='color: #BB0000;'>204.</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span>     <span style='text-decoration: underline;'>213</span>500  <span style='text-decoration: underline;'>5</span>858. -<span style='color: #BB0000; text-decoration: underline;'>2</span><span style='color: #BB0000;'>805.</span>  114.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span>     <span style='text-decoration: underline;'>191</span>500  <span style='text-decoration: underline;'>5</span>932. -<span style='color: #BB0000; text-decoration: underline;'>2</span><span style='color: #BB0000;'>762.</span>  131.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span>     <span style='text-decoration: underline;'>236</span>500  <span style='text-decoration: underline;'>6</span>368. -<span style='color: #BB0000; text-decoration: underline;'>2</span><span style='color: #BB0000;'>862.</span>  325.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span>     <span style='text-decoration: underline;'>189</span>000  <span style='text-decoration: underline;'>8</span>368. -<span style='color: #BB0000; text-decoration: underline;'>2</span><span style='color: #BB0000;'>219.</span>  126.</span></span>
+<span><span class='c'>#&gt;    Sale_Price     PC1    PC2   PC3</span></span>
+<span><span class='c'>#&gt;         <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span>     <span style='text-decoration: underline;'>215</span>000 -<span style='color: #BB0000; text-decoration: underline;'>31</span><span style='color: #BB0000;'>793.</span>  <span style='text-decoration: underline;'>4</span>151. -<span style='color: #BB0000;'>197.</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span>     <span style='text-decoration: underline;'>105</span>000 -<span style='color: #BB0000; text-decoration: underline;'>12</span><span style='color: #BB0000;'>198.</span>  -<span style='color: #BB0000;'>611.</span> -<span style='color: #BB0000;'>524.</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span>     <span style='text-decoration: underline;'>172</span>000 -<span style='color: #BB0000; text-decoration: underline;'>14</span><span style='color: #BB0000;'>911.</span>  -<span style='color: #BB0000;'>265.</span> <span style='text-decoration: underline;'>7</span>568.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span>     <span style='text-decoration: underline;'>244</span>000 -<span style='color: #BB0000; text-decoration: underline;'>12</span><span style='color: #BB0000;'>072.</span> -<span style='color: #BB0000; text-decoration: underline;'>1</span><span style='color: #BB0000;'>813.</span>  918.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span>     <span style='text-decoration: underline;'>189</span>900 -<span style='color: #BB0000; text-decoration: underline;'>14</span><span style='color: #BB0000;'>418.</span>  -<span style='color: #BB0000;'>345.</span> -<span style='color: #BB0000;'>302.</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span>     <span style='text-decoration: underline;'>195</span>500 -<span style='color: #BB0000; text-decoration: underline;'>10</span><span style='color: #BB0000;'>704.</span> -<span style='color: #BB0000; text-decoration: underline;'>1</span><span style='color: #BB0000;'>367.</span> -<span style='color: #BB0000;'>204.</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span>     <span style='text-decoration: underline;'>213</span>500  -<span style='color: #BB0000; text-decoration: underline;'>5</span><span style='color: #BB0000;'>858.</span> -<span style='color: #BB0000; text-decoration: underline;'>2</span><span style='color: #BB0000;'>805.</span>  114.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span>     <span style='text-decoration: underline;'>191</span>500  -<span style='color: #BB0000; text-decoration: underline;'>5</span><span style='color: #BB0000;'>932.</span> -<span style='color: #BB0000; text-decoration: underline;'>2</span><span style='color: #BB0000;'>762.</span>  131.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span>     <span style='text-decoration: underline;'>236</span>500  -<span style='color: #BB0000; text-decoration: underline;'>6</span><span style='color: #BB0000;'>368.</span> -<span style='color: #BB0000; text-decoration: underline;'>2</span><span style='color: #BB0000;'>862.</span>  325.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span>     <span style='text-decoration: underline;'>189</span>000  -<span style='color: #BB0000; text-decoration: underline;'>8</span><span style='color: #BB0000;'>368.</span> -<span style='color: #BB0000; text-decoration: underline;'>2</span><span style='color: #BB0000;'>219.</span>  126.</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 2,920 more rows</span></span></span>
 <span></span><span><span class='nf'>tictoc</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/pkg/tictoc/man/tic.html'>toc</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; 0.253 sec elapsed</span></span>
+<span><span class='c'>#&gt; 0.162 sec elapsed</span></span>
 <span></span></code></pre>
 
 </div>
@@ -237,16 +237,16 @@ We'd like to thank those in the community that contributed to tidymodels in the 
 -   agua: [@hfrick](https://github.com/hfrick), [@simonpcouch](https://github.com/simonpcouch), and [@topepo](https://github.com/topepo).
 -   baguette: [@simonpcouch](https://github.com/simonpcouch), and [@topepo](https://github.com/topepo).
 -   broom: [@benwhalley](https://github.com/benwhalley), [@dgrtwo](https://github.com/dgrtwo), [@egosv](https://github.com/egosv), [@hfrick](https://github.com/hfrick), [@JorisChau](https://github.com/JorisChau), [@mccarthy-m-g](https://github.com/mccarthy-m-g), [@MichaelChirico](https://github.com/MichaelChirico), [@paige-cho](https://github.com/paige-cho), [@PoGibas](https://github.com/PoGibas), [@rsbivand](https://github.com/rsbivand), [@simonpcouch](https://github.com/simonpcouch), [@ste-tuf](https://github.com/ste-tuf), and [@victor-vscn](https://github.com/victor-vscn).
--   butcher: [@ashbythorpe](https://github.com/ashbythorpe), [@DavisVaughan](https://github.com/DavisVaughan), [@hfrick](https://github.com/hfrick), [@juliasilge](https://github.com/juliasilge), [@rdavis120](https://github.com/rdavis120), and [@simonpcouch](https://github.com/simonpcouch).
+-   butcher: [@ashbythorpe](https://github.com/ashbythorpe), [@DavisVaughan](https://github.com/DavisVaughan), [@hfrick](https://github.com/hfrick), [@juliasilge](https://github.com/juliasilge), [@rdavis120](https://github.com/rdavis120), [@rkb965](https://github.com/rkb965), and [@simonpcouch](https://github.com/simonpcouch).
 -   censored: [@brunocarlin](https://github.com/brunocarlin), and [@hfrick](https://github.com/hfrick).
--   dials: [@amin0511ss](https://github.com/amin0511ss), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@emmafeuer](https://github.com/emmafeuer), [@hfrick](https://github.com/hfrick), and [@simonpcouch](https://github.com/simonpcouch).
+-   dials: [@amin0511ss](https://github.com/amin0511ss), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@hfrick](https://github.com/hfrick), and [@simonpcouch](https://github.com/simonpcouch).
 -   discrim: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), and [@tomwagstaff-opml](https://github.com/tomwagstaff-opml).
 -   embed: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@jackobenco016](https://github.com/jackobenco016), and [@skasowitz](https://github.com/skasowitz).
 -   finetune: [@Freestyleyang](https://github.com/Freestyleyang), [@simonpcouch](https://github.com/simonpcouch), and [@topepo](https://github.com/topepo).
 -   hardhat: [@cregouby](https://github.com/cregouby), [@DavisVaughan](https://github.com/DavisVaughan), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@frank113](https://github.com/frank113), and [@mikemahoney218](https://github.com/mikemahoney218).
 -   modeldata: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), and [@topepo](https://github.com/topepo).
--   parsnip: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@exsell-jc](https://github.com/exsell-jc), [@hfrick](https://github.com/hfrick), [@mariamaseng](https://github.com/mariamaseng), [@SHo-JANG](https://github.com/SHo-JANG), [@simonpcouch](https://github.com/simonpcouch), and [@topepo](https://github.com/topepo).
--   recipes: [@AshesITR](https://github.com/AshesITR), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@hfrick](https://github.com/hfrick), [@jjcurtin](https://github.com/jjcurtin), [@lbui30](https://github.com/lbui30), [@PeterKoffeldt](https://github.com/PeterKoffeldt), [@rdavis120](https://github.com/rdavis120), [@simonpcouch](https://github.com/simonpcouch), [@StevenWallaert](https://github.com/StevenWallaert), [@tellyshia](https://github.com/tellyshia), [@topepo](https://github.com/topepo), [@ttrodrigz](https://github.com/ttrodrigz), and [@zecojls](https://github.com/zecojls).
+-   parsnip: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@emmafeuer](https://github.com/emmafeuer), [@exsell-jc](https://github.com/exsell-jc), [@hfrick](https://github.com/hfrick), [@mariamaseng](https://github.com/mariamaseng), [@SHo-JANG](https://github.com/SHo-JANG), [@simonpcouch](https://github.com/simonpcouch), [@topepo](https://github.com/topepo), and [@Tripartio](https://github.com/Tripartio).
+-   recipes: [@AshesITR](https://github.com/AshesITR), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@hfrick](https://github.com/hfrick), [@jjcurtin](https://github.com/jjcurtin), [@lang-benjamin](https://github.com/lang-benjamin), [@lbui30](https://github.com/lbui30), [@PeterKoffeldt](https://github.com/PeterKoffeldt), [@rdavis120](https://github.com/rdavis120), [@simonpcouch](https://github.com/simonpcouch), [@StevenWallaert](https://github.com/StevenWallaert), [@tellyshia](https://github.com/tellyshia), [@topepo](https://github.com/topepo), [@ttrodrigz](https://github.com/ttrodrigz), and [@zecojls](https://github.com/zecojls).
 -   rules: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@hfrick](https://github.com/hfrick), [@jonthegeek](https://github.com/jonthegeek), and [@topepo](https://github.com/topepo).
 -   spatialsample: [@hfrick](https://github.com/hfrick), [@mikemahoney218](https://github.com/mikemahoney218), and [@RaymondBalise](https://github.com/RaymondBalise).
 -   stacks: [@amin0511ss](https://github.com/amin0511ss), [@gundalav](https://github.com/gundalav), [@jrosell](https://github.com/jrosell), [@juliasilge](https://github.com/juliasilge), [@pbulsink](https://github.com/pbulsink), [@rdavis120](https://github.com/rdavis120), and [@simonpcouch](https://github.com/simonpcouch).
@@ -254,12 +254,12 @@ We'd like to thank those in the community that contributed to tidymodels in the 
 -   themis: [@carlganz](https://github.com/carlganz), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@hfrick](https://github.com/hfrick), [@nipnipj](https://github.com/nipnipj), [@rmurphy49](https://github.com/rmurphy49), and [@rowanjh](https://github.com/rowanjh).
 -   tidyclust: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@hfrick](https://github.com/hfrick), [@hsbadr](https://github.com/hsbadr), [@jonthegeek](https://github.com/jonthegeek), and [@simonpcouch](https://github.com/simonpcouch).
 -   tidypredict: [@edgararuiz](https://github.com/edgararuiz), and [@sdcharle](https://github.com/sdcharle).
--   tune: [@BenoitLondon](https://github.com/BenoitLondon), [@hfrick](https://github.com/hfrick), [@jthomasmock](https://github.com/jthomasmock), [@mrjujas](https://github.com/mrjujas), [@MxNl](https://github.com/MxNl), [@nabsiddiqui](https://github.com/nabsiddiqui), [@rdavis120](https://github.com/rdavis120), [@SHo-JANG](https://github.com/SHo-JANG), [@simonpcouch](https://github.com/simonpcouch), [@topepo](https://github.com/topepo), [@walrossker](https://github.com/walrossker), and [@yusuftengriverdi](https://github.com/yusuftengriverdi).
+-   tune: [@BenoitLondon](https://github.com/BenoitLondon), [@cphaarmeyer](https://github.com/cphaarmeyer), [@hfrick](https://github.com/hfrick), [@jthomasmock](https://github.com/jthomasmock), [@mrjujas](https://github.com/mrjujas), [@MxNl](https://github.com/MxNl), [@nabsiddiqui](https://github.com/nabsiddiqui), [@rdavis120](https://github.com/rdavis120), [@SHo-JANG](https://github.com/SHo-JANG), [@simonpcouch](https://github.com/simonpcouch), [@topepo](https://github.com/topepo), [@walrossker](https://github.com/walrossker), and [@yusuftengriverdi](https://github.com/yusuftengriverdi).
 -   workflows: [@simonpcouch](https://github.com/simonpcouch).
 -   workflowsets: [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@gsimchoni](https://github.com/gsimchoni), and [@simonpcouch](https://github.com/simonpcouch).
--   yardstick: [@77makr](https://github.com/77makr), [@burch-cm](https://github.com/burch-cm), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@idavydov](https://github.com/idavydov), [@kadyb](https://github.com/kadyb), [@mawardivaz](https://github.com/mawardivaz), [@mikemahoney218](https://github.com/mikemahoney218), [@nyambea](https://github.com/nyambea), [@SHo-JANG](https://github.com/SHo-JANG), [@simdadim](https://github.com/simdadim), and [@simonpcouch](https://github.com/simonpcouch).
+-   yardstick: [@77makr](https://github.com/77makr), [@burch-cm](https://github.com/burch-cm), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@idavydov](https://github.com/idavydov), [@kadyb](https://github.com/kadyb), [@mawardivaz](https://github.com/mawardivaz), [@mikemahoney218](https://github.com/mikemahoney218), [@moloscripts](https://github.com/moloscripts), [@nyambea](https://github.com/nyambea), [@SHo-JANG](https://github.com/SHo-JANG), [@simdadim](https://github.com/simdadim), and [@simonpcouch](https://github.com/simonpcouch).
 
 </div>
 
-We're grateful for all of the tidymodels community, from observers to users to contributors, and wish you all a happy new year!
+We're grateful for all of the tidymodels community, from observers to users to contributors. Happy modeling!
 
