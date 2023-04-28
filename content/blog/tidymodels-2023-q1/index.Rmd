@@ -94,7 +94,7 @@ data("ames", package = "modeldata")
 
 ## More informative errors
 
-We like to make sure that the functions do what they are supposed to do. In the last months we are focused on making it so functions throw errors in such a way that they are easier for the users to pinpoint what went wrong and where. Since the modeling pipeline can be quite complicated, getting uninformative errors are a no-go.
+In the last few months we have been focused on refining error messages so that they are easier for the users to pinpoint what went wrong and where. Since the modeling pipeline can be quite complicated, getting uninformative errors is a no-go.
 
 Across the tidymodels, error messages will now indicate the user-facing function that caused the error rather than the internal function that it came from.
 
@@ -125,7 +125,7 @@ mtcars |>
 #> ! `truth` should be a factor but a numeric was supplied.
 ```
 
-which now errors much better
+which now errors much more informatively
 
 ```{r}
 #| error: TRUE
@@ -133,7 +133,7 @@ mtcars |>
   accuracy(vs, am)
 ```
 
-Lastly, one of the biggest improvements came in recipes, which now shows which step caused the error instead of saying it happened in `prep()` or `bake()`. This is a huge improvement since you are likely to have many steps.
+Lastly, one of the biggest improvements came in recipes, which now shows which step caused the error instead of saying it happened in `prep()` or `bake()`. This is a huge improvement since preprocessing pipelines which often string together many preprocessing steps.
 
 Before
 
@@ -154,7 +154,7 @@ recipe(~., data = ames) |>
   prep()
 ```
 
-While these changes might seem trivial, they make a big difference. Especially when the errors are coming when you are using `fit_resamples()` or `tune_grid()`.
+Especially when calls to recipes functions are deeply nested inside the call stack, like in `fit_resamples()` or `tune_grid()`, these changes make a big difference.
 
 ## Things are getting faster 
 
@@ -200,4 +200,4 @@ We'd like to thank those in the community that contributed to tidymodels in the 
 cat(tm_data$thanks, sep = "\n")
 ```
 
-We're grateful for all of the tidymodels community, from observers to users to contributors, and wish you all a happy new year!
+We're grateful for all of the tidymodels community, from observers to users to contributors. Happy modeling!
