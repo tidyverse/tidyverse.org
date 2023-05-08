@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other]
 tags: ["spring cleaning", "package maintenance"]
-rmd_hash: 8411dc9441e6d648
+rmd_hash: 5a281a429007d41e
 
 ---
 
@@ -107,7 +107,7 @@ And then called `use_upkeep_issue()` in my rmapshaper package directory:
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>devtools</span><span class='nf'>::</span><span class='nf'><a href='https://devtools.r-lib.org/reference/load_all.html'>load_all</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; ℹ Loading rmapshaper</span></span>
-<span><span class='nf'>usethis</span><span class='nf'>::</span><span class='nf'><a href='https://usethis.r-lib.org/reference/use_upkeep_issue.html'>use_upkeep_issue</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='nf'>usethis</span><span class='nf'>::</span><span class='nf'>use_upkeep_issue</span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; ✔ Setting active project to '/Users/andyteucher/dev/ateucher/rmapshaper'</span></span>
 <span><span class='c'>#&gt; • Open URL 'https://github.com/ateucher/rmapshaper/issues/154'</span></span></code></pre>
 
@@ -126,5 +126,7 @@ Upkeep issue for rmapshaper
 
 </div>
 
-We hope that this might inspire you to take care of those nagging maintenance issues, whether it be in the Spring (whenever that is in your part of the world), or any other time. We'd love to hear if you find this helpful, or if there's a way that it could be better, please [let us know](https://github.com/r-lib/usethis/issues).
+In a fun confluence of events, while working on this post I attended an [rOpenSci coworking session](https://ropensci.org/events/coworking-2023-05/) where the topic of the day was spring cleaning! We chatted about the benefits of regular upkeep, and what types of tasks make good spring cleaning issues. It was really inspiring and validating to connect with other people tackling maintenance like this.
+
+We hope that this will provide a starting point, and motivate you to take care of those nagging maintenance issues, whether it be in the Spring (whenever that is in your part of the world), or any other time. We'd love to hear if you find this helpful, or if there's a way that it could be better, please [let us know](https://github.com/r-lib/usethis/issues).
 
