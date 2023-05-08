@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other]
 tags: ["spring cleaning", "package maintenance"]
-rmd_hash: 5a281a429007d41e
+rmd_hash: b1c843b0d3074f24
 
 ---
 
@@ -42,7 +42,7 @@ p.caption {
 }
 </style>
 
-As Spring arrives in the Northern hemisphere, the sun's rays reach into the dark corners and illuminate the dust that has been gathering over the winter. This is when our thoughts start to turn to Spring cleaning - a time to clear out the clutter that has accumulated over the past year. It represents a fresh start and a new beginning, and leaves us feeling rejuvenated and ready to take on the rest of the year. This applies not only to our homes, but also to the code that we maintain - there are often bits and pieces that we know need attention but never seem to make it to the top of the priority list.
+As Spring arrives in the Northern hemisphere, the sun's rays reach into the dark corners and illuminate the dust that has been gathering over the winter. This is when our thoughts start to turn to Spring cleaning --- a time to clear out the clutter that has accumulated over the past year. It represents a fresh start and a new beginning, and leaves us feeling rejuvenated and ready to take on the rest of the year. This applies not only to our homes, but also to the code that we maintain --- there are often bits and pieces that we know need attention but never seem to make it to the top of the priority list.
 
 Doing this kind of work isn't necessarily only about adopting good practices or increasing the quality of your code --- it can also be about adding value through standardization. Most developers only work sporadically on a particular package. For some it's because they work on a lot of packages, while for many it's because package development is not their main job. When you return to a package after a long gap, there is potential for a lot of friction (and dread/procrastination) as you get re-oriented to its idiosyncrasies. Making the occasional pass through your packages and looking for opportunities to adopt current, shared practices can make it easier to dip in and out of different packages.
 
@@ -50,9 +50,9 @@ The tidyverse team at Posit has a practice of tackling Spring Cleaning together 
 
 ## Preparation
 
-Early in the new year, we set aside the time in our calendars for Spring Cleaning - this way everyone knows that it's coming up and can make sure they have cleared the space in their schedules (and their minds) to focus on it.
+Early in the new year, we set aside the time in our calendars for Spring Cleaning --- this way everyone knows that it's coming up and can make sure they have cleared the space in their schedules (and their minds) to focus on it.
 
-We prepare for the week by creating a list of things we want to take care of in our packages. Rather than adding features or fixing bugs, these tasks are usually about bringing things up to current standards or best practices, and include things like updating tests to the latest testthat version, updating pkgdown templates, and adding alt-text to images in pkgdown sites. Not surprisingly, this year a lot of the upkeep was related to our recent rebrand from RStudio to Posit -- things like updating the copyright holder and author email addresses, and using updated logos without the old rstudio.com website on them.
+We prepare for the week by creating a list of things we want to take care of in our packages. Rather than adding features or fixing bugs, these tasks are usually about bringing things up to current standards or best practices, and include things like updating tests to the latest testthat version, updating pkgdown templates, and adding alt-text to images in pkgdown sites. Not surprisingly, this year a lot of the upkeep was related to our recent rebrand from RStudio to Posit --- things like updating the copyright holder and author email addresses, and using updated logos without the old rstudio.com website on them.
 
 We start off the week with a kickoff meeting on Monday morning. We go through the checklist with everybody and refine what's in it, making sure everybody has had input. Because we maintain so many packages, we have a spreadsheet where we keep track of the packages that are undergoing spring cleaning, and people can assign themselves to packages and mark them as completed when they're done.
 
@@ -128,5 +128,5 @@ Upkeep issue for rmapshaper
 
 In a fun confluence of events, while working on this post I attended an [rOpenSci coworking session](https://ropensci.org/events/coworking-2023-05/) where the topic of the day was spring cleaning! We chatted about the benefits of regular upkeep, and what types of tasks make good spring cleaning issues. It was really inspiring and validating to connect with other people tackling maintenance like this.
 
-We hope that this will provide a starting point, and motivate you to take care of those nagging maintenance issues, whether it be in the Spring (whenever that is in your part of the world), or any other time. We'd love to hear if you find this helpful, or if there's a way that it could be better, please [let us know](https://github.com/r-lib/usethis/issues).
+We hope that this will provide a starting point, and motivate you to take care of those nagging maintenance issues, whether it be in the Spring (whenever that is in your part of the world), or any other time of the year. We'd love to hear if you find this helpful, or if there's a way that it could be better, please [let us know](https://github.com/r-lib/usethis/issues).
 
