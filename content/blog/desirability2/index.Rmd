@@ -3,11 +3,10 @@ output: hugodown::hugo_document
 
 slug: desirability2
 title: desirability2
-date: 2023-05-11
+date: 2023-05-16
 author: Max Kuhn
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    The desirability2 package, for multivariable optimization, is now on CRAN.
 
 photo:
   url: https://unsplash.com/photos/8cvksz5mmnE
@@ -75,7 +74,6 @@ classification_results |> slice_min(mn_log_loss, n = 1)
 
 Are the two metrics related? Here's a plot of the data: 
 
-
 ```{r}
 #| fig-width: 5
 #| fig-height: 5
@@ -86,10 +84,9 @@ classification_results |>
   geom_point(alpha = 1/2)
 ```
 
+We colored the point using the number of features used in the model. Fewer predictors are better; we'd like to factor that into the tuning parameter selection. 
 
-We colored the point using the number of features used in the model. Fewer predictors are better and we'd like to factor that into the tuning parameter selection. 
-
-To optimize them all at once, desirability functions are created that map their values to be between zero and one (with the latter being the most desirable). For the ROC scores, a value of 1.0 is best and maybe we wouldn't consider a model with an AUC less than 0.80. We can use the [`d_max()`](http://desirability2.tidymodels.org/reference/inline_desirability.html) function to translate these values to desirability: 
+To optimize them all at once, desirability functions map their values to be between zero and one (with the latter being the most desirable). For the ROC scores, a value of 1.0 is best, and we may not consider a model with an AUC of less than 0.80. We can use the [`d_max()`](http://desirability2.tidymodels.org/reference/inline_desirability.html) function to translate these values to desirability: 
 
 ```{r}
 #| fig-width: 5
@@ -108,7 +105,6 @@ Note that all model configurations with ROC AUC scores below 0.80 have zero desi
 
 Since we want to reduce loss, we can use `d_min()` to show a curve where smaller is better. We'll use the min and max values, as defined by the data, for this specification:
 
-
 ```{r}
 #| fig-width: 5
 #| fig-height: 5
@@ -125,8 +121,7 @@ classification_results %>%
   lims(y = 0:1)
 ```
 
-Finally, we can factor in the number of features. Arguably this is more important to use than the other two outcomes, we will make this curve nonlinear in a way where it becomes more difficult to be desirable as the number of features increases For this, we'll use the `scale` option to `d_min()`, where larger values make the criteria more difficult to satisfy: 
-
+Finally, we can factor in the number of features. Arguably this is more important to use than the other two outcomes; we will make this curve nonlinear so that it becomes more challenging to be desirable as the number of features increases. For this, we'll use the `scale` option to `d_min()`, where larger values make the criteria more difficult to satisfy: 
 
 ```{r}
 #| fig-width: 5
@@ -145,8 +140,7 @@ classification_results %>%
   lims(y = 0:1)
 ```
 
-
-It is common to combine these components into a single criterion using the geometric mean. Using this statistic has the side effect that any criteria with zero desirability make the overall desirability zero (since the geometric mean multiples the values). There is a function called [`d_overall()`](http://desirability2.tidymodels.org/reference/d_overall.html) that can be used with dplyr's `across()` function. Sorting by overall desirability gives us tuning parameter values (`mixture` and `penalty`) that are best for this combination of criteria. 
+Combining these components into a single criterion using the geometric mean is common. Using this statistic has the side effect that any criteria with zero desirability make the overall desirability zero (since the geometric mean multiples the values). There is a function called [`d_overall()`](http://desirability2.tidymodels.org/reference/d_overall.html) that can be used with dplyr's `across()` function. Sorting by overall desirability gives us tuning parameter values (`mixture` and `penalty`) that are best for this combination of criteria. 
 
 ```{r}
 classification_results %>% 
