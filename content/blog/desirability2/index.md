@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: desirability2
 title: desirability2
-date: 2023-05-16
+date: 2023-05-17
 author: Max Kuhn
 description: >
     The desirability2 package, for multivariable optimization, is now on CRAN.
@@ -51,13 +51,14 @@ library(ggplot2)
 
 
 
+
 [Desirability functions](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22desirability+functions%22) are tools that can be used to rank or optimize multiple characteristics at once. They are intuitive and easy to use. There are a few R packages that implement them, including [desirability](http://cran.r-project.org/package=desirability) and [desiR](http://cran.r-project.org/package=desiR). 
 
 We have a new one, [desirability2](http://cran.r-project.org/package=desirability2), with an interface conducive to being used in-line via dplyr pipelines. 
 
-Let's demonstrate by looking at an application. Suppose we created a classification model and produced multiple metrics on how well it classifies new data. We measured the area under the ROC curve and the binomial log-loss statistic in this example. There are about 300 different model configurations that we investigated via tuning. 
+Let's demonstrate that by looking at an application. Suppose we created a classification model and produced multiple metrics on how well it classifies new data. We measured the area under the ROC curve and the binomial log-loss statistic in this example. There are about 300 different model configurations that we investigated via tuning. 
 
-Looking for the "best" results, the two metrics give us different answers: 
+The results from the tuning process were: 
 
 
 ```r
@@ -81,6 +82,9 @@ classification_results
 ## # ℹ 288 more rows
 ```
 
+If we were interested in the best area under the ROC curve: 
+
+
 ```r
 classification_results |> slice_max(roc_auc, n = 1)
 ```
@@ -91,6 +95,9 @@ classification_results |> slice_max(roc_auc, n = 1)
 ##     <dbl>   <dbl>       <dbl>   <dbl>        <int>
 ## 1   0.222 0.00574       0.185   0.876           86
 ```
+
+However, there are different optimal settings when the log-likelihood is considered:
+
 
 ```r
 classification_results |> slice_min(mn_log_loss, n = 1)
@@ -103,6 +110,7 @@ classification_results |> slice_min(mn_log_loss, n = 1)
 ## 1       1 0.000853       0.184   0.876          103
 ```
 
+
 Are the two metrics related? Here's a plot of the data: 
 
 
@@ -112,11 +120,11 @@ classification_results |>
   geom_point(alpha = 1/2)
 ```
 
-<img src="figure/unnamed-chunk-4-1.svg" alt="plot of chunk unnamed-chunk-4" width="60%" />
+<img src="figure/unnamed-chunk-7-1.svg" alt="plot of chunk unnamed-chunk-7" width="60%" />
 
 We colored the point using the number of features used in the model. Fewer predictors are better; we'd like to factor that into the tuning parameter selection. 
 
-To optimize them all at once, desirability functions map their values to be between zero and one (with the latter being the most desirable). For the ROC scores, a value of 1.0 is best, and we may not consider a model with an AUC of less than 0.80. We can use the [`d_max()`](http://desirability2.tidymodels.org/reference/inline_desirability.html) function to translate these values to desirability: 
+To optimize them all at once, desirability functions map their values to be between zero and one (with the latter being the most desirable). For the ROC scores, a value of 1.0 is best, and we may not consider a model with an AUC of less than 0.80. We can use desirability2's [`d_max()`](http://desirability2.tidymodels.org/reference/inline_desirability.html) function to translate these values to desirability: 
 
 
 ```r
@@ -128,11 +136,11 @@ classification_results %>%
   lims(y = 0:1)
 ```
 
-<img src="figure/unnamed-chunk-5-1.svg" alt="plot of chunk unnamed-chunk-5" width="60%" />
+<img src="figure/unnamed-chunk-8-1.svg" alt="plot of chunk unnamed-chunk-8" width="60%" />
 
 Note that all model configurations with ROC AUC scores below 0.80 have zero desirability. 
 
-Since we want to reduce loss, we can use `d_min()` to show a curve where smaller is better. We'll use the min and max values, as defined by the data, for this specification:
+Since we want to reduce loss, we can use `d_min()` to show a curve where smaller is better. For this specification, we'll use the min and max values as defined by the data, by setting `use_data = TRUE`:
 
 
 ```r
@@ -147,7 +155,7 @@ classification_results %>%
   lims(y = 0:1)
 ```
 
-<img src="figure/unnamed-chunk-6-1.svg" alt="plot of chunk unnamed-chunk-6" width="60%" />
+<img src="figure/unnamed-chunk-9-1.svg" alt="plot of chunk unnamed-chunk-9" width="60%" />
 
 Finally, we can factor in the number of features. Arguably this is more important to use than the other two outcomes; we will make this curve nonlinear so that it becomes more challenging to be desirable as the number of features increases. For this, we'll use the `scale` option to `d_min()`, where larger values make the criteria more difficult to satisfy: 
 
@@ -165,7 +173,7 @@ classification_results %>%
   lims(y = 0:1)
 ```
 
-<img src="figure/unnamed-chunk-7-1.svg" alt="plot of chunk unnamed-chunk-7" width="60%" />
+<img src="figure/unnamed-chunk-10-1.svg" alt="plot of chunk unnamed-chunk-10" width="60%" />
 
 Combining these components into a single criterion using the geometric mean is common. Using this statistic has the side effect that any criteria with zero desirability make the overall desirability zero (since the geometric mean multiples the values). There is a function called [`d_overall()`](http://desirability2.tidymodels.org/reference/d_overall.html) that can be used with dplyr's `across()` function. Sorting by overall desirability gives us tuning parameter values (`mixture` and `penalty`) that are best for this combination of criteria. 
 

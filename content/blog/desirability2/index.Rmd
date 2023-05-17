@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: desirability2
 title: desirability2
-date: 2023-05-16
+date: 2023-05-17
 author: Max Kuhn
 description: >
     The desirability2 package, for multivariable optimization, is now on CRAN.
@@ -48,6 +48,10 @@ library(dplyr)
 library(ggplot2)
 ```
 
+```{r}
+#| include: false
+theme_set(theme_bw())
+```
 
 ```{r}
 #| include: false
@@ -64,13 +68,24 @@ We have a new one, [desirability2](http://cran.r-project.org/package=desirabilit
 
 Let's demonstrate that by looking at an application. Suppose we created a classification model and produced multiple metrics on how well it classifies new data. We measured the area under the ROC curve and the binomial log-loss statistic in this example. There are about 300 different model configurations that we investigated via tuning. 
 
-Looking for the "best" results, the two metrics give us different answers: 
+The results from the tuning process were: 
 
 ```{r}
 classification_results
+```
+
+If we were interested in the best area under the ROC curve: 
+
+```{r}
 classification_results |> slice_max(roc_auc, n = 1)
+```
+
+However, there are different optimal settings when the log-likelihood is considered:
+
+```{r}
 classification_results |> slice_min(mn_log_loss, n = 1)
 ```
+
 
 Are the two metrics related? Here's a plot of the data: 
 
