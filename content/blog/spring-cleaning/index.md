@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: spring-cleaning-2023
 title: "Package spring cleaning"
-date: 2023-04-10
+date: 2023-05-30
 author: Andy Teucher
 description: >
     When Spring comes around, it's time to emabark on some Spring
@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other]
 tags: ["spring cleaning", "package maintenance"]
-rmd_hash: b1c843b0d3074f24
+rmd_hash: 1f6df61d41832142
 
 ---
 
@@ -47,6 +47,8 @@ As Spring arrives in the Northern hemisphere, the sun's rays reach into the dark
 Doing this kind of work isn't necessarily only about adopting good practices or increasing the quality of your code --- it can also be about adding value through standardization. Most developers only work sporadically on a particular package. For some it's because they work on a lot of packages, while for many it's because package development is not their main job. When you return to a package after a long gap, there is potential for a lot of friction (and dread/procrastination) as you get re-oriented to its idiosyncrasies. Making the occasional pass through your packages and looking for opportunities to adopt current, shared practices can make it easier to dip in and out of different packages.
 
 The tidyverse team at Posit has a practice of tackling Spring Cleaning together - we set aside a week every year to work in a semi-structured way to efficiently take care of a common list of package maintenance tasks. We find that setting a time for them and doing them all together during one week is an effective, and more fun, way to get them done. We recently completed our 2023 Spring Cleaning and thought it might be fun to share our process.
+
+I'll also show off a new feature we've built in to the latest version of usethis that will help you organize your own Spring Cleaning. Feel free to [jump straight there](#spring-cleaning-and-you) if you want to skip the backstory (don't you wish all recipe blogs had this feature?).
 
 ## Preparation
 
@@ -107,7 +109,7 @@ And then called `use_upkeep_issue()` in my rmapshaper package directory:
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>devtools</span><span class='nf'>::</span><span class='nf'><a href='https://devtools.r-lib.org/reference/load_all.html'>load_all</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; ℹ Loading rmapshaper</span></span>
-<span><span class='nf'>usethis</span><span class='nf'>::</span><span class='nf'>use_upkeep_issue</span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='nf'>usethis</span><span class='nf'>::</span><span class='nf'><a href='https://usethis.r-lib.org/reference/use_upkeep_issue.html'>use_upkeep_issue</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; ✔ Setting active project to '/Users/andyteucher/dev/ateucher/rmapshaper'</span></span>
 <span><span class='c'>#&gt; • Open URL 'https://github.com/ateucher/rmapshaper/issues/154'</span></span></code></pre>
 
