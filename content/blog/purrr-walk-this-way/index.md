@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [purrr, fs]
-rmd_hash: 9dd0700e4952a9ac
+rmd_hash: 70607cf6d1618023
 
 ---
 
@@ -67,6 +67,12 @@ Based on the table above, you might think that [`walk()`](https://purrr.tidyvers
 Here, we'll go through two common use cases: saving multiple CSVs, and multiple plots. We'll also make use of the [fs](https://fs.r-lib.org/) package, a cross-platform interface to file system operations, to inspect our outputs.
 
 If you want to try this out but don't want to save files locally, there's a [companion project on **Posit Cloud**](https://posit.cloud/content/5983147) where you can follow along.
+
+<div class="highlight">
+
+{{% test-drive-cloud url="https://posit.cloud/content/5983147" %}}
+
+</div>
 
 ## Writing (and deleting) multiple CSVs
 
