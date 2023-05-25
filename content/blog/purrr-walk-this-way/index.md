@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [purrr, fs]
-rmd_hash: 70607cf6d1618023
+rmd_hash: 92877ff164eb7dbf
 
 ---
 
@@ -44,7 +44,7 @@ One of the benefits of using [`map()`](https://purrr.tidyverse.org/reference/map
 
 <img src="purrr-map-args.png" alt="Highlighted titles read: what we're iterating over, and what we're doing each time. For map(.x = , .f = ) .x is what we're iterating over and .f is what we're doing each time. For map2(.x = , .y = , .f = ) .x and .y are what we're iterating over and .f is what we're doing each time. For pmap(.l = list(), .f = ) .l is what we're iterating over and .f is what we're doing each time." width="700px" />
 <p class="caption">
-Grouped map function arguments, adapted from Intro to purrr by Jennifer Thompson'
+Grouped map function arguments, adapted from Intro to purrr by Jennifer Thompson
 </p>
 
 </div>
