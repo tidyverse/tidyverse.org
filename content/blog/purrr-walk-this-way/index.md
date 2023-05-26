@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: purrr-walk-this-way
 title: "`purrr::walk()` this way"
-date: 2023-05-25
+date: 2023-05-26
 author: Mara Averick
 description: >
     How to use `purrr::walk()` to write many files, 
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [purrr, fs]
-rmd_hash: 92877ff164eb7dbf
+rmd_hash: 416afb19a5f39548
 
 ---
 
