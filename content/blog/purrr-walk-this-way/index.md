@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [purrr, fs]
-rmd_hash: 416afb19a5f39548
+rmd_hash: e7d810158b8bc1fb
 
 ---
 
@@ -87,9 +87,11 @@ To get started, we'll need some data. Let's use the [gapminder](https://googlesh
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># since we're using data built into googlesheets4 we don't need to auth</span></span>
-<span><span class='nf'><a href='https://googlesheets4.tidyverse.org/reference/gs4_deauth.html'>gs4_deauth</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='nv'>ss</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://googlesheets4.tidyverse.org/reference/gs4_examples.html'>gs4_example</a></span><span class='o'>(</span><span class='s'>"gapminder"</span><span class='o'>)</span> <span class='c'># get sheet id</span></span>
+</div>
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>ss</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://googlesheets4.tidyverse.org/reference/gs4_examples.html'>gs4_example</a></span><span class='o'>(</span><span class='s'>"gapminder"</span><span class='o'>)</span> <span class='c'># get sheet id</span></span>
 <span><span class='nv'>sheets</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://googlesheets4.tidyverse.org/reference/sheet_properties.html'>sheet_names</a></span><span class='o'>(</span><span class='nv'>ss</span><span class='o'>)</span> <span class='c'># get the names of individual sheets</span></span>
 <span><span class='nv'>gap_dfs</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='o'>(</span><span class='nv'>sheets</span>, .f <span class='o'>=</span> \<span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nf'><a href='https://googlesheets4.tidyverse.org/reference/range_read.html'>read_sheet</a></span><span class='o'>(</span><span class='nv'>ss</span>, sheet <span class='o'>=</span> <span class='nv'>x</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> Reading from <span style='color: #00BBBB;'>gapminder</span>.</span></span>
@@ -106,9 +108,9 @@ To get started, we'll need some data. Let's use the [gapminder](https://googlesh
 
 </div>
 
-Note that the backslash syntax for anonymous functions (e.g. `\(x) x +1`) was introduced in base R version 4.1.0. If you're using an earlier version of R, you can use a formula instead (e.g. `~ .x + 1`).
+Note that the backslash syntax for anonymous functions (e.g. `\(x) x + 1`) was introduced in base R version 4.1.0 as a shorthand for `function(x) x + 1`. If you're using an earlier version of R, you can use purrr's shorthand: a formula (e.g. `~ .x + 1`).
 
-Typically, you'd want to combine these data frames into one for the purposes of working with the data in R. To do so, we'll use [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) on `gap_dfs`. I've kept the intermediary object, since we'll use it in a moment with [`walk()`](https://purrr.tidyverse.org/reference/map.html), but could have just as easily piped the output directly. The combination of [`purrr::map()` and `list_rbind()`](https://r4ds.hadley.nz/iteration.html?#purrrmap-and-list_rbind) is a handy one you can learn more about in the linked section of R for Data Science.
+Typically, you'd want to combine these data frames into one to make it easier to work with your data. To do so, we'll use [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) on `gap_dfs`. I've kept the intermediary object, since we'll use it in a moment with [`walk()`](https://purrr.tidyverse.org/reference/map.html), but could have just as easily piped the output directly. The combination of [`purrr::map()`](https://purrr.tidyverse.org/reference/map.html) and [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html) is a handy one that you can learn more about in the [R for Data Science](https://r4ds.hadley.nz/iteration.html?#purrrmap-and-list_rbind).
 
 <div class="highlight">
 
@@ -123,11 +125,15 @@ Now let's say that, for whatever reason, you'd like to save the data from these 
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/create.html'>dir_create</a></span><span class='o'>(</span><span class='s'>"data"</span><span class='o'>)</span></span>
 <span><span class='nv'>paths</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://stringr.tidyverse.org/reference/str_glue.html'>str_glue</a></span><span class='o'>(</span><span class='s'>"data/gapminder_&#123;tolower(sheets)&#125;.csv"</span><span class='o'>)</span></span>
-<span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map2.html'>walk2</a></span><span class='o'>(</span><span class='nv'>gap_dfs</span>, <span class='nv'>paths</span>, <span class='nv'>write_csv</span><span class='o'>)</span></span></code></pre>
+<span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map2.html'>walk2</a></span><span class='o'>(</span></span>
+<span>  <span class='nv'>gap_dfs</span>, </span>
+<span>  <span class='nv'>paths</span>,</span>
+<span>  \<span class='o'>(</span><span class='nv'>df</span>, <span class='nv'>name</span><span class='o'>)</span> <span class='nf'><a href='https://readr.tidyverse.org/reference/write_delim.html'>write_csv</a></span><span class='o'>(</span><span class='nv'>df</span>, <span class='nv'>name</span><span class='o'>)</span></span>
+<span>  <span class='o'>)</span></span></code></pre>
 
 </div>
 
-To see what we've done, we can use [`fs::dir_tree()`](https://fs.r-lib.org/reference/dir_tree.html) to see the contents of the directory as a tree, or [`fs::dir_ls()`](https://fs.r-lib.org/reference/dir_ls.html) to return the paths as a list.
+To see what we've done, we can use [`fs::dir_tree()`](https://fs.r-lib.org/reference/dir_tree.html) to see the contents of the directory as a tree, or [`fs::dir_ls()`](https://fs.r-lib.org/reference/dir_ls.html) to return the paths as a vector. These functions also take `glob` and `regexp` arguments, allowing you to filter paths by file type with globbing patterns (e.g. `*.csv`) or using a regular expression passed on to [`grep()`](https://rdrr.io/r/base/grep.html).
 
 <div class="highlight">
 
@@ -150,7 +156,7 @@ If you're having regrets, or want to return your example project to its previous
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>walk</a></span><span class='o'>(</span><span class='nv'>paths</span>, <span class='nf'>fs</span><span class='nf'>::</span><span class='nv'><a href='https://fs.r-lib.org/reference/delete.html'>file_delete</a></span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>walk</a></span><span class='o'>(</span><span class='nv'>paths</span>, \<span class='o'>(</span><span class='nv'>paths</span><span class='o'>)</span> <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/delete.html'>file_delete</a></span><span class='o'>(</span><span class='nv'>paths</span><span class='o'>)</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
@@ -192,13 +198,17 @@ Because we're using the same data (`diamonds`) and conditioning on the same vari
 <span></span>
 <span><span class='c'># make the plots</span></span>
 <span><span class='nv'>plots</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='o'>(</span></span>
-<span>  <span class='nv'>cuts</span>, </span>
-<span>  \<span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nf'>conditional_bars</span><span class='o'>(</span>df <span class='o'>=</span> <span class='nv'>diamonds</span>, <span class='nv'>cut</span> <span class='o'>==</span> <span class='o'>&#123;</span><span class='o'>&#123;</span> <span class='nv'>x</span> <span class='o'>&#125;</span><span class='o'>&#125;</span>, <span class='nv'>clarity</span><span class='o'>)</span></span>
-<span>  <span class='o'>)</span></span></code></pre>
+<span>  <span class='nv'>cuts</span>,</span>
+<span>  \<span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nf'>conditional_bars</span><span class='o'>(</span></span>
+<span>    df <span class='o'>=</span> <span class='nv'>diamonds</span>,</span>
+<span>    <span class='nv'>cut</span> <span class='o'>==</span> <span class='o'>&#123;</span><span class='o'>&#123;</span> <span class='nv'>x</span> <span class='o'>&#125;</span><span class='o'>&#125;</span>,</span>
+<span>    <span class='nv'>clarity</span></span>
+<span>    <span class='o'>)</span></span>
+<span><span class='o'>)</span></span></code></pre>
 
 </div>
 
-As we did when saving our CSVs, we'll use fs to create a directory to store them in, and make a vector of paths for file names.
+The plots are now saved in a list---a fine format for storing ggplots. As we did when saving our CSVs, we'll use fs to create a directory to store them in, and make a vector of paths for file names.
 
 <div class="highlight">
 
@@ -209,7 +219,7 @@ As we did when saving our CSVs, we'll use fs to create a directory to store them
 
 </div>
 
-Now we can use the paths and plots with [`walk2()`](https://purrr.tidyverse.org/reference/map2.html) to pass them as arguments to [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html). Note that, rather than putting constant arguments (such as height and width) in `…`, we pass them directly into [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) in an anonymous function.
+Now we can use the paths and plots with [`walk2()`](https://purrr.tidyverse.org/reference/map2.html) to pass them as arguments to [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html).
 
 <div class="highlight">
 
@@ -240,7 +250,7 @@ And, clean up after ourselves if we didn't *really* want those plots after all.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>walk</a></span><span class='o'>(</span><span class='nv'>plot_paths</span>, <span class='nf'>fs</span><span class='nf'>::</span><span class='nv'><a href='https://fs.r-lib.org/reference/delete.html'>file_delete</a></span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>walk</a></span><span class='o'>(</span><span class='nv'>plot_paths</span>, \<span class='o'>(</span><span class='nv'>paths</span><span class='o'>)</span> <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/delete.html'>file_delete</a></span><span class='o'>(</span><span class='nv'>paths</span><span class='o'>)</span><span class='o'>)</span></span></code></pre>
 
 </div>
 

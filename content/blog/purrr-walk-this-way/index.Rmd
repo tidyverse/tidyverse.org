@@ -51,13 +51,12 @@ knitr::include_graphics("purrr-map-args.png")
 In addition to handling different input arguments, the map family of functions has variants that create different outputs.
 The following table from the [Map-variants section of Advanced R](https://adv-r.hadley.nz/functionals.html#map-variants) shows how the orthogonal inputs and outputs can be used to organise the variants into a matrix:
 
-|                       | List     | Atomic            | Same type   | Nothing   |
-|-----------------------|----------|-------------------|-------------|-----------|
-| One argument          | `map()`  | `map_lgl()`, ...  | `modify()`  | `walk()`  |
-| Two arguments         | `map2()` | `map2_lgl()`, ... | `modify2()` | `walk2()` |
-| One argument + index  | `imap()` | `imap_lgl()`, ... | `imodify()` | `iwalk()` |
-| N arguments           | `pmap()` | `pmap_lgl()`, ... | ---         | `pwalk()` |
-
+|                      | List     | Atomic            | Same type   | Nothing   |
+|----------------------|----------|-------------------|-------------|-----------|
+| One argument         | `map()`  | `map_lgl()`, ...  | `modify()`  | `walk()`  |
+| Two arguments        | `map2()` | `map2_lgl()`, ... | `modify2()` | `walk2()` |
+| One argument + index | `imap()` | `imap_lgl()`, ... | `imodify()` | `iwalk()` |
+| N arguments          | `pmap()` | `pmap_lgl()`, ... | ---         | `pwalk()` |
 
 ## What's up with `walk()`?
 
@@ -90,15 +89,20 @@ library(googlesheets4)
 ```
 
 ```{r}
-#| label: read-sheets
-# since we're using data built into googlesheets4 we don't need to auth
+#| label: deauth
+#| echo: false
 gs4_deauth()
+```
+
+```{r}
+#| label: read-sheets
 ss <- gs4_example("gapminder") # get sheet id
 sheets <- sheet_names(ss) # get the names of individual sheets
 gap_dfs <- map(sheets, .f = \(x) read_sheet(ss, sheet = x))
 ```
 
-Note that the backslash syntax for anonymous functions (e.g. `\(x) x + 1`) was introduced in base R version 4.1.0 as a shorthand for `function(x) x + 1`. If you're using an earlier version of R, you can use purrr's shorthand: a formula  (e.g. `~ .x + 1`).
+Note that the backslash syntax for anonymous functions (e.g. `\(x) x + 1`) was introduced in base R version 4.1.0 as a shorthand for `function(x) x + 1`.
+If you're using an earlier version of R, you can use purrr's shorthand: a formula (e.g. `~ .x + 1`).
 
 Typically, you'd want to combine these data frames into one to make it easier to work with your data.
 To do so, we'll use `list_rbind()` on `gap_dfs`.
@@ -119,10 +123,15 @@ Since we have two arguments, the list of data frames, and the paths, we'll use `
 #| label: write-csvs
 fs::dir_create("data")
 paths <- str_glue("data/gapminder_{tolower(sheets)}.csv")
-walk2(gap_dfs, paths, write_csv)
+walk2(
+  gap_dfs, 
+  paths,
+  \(df, name) write_csv(df, name)
+  )
 ```
 
 To see what we've done, we can use [`fs::dir_tree()`](https://fs.r-lib.org/reference/dir_tree.html) to see the contents of the directory as a tree, or [`fs::dir_ls()`](https://fs.r-lib.org/reference/dir_ls.html) to return the paths as a vector.
+These functions also take `glob` and `regexp` arguments, allowing you to filter paths by file type with globbing patterns (e.g. `*.csv`) or using a regular expression passed on to `grep()`.
 
 ```{r}
 #| label: fs-view
@@ -134,7 +143,7 @@ If you're having regrets, or want to return your example project to its previous
 
 ```{r}
 #| label: fs-delete
-walk(paths, fs::file_delete)
+walk(paths, \(paths) fs::file_delete(paths))
 ```
 
 ## Saving multiple plots
@@ -174,11 +183,16 @@ cuts <- levels(diamonds$cut)
 
 # make the plots
 plots <- map(
-  cuts, 
-  \(x) conditional_bars(df = diamonds, cut == {{ x }}, clarity)
-  )
+  cuts,
+  \(x) conditional_bars(
+    df = diamonds,
+    cut == {{ x }},
+    clarity
+    )
+)
 ```
 
+The plots are now saved in a list---a fine format for storing ggplots.
 As we did when saving our CSVs, we'll use fs to create a directory to store them in, and make a vector of paths for file names.
 
 ```{r}
@@ -190,7 +204,6 @@ plot_paths <- str_glue("plots/{tolower(cuts)}_clarity.png")
 ```
 
 Now we can use the paths and plots with `walk2()` to pass them as arguments to [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html).
-Note that, rather than putting constant arguments (such as height and width) in `…`, we pass them directly into `ggsave()` in an anonymous function.
 
 ```{r}
 #| label: walk-plots
@@ -212,7 +225,7 @@ And, clean up after ourselves if we didn't *really* want those plots after all.
 
 ```{r}
 #| label: delete-plots
-walk(plot_paths, fs::file_delete)
+walk(plot_paths, \(paths) fs::file_delete(paths))
 ```
 
 ## Fin
