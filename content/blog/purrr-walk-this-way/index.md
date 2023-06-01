@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [purrr, fs]
-rmd_hash: e7d810158b8bc1fb
+rmd_hash: 362a4bdd3df6117a
 
 ---
 
@@ -187,7 +187,7 @@ It's easy enough to run this for one condition, for example for the diamonds wit
 
 </div>
 
-But what if we want to make a and save plot for each cut? Again, it's [`map()`](https://purrr.tidyverse.org/reference/map.html) and [`walk()`](https://purrr.tidyverse.org/reference/map.html) to the rescue.
+But what if we want to make and save a plot for each cut? Again, it's [`map()`](https://purrr.tidyverse.org/reference/map.html) and [`walk()`](https://purrr.tidyverse.org/reference/map.html) to the rescue.
 
 Because we're using the same data (`diamonds`) and conditioning on the same variable (`cut`), we'll only need to [`map()`](https://purrr.tidyverse.org/reference/map.html) across the levels of `cut`, and can hard code the rest into the anonymous function.
 
