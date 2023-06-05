@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: code-review-principles
 title: Tidyteam code review principles
-date: 2023-06-02
+date: 2023-06-05
 author: Davis Vaughan
 description: >
     We've written a collection of tidyteam code review principles that
@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: ["other"] 
 tags: []
-rmd_hash: 2ae6c7e086178bdc
+rmd_hash: 44f736dc4a56187a
 
 ---
 
@@ -28,11 +28,19 @@ At a high level, this guide walks you through the perspectives of both the pull 
 
 We posted about this guide on [Twitter](https://twitter.com/dvaughan32/status/1645866331487756288?s=20) and [Mastodon](https://fosstodon.org/@davis/110181751636631782) a few weeks ago:
 
-<blockquote class="twitter-tweet"><p lang="en" dir="ltr">In the tidyverse, we work with a lot of people - each other and <a href="https://twitter.com/hashtag/rstats?src=hash&amp;ref_src=twsrc%5Etfw">#rstats</a> community members.<br><br>We wanted to document how we handle code review, so we&#39;ve drafted a guide detailing our review principles!<br><br>We hope you find it useful, and welcome your feedback!<a href="https://t.co/jGm0rSGg5M">https://t.co/jGm0rSGg5M</a></p>&mdash; Davis Vaughan (@dvaughan32) <a href="https://twitter.com/dvaughan32/status/1645866331487756288?ref_src=twsrc%5Etfw">April 11, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<blockquote class="twitter-tweet">
+<p lang="en" dir="ltr">
+In the tidyverse, we work with a lot of people - each other and <a href="https://twitter.com/hashtag/rstats?src=hash&amp;ref_src=twsrc%5Etfw">#rstats</a> community members.<br><br>We wanted to document how we handle code review, so we\'ve drafted a guide detailing our review principles!<br><br>We hope you find it useful, and welcome your feedback!<a href="https://t.co/jGm0rSGg5M">https://t.co/jGm0rSGg5M</a>
+</p>
+--- Davis Vaughan (@dvaughan32) <a href="https://twitter.com/dvaughan32/status/1645866331487756288?ref_src=twsrc%5Etfw">April 11, 2023</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 And we were happy to see that [many of you](https://fosstodon.org/@jromanowska/110182021271601892) are already finding it useful!
 
-<iframe src="https://fosstodon.org/@jromanowska/110182021271601892/embed" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://fosstodon.org/embed.js" async="async"></script>
+<iframe src="https://fosstodon.org/@jromanowska/110182021271601892/embed" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen">
+</iframe>
+<script src="https://fosstodon.org/embed.js" async="async"></script>
 
 In particular, I'd like to shout out [Hiroaki Yutani](https://github.com/yutannihilation) who created a [two part video series](https://www.youtube.com/watch?v=gSv6h2heHQE) reading through the principles in Japanese!
 
