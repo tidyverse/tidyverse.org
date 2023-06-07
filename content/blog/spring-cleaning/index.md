@@ -3,13 +3,13 @@ output: hugodown::hugo_document
 
 slug: spring-cleaning-2023
 title: "Package spring cleaning"
-date: 2023-05-30
+date: 2023-06-07
 author: Andy Teucher
 description: >
-    When Spring comes around, it's time to emabark on some Spring
+    When Spring comes around, it's time to embark on some Spring
     Cleaning to take care of the package maintenance tasks 
     that you never seem to get around to. This post outlines
-    the process and tools that the tidyverse team uses to make 
+    the processes and tools that the tidyverse team uses to make 
     this job fun and efficient.
 
 photo:
@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other]
 tags: ["spring cleaning", "package maintenance"]
-rmd_hash: 1f6df61d41832142
+rmd_hash: 64908aba89961139
 
 ---
 
@@ -42,25 +42,25 @@ p.caption {
 }
 </style>
 
-As Spring arrives in the Northern hemisphere, the sun's rays reach into the dark corners and illuminate the dust that has been gathering over the winter. This is when our thoughts start to turn to Spring cleaning --- a time to clear out the clutter that has accumulated over the past year. It represents a fresh start and a new beginning, and leaves us feeling rejuvenated and ready to take on the rest of the year. This applies not only to our homes, but also to the code that we maintain --- there are often bits and pieces that we know need attention but never seem to make it to the top of the priority list.
+When Spring arrives in the Northern hemisphere, the sun's rays reach into the dark corners and illuminate the dust that has been gathering over the winter. This is when our thoughts start to turn to Spring cleaning --- a time to clear out the clutter that has accumulated over the past year. It represents a fresh start and a new beginning, and leaves us feeling rejuvenated and ready to take on the rest of the year. This applies not only to our homes, but also to the code that we maintain --- there are often bits and pieces that we know need attention but never seem to make it to the top of the priority list.
 
 Doing this kind of work isn't necessarily only about adopting good practices or increasing the quality of your code --- it can also be about adding value through standardization. Most developers only work sporadically on a particular package. For some it's because they work on a lot of packages, while for many it's because package development is not their main job. When you return to a package after a long gap, there is potential for a lot of friction (and dread/procrastination) as you get re-oriented to its idiosyncrasies. Making the occasional pass through your packages and looking for opportunities to adopt current, shared practices can make it easier to dip in and out of different packages.
 
 The tidyverse team at Posit has a practice of tackling Spring Cleaning together - we set aside a week every year to work in a semi-structured way to efficiently take care of a common list of package maintenance tasks. We find that setting a time for them and doing them all together during one week is an effective, and more fun, way to get them done. We recently completed our 2023 Spring Cleaning and thought it might be fun to share our process.
 
-I'll also show off a new feature we've built in to the latest version of usethis that will help you organize your own Spring Cleaning. Feel free to [jump straight there](#spring-cleaning-and-you) if you want to skip the backstory (don't you wish all recipe blogs had this feature?).
+I'll also show off a new feature we've built in to the [latest version of usethis](https://usethis.r-lib.org/news/index.html#usethis-220) that will help you organize your own Spring Cleaning. Feel free to [jump straight there](#spring-cleaning-and-you) if you want to skip the back story (don't you wish recipe blogs had this feature?).
 
 ## Preparation
 
 Early in the new year, we set aside the time in our calendars for Spring Cleaning --- this way everyone knows that it's coming up and can make sure they have cleared the space in their schedules (and their minds) to focus on it.
 
-We prepare for the week by creating a list of things we want to take care of in our packages. Rather than adding features or fixing bugs, these tasks are usually about bringing things up to current standards or best practices, and include things like updating tests to the latest testthat version, updating pkgdown templates, and adding alt-text to images in pkgdown sites. Not surprisingly, this year a lot of the upkeep was related to our recent rebrand from RStudio to Posit --- things like updating the copyright holder and author email addresses, and using updated logos without the old rstudio.com website on them.
+We prepare for the week by creating a list of things we want to take care of in our packages. Rather than adding features or fixing bugs, these tasks are usually about bringing things up to current standards or best practices, and include things like updating tests to the latest testthat version, updating pkgdown templates, and adding alt-text to images in pkgdown sites. Not surprisingly, this year a lot of the upkeep was related to our [recent rebrand from RStudio to Posit](https://posit.co/blog/rstudio-is-now-posit/) --- things like updating the copyright holder and author email addresses, and using updated logos without the old rstudio.com website on them.
 
 We start off the week with a kickoff meeting on Monday morning. We go through the checklist with everybody and refine what's in it, making sure everybody has had input. Because we maintain so many packages, we have a spreadsheet where we keep track of the packages that are undergoing spring cleaning, and people can assign themselves to packages and mark them as completed when they're done.
 
 ## Checklists, checklists, checklists
 
-We formalize these tasks into a checklist ([who doesn't love checklists](https://atulgawande.com/book/the-checklist-manifesto/)) via a function in usethis called `use_tidy_upkeep_issue()`. If you're a package developer and you use `use_release_issue()`, this will look familiar: it opens an issue in the package's GitHub repository with a checklist of tasks to guide you through what needs to be done. We update the function with the current year's checklist just prior to starting (and sometimes during) Spring Cleaning.
+We formalize these tasks into a checklist ([who doesn't love checklists](https://atulgawande.com/book/the-checklist-manifesto/)) via a tidyverse-focused function in usethis called `use_tidy_upkeep_issue()`. If you're a package developer and you use [`use_release_issue()`](https://usethis.r-lib.org/reference/use_release_issue.html), this will look familiar: it opens an issue in the package's GitHub repository with a checklist of tasks to guide us through what needs to be done to bring it up to current tidyverse standards. We update the function with the current year's checklist just prior to starting (and sometimes during) Spring Cleaning.
 
 Package maintainers then install the development version of usethis to get the current checklist, and call `usethis::use_tidy_upkeep_issue()` in their package to create the issue. If there are any tasks that aren't relevant to that particular repo it's easy to just edit the issue and remove it. To be really meta, here is the 2023 Spring Cleaning [upkeep issue for usethis](https://github.com/r-lib/usethis/issues/1791), created by usethis:
 
@@ -81,9 +81,9 @@ We separated the tasks into "Necessary" and "Optional". The necessary tasks were
 
 ## Wrapup
 
-Finally, we end the week with a wrapup meeting - we do a retrospective on what worked, what didn't, and what we would change for next time. For example, we found that a couple of items on this year's checklist that were too complex to complete within the week, especially across many repos. So we decided to start a practice of converting those "too big" tasks into issues of their own --- you can see an example in the [testthat upkeep issue](https://github.com/r-lib/testthat/issues/1749). This makes it more likely that we can cleanly complete the checklist but still flag those lingering things we would like to finish.
+Finally, we end the week with a wrap-up meeting - we do a retrospective on what worked, what didn't, and what we would change for next time. For example, we found that a couple of items on this year's checklist that were too complex to complete within the week, especially across many repos. So we decided to start a practice of converting those "too big" tasks into issues of their own --- you can see an example in the [testthat upkeep issue](https://github.com/r-lib/testthat/issues/1749). This makes it more likely that we can cleanly complete the checklist but still flag those lingering things we would like to finish.
 
-We also try to have a little fun during the wrapup meeting! I made a small R package called [chatrbox](https://github.com/ateucher/chatrbox) that uses [ChatGPT](https://openai.com/blog/chatgpt) to generate R-themed Spring Cleaning text snippets. And Tracy Teal used [quarto](https://quarto.org/) to make certificates of achievement for each of us, complete with inspirational messages made with chatrbox!
+We also try to have a little fun during the wrap-up meeting! I made a small R package called [chatrbox](https://github.com/ateucher/chatrbox) that uses [ChatGPT](https://openai.com/blog/chatgpt) to generate R-themed Spring Cleaning text snippets. And Tracy Teal used [quarto](https://quarto.org/) to make certificates of achievement for each of us, complete with inspirational messages made with chatrbox!
 
 <div class="highlight">
 
@@ -93,7 +93,7 @@ We also try to have a little fun during the wrapup meeting! I made a small R pac
 
 ## Spring cleaning and you!
 
-In the most recent version of usethis, we have created a general purpose `use_upkeep_issue()` function for package authors to use if they wish to do a Spring Cleaning of their own. It is a fairly opinionated list of tasks but we believe taking care of them will generally make your package better, easier to maintain, and more enjoyable for your users. Some of the tasks are meant to be performed only once (and once completed shouldn't show up in subsequent lists), and some should be reviewed periodically. If you want to include additional tasks, you can add an (unexported) function named `upkeep_bullets()` to your own package that returns a character vector of tasks. These will be added to your upkeep checklist.
+In [version 2.2.0 of usethis](https://usethis.r-lib.org/news/index.html#usethis-220), we have created a general purpose [`use_upkeep_issue()`](https://usethis.r-lib.org/reference/use_upkeep_issue.html) function for package authors to use if they wish to do a Spring Cleaning of their own. It is a fairly opinionated list of tasks but we believe taking care of them will generally make your package better, easier to maintain, and more enjoyable for your users. Some of the tasks are meant to be performed only once (and once completed shouldn't show up in subsequent lists), and some should be reviewed periodically. If you want to include additional tasks, you can add an (unexported) function named `upkeep_bullets()` to your own package that returns a character vector of tasks. These will be added to your upkeep checklist.
 
 Here is an example of an upkeep issue I created for my package rmapshaper. I created an internal function `upkeep_bullets()` in the package, with an extra bullet I wanted to add to the upkeep issue:
 
@@ -111,7 +111,7 @@ And then called `use_upkeep_issue()` in my rmapshaper package directory:
 <span><span class='c'>#&gt; ℹ Loading rmapshaper</span></span>
 <span><span class='nf'>usethis</span><span class='nf'>::</span><span class='nf'><a href='https://usethis.r-lib.org/reference/use_upkeep_issue.html'>use_upkeep_issue</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; ✔ Setting active project to '/Users/andyteucher/dev/ateucher/rmapshaper'</span></span>
-<span><span class='c'>#&gt; • Open URL 'https://github.com/ateucher/rmapshaper/issues/154'</span></span></code></pre>
+<span><span class='c'>#&gt; • Open URL 'https://github.com/ateucher/rmapshaper/issues/160'</span></span></code></pre>
 
 </div>
 
@@ -119,7 +119,7 @@ And then called `use_upkeep_issue()` in my rmapshaper package directory:
 
 <div class="figure" style="text-align: center">
 
-<a href="https://github.com/ateucher/rmapshaper/issues/154" target="_blank"><img src="img/rmapshaper-upkeep-issue.png" alt="Upkeep issue for rmapshaper" width="700px" /></a>
+<a href="https://github.com/ateucher/rmapshaper/issues/160" target="_blank"><img src="img/rmapshaper-upkeep-issue.png" alt="Upkeep issue for rmapshaper" width="700px" /></a>
 <p class="caption">
 Upkeep issue for rmapshaper
 </p>
