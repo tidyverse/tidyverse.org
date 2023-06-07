@@ -1,0 +1,172 @@
+---
+output: hugodown::hugo_document
+
+slug: desirability2
+title: desirability2
+date: 2023-05-17
+author: Max Kuhn
+description: >
+    The desirability2 package, for multivariable optimization, is now on CRAN.
+
+photo:
+  url: https://unsplash.com/photos/8cvksz5mmnE
+  author: Joel Naren
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [tidymodels,desirability,optimization]
+---
+
+<!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We're tickled pink to announce the release of [desirability2](http://desirability2.tidymodels.org) (version 0.0.1). You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("desirability2")
+```
+
+This blog post will introduce you to the package and desirability functions. 
+
+Let's load some packages! 
+
+```{r setup}
+#| results: hide
+
+library(desirability2)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+#| include: false
+theme_set(theme_bw())
+```
+
+```{r}
+#| include: false
+data(classification_results)
+classification_results <- 
+  classification_results |> 
+  filter(roc_auc > 1 / 2) |> 
+  select(-pr_auc)
+```
+
+[Desirability functions](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22desirability+functions%22) are tools that can be used to rank or optimize multiple characteristics at once. They are intuitive and easy to use. There are a few R packages that implement them, including [desirability](http://cran.r-project.org/package=desirability) and [desiR](http://cran.r-project.org/package=desiR). 
+
+We have a new one, [desirability2](http://cran.r-project.org/package=desirability2), with an interface conducive to being used in-line via dplyr pipelines. 
+
+Let's demonstrate that by looking at an application. Suppose we created a classification model and produced multiple metrics on how well it classifies new data. We measured the area under the ROC curve and the binomial log-loss statistic in this example. There are about 300 different model configurations that we investigated via tuning. 
+
+The results from the tuning process were: 
+
+```{r}
+classification_results
+```
+
+If we were interested in the best area under the ROC curve: 
+
+```{r}
+classification_results |> slice_max(roc_auc, n = 1)
+```
+
+However, there are different optimal settings when the log-likelihood is considered:
+
+```{r}
+classification_results |> slice_min(mn_log_loss, n = 1)
+```
+
+
+Are the two metrics related? Here's a plot of the data: 
+
+```{r}
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: "60%"
+#| dev: svg
+classification_results |> 
+  ggplot(aes(roc_auc, mn_log_loss, col = num_features)) + 
+  geom_point(alpha = 1/2)
+```
+
+We colored the point using the number of features used in the model. Fewer predictors are better; we'd like to factor that into the tuning parameter selection. 
+
+To optimize them all at once, desirability functions map their values to be between zero and one (with the latter being the most desirable). For the ROC scores, a value of 1.0 is best, and we may not consider a model with an AUC of less than 0.80. We can use desirability2's [`d_max()`](http://desirability2.tidymodels.org/reference/inline_desirability.html) function to translate these values to desirability: 
+
+```{r}
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: "60%"
+#| dev: svg
+classification_results %>% 
+  mutate(roc_d = d_max(roc_auc, high = 1, low = 0.8)) %>% 
+  ggplot(aes(roc_auc, roc_d)) +
+  geom_line() + 
+  geom_point() + 
+  lims(y = 0:1)
+```
+
+Note that all model configurations with ROC AUC scores below 0.80 have zero desirability. 
+
+Since we want to reduce loss, we can use `d_min()` to show a curve where smaller is better. For this specification, we'll use the min and max values as defined by the data, by setting `use_data = TRUE`:
+
+```{r}
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: "60%"
+#| dev: svg
+classification_results %>% 
+  mutate(
+    roc_d   = d_max(roc_auc, high = 1, low = 0.8),
+    loss_d  = d_min(mn_log_loss, use_data = TRUE)
+    ) %>% 
+  ggplot(aes(mn_log_loss, loss_d)) +
+  geom_line() + 
+  geom_point() + 
+  lims(y = 0:1)
+```
+
+Finally, we can factor in the number of features. Arguably this is more important to use than the other two outcomes; we will make this curve nonlinear so that it becomes more challenging to be desirable as the number of features increases. For this, we'll use the `scale` option to `d_min()`, where larger values make the criteria more difficult to satisfy: 
+
+```{r}
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: "60%"
+#| dev: svg
+classification_results %>% 
+  mutate(
+    roc_d   = d_max(roc_auc, high = 1, low = 0.8),
+    loss_d  = d_min(mn_log_loss, use_data = TRUE),
+    feat_d  = d_min(num_features, low = 0, high = 100, scale = 2)
+    ) %>% 
+  ggplot(aes(num_features, feat_d)) +
+  geom_line() + 
+  geom_point() + 
+  lims(y = 0:1)
+```
+
+Combining these components into a single criterion using the geometric mean is common. Using this statistic has the side effect that any criteria with zero desirability make the overall desirability zero (since the geometric mean multiples the values). There is a function called [`d_overall()`](http://desirability2.tidymodels.org/reference/d_overall.html) that can be used with dplyr's `across()` function. Sorting by overall desirability gives us tuning parameter values (`mixture` and `penalty`) that are best for this combination of criteria. 
+
+```{r}
+classification_results %>% 
+  mutate(
+    roc_d   = d_max(roc_auc, high = 1, low = 0.8),
+    loss_d  = d_min(mn_log_loss, use_data = TRUE),
+    feat_d  = d_min(num_features, low = 0, high = 100, scale = 2),
+    overall = d_overall(across(ends_with("_d")))
+  ) %>% 
+  slice_max(overall, n = 5)
+```
+
+That's it! That's the package.  
+
