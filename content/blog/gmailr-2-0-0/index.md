@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [gmailr, gargle]
-rmd_hash: d4b043eeb04d9649
+rmd_hash: a8812d0d7f5c9d87
 
 ---
 
@@ -106,7 +106,7 @@ Therefore, if you want to deploy a data product that uses gmailr, it's extremely
 
 -   [Deploy a token](https://gmailr.r-lib.org/articles/deploy-a-token.html) is a new article describing how to capture a token interactively, then use it later, non-interactively.
 -   [`gm_token_write()`](https://gmailr.r-lib.org/reference/gm_token_write.html) + [`gm_token_read()`](https://gmailr.r-lib.org/reference/gm_token_write.html) is a new matched pair of functions that facilitate writing an obfuscated token to disk then reloading that token in a deployed data product or in CI.
--   gmailr ships with example code that uses this technique in a small Shiny app that sends email from a specific user account. See the contents of `system.file("deployed-token-demo", package = "gmailr")`.
+-   gmailr ships with [example code](https://github.com/r-lib/gmailr/tree/main/inst/deployed-token-demo) that uses this technique in a small Shiny app that sends email from a specific user account. See the contents of `system.file("deployed-token-demo", package = "gmailr")`.
 
 The heart of this approach is to first capture a token in an interactive session:
 
