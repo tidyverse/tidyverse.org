@@ -44,8 +44,9 @@ library(gmailr)
 ## OAuth client
 
 The Gmail API is more challenging to wrap, in terms of auth, than the APIs for Sheets, Drive, or BigQuery.
-That's because the scopes (think: "permissions") needed for the Gmail API are regarded as extremely sensitive, as well they should be.
+That's because the scopes (think: "permissions") needed for the Gmail API are [regarded as extremely sensitive](https://developers.google.com/gmail/api/auth/scopes#scopes), as well they should be.
 If a bad actor gains the ability to read and send email as you, that is considerably more damaging than them being able to modify your spreadsheets (which is also bad, to be sure, but considerably less bad).
+Email is particularly important, because most other services allow you to reset your password via email; if someone gets access to your email, they can quickly use that to access every other service you have a log in for.
 
 The heightened security around the Gmail API means that a wrapper package like gmailr can't make auth "just work" as easily we can in other packages, such as googledrive.
 In particular, R users who want to use gmailr absolutely must provide their own *OAuth client*.
