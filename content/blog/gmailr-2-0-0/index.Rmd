@@ -109,15 +109,14 @@ For most Google APIs, the standard advice is "use a service account".
 But the Gmail API is special.
 To use a service account with the Gmail API basically requires that the service account has been delegated domain-wide authority.
 This is tricky for at least two reasons.
-First, this is only possible within a Google Workspace.
-It's not available to personal Google accounts.
+First, this is only possible within a Google Workspace, i.e. it's not available to personal Google accounts.
 Second, most Google Workspace admins will refuse to do this, for security reasons.
 
 Therefore, if you want to deploy a data product that uses gmailr, it's extremely likely that you really do need to use a user token.
 This workflow has gotten dramatically easier in gmailr v2.0.0:
 
 * [Deploy a token](https://gmailr.r-lib.org/articles/deploy-a-token.html) is a new article describing how to capture a token interactively, then use it later, non-interactively.
-* `gm_token_write()` + `gm_token_read()` is a new matched pair of functions that facilitate writing a token to disk, in an obfuscated or fully encrypted form, then reloading that token in a deployed data product or in CI.
+* `gm_token_write()` + `gm_token_read()` is a new matched pair of functions that facilitate writing an obfuscated token to disk then reloading that token in a deployed data product or in CI.
 * gmailr ships with example code that uses this technique in a small Shiny app that sends email from a specific user account. See the contents of `system.file("deployed-token-demo", package = "gmailr")`.
 
 The heart of this approach is to first capture a token in an interactive session:
