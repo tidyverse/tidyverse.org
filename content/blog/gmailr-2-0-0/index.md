@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [gmailr, gargle]
-rmd_hash: 6010db2a7d9fa924
+rmd_hash: d4b043eeb04d9649
 
 ---
 
@@ -53,7 +53,7 @@ You can see a full list of changes in the [release notes](https://github.com/r-l
 
 ## OAuth client
 
-The Gmail API is more challenging to wrap, in terms of auth, than the APIs for Sheets, Drive, or BigQuery. That's because the scopes (think: "permissions") needed for the Gmail API are regarded as extremely sensitive, as well they should be. If a bad actor gains the ability to read and send email as you, that is considerably more damaging than them being able to modify your spreadsheets (which is also bad, to be sure, but considerably less bad).
+The Gmail API is more challenging to wrap, in terms of auth, than the APIs for Sheets, Drive, or BigQuery. That's because the scopes (think: "permissions") needed for the Gmail API are [regarded as extremely sensitive](https://developers.google.com/gmail/api/auth/scopes#scopes), as well they should be. If a bad actor gains the ability to read and send email as you, that is considerably more damaging than them being able to modify your spreadsheets (which is also bad, to be sure, but considerably less bad). Email is particularly important, because most other services allow you to reset your password via email; if someone gets access to your email, they can quickly use that to access every other service you have a log in for.
 
 The heightened security around the Gmail API means that a wrapper package like gmailr can't make auth "just work" as easily we can in other packages, such as googledrive. In particular, R users who want to use gmailr absolutely must provide their own *OAuth client*. In other packages, we can make this optional.
 
@@ -100,12 +100,12 @@ gmailr v2.0.0 includes new features and documentation to reduce the pain around 
 
 The Gmail API is primarily intended for use on behalf of a regular Google user account. The gmailr package is designed to guide an interactive R user through a process in which they authenticate themselves to Google and authorize Gmail activities initiated from R. This is sometimes referred to as the "OAuth dance".[^2]
 
-But what about settings where there is no interactive user sitting around to do this dance, i.e. when gmailr-using code is deployed to a remote server or otherwise runs unattended? For most Google APIs, the standard advice is "use a service account". But the Gmail API is special. To use a service account with the Gmail API basically requires that the service account has been delegated domain-wide authority. This is tricky for at least two reasons. First, this is only possible within a Google Workspace. It's not available to personal Google accounts. Second, most Google Workspace admins will refuse to do this, for security reasons.
+But what about settings where there is no interactive user sitting around to do this dance, i.e. when gmailr-using code is deployed to a remote server or otherwise runs unattended? For most Google APIs, the standard advice is "use a service account". But the Gmail API is special. To use a service account with the Gmail API basically requires that the service account has been delegated domain-wide authority. This is tricky for at least two reasons. First, this is only possible within a Google Workspace, i.e. it's not available to personal Google accounts. Second, most Google Workspace admins will refuse to do this, for security reasons.
 
 Therefore, if you want to deploy a data product that uses gmailr, it's extremely likely that you really do need to use a user token. This workflow has gotten dramatically easier in gmailr v2.0.0:
 
 -   [Deploy a token](https://gmailr.r-lib.org/articles/deploy-a-token.html) is a new article describing how to capture a token interactively, then use it later, non-interactively.
--   [`gm_token_write()`](https://gmailr.r-lib.org/reference/gm_token_write.html) + [`gm_token_read()`](https://gmailr.r-lib.org/reference/gm_token_write.html) is a new matched pair of functions that facilitate writing a token to disk, in an obfuscated or fully encrypted form, then reloading that token in a deployed data product or in CI.
+-   [`gm_token_write()`](https://gmailr.r-lib.org/reference/gm_token_write.html) + [`gm_token_read()`](https://gmailr.r-lib.org/reference/gm_token_write.html) is a new matched pair of functions that facilitate writing an obfuscated token to disk then reloading that token in a deployed data product or in CI.
 -   gmailr ships with example code that uses this technique in a small Shiny app that sends email from a specific user account. See the contents of `system.file("deployed-token-demo", package = "gmailr")`.
 
 The heart of this approach is to first capture a token in an interactive session:
