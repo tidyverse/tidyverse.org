@@ -1,0 +1,183 @@
+---
+output: hugodown::hugo_document
+
+slug: gmailr-2-0-0
+title: gmailr 2.0.0
+date: 2023-06-29
+author: Jennifer Bryan
+description: >
+    gmailr 2.0.0 streamlines the auth process and makes it easier to use gmailr
+    in a cloud or deployed context.
+
+photo:
+  url: https://unsplash.com/photos/VybzKEUMhbw
+  author: Hiroshi Kimura
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [gmailr, gargle]
+---
+
+We're chuffed to announce the release of [gmailr](https://gmailr.r-lib.org/) 2.0.0.
+gmailr exposes the [Gmail API](https://developers.google.com/gmail/api/guides) from R.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("gmailr")
+```
+
+The main goal of version 2.0.0 is to improve the ergonomics around auth.
+There is less need for fussy code around configuring an OAuth client and it's easier to use gmailr in a non-interactive or deployed setting.
+There is also a major advance in the process of replacing legacy functions with versions that have a `gm_` prefix.
+The legacy functions still exist, but are now hard deprecated.
+Finally, gmailr no longer re-exports `%>%`, the magrittr pipe, now that we have `|>` in base R.
+
+You can see a full list of changes in the [release notes](https://github.com/r-lib/gmailr/releases/tag/v2.0.0).
+
+```{r setup}
+library(gmailr)
+```
+
+😬 *Ouch! These name collisions are **exactly** why gmailr added a universal `gm_` prefix to all of its functions starting in v1.0.0. One day in the not-too-distant future we can remove the troublesome legacy functions.*
+
+## OAuth client
+
+The Gmail API is more challenging to wrap, in terms of auth, than the APIs for Sheets, Drive, or BigQuery.
+That's because the scopes (think: "permissions") needed for the Gmail API are [regarded as extremely sensitive](https://developers.google.com/gmail/api/auth/scopes#scopes), as well they should be.
+If a bad actor gains the ability to read and send email as you, that is considerably more damaging than them being able to modify your spreadsheets (which is also bad, to be sure, but considerably less bad).
+Email is particularly important, because most other services allow you to reset your password via email; if someone gets access to your email, they can quickly use that to access every other service you have a log in for.
+
+The heightened security around the Gmail API means that a wrapper package like gmailr can't make auth "just work" as easily we can in other packages, such as googledrive.
+In particular, R users who want to use gmailr absolutely must provide their own *OAuth client*.
+In other packages, we can make this optional.
+
+gmailr v2.0.0 includes new features and documentation to reduce the pain around the OAuth client as much as possible:
+
+* [Set up an OAuth client](https://gmailr.r-lib.org/articles/oauth-client.html)
+  is a new article with detailed instructions for creating and
+  configuring an OAuth client. You might even say this provides an excruciating
+  level of detail, but this process has proven to be tricky for many users.
+* There is now a default location for the JSON file that represents the OAuth
+  client. It's the location returned by `rappdirs::user_data_dir("gmailr")`. If
+  you put the JSON file there, gmailr will find it automagically.
+  
+  ```{r eval = FALSE}
+  rappdirs::user_data_dir("gmailr") |>
+    list.files()
+  #> [1] "client_secret_xxx-yyy.apps.googleusercontent.com.json"
+  
+  gm_default_oauth_client()
+  #> [1] "/Users/jenny/Library/Application Support/gmailr/client_secret_xxx-yyy.apps.googleusercontent.com.json"
+  ```
+  
+  `gm_default_oauth_client()` is the new function that implements this new
+  feature as well as pre-existing support for providing this path via an
+  environment variable.
+* If the OAuth client is configured for auto-discovery, it is no longer
+  necessary to call `gm_auth_configure()` explicitly. That is taken care of
+  internally, inside `gm_auth()`.
+  
+  ```{r eval = FALSE}
+  > library(gmailr)
+  > 
+  > # 😲 OMG no more need to call gm_auth_configure() here! 🎉
+  > 
+  > gm_threads()
+  The gmailr package is requesting access to your Google account.
+  Enter '1' to start a new auth process or select a pre-authorized account.
+  1: Send me to the browser for a new auth process.
+  2: jenny@posit.co
+  Selection: 2
+  ```
+  
+* Conversely, if you happen to be providing an explicit user or service account
+  token, `gm_auth(token =)` and `gm_auth(path =, subject =)`[^1] no longer error if
+  the OAuth client is not configured.
+  
+[^1]: The `subject` argument of `gm_auth()` is also new and facilitates the use of a service account to impersonate a user.
+  
+## Auth in a deployed or other non-interactive setting
+
+The Gmail API is primarily intended for use on behalf of a regular Google user account.
+The gmailr package is designed to guide an interactive R user through a process in which they authenticate themselves to Google and authorize Gmail activities initiated from R.
+This is sometimes referred to as the "OAuth dance".[^2]
+
+[^2]: The full OAuth dance is not necessary in subsequent R sessions, though, by default gmailr is very conservative and asks for permission to use and refresh an existing token. This is, of course, configurable.
+
+But what about settings where there is no interactive user sitting around to do this dance, i.e. when gmailr-using code is deployed to a remote server or otherwise runs unattended?
+For most Google APIs, the standard advice is "use a service account".
+But the Gmail API is special.
+To use a service account with the Gmail API basically requires that the service account has been delegated domain-wide authority.
+This is tricky for at least two reasons.
+First, this is only possible within a Google Workspace, i.e. it's not available to personal Google accounts.
+Second, most Google Workspace admins will refuse to do this, for security reasons.
+
+Therefore, if you want to deploy a data product that uses gmailr, it's extremely likely that you really do need to use a user token.
+This workflow has gotten dramatically easier in gmailr v2.0.0:
+
+* [Deploy a token](https://gmailr.r-lib.org/articles/deploy-a-token.html) is a new article describing how to capture a token interactively, then use it later, non-interactively.
+* `gm_token_write()` + `gm_token_read()` is a new matched pair of functions that facilitate writing an obfuscated token to disk then reloading that token in a deployed data product or in CI.
+* gmailr ships with [example code](https://github.com/r-lib/gmailr/tree/main/inst/deployed-token-demo) that uses this technique in a small Shiny app that sends email from a specific user account. See the contents of `system.file("deployed-token-demo", package = "gmailr")`.
+
+The heart of this approach is to first capture a token in an interactive session:
+
+```{r eval = FALSE}
+gm_auth("user@example.com", cache = FALSE)
+# interactive OAuth dance in the browser happens HERE
+gm_token_write(
+  path = ".secrets/gmailr-token.rds",
+  key = "SUPER_SECRET_ENCRYPTION_KEY"
+)
+```
+
+then reload it in a subsequent non-interactive session:
+
+```{r eval = FALSE}
+gm_auth(token = gm_token_read(
+  ".secrets/gmailr-token.rds",
+  key = "SUPER_SECRET_ENCRYPTION_KEY"
+))
+```
+
+## Progress on The Great Renaming
+
+Unfortunately, there is considerable overlap between some obvious function names in an email-related package (e.g. "body", "date", "message") and pre-existing functions in base R (e.g. `body()`, `date()`, `message()`).
+From very early on, gmailr exported several functions with regrettable name collisions, as evidenced at the beginning of this post when we called `library(gmailr)`.
+
+In version 1.0.0 (released 2019-08-30), the process of addressing this problem kicked off.
+At that time, gmailr adopted a universal `gm_` prefix for its functions and soft deprecated the legacy functions.
+Here's an indicative sample of the function replacements:
+
+* `body()` ➡️ `gm_body()`
+* `date()` ➡️ `gm_date()`
+* `message()` ➡️ `gm_message()`
+
+In version 2.0.0, the legacy functions are hard deprecated and you should expect them to be removed in the next release of gmailr.
+I don't expect there to be much (any?) surviving usage of these functions, but it's definitely time to eliminate any remaining usage.
+
+## Use the native pipe
+
+gmailr is designed to be very pipe friendly and it leads to very natural code that builds up a message from its parts:
+
+```{r eval = FALSE}
+msg <-
+  gm_mime() |>
+  gm_to("recipient@example.com") |>
+  gm_from("sender@example.com") |>
+  gm_subject("Hello, world!") |>
+  gm_text_body("I come in peace.")
+```
+
+gmailr predates the introduction of the native pipe, in R 4.1, and therefore, historically, it has re-exported `%>%`, the magrittr pipe, for user convenience.
+The magrittr pipe also featured heavily in gmailr's documentation.
+
+In the v2.0.0 release, I've removed the magrittr dependency and now use the native pipe operator `|>` in all documentation (gmailr never used the pipe internally).
+The purrr package pioneered this maneuver, within the tidyverse, and gmailr uses the same techniques to resolve the tension between the new usage of the base pipe and the tidyverse policy of supporting older R versions.
+You can learn more about the pipe transition in the blog post [Differences between the base R and magrittr pipes](https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/).
+
+## Acknowledgements
+
+A big thank you to all those who have contributed to gmailr since the v1.0.0 release:
+
+[&#x0040;absuag](https://github.com/absuag), [&#x0040;aeburger](https://github.com/aeburger), [&#x0040;andresxmv](https://github.com/andresxmv), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;beib](https://github.com/beib), [&#x0040;careercoachme](https://github.com/careercoachme), [&#x0040;chuagh74](https://github.com/chuagh74), [&#x0040;cstangor](https://github.com/cstangor), [&#x0040;EeethB](https://github.com/EeethB), [&#x0040;enricodata](https://github.com/enricodata), [&#x0040;FJCC](https://github.com/FJCC), [&#x0040;hadley](https://github.com/hadley), [&#x0040;HadyShaaban](https://github.com/HadyShaaban), [&#x0040;ismayc](https://github.com/ismayc), [&#x0040;j450h1](https://github.com/j450h1), [&#x0040;janebunr](https://github.com/janebunr), [&#x0040;jcheng5](https://github.com/jcheng5), [&#x0040;JeffreyCHoover](https://github.com/JeffreyCHoover), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jimhester](https://github.com/jimhester), [&#x0040;jonmichael-caldwell](https://github.com/jonmichael-caldwell), [&#x0040;jreid88](https://github.com/jreid88), [&#x0040;Karlheinzniebuhr](https://github.com/Karlheinzniebuhr), [&#x0040;kputschko](https://github.com/kputschko), [&#x0040;KryeKuzhinieri](https://github.com/KryeKuzhinieri), [&#x0040;laurenmarietta](https://github.com/laurenmarietta), [&#x0040;lwjohnst86](https://github.com/lwjohnst86), [&#x0040;maelle](https://github.com/maelle), [&#x0040;majazaloznik](https://github.com/majazaloznik), [&#x0040;maticabgd](https://github.com/maticabgd), [&#x0040;MCOtto](https://github.com/MCOtto), [&#x0040;meheszlev](https://github.com/meheszlev), [&#x0040;Mr-Hadoop-Hotshot](https://github.com/Mr-Hadoop-Hotshot), [&#x0040;Niekuba](https://github.com/Niekuba), [&#x0040;norcalbiostat](https://github.com/norcalbiostat), [&#x0040;Patrikios](https://github.com/Patrikios), [&#x0040;pschloss](https://github.com/pschloss), [&#x0040;pythiantech](https://github.com/pythiantech), [&#x0040;randy3k](https://github.com/randy3k), [&#x0040;ratnexa](https://github.com/ratnexa), [&#x0040;sanjmeh](https://github.com/sanjmeh), [&#x0040;sdisav](https://github.com/sdisav), [&#x0040;sommerhd-royals](https://github.com/sommerhd-royals), [&#x0040;statnmap](https://github.com/statnmap), [&#x0040;tariuk](https://github.com/tariuk), [&#x0040;tvroylandt](https://github.com/tvroylandt), [&#x0040;vinaybugz](https://github.com/vinaybugz), and [&#x0040;VincentGuyader](https://github.com/VincentGuyader).
