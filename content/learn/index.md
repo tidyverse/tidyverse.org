@@ -2,11 +2,11 @@
 title: Learn the tidyverse
 ---
 
-<a href="https://www.amazon.com/Data-Science-Transform-Visualize-Model/dp/1492097403/ref=sr_1_1?crid=19VLZ2HBNTMG2"><img class="bookCover" src="../images/cover.png" alt="book cover for R for Data Science"></a>
+<a href="https://www.amazon.com/dp/1492097403?&tag=hadlwick-20"><img class="bookCover" src="../images/cover.png" alt="book cover for R for Data Science"></a>
 
 <h2 class='noTrickPadding' id='r4ds'>R for data science</h2>
 
-The best place to start learning the tidyverse is [R for Data Science](https://r4ds.hadley.nz/) (R4DS for short), an O'Reilly book written by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund. It's designed to take you from knowing nothing about R or the tidyverse to having all the basic tools of data science at your fingertips. You can read it online for free, or [buy a physical copy](https://www.amazon.com/Data-Science-Transform-Visualize-Model/dp/1492097403/ref=sr_1_1?crid=19VLZ2HBNTMG2). 
+The best place to start learning the tidyverse is [R for Data Science](https://r4ds.hadley.nz/) (R4DS for short), an O'Reilly book written by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund. It's designed to take you from knowing nothing about R or the tidyverse to having all the basic tools of data science at your fingertips. You can read it online for free, or [buy a physical copy](https://www.amazon.com/dp/1492097403?&tag=hadlwick-20). 
 
 We highly recommend pairing R4DS with the [Posit cheatsheets](https://posit.co/resources/cheatsheets/). These cheatsheets have been carefully designed to pack a lot of information into a small amount of space. You can keep them handy at your desk and quickly jog your memory when you get stuck. Most of the cheatsheets have been translated into multiple languages.
 
