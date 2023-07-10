@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [book]
-rmd_hash: 02fdb713a9b1904b
+rmd_hash: 59f1ff70c1654d54
 
 ---
 
@@ -32,7 +32,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're thrilled to announce the publication of the 2nd edition of [R for Data Science](r4ds.hadley.nz).
+We're thrilled to announce the publication of the 2nd edition of [R for Data Science](https://r4ds.hadley.nz/).
 
 The second edition is a major reworking of the first edition, removing material we no longer think is useful, adding material we wish we included in the first edition, and generally updating the text and code to reflect changes in best practices.
 
