@@ -15,20 +15,20 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [book]
-rmd_hash: 59f1ff70c1654d54
+rmd_hash: 0f1468564bac132a
 
 ---
 
 <!--
 TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
@@ -60,5 +60,5 @@ The first edition of the book featured a part on modeling, which has now been re
 
 ## Acknowledgements
 
-This book isn\'t just the product of Hadley, Mine, and Garrett but is the result of many conversations (in person and online) that we\'ve had with many people in the R community. Huge thanks to [all contributors](And,%20as%20always,%20issues%20and%20pull%20requests%20welcome%20on%20the%20book%20repository.) for the conversations, issues, and pull requests. And, as always, issues and pull requests welcome on the [book repository](https://github.com/hadley/r4ds/).
+This book isn\'t just the product of Hadley, Mine, and Garrett, but is the result of many conversations (in person and online) that we\'ve had with many people in the R community. Huge thanks to [all contributors](https://r4ds.hadley.nz/intro.html#acknowledgments) for the conversations, issues, and pull requests. And, as always, feedback and suggestions are welcome on the [book repository](https://github.com/hadley/r4ds/).
 
