@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels]
-rmd_hash: 13cd339f6a0ef775
+rmd_hash: ad517b787615f440
 
 ---
 
@@ -73,25 +73,25 @@ Many of the datasets used in tidymodels examples are available in the modeldata 
 <span></span>
 <span><span class='nv'>ames</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2,930 × 74</span></span></span>
-<span><span class='c'>#&gt;    ms_sub_class      ms_zoning lot_frontage lot_area street alley lot_shape land_contour utilities lot_config land_slope</span></span>
-<span><span class='c'>#&gt;  <span style='color: #555555;'>*</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>     </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> One_Story_1946_a… Resident…          141    <span style='text-decoration: underline;'>31</span>770 Pave   No_A… Slightly… Lvl          AllPub    Corner     Gtl       </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> One_Story_1946_a… Resident…           80    <span style='text-decoration: underline;'>11</span>622 Pave   No_A… Regular   Lvl          AllPub    Inside     Gtl       </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> One_Story_1946_a… Resident…           81    <span style='text-decoration: underline;'>14</span>267 Pave   No_A… Slightly… Lvl          AllPub    Corner     Gtl       </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> One_Story_1946_a… Resident…           93    <span style='text-decoration: underline;'>11</span>160 Pave   No_A… Regular   Lvl          AllPub    Corner     Gtl       </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> Two_Story_1946_a… Resident…           74    <span style='text-decoration: underline;'>13</span>830 Pave   No_A… Slightly… Lvl          AllPub    Inside     Gtl       </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> Two_Story_1946_a… Resident…           78     <span style='text-decoration: underline;'>9</span>978 Pave   No_A… Slightly… Lvl          AllPub    Inside     Gtl       </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> One_Story_PUD_19… Resident…           41     <span style='text-decoration: underline;'>4</span>920 Pave   No_A… Regular   Lvl          AllPub    Inside     Gtl       </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> One_Story_PUD_19… Resident…           43     <span style='text-decoration: underline;'>5</span>005 Pave   No_A… Slightly… HLS          AllPub    Inside     Gtl       </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> One_Story_PUD_19… Resident…           39     <span style='text-decoration: underline;'>5</span>389 Pave   No_A… Slightly… Lvl          AllPub    Inside     Gtl       </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> Two_Story_1946_a… Resident…           60     <span style='text-decoration: underline;'>7</span>500 Pave   No_A… Regular   Lvl          AllPub    Inside     Gtl       </span></span>
+<span><span class='c'>#&gt;    ms_sub_class           ms_zoning lot_frontage lot_area street alley lot_shape</span></span>
+<span><span class='c'>#&gt;  <span style='color: #555555;'>*</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>                  <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> One_Story_1946_and_Ne… Resident…          141    <span style='text-decoration: underline;'>31</span>770 Pave   No_A… Slightly…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> One_Story_1946_and_Ne… Resident…           80    <span style='text-decoration: underline;'>11</span>622 Pave   No_A… Regular  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> One_Story_1946_and_Ne… Resident…           81    <span style='text-decoration: underline;'>14</span>267 Pave   No_A… Slightly…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> One_Story_1946_and_Ne… Resident…           93    <span style='text-decoration: underline;'>11</span>160 Pave   No_A… Regular  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> Two_Story_1946_and_Ne… Resident…           74    <span style='text-decoration: underline;'>13</span>830 Pave   No_A… Slightly…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> Two_Story_1946_and_Ne… Resident…           78     <span style='text-decoration: underline;'>9</span>978 Pave   No_A… Slightly…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> One_Story_PUD_1946_an… Resident…           41     <span style='text-decoration: underline;'>4</span>920 Pave   No_A… Regular  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> One_Story_PUD_1946_an… Resident…           43     <span style='text-decoration: underline;'>5</span>005 Pave   No_A… Slightly…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> One_Story_PUD_1946_an… Resident…           39     <span style='text-decoration: underline;'>5</span>389 Pave   No_A… Slightly…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> Two_Story_1946_and_Ne… Resident…           60     <span style='text-decoration: underline;'>7</span>500 Pave   No_A… Regular  </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 2,920 more rows</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 63 more variables: neighborhood &lt;fct&gt;, condition_1 &lt;fct&gt;, condition_2 &lt;fct&gt;, bldg_type &lt;fct&gt;, house_style &lt;fct&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   overall_cond &lt;fct&gt;, year_built &lt;int&gt;, year_remod_add &lt;int&gt;, roof_style &lt;fct&gt;, roof_matl &lt;fct&gt;, exterior_1st &lt;fct&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   exterior_2nd &lt;fct&gt;, mas_vnr_type &lt;fct&gt;, mas_vnr_area &lt;dbl&gt;, exter_cond &lt;fct&gt;, foundation &lt;fct&gt;, bsmt_cond &lt;fct&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   bsmt_exposure &lt;fct&gt;, bsmt_fin_type_1 &lt;fct&gt;, bsmt_fin_sf_1 &lt;dbl&gt;, bsmt_fin_type_2 &lt;fct&gt;, bsmt_fin_sf_2 &lt;dbl&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   bsmt_unf_sf &lt;dbl&gt;, total_bsmt_sf &lt;dbl&gt;, heating &lt;fct&gt;, heating_qc &lt;fct&gt;, central_air &lt;fct&gt;, electrical &lt;fct&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   first_flr_sf &lt;int&gt;, second_flr_sf &lt;int&gt;, gr_liv_area &lt;int&gt;, bsmt_full_bath &lt;dbl&gt;, bsmt_half_bath &lt;dbl&gt;, …</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 67 more variables: land_contour &lt;fct&gt;, utilities &lt;fct&gt;, lot_config &lt;fct&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   land_slope &lt;fct&gt;, neighborhood &lt;fct&gt;, condition_1 &lt;fct&gt;, condition_2 &lt;fct&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   bldg_type &lt;fct&gt;, house_style &lt;fct&gt;, overall_cond &lt;fct&gt;, year_built &lt;int&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   year_remod_add &lt;int&gt;, roof_style &lt;fct&gt;, roof_matl &lt;fct&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   exterior_1st &lt;fct&gt;, exterior_2nd &lt;fct&gt;, mas_vnr_type &lt;fct&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   mas_vnr_area &lt;dbl&gt;, exter_cond &lt;fct&gt;, foundation &lt;fct&gt;, bsmt_cond &lt;fct&gt;, …</span></span></span>
 <span></span></code></pre>
 
 </div>
