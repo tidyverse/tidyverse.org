@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels]
-rmd_hash: 55327dabbb72c1ae
+rmd_hash: 42096d976645532d
 
 ---
 
@@ -51,7 +51,7 @@ Since [our last roundup post](https://www.tidyverse.org/blog/2023/04/tidymodels-
 
 </div>
 
-We'll highlight a few especially notable changes below: a new package for modeling data, nearest neighbor distance matching cross-validation for spatial data, and a website refresh.
+We'll highlight a few especially notable changes below: a new package with data for modeling, nearest neighbor distance matching cross-validation for spatial data, and a website refresh.
 
 First, loading the collection of packages:
 
@@ -98,7 +98,7 @@ The new datasets are:
 
 -   [`data_animals()`](https://tidymodels.github.io/modeldatatoo/reference/data_animals.html) contains a long-form description of the animal (in the `text` column) as well as quite a bit of missing data and malformed fields.
 -   [`data_chimiometrie_2019()`](https://tidymodels.github.io/modeldatatoo/reference/data_chimiometrie_2019.html) contains spectra measured at 550 (unknown) wavelengths, published as the challenge at the Chimiometrie 2019 conference.
--   [`data_elevators()`](https://tidymodels.github.io/modeldatatoo/reference/data_elevators.html) contains information of a subset of the elevators in New York City.
+-   [`data_elevators()`](https://tidymodels.github.io/modeldatatoo/reference/data_elevators.html) contains information on a subset of the elevators in New York City.
 
 ## spatialsample
 
@@ -106,7 +106,7 @@ spatialsample is a package for spatial resampling, extending the rsample framewo
 
 The latest release of spatialsample includes nearest neighbor distance matching (NNDM) cross-validation via [`spatial_nndm_cv()`](https://spatialsample.tidymodels.org/reference/spatial_nndm_cv.html). NNDM is a variant of leave-one-out cross-validation which assigns each observation to a single assessment fold, and then attempts to remove data from each analysis fold until the nearest neighbor distance distribution between assessment and analysis folds matches the nearest neighbor distance distribution between training data and the locations a model will be used to predict. This method aims to provide accurate estimates of how well models will perform in the locations they will actually be predicting. This method was originally implemented in the CAST package and can now be used with spatialsample as well.
 
-Let's use the Ames Housing Data and turn it from a regular tibble into a `sf` object for spatial data.
+Let's use the Ames housing data and turn it from a regular tibble into a `sf` object for spatial data.
 
 <div class="highlight">
 
