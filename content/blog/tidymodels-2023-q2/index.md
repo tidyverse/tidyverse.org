@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels]
-rmd_hash: 42096d976645532d
+rmd_hash: 13cd339f6a0ef775
 
 ---
 
@@ -69,7 +69,9 @@ Many of the datasets used in tidymodels examples are available in the modeldata 
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/tidymodels/modeldatatoo'>modeldatatoo</a></span><span class='o'>)</span></span>
 <span></span>
-<span><span class='nf'><a href='https://tidymodels.github.io/modeldatatoo/reference/data_ames.html'>data_ames</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='nv'>ames</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tidymodels.github.io/modeldatatoo/reference/data_ames.html'>data_ames</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>ames</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2,930 × 74</span></span></span>
 <span><span class='c'>#&gt;    ms_sub_class      ms_zoning lot_frontage lot_area street alley lot_shape land_contour utilities lot_config land_slope</span></span>
 <span><span class='c'>#&gt;  <span style='color: #555555;'>*</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>     </span></span>
@@ -111,8 +113,8 @@ Let's use the Ames housing data and turn it from a regular tibble into a `sf` ob
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/tidymodels/spatialsample'>spatialsample</a></span><span class='o'>)</span></span>
-<span><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='nv'>ames</span>, package <span class='o'>=</span> <span class='s'>"modeldata"</span><span class='o'>)</span></span>
-<span><span class='nv'>ames_sf</span> <span class='o'>&lt;-</span> <span class='nf'>sf</span><span class='nf'>::</span><span class='nf'><a href='https://r-spatial.github.io/sf/reference/st_as_sf.html'>st_as_sf</a></span><span class='o'>(</span><span class='nv'>ames</span>, coords <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"Longitude"</span>, <span class='s'>"Latitude"</span><span class='o'>)</span>, crs <span class='o'>=</span> <span class='m'>4326</span><span class='o'>)</span></span></code></pre>
+<span></span>
+<span><span class='nv'>ames_sf</span> <span class='o'>&lt;-</span> <span class='nf'>sf</span><span class='nf'>::</span><span class='nf'><a href='https://r-spatial.github.io/sf/reference/st_as_sf.html'>st_as_sf</a></span><span class='o'>(</span><span class='nv'>ames</span>, coords <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"longitude"</span>, <span class='s'>"latitude"</span><span class='o'>)</span>, crs <span class='o'>=</span> <span class='m'>4326</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
