@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels]
-rmd_hash: ad517b787615f440
+rmd_hash: 1b32a772684ad3b5
 
 ---
 
@@ -106,7 +106,7 @@ The new datasets are:
 
 spatialsample is a package for spatial resampling, extending the rsample framework to help create spatial extrapolation between your analysis and assessment data sets.
 
-The latest release of spatialsample includes nearest neighbor distance matching (NNDM) cross-validation via [`spatial_nndm_cv()`](https://spatialsample.tidymodels.org/reference/spatial_nndm_cv.html). NNDM is a variant of leave-one-out cross-validation which assigns each observation to a single assessment fold, and then attempts to remove data from each analysis fold until the nearest neighbor distance distribution between assessment and analysis folds matches the nearest neighbor distance distribution between training data and the locations a model will be used to predict. This method aims to provide accurate estimates of how well models will perform in the locations they will actually be predicting. This method was originally implemented in the CAST package and can now be used with spatialsample as well.
+The latest release of spatialsample includes nearest neighbor distance matching (NNDM) cross-validation via [`spatial_nndm_cv()`](https://spatialsample.tidymodels.org/reference/spatial_nndm_cv.html). NNDM is a variant of leave-one-out cross-validation which assigns each observation to a single assessment fold, and then attempts to remove data from each analysis fold until the nearest neighbor distance distribution between assessment and analysis folds matches the nearest neighbor distance distribution between training data and the locations a model will be used to predict. [Proposed by Milà et al. (2022)](https://doi.org/10.1111/2041-210X.13851), this method aims to provide accurate estimates of how well models will perform in the locations they will actually be predicting. This method was originally implemented in the CAST package and can now be used with spatialsample as well.
 
 Let's use the Ames housing data and turn it from a regular tibble into a `sf` object for spatial data.
 
