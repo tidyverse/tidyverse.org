@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels]
-rmd_hash: 1b32a772684ad3b5
+rmd_hash: 58b24e9fb4a0d5bd
 
 ---
 
@@ -102,6 +102,8 @@ The new datasets are:
 -   [`data_chimiometrie_2019()`](https://tidymodels.github.io/modeldatatoo/reference/data_chimiometrie_2019.html) contains spectra measured at 550 (unknown) wavelengths, published as the challenge at the Chimiometrie 2019 conference.
 -   [`data_elevators()`](https://tidymodels.github.io/modeldatatoo/reference/data_elevators.html) contains information on a subset of the elevators in New York City.
 
+Because those datasets are stored online, accessing them requires an active internet connection. We plan on using those datasets mostly for workshops and websites. The datasets in the modeldata package are part of the package directly, so they can be used everywhere (regardless of an active internet connection). We typically use them for package documentation.
+
 ## spatialsample
 
 spatialsample is a package for spatial resampling, extending the rsample framework to help create spatial extrapolation between your analysis and assessment data sets.
@@ -174,9 +176,9 @@ The `ames_fold` object can then be used with functions from the tune package as 
 
 ## tidymodels.org
 
-The tidymodels website, [tidymodels.org](https://www.tidymodels.org/), has been updated to use [Quarto](https://quarto.org/). Things largely look the same as before but this change has allowed us to improve the search functionality of the website.
+The tidymodels website, [tidymodels.org](https://www.tidymodels.org/), has been updated to use [Quarto](https://quarto.org/). Things largely look the same as before but this change simplifies the build system which should make it easier for more people to contribute.
 
-The tables for finding parsnip models, recipe steps, and broom tidiers at <https://www.tidymodels.org/find/> now all list objects across all CRAN packages, not just tidymodels packages. This should make it much easier to find the right extension for your task, even if not implemented within tidymodels!
+This change to Quarto has also allowed us to improve the search functionality of the website. The tables for finding parsnip models, recipe steps, and broom tidiers at <https://www.tidymodels.org/find/> now all list objects across all CRAN packages, not just tidymodels packages. This should make it much easier to find the right extension for your task, even if not implemented within tidymodels!
 
 And if it does not exist yet, open an issue on GitHub or browse the [developer documentation for extending tidymodels](https://www.tidymodels.org/learn/#category=developer%20tools)!
 
