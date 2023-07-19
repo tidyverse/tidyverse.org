@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels]
-rmd_hash: 58b24e9fb4a0d5bd
+rmd_hash: efa4599db68a3001
 
 ---
 
@@ -63,35 +63,33 @@ First, loading the collection of packages:
 
 ## modeldatatoo
 
-Many of the datasets used in tidymodels examples are available in the modeldata package. The new modeldatatoo package now extends the collection by several bigger datasets. To allow for the bigger size, the package does not contain those datasets directly but rather provides functions to access them, prefixed with `data_`. To access an old friend, the Ames housing data, call [`data_ames()`](https://tidymodels.github.io/modeldatatoo/reference/data_ames.html).
+Many of the datasets used in tidymodels examples are available in the modeldata package. The new modeldatatoo package now extends the collection by several bigger datasets. To allow for the bigger size, the package does not contain those datasets directly but rather provides functions to access them, prefixed with `data_`. For example:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/tidymodels/modeldatatoo'>modeldatatoo</a></span><span class='o'>)</span></span>
 <span></span>
-<span><span class='nv'>ames</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tidymodels.github.io/modeldatatoo/reference/data_ames.html'>data_ames</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nv'>ames</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2,930 × 74</span></span></span>
-<span><span class='c'>#&gt;    ms_sub_class           ms_zoning lot_frontage lot_area street alley lot_shape</span></span>
-<span><span class='c'>#&gt;  <span style='color: #555555;'>*</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>                  <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>            <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> One_Story_1946_and_Ne… Resident…          141    <span style='text-decoration: underline;'>31</span>770 Pave   No_A… Slightly…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> One_Story_1946_and_Ne… Resident…           80    <span style='text-decoration: underline;'>11</span>622 Pave   No_A… Regular  </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> One_Story_1946_and_Ne… Resident…           81    <span style='text-decoration: underline;'>14</span>267 Pave   No_A… Slightly…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> One_Story_1946_and_Ne… Resident…           93    <span style='text-decoration: underline;'>11</span>160 Pave   No_A… Regular  </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> Two_Story_1946_and_Ne… Resident…           74    <span style='text-decoration: underline;'>13</span>830 Pave   No_A… Slightly…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> Two_Story_1946_and_Ne… Resident…           78     <span style='text-decoration: underline;'>9</span>978 Pave   No_A… Slightly…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> One_Story_PUD_1946_an… Resident…           41     <span style='text-decoration: underline;'>4</span>920 Pave   No_A… Regular  </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> One_Story_PUD_1946_an… Resident…           43     <span style='text-decoration: underline;'>5</span>005 Pave   No_A… Slightly…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> One_Story_PUD_1946_an… Resident…           39     <span style='text-decoration: underline;'>5</span>389 Pave   No_A… Slightly…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> Two_Story_1946_and_Ne… Resident…           60     <span style='text-decoration: underline;'>7</span>500 Pave   No_A… Regular  </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 2,920 more rows</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 67 more variables: land_contour &lt;fct&gt;, utilities &lt;fct&gt;, lot_config &lt;fct&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   land_slope &lt;fct&gt;, neighborhood &lt;fct&gt;, condition_1 &lt;fct&gt;, condition_2 &lt;fct&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   bldg_type &lt;fct&gt;, house_style &lt;fct&gt;, overall_cond &lt;fct&gt;, year_built &lt;int&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   year_remod_add &lt;int&gt;, roof_style &lt;fct&gt;, roof_matl &lt;fct&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   exterior_1st &lt;fct&gt;, exterior_2nd &lt;fct&gt;, mas_vnr_type &lt;fct&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   mas_vnr_area &lt;dbl&gt;, exter_cond &lt;fct&gt;, foundation &lt;fct&gt;, bsmt_cond &lt;fct&gt;, …</span></span></span>
+<span><span class='nf'><a href='https://tidymodels.github.io/modeldatatoo/reference/data_animals.html'>data_animals</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 610 × 48</span></span></span>
+<span><span class='c'>#&gt;    text    colour lifespan weight kingdom class phylum diet  conservation_status</span></span>
+<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>              </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>"</span>Aardv… Brown… 23 years 60kg … Animal… Mamm… Chord… Omni… Least Concern      </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>"</span>Abyss… Fawn,… <span style='color: #BB0000;'>NA</span>       <span style='color: #BB0000;'>NA</span>     <span style='color: #BB0000;'>NA</span>      <span style='color: #BB0000;'>NA</span>    <span style='color: #BB0000;'>NA</span>     <span style='color: #BB0000;'>NA</span>    <span style='color: #BB0000;'>NA</span>                 </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>"</span>Adeli… Black… 10 - 20… 3kg -… Animal… Aves  Chord… Carn… Least Concern      </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>"</span>Affen… Black… <span style='color: #BB0000;'>NA</span>       <span style='color: #BB0000;'>NA</span>     <span style='color: #BB0000;'>NA</span>      <span style='color: #BB0000;'>NA</span>    <span style='color: #BB0000;'>NA</span>     <span style='color: #BB0000;'>NA</span>    <span style='color: #BB0000;'>NA</span>                 </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>"</span>Afgha… Black… <span style='color: #BB0000;'>NA</span>       <span style='color: #BB0000;'>NA</span>     <span style='color: #BB0000;'>NA</span>      <span style='color: #BB0000;'>NA</span>    <span style='color: #BB0000;'>NA</span>     <span style='color: #BB0000;'>NA</span>    <span style='color: #BB0000;'>NA</span>                 </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>"</span>Afric… Grey,… 60 - 70… 3,600… Animal… Mamm… Chord… Herb… Threatened         </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>"</span>Afric… Black… 15 - 20… 1.4kg… Animal… Mamm… Chord… Omni… Least Concern      </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>"</span>Afric… Brown… 8 - 15 … 25g -… Animal… Amph… Chord… Carn… Least Concern      </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> <span style='color: #555555;'>"</span>Afric… Grey,… 60 - 70… 900kg… Animal… Mamm… Chord… Herb… Endangered         </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>"</span>Afric… Black… 15 - 20… 1.4kg… Animal… Mamm… Chord… Omni… Least Concern      </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 600 more rows</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 39 more variables: order &lt;chr&gt;, scientific_name &lt;chr&gt;, skin_type &lt;chr&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   habitat &lt;chr&gt;, predators &lt;chr&gt;, family &lt;chr&gt;, lifestyle &lt;chr&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   average_litter_size &lt;chr&gt;, genus &lt;chr&gt;, top_speed &lt;chr&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   favourite_food &lt;chr&gt;, main_prey &lt;chr&gt;, type &lt;chr&gt;, common_name &lt;chr&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   group &lt;chr&gt;, size &lt;chr&gt;, distinctive_features &lt;chr&gt;, size_l &lt;chr&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   origin &lt;chr&gt;, special_features &lt;chr&gt;, location &lt;chr&gt;, …</span></span></span>
 <span></span></code></pre>
 
 </div>
@@ -115,8 +113,9 @@ Let's use the Ames housing data and turn it from a regular tibble into a `sf` ob
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/tidymodels/spatialsample'>spatialsample</a></span><span class='o'>)</span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='nv'>ames</span>, package <span class='o'>=</span> <span class='s'>"modeldata"</span><span class='o'>)</span></span>
 <span></span>
-<span><span class='nv'>ames_sf</span> <span class='o'>&lt;-</span> <span class='nf'>sf</span><span class='nf'>::</span><span class='nf'><a href='https://r-spatial.github.io/sf/reference/st_as_sf.html'>st_as_sf</a></span><span class='o'>(</span><span class='nv'>ames</span>, coords <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"longitude"</span>, <span class='s'>"latitude"</span><span class='o'>)</span>, crs <span class='o'>=</span> <span class='m'>4326</span><span class='o'>)</span></span></code></pre>
+<span><span class='nv'>ames_sf</span> <span class='o'>&lt;-</span> <span class='nf'>sf</span><span class='nf'>::</span><span class='nf'><a href='https://r-spatial.github.io/sf/reference/st_as_sf.html'>st_as_sf</a></span><span class='o'>(</span><span class='nv'>ames</span>, coords <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"Longitude"</span>, <span class='s'>"Latitude"</span><span class='o'>)</span>, crs <span class='o'>=</span> <span class='m'>4326</span><span class='o'>)</span></span></code></pre>
 
 </div>
 

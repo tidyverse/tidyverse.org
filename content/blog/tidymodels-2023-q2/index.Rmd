@@ -89,14 +89,12 @@ library(tidymodels)
 
 ## modeldatatoo
 
-Many of the datasets used in tidymodels examples are available in the modeldata package. The new modeldatatoo package now extends the collection by several bigger datasets. To allow for the bigger size, the package does not contain those datasets directly but rather provides functions to access them, prefixed with `data_`. To access an old friend, the Ames housing data, call `data_ames()`.
+Many of the datasets used in tidymodels examples are available in the modeldata package. The new modeldatatoo package now extends the collection by several bigger datasets. To allow for the bigger size, the package does not contain those datasets directly but rather provides functions to access them, prefixed with `data_`. For example:
 
 ```{r}
 library(modeldatatoo)
 
-ames <- data_ames()
-
-ames
+data_animals()
 ```
 
 The new datasets are:
@@ -118,8 +116,9 @@ Let's use the Ames housing data and turn it from a regular tibble into a `sf` ob
 
 ```{r}
 library(spatialsample)
+data(ames, package = "modeldata")
 
-ames_sf <- sf::st_as_sf(ames, coords = c("longitude", "latitude"), crs = 4326)
+ames_sf <- sf::st_as_sf(ames, coords = c("Longitude", "Latitude"), crs = 4326)
 ```
 
 Let's assume that we are building a model to predict observations similar to this subset of the data:
