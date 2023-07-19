@@ -39,13 +39,14 @@ Specifically, I'll discuss:
 
 **[TO DO: Make sure outline matches final sections]**
 
--   [Nine core packages in tidyverse 2.0.0]
+-   [Nine core packages in tidyverse 2.0.0](#sec-nine-core-packages-in-tidyverse-2.0.0)
 -   [Improved and expanded `*_join()` functionality](#sec-improved-and-expanded-join-functionality)
--   [Per operation grouping]
+-   [Per operation grouping](#sec-per-operation-grouping)
 -   [Quality of life improvements to `case_when()` and `if_else()`](#sec-quality-of-life-improvements-to-case_when-and-if_else)
--   [New syntax for separating columns]
--   [Resource refresh]
--   [What's on the horizon?] **[TO DO: Remove if not adding this section]**
+-   [New argument for line geoms: linewidth]
+-   [New syntax for separating columns](#sec-new-syntax-for-separating-columns)
+-   [Resource refresh](#sec-resource-refresh)
+-   [What's on the horizon?](#sec-whats-on-the-horizon) **[TO DO: Remove if not adding this section]**
 
 Throughout this blog post you'll encounter some code chunks with the comment `previously`, indicating what you used to do in the tidyverse. Often these will be coupled with chunks with the comment `now, optionally`, indicating what you *can* now do with the tidyverse. And rarely, they will be coupled with chunks with the comment `now`, indicating what you *should* do instead now with the tidyverse.
 
@@ -55,7 +56,7 @@ Let's get started with the obligatory...
 library(tidyverse)
 ```
 
-And, let's also load the **palmerpenguins** package that we will use in examples.
+And, let's also load the [palmerpenguins](https://allisonhorst.github.io/palmerpenguins/) package that we will use in examples.
 
 ```{r}
 library(palmerpenguins)
@@ -63,7 +64,7 @@ library(palmerpenguins)
 
 ## Nine core packages in tidyverse 2.0.0 {#sec-nine-core-packages-in-tidyverse-2.0.0}
 
-The main update in tidyverse 2.0.0, which was released in March 2023, is that it **lubridate** is now a core tidyverse package. The lubridate package that makes it easier to do the things R does with date-times, is now a core tidyverse package. So, while many of your scripts in the past may have started with
+The main update in tidyverse 2.0.0, which was released in March 2023, is that it [lubridate](https://lubridate.tidyverse.org/) is now a core tidyverse package. The lubridate package that makes it easier to do the things R does with date-times, is now a core tidyverse package. So, while many of your scripts in the past may have started with
 
 ```{r}
 #| eval: false
@@ -505,17 +506,49 @@ Especially not having to introduce it as early as if_else() and case_when(). Che
 
 Different types of NAs are a good topic for a course on R as a programming language, statistical computing, etc. but not necessary for an intro course.
 
+## New argument for line geoms: `linewidth` {#sec-new-argument-for-line-geoms-linewidth}
+
+**TO DO: Add more context.**
+
+```{r}
+# previously
+
+penguins |>
+  drop_na() |>
+  ggplot(
+    aes(x = flipper_length_mm, y = body_mass_g)
+  ) +
+  geom_smooth(size = 2)
+```
+
+```{r}
+# now
+
+penguins |>
+  drop_na() |>
+  ggplot(
+    aes(x = flipper_length_mm, y = body_mass_g)
+  ) +
+  geom_smooth(linewidth = 2)
+```
+
+Teaching tip: Check the output of your old teaching materials thoroughly
+
+To not make a fool of yourself when teaching 🤣
+
 ## New syntax for separating columns {#sec-new-syntax-for-separating-columns}
 
 that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) because they have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
 
 |                                  | **MAKE COLUMNS**                                                                               | **MAKE ROWS**                                                                                    |
-|:-----------------|:--------------------------|:--------------------------|
+|:------------------|:--------------------------|:--------------------------|
 | Separate with delimiter          | [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    | [`separate_longer_delim()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html)    |
 | Separate by position             | [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) | [`separate_longer_position()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html) |
 | Separate with regular expression |                                                                                                |                                                                                                  |
 
 **[TO DO: Add example]**
+
+Teaching tip: If teaching folks coming from doing data manipulation in spreadsheets, leverage that to motivate different types of `separate_*()` functions, and show the benefits of programming over point-and-click software for more advanced operations like separating longer and separating with regular expressions.
 
 ## Resource refresh {#sec-resource-refresh}
 

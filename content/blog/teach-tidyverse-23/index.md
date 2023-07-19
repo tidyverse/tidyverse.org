@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: e1e8fad7e3582c1d
+rmd_hash: 4d9c3a75248ffbd5
 
 ---
 
@@ -44,6 +44,7 @@ Specifically, I'll discuss:
 -   [Improved and expanded `*_join()` functionality](#sec-improved-and-expanded-join-functionality)
 -   [Per operation grouping](#sec-per-operation-grouping)
 -   [Quality of life improvements to `case_when()` and `if_else()`](#sec-quality-of-life-improvements-to-case_when-and-if_else)
+-   \[New argument for line geoms: linewidth\]
 -   [New syntax for separating columns](#sec-new-syntax-for-separating-columns)
 -   [Resource refresh](#sec-resource-refresh)
 -   [What's on the horizon?](#sec-whats-on-the-horizon) **\[TO DO: Remove if not adding this section\]**
@@ -69,7 +70,7 @@ Let's get started with the obligatory...
 
 </div>
 
-And, let's also load the **palmerpenguins** package that we will use in examples.
+And, let's also load the [palmerpenguins](https://allisonhorst.github.io/palmerpenguins/) package that we will use in examples.
 
 <div class="highlight">
 
@@ -79,7 +80,7 @@ And, let's also load the **palmerpenguins** package that we will use in examples
 
 ## Nine core packages in tidyverse 2.0.0
 
-The main update in tidyverse 2.0.0, which was released in March 2023, is that it **lubridate** is now a core tidyverse package. The lubridate package that makes it easier to do the things R does with date-times, is now a core tidyverse package. So, while many of your scripts in the past may have started with
+The main update in tidyverse 2.0.0, which was released in March 2023, is that it [lubridate](https://lubridate.tidyverse.org/) is now a core tidyverse package. The lubridate package that makes it easier to do the things R does with date-times, is now a core tidyverse package. So, while many of your scripts in the past may have started with
 
 <div class="highlight">
 
@@ -791,6 +792,51 @@ Especially not having to introduce it as early as if_else() and case_when(). Che
 
 Different types of NAs are a good topic for a course on R as a programming language, statistical computing, etc. but not necessary for an intro course.
 
+## New argument for line geoms: `linewidth`
+
+**TO DO: Add more context.**
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># previously</span></span>
+<span></span>
+<span><span class='nv'>penguins</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span></span>
+<span>    <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>flipper_length_mm</span>, y <span class='o'>=</span> <span class='nv'>body_mass_g</span><span class='o'>)</span></span>
+<span>  <span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='o'>(</span>size <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Please use `linewidth` instead.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>This warning is displayed once every 8 hours.</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>generated.</span></span></span>
+<span></span><span><span class='c'>#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
+<span></span></code></pre>
+<img src="figs/unnamed-chunk-38-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># now</span></span>
+<span></span>
+<span><span class='nv'>penguins</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span></span>
+<span>    <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>flipper_length_mm</span>, y <span class='o'>=</span> <span class='nv'>body_mass_g</span><span class='o'>)</span></span>
+<span>  <span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='o'>(</span>linewidth <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
+<span></span></code></pre>
+<img src="figs/unnamed-chunk-39-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+Teaching tip: Check the output of your old teaching materials thoroughly
+
+To not make a fool of yourself when teaching 🤣
+
 ## New syntax for separating columns
 
 that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) because they have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
@@ -802,6 +848,8 @@ that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html)
 | Separate with regular expression |                                                                                                |                                                                                                  |
 
 **\[TO DO: Add example\]**
+
+Teaching tip: If teaching folks coming from doing data manipulation in spreadsheets, leverage that to motivate different types of `separate_*()` functions, and show the benefits of programming over point-and-click software for more advanced operations like separating longer and separating with regular expressions.
 
 ## Resource refresh
 
