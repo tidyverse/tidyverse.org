@@ -1,0 +1,150 @@
+---
+output: hugodown::hugo_document
+
+slug: teach-tidyverse-23
+title: Teaching the tidyverse in 2023
+date: 2023-07-28
+author: Mine Çetinkaya-Rundel
+description: >
+    Recommendations for teaching the tidyverse in 2023, summarizing 
+    package updates most relevant for teaching data science with the 
+    tidyverse, particularly to new learners.
+
+photo:
+  url: https://unsplash.com/photos/ScoYEG5LEgc
+  author: Scott Evans
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [learn] 
+tags: [tidyverse, teaching]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()` -- not applicable
+-->
+```
+
+Another year, another roundup of tidyverse updates, through the lens of an educator. As with previous [teaching the tidyverse posts](/blog/2021/08/teach-tidyverse-2021/), much of what is discussed in this blog post has already been covered in package update posts, however the goal of this roundup is to summarize the highlights that are most relevant to teaching data science with the tidyverse, particularly to new learners.
+
+Specifically, I'll discuss: **TO DO: UPDATE OUTLINE**
+
+-   [Nine core packages in tidyverse 2.0.0](#new-teaching-and-learning-resources)
+
+Throughout this blog post you'll encounter some code chunks with the comment `previously`, indicating what you used to do in the tidyverse. Often these will be coupled with chunks with the comment `now, optionally`, indicating what you *can* now do with the tidyverse. And rarely, they will be coupled with chunks with the comment `now`, indicating what you *should* do instead now with the tidyverse.
+
+Let's get started with the obligatory...
+
+```{r}
+library(tidyverse)
+```
+
+And, let's also load the **palmerpenguins** package that we will use in examples.
+
+```{r}
+library(palmerpenguins)
+```
+
+## Nine core packages in tidyverse 2.0.0
+
+The main update in tidyverse 2.0.0, which was released in March 2023, is that it **lubridate** is now a core tidyverse package. The lubridate package that makes it easier to do the things R does with date-times, is now a core tidyverse package. So, while many of your scripts in the past may have started with
+
+```{r}
+#| eval: false
+
+# previously
+library(tidyverse)
+library(lubridate)
+```
+
+you can now just do
+
+```{r}
+#| eval: false
+
+# now
+library(tidyverse)
+```
+
+and the lubridate package will be loaded as well.
+
+If you, like me, use a graphic like the one below that maps the core tidyverse packages to phases of the data science cycle, here is an updated graphic including lubridate.
+
+![](images/data-science.png){fig-alt="Data science cycle: import, tidy, transform, visualize, model, communicate. Packages readr and tibble are for import. Packages tidyr and purr for tidy and transform. Packages dplyr, stringr, forcats, and lubridate are for transform. Package ggplot2 is for visualize."}
+
+Additionally, the package loading message for the tidyverse now advertises the **conflicted** package.
+
+```{r}
+#| echo: false
+
+tidyverse_conflicts()
+```
+
+Conflict resolution in R, i.e., what to do if multiple packages that are loaded in a session have functions with the same name, can get tricky, and the conflicted package is designed to help with that. R's default conflict resolution gives precedence to the most recently loaded package. For example, if you use the filter function before loading the tidyverse, R will use `stats::filter()`:
+
+```{r}
+#| include: false
+
+devtools::unload("dplyr")
+```
+
+```{r}
+#| error: true
+
+penguins |>
+  filter(species == "Adelie")
+```
+
+However, after loading the tidyverse, when you call `filter()`, R will *silently* choose `dplyr::filter()`:
+
+```{r}
+#| include: false
+
+library(dplyr)
+```
+
+```{r}
+penguins |>
+  filter(species == "Adelie")
+```
+
+This silent conflict resolution approach works fine until it doesn't, and then it can be very frustrating to debug. The conflicted package does not allow for silent conflict resolution:
+
+```{r}
+#| error: true
+ 
+library(conflicted)
+    
+penguins |>
+  filter(species == "Adelie")
+```
+
+You can, of course, use `dplyr::filter()` but if you have a bunch of data wrangling pipelines, which is likely the case if you're teaching data wrangling, it can get pretty busy.
+
+Instead, with conflicted, you can explicitly declare which `filter()` you want to use at the beginning (of a session, of a script, or of an R Markdown or Quarto file) with `conflicts_prefer()`:
+
+```{r}
+conflicts_prefer(dplyr::filter)
+  
+penguins |>
+  filter(species == "Adelie")
+```
+
+Getting back to the package loading message... It can be tempting, particularly in a teaching scenario, particularly to an audience of new learners, and particularly if you teach with slides and messages take up valuable slide real estate, I would urge you to not hide startup messages from teaching materials. Instead, address them early on to:
+
+1.  Encourage reading and understanding messages, warnings, and errors -- teaching people to read error messages is hard enough, it's going to be even harder if you're not modeling that to them.
+
+2.  Help during hard-to-debug situations resulting from base R's silent conflict resolution -- because, let's face it, someone in your class, if not you during a live-coding session, will see that pesky object not found error at some point when using `filter()`.
+
+## Topic 2
+
+## Acknowledgements
