@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: 7ca2755e87b74963
+rmd_hash: a05ca47fd9668398
 
 ---
 
@@ -204,6 +204,8 @@ Getting back to the package loading message... It can be tempting, particularly 
 
 The **dplyr** package has long had the `*_join()` family of functions for joining data frames.
 
+### `join_by()`
+
 New functionality for join functions includes a new [`join_by()`](https://dplyr.tidyverse.org/reference/join_by.html) function for the `by` argument. So, while in the past your code may have looked like the following:
 
 <div class="highlight">
@@ -218,7 +220,7 @@ x |>
 
 </div>
 
-you can now do
+you can now do:
 
 <div class="highlight">
 
@@ -286,6 +288,284 @@ While `by = c("island" = "name")` would still work, I would recommend teaching [
 
 1.  You can read it out loud as "where x is equal to y", just like in other logical statements where `==` is pronounced as "is equal to".
 2.  You don't have to worry about `by = c(x = y)` (which is invalid) vs. `by = c(x = "y")` (which is valid) vs. `by = c("x" = "y")` (which is also valid).
+
+### Handling various matches
+
+The `*_join()` functions now have additional arguments for handling `multiple` matches and `unmatched` rows as well as for specifying the `relationship` between the two data frames.
+
+So, while in the past your code may have looked like the following:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'># previously
+*_join(
+  x,
+  y,
+  by
+)
+</code></pre>
+
+</div>
+
+you can now do:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'># now, optionally
+*_join(
+  x,
+  y,
+  by,
+  multiple = "all",
+  unmatched = "drop",
+  relationship = NULL
+)
+</code></pre>
+
+</div>
+
+Let's set up three data frames to demonstrate the new functionality:
+
+1.  Information about three penguins, one row per `samp_id`:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>three_penguins</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tribble.html'>tribble</a></span><span class='o'>(</span></span>
+<span>  <span class='o'>~</span><span class='nv'>samp_id</span>, <span class='o'>~</span><span class='nv'>species</span>,    <span class='o'>~</span><span class='nv'>island</span>,</span>
+<span>  <span class='m'>1</span>,        <span class='s'>"Adelie"</span>,    <span class='s'>"Torgersen"</span>,</span>
+<span>  <span class='m'>2</span>,        <span class='s'>"Gentoo"</span>,    <span class='s'>"Biscoe"</span>,</span>
+<span>  <span class='m'>3</span>,        <span class='s'>"Chinstrap"</span>, <span class='s'>"Dream"</span></span>
+<span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>three_penguins</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 3</span></span></span>
+<span><span class='c'>#&gt;   samp_id species   island   </span></span>
+<span><span class='c'>#&gt;     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       1 Adelie    Torgersen</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       2 Gentoo    Biscoe   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       3 Chinstrap Dream</span></span>
+<span></span></code></pre>
+
+</div>
+
+1.  Information about weight measurements of these penguins, one row per `samp_id`, `meas_id` combination:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>weight_measurements</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tribble.html'>tribble</a></span><span class='o'>(</span></span>
+<span>  <span class='o'>~</span><span class='nv'>samp_id</span>, <span class='o'>~</span><span class='nv'>meas_id</span>, <span class='o'>~</span><span class='nv'>body_mass_g</span>,</span>
+<span>  <span class='m'>1</span>,        <span class='m'>1</span>,        <span class='m'>3220</span>,</span>
+<span>  <span class='m'>1</span>,        <span class='m'>2</span>,        <span class='m'>3250</span>,</span>
+<span>  <span class='m'>2</span>,        <span class='m'>1</span>,        <span class='m'>4730</span>,</span>
+<span>  <span class='m'>2</span>,        <span class='m'>2</span>,        <span class='m'>4725</span>,</span>
+<span>  <span class='m'>3</span>,        <span class='m'>1</span>,        <span class='m'>4000</span>,</span>
+<span>  <span class='m'>3</span>,        <span class='m'>2</span>,        <span class='m'>4050</span></span>
+<span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>weight_measurements</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 3</span></span></span>
+<span><span class='c'>#&gt;   samp_id meas_id body_mass_g</span></span>
+<span><span class='c'>#&gt;     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       1       1        <span style='text-decoration: underline;'>3</span>220</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       1       2        <span style='text-decoration: underline;'>3</span>250</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       2       1        <span style='text-decoration: underline;'>4</span>730</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       2       2        <span style='text-decoration: underline;'>4</span>725</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       3       1        <span style='text-decoration: underline;'>4</span>000</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>6</span>       3       2        <span style='text-decoration: underline;'>4</span>050</span></span>
+<span></span></code></pre>
+
+</div>
+
+1.  Information about flipper measurements of these penguins, one row per `samp_id`, `meas_id` combination:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>flipper_measurements</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tribble.html'>tribble</a></span><span class='o'>(</span></span>
+<span>  <span class='o'>~</span><span class='nv'>samp_id</span>, <span class='o'>~</span><span class='nv'>meas_id</span>, <span class='o'>~</span><span class='nv'>flipper_length_mm</span>,</span>
+<span>  <span class='m'>1</span>,        <span class='m'>1</span>,        <span class='m'>193</span>,</span>
+<span>  <span class='m'>1</span>,        <span class='m'>2</span>,        <span class='m'>195</span>,</span>
+<span>  <span class='m'>2</span>,        <span class='m'>1</span>,        <span class='m'>214</span>,</span>
+<span>  <span class='m'>2</span>,        <span class='m'>2</span>,        <span class='m'>216</span>,</span>
+<span>  <span class='m'>3</span>,        <span class='m'>1</span>,        <span class='m'>203</span>,</span>
+<span>  <span class='m'>3</span>,        <span class='m'>2</span>,        <span class='m'>203</span></span>
+<span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>flipper_measurements</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 3</span></span></span>
+<span><span class='c'>#&gt;   samp_id meas_id flipper_length_mm</span></span>
+<span><span class='c'>#&gt;     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       1       1               193</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       1       2               195</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       2       1               214</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       2       2               216</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       3       1               203</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>6</span>       3       2               203</span></span>
+<span></span></code></pre>
+
+</div>
+
+One-to-many relationships don't require extra care, they just work:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>three_penguins</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>weight_measurements</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>samp_id</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 5</span></span></span>
+<span><span class='c'>#&gt;   samp_id species   island    meas_id body_mass_g</span></span>
+<span><span class='c'>#&gt;     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       1 Adelie    Torgersen       1        <span style='text-decoration: underline;'>3</span>220</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       1 Adelie    Torgersen       2        <span style='text-decoration: underline;'>3</span>250</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       2 Gentoo    Biscoe          1        <span style='text-decoration: underline;'>4</span>730</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       2 Gentoo    Biscoe          2        <span style='text-decoration: underline;'>4</span>725</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       3 Chinstrap Dream           1        <span style='text-decoration: underline;'>4</span>000</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>6</span>       3 Chinstrap Dream           2        <span style='text-decoration: underline;'>4</span>050</span></span>
+<span></span></code></pre>
+
+</div>
+
+However, many-to-many relationships require some extra care. For example, if we join the `three_penguins` data frame to the `flipper_measurements` data frame, we get a warning:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>three_penguins</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>flipper_measurements</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>samp_id</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 5</span></span></span>
+<span><span class='c'>#&gt;   samp_id species   island    meas_id flipper_length_mm</span></span>
+<span><span class='c'>#&gt;     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       1 Adelie    Torgersen       1               193</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       1 Adelie    Torgersen       2               195</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       2 Gentoo    Biscoe          1               214</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       2 Gentoo    Biscoe          2               216</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       3 Chinstrap Dream           1               203</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>6</span>       3 Chinstrap Dream           2               203</span></span>
+<span></span></code></pre>
+
+</div>
+
+We get a warning about unexpected many-to-many relationships (unexpected because we didn't specify this type of relationship in our join call), and the warning suggests setting `relationship = "many-to-many"`. And note that we went from 6 rows (measurements) to 12, which is also unexpected.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>weight_measurements</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>flipper_measurements</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>samp_id</span><span class='o'>)</span>, relationship <span class='o'>=</span> <span class='s'>"many-to-many"</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 12 × 5</span></span></span>
+<span><span class='c'>#&gt;    samp_id meas_id.x body_mass_g meas_id.y flipper_length_mm</span></span>
+<span><span class='c'>#&gt;      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span>       1         1        <span style='text-decoration: underline;'>3</span>220         1               193</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span>       1         1        <span style='text-decoration: underline;'>3</span>220         2               195</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span>       1         2        <span style='text-decoration: underline;'>3</span>250         1               193</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span>       1         2        <span style='text-decoration: underline;'>3</span>250         2               195</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span>       2         1        <span style='text-decoration: underline;'>4</span>730         1               214</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span>       2         1        <span style='text-decoration: underline;'>4</span>730         2               216</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span>       2         2        <span style='text-decoration: underline;'>4</span>725         1               214</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span>       2         2        <span style='text-decoration: underline;'>4</span>725         2               216</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span>       3         1        <span style='text-decoration: underline;'>4</span>000         1               203</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span>       3         1        <span style='text-decoration: underline;'>4</span>000         2               203</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>11</span>       3         2        <span style='text-decoration: underline;'>4</span>050         1               203</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>12</span>       3         2        <span style='text-decoration: underline;'>4</span>050         2               203</span></span>
+<span></span></code></pre>
+
+</div>
+
+With `relationship = "many-to-many"`, we no longer get a warning. However, the "explosion of rows" issue is still there. Addressing that requires rethinking what we join the two data frames by:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>weight_measurements</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>flipper_measurements</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>samp_id</span>, <span class='nv'>meas_id</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 4</span></span></span>
+<span><span class='c'>#&gt;   samp_id meas_id body_mass_g flipper_length_mm</span></span>
+<span><span class='c'>#&gt;     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       1       1        <span style='text-decoration: underline;'>3</span>220               193</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       1       2        <span style='text-decoration: underline;'>3</span>250               195</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       2       1        <span style='text-decoration: underline;'>4</span>730               214</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       2       2        <span style='text-decoration: underline;'>4</span>725               216</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       3       1        <span style='text-decoration: underline;'>4</span>000               203</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>6</span>       3       2        <span style='text-decoration: underline;'>4</span>050               203</span></span>
+<span></span></code></pre>
+
+</div>
+
+We can see that while the warning nudged us towards setting `relationship = "many-to-many"`, turns out the correct way to address the problem was to join by both `samp_id` and `meas_id`.
+
+We'll wrap up our discussion on new functionality for handling `unmatched` cases. We'll create one more data frame (`four_penguins`) to exemplify this:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>four_penguins</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tribble.html'>tribble</a></span><span class='o'>(</span></span>
+<span>  <span class='o'>~</span><span class='nv'>samp_id</span>, <span class='o'>~</span><span class='nv'>species</span>,    <span class='o'>~</span><span class='nv'>island</span>,</span>
+<span>  <span class='m'>1</span>,        <span class='s'>"Adelie"</span>,    <span class='s'>"Torgersen"</span>,</span>
+<span>  <span class='m'>2</span>,        <span class='s'>"Gentoo"</span>,    <span class='s'>"Biscoe"</span>,</span>
+<span>  <span class='m'>3</span>,        <span class='s'>"Chinstrap"</span>, <span class='s'>"Dream"</span>,</span>
+<span>  <span class='m'>4</span>,        <span class='s'>"Adelie"</span>,    <span class='s'>"Biscoe"</span></span>
+<span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>four_penguins</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 3</span></span></span>
+<span><span class='c'>#&gt;   samp_id species   island   </span></span>
+<span><span class='c'>#&gt;     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       1 Adelie    Torgersen</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       2 Gentoo    Biscoe   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       3 Chinstrap Dream    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       4 Adelie    Biscoe</span></span>
+<span></span></code></pre>
+
+</div>
+
+If we just join `weight_measurements` to `four_penguins`, the unmatched fourth penguin silently disappears, which is less than ideal, particularly in a more realistic scenario with many more observations:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>weight_measurements</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>four_penguins</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>samp_id</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 5</span></span></span>
+<span><span class='c'>#&gt;   samp_id meas_id body_mass_g species   island   </span></span>
+<span><span class='c'>#&gt;     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       1       1        <span style='text-decoration: underline;'>3</span>220 Adelie    Torgersen</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       1       2        <span style='text-decoration: underline;'>3</span>250 Adelie    Torgersen</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       2       1        <span style='text-decoration: underline;'>4</span>730 Gentoo    Biscoe   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       2       2        <span style='text-decoration: underline;'>4</span>725 Gentoo    Biscoe   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       3       1        <span style='text-decoration: underline;'>4</span>000 Chinstrap Dream    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>6</span>       3       2        <span style='text-decoration: underline;'>4</span>050 Chinstrap Dream</span></span>
+<span></span></code></pre>
+
+</div>
+
+Setting `unmatched = "error"` can protects you from accidentally dropping rows:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>weight_measurements</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>four_penguins</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>samp_id</span><span class='o'>)</span>, unmatched <span class='o'>=</span> <span class='s'>"error"</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `left_join()`:</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Each row of `y` must be matched by `x`.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Row 4 of `y` was not matched.</span></span>
+<span></span></code></pre>
+
+</div>
+
+Once you see the error message, you can decide how to handle the unmatched rows, e.g., explicitly drop them.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>weight_measurements</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>four_penguins</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>samp_id</span><span class='o'>)</span>, unmatched <span class='o'>=</span> <span class='s'>"drop"</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 5</span></span></span>
+<span><span class='c'>#&gt;   samp_id meas_id body_mass_g species   island   </span></span>
+<span><span class='c'>#&gt;     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       1       1        <span style='text-decoration: underline;'>3</span>220 Adelie    Torgersen</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       1       2        <span style='text-decoration: underline;'>3</span>250 Adelie    Torgersen</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       2       1        <span style='text-decoration: underline;'>4</span>730 Gentoo    Biscoe   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       2       2        <span style='text-decoration: underline;'>4</span>725 Gentoo    Biscoe   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       3       1        <span style='text-decoration: underline;'>4</span>000 Chinstrap Dream    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>6</span>       3       2        <span style='text-decoration: underline;'>4</span>050 Chinstrap Dream</span></span>
+<span></span></code></pre>
+
+</div>
+
+There are many more developments related to `*_join()` functions (e.g., [inequality joins](/blog/2023/01/dplyr-1-1-0-joins/#inequality-joins) and [rolling joins](/blog/2023/01/dplyr-1-1-0-joins/#rolling-joins)), but many of these likely wouldn't come up in an introductory course so we won't get into their details. A good place to read more about them is [R for Data Science, 2nd edition](https://r4ds.hadley.nz/joins.html#sec-non-equi-joins).
+
+Exploding joins (i.e., joins that result in a larger number of rows than either of the data frames from bie) can be hard to debug for students! Teaching them the tools to diagnose whether the join they performed, and that may not have given an error, is indeed the one they wanted to perform. Did they lose any cases? Did they gain an unexpected amount of cases? Did they perform a join without thinking and take down the entire teaching server? These things happen, particularly if students are working with their own data for an open-ended project!
 
 ## Acknowledgements
 

@@ -149,6 +149,8 @@ Getting back to the package loading message... It can be tempting, particularly 
 
 The **dplyr** package has long had the `*_join()` family of functions for joining data frames.
 
+### `join_by()`
+
 New functionality for join functions includes a new `join_by()` function for the `by` argument. So, while in the past your code may have looked like the following:
 
 ```{r}
@@ -162,7 +164,7 @@ x |>
   )
 ```
 
-you can now do
+you can now do:
 
 ```{r}
 #| eval: false
@@ -203,5 +205,156 @@ While `by = c("island" = "name")` would still work, I would recommend teaching `
 
 1. You can read it out loud as "where x is equal to y", just like in other logical statements where `==` is pronounced as "is equal to".
 2. You don’t have to worry about `by = c(x = y)` (which is invalid) vs. `by = c(x = "y")` (which is valid) vs. `by = c("x" = "y")` (which is also valid).
+
+### Handling various matches
+
+The `*_join()` functions now have additional arguments for handling `multiple` matches and `unmatched` rows as well as for specifying the `relationship` between the two data frames.
+
+So, while in the past your code may have looked like the following:
+
+```{r}
+#| eval: false
+
+# previously
+*_join(
+  x,
+  y,
+  by
+)
+```
+
+you can now do:
+
+```{r}
+#| eval: false
+
+# now, optionally
+*_join(
+  x,
+  y,
+  by,
+  multiple = "all",
+  unmatched = "drop",
+  relationship = NULL
+)
+```
+
+Let's set up three data frames to demonstrate the new functionality:
+
+1. Information about three penguins, one row per `samp_id`:
+
+```{r}
+three_penguins <- tribble(
+  ~samp_id, ~species,    ~island,
+  1,        "Adelie",    "Torgersen",
+  2,        "Gentoo",    "Biscoe",
+  3,        "Chinstrap", "Dream"
+)
+
+three_penguins
+```
+
+2. Information about weight measurements of these penguins, one row per `samp_id`, `meas_id` combination:
+
+```{r}
+weight_measurements <- tribble(
+  ~samp_id, ~meas_id, ~body_mass_g,
+  1,        1,        3220,
+  1,        2,        3250,
+  2,        1,        4730,
+  2,        2,        4725,
+  3,        1,        4000,
+  3,        2,        4050
+)
+
+weight_measurements
+```
+
+3. Information about flipper measurements of these penguins, one row per `samp_id`, `meas_id` combination:
+
+```{r}
+flipper_measurements <- tribble(
+  ~samp_id, ~meas_id, ~flipper_length_mm,
+  1,        1,        193,
+  1,        2,        195,
+  2,        1,        214,
+  2,        2,        216,
+  3,        1,        203,
+  3,        2,        203
+)
+
+flipper_measurements
+```
+
+One-to-many relationships don't require extra care, they just work:
+
+```{r}
+three_penguins |>
+  left_join(weight_measurements, join_by(samp_id))
+```
+
+However, many-to-many relationships require some extra care. For example, if we join the `three_penguins` data frame to the `flipper_measurements` data frame, we get a warning:
+
+```{r}
+three_penguins |>
+  left_join(flipper_measurements, join_by(samp_id))
+```
+
+We get a warning about unexpected many-to-many relationships (unexpected because we didn't specify this type of relationship in our join call), and the warning suggests setting `relationship = "many-to-many"`. And note that we went from 6 rows (measurements) to 12, which is also unexpected.
+
+```{r}
+weight_measurements |>
+  left_join(flipper_measurements, join_by(samp_id), relationship = "many-to-many")
+```
+
+With `relationship = "many-to-many"`, we no longer get a warning. However, the "explosion of rows" issue is still there. Addressing that requires rethinking what we join the two data frames by:
+
+```{r}
+weight_measurements |>
+  left_join(flipper_measurements, join_by(samp_id, meas_id))
+```
+
+We can see that while the warning nudged us towards setting `relationship = "many-to-many"`, turns out the correct way to address the problem was to join by both `samp_id` and `meas_id`.
+
+We'll wrap up our discussion on new functionality for handling `unmatched` cases. We'll create one more data frame (`four_penguins`) to exemplify this:
+
+```{r}
+four_penguins <- tribble(
+  ~samp_id, ~species,    ~island,
+  1,        "Adelie",    "Torgersen",
+  2,        "Gentoo",    "Biscoe",
+  3,        "Chinstrap", "Dream",
+  4,        "Adelie",    "Biscoe"
+)
+
+four_penguins
+```
+
+If we just join `weight_measurements` to `four_penguins`, the unmatched fourth penguin silently disappears, which is less than ideal, particularly in a more realistic scenario with many more observations:
+
+```{r}
+weight_measurements |>
+  left_join(four_penguins, join_by(samp_id))
+```
+
+Setting `unmatched = "error"` can protects you from accidentally dropping rows:
+
+```{r}
+#| error: true
+
+weight_measurements |>
+  left_join(four_penguins, join_by(samp_id), unmatched = "error")
+```
+
+Once you see the error message, you can decide how to handle the unmatched rows, e.g., explicitly drop them.
+
+```{r}
+weight_measurements |>
+  left_join(four_penguins, join_by(samp_id), unmatched = "drop")
+```
+
+There are many more developments related to `*_join()` functions (e.g., [inequality joins](/blog/2023/01/dplyr-1-1-0-joins/#inequality-joins) and [rolling joins](/blog/2023/01/dplyr-1-1-0-joins/#rolling-joins)), but many of these likely wouldn't come up in an introductory course so we won't get into their details. A good place to read more about them is [R for Data Science, 2nd edition](https://r4ds.hadley.nz/joins.html#sec-non-equi-joins).
+
+Exploding joins (i.e., joins that result in a larger number of rows than either of the data frames from bie) can be hard to debug for students! Teaching them the tools to diagnose whether the join they performed, and that may not have given an error, is indeed the one they wanted to perform. Did they lose any cases? Did they gain an unexpected amount of cases? Did they perform a join without thinking and take down the entire teaching server? These things happen, particularly if students are working with their own data for an open-ended project!
 
 ## Acknowledgements
