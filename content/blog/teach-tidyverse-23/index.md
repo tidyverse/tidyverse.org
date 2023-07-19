@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: b62d45686d93e9c3
+rmd_hash: d8c723d8b2f1824f
 
 ---
 
@@ -40,14 +40,14 @@ Specifically, I'll discuss:
 
 **\[TO DO: Make sure outline matches final sections\]**
 
+-   [Resource refresh](#sec-resource-refresh)
 -   [Nine core packages in tidyverse 2.0.0](#sec-nine-core-packages-in-tidyverse-2.0.0)
+-   [Conflict resolution in the tidyverse](#conflict-resolution-in-the-tidyverse)
 -   [Improved and expanded `*_join()` functionality](#sec-improved-and-expanded-join-functionality)
 -   [Per operation grouping](#sec-per-operation-grouping)
 -   [Quality of life improvements to `case_when()` and `if_else()`](#sec-quality-of-life-improvements-to-case_when-and-if_else)
 -   [New argument for line geoms: linewidth](#sec-new-argument-for-line-geoms-linewidth)
 -   [New syntax for separating columns](#sec-new-syntax-for-separating-columns)
--   [Resource refresh](#sec-resource-refresh)
--   [What's on the horizon?](#sec-whats-on-the-horizon) **\[TO DO: Remove if not adding this section\]**
 
 Throughout this blog post you'll encounter some code chunks with the comment `previously`, indicating what you used to do in the tidyverse. Often these will be coupled with chunks with the comment `now, optionally`, indicating what you *can* now do with the tidyverse. And rarely, they will be coupled with chunks with the comment `now`, indicating what you *should* do instead now with the tidyverse.
 
@@ -78,6 +78,12 @@ And, let's also load the [palmerpenguins](https://allisonhorst.github.io/palmerp
 
 </div>
 
+## Resource refresh
+
+R for Data Science, 2nd Edition is out! [This blog post](blog/2023/07/r4ds-2e/) (and the [book's preface](https://r4ds.hadley.nz/preface-2e.html)) outlines updates since the first edition. Updates to the book served as the motivation for many of the changes mentioned in the remainder of this post as as well as on the Tidyverse blog over the last year. Now that the book is out, you can expect the pace of change to slow down again for a while, which means plenty of time for phasing these changes into your teaching materials.
+
+One change in the 2nd Edition that will most likely affect almost all of your teaching materials is the use of the native R pipe (`|>`) instead of the magrittr pipe (`%>%`). If you're not familiar with the similarities and differences between these operators, I recommend reading [this comparison blog post](https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/). And I strongly recommend making this update since it will allow students to perform piped operations with any R function, and hence allow them to keep their data pipeline workflows regardless of whether the next package they learn is from the tidyverse (or package that uses tidyverse principles) or not.
+
 ## Nine core packages in tidyverse 2.0.0
 
 The main update in tidyverse 2.0.0, which was released in March 2023, is that it [lubridate](https://lubridate.tidyverse.org/) is now a core tidyverse package. The lubridate package that makes it easier to do the things R does with date-times, is now a core tidyverse package. So, while many of your scripts in the past may have started with
@@ -105,7 +111,9 @@ If you, like me, use a graphic like the one below that maps the core tidyverse p
 
 <img src="images/data-science.png" data-fig-alt="Data science cycle: import, tidy, transform, visualize, model, communicate. Packages readr and tibble are for import. Packages tidyr and purr for tidy and transform. Packages dplyr, stringr, forcats, and lubridate are for transform. Package ggplot2 is for visualize." />
 
-Additionally, the package loading message for the tidyverse now advertises the **conflicted** package.
+## Conflict resolution in the tidyverse
+
+You may have also noticed that the package loading message for the tidyverse has been updated as well, and now advertises the [conflicted](https://conflicted.r-lib.org/) package.
 
 <div class="highlight">
 
@@ -211,7 +219,7 @@ Getting back to the package loading message... It can be tempting, particularly 
 
 ## Improved and expanded `*_join()` functionality
 
-The **dplyr** package has long had the `*_join()` family of functions for joining data frames.
+The [dplyr](https://dplyr.tidyverse.org/) package has long had the [`*_join()` family of functions](https://dplyr.tidyverse.org/articles/two-table.html) for joining data frames. dplyr 1.1.0 introduced a [bunch of extensions](https://www.tidyverse.org/blog/2023/01/dplyr-1-1-0-joins/) that bring joins closer to the power available in other systems like SQL and `data.table`.
 
 ### `join_by()`
 
@@ -220,11 +228,10 @@ New functionality for join functions includes a new [`join_by()`](https://dplyr.
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'># previously
-x |>
-  *_join(
-    y, 
-    by = c("<x var>" = "<y var>")
-  )
+*_join(
+  x, y, 
+  by = c("<x var>" = "<y var>")
+)
 </code></pre>
 
 </div>
@@ -234,11 +241,10 @@ you can now do:
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'># now, optionally
-x |>
-  *_join(
-    y, 
-    by = join_by(<x var> == <y var>)
-  )
+*_join(
+  x, y, 
+  by = join_by(<x var> == <y var>)
+)
 </code></pre>
 
 </div>
@@ -298,6 +304,15 @@ While `by = c("island" = "name")` would still work, I would recommend teaching [
 1.  You can read it out loud as "where x is equal to y", just like in other logical statements where `==` is pronounced as "is equal to".
 2.  You don't have to worry about `by = c(x = y)` (which is invalid) vs. `by = c(x = "y")` (which is valid) vs. `by = c("x" = "y")` (which is also valid).
 
+In fact, for succinctness, you might avoid the argument name and express this as:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>penguins</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>islands</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>island</span> <span class='o'>==</span> <span class='nv'>name</span><span class='o'>)</span><span class='o'>)</span></span></code></pre>
+
+</div>
+
 ### Handling various matches
 
 The `*_join()` functions now have additional arguments for handling `multiple` matches and `unmatched` rows as well as for specifying the `relationship` between the two data frames.
@@ -308,9 +323,7 @@ So, while in the past your code may have looked like the following:
 
 <pre class='chroma'><code class='language-r' data-lang='r'># previously
 *_join(
-  x,
-  y,
-  by
+  x, y, by
 )
 </code></pre>
 
@@ -322,9 +335,7 @@ you can now do:
 
 <pre class='chroma'><code class='language-r' data-lang='r'># now, optionally
 *_join(
-  x,
-  y,
-  by,
+  x, y, by,
   multiple = "all",
   unmatched = "drop",
   relationship = NULL
@@ -436,17 +447,28 @@ However, many-to-many relationships require some extra care. For example, if we 
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>three_penguins</span> <span class='o'>|&gt;</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>weight_measurements</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>flipper_measurements</span>, <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>samp_id</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 5</span></span></span>
-<span><span class='c'>#&gt;   samp_id species   island    meas_id flipper_length_mm</span></span>
-<span><span class='c'>#&gt;     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       1 Adelie    Torgersen       1               193</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       1 Adelie    Torgersen       2               195</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       2 Gentoo    Biscoe          1               214</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       2 Gentoo    Biscoe          2               216</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       3 Chinstrap Dream           1               203</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>6</span>       3 Chinstrap Dream           2               203</span></span>
+<span><span class='c'>#&gt; Warning in left_join(weight_measurements, flipper_measurements, join_by(samp_id)): Detected an unexpected many-to-many relationship between `x` and `y`.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Row 1 of `x` matches multiple rows in `y`.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Row 1 of `y` matches multiple rows in `x`.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> If a many-to-many relationship is expected, set `relationship =</span></span>
+<span><span class='c'>#&gt;   "many-to-many"` to silence this warning.</span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 12 × 5</span></span></span>
+<span><span class='c'>#&gt;    samp_id meas_id.x body_mass_g meas_id.y flipper_length_mm</span></span>
+<span><span class='c'>#&gt;      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span>       1         1        <span style='text-decoration: underline;'>3</span>220         1               193</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span>       1         1        <span style='text-decoration: underline;'>3</span>220         2               195</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span>       1         2        <span style='text-decoration: underline;'>3</span>250         1               193</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span>       1         2        <span style='text-decoration: underline;'>3</span>250         2               195</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span>       2         1        <span style='text-decoration: underline;'>4</span>730         1               214</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span>       2         1        <span style='text-decoration: underline;'>4</span>730         2               216</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span>       2         2        <span style='text-decoration: underline;'>4</span>725         1               214</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span>       2         2        <span style='text-decoration: underline;'>4</span>725         2               216</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span>       3         1        <span style='text-decoration: underline;'>4</span>000         1               203</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span>       3         1        <span style='text-decoration: underline;'>4</span>000         2               203</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>11</span>       3         2        <span style='text-decoration: underline;'>4</span>050         1               203</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>12</span>       3         2        <span style='text-decoration: underline;'>4</span>050         2               203</span></span>
 <span></span></code></pre>
 
 </div>
@@ -683,7 +705,7 @@ Teaching tip: Choose one grouping method and stick to it
 
 It doesn't matter whether you use group_by() (followed by .groups, where needed) or .by.
 
-For new learners, pick one and stick to it. For more experienced learners, particularly those learning to design their own functions and packages, it can be interesting to go through the differences and evolution.
+For new learners, pick one and stick to it. Minor preference for .by since they don't need to worry about group_by affecting all subsequent operations (mostly silently). .by mentioned in R4DS 2e but not front and center. For more experienced learners, particularly those learning to design their own functions and packages, it can be interesting to go through the differences and evolution.
 
 ## Quality of life improvements to `case_when()` and `if_else()`
 
@@ -794,7 +816,7 @@ Different types of NAs are a good topic for a course on R as a programming langu
 
 ## New argument for line geoms: `linewidth`
 
-**TO DO: Add more context.**
+**TO DO: Add more context. (From Hadley: - not sure if linewidth is worth a section by itself. maybe group in with a bunch of other minor updates/deprecations?)**
 
 <div class="highlight">
 
@@ -813,7 +835,7 @@ Different types of NAs are a good topic for a course on R as a programming langu
 <span><span class='c'>#&gt; <span style='color: #555555;'>generated.</span></span></span>
 <span></span><span><span class='c'>#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
 <span></span></code></pre>
-<img src="figs/unnamed-chunk-38-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-39-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -829,7 +851,7 @@ Different types of NAs are a good topic for a course on R as a programming langu
 <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='o'>(</span>linewidth <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
 <span></span></code></pre>
-<img src="figs/unnamed-chunk-39-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-40-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -851,11 +873,9 @@ that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html)
 
 Teaching tip: If teaching folks coming from doing data manipulation in spreadsheets, leverage that to motivate different types of `separate_*()` functions, and show the benefits of programming over point-and-click software for more advanced operations like separating longer and separating with regular expressions.
 
-## Resource refresh
+**\[TO DO: Other ideas to add\]**
 
-R for Data Science, 2nd Edition is out! [This blog post](blog/2023/07/r4ds-2e/) (and the [book's preface](https://r4ds.hadley.nz/preface-2e.html)) outlines updates since the first edition. One change in the 2nd Edition that will most likely affect almost all of your teaching materials is the use of the native R pipe (`|>`) instead of the magrittr pipe (`%>%`). I strongly recommend making this update since it will allow students to perform piped operations with any R function, and hence allow them to keep their data pipeline workflows regardless of whether the next package they learn is from the tidyverse (or package that uses tidyverse principles) or not.
+-   **Quarto, webR: I wonder if it's worth mentioning webR yet? you could point to <https://github.com/coatless/quarto-webr>**
 
-## What's on the horizon?
-
-**TO DO: Decide whether to add this section.**
+-   **maybe mention purrr 1.0.0 and the accompanying video? purrr is probably not a common topic in intro curricula, so maybe just include in a quick tips section?**
 

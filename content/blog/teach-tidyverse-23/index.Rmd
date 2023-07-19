@@ -39,14 +39,14 @@ Specifically, I'll discuss:
 
 **[TO DO: Make sure outline matches final sections]**
 
+-   [Resource refresh](#sec-resource-refresh)
 -   [Nine core packages in tidyverse 2.0.0](#sec-nine-core-packages-in-tidyverse-2.0.0)
+-   [Conflict resolution in the tidyverse]
 -   [Improved and expanded `*_join()` functionality](#sec-improved-and-expanded-join-functionality)
 -   [Per operation grouping](#sec-per-operation-grouping)
 -   [Quality of life improvements to `case_when()` and `if_else()`](#sec-quality-of-life-improvements-to-case_when-and-if_else)
 -   [New argument for line geoms: linewidth](#sec-new-argument-for-line-geoms-linewidth)
 -   [New syntax for separating columns](#sec-new-syntax-for-separating-columns)
--   [Resource refresh](#sec-resource-refresh)
--   [What's on the horizon?](#sec-whats-on-the-horizon) **[TO DO: Remove if not adding this section]**
 
 Throughout this blog post you'll encounter some code chunks with the comment `previously`, indicating what you used to do in the tidyverse. Often these will be coupled with chunks with the comment `now, optionally`, indicating what you *can* now do with the tidyverse. And rarely, they will be coupled with chunks with the comment `now`, indicating what you *should* do instead now with the tidyverse.
 
@@ -61,6 +61,12 @@ And, let's also load the [palmerpenguins](https://allisonhorst.github.io/palmerp
 ```{r}
 library(palmerpenguins)
 ```
+
+## Resource refresh {#sec-resource-refresh}
+
+R for Data Science, 2nd Edition is out! [This blog post](blog/2023/07/r4ds-2e/) (and the [book's preface](https://r4ds.hadley.nz/preface-2e.html)) outlines updates since the first edition. Updates to the book served as the motivation for many of the changes mentioned in the remainder of this post as as well as on the Tidyverse blog over the last year. Now that the book is out, you can expect the pace of change to slow down again for a while, which means plenty of time for phasing these changes into your teaching materials.
+
+One change in the 2nd Edition that will most likely affect almost all of your teaching materials is the use of the native R pipe (`|>`) instead of the magrittr pipe (`%>%`). If you're not familiar with the similarities and differences between these operators, I recommend reading [this comparison blog post](https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/). And I strongly recommend making this update since it will allow students to perform piped operations with any R function, and hence allow them to keep their data pipeline workflows regardless of whether the next package they learn is from the tidyverse (or package that uses tidyverse principles) or not.
 
 ## Nine core packages in tidyverse 2.0.0 {#sec-nine-core-packages-in-tidyverse-2.0.0}
 
@@ -89,7 +95,9 @@ If you, like me, use a graphic like the one below that maps the core tidyverse p
 
 ![](images/data-science.png){fig-alt="Data science cycle: import, tidy, transform, visualize, model, communicate. Packages readr and tibble are for import. Packages tidyr and purr for tidy and transform. Packages dplyr, stringr, forcats, and lubridate are for transform. Package ggplot2 is for visualize."}
 
-Additionally, the package loading message for the tidyverse now advertises the **conflicted** package.
+## Conflict resolution in the tidyverse
+
+You may have also noticed that the package loading message for the tidyverse has been updated as well, and now advertises the [conflicted](https://conflicted.r-lib.org/) package.
 
 ```{r}
 #| echo: false
@@ -155,7 +163,7 @@ Getting back to the package loading message... It can be tempting, particularly 
 
 ## Improved and expanded `*_join()` functionality {#sec-improved-and-expanded-join-functionality}
 
-The **dplyr** package has long had the `*_join()` family of functions for joining data frames.
+The [dplyr](https://dplyr.tidyverse.org/) package has long had the [`*_join()` family of functions](https://dplyr.tidyverse.org/articles/two-table.html) for joining data frames. dplyr 1.1.0 introduced a [bunch of extensions](https://www.tidyverse.org/blog/2023/01/dplyr-1-1-0-joins/) that bring joins closer to the power available in other systems like SQL and `data.table`.
 
 ### `join_by()`
 
@@ -165,11 +173,10 @@ New functionality for join functions includes a new `join_by()` function for the
 #| eval: false
 
 # previously
-x |>
-  *_join(
-    y, 
-    by = c("<x var>" = "<y var>")
-  )
+*_join(
+  x, y, 
+  by = c("<x var>" = "<y var>")
+)
 ```
 
 you can now do:
@@ -178,11 +185,10 @@ you can now do:
 #| eval: false
 
 # now, optionally
-x |>
-  *_join(
-    y, 
-    by = join_by(<x var> == <y var>)
-  )
+*_join(
+  x, y, 
+  by = join_by(<x var> == <y var>)
+)
 ```
 
 For example, suppose you have the following information on the three islands we have penguins from:
@@ -214,6 +220,15 @@ While `by = c("island" = "name")` would still work, I would recommend teaching `
 1.  You can read it out loud as "where x is equal to y", just like in other logical statements where `==` is pronounced as "is equal to".
 2.  You don't have to worry about `by = c(x = y)` (which is invalid) vs. `by = c(x = "y")` (which is valid) vs. `by = c("x" = "y")` (which is also valid).
 
+In fact, for succinctness, you might avoid the argument name and express this as:
+
+```{r}
+#| eval: false
+
+penguins |>
+  left_join(islands, join_by(island == name))
+```
+
 ### Handling various matches
 
 The `*_join()` functions now have additional arguments for handling `multiple` matches and `unmatched` rows as well as for specifying the `relationship` between the two data frames.
@@ -225,9 +240,7 @@ So, while in the past your code may have looked like the following:
 
 # previously
 *_join(
-  x,
-  y,
-  by
+  x, y, by
 )
 ```
 
@@ -238,9 +251,7 @@ you can now do:
 
 # now, optionally
 *_join(
-  x,
-  y,
-  by,
+  x, y, by,
   multiple = "all",
   unmatched = "drop",
   relationship = NULL
@@ -304,7 +315,7 @@ three_penguins |>
 However, many-to-many relationships require some extra care. For example, if we join the `three_penguins` data frame to the `flipper_measurements` data frame, we get a warning:
 
 ```{r}
-three_penguins |>
+weight_measurements |>
   left_join(flipper_measurements, join_by(samp_id))
 ```
 
@@ -435,7 +446,7 @@ Teaching tip: Choose one grouping method and stick to it
 
 It doesn't matter whether you use group_by() (followed by .groups, where needed) or .by.
 
-For new learners, pick one and stick to it. For more experienced learners, particularly those learning to design their own functions and packages, it can be interesting to go through the differences and evolution.
+For new learners, pick one and stick to it. Minor preference for .by since they don't need to worry about group_by affecting all subsequent operations (mostly silently). .by mentioned in R4DS 2e but not front and center. For more experienced learners, particularly those learning to design their own functions and packages, it can be interesting to go through the differences and evolution.
 
 ## Quality of life improvements to `case_when()` and `if_else()` {#sec-quality-of-life-improvements-to-case_when-and-if_else}
 
@@ -508,7 +519,7 @@ Different types of NAs are a good topic for a course on R as a programming langu
 
 ## New argument for line geoms: `linewidth` {#sec-new-argument-for-line-geoms-linewidth}
 
-**TO DO: Add more context.**
+**TO DO: Add more context. (From Hadley: - not sure if linewidth is worth a section by itself. maybe group in with a bunch of other minor updates/deprecations?)**
 
 ```{r}
 # previously
@@ -550,10 +561,8 @@ that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html)
 
 Teaching tip: If teaching folks coming from doing data manipulation in spreadsheets, leverage that to motivate different types of `separate_*()` functions, and show the benefits of programming over point-and-click software for more advanced operations like separating longer and separating with regular expressions.
 
-## Resource refresh {#sec-resource-refresh}
+**[TO DO: Other ideas to add]**
 
-R for Data Science, 2nd Edition is out! [This blog post](blog/2023/07/r4ds-2e/) (and the [book's preface](https://r4ds.hadley.nz/preface-2e.html)) outlines updates since the first edition. One change in the 2nd Edition that will most likely affect almost all of your teaching materials is the use of the native R pipe (`|>`) instead of the magrittr pipe (`%>%`). I strongly recommend making this update since it will allow students to perform piped operations with any R function, and hence allow them to keep their data pipeline workflows regardless of whether the next package they learn is from the tidyverse (or package that uses tidyverse principles) or not.
+-   **Quarto, webR: I wonder if it's worth mentioning webR yet? you could point to <https://github.com/coatless/quarto-webr>**
 
-## What's on the horizon? {#sec-whats-on-the-horizon}
-
-**TO DO: Decide whether to add this section.**
+-   **maybe mention purrr 1.0.0 and the accompanying video? purrr is probably not a common topic in intro curricula, so maybe just include in a quick tips section?**
