@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: a05ca47fd9668398
+rmd_hash: 90ab8b2f5068c15b
 
 ---
 
@@ -567,5 +567,229 @@ There are many more developments related to `*_join()` functions (e.g., [inequal
 
 Exploding joins (i.e., joins that result in a larger number of rows than either of the data frames from bie) can be hard to debug for students! Teaching them the tools to diagnose whether the join they performed, and that may not have given an error, is indeed the one they wanted to perform. Did they lose any cases? Did they gain an unexpected amount of cases? Did they perform a join without thinking and take down the entire teaching server? These things happen, particularly if students are working with their own data for an open-ended project!
 
-## Acknowledgements
+## Per operation grouping
+
+previously
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># previously</span></span>
+<span><span class='nv'>df</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>y</span><span class='o'>)</span><span class='o'>)</span></span></code></pre>
+
+</div>
+
+now, optionally
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># previously</span></span>
+<span><span class='nv'>df</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span></span>
+<span>    <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>y</span><span class='o'>)</span>, </span>
+<span>    .by <span class='o'>=</span> <span class='nv'>x</span></span>
+<span>  <span class='o'>)</span></span></code></pre>
+
+</div>
+
+Persistent groups:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>penguins</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='o'>(</span><span class='nv'>sex</span>, <span class='nv'>body_mass_g</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>species</span>, <span class='nv'>sex</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span>mean_bw <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>body_mass_g</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice_head</a></span><span class='o'>(</span>n <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; `summarise()` has grouped output by 'species'. You can override using the</span></span>
+<span><span class='c'>#&gt; `.groups` argument.</span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 3</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># Groups:   species [3]</span></span></span>
+<span><span class='c'>#&gt;   species   sex    mean_bw</span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Adelie    female   <span style='text-decoration: underline;'>3</span>369.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> Chinstrap female   <span style='text-decoration: underline;'>3</span>527.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> Gentoo    female   <span style='text-decoration: underline;'>4</span>680.</span></span>
+<span></span></code></pre>
+
+</div>
+
+Dropped groups:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>penguins</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='o'>(</span><span class='nv'>sex</span>, <span class='nv'>body_mass_g</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='o'>(</span><span class='nv'>species</span>, <span class='nv'>sex</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span>mean_bw <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>body_mass_g</span><span class='o'>)</span>, .groups <span class='o'>=</span> <span class='s'>"drop"</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice_head</a></span><span class='o'>(</span>n <span class='o'>=</span> <span class='m'>1</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 3</span></span></span>
+<span><span class='c'>#&gt;   species sex    mean_bw</span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Adelie  female   <span style='text-decoration: underline;'>3</span>369.</span></span>
+<span></span></code></pre>
+
+</div>
+
+Per operation grouping:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># group by 1 variable</span></span>
+<span><span class='nv'>penguins</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='o'>(</span><span class='nv'>sex</span>, <span class='nv'>body_mass_g</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span></span>
+<span>    mean_bw <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>body_mass_g</span><span class='o'>)</span>, </span>
+<span>    .by <span class='o'>=</span> <span class='nv'>species</span></span>
+<span>  <span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
+<span><span class='c'>#&gt;   species   mean_bw</span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Adelie      <span style='text-decoration: underline;'>3</span>706.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> Gentoo      <span style='text-decoration: underline;'>5</span>092.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> Chinstrap   <span style='text-decoration: underline;'>3</span>733.</span></span>
+<span></span><span></span>
+<span><span class='c'># group by 2 variables</span></span>
+<span><span class='nv'>penguins</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='o'>(</span><span class='nv'>sex</span>, <span class='nv'>body_mass_g</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span></span>
+<span>    mean_bw <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>body_mass_g</span><span class='o'>)</span>, </span>
+<span>    .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>species</span>, <span class='nv'>sex</span><span class='o'>)</span></span>
+<span>  <span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 6 × 3</span></span></span>
+<span><span class='c'>#&gt;   species   sex    mean_bw</span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Adelie    male     <span style='text-decoration: underline;'>4</span>043.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> Adelie    female   <span style='text-decoration: underline;'>3</span>369.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> Gentoo    female   <span style='text-decoration: underline;'>4</span>680.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> Gentoo    male     <span style='text-decoration: underline;'>5</span>485.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> Chinstrap female   <span style='text-decoration: underline;'>3</span>527.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>6</span> Chinstrap male     <span style='text-decoration: underline;'>3</span>939.</span></span>
+<span></span></code></pre>
+
+</div>
+
+Teaching tip: Choose one grouping method and stick to it
+
+It doesn't matter whether you use group_by() (followed by .groups, where needed) or .by.
+
+For new learners, pick one and stick to it. For more experienced learners, particularly those learning to design their own functions and packages, it can be interesting to go through the differences and evolution.
+
+## Quality of life improvements to `case_when()` and `if_else()`
+
+### `case_when()`
+
+all else denoted by .default for case_when() less strict about value type for both
+
+previously
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'># previously
+df |>
+  mutate(
+    x = case_when(
+      <condition 1> ~ "value 1",
+      <condition 2> ~ "value 2",
+      <condition 3> ~ "value 3",
+      TRUE          ~ NA_character_
+    )
+  )
+</code></pre>
+
+</div>
+
+now, optionally
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'># now, optionally
+df |>
+  mutate(
+    x = case_when(
+      <condition 1> ~ "value 1",
+      <condition 2> ~ "value 2",
+      <condition 3> ~ "value 3",
+      .default = NA
+    )
+  )
+</code></pre>
+
+</div>
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>penguins</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span></span>
+<span>    bm_cat <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/case_when.html'>case_when</a></span><span class='o'>(</span></span>
+<span>      <span class='nf'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='o'>(</span><span class='nv'>body_mass_g</span><span class='o'>)</span> <span class='o'>~</span> <span class='kc'>NA</span>,</span>
+<span>      <span class='nv'>body_mass_g</span> <span class='o'>&lt;</span> <span class='m'>3550</span> <span class='o'>~</span> <span class='s'>"Small"</span>,</span>
+<span>      <span class='nf'><a href='https://dplyr.tidyverse.org/reference/between.html'>between</a></span><span class='o'>(</span><span class='nv'>body_mass_g</span>, <span class='m'>3550</span>, <span class='m'>4750</span><span class='o'>)</span> <span class='o'>~</span> <span class='s'>"Medium"</span>,</span>
+<span>      .default <span class='o'>=</span> <span class='s'>"Large"</span></span>
+<span>    <span class='o'>)</span></span>
+<span>  <span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/relocate.html'>relocate</a></span><span class='o'>(</span><span class='nv'>body_mass_g</span>, <span class='nv'>bm_cat</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 344 × 9</span></span></span>
+<span><span class='c'>#&gt;    body_mass_g bm_cat species island    bill_length_mm bill_depth_mm</span></span>
+<span><span class='c'>#&gt;          <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>              <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span>        <span style='text-decoration: underline;'>3</span>750 Medium Adelie  Torgersen           39.1          18.7</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span>        <span style='text-decoration: underline;'>3</span>800 Medium Adelie  Torgersen           39.5          17.4</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span>        <span style='text-decoration: underline;'>3</span>250 Small  Adelie  Torgersen           40.3          18  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span>          <span style='color: #BB0000;'>NA</span> <span style='color: #BB0000;'>NA</span>     Adelie  Torgersen           <span style='color: #BB0000;'>NA</span>            <span style='color: #BB0000;'>NA</span>  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span>        <span style='text-decoration: underline;'>3</span>450 Small  Adelie  Torgersen           36.7          19.3</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span>        <span style='text-decoration: underline;'>3</span>650 Medium Adelie  Torgersen           39.3          20.6</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span>        <span style='text-decoration: underline;'>3</span>625 Medium Adelie  Torgersen           38.9          17.8</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span>        <span style='text-decoration: underline;'>4</span>675 Medium Adelie  Torgersen           39.2          19.6</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span>        <span style='text-decoration: underline;'>3</span>475 Small  Adelie  Torgersen           34.1          18.1</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span>        <span style='text-decoration: underline;'>4</span>250 Medium Adelie  Torgersen           42            20.2</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 334 more rows</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 3 more variables: flipper_length_mm &lt;int&gt;, sex &lt;fct&gt;, year &lt;int&gt;</span></span></span>
+<span></span></code></pre>
+
+</div>
+
+### if_else()
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>penguins</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span></span>
+<span>    bm_unit <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/if_else.html'>if_else</a></span><span class='o'>(</span><span class='o'>!</span><span class='nf'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='o'>(</span><span class='nv'>body_mass_g</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='o'>(</span><span class='nv'>body_mass_g</span>, <span class='s'>"g"</span><span class='o'>)</span>, <span class='kc'>NA</span><span class='o'>)</span></span>
+<span>  <span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/relocate.html'>relocate</a></span><span class='o'>(</span><span class='nv'>body_mass_g</span>, <span class='nv'>bm_unit</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 344 × 9</span></span></span>
+<span><span class='c'>#&gt;    body_mass_g bm_unit species island    bill_length_mm bill_depth_mm</span></span>
+<span><span class='c'>#&gt;          <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>              <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span>        <span style='text-decoration: underline;'>3</span>750 3750 g  Adelie  Torgersen           39.1          18.7</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span>        <span style='text-decoration: underline;'>3</span>800 3800 g  Adelie  Torgersen           39.5          17.4</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span>        <span style='text-decoration: underline;'>3</span>250 3250 g  Adelie  Torgersen           40.3          18  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span>          <span style='color: #BB0000;'>NA</span> <span style='color: #BB0000;'>NA</span>      Adelie  Torgersen           <span style='color: #BB0000;'>NA</span>            <span style='color: #BB0000;'>NA</span>  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span>        <span style='text-decoration: underline;'>3</span>450 3450 g  Adelie  Torgersen           36.7          19.3</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span>        <span style='text-decoration: underline;'>3</span>650 3650 g  Adelie  Torgersen           39.3          20.6</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span>        <span style='text-decoration: underline;'>3</span>625 3625 g  Adelie  Torgersen           38.9          17.8</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span>        <span style='text-decoration: underline;'>4</span>675 4675 g  Adelie  Torgersen           39.2          19.6</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span>        <span style='text-decoration: underline;'>3</span>475 3475 g  Adelie  Torgersen           34.1          18.1</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span>        <span style='text-decoration: underline;'>4</span>250 4250 g  Adelie  Torgersen           42            20.2</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 334 more rows</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 3 more variables: flipper_length_mm &lt;int&gt;, sex &lt;fct&gt;, year &lt;int&gt;</span></span></span>
+<span></span></code></pre>
+
+</div>
+
+Teaching tip: It's a blessing to not have to introduce NA_character\_ and friends
+
+Especially not having to introduce it as early as if_else() and case_when(). Cherish it!
+
+Different types of NAs are a good topic for a course on R as a programming language, statistical computing, etc. but not necessary for an intro course.
+
+## New syntax for separating columns
+
+that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) because they have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
+
+|                                  | **MAKE COLUMNS**                                                                               | **MAKE ROWS**                                                                                    |
+|:-----------|:-----------------------------|:------------------------------|
+| Separate with delimiter          | [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    | [`separate_longer_delim()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html)    |
+| Separate by position             | [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) | [`separate_longer_position()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html) |
+| Separate with regular expression |                                                                                                |                                                                                                  |
 
