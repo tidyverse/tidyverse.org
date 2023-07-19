@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: 3a8df2759e8510c4
+rmd_hash: 7ca2755e87b74963
 
 ---
 
@@ -200,7 +200,92 @@ Getting back to the package loading message... It can be tempting, particularly 
 
 2.  Help during hard-to-debug situations resulting from base R's silent conflict resolution -- because, let's face it, someone in your class, if not you during a live-coding session, will see that pesky object not found error at some point when using [`filter()`](https://dplyr.tidyverse.org/reference/filter.html).
 
-## Topic 2
+## Improved and expanded `*_join()` functionality
+
+The **dplyr** package has long had the `*_join()` family of functions for joining data frames.
+
+New functionality for join functions includes a new [`join_by()`](https://dplyr.tidyverse.org/reference/join_by.html) function for the `by` argument. So, while in the past your code may have looked like the following:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'># previously
+x |>
+  *_join(
+    y, 
+    by = c("<x var>" = "<y var>")
+  )
+</code></pre>
+
+</div>
+
+you can now do
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'># now, optionally
+x |>
+  *_join(
+    y, 
+    by = join_by(<x var> == <y var>)
+  )
+</code></pre>
+
+</div>
+
+For example, suppose you have the following information on the three islands we have penguins from:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>islands</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tribble.html'>tribble</a></span><span class='o'>(</span></span>
+<span>  <span class='o'>~</span><span class='nv'>name</span>,       <span class='o'>~</span><span class='nv'>coordinates</span>,</span>
+<span>  <span class='s'>"Torgersen"</span>, <span class='s'>"64°46′S 64°5′W"</span>,</span>
+<span>  <span class='s'>"Biscoe"</span>,    <span class='s'>"65°26′S 65°30′W"</span>,</span>
+<span>  <span class='s'>"Dream"</span>,     <span class='s'>"64°44′S 64°14′W"</span></span>
+<span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>islands</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
+<span><span class='c'>#&gt;   name      coordinates    </span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>          </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Torgersen 64°46′S 64°5′W </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> Biscoe    65°26′S 65°30′W</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> Dream     64°44′S 64°14′W</span></span>
+<span></span></code></pre>
+
+</div>
+
+You can join this to the penguins data frame by matching the `island` column in the penguins data frame to the `name` column in the islands data frame:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>penguins</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span></span>
+<span>    <span class='nv'>islands</span>, </span>
+<span>    by <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by</a></span><span class='o'>(</span><span class='nv'>island</span> <span class='o'>==</span> <span class='nv'>name</span><span class='o'>)</span></span>
+<span>  <span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>species</span>, <span class='nv'>island</span>, <span class='nv'>coordinates</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 344 × 3</span></span></span>
+<span><span class='c'>#&gt;    species island    coordinates   </span></span>
+<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>         </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> Adelie  Torgersen 64°46′S 64°5′W</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> Adelie  Torgersen 64°46′S 64°5′W</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> Adelie  Torgersen 64°46′S 64°5′W</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> Adelie  Torgersen 64°46′S 64°5′W</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> Adelie  Torgersen 64°46′S 64°5′W</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> Adelie  Torgersen 64°46′S 64°5′W</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> Adelie  Torgersen 64°46′S 64°5′W</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> Adelie  Torgersen 64°46′S 64°5′W</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> Adelie  Torgersen 64°46′S 64°5′W</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> Adelie  Torgersen 64°46′S 64°5′W</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 334 more rows</span></span></span>
+<span></span></code></pre>
+
+</div>
+
+While `by = c("island" = "name")` would still work, I would recommend teaching [`join_by()`](https://dplyr.tidyverse.org/reference/join_by.html) over `by` so that:
+
+1.  You can read it out loud as "where x is equal to y", just like in other logical statements where `==` is pronounced as "is equal to".
+2.  You don't have to worry about `by = c(x = y)` (which is invalid) vs. `by = c(x = "y")` (which is valid) vs. `by = c("x" = "y")` (which is also valid).
 
 ## Acknowledgements
 

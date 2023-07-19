@@ -145,6 +145,63 @@ Getting back to the package loading message... It can be tempting, particularly 
 
 2.  Help during hard-to-debug situations resulting from base R's silent conflict resolution -- because, let's face it, someone in your class, if not you during a live-coding session, will see that pesky object not found error at some point when using `filter()`.
 
-## Topic 2
+## Improved and expanded `*_join()` functionality
+
+The **dplyr** package has long had the `*_join()` family of functions for joining data frames.
+
+New functionality for join functions includes a new `join_by()` function for the `by` argument. So, while in the past your code may have looked like the following:
+
+```{r}
+#| eval: false
+
+# previously
+x |>
+  *_join(
+    y, 
+    by = c("<x var>" = "<y var>")
+  )
+```
+
+you can now do
+
+```{r}
+#| eval: false
+
+# now, optionally
+x |>
+  *_join(
+    y, 
+    by = join_by(<x var> == <y var>)
+  )
+```
+
+For example, suppose you have the following information on the three islands we have penguins from:
+
+```{r}
+islands <- tribble(
+  ~name,       ~coordinates,
+  "Torgersen", "64°46′S 64°5′W",
+  "Biscoe",    "65°26′S 65°30′W",
+  "Dream",     "64°44′S 64°14′W"
+)
+
+islands
+```
+
+You can join this to the penguins data frame by matching the `island` column in the penguins data frame to the `name` column in the islands data frame:
+
+```{r}
+penguins |>
+  left_join(
+    islands, 
+    by = join_by(island == name)
+  ) |>
+  select(species, island, coordinates)
+```
+
+While `by = c("island" = "name")` would still work, I would recommend teaching `join_by()` over `by` so that:
+
+1. You can read it out loud as "where x is equal to y", just like in other logical statements where `==` is pronounced as "is equal to".
+2. You don’t have to worry about `by = c(x = y)` (which is invalid) vs. `by = c(x = "y")` (which is valid) vs. `by = c("x" = "y")` (which is also valid).
 
 ## Acknowledgements
