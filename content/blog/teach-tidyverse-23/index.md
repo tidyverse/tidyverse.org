@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: 90ab8b2f5068c15b
+rmd_hash: e1e8fad7e3582c1d
 
 ---
 
@@ -36,9 +36,17 @@ TODO:
 
 Another year, another roundup of tidyverse updates, through the lens of an educator. As with previous [teaching the tidyverse posts](/blog/2021/08/teach-tidyverse-2021/), much of what is discussed in this blog post has already been covered in package update posts, however the goal of this roundup is to summarize the highlights that are most relevant to teaching data science with the tidyverse, particularly to new learners.
 
-Specifically, I'll discuss: **TO DO: UPDATE OUTLINE**
+Specifically, I'll discuss:
 
--   [Nine core packages in tidyverse 2.0.0](#new-teaching-and-learning-resources)
+**\[TO DO: Make sure outline matches final sections\]**
+
+-   [Nine core packages in tidyverse 2.0.0](#sec-nine-core-packages-in-tidyverse-2.0.0)
+-   [Improved and expanded `*_join()` functionality](#sec-improved-and-expanded-join-functionality)
+-   [Per operation grouping](#sec-per-operation-grouping)
+-   [Quality of life improvements to `case_when()` and `if_else()`](#sec-quality-of-life-improvements-to-case_when-and-if_else)
+-   [New syntax for separating columns](#sec-new-syntax-for-separating-columns)
+-   [Resource refresh](#sec-resource-refresh)
+-   [What's on the horizon?](#sec-whats-on-the-horizon) **\[TO DO: Remove if not adding this section\]**
 
 Throughout this blog post you'll encounter some code chunks with the comment `previously`, indicating what you used to do in the tidyverse. Often these will be coupled with chunks with the comment `now, optionally`, indicating what you *can* now do with the tidyverse. And rarely, they will be coupled with chunks with the comment `now`, indicating what you *should* do instead now with the tidyverse.
 
@@ -788,8 +796,18 @@ Different types of NAs are a good topic for a course on R as a programming langu
 that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) because they have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
 
 |                                  | **MAKE COLUMNS**                                                                               | **MAKE ROWS**                                                                                    |
-|:-----------|:-----------------------------|:------------------------------|
+|:------------------|:--------------------------|:--------------------------|
 | Separate with delimiter          | [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    | [`separate_longer_delim()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html)    |
 | Separate by position             | [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) | [`separate_longer_position()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html) |
 | Separate with regular expression |                                                                                                |                                                                                                  |
+
+**\[TO DO: Add example\]**
+
+## Resource refresh
+
+R for Data Science, 2nd Edition is out! [This blog post](blog/2023/07/r4ds-2e/) (and the [book's preface](https://r4ds.hadley.nz/preface-2e.html)) outlines updates since the first edition. One change in the 2nd Edition that will most likely affect almost all of your teaching materials is the use of the native R pipe (`|>`) instead of the magrittr pipe (`%>%`). I strongly recommend making this update since it will allow students to perform piped operations with any R function, and hence allow them to keep their data pipeline workflows regardless of whether the next package they learn is from the tidyverse (or package that uses tidyverse principles) or not.
+
+## What's on the horizon?
+
+**TO DO: Decide whether to add this section.**
 

@@ -35,9 +35,17 @@ TODO:
 ```
 Another year, another roundup of tidyverse updates, through the lens of an educator. As with previous [teaching the tidyverse posts](/blog/2021/08/teach-tidyverse-2021/), much of what is discussed in this blog post has already been covered in package update posts, however the goal of this roundup is to summarize the highlights that are most relevant to teaching data science with the tidyverse, particularly to new learners.
 
-Specifically, I'll discuss: **TO DO: UPDATE OUTLINE**
+Specifically, I'll discuss:
 
--   [Nine core packages in tidyverse 2.0.0](#new-teaching-and-learning-resources)
+**[TO DO: Make sure outline matches final sections]**
+
+-   [Nine core packages in tidyverse 2.0.0]
+-   [Improved and expanded `*_join()` functionality](#sec-improved-and-expanded-join-functionality)
+-   [Per operation grouping]
+-   [Quality of life improvements to `case_when()` and `if_else()`](#sec-quality-of-life-improvements-to-case_when-and-if_else)
+-   [New syntax for separating columns]
+-   [Resource refresh]
+-   [What's on the horizon?] **[TO DO: Remove if not adding this section]**
 
 Throughout this blog post you'll encounter some code chunks with the comment `previously`, indicating what you used to do in the tidyverse. Often these will be coupled with chunks with the comment `now, optionally`, indicating what you *can* now do with the tidyverse. And rarely, they will be coupled with chunks with the comment `now`, indicating what you *should* do instead now with the tidyverse.
 
@@ -53,7 +61,7 @@ And, let's also load the **palmerpenguins** package that we will use in examples
 library(palmerpenguins)
 ```
 
-## Nine core packages in tidyverse 2.0.0
+## Nine core packages in tidyverse 2.0.0 {#sec-nine-core-packages-in-tidyverse-2.0.0}
 
 The main update in tidyverse 2.0.0, which was released in March 2023, is that it **lubridate** is now a core tidyverse package. The lubridate package that makes it easier to do the things R does with date-times, is now a core tidyverse package. So, while many of your scripts in the past may have started with
 
@@ -144,7 +152,7 @@ Getting back to the package loading message... It can be tempting, particularly 
 
 2.  Help during hard-to-debug situations resulting from base R's silent conflict resolution -- because, let's face it, someone in your class, if not you during a live-coding session, will see that pesky object not found error at some point when using `filter()`.
 
-## Improved and expanded `*_join()` functionality
+## Improved and expanded `*_join()` functionality {#sec-improved-and-expanded-join-functionality}
 
 The **dplyr** package has long had the `*_join()` family of functions for joining data frames.
 
@@ -356,7 +364,7 @@ There are many more developments related to `*_join()` functions (e.g., [inequal
 
 Exploding joins (i.e., joins that result in a larger number of rows than either of the data frames from bie) can be hard to debug for students! Teaching them the tools to diagnose whether the join they performed, and that may not have given an error, is indeed the one they wanted to perform. Did they lose any cases? Did they gain an unexpected amount of cases? Did they perform a join without thinking and take down the entire teaching server? These things happen, particularly if students are working with their own data for an open-ended project!
 
-## Per operation grouping
+## Per operation grouping {#sec-per-operation-grouping}
 
 previously
 
@@ -428,7 +436,7 @@ It doesn't matter whether you use group_by() (followed by .groups, where needed)
 
 For new learners, pick one and stick to it. For more experienced learners, particularly those learning to design their own functions and packages, it can be interesting to go through the differences and evolution.
 
-## Quality of life improvements to `case_when()` and `if_else()`
+## Quality of life improvements to `case_when()` and `if_else()` {#sec-quality-of-life-improvements-to-case_when-and-if_else}
 
 ### `case_when()`
 
@@ -497,12 +505,22 @@ Especially not having to introduce it as early as if_else() and case_when(). Che
 
 Different types of NAs are a good topic for a course on R as a programming language, statistical computing, etc. but not necessary for an intro course.
 
-## New syntax for separating columns
+## New syntax for separating columns {#sec-new-syntax-for-separating-columns}
 
 that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) because they have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
 
 |                                  | **MAKE COLUMNS**                                                                               | **MAKE ROWS**                                                                                    |
-|:---------------------------------|:-----------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------|
+|:-----------------|:--------------------------|:--------------------------|
 | Separate with delimiter          | [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    | [`separate_longer_delim()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html)    |
 | Separate by position             | [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) | [`separate_longer_position()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html) |
 | Separate with regular expression |                                                                                                |                                                                                                  |
+
+**[TO DO: Add example]**
+
+## Resource refresh {#sec-resource-refresh}
+
+R for Data Science, 2nd Edition is out! [This blog post](blog/2023/07/r4ds-2e/) (and the [book's preface](https://r4ds.hadley.nz/preface-2e.html)) outlines updates since the first edition. One change in the 2nd Edition that will most likely affect almost all of your teaching materials is the use of the native R pipe (`|>`) instead of the magrittr pipe (`%>%`). I strongly recommend making this update since it will allow students to perform piped operations with any R function, and hence allow them to keep their data pipeline workflows regardless of whether the next package they learn is from the tidyverse (or package that uses tidyverse principles) or not.
+
+## What's on the horizon? {#sec-whats-on-the-horizon}
+
+**TO DO: Decide whether to add this section.**
