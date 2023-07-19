@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2023-q2
 title: "Q2 2023 tidymodels digest"
-date: 2023-07-17
+date: 2023-07-19
 author: Hannah Frick
 description: >
     The tidymodels team has been busy working on all sorts of new features 
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels]
-rmd_hash: efa4599db68a3001
+rmd_hash: dd05abeab740727c
 
 ---
 
