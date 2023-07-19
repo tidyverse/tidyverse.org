@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: 4d9c3a75248ffbd5
+rmd_hash: b62d45686d93e9c3
 
 ---
 
@@ -44,7 +44,7 @@ Specifically, I'll discuss:
 -   [Improved and expanded `*_join()` functionality](#sec-improved-and-expanded-join-functionality)
 -   [Per operation grouping](#sec-per-operation-grouping)
 -   [Quality of life improvements to `case_when()` and `if_else()`](#sec-quality-of-life-improvements-to-case_when-and-if_else)
--   \[New argument for line geoms: linewidth\]
+-   [New argument for line geoms: linewidth](#sec-new-argument-for-line-geoms-linewidth)
 -   [New syntax for separating columns](#sec-new-syntax-for-separating-columns)
 -   [Resource refresh](#sec-resource-refresh)
 -   [What's on the horizon?](#sec-whats-on-the-horizon) **\[TO DO: Remove if not adding this section\]**
