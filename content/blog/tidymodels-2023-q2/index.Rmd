@@ -1,0 +1,172 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-2023-q2
+title: "Q2 2023 tidymodels digest"
+date: 2023-07-19
+author: Hannah Frick
+description: >
+    The tidymodels team has been busy working on all sorts of new features 
+    across the ecosystem.
+
+photo:
+  url: https://unsplash.com/photos/PuLsDCBbyBM
+  author: United States Geological Survey
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [roundup] 
+tags: [tidymodels]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+```{r}
+#| include: false
+#| label: startup
+
+library(tidymodels)
+
+tidymodels_prefer()
+theme_set(theme_bw())
+options(pillar.advice = FALSE, pillar.min_title_chars = Inf)
+```
+
+```{r}
+#| label: get-repo-info
+#| include: FALSE
+#| cache: TRUE
+
+since <- "2023-04-28"
+
+source("repo-functions.R")
+
+tm_data <- 
+  map_dfr(tm_pkgs, get_current_release) %>% 
+  filter(date > ymd(since)) %>% 
+  mutate(
+    repo = paste0("tidymodels/", package),
+    thanks = map_chr(repo, return_tidy_thanks, from = since),
+    thanks = glue("- {package}: {thanks}"),
+    news = glue("- {package} [({version})](https://{package}.tidymodels.org/news/index.html)")
+  )
+
+txt_pkg_list <- knitr::combine_words(tm_data$package)
+```
+
+The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles.
+
+Since the beginning of 2021, we have been publishing [quarterly updates](https://www.tidyverse.org/categories/roundup/) here on the tidyverse blog summarizing what's new in the tidymodels ecosystem. The purpose of these regular posts is to share useful new features and any updates you may have missed. You can check out the [`tidymodels` tag](https://www.tidyverse.org/tags/tidymodels/) to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused, like the [post](https://www.tidyverse.org/blog/2023/05/desirability2/) on the release of the new desirability2 package.
+
+Since [our last roundup post](https://www.tidyverse.org/blog/2023/04/tidymodels-2023-q1/), there have been CRAN releases of `r nrow(tm_data)` tidymodels packages. Here are links to their NEWS files:
+
+```{r}
+#| echo: FALSE
+#| results: asis
+
+cat(tm_data$news, sep = "\n")
+```
+
+We'll highlight a few especially notable changes below: a new package with data for modeling, nearest neighbor distance matching cross-validation for spatial data, and a website refresh.
+
+First, loading the collection of packages:
+
+```{r}
+#| eval: FALSE
+library(tidymodels)
+```
+
+
+## modeldatatoo
+
+Many of the datasets used in tidymodels examples are available in the modeldata package. The new modeldatatoo package now extends the collection by several bigger datasets. To allow for the bigger size, the package does not contain those datasets directly but rather provides functions to access them, prefixed with `data_`. For example:
+
+```{r}
+library(modeldatatoo)
+
+data_animals()
+```
+
+The new datasets are:
+
+* `data_animals()` contains a long-form description of the animal (in the `text` column) as well as quite a bit of missing data and malformed fields.
+* `data_chimiometrie_2019()` contains spectra measured at 550 (unknown) wavelengths, published as the challenge at the Chimiometrie 2019 conference.
+* `data_elevators()` contains information on a subset of the elevators in New York City. 
+
+Because those datasets are stored online, accessing them requires an active internet connection. We plan on using those datasets mostly for workshops and websites. The datasets in the modeldata package are part of the package directly, so they can be used everywhere (regardless of an active internet connection). We typically use them for package documentation.
+
+
+## spatialsample
+
+spatialsample is a package for spatial resampling, extending the rsample framework to help create spatial extrapolation between your analysis and assessment data sets.
+
+The latest release of spatialsample includes nearest neighbor distance matching (NNDM) cross-validation via `spatial_nndm_cv()`. NNDM is a variant of leave-one-out cross-validation which assigns each observation to a single assessment fold, and then attempts to remove data from each analysis fold until the nearest neighbor distance distribution between assessment and analysis folds matches the nearest neighbor distance distribution between training data and the locations a model will be used to predict. [Proposed by Milà et al. (2022)](https://doi.org/10.1111/2041-210X.13851), this method aims to provide accurate estimates of how well models will perform in the locations they will actually be predicting. This method was originally implemented in the CAST package and can now be used with spatialsample as well.
+
+Let's use the Ames housing data and turn it from a regular tibble into a `sf` object for spatial data.
+
+```{r}
+library(spatialsample)
+data(ames, package = "modeldata")
+
+ames_sf <- sf::st_as_sf(ames, coords = c("Longitude", "Latitude"), crs = 4326)
+```
+
+Let's assume that we are building a model to predict observations similar to this subset of the data:
+
+```{r}
+ames_prediction_sites <- ames_sf[2001:2100, ]
+```
+
+Let's create NNDM cross-validation folds from a reduced training set as an example, just to keep things light.
+
+```{r}
+ames_folds <- spatial_nndm_cv(ames_sf[1:100, ], ames_prediction_sites)
+```
+
+The resulting `rset` contains 100 splits of the data, always keeping 1 of the 100 data points in the assessment set.
+
+```{r}
+ames_folds
+```
+
+Starting with all other 99 points in the analysis set, points are excluded until the distribution of nearest neighbor distances from the analysis set to the assessment set matches that of nearest neighbor distances from the training set to the prediction sites.
+
+Looking at one of the splits, we can see the single assessment point, the points included in the analysis set, and the points excluded as the buffer.
+
+```{r}
+get_rsplit(ames_folds, 3) |> 
+  autoplot()
+```
+
+The `ames_fold` object can then be used with functions from the tune package as usual.
+
+
+## tidymodels.org
+
+The tidymodels website, [tidymodels.org](https://www.tidymodels.org/), has been updated to use [Quarto](https://quarto.org/). Things largely look the same as before but this change simplifies the build system which should make it easier for more people to contribute. 
+
+This change to Quarto has also allowed us to improve the search functionality of the website. The tables for finding parsnip models, recipe steps, and broom tidiers at https://www.tidymodels.org/find/ now all list objects across all CRAN packages, not just tidymodels packages. This should make it much easier to find the right extension for your task, even if not implemented within tidymodels! 
+
+And if it does not exist yet, open an issue on GitHub or browse the [developer documentation for extending tidymodels](https://www.tidymodels.org/learn/#category=developer%20tools)!
+
+
+## Acknowledgements
+
+We’d like to extend our thanks to all of the contributors to tidymodels in the last quarter:
+
+```{r}
+#| echo: FALSE
+#| results: asis
+
+cat(tm_data$thanks, sep = "\n")
+```
