@@ -1,6 +1,5 @@
 ---
 output: hugodown::hugo_document
-
 slug: teach-tidyverse-23
 title: Teaching the tidyverse in 2023
 date: 2023-07-28
@@ -9,15 +8,15 @@ description: >
     Recommendations for teaching the tidyverse in 2023, summarizing 
     package updates most relevant for teaching data science with the 
     tidyverse, particularly to new learners.
-
 photo:
   url: https://unsplash.com/photos/ScoYEG5LEgc
   author: Scott Evans
-
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
-rmd_hash: d8c723d8b2f1824f
+editor_options: 
+  chunk_output_type: console
+rmd_hash: 1492eb404b4c9596
 
 ---
 
@@ -816,17 +815,14 @@ Different types of NAs are a good topic for a course on R as a programming langu
 
 ## New argument for line geoms: `linewidth`
 
-**TO DO: Add more context. (From Hadley: - not sure if linewidth is worth a section by itself. maybe group in with a bunch of other minor updates/deprecations?)**
+If you, like me, have a bunch of scatterplots with smooth lines overlaid on them, you might run into the following warning.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># previously</span></span>
-<span></span>
 <span><span class='nv'>penguins</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span></span>
-<span>    <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>flipper_length_mm</span>, y <span class='o'>=</span> <span class='nv'>body_mass_g</span><span class='o'>)</span></span>
-<span>  <span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>flipper_length_mm</span>, y <span class='o'>=</span> <span class='nv'>body_mass_g</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span></span>
 <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='o'>(</span>size <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.</span></span>
 <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Please use `linewidth` instead.</span></span>
@@ -839,15 +835,14 @@ Different types of NAs are a good topic for a course on R as a programming langu
 
 </div>
 
+Instead of `size`, you should now be using `linewidth`.
+
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># now</span></span>
-<span></span>
 <span><span class='nv'>penguins</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span></span>
-<span>    <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>flipper_length_mm</span>, y <span class='o'>=</span> <span class='nv'>body_mass_g</span><span class='o'>)</span></span>
-<span>  <span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>flipper_length_mm</span>, y <span class='o'>=</span> <span class='nv'>body_mass_g</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span></span>
 <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='o'>(</span>linewidth <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
 <span></span></code></pre>
@@ -855,9 +850,7 @@ Different types of NAs are a good topic for a course on R as a programming langu
 
 </div>
 
-Teaching tip: Check the output of your old teaching materials thoroughly
-
-To not make a fool of yourself when teaching 🤣
+The teaching tip should be obvious here... Check the output of your old teaching materials thoroughly to not make a fool of yourself when teaching! 🤣
 
 ## New syntax for separating columns
 

@@ -1,6 +1,5 @@
 ---
 output: hugodown::hugo_document
-
 slug: teach-tidyverse-23
 title: Teaching the tidyverse in 2023
 date: 2023-07-28
@@ -9,14 +8,14 @@ description: >
     Recommendations for teaching the tidyverse in 2023, summarizing 
     package updates most relevant for teaching data science with the 
     tidyverse, particularly to new learners.
-
 photo:
   url: https://unsplash.com/photos/ScoYEG5LEgc
   author: Scott Evans
-
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [tidyverse, teaching]
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{=html}
@@ -519,33 +518,27 @@ Different types of NAs are a good topic for a course on R as a programming langu
 
 ## New argument for line geoms: `linewidth` {#sec-new-argument-for-line-geoms-linewidth}
 
-**TO DO: Add more context. (From Hadley: - not sure if linewidth is worth a section by itself. maybe group in with a bunch of other minor updates/deprecations?)**
+If you, like me, have a bunch of scatterplots with smooth lines overlaid on them, you might run into the following warning.
 
 ```{r}
 # previously
-
 penguins |>
   drop_na() |>
-  ggplot(
-    aes(x = flipper_length_mm, y = body_mass_g)
-  ) +
+  ggplot(aes(x = flipper_length_mm, y = body_mass_g)) +
   geom_smooth(size = 2)
 ```
 
+Instead of `size`, you should now be using `linewidth`.
+
 ```{r}
 # now
-
 penguins |>
   drop_na() |>
-  ggplot(
-    aes(x = flipper_length_mm, y = body_mass_g)
-  ) +
+  ggplot(aes(x = flipper_length_mm, y = body_mass_g)) +
   geom_smooth(linewidth = 2)
 ```
 
-Teaching tip: Check the output of your old teaching materials thoroughly
-
-To not make a fool of yourself when teaching 🤣
+The teaching tip should be obvious here... Check the output of your old teaching materials thoroughly to not make a fool of yourself when teaching! 🤣
 
 ## New syntax for separating columns {#sec-new-syntax-for-separating-columns}
 
