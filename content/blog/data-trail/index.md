@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [book, internship]
-rmd_hash: 09615f537ab45a8e
+rmd_hash: 43826528ccad7d21
 
 ---
 
@@ -47,11 +47,11 @@ The exercises in R4DS range from quick, almost obvious, drills to ones that can 
 
 > Change the display of the presidential terms by:
 >
-> 1.  Combining the two variants that customize colors and x axis breaks.
-> 2.  Improving the display of the y axis.
-> 3.  Labelling each term with the name of the president.
-> 4.  Adding informative plot labels.
-> 5.  Placing breaks every 4 years (this is trickier than it seems!).
+> -   Combining the two variants that customize colors and x axis breaks.
+> -   Improving the display of the y axis.
+> -   Labelling each term with the name of the president.
+> -   Adding informative plot labels.
+> -   Placing breaks every 4 years (this is trickier than it seems!).
 
 The starting points for the exercise are the following plots from the text:
 
