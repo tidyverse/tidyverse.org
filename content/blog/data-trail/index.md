@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: data-trail
 title: Solutions for R4DS, 2e with Data Trail
-date: 2023-08-01
+date: 2023-08-02
 author: Jabir Ghaffar, Davon Person, Mine Çetinkaya-Rundel, Tracy Teal
 description: >
     Jabir and Davon from Data Trail worked with us to create the solutions manual for R for Data Science, 2nd edition.
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [book, internship]
-rmd_hash: 43826528ccad7d21
+rmd_hash: 8aa13f52cfb3c5bd
 
 ---
 
