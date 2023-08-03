@@ -16,7 +16,7 @@ categories: [learn]
 tags: [tidyverse, teaching]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 51cff9c019b243f6
+rmd_hash: 843a8baa7fd10911
 
 ---
 
@@ -350,7 +350,7 @@ you can now do:
 
 Let's set up three data frames to demonstrate the new functionality:
 
-1.  Information about three penguins, one row per `samp_id`:
+-   Information about three penguins, one row per `samp_id`:
 
 <div class="highlight">
 
@@ -372,7 +372,7 @@ Let's set up three data frames to demonstrate the new functionality:
 
 </div>
 
-1.  Information about weight measurements of these penguins, one row per `samp_id`, `meas_id` combination:
+-   Information about weight measurements of these penguins, one row per `samp_id`, `meas_id` combination:
 
 <div class="highlight">
 
@@ -400,7 +400,7 @@ Let's set up three data frames to demonstrate the new functionality:
 
 </div>
 
-1.  Information about flipper measurements of these penguins, one row per `samp_id`, `meas_id` combination:
+-   Information about flipper measurements of these penguins, one row per `samp_id`, `meas_id` combination:
 
 <div class="highlight">
 
