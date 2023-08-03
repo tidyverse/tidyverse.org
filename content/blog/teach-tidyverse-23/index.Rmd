@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: teach-tidyverse-23
 title: Teaching the tidyverse in 2023
-date: 2023-07-28
+date: 2023-08-04
 author: Mine Çetinkaya-Rundel
 description: >
     Recommendations for teaching the tidyverse in 2023, summarizing 
@@ -36,17 +36,23 @@ Another year, another roundup of tidyverse updates, through the lens of an educa
 
 Specifically, I'll discuss:
 
-**[TO DO: Make sure outline matches final sections]**
-
 -   [Resource refresh](#sec-resource-refresh)
 -   [Nine core packages in tidyverse 2.0.0](#sec-nine-core-packages-in-tidyverse-2.0.0)
--   [Conflict resolution in the tidyverse]
+-   [Conflict resolution in the tidyverse](sec-conflict-resolution)
 -   [Improved and expanded `*_join()` functionality](#sec-improved-and-expanded-join-functionality)
 -   [Per operation grouping](#sec-per-operation-grouping)
 -   [Quality of life improvements to `case_when()` and `if_else()`](#sec-quality-of-life-improvements-to-case_when-and-if_else)
--   [New argument for line geoms: linewidth](#sec-new-argument-for-line-geoms-linewidth)
 -   [New syntax for separating columns](#sec-new-syntax-for-separating-columns)
+-   [New argument for line geoms: linewidth](#sec-new-argument-for-line-geoms-linewidth)
+-   [Other highlights](#sec-other-highlights)
 
+And different from previous posts on this topic, this one comes with a video! If you'd like a live demo of the code examples, and a few more additional tips along the way, you can watch the video below.
+
+```{=html}
+<center>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/KsBBRHAgAhM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</center>
+```
 Throughout this blog post you'll encounter some code chunks with the comment `previously`, indicating what you used to do in the tidyverse. Often these will be coupled with chunks with the comment `now, optionally`, indicating what you *can* now do with the tidyverse. And rarely, they will be coupled with chunks with the comment `now`, indicating what you *should* do instead now with the tidyverse.
 
 Let's get started with the obligatory...
@@ -94,7 +100,7 @@ If you, like me, use a graphic like the one below that maps the core tidyverse p
 
 ![](images/data-science.png){fig-alt="Data science cycle: import, tidy, transform, visualize, model, communicate. Packages readr and tibble are for import. Packages tidyr and purr for tidy and transform. Packages dplyr, stringr, forcats, and lubridate are for transform. Package ggplot2 is for visualize."}
 
-## Conflict resolution in the tidyverse
+## Conflict resolution in the tidyverse {#sec-conflict-resolution}
 
 You may have also noticed that the package loading message for the tidyverse has been updated as well, and now advertises the [conflicted](https://conflicted.r-lib.org/) package.
 
@@ -377,7 +383,7 @@ Exploding joins (i.e., joins that result in a larger number of rows than either 
 
 ## Per operation grouping {#sec-per-operation-grouping}
 
-previously
+To calculate grouped summary statistics, you previously needed to do something like this:
 
 ```{r}
 #| eval: false
@@ -388,12 +394,12 @@ df |>
   summarize(mean(y))
 ```
 
-now, optionally
+Now, an alternative approach is to pass the groups directly in the `summarize()` call:
 
 ```{r}
 #| eval: false
 
-# previously
+# now, optionally
 df |>
   summarize(
     mean(y), 
@@ -401,7 +407,7 @@ df |>
   )
 ```
 
-Persistent groups:
+Let's take a look at the differences between these two approaches before making a recommendation for one over the other. `group_by()` can result in groups that persist in the output, particularly when grouping by multiple variables. For example, in the following pipeline we group the penguins data frame by `species` and `sex`, find mean body weights for each resulting species / sex combination, and then show the first observation in the output with `slice_head(n = 1)`. Since the output is grouped by species, this results in one summary statistic per species.
 
 ```{r}
 penguins |>
@@ -411,7 +417,7 @@ penguins |>
   slice_head(n = 1)
 ```
 
-Dropped groups:
+If we explicitly drop the groups in the `summarize()` call, so that the output is no longer grouped, we get just one row in our output.
 
 ```{r}
 penguins |>
@@ -421,7 +427,9 @@ penguins |>
   slice_head(n = 1)
 ```
 
-Per operation grouping:
+This pair of examples show that whether your output is grouped or not can affect downstream results, and if you're a `group_by()` user, you've probably been burnt by this once or twice.
+
+Per-operation grouping allows you to define groups in a `.by` argument, and these groups don't persist. So, regardless of whether you group by one or two variables, the resulting data frame after calculating a summary statistic is not grouped.
 
 ```{r}
 # group by 1 variable
@@ -441,19 +449,15 @@ penguins |>
   )
 ```
 
-Teaching tip: Choose one grouping method and stick to it
+So, when teaching grouped operations, you now have the option to choose between these two approaches. The most important teaching tip I can give, particularly for teaching to new learners, is to choose one method and stick to it. The `.by` method will result in fewer outputs that are unintentionally grouped, and hence, might potentially be easier for new learners. And while this approach is mentioned in R for Data Science, 2nd edition, the `group_by()` approach is described in more detail.
 
-It doesn't matter whether you use group_by() (followed by .groups, where needed) or .by.
-
-For new learners, pick one and stick to it. Minor preference for .by since they don't need to worry about group_by affecting all subsequent operations (mostly silently). .by mentioned in R4DS 2e but not front and center. For more experienced learners, particularly those learning to design their own functions and packages, it can be interesting to go through the differences and evolution.
+On the other hand. for more experienced learners, particularly those learning to design their own functions and packages, the evolution of grouping in the tidyverse can be an interesting subject to review.
 
 ## Quality of life improvements to `case_when()` and `if_else()` {#sec-quality-of-life-improvements-to-case_when-and-if_else}
 
 ### `case_when()`
 
-all else denoted by .default for case_when() less strict about value type for both
-
-previously
+Previously, when writing a `case_when()` statement, you had to use `TRUE` to indicate "all else". Additionally, `case_when()` has historically been strict about the types on the right-hand side, e.g., requiring `NA_character` when other right-hand side values are characters, and not letting you get away with just `NA`.
 
 ```{r}
 #| eval: false
@@ -470,7 +474,7 @@ df |>
   )
 ```
 
-now, optionally
+Now, optionally, you can define "all else" in a `.default` argument of `case_when()` and you no longer need to worry about the type of `NA` you use on the right-hand side.
 
 ```{r}
 #| eval: false
@@ -487,6 +491,8 @@ df |>
   )
 ```
 
+For example, you can now do something like the following when creating a categorical version of a numerical variable that has some `NA`s.
+
 ```{r}
 penguins |>
   mutate(
@@ -500,7 +506,9 @@ penguins |>
   relocate(body_mass_g, bm_cat)
 ```
 
-### if_else()
+### `if_else()`
+
+Similarly, `if_else()` is no longer as strict about typed missing values either.
 
 ```{r}
 penguins |>
@@ -510,11 +518,59 @@ penguins |>
   relocate(body_mass_g, bm_unit)
 ```
 
-Teaching tip: It's a blessing to not have to introduce NA_character\_ and friends
+While these may be seemingly small improvements, I think they have huge benefits for teaching and learning. It's a blessing to not have to introduce `NA_character_` and friends as early as introducing `if_else()` and `case_when()`! Different types of `NA`s are a good topic for a course on R as a programming language, statistical computing, etc. but they are unnecessarily complex for an introductory course.
 
-Especially not having to introduce it as early as if_else() and case_when(). Cherish it!
+## New syntax for separating columns {#sec-new-syntax-for-separating-columns}
 
-Different types of NAs are a good topic for a course on R as a programming language, statistical computing, etc. but not necessary for an intro course.
+that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) because they have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
+
+|                                  | **MAKE COLUMNS**                                                                               | **MAKE ROWS**                                                                                    |
+|:------------------|:--------------------------|:--------------------------|
+| Separate with delimiter          | [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    | [`separate_longer_delim()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html)    |
+| Separate by position             | [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) | [`separate_longer_position()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html) |
+| Separate with regular expression |                                                                                                |                                                                                                  |
+
+Here is an example for using some of these functions. Let's suppose we have data on three penguins with their descriptions.
+
+```{r}
+#| label: three-penguin-descriptions
+
+three_penguin_descriptions <- tribble(
+  ~id, ~description,
+  1,   "Species: Adelie, Island - Torgersen",
+  2,   "Species: Gentoo, Island - Biscoe",
+  3,   "Species: Chinstrap, Island - Dream",
+)
+
+three_penguin_descriptions
+```
+
+We can seaprate the description column into `species` and `island` with `separate_wider_delim()`:
+
+```{r}
+three_penguin_descriptions |>
+  separate_wider_delim(
+    cols = description,
+    delim = ", ",
+    names = c("species", "island")
+  )
+```
+
+Or we can do so with regular expressions:
+
+```{r}
+three_penguin_descriptions |>
+  separate_wider_regex(
+    cols = description,
+    patterns = c(
+      "Species: ", species = "[^,]+", 
+      ", ", 
+      "Island - ", island = ".*"
+    )
+  )
+```
+
+If teaching folks coming from doing data manipulation in spreadsheets, leverage that to motivate different types of `separate_*()` functions, and show the benefits of programming over point-and-click software for more advanced operations like separating longer and separating with regular expressions.
 
 ## New argument for line geoms: `linewidth` {#sec-new-argument-for-line-geoms-linewidth}
 
@@ -540,22 +596,8 @@ penguins |>
 
 The teaching tip should be obvious here... Check the output of your old teaching materials thoroughly to not make a fool of yourself when teaching! 🤣
 
-## New syntax for separating columns {#sec-new-syntax-for-separating-columns}
+## Other highlights
 
-that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) because they have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
+-   purrr 1.0.0: While purrr is likely not a common topic in introductory data science curricula, if you do teach iteration with purrr, you'll want to check out the [purrr 1.0.0 blog post](https://www.tidyverse.org/blog/2022/12/purrr-1-0-0/). I also highly recommend [Hadley's purrr video](https://youtu.be/EGAs7zuRutY) to those who are new to purrr as well as those who want to quickly review most recent updates to it.
 
-|                                  | **MAKE COLUMNS**                                                                               | **MAKE ROWS**                                                                                    |
-|:------------------|:--------------------------|:--------------------------|
-| Separate with delimiter          | [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    | [`separate_longer_delim()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html)    |
-| Separate by position             | [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) | [`separate_longer_position()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html) |
-| Separate with regular expression |                                                                                                |                                                                                                  |
-
-**[TO DO: Add example]**
-
-Teaching tip: If teaching folks coming from doing data manipulation in spreadsheets, leverage that to motivate different types of `separate_*()` functions, and show the benefits of programming over point-and-click software for more advanced operations like separating longer and separating with regular expressions.
-
-**[TO DO: Other ideas to add]**
-
--   **Quarto, webR: I wonder if it's worth mentioning webR yet? you could point to <https://github.com/coatless/quarto-webr>**
-
--   **maybe mention purrr 1.0.0 and the accompanying video? purrr is probably not a common topic in intro curricula, so maybe just include in a quick tips section?**
+-   webR 0.1.0: webR provides a framework for creating websites where users can run R code directly within the web browser, without R installed on their device or a supporting computational R server. This is hugely exciting for writing educational materials, like interactive lesson notes, and there's already a Quarto extension that allows you to do this: <https://github.com/coatless/quarto-webr>. I think this is an important space to watch for educators!

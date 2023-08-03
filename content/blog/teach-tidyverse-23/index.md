@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: teach-tidyverse-23
 title: Teaching the tidyverse in 2023
-date: 2023-07-28
+date: 2023-08-04
 author: Mine Çetinkaya-Rundel
 description: >
     Recommendations for teaching the tidyverse in 2023, summarizing 
@@ -16,7 +16,7 @@ categories: [learn]
 tags: [tidyverse, teaching]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 1492eb404b4c9596
+rmd_hash: 51cff9c019b243f6
 
 ---
 
@@ -37,16 +37,21 @@ Another year, another roundup of tidyverse updates, through the lens of an educa
 
 Specifically, I'll discuss:
 
-**\[TO DO: Make sure outline matches final sections\]**
-
 -   [Resource refresh](#sec-resource-refresh)
 -   [Nine core packages in tidyverse 2.0.0](#sec-nine-core-packages-in-tidyverse-2.0.0)
--   [Conflict resolution in the tidyverse](#conflict-resolution-in-the-tidyverse)
+-   [Conflict resolution in the tidyverse](sec-conflict-resolution)
 -   [Improved and expanded `*_join()` functionality](#sec-improved-and-expanded-join-functionality)
 -   [Per operation grouping](#sec-per-operation-grouping)
 -   [Quality of life improvements to `case_when()` and `if_else()`](#sec-quality-of-life-improvements-to-case_when-and-if_else)
--   [New argument for line geoms: linewidth](#sec-new-argument-for-line-geoms-linewidth)
 -   [New syntax for separating columns](#sec-new-syntax-for-separating-columns)
+-   [New argument for line geoms: linewidth](#sec-new-argument-for-line-geoms-linewidth)
+-   [Other highlights](#sec-other-highlights)
+
+And different from previous posts on this topic, this one comes with a video! If you'd like a live demo of the code examples, and a few more additional tips along the way, you can watch the video below.
+
+<center>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/KsBBRHAgAhM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</center>
 
 Throughout this blog post you'll encounter some code chunks with the comment `previously`, indicating what you used to do in the tidyverse. Often these will be coupled with chunks with the comment `now, optionally`, indicating what you *can* now do with the tidyverse. And rarely, they will be coupled with chunks with the comment `now`, indicating what you *should* do instead now with the tidyverse.
 
@@ -599,7 +604,7 @@ Exploding joins (i.e., joins that result in a larger number of rows than either 
 
 ## Per operation grouping
 
-previously
+To calculate grouped summary statistics, you previously needed to do something like this:
 
 <div class="highlight">
 
@@ -610,11 +615,11 @@ previously
 
 </div>
 
-now, optionally
+Now, an alternative approach is to pass the groups directly in the [`summarize()`](https://dplyr.tidyverse.org/reference/summarise.html) call:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># previously</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># now, optionally</span></span>
 <span><span class='nv'>df</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span></span>
 <span>    <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>y</span><span class='o'>)</span>, </span>
@@ -623,7 +628,7 @@ now, optionally
 
 </div>
 
-Persistent groups:
+Let's take a look at the differences between these two approaches before making a recommendation for one over the other. [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) can result in groups that persist in the output, particularly when grouping by multiple variables. For example, in the following pipeline we group the penguins data frame by `species` and `sex`, find mean body weights for each resulting species / sex combination, and then show the first observation in the output with `slice_head(n = 1)`. Since the output is grouped by species, this results in one summary statistic per species.
 
 <div class="highlight">
 
@@ -645,7 +650,7 @@ Persistent groups:
 
 </div>
 
-Dropped groups:
+If we explicitly drop the groups in the [`summarize()`](https://dplyr.tidyverse.org/reference/summarise.html) call, so that the output is no longer grouped, we get just one row in our output.
 
 <div class="highlight">
 
@@ -662,7 +667,9 @@ Dropped groups:
 
 </div>
 
-Per operation grouping:
+This pair of examples show that whether your output is grouped or not can affect downstream results, and if you're a [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) user, you've probably been burnt by this once or twice.
+
+Per-operation grouping allows you to define groups in a `.by` argument, and these groups don't persist. So, regardless of whether you group by one or two variables, the resulting data frame after calculating a summary statistic is not grouped.
 
 <div class="highlight">
 
@@ -700,19 +707,15 @@ Per operation grouping:
 
 </div>
 
-Teaching tip: Choose one grouping method and stick to it
+So, when teaching grouped operations, you now have the option to choose between these two approaches. The most important teaching tip I can give, particularly for teaching to new learners, is to choose one method and stick to it. The `.by` method will result in fewer outputs that are unintentionally grouped, and hence, might potentially be easier for new learners. And while this approach is mentioned in R for Data Science, 2nd edition, the [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html) approach is described in more detail.
 
-It doesn't matter whether you use group_by() (followed by .groups, where needed) or .by.
-
-For new learners, pick one and stick to it. Minor preference for .by since they don't need to worry about group_by affecting all subsequent operations (mostly silently). .by mentioned in R4DS 2e but not front and center. For more experienced learners, particularly those learning to design their own functions and packages, it can be interesting to go through the differences and evolution.
+On the other hand. for more experienced learners, particularly those learning to design their own functions and packages, the evolution of grouping in the tidyverse can be an interesting subject to review.
 
 ## Quality of life improvements to `case_when()` and `if_else()`
 
 ### `case_when()`
 
-all else denoted by .default for case_when() less strict about value type for both
-
-previously
+Previously, when writing a [`case_when()`](https://dplyr.tidyverse.org/reference/case_when.html) statement, you had to use `TRUE` to indicate "all else". Additionally, [`case_when()`](https://dplyr.tidyverse.org/reference/case_when.html) has historically been strict about the types on the right-hand side, e.g., requiring `NA_character` when other right-hand side values are characters, and not letting you get away with just `NA`.
 
 <div class="highlight">
 
@@ -730,7 +733,7 @@ df |>
 
 </div>
 
-now, optionally
+Now, optionally, you can define "all else" in a `.default` argument of [`case_when()`](https://dplyr.tidyverse.org/reference/case_when.html) and you no longer need to worry about the type of `NA` you use on the right-hand side.
 
 <div class="highlight">
 
@@ -747,6 +750,8 @@ df |>
 </code></pre>
 
 </div>
+
+For example, you can now do something like the following when creating a categorical version of a numerical variable that has some `NA`s.
 
 <div class="highlight">
 
@@ -779,7 +784,9 @@ df |>
 
 </div>
 
-### if_else()
+### `if_else()`
+
+Similarly, [`if_else()`](https://dplyr.tidyverse.org/reference/if_else.html) is no longer as strict about typed missing values either.
 
 <div class="highlight">
 
@@ -807,11 +814,84 @@ df |>
 
 </div>
 
-Teaching tip: It's a blessing to not have to introduce NA_character\_ and friends
+While these may be seemingly small improvements, I think they have huge benefits for teaching and learning. It's a blessing to not have to introduce `NA_character_` and friends as early as introducing [`if_else()`](https://dplyr.tidyverse.org/reference/if_else.html) and [`case_when()`](https://dplyr.tidyverse.org/reference/case_when.html)! Different types of `NA`s are a good topic for a course on R as a programming language, statistical computing, etc. but they are unnecessarily complex for an introductory course.
 
-Especially not having to introduce it as early as if_else() and case_when(). Cherish it!
+## New syntax for separating columns
 
-Different types of NAs are a good topic for a course on R as a programming language, statistical computing, etc. but not necessary for an intro course.
+that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) because they have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
+
+|                                  | **MAKE COLUMNS**                                                                               | **MAKE ROWS**                                                                                    |
+|:------------------|:--------------------------|:--------------------------|
+| Separate with delimiter          | [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    | [`separate_longer_delim()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html)    |
+| Separate by position             | [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) | [`separate_longer_position()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html) |
+| Separate with regular expression |                                                                                                |                                                                                                  |
+
+Here is an example for using some of these functions. Let's suppose we have data on three penguins with their descriptions.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>three_penguin_descriptions</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://tibble.tidyverse.org/reference/tribble.html'>tribble</a></span><span class='o'>(</span></span>
+<span>  <span class='o'>~</span><span class='nv'>id</span>, <span class='o'>~</span><span class='nv'>description</span>,</span>
+<span>  <span class='m'>1</span>,   <span class='s'>"Species: Adelie, Island - Torgersen"</span>,</span>
+<span>  <span class='m'>2</span>,   <span class='s'>"Species: Gentoo, Island - Biscoe"</span>,</span>
+<span>  <span class='m'>3</span>,   <span class='s'>"Species: Chinstrap, Island - Dream"</span>,</span>
+<span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>three_penguin_descriptions</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 2</span></span></span>
+<span><span class='c'>#&gt;      id description                        </span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                              </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>     1 Species: Adelie, Island - Torgersen</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>     2 Species: Gentoo, Island - Biscoe   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>     3 Species: Chinstrap, Island - Dream</span></span>
+<span></span></code></pre>
+
+</div>
+
+We can seaprate the description column into `species` and `island` with [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html):
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>three_penguin_descriptions</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/separate_wider_delim.html'>separate_wider_delim</a></span><span class='o'>(</span></span>
+<span>    cols <span class='o'>=</span> <span class='nv'>description</span>,</span>
+<span>    delim <span class='o'>=</span> <span class='s'>", "</span>,</span>
+<span>    names <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"species"</span>, <span class='s'>"island"</span><span class='o'>)</span></span>
+<span>  <span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 3</span></span></span>
+<span><span class='c'>#&gt;      id species            island            </span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>              <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>             </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>     1 Species: Adelie    Island - Torgersen</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>     2 Species: Gentoo    Island - Biscoe   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>     3 Species: Chinstrap Island - Dream</span></span>
+<span></span></code></pre>
+
+</div>
+
+Or we can do so with regular expressions:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>three_penguin_descriptions</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/separate_wider_delim.html'>separate_wider_regex</a></span><span class='o'>(</span></span>
+<span>    cols <span class='o'>=</span> <span class='nv'>description</span>,</span>
+<span>    patterns <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span></span>
+<span>      <span class='s'>"Species: "</span>, species <span class='o'>=</span> <span class='s'>"[^,]+"</span>, </span>
+<span>      <span class='s'>", "</span>, </span>
+<span>      <span class='s'>"Island - "</span>, island <span class='o'>=</span> <span class='s'>".*"</span></span>
+<span>    <span class='o'>)</span></span>
+<span>  <span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 3</span></span></span>
+<span><span class='c'>#&gt;      id species   island   </span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>     1 Adelie    Torgersen</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>     2 Gentoo    Biscoe   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>     3 Chinstrap Dream</span></span>
+<span></span></code></pre>
+
+</div>
+
+If teaching folks coming from doing data manipulation in spreadsheets, leverage that to motivate different types of `separate_*()` functions, and show the benefits of programming over point-and-click software for more advanced operations like separating longer and separating with regular expressions.
 
 ## New argument for line geoms: `linewidth`
 
@@ -831,7 +911,7 @@ If you, like me, have a bunch of scatterplots with smooth lines overlaid on them
 <span><span class='c'>#&gt; <span style='color: #555555;'>generated.</span></span></span>
 <span></span><span><span class='c'>#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
 <span></span></code></pre>
-<img src="figs/unnamed-chunk-39-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-42-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -846,29 +926,15 @@ Instead of `size`, you should now be using `linewidth`.
 <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='o'>(</span>linewidth <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span>
 <span></span></code></pre>
-<img src="figs/unnamed-chunk-40-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-43-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
 The teaching tip should be obvious here... Check the output of your old teaching materials thoroughly to not make a fool of yourself when teaching! 🤣
 
-## New syntax for separating columns
+## Other highlights
 
-that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) because they have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
+-   purrr 1.0.0: While purrr is likely not a common topic in introductory data science curricula, if you do teach iteration with purrr, you'll want to check out the [purrr 1.0.0 blog post](https://www.tidyverse.org/blog/2022/12/purrr-1-0-0/). I also highly recommend [Hadley's purrr video](https://youtu.be/EGAs7zuRutY) to those who are new to purrr as well as those who want to quickly review most recent updates to it.
 
-|                                  | **MAKE COLUMNS**                                                                               | **MAKE ROWS**                                                                                    |
-|:------------------|:--------------------------|:--------------------------|
-| Separate with delimiter          | [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    | [`separate_longer_delim()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html)    |
-| Separate by position             | [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) | [`separate_longer_position()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html) |
-| Separate with regular expression |                                                                                                |                                                                                                  |
-
-**\[TO DO: Add example\]**
-
-Teaching tip: If teaching folks coming from doing data manipulation in spreadsheets, leverage that to motivate different types of `separate_*()` functions, and show the benefits of programming over point-and-click software for more advanced operations like separating longer and separating with regular expressions.
-
-**\[TO DO: Other ideas to add\]**
-
--   **Quarto, webR: I wonder if it's worth mentioning webR yet? you could point to <https://github.com/coatless/quarto-webr>**
-
--   **maybe mention purrr 1.0.0 and the accompanying video? purrr is probably not a common topic in intro curricula, so maybe just include in a quick tips section?**
+-   webR 0.1.0: webR provides a framework for creating websites where users can run R code directly within the web browser, without R installed on their device or a supporting computational R server. This is hugely exciting for writing educational materials, like interactive lesson notes, and there's already a Quarto extension that allows you to do this: <https://github.com/coatless/quarto-webr>. I think this is an important space to watch for educators!
 
