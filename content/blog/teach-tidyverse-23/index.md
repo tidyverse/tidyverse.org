@@ -16,7 +16,7 @@ categories: [learn]
 tags: [tidyverse, teaching]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 843a8baa7fd10911
+rmd_hash: 9176cc4e6041974a
 
 ---
 
@@ -818,10 +818,10 @@ While these may be seemingly small improvements, I think they have huge benefits
 
 ## New syntax for separating columns
 
-that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html) because they have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
+The following table summarizes new syntax for separating columns in tidyr that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html). These updates are motivated by the goal of achieving a set of functions that have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
 
 |                                  | **MAKE COLUMNS**                                                                               | **MAKE ROWS**                                                                                    |
-|:------------------|:--------------------------|:--------------------------|
+|:-----------|:-----------------------------|:------------------------------|
 | Separate with delimiter          | [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    | [`separate_longer_delim()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html)    |
 | Separate by position             | [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) | [`separate_longer_position()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html) |
 | Separate with regular expression |                                                                                                |                                                                                                  |
