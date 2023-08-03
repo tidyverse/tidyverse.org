@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: teach-tidyverse-23
 title: Teaching the tidyverse in 2023
-date: 2023-08-04
+date: 2023-08-07
 author: Mine Çetinkaya-Rundel
 description: >
     Recommendations for teaching the tidyverse in 2023, summarizing 
@@ -16,7 +16,7 @@ categories: [learn]
 tags: [tidyverse, teaching]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 9176cc4e6041974a
+rmd_hash: 5fb786a1f1eaa247
 
 ---
 
@@ -821,7 +821,7 @@ While these may be seemingly small improvements, I think they have huge benefits
 The following table summarizes new syntax for separating columns in tidyr that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html). These updates are motivated by the goal of achieving a set of functions that have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
 
 |                                  | **MAKE COLUMNS**                                                                               | **MAKE ROWS**                                                                                    |
-|:-----------|:-----------------------------|:------------------------------|
+|:----------------|:---------------------------|:---------------------------|
 | Separate with delimiter          | [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    | [`separate_longer_delim()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html)    |
 | Separate by position             | [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) | [`separate_longer_position()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html) |
 | Separate with regular expression |                                                                                                |                                                                                                  |
