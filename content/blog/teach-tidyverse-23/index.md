@@ -16,7 +16,7 @@ categories: [learn]
 tags: [tidyverse, teaching]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 11ea1c348a0a589c
+rmd_hash: 55a70080d431a158
 
 ---
 
@@ -38,7 +38,7 @@ Another year, another roundup of tidyverse updates, through the lens of an educa
 Specifically, I'll discuss:
 
 -   [Resource refresh](#resource-refresh)
--   [Nine core packages in tidyverse 2.0.0](#nine-core-packages-in-tidyverse-2.0.0)
+-   [Nine core packages in tidyverse 2.0.0](#nine-core-packages-in-tidyverse-200)
 -   [Conflict resolution in the tidyverse](#conflict-resolution-in-the-tidyverse)
 -   [Improved and expanded `*_join()` functionality](#improved-and-expanded-_join-functionality)
 -   [Per operation grouping](#per-operation-grouping)
