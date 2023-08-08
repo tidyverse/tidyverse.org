@@ -36,15 +36,16 @@ Another year, another roundup of tidyverse updates, through the lens of an educa
 
 Specifically, I'll discuss:
 
--   [Resource refresh](#sec-resource-refresh)
--   [Nine core packages in tidyverse 2.0.0](#sec-nine-core-packages-in-tidyverse-2.0.0)
--   [Conflict resolution in the tidyverse](sec-conflict-resolution)
--   [Improved and expanded `*_join()` functionality](#sec-improved-and-expanded-join-functionality)
--   [Per operation grouping](#sec-per-operation-grouping)
--   [Quality of life improvements to `case_when()` and `if_else()`](#sec-quality-of-life-improvements-to-case_when-and-if_else)
--   [New syntax for separating columns](#sec-new-syntax-for-separating-columns)
--   [New argument for line geoms: linewidth](#sec-new-argument-for-line-geoms-linewidth)
--   [Other highlights](#sec-other-highlights)
+-   [Resource refresh](#resource-refresh)
+-   [Nine core packages in tidyverse 2.0.0](#nine-core-packages-in-tidyverse-2.0.0)
+-   [Conflict resolution in the tidyverse](#conflict-resolution-in-the-tidyverse)
+-   [Improved and expanded `*_join()` functionality](#improved-and-expanded-_join-functionality)
+-   [Per operation grouping](#per-operation-grouping)
+-   [Quality of life improvements to `case_when()` and `if_else()`](#quality-of-life-improvements-to-case_when-and-if_else)
+-   [New syntax for separating columns](#new-syntax-for-separating-columns)
+-   [New argument for line geoms: linewidth](#new-argument-for-line-geoms-linewidth)
+-   [Other highlights](#other-highlights)
+-   [Coming up](#coming-up)
 
 And different from previous posts on this topic, this one comes with a video! If you'd like a live demo of the code examples, and a few more additional tips along the way, you can watch the video below.
 
@@ -67,13 +68,13 @@ And, let's also load the [palmerpenguins](https://allisonhorst.github.io/palmerp
 library(palmerpenguins)
 ```
 
-## Resource refresh {#sec-resource-refresh}
+## Resource refresh
 
 R for Data Science, 2nd Edition is out! [This blog post](blog/2023/07/r4ds-2e/) (and the [book's preface](https://r4ds.hadley.nz/preface-2e.html)) outlines updates since the first edition. Updates to the book served as the motivation for many of the changes mentioned in the remainder of this post as as well as on the Tidyverse blog over the last year. Now that the book is out, you can expect the pace of change to slow down again for a while, which means plenty of time for phasing these changes into your teaching materials.
 
 One change in the 2nd Edition that will most likely affect almost all of your teaching materials is the use of the native R pipe (`|>`) instead of the magrittr pipe (`%>%`). If you're not familiar with the similarities and differences between these operators, I recommend reading [this comparison blog post](https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/). And I strongly recommend making this update since it will allow students to perform piped operations with any R function, and hence allow them to keep their data pipeline workflows regardless of whether the next package they learn is from the tidyverse (or package that uses tidyverse principles) or not.
 
-## Nine core packages in tidyverse 2.0.0 {#sec-nine-core-packages-in-tidyverse-2.0.0}
+## Nine core packages in tidyverse 2.0.0
 
 The main update in tidyverse 2.0.0, which was released in March 2023, is that it [lubridate](https://lubridate.tidyverse.org/) is now a core tidyverse package. The lubridate package that makes it easier to do the things R does with date-times, is now a core tidyverse package. So, while many of your scripts in the past may have started with
 
@@ -100,7 +101,7 @@ If you, like me, use a graphic like the one below that maps the core tidyverse p
 
 ![](images/data-science.png){fig-alt="Data science cycle: import, tidy, transform, visualize, model, communicate. Packages readr and tibble are for import. Packages tidyr and purr for tidy and transform. Packages dplyr, stringr, forcats, and lubridate are for transform. Package ggplot2 is for visualize."}
 
-## Conflict resolution in the tidyverse {#sec-conflict-resolution}
+## Conflict resolution in the tidyverse
 
 You may have also noticed that the package loading message for the tidyverse has been updated as well, and now advertises the [conflicted](https://conflicted.r-lib.org/) package.
 
@@ -166,7 +167,7 @@ Getting back to the package loading message... It can be tempting, particularly 
 
 2.  Help during hard-to-debug situations resulting from base R's silent conflict resolution -- because, let's face it, someone in your class, if not you during a live-coding session, will see that pesky object not found error at some point when using `filter()`.
 
-## Improved and expanded `*_join()` functionality {#sec-improved-and-expanded-join-functionality}
+## Improved and expanded `*_join()` functionality
 
 The [dplyr](https://dplyr.tidyverse.org/) package has long had the [`*_join()` family of functions](https://dplyr.tidyverse.org/articles/two-table.html) for joining data frames. dplyr 1.1.0 introduced a [bunch of extensions](https://www.tidyverse.org/blog/2023/01/dplyr-1-1-0-joins/) that bring joins closer to the power available in other systems like SQL and `data.table`.
 
@@ -381,7 +382,7 @@ There are many more developments related to `*_join()` functions (e.g., [inequal
 
 Exploding joins (i.e., joins that result in a larger number of rows than either of the data frames from bie) can be hard to debug for students! Teaching them the tools to diagnose whether the join they performed, and that may not have given an error, is indeed the one they wanted to perform. Did they lose any cases? Did they gain an unexpected amount of cases? Did they perform a join without thinking and take down the entire teaching server? These things happen, particularly if students are working with their own data for an open-ended project!
 
-## Per operation grouping {#sec-per-operation-grouping}
+## Per operation grouping
 
 To calculate grouped summary statistics, you previously needed to do something like this:
 
@@ -453,7 +454,7 @@ So, when teaching grouped operations, you now have the option to choose between 
 
 On the other hand. for more experienced learners, particularly those learning to design their own functions and packages, the evolution of grouping in the tidyverse can be an interesting subject to review.
 
-## Quality of life improvements to `case_when()` and `if_else()` {#sec-quality-of-life-improvements-to-case_when-and-if_else}
+## Quality of life improvements to `case_when()` and `if_else()`
 
 ### `case_when()`
 
@@ -520,12 +521,12 @@ penguins |>
 
 While these may be seemingly small improvements, I think they have huge benefits for teaching and learning. It's a blessing to not have to introduce `NA_character_` and friends as early as introducing `if_else()` and `case_when()`! Different types of `NA`s are a good topic for a course on R as a programming language, statistical computing, etc. but they are unnecessarily complex for an introductory course.
 
-## New syntax for separating columns {#sec-new-syntax-for-separating-columns}
+## New syntax for separating columns
 
 The following table summarizes new syntax for separating columns in tidyr that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html). These updates are motivated by the goal of achieving a set of functions that have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
 
 |                                  | **MAKE COLUMNS**                                                                               | **MAKE ROWS**                                                                                    |
-|:---------------------------------|:-----------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------|
+|:---------------|:---------------------------|:---------------------------|
 | Separate with delimiter          | [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    | [`separate_longer_delim()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html)    |
 | Separate by position             | [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) | [`separate_longer_position()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html) |
 | Separate with regular expression |                                                                                                |                                                                                                  |
@@ -572,7 +573,7 @@ three_penguin_descriptions |>
 
 If teaching folks coming from doing data manipulation in spreadsheets, leverage that to motivate different types of `separate_*()` functions, and show the benefits of programming over point-and-click software for more advanced operations like separating longer and separating with regular expressions.
 
-## New argument for line geoms: `linewidth` {#sec-new-argument-for-line-geoms-linewidth}
+## New argument for line geoms: `linewidth`
 
 If you, like me, have a bunch of scatterplots with smooth lines overlaid on them, you might run into the following warning.
 

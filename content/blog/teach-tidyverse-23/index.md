@@ -16,7 +16,7 @@ categories: [learn]
 tags: [tidyverse, teaching]
 editor_options: 
   chunk_output_type: console
-rmd_hash: 23e0b0cdcfd13120
+rmd_hash: 11ea1c348a0a589c
 
 ---
 
@@ -37,15 +37,16 @@ Another year, another roundup of tidyverse updates, through the lens of an educa
 
 Specifically, I'll discuss:
 
--   [Resource refresh](#sec-resource-refresh)
--   [Nine core packages in tidyverse 2.0.0](#sec-nine-core-packages-in-tidyverse-2.0.0)
--   [Conflict resolution in the tidyverse](sec-conflict-resolution)
--   [Improved and expanded `*_join()` functionality](#sec-improved-and-expanded-join-functionality)
--   [Per operation grouping](#sec-per-operation-grouping)
--   [Quality of life improvements to `case_when()` and `if_else()`](#sec-quality-of-life-improvements-to-case_when-and-if_else)
--   [New syntax for separating columns](#sec-new-syntax-for-separating-columns)
--   [New argument for line geoms: linewidth](#sec-new-argument-for-line-geoms-linewidth)
--   [Other highlights](#sec-other-highlights)
+-   [Resource refresh](#resource-refresh)
+-   [Nine core packages in tidyverse 2.0.0](#nine-core-packages-in-tidyverse-2.0.0)
+-   [Conflict resolution in the tidyverse](#conflict-resolution-in-the-tidyverse)
+-   [Improved and expanded `*_join()` functionality](#improved-and-expanded-_join-functionality)
+-   [Per operation grouping](#per-operation-grouping)
+-   [Quality of life improvements to `case_when()` and `if_else()`](#quality-of-life-improvements-to-case_when-and-if_else)
+-   [New syntax for separating columns](#new-syntax-for-separating-columns)
+-   [New argument for line geoms: linewidth](#new-argument-for-line-geoms-linewidth)
+-   [Other highlights](#other-highlights)
+-   [Coming up](#coming-up)
 
 And different from previous posts on this topic, this one comes with a video! If you'd like a live demo of the code examples, and a few more additional tips along the way, you can watch the video below.
 
@@ -821,7 +822,7 @@ While these may be seemingly small improvements, I think they have huge benefits
 The following table summarizes new syntax for separating columns in tidyr that supersede [`extract()`](https://tidyr.tidyverse.org/reference/extract.html), [`separate()`](https://tidyr.tidyverse.org/reference/separate.html), and [`separate_rows()`](https://tidyr.tidyverse.org/reference/separate_rows.html). These updates are motivated by the goal of achieving a set of functions that have more consistent names and arguments, have better performance, and provide a new approach for handling problems:
 
 |                                  | **MAKE COLUMNS**                                                                               | **MAKE ROWS**                                                                                    |
-|:-----------|:-----------------------------|:------------------------------|
+|:----------------|:---------------------------|:---------------------------|
 | Separate with delimiter          | [`separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)    | [`separate_longer_delim()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html)    |
 | Separate by position             | [`separate_wider_position()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html) | [`separate_longer_position()`](https://tidyr.tidyverse.org/reference/separate_longer_delim.html) |
 | Separate with regular expression |                                                                                                |                                                                                                  |
