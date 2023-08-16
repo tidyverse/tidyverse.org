@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive]
 tags: [webr, webassembly, wasm]
-rmd_hash: 1b3876bbfd0c4b87
+rmd_hash: 76645a251137c8e2
 
 ---
 
@@ -99,7 +99,7 @@ The running Wasm R process is also configured at initialisation to use the edito
 
 ### Plotting pane
 
-The plotting pane has been updated to take advantage of improvements in webR's HTML canvas graphic device, set as the default device as part of initialisation. In particular, multiple plots are now supported and older plots can be directly accessed using the previous and next buttons in the plotting toolbar. You can try this out with R's built in graphics demo, by running `demo(graphics)` and/or `demo(persp)`.
+The plotting pane has been updated to take advantage of improvements in webR's HTML canvas graphics device, set as the default device as part of initialisation. In particular, multiple plots are now supported and older plots can be directly accessed using the previous and next buttons in the plotting toolbar. You can try this out with R's built in graphics demo, by running `demo(graphics)` and/or `demo(persp)`.
 
 <a href="plotting.png"><img alt="A screenshot of the plot pane showing a built-in R graphics demo" width="75%" src="plotting.png"></a>
 
