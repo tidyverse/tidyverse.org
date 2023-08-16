@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive]
 tags: [webr, webassembly, wasm]
-rmd_hash: 7acc5b18981c3f5e
+rmd_hash: f586947473b143a2
 
 ---
 
@@ -45,7 +45,7 @@ TODO:
 
 We're absolutely thrilled to announce the release of [webR](https://docs.r-wasm.org/webr/v0.2.0/) 0.2.0! This release gathers together many updates and improvements to webR over the last few months, including improvements to the HTML canvas graphics device, support for Cario-based bitmap graphics, accessibility and internationalisation improvements, additional Wasm R package support (including Shiny), a new webR REPL app, and various updates to the webR developer API.
 
-This will be a fairly technical blog post, taking a deep dive through the major breaking changes and new features available in webR 0.2.0. I also plan to record and release a series of companion videos discussing the new release, so keep an eye out if you're someone who prefers watching and listening over reading long-form articles. I'll update this post with all the links once they're available.
+This blog post will take a deep dive through the major breaking changes and new features available in webR 0.2.0. I also plan to record and release a series of companion videos discussing the new release, so keep an eye out if you're someone who prefers watching and listening over reading long-form articles. I'll update this post with all the links once they're available.
 
 ## WebAssembly and webR
 
@@ -75,7 +75,7 @@ It's easy to see the potential teaching benefit examples like this could bring t
 
 ## The webR REPL app
 
-WebR can be loaded into a web page to be used as a part of a wider web application, and ships with a demo application that does just that. The webR REPL app[^3] provides a simple R environment directly in your web browser. The app can be accessed at the URL <https://webr.r-wasm.org/v0.2.0/> and includes sections for R console input/output, code editing, file management, and graphics device output.
+WebR can be loaded into a web page to be used as a part of a wider web application, and ships with a demo application that does just that. The webR REPL app[^3] provides a simple R environment directly in your web browser. The app can be accessed at <https://webr.r-wasm.org/v0.2.0/> and includes sections for R console input/output, code editing, file management, and graphics device output.
 
 With the webR REPL app, a casual user could get up and running with R in seconds, without having to install any software on their machine. It is entirely feasible that they could perform the basics of data science entirely within their web browser!
 
