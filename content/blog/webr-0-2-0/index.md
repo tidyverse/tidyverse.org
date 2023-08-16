@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: webr-0-2-0
 title: webR 0.2.0 has been released
-date: 2023-08-15
+date: 2023-08-16
 author: George Stagg
 description: >
     webR 0.2.0 has been released. Updates and improvements to the webR REPL app, HTML canvas graphics device, internationalisation, Wasm R packages, Shiny support, and the developer API.
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive]
 tags: [webr, webassembly, wasm]
-rmd_hash: f586947473b143a2
+rmd_hash: cf8990bcae608017
 
 ---
 
