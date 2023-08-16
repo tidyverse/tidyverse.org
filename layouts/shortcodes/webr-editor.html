@@ -21,13 +21,13 @@
   runButton.onclick = async () => {
     runButton.disabled = true;
     let canvas = undefined;
-    await globalThis.webR.init();
-    await webR.evalRVoid('canvas(width={{ .Get "width" | safeJS }}, height={{ .Get "height" | safeJS }})');
+    await webR.init();
+    await webR.evalRVoid('webr::canvas(width={{ .Get "width" | safeJS }}, height={{ .Get "height" | safeJS }})');
     const result = await webRCodeShelter.captureR(editor.getValue(), {
       withAutoprint: true,
       captureStreams: true,
       captureConditions: false,
-      env: webR.objs.emptyEnv,
+      env: {},
     });
     try {
       await webR.evalRVoid("dev.off()");
@@ -37,8 +37,12 @@
 
       const msgs = await webR.flush();
       msgs.forEach(msg => {
-        if (msg.type === 'canvasExec'){
-          if (!canvas) {
+        if (msg.type === 'canvas'){
+          if (msg.data.event === 'canvasImage') {
+            // Add plot image data to the current canvas element
+            canvas.getContext('2d').drawImage(msg.data.image, 0, 0);
+          } else if (msg.data.event === 'canvasNewPage') {
+            // Create a new canvas element
             canvas = document.createElement('canvas');
             canvas.setAttribute('width', 2 * {{ .Get "width" | safeJS }});
             canvas.setAttribute('height', 2 * {{ .Get "height" | safeJS }});
@@ -46,7 +50,6 @@
             canvas.style.display="block";
             canvas.style.margin="auto";
           }
-          Function(`this.getContext('2d').${msg.data}`).bind(canvas)();
         }
       });
 
