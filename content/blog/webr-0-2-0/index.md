@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive]
 tags: [webr, webassembly, wasm]
-rmd_hash: 76645a251137c8e2
+rmd_hash: d1fcefd6b285ddb5
 
 ---
 
@@ -67,7 +67,7 @@ One of my favourite demonstrations of what webR can do is interactive code block
 
 <div class="highlight">
 
-{{< webr-editor code=`colnames(mtcars)\n\nboxplot(mpg ~ cyl, data = mtcars, col = "mediumseagreen",\n        xlab = "Number of Cylinders", ylab = "Miles/(US) gallon", \n        main = "Motor Trend Car Road Tests",\n        sub = "Source: 1974 Motor Trend US magazine")` width=504 height=311.472 >}}
+{{< webr-editor code=`colnames(mtcars)\n\nboxplot(\n  mpg ~ cyl, data = mtcars,\n  col = "mediumseagreen",\n  xlab = "Number of Cylinders",\n  ylab = "Miles/(US) gallon",\n  main = "Motor Trend Car Road Tests",\n  sub = "Source: 1974 Motor Trend US magazine"\n)` width=504 height=311.472 >}}
 
 </div>
 
@@ -163,7 +163,7 @@ In comparison, web browser support for text rendering is excellent. Now that we 
 
 <div class="highlight">
 
-{{< webr-editor code=`plot(rnorm(1000), rnorm(1000), col=rgb(0,0,0,0.5),\n     xlim=c(-5, 5), ylim=c(-5, 5), main="This is the title 🚀",\n     xlab="This is the x label", ylab="This is the y label",\n     family="Futura")\ntext(-3.5, 4, "This is English", family="monospace")\ntext(-3.5, -4, "هذا مكتوب باللغة العربية")\ntext(3.5, 4, "これは日本語です")\ntext(3.5, -4, "זה כתוב בעברית")` width=504 height=311.472 >}}
+{{< webr-editor code=`plot(\n  rnorm(1000), rnorm(1000),\n  col = rgb(0, 0, 0, 0.5),\n  xlim = c(-5, 5), ylim = c(-5, 5),\n  main = "This is the title 🚀",\n  xlab = "This is the x label",\n  ylab = "This is the y label",\n  family = "Futura"\n)\ntext(-3.5, 4, "This is English", family = "monospace")\ntext(-3.5, -4, "هذا مكتوب باللغة العربية")\ntext(3.5, 4, "これは日本語です")\ntext(3.5, -4, "זה כתוב בעברית")` width=504 height=311.472 >}}
 
 </div>
 
@@ -247,10 +247,15 @@ When plotting with the built-in bitmap graphics devices, fonts must be accessibl
 The fontconfig library is also configured to search the VFS directory `/home/web_user/fonts` for additional fonts. Users who wish to use custom fonts, or alternative writing systems, may do so by uploading font files to this directory. In the case of international scripts or non-Latin Unicode such as emoji, fontconfig will automatically use font fallback to select reasonable fonts containing the required glyphs.
 
 ``` r
-png(width=1200, height=800, res=180)
-plot(rnorm(1000), rnorm(1000), col=rgb(0,0,0,0.5),
-     xlim=c(-5, 5), ylim=c(-5, 5), main="This is the title 🚀",
-     xlab="This is the x label", ylab="This is the y label")
+png(width = 1200, height = 800, res = 180)
+plot(
+  rnorm(1000), rnorm(1000),
+  col = rgb(0, 0, 0, 0.5),
+  xlim = c(-5, 5), ylim = c(-5, 5),
+  main = "This is the title 🚀",
+  xlab = "This is the x label",
+  ylab = "This is the y label"
+)
 text(-3.5, 4, "This is English")
 text(-3.5, -4, "هذا مكتوب باللغة العربية")
 text(3.5, 4, "これは日本語です")

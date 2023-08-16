@@ -79,10 +79,14 @@ One of my favourite demonstrations of what webR can do is interactive code block
 ```{webr}
 colnames(mtcars)
 
-boxplot(mpg ~ cyl, data = mtcars, col = "mediumseagreen",
-        xlab = "Number of Cylinders", ylab = "Miles/(US) gallon", 
-        main = "Motor Trend Car Road Tests",
-        sub = "Source: 1974 Motor Trend US magazine")
+boxplot(
+  mpg ~ cyl, data = mtcars,
+  col = "mediumseagreen",
+  xlab = "Number of Cylinders",
+  ylab = "Miles/(US) gallon",
+  main = "Motor Trend Car Road Tests",
+  sub = "Source: 1974 Motor Trend US magazine"
+)
 ```
 
 It's easy to see the potential teaching benefit examples like this could bring to educational content or R package documentation.
@@ -178,11 +182,16 @@ With webR 0.1.1, the canvas graphics device had only minimal support for renderi
 In comparison, web browser support for text rendering is excellent. Now that we use the `OffscreenCanvas` interface, we too can take advantage of the years of work behind browser's support for text on the web. The example below demonstrates several of the modern text rendering features now supported by [`webr::canvas()`](https://docs.r-wasm.org/webr/latest/api/r.html#graphics-device-for-drawing-to-a-html-canvas-element).
 
 ```{webr}
-plot(rnorm(1000), rnorm(1000), col=rgb(0,0,0,0.5),
-     xlim=c(-5, 5), ylim=c(-5, 5), main="This is the title 🚀",
-     xlab="This is the x label", ylab="This is the y label",
-     family="Futura")
-text(-3.5, 4, "This is English", family="monospace")
+plot(
+  rnorm(1000), rnorm(1000),
+  col = rgb(0, 0, 0, 0.5),
+  xlim = c(-5, 5), ylim = c(-5, 5),
+  main = "This is the title 🚀",
+  xlab = "This is the x label",
+  ylab = "This is the y label",
+  family = "Futura"
+)
+text(-3.5, 4, "This is English", family = "monospace")
 text(-3.5, -4, "هذا مكتوب باللغة العربية")
 text(3.5, 4, "これは日本語です")
 text(3.5, -4, "זה כתוב בעברית")
@@ -272,10 +281,15 @@ When plotting with the built-in bitmap graphics devices, fonts must be accessibl
 The fontconfig library is also configured to search the VFS directory `/home/web_user/fonts` for additional fonts. Users who wish to use custom fonts, or alternative writing systems, may do so by uploading font files to this directory. In the case of international scripts or non-Latin Unicode such as emoji, fontconfig will automatically use font fallback to select reasonable fonts containing the required glyphs.
 
 ``` r
-png(width=1200, height=800, res=180)
-plot(rnorm(1000), rnorm(1000), col=rgb(0,0,0,0.5),
-     xlim=c(-5, 5), ylim=c(-5, 5), main="This is the title 🚀",
-     xlab="This is the x label", ylab="This is the y label")
+png(width = 1200, height = 800, res = 180)
+plot(
+  rnorm(1000), rnorm(1000),
+  col = rgb(0, 0, 0, 0.5),
+  xlim = c(-5, 5), ylim = c(-5, 5),
+  main = "This is the title 🚀",
+  xlab = "This is the x label",
+  ylab = "This is the y label"
+)
 text(-3.5, 4, "This is English")
 text(-3.5, -4, "هذا مكتوب باللغة العربية")
 text(3.5, 4, "これは日本語です")
