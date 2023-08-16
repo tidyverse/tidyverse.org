@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive]
 tags: [webr, webassembly, wasm]
-rmd_hash: 5404f74b1f483282
+rmd_hash: a03d65c3a8156090
 
 ---
 
@@ -216,7 +216,7 @@ const webR = new WebR();
 await webR.init();
 
 await webR.evalRVoid(`
-  png('/tmp/Rplot.png', width=800, height=800, res=144)
+  png('/tmp/Rplot.png', width = 800, height = 800, res = 144)
   hist(rnorm(1000))
   dev.off()
 `);
@@ -282,6 +282,54 @@ With the introduction of the lazy virtual filesystem, along with other efficienc
 | `R.bin.data`                    | 25.3MB | 5.2MB | 20.6%           |
 | `R.bin.wasm`                    | 12.8MB | 1.7MB | 7.5%            |
 | **Total for the webR REPL app** | 40.2MB | 9.5MB | 23.6%           |
+
+## R packages
+
+Since initial release, webR has supported loading R packages by first installing them to the Emscripten VFS using the helper function [`webr::install()`](https://docs.r-wasm.org/webr/latest/api/r.html#install-one-or-more-packages-from-a-webr-binary-package-repo) or by manually placing R packages in the VFS at `/usr/lib/R/library`. We find that pure R packages usually work well, but R packages with underlying C (or Fortran, or otherwise...) code must be compiled from source for Wasm.
+
+We host a public CRAN-like R package repository containing packages built for Wasm in this way, so that there exists a subset of useful and supported R packages that can be used with webR. The public repository is hosted at <https://repo.r-wasm.org> and this repo URL is used by default when running [`webr::install()`](https://docs.r-wasm.org/webr/latest/api/r.html#install-one-or-more-packages-from-a-webr-binary-package-repo) to install a Wasm R package.
+
+It remains the case that building custom R packages for Wasm is not well documented, but we do hope to improve the situation over time as our package build infrastructure develops and matures. In the future, we plan to provide a Wasm R package build system as a set of Docker containers, so that users are able to build their own packages for webR using a container environment.
+
+### WebAssembly system libraries for R packages
+
+Many R packages require linking with system libraries to build and run. When building such R packages for WebAssembly, not only does the package code require compiling for Wasm, but also any system libraries that code depends on.
+
+To expand support for R packages, webR 0.2.0 ships with [additional recipes](https://github.com/r-wasm/webr/tree/main/libs/recipes) to build system libraries from source for Wasm. The libraries consist of a selection of utility, database, graphics, text rendering, geometry, and geospatial support packages, with specific libraries chosen for their possibility to be compiled for Wasm as well as the number of R packages relying on them. I expect that the number of system libraries supported will continue to grow over time as we attempt to build more R packages for Wasm.
+
+As of webR 0.1.1, **219** packages were available to install through our public Wasm R package repo. With the release of webR 0.2.0 and its additional system libraries, the number of available packages is now **10304** (approximately 51% of CRAN packages). Though, it should be noted that these packages have not been tested in detail. Here, "available" just means that the Emscripten compiler successfully built the R package for Wasm, along with its prerequisite packages.
+
+### Public Wasm R packages dashboard
+
+While available R packages can be listed using [`available.packages()`](https://rdrr.io/r/utils/available.packages.html) with our CRAN-like Wasm R package repo, it's not the smoothest experience for users simply wanting to check if a given package is available. A dashboard has been added to the [repo index page](https://repo.r-wasm.org) which lists the available packages compiled for Wasm in an interactive table. The table also lists package dependencies, noting which prerequisite packages, if any, are still missing.
+
+<a href="repo.png"><img alt="A screenshot of the webR binary R package repository index page. A table of available R packages is shown, along with their prerequisites" width="95%" src="repo.png"></a>
+
+It might be interesting to note that this dashboard itself is running under webR, through a fully client-side Shiny app.
+
+## Running httpuv & Shiny under webR
+
+Using features new to webR 0.2.0, a [httpuv webR package shim](https://github.com/r-wasm/httpuv) has been created that provides the functionality usually provided by the [httpuv](https://cran.r-project.org/web/packages/httpuv/index.html) R package. The package enables R to handle HTTP and WebSocket traffic, and is a prerequisite for the R Shiny package.
+
+The shim works by taking advantage of the [JavaScript Service Worker API](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API). Normally Service Workers are used to implement fast offline caching of web content, but they can also be used as a general network proxy. The httpuv shim makes use of a Service Worker to intercept network traffic from a running Shiny web client, and forward that traffic to be handled by an instance of webR.
+
+From the Shiny server's point of view, it is communicating with the usual httpuv package using its R API. From the point of view of the Shiny web client, it is talking to a Shiny server over the network. Between the two, the JavaScript Service Worker and webR work together to act as a network proxy and handle the traffic entirely within the client[^6].
+
+<a href="httpuv.png"><img alt="A block diagram showing how the httpuv shim, webR worker thread, and Shiny work together. See the preceding diagram for an explanation of how the blocks interact" width="90%" src="httpuv.png"></a>
+
+The httpuv shim package is still in the experimental stage, but it is currently available for testing and is included in our public webR package repository.
+
+### An example shiny app
+
+<a href="shiny.png"><img alt="A screenshot of the webR Shiny demo. The shiny app is shown in the top section of the screenshot, an input slider and an output histogram plot. The lower section shows the normally server-side Shiny package console output when tracing is enabled." width="90%" src="shiny.png"></a>
+
+An example Shiny app, making use of the httpuv shim and running fully client-side, is available at <https://shiny-standalone-webr-demo.netlify.app>.
+
+Once the app has loaded in your browser, it's possible to confirm that the app is running entirely client-side by observing the Shiny server trace output at the bottom of the screen. You should even be able to disconnect completely from the internet and continue to use the app offline.
+
+The source code for the demo, which includes some information describing how to set up a webR Shiny server in this way, can be found at <a href="https://github.com/georgestagg/shiny-standalone-webr-demo">georgestagg/shiny-standalone-webr-demo</a>. Note that this repository is targeted towards advanced web developers with prior experience of development with JavaScript Web Workers. It is intended as a demonstration of the technology, rather than a tutorial.
+
+A coming-soon version of Shinylive for R will provide a much better user experience for getting fully client-side R Shiny apps up and running, without requiring advanced knowledge of JavaScript's Worker API. I believe Shinylive with webR integration will pave the way for providing a user-friendly method to build and deploy containerised R Shiny apps, running on WebAssembly.
 
 ## Changes to the webR developer API
 
@@ -427,54 +475,6 @@ async function run() {
   }
 }
 ```
-
-## R packages
-
-Since initial release, webR has supported loading R packages by first installing them to the Emscripten VFS using the helper function [`webr::install()`](https://docs.r-wasm.org/webr/latest/api/r.html#install-one-or-more-packages-from-a-webr-binary-package-repo) or by manually placing R packages in the VFS at `/usr/lib/R/library`. We find that pure R packages usually work well, but R packages with underlying C (or Fortran, or otherwise...) code must be compiled from source for Wasm.
-
-We host a public CRAN-like R package repository containing packages built for Wasm in this way, so that there exists a subset of useful and supported R packages that can be used with webR. The public repository is hosted at <https://repo.r-wasm.org> and this repo URL is used by default when running [`webr::install()`](https://docs.r-wasm.org/webr/latest/api/r.html#install-one-or-more-packages-from-a-webr-binary-package-repo) to install a Wasm R package.
-
-It remains the case that building custom R packages for Wasm is not well documented, but we do hope to improve the situation over time as our package build infrastructure develops and matures. In the future, we plan to provide a Wasm R package build system as a set of Docker containers, so that users are able to build their own packages for webR using a container environment.
-
-### WebAssembly system libraries for R packages
-
-Many R packages require linking with system libraries to build and run. When building such R packages for WebAssembly, not only does the package code require compiling for Wasm, but also any system libraries that code depends on.
-
-To expand support for R packages, webR 0.2.0 ships with [additional recipes](https://github.com/r-wasm/webr/tree/main/libs/recipes) to build system libraries from source for Wasm. The libraries consist of a selection of utility, database, graphics, text rendering, geometry, and geospatial support packages, with specific libraries chosen for their possibility to be compiled for Wasm as well as the number of R packages relying on them. I expect that the number of system libraries supported will continue to grow over time as we attempt to build more R packages for Wasm.
-
-As of webR 0.1.1, **219** packages were available to install through our public Wasm R package repo. With the release of webR 0.2.0 and its additional system libraries, the number of available packages is now **10304** (approximately 51% of CRAN packages). Though, it should be noted that these packages have not been tested in detail. Here, "available" just means that the Emscripten compiler successfully built the R package for Wasm, along with its prerequisite packages.
-
-### Public Wasm R packages dashboard
-
-While available R packages can be listed using [`available.packages()`](https://rdrr.io/r/utils/available.packages.html) with our CRAN-like Wasm R package repo, it's not the smoothest experience for users simply wanting to check if a given package is available. A dashboard has been added to the [repo index page](https://repo.r-wasm.org) which lists the available packages compiled for Wasm in an interactive table. The table also lists package dependencies, noting which prerequisite packages, if any, are still missing.
-
-<a href="repo.png"><img alt="A screenshot of the webR binary R package repository index page. A table of available R packages is shown, along with their prerequisites" width="95%" src="repo.png"></a>
-
-It might be interesting to note that this dashboard itself is running under webR, through a fully client-side Shiny app.
-
-## Running httpuv & Shiny under webR
-
-Using features new to webR 0.2.0, a [httpuv webR package shim](https://github.com/r-wasm/httpuv) has been created that provides the functionality usually provided by the [httpuv](https://cran.r-project.org/web/packages/httpuv/index.html) R package. The package enables R to handle HTTP and WebSocket traffic, and is a prerequisite for the R Shiny package.
-
-The shim works by taking advantage of the [JavaScript Service Worker API](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API). Normally Service Workers are used to implement fast offline caching of web content, but they can also be used as a general network proxy. The httpuv shim makes use of a Service Worker to intercept network traffic from a running Shiny web client, and forward that traffic to be handled by an instance of webR.
-
-From the Shiny server's point of view, it is communicating with the usual httpuv package using its R API. From the point of view of the Shiny web client, it is talking to a Shiny server over the network. Between the two, the JavaScript Service Worker and webR work together to act as a network proxy and handle the traffic entirely within the client[^6].
-
-<a href="httpuv.png"><img alt="A block diagram showing how the httpuv shim, webR worker thread, and Shiny work together. See the preceding diagram for an explanation of how the blocks interact" width="90%" src="httpuv.png"></a>
-
-The httpuv shim package is still in the experimental stage, but it is currently available for testing and is included in our public webR package repository.
-
-### An example shiny app
-
-<a href="shiny.png"><img alt="A screenshot of the webR Shiny demo. The shiny app is shown in the top section of the screenshot, an input slider and an output histogram plot. The lower section shows the normally server-side Shiny package console output when tracing is enabled." width="90%" src="shiny.png"></a>
-
-An example Shiny app, making use of the httpuv shim and running fully client-side, is available at <https://shiny-standalone-webr-demo.netlify.app>.
-
-Once the app has loaded in your browser, it's possible to confirm that the app is running entirely client-side by observing the Shiny server trace output at the bottom of the screen. You should even be able to disconnect completely from the internet and continue to use the app offline.
-
-The source code for the demo, which includes some information describing how to set up a webR Shiny server in this way, can be found at <a href="https://github.com/georgestagg/shiny-standalone-webr-demo">georgestagg/shiny-standalone-webr-demo</a>. Note that this repository is targeted towards advanced web developers with prior experience of development with JavaScript Web Workers. It is intended as a demonstration of the technology, rather than a tutorial.
-
-A coming-soon version of Shinylive for R will provide a much better user experience for getting fully client-side R Shiny apps up and running, without requiring advanced knowledge of JavaScript's Worker API. I believe Shinylive with webR integration will pave the way for providing a user-friendly method to build and deploy containerised R Shiny apps, running on WebAssembly.
 
 ## Installation and next steps
 
