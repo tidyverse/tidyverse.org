@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive]
 tags: [webr, webassembly, wasm]
-rmd_hash: 7f775754f96bcd8c
+rmd_hash: 1b3876bbfd0c4b87
 
 ---
 
@@ -63,7 +63,7 @@ Even in these early days, some of this is already being provided by development 
 
 ### Interactive code blocks
 
-One of my favourite demonstrations of what webR can do is interactive code blocks for R code. After a short loading period while the webR binary is downloaded, a **Run code** button will be enabled below. Using examples like this, R code can be immediately edited and executed -- feel free to experiment!
+One of my favourite demonstrations of what webR can do is interactive code blocks for R code. After a short loading period while the webR binary is downloaded, a **Run code** button will be enabled below. Using examples like this, R code can be immediately edited and executed -- feel free to experiment! Click the "Run code" button to see the resulting box plot, change the colour from `mediumseagreen` to `red` and run the code again.
 
 <div class="highlight">
 
@@ -75,9 +75,9 @@ It's easy to see the potential teaching benefit examples like this could bring t
 
 ## The webR REPL app
 
-WebR can be loaded into a web page to be used as a part of a wider web application, and ships with a demo application that does just that. The webR REPL app[^3] provides a simple R environment directly in your web browser. The app can be accessed at the URL <https://webr.r-wasm.org/v0.2.0-rc.1/> and included are sections for R console input/output, code editing, file management, and graphics device output.
+WebR can be loaded into a web page to be used as a part of a wider web application, and ships with a demo application that does just that. The webR REPL app[^3] provides a simple R environment directly in your web browser. The app can be accessed at the URL <https://webr.r-wasm.org/v0.2.0-rc.1/> and includes sections for R console input/output, code editing, file management, and graphics device output.
 
-With the webR REPL app a casual user could get up and running with R in seconds, without having to install any software to their machine. It is entirely feasible that they could perform the basics of data science entirely within their web browser!
+With the webR REPL app, a casual user could get up and running with R in seconds, without having to install any software on their machine. It is entirely feasible that they could perform the basics of data science entirely within their web browser!
 
 Other than interactive code blocks, like in the example earlier, the webR REPL app is perhaps the first thing that users new to webR will interact with. For this reason, we have spent some time working to improve the technical implementation and user experience of using the app. The app has been completely rewritten in the React web framework, replacing the older jQuery library. This allows for better component code organisation and more rapid development of features and updates.
 
@@ -85,7 +85,7 @@ Other than interactive code blocks, like in the example earlier, the webR REPL a
 
 ### Code editor
 
-The app now comes with a tabbed code editor, allowing for easier editing and execution of R code. The editor integrates with the webR virtual filesystem (VFS), meaning that multiple R scripts can be opened, edited and saved and they will be available to the running Wasm R process.
+The app now comes with a tabbed code editor, allowing for easier editing and execution of R code. The editor integrates with the webR virtual filesystem (VFS), meaning that multiple R scripts can be opened, edited, and saved and they will be available to the running Wasm R process.
 
 The editor pane is built upon the excellent [CodeMirror](https://codemirror.net) text editor, which provides most of the component's functionality. CodeMirror provides built-in support for syntax highlighting of R code, which is enabled by default when R source files are displayed.
 
@@ -105,7 +105,7 @@ The plotting pane has been updated to take advantage of improvements in webR's H
 
 ### Files pane
 
-The files pane has been completely redesigned, removing is dependency on jQuery and instead making use of the [react-accessible-treeview](https://www.npmjs.com/package/react-accessible-treeview) package. As well as a technical improvement, this change means that interacting with the webR filesystem should be more usable to those with web accessibility requirements. We feel it's important that, where possible, everybody is able to use our software.
+The files pane has been completely redesigned, removing its dependency on jQuery and instead making use of the [react-accessible-treeview](https://www.npmjs.com/package/react-accessible-treeview) package. As well as a technical improvement, this change means that interacting with the webR filesystem should be more usable to those with web accessibility requirements. We feel it's important that, where possible, everybody is able to use our software.
 
 <a href="files.png"><img alt="A screenshot of the files pane showing the path /home/web_user/plot_random_numbers.R" width="90%" src="files.png"></a>
 
@@ -173,7 +173,7 @@ Font metrics are now exact, using [`measureText()`](https://developer.mozilla.or
 
 Support for Unicode, font glyph fallback, complex ligatures, and right-to-left (RTL) text have all been improved. This vastly improves results when rendering text for international users, particularly for non-Latin RTL scripts such as the Arabic and Hebrew text in the example above.
 
-Also, colour emoji can now be added to plots 😃
+Also, colour emoji can now be added to plots. 😃
 
 ### Paths and winding rules
 
@@ -298,7 +298,7 @@ const result = await ret.toJs();
 
 It's easy to see how this workflow could be useful as part of a wider application, enabling a complex data manipulation or a statistical modelling in R that would otherwise be awkward to perform directly in JavaScript.
 
-Behind the scenes we've done work to ensure that data is transferred efficiently to and from the R environment, and in webR 0.2.0 the [MessagePack](https://msgpack.org/index.html) protocol is now used as the main way that data is serialised and transferred, replacing JSON encoding.
+Behind the scenes, we've done work to ensure that data is transferred efficiently to and from the R environment, and in webR 0.2.0 the [MessagePack](https://msgpack.org/index.html) protocol is now used as the main way that data is serialised and transferred, replacing JSON encoding.
 
 This change provides a significant performance improvement. [Initial testing](https://github.com/r-wasm/webr/pull/204) shows an order of magnitude speed boost when transferring large sets of data from the JavaScript environment into R. Thanks to [@jeroen](https://github.com/r-wasm/webr/issues/203) for prompting me to look into it!
 
@@ -487,7 +487,7 @@ The original namespaced package `@r-wasm/webr` will be deprecated, and from v0.2
 
 ### CDN URL
 
-Alternatively, webR can be imported directly as a module from CDN,
+Alternatively, webR can be imported directly as a module from CDN.
 
 ``` javascript
 import { WebR } from "https://webr.r-wasm.org/v0.2.0/webr.mjs"
