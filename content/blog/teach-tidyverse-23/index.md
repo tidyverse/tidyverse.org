@@ -16,7 +16,7 @@ categories: [learn]
 tags: [tidyverse, teaching]
 editor_options: 
   chunk_output_type: console
-rmd_hash: a7f8147e08399bfe
+rmd_hash: 4838b9cbe17a5c3d
 
 ---
 
@@ -567,7 +567,7 @@ If we just join `weight_measurements` to `four_penguins`, the unmatched fourth p
 
 </div>
 
-Setting `unmatched = "error"` can protects you from accidentally dropping rows:
+Setting `unmatched = "error"` protects you from accidentally dropping rows:
 
 <div class="highlight">
 
