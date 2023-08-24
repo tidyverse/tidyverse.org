@@ -41,7 +41,7 @@ install.packages(c("rsample", "tune"))
 
 This blog post will walk you through how to make a validation split and use it for tuning.
 
-<!-- You can see a full list of changes in the [release notes]({ github_release }) -->
+You can see a full list of changes in the release notes for [rsample](https://github.com/tidymodels/rsample/releases/tag/v1.2.0) and [tune](https://github.com/tidymodels/tune/releases/tag/v1.1.2). 
 
 Let's start with loading the tidymodels package which will load, among others, both rsample and tune.
 
@@ -114,10 +114,8 @@ xgb_wf
 
 We give this workflow object with the model specification to `tune_grid()` to try multiple combinations of the hyperparameters we tagged for tuning (`min_n`, `mtry`, and `stop_iter`). 
 
-<!-- But `tune_grid()` also needs data to fit the model on and data to assess the fitted model on! That's the training set and the validation set. The test set needs to be put aside until we've picked our final model. -->
-<!-- The new `validation_set()` function takes our initial three-way split object and returns the training set and the validation set, ready for use with the tuning functions like `tune_grid()`. -->
+During tuning, the model should not have access to the test data, only to the data used to fit the model (the analysis set) and the data used to assess the model (the assessment set). Each pair of analysis and assessment set forms a resample. For 10-fold cross-validation, we'd have 10 resamples. With a validation split, we have just one resample with the training set functioning as the analysis set and the validation set as the assessment set. The tidymodels tuning functions all expect a _set_ of resamples (which can be of size one) and the corresponding objects are of class `rset`. 
 
-During tuning, the model should not have access to the test data, only to the data used to fit the model (the analysis set) and the data used to assess the model (the assessment set). Each pair of analysis and assessment set forms a resample. With a validation split, we have just one resample with the training set functioning as the analysis set and the validation set as the assessment set. For 10-fold cross-validation, we'd have 10 resamples. The tidymodels tuning functions all expect a _set_ of resamples and the corresponding objects are of class `rset`. 
 To remove the test data from the initial three-way split and create such an `rset` object for tuning, use `validation_set()`.
 
 ```{r validation-set}
@@ -141,6 +139,8 @@ childcare_wflow <- finalize_workflow(xgb_wf, best_parameters)
 childcare_fit <- last_fit(childcare_wflow, childcare_split, add_validation_set = TRUE)
 collect_metrics(childcare_fit)
 ```
+
+This takes you through the important changes for validation sets in the tidymodels framework! 
 
 ## Acknowledgements
 

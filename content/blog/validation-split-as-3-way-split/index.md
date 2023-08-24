@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, rsample, tune]
-rmd_hash: 97b055d193137859
+rmd_hash: 753784589f5e1f43
 
 ---
 
@@ -45,7 +45,7 @@ You can install the new versions from CRAN with:
 
 This blog post will walk you through how to make a validation split and use it for tuning.
 
-<!-- You can see a full list of changes in the [release notes]({ github_release }) -->
+You can see a full list of changes in the release notes for [rsample](https://github.com/tidymodels/rsample/releases/tag/v1.2.0) and [tune](https://github.com/tidymodels/tune/releases/tag/v1.1.2).
 
 Let's start with loading the tidymodels package which will load, among others, both rsample and tune.
 
@@ -58,7 +58,7 @@ Let's start with loading the tidymodels package which will load, among others, b
 <span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dplyr       </span> 1.1.2          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tibble      </span> 3.2.1     </span></span>
 <span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>ggplot2     </span> 3.4.3          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tidyr       </span> 1.3.0     </span></span>
 <span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>infer       </span> 1.0.4          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tune        </span> 1.1.2     </span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>modeldata   </span> 1.2.0          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflows   </span> 1.1.3     </span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>modeldata   </span> 1.2.0.<span style='color: #BB0000;'>9000</span>     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflows   </span> 1.1.3     </span></span>
 <span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>parsnip     </span> 1.1.0.<span style='color: #BB0000;'>9003</span>     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflowsets</span> 1.0.1     </span></span>
 <span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>purrr       </span> 1.0.2          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>yardstick   </span> 1.2.0.<span style='color: #BB0000;'>9001</span></span></span>
 <span></span><span><span class='c'>#&gt; ── <span style='font-weight: bold;'>Conflicts</span> ───────────────────────────────────────── tidymodels_conflicts() ──</span></span>
@@ -66,7 +66,7 @@ Let's start with loading the tidymodels package which will load, among others, b
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>lag()</span>     masks <span style='color: #0000BB;'>stats</span>::lag()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>recipes</span>::<span style='color: #00BB00;'>step()</span>  masks <span style='color: #0000BB;'>stats</span>::step()</span></span>
-<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Dig deeper into tidy modeling with R at <span style='color: #00BB00;'>https://www.tmwr.org</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Use suppressPackageStartupMessages() to eliminate package startup messages</span></span>
 <span></span></code></pre>
 
 </div>
@@ -84,7 +84,7 @@ You can now make a three-way split of your data instead of doing a sequence of t
 
 To illustrate how to use the new functions, we'll replicate an analysis of [childcare cost](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-05-09/readme.md) from a [Tidy Tuesday](https://github.com/rfordatascience/tidytuesday) done by Julia Silge in one of her [screencasts](https://juliasilge.com/blog/childcare-costs/).
 
-We are modeling the median weekly price for school-aged kids in childcare centers `mcsa` and are thus removing the other variables containing different variants of median prices (e.g, for different age groups). We are also removing the FIPS code identifying the county as we are including various characteristics of the counties instead of their ID.
+We are modeling the median weekly price for school-aged kids in childcare centers `mcsa` and are thus removing the other variables containing different variants of median prices (e.g., for different age groups). We are also removing the FIPS code identifying the county as we are including various characteristics of the counties instead of their ID.
 
 <div class="highlight">
 
@@ -110,7 +110,7 @@ We are modeling the median weekly price for school-aged kids in childcare center
 <span><span class='nv'>childcare_costs</span> <span class='o'>&lt;-</span> <span class='nv'>childcare_costs</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'>select</span><span class='o'>(</span><span class='o'>-</span><span class='nf'>matches</span><span class='o'>(</span><span class='s'>"^mc_|^mfc"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'>select</span><span class='o'>(</span><span class='o'>-</span><span class='nv'>county_fips_code</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/stats/na.fail.html'>na.omit</a></span><span class='o'>(</span><span class='o'>)</span> </span>
+<span>  <span class='nf'>drop_na</span><span class='o'>(</span><span class='o'>)</span> </span>
 <span></span>
 <span><span class='nf'>glimpse</span><span class='o'>(</span><span class='nv'>childcare_costs</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Rows: 23,593</span></span>
@@ -261,10 +261,9 @@ You may want to extract the training data to do some exploratory data analysis b
 
 We give this workflow object with the model specification to `tune_grid()` to try multiple combinations of the hyperparameters we tagged for tuning (`min_n`, `mtry`, and `stop_iter`).
 
-<!-- But `tune_grid()` also needs data to fit the model on and data to assess the fitted model on! That's the training set and the validation set. The test set needs to be put aside until we've picked our final model. -->
-<!-- The new `validation_set()` function takes our initial three-way split object and returns the training set and the validation set, ready for use with the tuning functions like `tune_grid()`. -->
+During tuning, the model should not have access to the test data, only to the data used to fit the model (the analysis set) and the data used to assess the model (the assessment set). Each pair of analysis and assessment set forms a resample. For 10-fold cross-validation, we'd have 10 resamples. With a validation split, we have just one resample with the training set functioning as the analysis set and the validation set as the assessment set. The tidymodels tuning functions all expect a *set* of resamples (which can be of size one) and the corresponding objects are of class `rset`.
 
-During tuning, the model should not have access to the test data, only to the data used to fit the model (the analysis set) and the data used to assess the model (the assessment set). Each pair of analysis and assessment set forms a resample. With a validation split, we have just one resample with the training set functioning as the analysis set and the validation set as the assessment set. For 10-fold cross-validation, we'd have 10 resamples. The tidymodels tuning functions all expect a *set* of resamples and the corresponding objects are of class `rset`. To remove the test data from the initial three-way split and create such an `rset` object for tuning, use `validation_set()`.
+To remove the test data from the initial three-way split and create such an `rset` object for tuning, use `validation_set()`.
 
 <div class="highlight">
 
@@ -306,6 +305,8 @@ We are going to try 15 different parameter combinations and pick the one with th
 <span></span></code></pre>
 
 </div>
+
+This takes you through the important changes for validation sets in the tidymodels framework!
 
 ## Acknowledgements
 
