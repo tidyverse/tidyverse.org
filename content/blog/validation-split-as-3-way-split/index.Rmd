@@ -62,7 +62,7 @@ You can now make a three-way split of your data instead of doing a sequence of t
 
 To illustrate how to use the new functions, we'll replicate an analysis of [childcare cost](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-05-09/readme.md) from a [Tidy Tuesday](https://github.com/rfordatascience/tidytuesday) done by Julia Silge in one of her [screencasts](https://juliasilge.com/blog/childcare-costs/).
 
-We are modeling the median weekly price for school-aged kids in childcare centers `mcsa` and are thus removing the other variables containing different variants of median prices (e.g, for different age groups). We are also removing the FIPS code identifying the county as we are including various characteristics of the counties instead of their ID.
+We are modeling the median weekly price for school-aged kids in childcare centers `mcsa` and are thus removing the other variables containing different variants of median prices (e.g., for different age groups). We are also removing the FIPS code identifying the county as we are including various characteristics of the counties instead of their ID.
 
 ```{r}
 library(readr)
@@ -72,7 +72,7 @@ childcare_costs <- read_csv('https://raw.githubusercontent.com/rfordatascience/t
 childcare_costs <- childcare_costs |>
   select(-matches("^mc_|^mfc")) |>
   select(-county_fips_code) |>
-  na.omit() 
+  drop_na() 
 
 glimpse(childcare_costs)
 ```
