@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: validation-split-as-3-way-split
 title: New interface to validation splits
-date: 2023-08-21
+date: 2023-08-25
 author: Hannah Frick
 description: >
     The latest releases of rsample and tune provide a new interface to 
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, rsample, tune]
-rmd_hash: 753784589f5e1f43
+rmd_hash: 449ce63de867c7b1
 
 ---
 
@@ -52,15 +52,15 @@ Let's start with loading the tidymodels package which will load, among others, b
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidymodels.tidymodels.org'>tidymodels</a></span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; ── <span style='font-weight: bold;'>Attaching packages</span> ────────────────────────────────────── tidymodels 1.0.0 ──</span></span>
-<span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>broom       </span> 1.0.5.<span style='color: #BB0000;'>9000</span>     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>recipes     </span> 1.0.7     </span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dials       </span> 1.2.0          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>rsample     </span> 1.1.1.<span style='color: #BB0000;'>9001</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dplyr       </span> 1.1.2          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tibble      </span> 3.2.1     </span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>ggplot2     </span> 3.4.3          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tidyr       </span> 1.3.0     </span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>infer       </span> 1.0.4          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tune        </span> 1.1.2     </span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>modeldata   </span> 1.2.0.<span style='color: #BB0000;'>9000</span>     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflows   </span> 1.1.3     </span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>parsnip     </span> 1.1.0.<span style='color: #BB0000;'>9003</span>     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflowsets</span> 1.0.1     </span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>purrr       </span> 1.0.2          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>yardstick   </span> 1.2.0.<span style='color: #BB0000;'>9001</span></span></span>
+<span><span class='c'>#&gt; ── <span style='font-weight: bold;'>Attaching packages</span> ────────────────────────────────────── tidymodels 1.1.1 ──</span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>broom       </span> 1.0.5     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>recipes     </span> 1.0.7</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dials       </span> 1.2.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>rsample     </span> 1.2.0</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dplyr       </span> 1.1.2     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tibble      </span> 3.2.1</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>ggplot2     </span> 3.4.3     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tidyr       </span> 1.3.0</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>infer       </span> 1.0.4     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tune        </span> 1.1.2</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>modeldata   </span> 1.2.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflows   </span> 1.1.3</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>parsnip     </span> 1.1.1     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflowsets</span> 1.0.1</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>purrr       </span> 1.0.2     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>yardstick   </span> 1.2.0</span></span>
 <span></span><span><span class='c'>#&gt; ── <span style='font-weight: bold;'>Conflicts</span> ───────────────────────────────────────── tidymodels_conflicts() ──</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>purrr</span>::<span style='color: #00BB00;'>discard()</span> masks <span style='color: #0000BB;'>scales</span>::discard()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span></span>
