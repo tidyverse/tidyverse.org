@@ -1,0 +1,151 @@
+---
+output: hugodown::hugo_document
+
+slug: validation-split-as-3-way-split
+title: New interface to validation splits
+date: 2023-08-25
+author: Hannah Frick
+description: >
+    The latest releases of rsample and tune provide a new interface to 
+    validation sets as a three-way split.
+
+photo:
+  url: https://unsplash.com/photos/68GdK1Aoc8g
+  author: Scott Webb
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [tidymodels, rsample, tune]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're chuffed to announce the release of a new interface to validation splits in [rsample](https://rsample.tidymodels.org/) 1.2.0 and [tune](https://tune.tidymodels.org/) 1.1.2. The rsample package makes it easy to create resamples for assessing model performance. The tune package facilitates hyperparameter tuning for the tidymodels packages.
+
+You can install the new versions from CRAN with:
+
+```{r, eval = FALSE}
+install.packages(c("rsample", "tune"))
+```
+
+This blog post will walk you through how to make a validation split and use it for tuning.
+
+You can see a full list of changes in the release notes for [rsample](https://github.com/tidymodels/rsample/releases/tag/v1.2.0) and [tune](https://github.com/tidymodels/tune/releases/tag/v1.1.2). 
+
+Let's start with loading the tidymodels package which will load, among others, both rsample and tune.
+
+```{r setup}
+library(tidymodels)
+```
+
+## The new functions
+
+You can now make a three-way split of your data instead of doing a sequence of two binary splits.
+
+- `initial_validation_split()` with variants `initial_validation_time_split()` and `group_initial_validation_split()` for the initial three-way split
+- `validation_set()` to create the `rset` for tuning containing the analysis (= training) and assessment (= validation) set
+- `training()`, `validation()`, and `testing()` for access to the separate subsets
+- `last_fit()` (and `fit_best()`) now also work on the initial three-way split
+
+## The new functions in action
+
+To illustrate how to use the new functions, we'll replicate an analysis of [childcare cost](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-05-09/readme.md) from a [Tidy Tuesday](https://github.com/rfordatascience/tidytuesday) done by Julia Silge in one of her [screencasts](https://juliasilge.com/blog/childcare-costs/).
+
+We are modeling the median weekly price for school-aged kids in childcare centers `mcsa` and are thus removing the other variables containing different variants of median prices (e.g., for different age groups). We are also removing the FIPS code identifying the county as we are including various characteristics of the counties instead of their ID.
+
+```{r}
+library(readr)
+
+childcare_costs <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-05-09/childcare_costs.csv')
+
+childcare_costs <- childcare_costs |>
+  select(-matches("^mc_|^mfc")) |>
+  select(-county_fips_code) |>
+  drop_na() 
+
+glimpse(childcare_costs)
+```
+
+Even after omitting rows with missing values are we left with `r nrow(childcare_costs)` observations. That is plenty to work with! We are likely to get a reliable estimate of the model performance from a validation set without having to fit and evaluate the model multiple times, as with, for example, v-fold cross-validation.
+
+We are creating a three-way split of the data into a training, a validation, and a test set with the new `initial_validation_split()` function. We are stratifying based on our outcome `mcsa`. The default of `prop = c(0.6, 0.2)` means that 60% of the data gets allocated to the training set and 20% to the validation set - and the remaining 20% go into the test set.
+
+```{r initial-validation-split}
+set.seed(123)
+childcare_split <- childcare_costs |>
+  initial_validation_split(strata = mcsa)
+childcare_split
+```
+
+You can access the subsets of the data with the familiar `training()` and `testing()` as well as the new `validation()`:
+
+```{r validation}
+validation(childcare_split)
+```
+
+You may want to extract the training data to do some exploratory data analysis but here we are going to rely on xgboost to figure out patterns in the data so we can breeze straight to tuning a model.
+
+```{r xgb-wflow}
+xgb_spec <-
+  boost_tree(
+    trees = 500,
+    min_n = tune(),
+    mtry = tune(),
+    stop_iter = tune(),
+    learn_rate = 0.01
+  ) |>
+  set_engine("xgboost", validation = 0.2) |>
+  set_mode("regression")
+
+xgb_wf <- workflow(mcsa ~ ., xgb_spec)
+xgb_wf
+```
+
+We give this workflow object with the model specification to `tune_grid()` to try multiple combinations of the hyperparameters we tagged for tuning (`min_n`, `mtry`, and `stop_iter`). 
+
+During tuning, the model should not have access to the test data, only to the data used to fit the model (the analysis set) and the data used to assess the model (the assessment set). Each pair of analysis and assessment set forms a resample. For 10-fold cross-validation, we'd have 10 resamples. With a validation split, we have just one resample with the training set functioning as the analysis set and the validation set as the assessment set. The tidymodels tuning functions all expect a _set_ of resamples (which can be of size one) and the corresponding objects are of class `rset`. 
+
+To remove the test data from the initial three-way split and create such an `rset` object for tuning, use `validation_set()`.
+
+```{r validation-set}
+set.seed(234)
+childcare_set <- validation_set(childcare_split)
+childcare_set
+```
+
+We are going to try 15 different parameter combinations and pick the one with the smallest RMSE.
+
+```{r tune-grid}
+set.seed(234)
+xgb_res <- tune_grid(xgb_wf, childcare_set, grid = 15)
+best_parameters <- select_best(xgb_res, "rmse")
+childcare_wflow <- finalize_workflow(xgb_wf, best_parameters)
+```
+
+`last_fit()` then lets you fit your model on the training data and calculate performance on the test data. If you provide it with a three-way split, you can choose if you want your model to be fitted on the training data only or on the combination of training and validation set. You can specify this with the `add_validation_set` argument.
+
+```{r last-fit}
+childcare_fit <- last_fit(childcare_wflow, childcare_split, add_validation_set = TRUE)
+collect_metrics(childcare_fit)
+```
+
+This takes you through the important changes for validation sets in the tidymodels framework! 
+
+## Acknowledgements
+
+Many thanks to the people who contributed since the last releases!
+
+For rsample: [&#x0040;afrogri37](https://github.com/afrogri37), [&#x0040;AngelFelizR](https://github.com/AngelFelizR), [&#x0040;bschneidr](https://github.com/bschneidr), [&#x0040;erictleung](https://github.com/erictleung), [&#x0040;exsell-jc](https://github.com/exsell-jc), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;jrosell](https://github.com/jrosell), [&#x0040;MasterLuke84](https://github.com/MasterLuke84), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;rdavis120](https://github.com/rdavis120), [&#x0040;sametsoekel](https://github.com/sametsoekel), [&#x0040;Shafi2016](https://github.com/Shafi2016), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;topepo](https://github.com/topepo), and [&#x0040;trevorcampbell](https://github.com/trevorcampbell).
+
+For tune: [&#x0040;blechturm](https://github.com/blechturm), [&#x0040;cphaarmeyer](https://github.com/cphaarmeyer), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;forecastingEDs](https://github.com/forecastingEDs), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;kjbeath](https://github.com/kjbeath), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;rdavis120](https://github.com/rdavis120), [&#x0040;simonpcouch](https://github.com/simonpcouch), and [&#x0040;topepo](https://github.com/topepo).
