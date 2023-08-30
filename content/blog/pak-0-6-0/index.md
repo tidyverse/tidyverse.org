@@ -7,9 +7,9 @@ title: pak 0.6.0
 date: 2023-08-28
 author: Gábor Csárdi
 description: >
-    pak installs R packages from various sources.
-    This post shows the improvements in system requirements installation
-    on Linux, in the just released pak 0.6.0 version.
+    pak installs R packages from various sources. pak is fast, safe and
+    convenient. This post shows the improvements in system requirements
+    support on Linux, in the just released pak 0.6.0 version.
 
 photo:
   url: https://www.pexels.com/photo/blue-white-orange-and-brown-container-van-163726/
@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: []
-rmd_hash: cd7f2c7091e7b695
+rmd_hash: 4aab995574c33bc3
 
 ---
 
@@ -35,7 +35,7 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're delighted to announce the release of [pak](https://pak.r-lib.org) 0.6.0. pak helps with the installation of R packages, and many related tasks.
+We're delighted to announce the release of [pak](https://pak.r-lib.org) 0.6.0. pak helps with the installation of R packages and many related tasks.
 
 You can install pak from CRAN with:
 
@@ -51,12 +51,12 @@ You can see a full list of changes in the [release notes](https://github.com/r-l
 
 ## System requirements
 
-Many R packages require the installation of external software, otherwise they do not work, or not even load. For example the RPostgres R package the PostgreSQL client library, and by default dynamically links to it on Linux systems. This means that you (or the administrators of your system) need to install this library, typically in the form of a system package: `libpq-dev` on Ubuntu and Debian systems, or `postgresql-server-devel` or `postgresql-devel` on Red Hat, Fedora, etc. systems.
+Many R packages require the installation of external software, otherwise they do not work, or even load. For example, the RPostgres R package requires the PostgreSQL client library, and by default dynamically links to it on Linux systems. This means that you (or the administrators of your system) need to install this library, typically in the form of a system package: `libpq-dev` on Ubuntu and Debian systems, or `postgresql-server-devel` or `postgresql-devel` on Red Hat, Fedora, etc. systems.
 
-The good news is that pak helps you with this:
+The good news is that pak now helps you with this:
 
 -   it looks up the required system packages when installing R packages,
--   it checks if the required system packages are installed, and
+-   it lets you know if any required system packages are missing from your system, before the installation, and
 -   it installs them automatically, if you are a superuser, or if you can use password-less `sudo` to start a superuser shell.
 
 In addition, pak now also has some functions to query system requirements and system packages.
@@ -188,7 +188,7 @@ To demonstrate this, let's remove the system package for the PostgreSQL client l
 
 </div>
 
-If now we (re)install the binary RPostgres R package, the installation will succeed, but then [`library()`](https://rdrr.io/r/base/library.html) fails because of the missing system package. (We will the broken R package below.)
+If now we (re)install the binary RPostgres R package, the installation will succeed, but then [`library()`](https://rdrr.io/r/base/library.html) fails because of the missing system package. (We will fix the broken R package below.)
 
 <div class="highlight">
 
@@ -319,3 +319,4 @@ There are several pak configuration options you can use to adjust how system req
 A big thank you to all those who have contributed to pak, or one of its workhorse packages since the v0.5.1 release:
 
 [@alexpate30](https://github.com/alexpate30), [@averissimo](https://github.com/averissimo), [@ArnaudKunzi](https://github.com/ArnaudKunzi), [@billdenney](https://github.com/billdenney), [@Darxor](https://github.com/Darxor), [@drmowinckels](https://github.com/drmowinckels), [@Fan-iX](https://github.com/Fan-iX), [@gongyh](https://github.com/gongyh), [@hadley](https://github.com/hadley), [@idavydov](https://github.com/idavydov), [@jefferis](https://github.com/jefferis), [@joan-yanqiong](https://github.com/joan-yanqiong), [@kevinushey](https://github.com/kevinushey), [@kkmann](https://github.com/kkmann), [@klmr](https://github.com/klmr), [@krlmlr](https://github.com/krlmlr), [@lgaborini](https://github.com/lgaborini), [@maelle](https://github.com/maelle), [@maxheld83](https://github.com/maxheld83), [@maximsmol](https://github.com/maximsmol), [@michaelmayer2](https://github.com/michaelmayer2), [@mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [@olivroy](https://github.com/olivroy), [@pascalgulikers](https://github.com/pascalgulikers), [@pawelru](https://github.com/pawelru), [@royfrancis](https://github.com/royfrancis), [@tanho63](https://github.com/tanho63), [@thomasyu888](https://github.com/thomasyu888), [@vincent-hanlon](https://github.com/vincent-hanlon), and [@VincentGuyader](https://github.com/VincentGuyader).
+
