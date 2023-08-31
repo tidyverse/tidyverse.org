@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: []
-rmd_hash: 4aab995574c33bc3
+rmd_hash: 039131c794b2f10b
 
 ---
 
@@ -44,6 +44,8 @@ You can install pak from CRAN with:
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"pak"</span><span class='o'>)</span></span></code></pre>
 
 </div>
+
+If you use an older R version, or a platform that CRAN does not have binary packages for, it is faster and simpler to install pak from our repository. [See the details in the manual.](https://pak.r-lib.org/reference/install.html)
 
 This blog post focuses on the exciting new improvements in the matching and installation of system requirements on Linux systems.
 
@@ -74,7 +76,7 @@ pak 0.6.0 supports the following Linux systems currently:
 -   Rocky Linux,
 -   Fedora Linux.
 
-Call [`pak::sysreqs_platforms()`](http://pak.r-lib.org/reference/sysreqs_platforms.html) to query the current list of supported platforms:
+Call [`pak::sysreqs_platforms()`](https://pak.r-lib.org/reference/sysreqs_platforms.html) to query the current list of supported platforms:
 
 <div class="highlight">
 
@@ -94,7 +96,7 @@ Call [`pak::sysreqs_platforms()`](http://pak.r-lib.org/reference/sysreqs_platfor
 
 </div>
 
-Call [`pak::system_r_platform()`](http://pak.r-lib.org/reference/system_r_platform.html) to check if pak has detected your platform correctly, and [`pak::sysreqs_is_supported()`](http://pak.r-lib.org/reference/sysreqs_is_supported.html) to see if it is supported:
+Call [`pak::system_r_platform()`](https://pak.r-lib.org/reference/system_r_platform.html) to check if pak has detected your platform correctly, and [`pak::sysreqs_is_supported()`](https://pak.r-lib.org/reference/sysreqs_is_supported.html) to see if it is supported:
 
 <div class="highlight">
 
@@ -218,9 +220,13 @@ If now we (re)install the binary RPostgres R package, the installation will succ
 
 </div>
 
+## Opting out
+
+If you don't want pak to install system packages for you, set the `PKG_SYSREQS` environment variable to `false`, or the `pkg.sysreqs` option to `FALSE`. See the complete list of configuration options in the [`config?pak`](https://pak.r-lib.org/reference/pak-config.html) manual page.
+
 ## System requirements queries
 
-pak 0.6.0 also has a number of functions to query system requirements and system packages. The [`pak::pkg_sysreqs()`](http://pak.r-lib.org/reference/pkg_sysreqs.html) function is similar to [`pak::pkg_deps()`](http://pak.r-lib.org/reference/pkg_deps.html) but in addition to looking up package dependencies, it also looks up system dependencies, and only reports the latter:
+pak 0.6.0 also has a number of functions to query system requirements and system packages. The [`pak::pkg_sysreqs()`](https://pak.r-lib.org/reference/pkg_sysreqs.html) function is similar to [`pak::pkg_deps()`](https://pak.r-lib.org/reference/pkg_deps.html) but in addition to looking up package dependencies, it also looks up system dependencies, and only reports the latter:
 
 <div class="highlight">
 
@@ -263,9 +269,9 @@ pak 0.6.0 also has a number of functions to query system requirements and system
 
 </div>
 
-See the manual of [`pak::pkg_sysreqs()`](http://pak.r-lib.org/reference/pkg_sysreqs.html) to learn how to programmatically extract information from its return value.
+See the manual of [`pak::pkg_sysreqs()`](https://pak.r-lib.org/reference/pkg_sysreqs.html) to learn how to programmatically extract information from its return value.
 
-[`pak::sysreqs_check_installed()`](http://pak.r-lib.org/reference/sysreqs_check_installed.html) is a handy function that checks if all system requirements are installed for some or all R packages in your library. This should report our broken RPostgres package:
+[`pak::sysreqs_check_installed()`](https://pak.r-lib.org/reference/sysreqs_check_installed.html) is a handy function that checks if all system requirements are installed for some or all R packages in your library. This should report our broken RPostgres package:
 
 <div class="highlight">
 
@@ -277,7 +283,7 @@ See the manual of [`pak::pkg_sysreqs()`](http://pak.r-lib.org/reference/pkg_sysr
 
 </div>
 
-[`pak::sysreqs_fix_installed()`](http://pak.r-lib.org/reference/sysreqs_check_installed.html) goes one step further and also tries to install the missing system requirements:
+[`pak::sysreqs_fix_installed()`](https://pak.r-lib.org/reference/sysreqs_check_installed.html) goes one step further and also tries to install the missing system requirements:
 
 <div class="highlight">
 
@@ -301,17 +307,17 @@ Now we can load RPostgres again:
 
 ## Configuration
 
-There are several pak configuration options you can use to adjust how system requirements are handled. See the complete list in the `config?pak` manual page.
+There are several pak configuration options you can use to adjust how system requirements are handled. See the complete list in the [`config?pak`](https://pak.r-lib.org/reference/pak-config.html) manual page.
 
 ## Other related pak functions
 
--   [`pak::sysreqs_db_list()`](http://pak.r-lib.org/reference/sysreqs_db_list.html), `pak::sysreqs_dbmatch()` and [`pak::sysreqs_db_update()`](http://pak.r-lib.org/reference/sysreqs_db_update.html) list, query and update the built-in system requirements database.
--   [`pak::sysreqs_list_system_packages()`](http://pak.r-lib.org/reference/sysreqs_list_system_packages.html) lists system packages, including virtual packages and the features they provide.
+-   [`pak::sysreqs_db_list()`](https://pak.r-lib.org/reference/sysreqs_db_list.html), `pak::sysreqs_dbmatch()` and [`pak::sysreqs_db_update()`](https://pak.r-lib.org/reference/sysreqs_db_update.html) list, query and update the built-in system requirements database.
+-   [`pak::sysreqs_list_system_packages()`](https://pak.r-lib.org/reference/sysreqs_list_system_packages.html) lists system packages, including virtual packages and the features they provide.
 
 ## More information
 
 -   [pak documentation](https://pak.r-lib.org/)
--   [System requirements manual page](https://pak.r-lib.org/dev/reference/sysreqs.html)
+-   [System requirements manual page](https://pak.r-lib.org/reference/sysreqs.html)
 -   [System requirements database](https://github.com/rstudio/r-system-requirements)
 
 ## Acknowledgements
