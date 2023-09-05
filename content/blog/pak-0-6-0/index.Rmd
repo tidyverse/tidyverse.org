@@ -1,0 +1,277 @@
+---
+output:
+  hugodown::md_document
+
+slug: pak-0-6-0
+title: pak 0.6.0
+date: 2023-09-05
+author: Gábor Csárdi
+description: >
+    pak installs R packages from various sources. pak is fast, safe and
+    convenient. This post shows the improvements in system requirements
+    support on Linux, in the just released pak 0.6.0 version.
+
+photo:
+  url: https://www.pexels.com/photo/blue-white-orange-and-brown-container-van-163726/
+  author: Pixabay
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package]
+tags: []
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+```
+
+```{sh, include = FALSE}
+docker build --platform linux/amd64 -t pak/ubuntu -f Dockerfile-ubuntu .
+docker kill pak-ubuntu || true
+docker rm pak-ubuntu || true
+docker run -td --platform linux/amd64 --name pak-ubuntu pak/ubuntu bash
+docker start pak-ubuntu
+```
+
+```{r, include = FALSE}
+knitr::dep_prev()
+source("docker.R")
+knitr::knit_hooks$set(evaluate = hook_docker)
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+We're delighted to announce the release of [pak](https://pak.r-lib.org)
+0.6.0.
+pak helps with the installation of R packages and many related tasks.
+
+You can install pak from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("pak")
+```
+
+If you use an older R version, or a platform that CRAN does not have
+binary packages for, it is faster and simpler to install pak from our
+repository.
+[See the details in the manual.](https://pak.r-lib.org/reference/install.html)
+
+This blog post focuses on the exciting new improvements in the matching
+and installation of system requirements on Linux systems.
+
+You can see a full list of changes in the
+[release notes](https://github.com/r-lib/pak/releases/tag/v0.6.0)
+
+## System requirements
+
+Many R packages require the installation of external software, otherwise
+they do not work, or even load.
+For example, the RPostgres R package requires the PostgreSQL client library,
+and by default dynamically links to it on Linux systems.
+This means that you (or the administrators of your system) need to install
+this library, typically in the form of a system package: `libpq-dev` on
+Ubuntu and Debian systems, or `postgresql-server-devel` or `postgresql-devel`
+on Red Hat, Fedora, etc. systems.
+
+The good news is that pak now helps you with this:
+
+- it looks up the required system packages when installing R packages,
+- it lets you know if any required system packages are missing from your
+  system, before the installation, and
+- it installs them automatically, if you are a superuser, or if you can use
+  password-less `sudo` to start a superuser shell.
+
+In addition, pak now also has some functions to query system requirements
+and system packages.
+
+## Supported platforms
+
+pak 0.6.0 supports the following Linux systems currently:
+
+- Ubuntu Linux,
+- Debian Linux,
+- Red Hat Enterprise Linux,
+- SUSE Linux Enterprise,
+- OpenSUSE,
+- CentOS,
+- Rocky Linux,
+- Fedora Linux.
+
+Call `pak::sysreqs_platforms()` to query the current list of supported
+platforms:
+
+```{r sysreqs-platforms}
+pak::sysreqs_platforms()[,1:3]
+```
+
+Call `pak::system_r_platform()` to check if pak has detected your platform
+correctly, and `pak::sysreqs_is_supported()` to see if it is supported:
+
+```{r system-r-platform}
+pak::system_r_platform()
+```
+
+```{r sysreqs-is-supported}
+pak::sysreqs_is_supported()
+```
+
+## R package installation
+
+If you are using pak as the `root` user, on a supported platform, then
+during package installation pak will look up the required system packages,
+and will install the missing ones. Here is an example:
+
+```{r pkg-inst}
+pak::pkg_install("RPostgres")
+```
+
+### Running R as a regular user
+
+If you don't want to use R as the superuser, but you can set up `sudo`
+without a password, that works as well.
+pak will detect the password-less `sudo` capability, and use it to install
+system packages, as needed.
+
+If you run R as a regular (not root) user, and password-less `sudo` is
+not available, then pak will print the system requirements, but it will
+not try to install or update them.
+
+If you are compiling R packages from source, and they need to link to system
+libraries, then their installation will probably fail, until you install
+these system packages.
+
+If you are installing binary R packages (e.g. from
+[P3M](https://packagemanager.posit.co/client/#/)), then the installation
+typically succeeds, but you won't be able to load these packages into R,
+until you install the required system packages.
+
+To demonstrate this, let's remove the system package for the PostgreSQL
+client library:
+
+```{r pkg-inst-user-setup, results = "hide"}
+system("apt-get remove -y libpq5")
+```
+
+If now we (re)install the binary RPostgres R package, the installation
+will succeed, but then `library()` fails because of the missing system
+package. (We will fix the broken R package below.)
+
+```{r pkg-install-user, error = TRUE, echo = 2}
+options(pkg.sysreqs = FALSE)
+pak::pkg_install("RPostgres?reinstall")
+```
+
+```{r pkg-install-user-load}
+library(RPostgres)
+```
+
+## Opting out
+
+If you don't want pak to install system packages for you, set the
+`PKG_SYSREQS` environment variable to `false`, or the `pkg.sysreqs` option
+to `FALSE`.
+See the complete list of configuration options in the
+[`config?pak`](https://pak.r-lib.org/reference/pak-config.html) manual page.
+
+
+## System requirements queries
+
+pak 0.6.0 also has a number of functions to query system requirements and
+system packages.
+The `pak::pkg_sysreqs()` function is similar to `pak::pkg_deps()` but in addition to
+looking up package dependencies, it also looks up system dependencies, and
+only reports the latter:
+
+```{r pkg-sysreqs}
+pak::pkg_sysreqs(c("curl", "r-lib/xml2", "devtools", "CHRONOS"))
+```
+
+See the manual of `pak::pkg_sysreqs()` to learn how to programmatically extract
+information from its return value.
+
+`pak::sysreqs_check_installed()` is a handy function that checks if all
+system requirements are installed for some or all R packages in your
+library.
+This should report our broken RPostgres package:
+
+```{r check-installed}
+pak::sysreqs_check_installed()
+```
+
+`pak::sysreqs_fix_installed()` goes one step further and also tries to install
+the missing system requirements:
+
+```{r fix-installed}
+pak::sysreqs_fix_installed()
+```
+
+Now we can load RPostgres again:
+
+```{r fix-installed-2}
+library(RPostgres)
+```
+
+## Configuration
+
+There are several pak configuration options you can use to adjust how
+system requirements are handled.
+See the complete list in the
+[`config?pak`](https://pak.r-lib.org/reference/pak-config.html) manual page.
+
+## Other related pak functions
+
+- `pak::sysreqs_db_list()`, `pak::sysreqs_dbmatch()` and `pak::sysreqs_db_update()`
+  list, query and update the built-in system requirements database.
+- `pak::sysreqs_list_system_packages()` lists system packages, including virtual
+  packages and the features they provide.
+
+## More information
+
+- [pak documentation](https://pak.r-lib.org/)
+- [System requirements manual page](https://pak.r-lib.org/reference/sysreqs.html)
+- [System requirements database](https://github.com/rstudio/r-system-requirements)
+
+## Acknowledgements
+
+A big thank you to all those who have contributed to pak, or one of its
+workhorse packages since the v0.5.1 release:
+
+[&#x0040;alexpate30](https://github.com/alexpate30),
+[&#x0040;averissimo](https://github.com/averissimo),
+[&#x0040;ArnaudKunzi](https://github.com/ArnaudKunzi),
+[&#x0040;billdenney](https://github.com/billdenney),
+[&#x0040;Darxor](https://github.com/Darxor),
+[&#x0040;drmowinckels](https://github.com/drmowinckels),
+[&#x0040;Fan-iX](https://github.com/Fan-iX),
+[&#x0040;gongyh](https://github.com/gongyh),
+[&#x0040;hadley](https://github.com/hadley),
+[&#x0040;idavydov](https://github.com/idavydov),
+[&#x0040;jefferis](https://github.com/jefferis),
+[&#x0040;joan-yanqiong](https://github.com/joan-yanqiong),
+[&#x0040;kevinushey](https://github.com/kevinushey),
+[&#x0040;kkmann](https://github.com/kkmann),
+[&#x0040;klmr](https://github.com/klmr),
+[&#x0040;krlmlr](https://github.com/krlmlr),
+[&#x0040;lgaborini](https://github.com/lgaborini),
+[&#x0040;maelle](https://github.com/maelle),
+[&#x0040;maxheld83](https://github.com/maxheld83),
+[&#x0040;maximsmol](https://github.com/maximsmol),
+[&#x0040;michaelmayer2](https://github.com/michaelmayer2),
+[&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel),
+[&#x0040;olivroy](https://github.com/olivroy),
+[&#x0040;pascalgulikers](https://github.com/pascalgulikers),
+[&#x0040;pawelru](https://github.com/pawelru),
+[&#x0040;royfrancis](https://github.com/royfrancis),
+[&#x0040;tanho63](https://github.com/tanho63),
+[&#x0040;thomasyu888](https://github.com/thomasyu888),
+[&#x0040;vincent-hanlon](https://github.com/vincent-hanlon), and
+[&#x0040;VincentGuyader](https://github.com/VincentGuyader).
