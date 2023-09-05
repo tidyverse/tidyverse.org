@@ -4,7 +4,7 @@ output:
 
 slug: pak-0-6-0
 title: pak 0.6.0
-date: 2023-08-28
+date: 2023-09-05
 author: Gábor Csárdi
 description: >
     pak installs R packages from various sources. pak is fast, safe and
@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: []
-rmd_hash: 039131c794b2f10b
+rmd_hash: fb06e0a6e4c0b21a
 
 ---
 
