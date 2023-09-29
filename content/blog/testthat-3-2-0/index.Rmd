@@ -57,7 +57,7 @@ library(testthat)
 
 ## New expectations
 
-New `expect_contains()` and `expect_in()` that works similarly to `expect_true(all(expected %in% object))` or `expect_true(all(object %in% expected))` but give more informative failure messages:
+New `expect_contains()` and `expect_in()` that work similarly to `expect_true(all(expected %in% object))` or `expect_true(all(object %in% expected))` but give more informative failure messages:
 
 ```{r, error = TRUE}
 fruits <- c("apple", "banana", "pear")
@@ -70,7 +70,7 @@ x <- c(TRUE, FALSE, TRUE, NA, FALSE)
 expect_in(x, c(TRUE, FALSE))
 ```
 
-New `expect_no_error()`, `expect_no_warning()`, and `expect_no_message()` make it easier (and clearer) to expect that code runs with without errors, warnings, or messages.
+New `expect_no_error()`, `expect_no_warning()`, and `expect_no_message()` make it easier (and clearer) to expect that code runs without errors, warnings, or messages.
 The default fails if there is any error/warning/message.
 In many cases, particularly when testing warnings and messages, you will want to be more specific about the condition you are hoping **not** to see, i.e. the condition that motivated you to write the test.
 Similar to `expect_error()` and friends, you can specify the `message` (a regular expression that the message of the condition must match) and/or the `class` (a class the condition must inherit from).
@@ -104,7 +104,7 @@ But sometimes this mistake crept in a long time ago and is now hiding amongst hu
 
 In earlier versions of testthat, finding tests that accidentally changed the world was painful: the only way was to painstakingly review each test.
 Now you can use `set_state_inspector()` to register a function that's called before and after every test.
-The function returns different values, testthat will let you know.
+If the function returns different values, testthat will let you know.
 
 So, for example, to detect if any of your tests have modified options you could put the following in `tests/testhat/setup.R` or an existing helper file:
 
@@ -114,7 +114,7 @@ set_state_inspector(function() {
 })
 ```
 
-Or maybe you've an `R CMD check` warning that you've forgotten to close a connection:
+Or maybe you've seen an `R CMD check` warning that you've forgotten to close a connection:
 
 ```{r}
 set_state_inspector(function() {
