@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [testthat, devtools]
-rmd_hash: cef5f2be0c829b4f
+rmd_hash: 15e74fed59616d29
 
 ---
 
@@ -35,7 +35,7 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're chuffed to announce the release of [testthat](%7B%20home%20%7D) 3.2.0. testthat makes it easy to turn your existing informal tests into formal, automated tests that you can rerun quickly and easily. testthat is the most popular unit-testing package for R, and is used by almost 9,000 CRAN and Bioconductor packages. You can learn more about unit testing at [https://r-pkgs.org/tests.html](#0).
+We're chuffed to announce the release of [testthat](http://testthat.r-lib.org/) 3.2.0. testthat makes it easy to turn your existing informal tests into formal, automated tests that you can rerun quickly and easily. testthat is the most popular unit-testing package for R, and is used by almost 9,000 CRAN and Bioconductor packages. You can learn more about unit testing at <https://r-pkgs.org/tests.html>.
 
 You can install it from CRAN with:
 
