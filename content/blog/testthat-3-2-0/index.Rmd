@@ -7,9 +7,9 @@ date: 2023-09-27
 author: Hadley Wickham
 description: >
     Catch up on the last two years of testthat development with the latest
-    minor release which includes new expectations, improved error snapshots,
-    a new way to detect if a test has changed global state, and a handful of
-    UI improvements.
+    minor release which includes improved documentation, new expectations,
+    improved error snapshots, support for mocking, a new way to detect if 
+    a test has changed global state, and a handful of UI improvements.
 
 photo:
   url: https://unsplash.com/photos/PtabTe6iJ_8
@@ -24,8 +24,8 @@ tags: [testthat, devtools]
 <!--
 TODO:
 * [x] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
 * [x] Find photo & update yaml metadata
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
@@ -49,17 +49,31 @@ testthat 3.2.0 includes relatively few new features but there have been nine pat
 These patch releases contained a bunch of experiments that we now believe are ready for the world.
 So this blog post summarises the changes in [3.1.1](https://github.com/r-lib/testthat/releases/tag/v3.1.1), [3.1.2](https://github.com/r-lib/testthat/releases/tag/v3.1.2), [3.1.3](https://github.com/r-lib/testthat/releases/tag/v3.1.3), [3.1.4](https://github.com/r-lib/testthat/releases/tag/v3.1.4), [3.1.5](https://github.com/r-lib/testthat/releases/tag/v3.1.5), [3.1.6](https://github.com/r-lib/testthat/releases/tag/v3.1.6), [3.1.7](https://github.com/r-lib/testthat/releases/tag/v3.1.7), [3.1.8](https://github.com/r-lib/testthat/releases/tag/v3.1.8), [3.1.9](https://github.com/r-lib/testthat/releases/tag/v3.1.9), and [3.1.10](https://github.com/r-lib/testthat/releases/tag/v3.1.10) over the last two years.
 
-Here we'll focus on the biggest news: new expectations, tweaks to the way that error snapshots are reported, a new way to detect if a test has changed global state, and a handful of UI improvements.
+Here we'll focus on the biggest news: new expectations, tweaks to the way that error snapshots are reported, support for mocking, a new way to detect if a test has changed global state, and a bunch of smaller UI improvements.
 
 ```{r setup}
+#| message: false
 library(testthat)
 ```
 
+## Documentation
+
+The first and most important thing to point out is that the second edition of [R Packages](https://r-pkgs.org) contains updated and much expanded coverage of testing.
+Coverage of testing is now split up over three chapters:
+
+-   [Testing basics](https://r-pkgs.org/testing-basics.html)
+-   [Designing your test suite](https://r-pkgs.org/testing-design.html)
+-   [Advanced testing techniques](https://r-pkgs.org/testing-advanced.html)
+
+There's also a new vignette about special files (`vignette("special-files")`) which describes the various special files that you find in `tests/testthat` and when you might need to use them.
+
 ## New expectations
 
-New `expect_contains()` and `expect_in()` that work similarly to `expect_true(all(expected %in% object))` or `expect_true(all(object %in% expected))` but give more informative failure messages:
+There are a handful of notable new expectations.
+`expect_contains()` and `expect_in()` work similarly to `expect_true(all(expected %in% object))` or `expect_true(all(object %in% expected))` but give more informative failure messages:
 
-```{r, error = TRUE}
+```{r}
+#| error: true
 fruits <- c("apple", "banana", "pear")
 expect_contains(fruits, "apple")
 expect_contains(fruits, "pineapple")
@@ -70,20 +84,96 @@ x <- c(TRUE, FALSE, TRUE, NA, FALSE)
 expect_in(x, c(TRUE, FALSE))
 ```
 
-New `expect_no_error()`, `expect_no_warning()`, and `expect_no_message()` make it easier (and clearer) to expect that code runs without errors, warnings, or messages.
-The default fails if there is any error/warning/message.
-In many cases, particularly when testing warnings and messages, you will want to be more specific about the condition you are hoping **not** to see, i.e. the condition that motivated you to write the test.
-Similar to `expect_error()` and friends, you can specify the `message` (a regular expression that the message of the condition must match) and/or the `class` (a class the condition must inherit from).
-This ensures that the message/warnings you don't want never recur, while allowing new messages/warnings to bubble up for you to deal with.
+`expect_no_error()`, `expect_no_warning()`, and `expect_no_message()` make it easier (and clearer) to confirm that code runs without errors, warnings, or messages.
+The default fails if there is any error/warning/message, but you can optionally supply either the `message` or `class` arguments to confirm that a specific error/warning/message is no longer present.
+
+```{r}
+#| error: true
+
+foo <- function(x) {
+  if (x < 0) {
+    x + "10"
+  } else {
+    x = 20
+  }
+}
+
+expect_no_error(foo(-10))
+
+# No difference here but will lead to a better failure later
+# once you've fixed this problem and later introduce a new one
+expect_no_error(foo(-10), message = "non-numeric argument")
+```
 
 ## Snapshotting changes
 
 `expect_snapshot(error = TRUE)` has a new display of error messages that strives to be closer to what you see interactively.
 In particular, you'll no longer see the error class and you will now see the error call.
 
+-   Old display:
+
+    ```         
+    Code
+      f()
+    Error <simpleError>
+      baz
+    ```
+
+-   New display:
+
+    ```         
+    Code
+      f()
+    Condition
+      Error in `f()`:
+      ! baz
+    ```
+
 If you have used `expect_snapshot(error = TRUE)` in your package, this means that you will need to re-run and approve your snapshots.
 We hope this is not too annoying and we believe it is worth it given the more accurate reflection of generated error messages.
 This will not affect checks on CRAN because, by default, snapshot tests are not run on CRAN.
+
+## Mocking
+
+Mocking[^1] is a tool for temporarily replacing the implementation of a function in order to make testing easier.
+Sometimes when testing a function, one part of it is challenging to run in your test environment (maybe it requires human interaction, a live database connection, or maybe it just takes a long time to run).
+For example, take the following imaginary function.
+It has a bunch of straightforward computation that would be easy to test but right in the middle of the function it calls `complicated()` which is hard to test:
+
+[^1]: Think mimicking, like a mockingbird, not making fun of.
+
+```{r}
+my_function <- function(x, y, z) {
+  a <- f(x, y)
+  b <- g(y, z)
+  c <- h(a, b)
+  
+  d <- complicated(c)
+  
+  i(d, 1, TRUE)
+}
+```
+
+Mocking allows you to temporarily `complicated()` with something simpler, allowing you to test the rest of the function.
+testthat now supports mocking with `local_mocked_bindings()`, which temporarily replaces the implementation of a function.
+For example, to test `my_function()` you might write something like this:
+
+```{r}
+#| eval: false
+
+test_that("my_function() returns expected result", {
+  local_mocked_bindings(
+    complicated = function(x) TRUE
+  )
+  ...
+})
+```
+
+testthat has a complicated past with mocking.
+testthat introduced `with_mock()` in v0.9 (way back in 2014), but we started discovering problems with the implementation in v2.0.0 (2017) leading to its deprecation in v3.0.0 (2020).
+A few packages arose to fill the gap (like [mockery](https://github.com/r-lib/mockery), [mockr](https://krlmlr.github.io/mockr/), and [mockthat](https://nbenn.github.io/mockthat/)) but none of their implementations were completely satisfactory.
+Earlier this year a new approach occurred to me that avoids many of the problems of the previous approaches.
+This is now implemented in `with_mocked_bindings()` and `local_mocked_bindings()`; we've been using these new functions for a few months now without problems, and it feels like time to announce to the world.
 
 ## State inspector
 
@@ -105,8 +195,9 @@ But sometimes this mistake crept in a long time ago and is now hiding amongst hu
 In earlier versions of testthat, finding tests that accidentally changed the world was painful: the only way was to painstakingly review each test.
 Now you can use `set_state_inspector()` to register a function that's called before and after every test.
 If the function returns different values, testthat will let you know.
+You'll typically do this either in `tests/testhat/setup.R` or an existing helper file.
 
-So, for example, to detect if any of your tests have modified options you could put the following in `tests/testhat/setup.R` or an existing helper file:
+So, for example, to detect if any of your tests have modified options you could use this state inspector:
 
 ```{r}
 set_state_inspector(function() {
@@ -129,17 +220,11 @@ And you can of course combine multiple checks just by returning a more complicat
 testthat 3.2.0 includes a bunch of minor user interface improvements that should make day-to-day use of testthat more enjoyable.
 Some of our favourite highlights are:
 
--   We use an improved algorithm to find the source reference associated with an expectation/error/warning/skip.
-    We now look for the most recent call (within inside `test_that()` that has known source.
-    This generally gives more specific locations than the previous approach and gives much better locations if an error occurs in an exit handler.
-
+-   Parallel testing now works much better with snapshot tests. (And updates to the processx package means that testthat no longer leaves processes around if you terminate a test process early.)
+-   We use an improved algorithm to find the source reference associated with an expectation/error/warning/skip. We now look for the most recent call (within inside `test_that()` that has known source. This generally gives more specific locations than the previous approach and gives much better locations if an error occurs in an exit handler.
 -   Tracebacks are no longer truncated and we use rlang's default tree display; this should make it easier to track down problems when testing in non-interactive contexts.
-
--   Assuming you have a recent RStudio, test failures are now clickable, taking you to the line where the problem occurred.
-    Similarly, when a snapshot test changes, you can now click that suggested code to run the appropriate `snapshot_accept()` call.
-
--   Skips are now only shown at the end of reporter summaries, not as tests are run.
-    This makes them less intrusive in interactive tests while still allowing you to verify that the correct tests are skipped.
+-   Assuming you have a recent RStudio, test failures are now clickable, taking you to the line where the problem occurred. Similarly, when a snapshot test changes, you can now click that suggested code to run the appropriate `snapshot_accept()` call.
+-   Skips are now only shown at the end of reporter summaries, not as tests are run. This makes them less intrusive in interactive tests while still allowing you to verify that the correct tests are skipped.
 
 ## Acknowledgements
 
