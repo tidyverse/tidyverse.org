@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, rsample, tidyclust]
-rmd_hash: fe3c64ad414f32a3
+rmd_hash: 991cf8aa6df1c1eb
 
 ---
 
@@ -69,7 +69,7 @@ We'll highlight a few especially notable changes below: Updated workshop materia
 
 ## Workshops
 
-One of the biggest areas of work for our team this quarter was getting ready for this year's [posit::conf](https://posit.co/conference/). This year, two 1-day workshops were available; "Introduction to tidymodels" and "Advanced tidymodels". All the material can be found on our workshop website [workshops.tidymodels.org](https://workshops.tidymodels.org/), with this workshop being archived as [posit::conf 2023 workshop](https://workshops.tidymodels.org/archive/2023-09-posit-conf/).
+One of the biggest areas of work for our team this quarter was getting ready for this year's [posit::conf](https://posit.co/conference/). This year, two 1-day workshops were available: "Introduction to tidymodels" and "Advanced tidymodels". All the material can be found on our workshop website [workshops.tidymodels.org](https://workshops.tidymodels.org/), with these workshops being archived as [posit::conf 2023 workshops](https://workshops.tidymodels.org/archive/2023-09-posit-conf/).
 
 Unless otherwise noted (i.e. not an original creation and reused from another source), these educational materials are licensed under Creative Commons Attribution [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
@@ -79,7 +79,7 @@ The latest release of tidyclust featured a round of bug fixes, documentation imp
 
 This release adds 2 new engines to the [`k_means()`](https://tidyclust.tidymodels.org/reference/k_means.html) model. [klaR](https://tidyclust.tidymodels.org/reference/details_k_means_klaR.html) to run K-Modes models and [clustMixType](https://tidyclust.tidymodels.org/reference/details_k_means_clustMixType.html) to run K-prototypes. K-Modes is the categorical analog to K-means, meaning that it is intended to be used on only categorical data, and K-prototypes is the more general method that works with categorical and numeric data at the same time.
 
-If we were to fit a K-means model to a mixed-type data set such `ames`, it would work but under the hood, it applied a dummy transformation on the categorical predictors.
+If we were to fit a K-means model to a mixed-type data set such as `ames`, it would work, but under the hood, the model would apply a dummy transformation on the categorical predictors.
 
 <div class="highlight">
 
@@ -91,7 +91,7 @@ If we were to fit a K-means model to a mixed-type data set such `ames`, it would
 
 </div>
 
-when extracting the cluster means, we see that the dummy variables were used when calculating the means, which can lead to harder interpretations.
+When extracting the cluster means, we see that the dummy variables were used when calculating the means, which can make it harder to interpret the output.
 
 <div class="highlight">
 
@@ -129,7 +129,7 @@ Fitting a K-prototype model is done by setting the engine in [`k_means()`](https
 
 </div>
 
-the clusters can now be extracted on the original data format as categorical predictors are supported.
+The clusters can now be extracted on the original data format as categorical predictors are supported.
 
 <div class="highlight">
 
@@ -155,7 +155,7 @@ the clusters can now be extracted on the original data format as categorical pre
 
 ## Stricter rsample functions
 
-Before version 1.2.0 of rsample, misspelled and wrongly used arguments would be swallowed silently by the functions. This could be a big source of confusion as it is easy to slip between the cracks. We have many changes to all rsample functions such that whenever possible they alert the user when something is wrong.
+Before version 1.2.0 of rsample, misspelled and wrongly used arguments would be swallowed silently by the functions. This could be a big source of confusion as it is easy to slip between the cracks. We have made changes to all rsample functions such that whenever possible they alert the user when something is wrong.
 
 Before 1.2.0 when you, for example, misspelled `strata` as `stata`, everything would go on like normal, with no indication that `stata` was ignored.
 
