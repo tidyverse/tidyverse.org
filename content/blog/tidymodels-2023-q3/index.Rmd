@@ -1,0 +1,175 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-2023-q3
+title: "Q3 2023 tidymodels digest"
+date: 2023-10-05
+author: Emil Hvitfeldt
+description: >
+    The tidymodels team has been busy working on all sorts of new features 
+    across the ecosystem.
+photo:
+  url: https://unsplash.com/photos/PGRwUQQhzMQ
+  author: Tai's Captures
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [roundup] 
+tags: [tidymodels, rsample, tidyclust]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+```{r}
+#| include: false
+#| label: startup
+
+library(tidymodels)
+library(embed)
+
+data("ames", package = "modeldata")
+
+tidymodels_prefer()
+theme_set(theme_bw())
+options(pillar.advice = FALSE, pillar.min_title_chars = Inf, width = 120)
+```
+
+```{r}
+#| label: get-repo-info
+#| include: FALSE
+#| cache: TRUE
+
+since <- "2023-07-19"
+
+source("repo-functions.R")
+
+tm_data <- 
+  map_dfr(tm_pkgs, get_current_release) %>% 
+  filter(date > ymd(since)) %>% 
+  mutate(
+    repo = paste0("tidymodels/", package),
+    thanks = map_chr(repo, return_tidy_thanks, from = since),
+    thanks = glue("- {package}: {thanks}"),
+    news = glue("- {package} [({version})](https://{package}.tidymodels.org/news/index.html)")
+  )
+
+txt_pkg_list <- knitr::combine_words(tm_data$package)
+```
+
+The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles.
+
+Since the beginning of 2021, we have been publishing [quarterly updates](https://www.tidyverse.org/categories/roundup/) here on the tidyverse blog summarizing what's new in the tidymodels ecosystem. The purpose of these regular posts is to share useful new features and any updates you may have missed. You can check out the [`tidymodels` tag](https://www.tidyverse.org/tags/tidymodels/) to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused, like this post from the past couple of months:
+
+-   [New interface to validation splits](https://www.tidyverse.org/blog/2023/08/validation-split-as-3-way-split/)
+
+Since [our last roundup post](https://www.tidyverse.org/blog/2022/12/tidymodels-2022-q4/), there have been CRAN releases of `r nrow(tm_data)` tidymodels packages. Here are links to their NEWS files:
+
+```{r}
+#| echo: FALSE
+#| results: asis
+
+cat(tm_data$news, sep = "\n")
+```
+
+We'll highlight a few especially notable changes below: Updated workshop material, new K-means engines and quality of life improvements in rsample. First, loading the collection of packages:
+
+```{r}
+#| message: FALSE
+library(tidymodels)
+library(tidyclust)
+
+data("ames", package = "modeldata")
+```
+
+## Workshops
+
+One of the biggest areas of work for our team this quarter was getting ready for this year's [posit::conf](https://posit.co/conference/). This year, two 1-day workshops were available; "Introduction to tidymodels" and "Advanced tidymodels". All the material can be found on our workshop website
+[workshops.tidymodels.org](https://workshops.tidymodels.org/), with this workshop being archived as [posit::conf 2023 workshop](https://workshops.tidymodels.org/archive/2023-09-posit-conf/).
+
+Unless otherwise noted (i.e. not an original creation and reused from another source), these educational materials are licensed under Creative Commons Attribution [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+
+## Tidyclust update
+
+The latest release of tidyclust featured a round of bug fixes, documentation improvements and quality-of-life improvements.
+
+This release adds 2 new engines to the `k_means()` model. [klaR](https://tidyclust.tidymodels.org/reference/details_k_means_klaR.html) to run K-Modes models and [clustMixType](https://tidyclust.tidymodels.org/reference/details_k_means_clustMixType.html) to run K-prototypes. K-Modes is the categorical analog to K-means, meaning that it is intended to be used on only categorical data, and K-prototypes is the more general method that works with categorical and numeric data at the same time.
+
+If we were to fit a K-means model to a mixed-type data set such `ames`, it would work but under the hood, it applied a dummy transformation on the categorical predictors.
+
+```{r}
+kmeans_spec <- k_means(num_clusters = 3) %>%
+  set_engine("stats")
+
+kmeans_fit <- kmeans_spec %>%
+  fit(~ ., data = ames)
+```
+
+when extracting the cluster means, we see that the dummy variables were used when calculating the means, which can lead to harder interpretations.
+
+```{r}
+kmeans_fit %>%
+  extract_centroids() %>%
+  select(101:112) %>%
+  glimpse()
+```
+
+Fitting a K-prototype model is done by setting the engine in `k_means()` to `"clustMixType"`.
+
+```{r}
+kproto_spec <- k_means(num_clusters = 3) %>%
+  set_engine("clustMixType")
+
+kproto_fit <- kproto_spec %>%
+  fit(~ ., data = ames)
+```
+
+the clusters can now be extracted on the original data format as categorical predictors are supported.
+
+```{r}
+kproto_fit %>%
+  extract_centroids() %>%
+  select(11:20) %>%
+  glimpse()
+```
+
+## Stricter rsample functions
+
+Before version 1.2.0 of rsample, misspelled and wrongly used arguments would be swallowed silently by the functions. This could be a big source of confusion as it is easy to slip between the cracks. We have many changes to all rsample functions such that whenever possible they alert the user when something is wrong. 
+
+Before 1.2.0 when you, for example, misspelled `strata` as `stata`, everything would go on like normal, with no indication that `stata` was ignored.
+
+``` r
+initial_split(ames, prop = 0.75, stata = Neighborhood)
+#> <Training/Testing/Total>
+#> <2197/733/2930>
+```
+
+The same code will now error and point to the problematic arguments.
+
+```{r}
+#| error: true
+initial_split(ames, prop = 0.75, stata = Neighborhood)
+```
+
+## Acknowledgements
+
+We'd like to thank those in the community that contributed to tidymodels in the last quarter:
+
+```{r}
+#| echo: FALSE
+#| results: asis
+
+cat(tm_data$thanks, sep = "\n")
+```
+
+We're grateful for all of the tidymodels community, from observers to users to contributors. Happy modeling!
