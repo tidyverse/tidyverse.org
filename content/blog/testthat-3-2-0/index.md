@@ -3,13 +3,13 @@ output: hugodown::hugo_document
 
 slug: testthat-3-2-0
 title: testthat 3.2.0
-date: 2023-09-27
+date: 2023-10-08
 author: Hadley Wickham
 description: >
-    Catch up on the last two years of testthat development with the latest
-    minor release which includes improved documentation, new expectations,
-    improved error snapshots, support for mocking, a new way to detect if 
-    a test has changed global state, and a handful of UI improvements.
+    Catch up on the last two years of testthat development which includes 
+    improved documentation, new expectations, a new style for error snapshots,
+    support for mocking, a new way to detect if a test has changed global state, 
+    and a handful of UI improvements.
 
 photo:
   url: https://unsplash.com/photos/PtabTe6iJ_8
@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [testthat, devtools]
-rmd_hash: 15e74fed59616d29
+rmd_hash: 8622d989f0c06c70
 
 ---
 
@@ -63,7 +63,7 @@ The first and most important thing to point out is that the second edition of [R
 -   [Designing your test suite](https://r-pkgs.org/testing-design.html)
 -   [Advanced testing techniques](https://r-pkgs.org/testing-advanced.html)
 
-There's also a new vignette about special files (`vignette("special-files")`) which describes the various special files that you find in `tests/testthat` and when you might need to use them.
+There's also a new vignette about special files ([`vignette("special-files")`](https://testthat.r-lib.org/articles/special-files.html)) which describes the various special files that you find in `tests/testthat` and when you might need to use them.
 
 ## New expectations
 
@@ -89,7 +89,7 @@ There are a handful of notable new expectations. [`expect_contains()`](https://t
 
 </div>
 
-[`expect_no_error()`](https://testthat.r-lib.org/reference/expect_no_error.html), [`expect_no_warning()`](https://testthat.r-lib.org/reference/expect_no_error.html), and [`expect_no_message()`](https://testthat.r-lib.org/reference/expect_no_error.html) make it easier (and clearer) to confirm that code runs without errors, warnings, or messages. The default fails if there is any error/warning/message, but you can optionally supply either the `message` or `class` arguments to confirm that a specific error/warning/message is no longer present.
+[`expect_no_error()`](https://testthat.r-lib.org/reference/expect_no_error.html), [`expect_no_warning()`](https://testthat.r-lib.org/reference/expect_no_error.html), and [`expect_no_message()`](https://testthat.r-lib.org/reference/expect_no_error.html) make it easier (and clearer) to confirm that code runs without errors, warnings, or messages. The default fails if there is any error/warning/message, but you can optionally supply either the `message` or `class` arguments to confirm the absence of a specific error/warning/message.
 
 <div class="highlight">
 
@@ -155,7 +155,7 @@ Mocking[^1] is a tool for temporarily replacing the implementation of a function
 
 </div>
 
-Mocking allows you to temporarily `complicated()` with something simpler, allowing you to test the rest of the function. testthat now supports mocking with [`local_mocked_bindings()`](https://testthat.r-lib.org/reference/local_mocked_bindings.html), which temporarily replaces the implementation of a function. For example, to test `my_function()` you might write something like this:
+Mocking allows you to temporarily replace `complicated()` with something simpler, allowing you to test the rest of the function. testthat now supports mocking with [`local_mocked_bindings()`](https://testthat.r-lib.org/reference/local_mocked_bindings.html), which temporarily replaces the implementation of a function. For example, to test `my_function()` you might write something like this:
 
 <div class="highlight">
 
