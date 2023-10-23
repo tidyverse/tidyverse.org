@@ -1,0 +1,142 @@
+---
+output: hugodown::hugo_document
+
+slug: dbplyr-2-4-0
+title: dbplyr 2.4.0
+date: 2023-10-23
+author: Hadley Wickham
+description: >
+    dbplyr 2.4.0 brings improvements to SQL generation, better control over the
+    generated SQL, some new translations, and a bunch of backend specific improvements.
+
+photo:
+  url: https://unsplash.com/photos/AJqaubLEaN4
+  author: Parker Hilton
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [dplyr, dbplyr]
+---
+
+<!--
+* also include something about dbplyr 2.3.1?
+  * support for `join_by()`
+  * many bugs introduced in 2.3.0 fixed
+
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We're chuffed to announce the release of [dbplyr](http://dbplyr.tidyverse.org/) 2.4.0. dbplyr is a database backend for dplyr that allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr translates it to SQL for you.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("dbplyr")
+```
+
+This blog post will highlight some of the most important new features: eliminating subqueries when using multiple unions in a row, get more control on the generated SQL, and a handful of new translations.  As usual, release comes with a large number of improvements to translations for individual backends. See the full list in the [release notes](https://github.com/tidyverse/dbplyr/blob/main/NEWS.md)
+
+```{r setup}
+library(dbplyr)
+library(dplyr, warn.conflicts = FALSE)
+```
+
+## SQL optimisation
+
+dbplyr now produces fewer subqueries when combining tables with `union()` resp. `union_all()` resulting in shorter, more readable, and, in some cases, faster SQL.
+Also a `semi/anti_join()` with a table that is filtered now avoids a subquery.
+
+Here are a couple of examples of queries that are now much more compact:
+
+```{r}
+lf1 <- lazy_frame(x = 1, y = "a", .name = "lf1")
+lf2 <- lazy_frame(x = 1, y = "b", .name = "lf2")
+lf3 <- lazy_frame(x = 1, z = "c", .name = "lf3")
+
+union(lf1, lf2) |>
+  union(lf3)
+
+semi_join(
+  lf1,
+  lf3 |> filter(z == "c"),
+  by = "x"
+)
+```
+
+(As ususal in these blog posts, I'm using `lazy_frame()` to focus on the SQL generation, without having to set up a dummy database.)
+
+## SQL generation
+
+The new argument `sql_options` for `show_query()` and `remote_query()` gives you more control on the generated SQL.
+
+By default dbplyr uses `*` to select all columns of a table. With `use_star = FALSE` all columns are selected explicitly:
+  
+```{r}
+lf1 <- lazy_frame(x = 1, y = 2, z = 3, .name = "lf1")
+lf2 <- lazy_frame(x = 1, y = 3, .name = "lf2")
+
+lf1 |> mutate(a = 4)
+
+lf1 |> mutate(a = 4) |> show_query(sql_options = sql_options(use_star = FALSE))
+```
+
+If you prefer common table expressions (CTE) over subqueries use `cte = TRUE`:
+  
+```{r}
+nested_query <- left_join(
+  lf1 |> mutate(z = z + 1),
+  lf2,
+  by = join_by(x, y)
+)
+
+nested_query
+
+nested_query |> show_query(sql_options = sql_options(cte = TRUE))
+```
+
+And if you want that all columns in a join are qualified with the table name and not only the ambiguous ones use `qualify_all_columns = TRUE`:
+
+```{r}
+qualify_columns <- left_join(
+  lf1,
+  lf2,
+  by = join_by(x)
+)
+
+qualify_columns
+
+qualify_columns |> show_query(sql_options = sql_options(qualify_all_columns = TRUE))
+```
+
+## New translations
+
+`str_detect()`, `str_starts()` and `str_ends()` with fixed patterns are translate with `INSTR()`:
+
+```{r}
+lf1 |> 
+  filter(
+    stringr::str_detect(x, stringr::fixed("abc")),
+    stringr::str_starts(x, stringr::fixed("a"))
+  )
+```
+
+`nzchar()` and `runif()`
+
+```{r}
+lf1 |> 
+  filter(nzchar(x)) |> 
+  mutate(z = runif())
+```
+
+## Acknowledgements
+
+The vast majority of this release (particularly the SQL optimisations) are from [Maximilian Girlich](https://github.com/mgirlich); thanks so much for continued work on this package.
