@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: dbplyr-2-4-0
 title: dbplyr 2.4.0
-date: 2023-10-23
+date: 2023-10-26
 author: Hadley Wickham
 description: >
     dbplyr 2.4.0 brings improvements to SQL generation, better control over the
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dplyr, dbplyr]
-rmd_hash: c98a253e36bcf43d
+rmd_hash: aeeed6ebb47070fa
 
 ---
 
