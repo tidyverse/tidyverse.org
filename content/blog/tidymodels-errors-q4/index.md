@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-errors-q4
 title: "Three ways errors are about to get better in tidymodels"
-date: 2023-11-12
+date: 2023-11-13
 author: Simon Couch
 description: >
     The tidymodels team's biannual spring cleaning gave us a chance to revisit 
@@ -15,7 +15,7 @@ photo:
 
 categories: [programming] 
 tags: [tidymodels, package maintenance, tune, parsnip]
-rmd_hash: 5c40083569f40476
+rmd_hash: 81d9f3ddb373c494
 
 ---
 
@@ -198,16 +198,16 @@ For example, we've found that it's sometimes not clear to users which outputs th
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 25 × 4</span></span></span>
 <span><span class='c'>#&gt;    splits          id          .metrics         .notes          </span></span>
 <span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap01 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [32/9]&gt;</span>  Bootstrap02 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap03 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap01 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap02 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap03 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap04 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap05 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap06 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap05 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [32/9]&gt;</span>  Bootstrap06 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap07 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap08 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [32/9]&gt;</span>  Bootstrap08 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap09 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap10 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [32/14]&gt;</span> Bootstrap10 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 15 more rows</span></span></span>
 <span></span></code></pre>
 
