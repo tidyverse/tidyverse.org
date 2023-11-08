@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-errors-q4
 title: "Three ways errors are about to get better in tidymodels"
-date: 2023-11-13
+date: 2023-11-10
 author: Simon Couch
 description: >
     The tidymodels team's biannual spring cleaning gave us a chance to revisit 
@@ -207,16 +207,8 @@ Uh, but I _did_ just use `fit()`!
 
 Since the distinction between model formulas and preprocessor formulas comes up in functions across tidymodels, we decide to create a [central page](https://parsnip.tidymodels.org/dev/reference/model_formula.html) that documents the concept itself, hopefully making the syntax associated with it come more easily to users. Then, we link to it _all over the place_. For example, those errors now look like:
 
-<!-- TODO: use the actual error text here -->
-
-```r
-#> recipe(mpg ~ cyl + s(disp, k = 5), mtcars)
-#> Error:
-#> ✖ No in-line functions should be used here.
-#> ℹ The following function was found: `s`
-#> ℹ Use steps to do transformations instead.
-#> ℹ If your modeling engine uses special terms in formulas, pass 
-#>   that formula to workflows as a [model formula](parsnip::model_formula).
+```{r, error = TRUE}
+recipe(mpg ~ cyl + s(disp, k = 5), mtcars)
 ```
 
 Or:

@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-errors-q4
 title: "Three ways errors are about to get better in tidymodels"
-date: 2023-11-13
+date: 2023-11-10
 author: Simon Couch
 description: >
     The tidymodels team's biannual spring cleaning gave us a chance to revisit 
@@ -15,7 +15,7 @@ photo:
 
 categories: [programming] 
 tags: [tidymodels, package maintenance, tune, parsnip]
-rmd_hash: 81d9f3ddb373c494
+rmd_hash: 163c2bbf7b891a2a
 
 ---
 
@@ -44,7 +44,7 @@ To demonstrate, we'll walk through some examples using the tidymodels packages:
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>lag()</span>     masks <span style='color: #0000BB;'>stats</span>::lag()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>recipes</span>::<span style='color: #00BB00;'>step()</span>  masks <span style='color: #0000BB;'>stats</span>::step()</span></span>
-<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Use suppressPackageStartupMessages() to eliminate package startup messages</span></span>
+<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Search for functions across packages at <span style='color: #00BB00;'>https://www.tidymodels.org/find/</span></span></span>
 <span></span></code></pre>
 
 </div>
@@ -198,16 +198,16 @@ For example, we've found that it's sometimes not clear to users which outputs th
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 25 × 4</span></span></span>
 <span><span class='c'>#&gt;    splits          id          .metrics         .notes          </span></span>
 <span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap01 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap01 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap02 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap03 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap04 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap05 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap03 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [32/9]&gt;</span>  Bootstrap04 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap05 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [32/9]&gt;</span>  Bootstrap06 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap07 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [32/9]&gt;</span>  Bootstrap08 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap07 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap08 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap09 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [32/14]&gt;</span> Bootstrap10 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap10 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 15 more rows</span></span></span>
 <span></span></code></pre>
 
@@ -301,17 +301,19 @@ Uh, but I *did* just use `fit()`!
 
 Since the distinction between model formulas and preprocessor formulas comes up in functions across tidymodels, we decide to create a [central page](https://parsnip.tidymodels.org/dev/reference/model_formula.html) that documents the concept itself, hopefully making the syntax associated with it come more easily to users. Then, we link to it *all over the place*. For example, those errors now look like:
 
-<!-- TODO: use the actual error text here -->
+<div class="highlight">
 
-``` r
-#> recipe(mpg ~ cyl + s(disp, k = 5), mtcars)
-#> Error:
-#> ✖ No in-line functions should be used here.
-#> ℹ The following function was found: `s`
-#> ℹ Use steps to do transformations instead.
-#> ℹ If your modeling engine uses special terms in formulas, pass 
-#>   that formula to workflows as a [model formula](parsnip::model_formula).
-```
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>mpg</span> <span class='o'>~</span> <span class='nv'>cyl</span> <span class='o'>+</span> <span class='nf'>s</span><span class='o'>(</span><span class='nv'>disp</span>, k <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span>, <span class='nv'>mtcars</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `inline_check()`:</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> No in-line functions should be used here.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> The following function was found: `s`.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use steps to do transformations instead.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> If your modeling engine uses special terms in formulas, pass that</span></span>
+<span><span class='c'>#&gt;   formula to workflows as a model formula</span></span>
+<span><span class='c'>#&gt;   (`?parsnip::model_formula()`).</span></span>
+<span></span></code></pre>
+
+</div>
 
 Or:
 
