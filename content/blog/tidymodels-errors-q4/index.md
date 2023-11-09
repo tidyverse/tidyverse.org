@@ -15,7 +15,7 @@ photo:
 
 categories: [programming] 
 tags: [tidymodels, package maintenance, tune, parsnip]
-rmd_hash: 163c2bbf7b891a2a
+rmd_hash: bd6d689cf1e0592d
 
 ---
 
@@ -44,7 +44,7 @@ To demonstrate, we'll walk through some examples using the tidymodels packages:
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>lag()</span>     masks <span style='color: #0000BB;'>stats</span>::lag()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>recipes</span>::<span style='color: #00BB00;'>step()</span>  masks <span style='color: #0000BB;'>stats</span>::step()</span></span>
-<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Search for functions across packages at <span style='color: #00BB00;'>https://www.tidymodels.org/find/</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Use suppressPackageStartupMessages() to eliminate package startup messages</span></span>
 <span></span></code></pre>
 
 </div>
@@ -57,7 +57,7 @@ Note that my installed versions include the current dev version of a few tidymod
 
 </div>
 
-## The outcome went missing👻
+## The outcome went missing 👻
 
 The tidymodels packages focus on *supervised* machine learning problems, predicting the value of an outcome using predictors.[^2] For example, in the code:
 
@@ -183,7 +183,7 @@ Earlier this year, Dr. Louise E. Sinks put out a [wonderful blog post](https://
 
 > I found it confusing that `fit`, `last_fit`, `fit_resamples`, etc., did not all produce objects that contained the same information and could be acted on by the same functions.
 
-This makes sense. While we try to forefront the intended mental model for fitting and predicting with tidymodels in our APIs and documentation, we also needed to be proactive in anticipating common lapses in constructing that mental model.
+This makes sense. While we try to forefront the intended mental model for fitting and predicting with tidymodels in our APIs and documentation, we also need to be proactive in anticipating common challenges in constructing that mental model.
 
 For example, we've found that it's sometimes not clear to users which outputs they can call [`predict()`](https://rdrr.io/r/stats/predict.html) on. One such situation, as Louise points out, is with `fit_resamples()`:
 
@@ -198,16 +198,16 @@ For example, we've found that it's sometimes not clear to users which outputs th
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 25 × 4</span></span></span>
 <span><span class='c'>#&gt;    splits          id          .metrics         .notes          </span></span>
 <span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap01 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap02 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap03 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [32/9]&gt;</span>  Bootstrap04 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap05 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [32/9]&gt;</span>  Bootstrap06 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap07 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap08 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap01 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap02 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [32/16]&gt;</span> Bootstrap03 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap04 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap05 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap06 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [32/16]&gt;</span> Bootstrap07 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap08 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap09 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap10 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap10 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 15 more rows</span></span></span>
 <span></span></code></pre>
 
@@ -329,7 +329,7 @@ Or:
 
 </div>
 
-While I've only outlined three, there are all sorts of improvements to error messages on their way to the tidymodels packages in upcoming releases. If you happen to stumble across them, we hope they quickly set you back on the right path.🗺
+While I've only outlined three, there are all sorts of improvements to error messages on their way to the tidymodels packages in upcoming releases. If you happen to stumble across them, we hope they quickly set you back on the right path. 🗺
 
 [^1]: Issue triage consists of categorizing, prioritizing, and consolidating issues in a repository's issue tracker.
 
