@@ -1,0 +1,268 @@
+---
+output: hugodown::hugo_document
+
+slug: httr2-1-0-0
+title: httr2 1.0.0
+date: 2023-11-10
+author: Hadley Wickham
+description: >
+    httr2 is the successor to httr, providing a pipeable interface for
+    generating HTTP requests and handling the responses. It's focussed
+    on the needs of an R user wrapping a modern web API, but is flexible
+    enough to handle just about any HTTP related task.
+
+photo:
+  url: https://unsplash.com/photos/xKShyIiTNJk
+  author: Mike Bowman
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [httr2, httr]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+```
+We're delighted to announce the release of [httr2](https://httr2.r-lib.org)[^1] 1.0.0.
+httr2 is the second generation of httr; it generates HTTP requests and helps you process the response, design with an towards modern web APIs and potentially putting your code in package.
+
+[^1]: Pronounced "hitter 2".
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("httr2")
+```
+
+httr2 has been under development for the last two years, but this is the first time we've blogged about it because we wanted to wait until we were confident that the API is stable.
+We're now confident that the API is stable, and we're ready to encourage you to use it.
+Most importantly httr2 is now a real package with a wonderful new logo, thanks to a collaborative effort involving Julie Jung, Greg Swineheart, and DALL•E 3.
+
+```{r}
+#| echo: false
+#| out-width: 200px
+#| fig-alt: >
+#|   The new httr2 logo is a dark blue hexagon with httr2 written in 
+#|   bright white at the top of logo. Underneath the text is a vibrant
+#|   magenta baseball player hitting a ball emblazoned with the letters
+#|   "www".
+knitr::include_graphics("httr2.png")
+```
+
+httr2 is the successor to httr.
+The big difference is that it has an explicit request object which you can build up over time.
+This makes the interface work much more naturally with pipe, and is generally easier to work with as you can build up a complex request with many simple features.
+If you're a current httr user, there's no need to switch, as we'll continue to maintain the package many years, but if you start on a new project, I'd recommend that you give httr2 a shot.
+
+If you've been following httr2 development for a while, you might want to jump to the [release notes](%7B%20github_release%20%7D) to see what's new (a lot!).
+The most important change in this release is that @mgirlich is now a httr2 author, in recognition of his many contributions to the package.
+
+For the rest of this blog post, I'll assume that you're familiar with the basics of HTTP.
+If you're not, you might want to start with `vignette("httr2")` which introduces the basics of httr2 and HTTP together.
+
+```{r setup}
+library(httr2)
+```
+
+## Making a request
+
+httr2 is designed around the two big pieces of HTTP: requests and responses.
+First you'll create a request, with a URL
+
+```{r}
+req <- request(example_url())
+req
+```
+
+Here, instead of an external website, we use a test server that's built-in to httr2 itself.
+This ensures that this blog post, and many httr2 examples, work independently of the rest of the internet.
+
+You can see the raw HTTP request that httr2 will perform by doing a dry run:
+
+```{r}
+req |> req_dry_run()
+```
+
+This makes a very simple `GET` request with user agent and accept headings automatically added by httr2.
+You can customise the request using the functions that start with `req_`.
+For example, you could make it a `HEAD` request and change the user agent with this code:
+
+```{r}
+req |> 
+  req_user_agent("My user agent") |> 
+  req_method("HEAD") |> 
+  req_dry_run()
+```
+
+Or you could send some JSON in the body with this code:
+
+```{r}
+req |> 
+  req_body_json(list(x = 1, y = "a")) |> 
+  req_dry_run()
+```
+
+httr2 provides a [wide range of helpers](https://httr2.r-lib.org/dev/reference/index.html#requests) to customise the request in common ways; if there's something you need but you can't figure out how, please [file an issue](https://github.com/r-lib/httr2/issues/new)!
+
+## Performing the request and handling the response
+
+Once you have a request that you are happy with, you can send it to the server with `req_perform()`:
+
+```{r}
+req_json <- req |> req_url_path("/json")
+resp <- req_json |> req_perform()
+```
+
+This returns a response object.
+You can see basic details by printing it or a simulation of what the response looked like with `resp_raw()` (this is only a simulation because it only shows the final response if there were redirects and it automatically uncompresses the body etc):
+
+```{r}
+resp
+
+resp |> resp_raw()
+```
+
+But generally, you'll want to use the `resp_` functions to extract parts of the response.
+For example, you could parse the JSON body into an R data structure:
+
+```{r}
+resp |> 
+  resp_body_json() |> 
+  str()
+```
+
+Or get the value of one header, or a list of all of them:
+
+```{r}
+resp |> resp_header("Content-Length")
+
+resp |> resp_headers()
+```
+
+## Error handling
+
+You can use `resp_status()` to see the returned status:
+
+```{r}
+resp |> resp_status()
+```
+
+However, this will almost always be 200, because httr2 automatically follows redirects (values in the 300s) and turns HTTP errors (values in the 400s and 500s) into errors.
+The following example shows what this looks like using a example endpoint that throws the returns the request status:
+
+```{r, error = TRUE}
+req |> 
+  req_url_path("/status/404") |> 
+  req_perform()
+
+req |> 
+  req_url_path("/status/500") |> 
+  req_perform()
+```
+
+httr2 provides two main tools to customise this behaviour:
+
+-   `req_error()` gives you full control over what responses will be considered to be errors, and allows you to put additional information in the body of the error.
+-   `req_retry()` helps deal with transient errors, where you need to wait a bit and try again. For example, many APIs are rate limited and will return a 429 status if you have made too many requests.
+
+You can learn more about both of these functions in `vignette("wrapping-apis")` as they are particularly important when creating an R package (or script) that wraps a web API.
+
+## Control the request process
+
+There are a number of other `req_` functions don't directly affect the HTTP request but instead control the overall process of submitting a request and handling the response.
+These include:
+
+-   `req_cache()` sets up a cache so if repeated requests return the same results, you can avoid a trip to the server.
+    `req_cache()` automatically prunes the cache, ensuring that by default it stays under 1 GB
+
+-   `req_throttle()` automatically adds a small delay before each request so you can avoid hammering a server with many requests.
+
+-   `req_progress()` adds a progress bar for long downloads or uploads.
+
+-   `req_cookie_preserve()` lets you preserve cookies across requests.
+
+Additionally, httr2 provides many helpers for authenticating with OAuth, wrapping many more styles than httr.
+You've probably used OAuth a bunch without knowing what it's called: you use it when you login to a non-Google website using your Google account, when you give your phone access to your twitter account, or when you login to a streaming app on your smart TV.
+OAuth is a big, complex topic, and is documented in `vignette("oauth2")`
+
+## Multiple requests
+
+httr2 includes three functions to perform multiple requests:
+
+-   `req_perform_sequential()` takes a list of requests and performs them in order.
+
+-   `req_perform_parallel()` takes a list of requests and performs them in parallel (up to 6 at a time by default).
+    It's similar to `req_perform_sequential()`, but is obviously faster, at the expense of potentially hammering a server.
+    However, it also has some limitations: most importantly it can't re-request an expired OAuth token and it doesn't respect `req_retry()` or `req_throttle()`.
+
+-   `req_perform_iterative()` takes a single request and a callback function to generate the next request from previous response.
+    It'll keep going until it either your callback function returns `NULL` or the `max_reqs` requests have been performed.
+
+For example, imagine we wanted to download each person from the [Star Wars API](https://swapi.dev). The urls have a very consistent structure so we can generate a bunch of them, then create the corresponding requests.
+
+```{r}
+urls <- paste0("https://swapi.dev/api/people/", 1:10)
+reqs <- lapply(urls, request)
+```
+
+Now I can perform those requests, collecting a list of responses:
+
+```{r}
+resps <- req_perform_sequential(reqs)
+```
+
+These responses contain their data in a JSON body:
+
+```{r}
+resps |> 
+  _[[1]] |> 
+  resp_body_json() |> 
+  str()
+```
+
+There's lots of ways to deal with this sort of data (e.g. for loops or functional programming), httr2 comes with a helper,`resps_data()`.
+It takes a callback function that retrieves the data for each response then concatenate all the responses back together.
+In this case that means we need to wrap `resp_body_json()` in a list, so we get one list for each person, rather than one list in total:
+
+```{r}
+resps |> 
+  resps_data(\(resp) list(resp_body_json(resp))) |> 
+  _[1:3] |> 
+  str(list.len = 10)
+```
+
+Another option would be to convert each response into a data frame or tibble.
+That's a little tricky here because of the lists that will need to become list-columns[^2], so we'll avoid that challenge here by focussing the first nine columns:
+
+[^2]: To turn these into list-columns, you need to wrap each list in another list, something like `is_list <- map_lgl(json, is.list); json[is_list] <- map(json[is_list], list)`.
+    This ensures that each element has length 1, the invariant for a row in a tibble.
+
+```{r}
+sw_data <- function(resp) {
+  tibble::as_tibble(resp_body_json(resp)[1:9])
+}
+resps |> resps_data(sw_data)
+```
+
+When you're performing large numbers of requests, it's almost inevitable that something will go wrong.
+By default, all three functions will bubble up errors, causing you to lose of the work that's been done so far.
+You can, however, use the `on_error` argument to change what happens, either ignoring errors, or returning when you hit the first error.
+This changes the return value: instead of a list of just responses, the list might also continue error objects.
+
+httr2 provides other helpers to work with this output:
+
+-   `resps_successes()` filters the list to find the successful responses. You'll then typically pair this with `resps_data()` to get the data from the successful request.
+-   `resps_failures()` filters the list to find the failed responses. You'll typically pair this with `resps_requests()` to find the requests that generated them.
+
+## Acknowledgements
