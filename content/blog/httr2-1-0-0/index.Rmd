@@ -63,7 +63,7 @@ knitr::include_graphics("httr2.png")
 httr2 is the successor to httr.
 The big difference is that it has an explicit request object which you can build up over time.
 This makes the interface work much more naturally with pipe, and is generally easier to work with as you can build up a complex request with many simple features.
-If you're a current httr user, there's no need to switch, as we'll continue to maintain the package many years, but if you start on a new project, I'd recommend that you give httr2 a shot.
+If you're a current httr user, there's no need to switch, as we'll continue to maintain the package for many years, but if you start on a new project, I'd recommend that you give httr2 a shot.
 
 If you've been following httr2 development for a while, you might want to jump to the [release notes](%7B%20github_release%20%7D) to see what's new (a lot!).
 The most important change in this release is that @mgirlich is now a httr2 author, in recognition of his many contributions to the package.
@@ -204,10 +204,10 @@ httr2 includes three functions to perform multiple requests:
 
 -   `req_perform_parallel()` takes a list of requests and performs them in parallel (up to 6 at a time by default).
     It's similar to `req_perform_sequential()`, but is obviously faster, at the expense of potentially hammering a server.
-    However, it also has some limitations: most importantly it can't re-request an expired OAuth token and it doesn't respect `req_retry()` or `req_throttle()`.
+    However, it also has some limitations: most importantly it can't refresh an expired OAuth token and it doesn't respect `req_retry()` or `req_throttle()`.
 
 -   `req_perform_iterative()` takes a single request and a callback function to generate the next request from previous response.
-    It'll keep going until it either your callback function returns `NULL` or the `max_reqs` requests have been performed.
+    It'll keep going until the callback function returns `NULL` or `max_reqs` requests have been performed.
 
 For example, imagine we wanted to download each person from the [Star Wars API](https://swapi.dev). The urls have a very consistent structure so we can generate a bunch of them, then create the corresponding requests.
 
@@ -243,7 +243,7 @@ resps |>
 ```
 
 Another option would be to convert each response into a data frame or tibble.
-That's a little tricky here because of the lists that will need to become list-columns[^2], so we'll avoid that challenge here by focussing the first nine columns:
+That's a little tricky here because of the lists that will need to become list-columns[^2], so we'll avoid that challenge here by focussing on the first nine columns:
 
 [^2]: To turn these into list-columns, you need to wrap each list in another list, something like `is_list <- map_lgl(json, is.list); json[is_list] <- map(json[is_list], list)`.
     This ensures that each element has length 1, the invariant for a row in a tibble.
@@ -256,9 +256,9 @@ resps |> resps_data(sw_data)
 ```
 
 When you're performing large numbers of requests, it's almost inevitable that something will go wrong.
-By default, all three functions will bubble up errors, causing you to lose of the work that's been done so far.
+By default, all three functions will bubble up errors, causing you to lose all of the work that's been done so far.
 You can, however, use the `on_error` argument to change what happens, either ignoring errors, or returning when you hit the first error.
-This changes the return value: instead of a list of just responses, the list might also continue error objects.
+This changes the return value: instead of a list of just responses, the list might also contain error objects.
 
 httr2 provides other helpers to work with this output:
 
