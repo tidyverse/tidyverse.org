@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [httr2, httr]
-rmd_hash: ddab4a5c8fc85add
+rmd_hash: ce8e908e5580a6fc
 
 ---
 
@@ -35,7 +35,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're delighted to announce the release of [httr2](https://httr2.r-lib.org)[^1] 1.0.0. httr2 is the second generation of httr; it generates HTTP requests and helps you process the response, design with an towards modern web APIs and potentially putting your code in package.
+We're delighted to announce the release of [httr2](https://httr2.r-lib.org)[^1] 1.0.0. httr2 is the second generation of httr: it helps you generate HTTP requests and process the responses, designed with an eye towards modern web APIs and potentially putting your code in a package.
 
 You can install it from CRAN with:
 
@@ -45,7 +45,7 @@ You can install it from CRAN with:
 
 </div>
 
-httr2 has been under development for the last two years, but this is the first time we've blogged about it because we wanted to wait until we were confident that the API is stable. We're now confident that the API is stable, and we're ready to encourage you to use it. Most importantly httr2 is now a real package with a wonderful new logo, thanks to a collaborative effort involving Julie Jung, Greg Swineheart, and DALL•E 3.
+httr2 has been under development for the last two years, but this is the first time we've blogged about it because we wanted to wait until we were confident that the interface was stable. We're now confident that it is, and we're ready to encourage you to use it whenever you need to talk to a web server. Most importantly httr2 is now a "real" package because it has a wonderful new logo, thanks to a collaborative effort involving Julie Jung, Greg Swineheart, and DALL•E 3.
 
 <div class="highlight">
 
@@ -53,11 +53,11 @@ httr2 has been under development for the last two years, but this is the first t
 
 </div>
 
-httr2 is the successor to httr. The big difference is that it has an explicit request object which you can build up over time. This makes the interface work much more naturally with pipe, and is generally easier to work with as you can build up a complex request with many simple features. If you're a current httr user, there's no need to switch, as we'll continue to maintain the package many years, but if you start on a new project, I'd recommend that you give httr2 a shot.
+httr2 is the successor to httr. The biggest difference is that it has an explicit request object which you can build up over multiple function calls. This makes the interface fit more naturally with the pipe, generally makes life easier because you can iteratively build up a complex request. If you're a current httr user, there's no need to switch, as we'll continue to maintain the package for many years to come, but if you start on a new project, I'd recommend that you give httr2 a shot.
 
-If you've been following httr2 development for a while, you might want to jump to the [release notes](%7B%20github_release%20%7D) to see what's new (a lot!). The most important change in this release is that @mgirlich is now a httr2 author, in recognition of his many contributions to the package.
+If you've been following httr2 development for a while, you might want to jump to the [release notes](https://github.com/r-lib/httr2/releases/tag/v1.0.0) to see what's new (a lot!). The most important change in this release is that [Maximilian Girlich](https://github.com/mgirlich) is now a httr2 author, in recognition of his many contributions to the package. This release also features improved tools for performing multiple requests (more on that below), as well as a bunch of bug fixes and minor improvements for OAuth.
 
-For the rest of this blog post, I'll assume that you're familiar with the basics of HTTP. If you're not, you might want to start with `vignette("httr2")` which introduces the basics of httr2 and HTTP together.
+For the rest of this blog post, I'll assume that you're familiar with the basics of HTTP. If you're not, you might want to start with `vignette("httr2")` which introduces you to HTTP using httr2.
 
 <div class="highlight">
 
@@ -67,28 +67,28 @@ For the rest of this blog post, I'll assume that you're familiar with the basics
 
 ## Making a request
 
-httr2 is designed around the two big pieces of HTTP: requests and responses. First you'll create a request, with a URL
+httr2 is designed around the two big pieces of HTTP: requests and responses. First you'll create a request, with a URL:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>req</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/request.html'>request</a></span><span class='o'>(</span><span class='nf'><a href='https://httr2.r-lib.org/reference/example_url.html'>example_url</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='nv'>req</span></span>
 <span><span class='c'>#&gt; <span style='color: #0000BB;'>&lt;httr2_request&gt;</span></span></span>
-<span></span><span><span class='c'>#&gt; <span style='font-weight: bold;'>GET</span> http://127.0.0.1:53014/</span></span>
+<span></span><span><span class='c'>#&gt; <span style='font-weight: bold;'>GET</span> http://127.0.0.1:60634/</span></span>
 <span></span><span><span class='c'>#&gt; <span style='font-weight: bold;'>Body</span>: empty</span></span>
 <span></span></code></pre>
 
 </div>
 
-Here, instead of an external website, we use a test server that's built-in to httr2 itself. This ensures that this blog post, and many httr2 examples, work independently of the rest of the internet.
+Instead of using an external website here, we're using a test server that's built-in to httr2 itself. This ensures that this blog post, and many httr2 examples, work independently of the rest of the internet.
 
-You can see the raw HTTP request that httr2 will perform by doing a dry run:
+You can see the HTTP request that httr2 will send, without actually sending it[^2], by doing a dry run:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>req</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/req_dry_run.html'>req_dry_run</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; GET / HTTP/1.1</span></span>
-<span><span class='c'>#&gt; <span style='font-weight: bold;'>Host</span>: 127.0.0.1:53014</span></span>
+<span><span class='c'>#&gt; <span style='font-weight: bold;'>Host</span>: 127.0.0.1:60634</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>User-Agent</span>: httr2/0.2.3.9000 r-curl/5.1.0 libcurl/8.1.2</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Accept</span>: */*</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Accept-Encoding</span>: deflate, gzip</span></span>
@@ -96,16 +96,17 @@ You can see the raw HTTP request that httr2 will perform by doing a dry run:
 
 </div>
 
-This makes a very simple `GET` request with user agent and accept headings automatically added by httr2. You can customise the request using the functions that start with `req_`. For example, you could make it a `HEAD` request and change the user agent with this code:
+This object will perform a simple `GET` request with user agent and accept headings automatically added by httr2. To make more complex requests, you modify the request object using functions that start with `req_`. For example, you could make it a `HEAD` request, with some query parameters, and a custom user agent:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>req</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://httr2.r-lib.org/reference/req_url.html'>req_url_query</a></span><span class='o'>(</span>param <span class='o'>=</span> <span class='s'>"value"</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://httr2.r-lib.org/reference/req_user_agent.html'>req_user_agent</a></span><span class='o'>(</span><span class='s'>"My user agent"</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://httr2.r-lib.org/reference/req_method.html'>req_method</a></span><span class='o'>(</span><span class='s'>"HEAD"</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://httr2.r-lib.org/reference/req_dry_run.html'>req_dry_run</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; HEAD / HTTP/1.1</span></span>
-<span><span class='c'>#&gt; <span style='font-weight: bold;'>Host</span>: 127.0.0.1:53014</span></span>
+<span><span class='c'>#&gt; HEAD /?param=value HTTP/1.1</span></span>
+<span><span class='c'>#&gt; <span style='font-weight: bold;'>Host</span>: 127.0.0.1:60634</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>User-Agent</span>: My user agent</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Accept</span>: */*</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Accept-Encoding</span>: deflate, gzip</span></span>
@@ -113,7 +114,7 @@ This makes a very simple `GET` request with user agent and accept headings autom
 
 </div>
 
-Or you could send some JSON in the body with this code:
+Or you could send some JSON in the body of the request:
 
 <div class="highlight">
 
@@ -121,7 +122,7 @@ Or you could send some JSON in the body with this code:
 <span>  <span class='nf'><a href='https://httr2.r-lib.org/reference/req_body.html'>req_body_json</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='m'>1</span>, y <span class='o'>=</span> <span class='s'>"a"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://httr2.r-lib.org/reference/req_dry_run.html'>req_dry_run</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; POST / HTTP/1.1</span></span>
-<span><span class='c'>#&gt; <span style='font-weight: bold;'>Host</span>: 127.0.0.1:53014</span></span>
+<span><span class='c'>#&gt; <span style='font-weight: bold;'>Host</span>: 127.0.0.1:60634</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>User-Agent</span>: httr2/0.2.3.9000 r-curl/5.1.0 libcurl/8.1.2</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Accept</span>: */*</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Accept-Encoding</span>: deflate, gzip</span></span>
@@ -133,7 +134,7 @@ Or you could send some JSON in the body with this code:
 
 </div>
 
-httr2 provides a [wide range of helpers](https://httr2.r-lib.org/dev/reference/index.html#requests) to customise the request in common ways; if there's something you need but you can't figure out how, please [file an issue](https://github.com/r-lib/httr2/issues/new)!
+httr2 provides a [wide range of `req_` function](https://httr2.r-lib.org/dev/reference/index.html#requests) to customise the request in common ways; if there's something you need that httr2 doesn't support, please [file an issue](https://github.com/r-lib/httr2/issues/new)!
 
 ## Performing the request and handling the response
 
@@ -146,13 +147,13 @@ Once you have a request that you are happy with, you can send it to the server w
 
 </div>
 
-This returns a response object. You can see basic details by printing it or a simulation of what the response looked like with [`resp_raw()`](https://httr2.r-lib.org/reference/resp_raw.html) (this is only a simulation because it only shows the final response if there were redirects and it automatically uncompresses the body etc):
+Performing a request will return a response object (or throw an error, which we'll talk about next). You can see the basic details of the request by printing it or exactly what the raw response looked like with [`resp_raw()`](https://httr2.r-lib.org/reference/resp_raw.html)[^3]:
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>resp</span></span>
 <span><span class='c'>#&gt; <span style='color: #0000BB;'>&lt;httr2_response&gt;</span></span></span>
-<span></span><span><span class='c'>#&gt; <span style='font-weight: bold;'>GET</span> http://127.0.0.1:53014/json</span></span>
+<span></span><span><span class='c'>#&gt; <span style='font-weight: bold;'>GET</span> http://127.0.0.1:60634/json</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>Status</span>: 200 OK</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>Content-Type</span>: application/json</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>Body</span>: In memory (407 bytes)</span></span>
@@ -160,7 +161,7 @@ This returns a response object. You can see basic details by printing it or a si
 <span><span class='nv'>resp</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/resp_raw.html'>resp_raw</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; HTTP/1.1 200 OK</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Connection</span>: close</span></span>
-<span><span class='c'>#&gt; <span style='font-weight: bold;'>Date</span>: Mon, 13 Nov 2023 16:28:14 GMT</span></span>
+<span><span class='c'>#&gt; <span style='font-weight: bold;'>Date</span>: Tue, 14 Nov 2023 13:58:29 GMT</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Content-Type</span>: application/json</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Content-Length</span>: 407</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>ETag</span>: "de760e6d"</span></span>
@@ -223,7 +224,7 @@ But generally, you'll want to use the `resp_` functions to extract parts of the 
 
 </div>
 
-Or get the value of one header, or a list of all of them:
+Or get the value of one header or a list of all of them:
 
 <div class="highlight">
 
@@ -233,7 +234,7 @@ Or get the value of one header, or a list of all of them:
 <span><span class='nv'>resp</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/resp_headers.html'>resp_headers</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #0000BB;'>&lt;httr2_headers&gt;</span></span></span>
 <span></span><span><span class='c'>#&gt; <span style='font-weight: bold;'>Connection</span>: close</span></span>
-<span><span class='c'>#&gt; <span style='font-weight: bold;'>Date</span>: Mon, 13 Nov 2023 16:28:14 GMT</span></span>
+<span><span class='c'>#&gt; <span style='font-weight: bold;'>Date</span>: Tue, 14 Nov 2023 13:58:29 GMT</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Content-Type</span>: application/json</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Content-Length</span>: 407</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>ETag</span>: "de760e6d"</span></span>
@@ -253,7 +254,7 @@ You can use [`resp_status()`](https://httr2.r-lib.org/reference/resp_status.html
 
 </div>
 
-However, this will almost always be 200, because httr2 automatically follows redirects (values in the 300s) and turns HTTP errors (values in the 400s and 500s) into errors. The following example shows what this looks like using a example endpoint that throws the returns the request status:
+However, this will almost always be 200, because httr2 automatically follows redirects (values in the 300s) and turns HTTP failures (values in the 400s and 500s) into R errors. The following example shows what this looks like using an example endpoint that returns a response with the status defined in the URL:
 
 <div class="highlight">
 
@@ -272,9 +273,28 @@ However, this will almost always be 200, because httr2 automatically follows red
 
 </div>
 
-httr2 provides two main tools to customise this behaviour:
+Turning HTTP failures into R errors can make debugging hard, so httr2 provides the [`last_request()`](https://httr2.r-lib.org/reference/last_response.html) and [`last_response()`](https://httr2.r-lib.org/reference/last_response.html) helpers which you can use to figure out what went wrong:
 
--   [`req_error()`](https://httr2.r-lib.org/reference/req_error.html) gives you full control over what responses will be considered to be errors, and allows you to put additional information in the body of the error.
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://httr2.r-lib.org/reference/last_response.html'>last_request</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #0000BB;'>&lt;httr2_request&gt;</span></span></span>
+<span></span><span><span class='c'>#&gt; <span style='font-weight: bold;'>GET</span> http://127.0.0.1:60634/status/500</span></span>
+<span></span><span><span class='c'>#&gt; <span style='font-weight: bold;'>Body</span>: empty</span></span>
+<span></span><span></span>
+<span><span class='nf'><a href='https://httr2.r-lib.org/reference/last_response.html'>last_response</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #0000BB;'>&lt;httr2_response&gt;</span></span></span>
+<span></span><span><span class='c'>#&gt; <span style='font-weight: bold;'>GET</span> http://127.0.0.1:60634/status/500</span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>Status</span>: 500 Internal Server Error</span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>Content-Type</span>: text/plain</span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>Body</span>: None</span></span>
+<span></span></code></pre>
+
+</div>
+
+httr2 provides two other tools to customise error handling:
+
+-   [`req_error()`](https://httr2.r-lib.org/reference/req_error.html) gives you full control over what responses should be turned into R errors, and allows you to add additional information to the error message.
 -   [`req_retry()`](https://httr2.r-lib.org/reference/req_retry.html) helps deal with transient errors, where you need to wait a bit and try again. For example, many APIs are rate limited and will return a 429 status if you have made too many requests.
 
 You can learn more about both of these functions in `vignette("wrapping-apis")` as they are particularly important when creating an R package (or script) that wraps a web API.
@@ -283,27 +303,27 @@ You can learn more about both of these functions in `vignette("wrapping-apis")` 
 
 There are a number of other `req_` functions don't directly affect the HTTP request but instead control the overall process of submitting a request and handling the response. These include:
 
--   [`req_cache()`](https://httr2.r-lib.org/reference/req_cache.html) sets up a cache so if repeated requests return the same results, you can avoid a trip to the server. [`req_cache()`](https://httr2.r-lib.org/reference/req_cache.html) automatically prunes the cache, ensuring that by default it stays under 1 GB
+-   [`req_cache()`](https://httr2.r-lib.org/reference/req_cache.html), which sets up a cache so if repeated requests return the same results, you can avoid a trip to the server. [`req_cache()`](https://httr2.r-lib.org/reference/req_cache.html) automatically prunes the cache, ensuring that by default it stays under 1 GB
 
--   [`req_throttle()`](https://httr2.r-lib.org/reference/req_throttle.html) automatically adds a small delay before each request so you can avoid hammering a server with many requests.
+-   [`req_throttle()`](https://httr2.r-lib.org/reference/req_throttle.html), which automatically adds a small delay before each request so you can avoid hammering a server with many requests.
 
--   [`req_progress()`](https://httr2.r-lib.org/reference/req_progress.html) adds a progress bar for long downloads or uploads.
+-   [`req_progress()`](https://httr2.r-lib.org/reference/req_progress.html), which adds a progress bar for long downloads or uploads.
 
--   [`req_cookie_preserve()`](https://httr2.r-lib.org/reference/req_cookie_preserve.html) lets you preserve cookies across requests.
+-   [`req_cookie_preserve()`](https://httr2.r-lib.org/reference/req_cookie_preserve.html), which lets you preserve cookies across requests.
 
-Additionally, httr2 provides many helpers for authenticating with OAuth, wrapping many more styles than httr. You've probably used OAuth a bunch without knowing what it's called: you use it when you login to a non-Google website using your Google account, when you give your phone access to your twitter account, or when you login to a streaming app on your smart TV. OAuth is a big, complex topic, and is documented in `vignette("oauth2")`
+Additionally, httr2 provides many helpers for authenticating with OAuth, implementing many more flows than httr. You've probably used OAuth a bunch without knowing what it's called: you use it when you login to a non-Google website using your Google account, when you give your phone access to your twitter account, or when you login to a streaming app on your smart TV. OAuth is a big, complex, topic, and is documented in `vignette("oauth2")`
 
 ## Multiple requests
 
 httr2 includes three functions to perform multiple requests:
 
--   [`req_perform_sequential()`](https://httr2.r-lib.org/reference/req_perform_sequential.html) takes a list of requests and performs them in order.
+-   [`req_perform_sequential()`](https://httr2.r-lib.org/reference/req_perform_sequential.html) takes a list of requests and performs them one at a time.
 
--   [`req_perform_parallel()`](https://httr2.r-lib.org/reference/req_perform_parallel.html) takes a list of requests and performs them in parallel (up to 6 at a time by default). It's similar to [`req_perform_sequential()`](https://httr2.r-lib.org/reference/req_perform_sequential.html), but is obviously faster, at the expense of potentially hammering a server. However, it also has some limitations: most importantly it can't re-request an expired OAuth token and it doesn't respect [`req_retry()`](https://httr2.r-lib.org/reference/req_retry.html) or [`req_throttle()`](https://httr2.r-lib.org/reference/req_throttle.html).
+-   [`req_perform_parallel()`](https://httr2.r-lib.org/reference/req_perform_parallel.html) takes a list of requests and performs them in parallel (up to 6 at a time by default). It's similar to [`req_perform_sequential()`](https://httr2.r-lib.org/reference/req_perform_sequential.html), but is obviously faster, at the expense of potentially hammering a server. It also has some limitations: most importantly it can't refresh an expired OAuth token and it doesn't respect [`req_retry()`](https://httr2.r-lib.org/reference/req_retry.html) or [`req_throttle()`](https://httr2.r-lib.org/reference/req_throttle.html).
 
--   [`req_perform_iterative()`](https://httr2.r-lib.org/reference/req_perform_iterative.html) takes a single request and a callback function to generate the next request from previous response. It'll keep going until it either your callback function returns `NULL` or the `max_reqs` requests have been performed.
+-   [`req_perform_iterative()`](https://httr2.r-lib.org/reference/req_perform_iterative.html) takes a single request and a callback function to generate the next request from previous response. It'll keep going until the callback function returns `NULL` or `max_reqs` requests have been performed. This is very useful for paginated APIs that only tell you the URL for the *next* page.
 
-For example, imagine we wanted to download each person from the [Star Wars API](https://swapi.dev). The urls have a very consistent structure so we can generate a bunch of them, then create the corresponding requests.
+For example, imagine we wanted to download each person from the [Star Wars API](https://swapi.dev). The URLs have a very consistent structure so we can generate a bunch of them, then create the corresponding requests:
 
 <div class="highlight">
 
@@ -317,12 +337,15 @@ Now I can perform those requests, collecting a list of responses:
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>resps</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/req_perform_sequential.html'>req_perform_sequential</a></span><span class='o'>(</span><span class='nv'>reqs</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■                      </span>  30% | ETA:  3s</span></span>
-<span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■■■■                   </span>  40% | ETA:  2s</span></span>
-<span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■■■■■■■                </span>  50% | ETA:  2s</span></span>
-<span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■■■■■■■■■■■■■          </span>  70% | ETA:  1s</span></span>
-<span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■■■■■■■■■■■■■■■■       </span>  80% | ETA:  1s</span></span>
-<span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■■■■■■■■■■■■■■■■■■■    </span>  90% | ETA:  0s</span></span>
+<span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■                            </span>  10% | ETA: 16s</span></span>
+<span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■                         </span>  20% | ETA: 15s</span></span>
+<span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■                      </span>  30% | ETA: 12s</span></span>
+<span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■■■■                   </span>  40% | ETA:  9s</span></span>
+<span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■■■■■■■                </span>  50% | ETA:  7s</span></span>
+<span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■■■■■■■■■■             </span>  60% | ETA:  5s</span></span>
+<span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■■■■■■■■■■■■■          </span>  70% | ETA:  4s</span></span>
+<span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■■■■■■■■■■■■■■■■       </span>  80% | ETA:  3s</span></span>
+<span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■■■■■■■■■■■■■■■■■■■    </span>  90% | ETA:  1s</span></span>
 <span></span><span><span class='c'>#&gt; Iterating <span style='color: #00BB00;'>■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ </span> 100% | ETA:  0s</span></span>
 <span></span></code></pre>
 
@@ -365,7 +388,7 @@ These responses contain their data in a JSON body:
 
 </div>
 
-There's lots of ways to deal with this sort of data (e.g. for loops or functional programming), httr2 comes with a helper,[`resps_data()`](https://httr2.r-lib.org/reference/resps_successes.html). It takes a callback function that retrieves the data for each response then concatenate all the responses back together. In this case that means we need to wrap [`resp_body_json()`](https://httr2.r-lib.org/reference/resp_body_raw.html) in a list, so we get one list for each person, rather than one list in total:
+There's lots of ways to deal with this sort of data (e.g. for loops or functional programming) but to make life easier, httr2 comes with its own helper, [`resps_data()`](https://httr2.r-lib.org/reference/resps_successes.html). This function takes a callback that retrieves the data for each response, then concatenates all the data into a single object. In this case, we need to wrap [`resp_body_json()`](https://httr2.r-lib.org/reference/resp_body_raw.html) in a list, so we get one list for each person, rather than one list in total:
 
 <div class="highlight">
 
@@ -430,7 +453,7 @@ There's lots of ways to deal with this sort of data (e.g. for loops or function
 
 </div>
 
-Another option would be to convert each response into a data frame or tibble. That's a little tricky here because of the lists that will need to become list-columns[^2], so we'll avoid that challenge here by focussing the first nine columns:
+Another option would be to convert each response into a data frame or tibble. That's a little tricky here because of the nested lists that will need to become list-columns[^4], so we'll avoid that challenge here by focussing on the first nine columns:
 
 <div class="highlight">
 
@@ -456,16 +479,18 @@ Another option would be to convert each response into a data frame or tibble. Th
 
 </div>
 
-When you're performing large numbers of requests, it's almost inevitable that something will go wrong. By default, all three functions will bubble up errors, causing you to lose of the work that's been done so far. You can, however, use the `on_error` argument to change what happens, either ignoring errors, or returning when you hit the first error. This changes the return value: instead of a list of just responses, the list might also continue error objects.
+When you're performing large numbers of requests, it's almost inevitable that something will go wrong. By default, all three functions will bubble up errors, causing you to lose all of the work that's been done so far. You can, however, use the `on_error` argument to change what happens, either ignoring errors, or returning when you hit the first error. This will changes the return value: instead of a list of responses, the list might now also contain error objects. httr2 provides other helpers to work with this object:
 
-httr2 provides other helpers to work with this output:
-
--   [`resps_successes()`](https://httr2.r-lib.org/reference/resps_successes.html) filters the list to find the successful responses. You'll then typically pair this with [`resps_data()`](https://httr2.r-lib.org/reference/resps_successes.html) to get the data from the successful request.
--   [`resps_failures()`](https://httr2.r-lib.org/reference/resps_successes.html) filters the list to find the failed responses. You'll typically pair this with [`resps_requests()`](https://httr2.r-lib.org/reference/resps_successes.html) to find the requests that generated them.
+-   [`resps_successes()`](https://httr2.r-lib.org/reference/resps_successes.html) filters the list to find the successful responses. You'll can then pair this with [`resps_data()`](https://httr2.r-lib.org/reference/resps_successes.html) to get the data from the successful request.
+-   [`resps_failures()`](https://httr2.r-lib.org/reference/resps_successes.html) filters the list to find the failed responses. You'll can then pair this with [`resps_requests()`](https://httr2.r-lib.org/reference/resps_successes.html) to find the requests that generated them and figure out what went wrong.
 
 ## Acknowledgements
 
 [^1]: Pronounced "hitter 2".
 
-[^2]: To turn these into list-columns, you need to wrap each list in another list, something like `is_list <- map_lgl(json, is.list); json[is_list] <- map(json[is_list], list)`. This ensures that each element has length 1, the invariant for a row in a tibble.
+[^2]: Well, technically, it does send the request, just to another test server that captures exactly what it was sent.
+
+[^3]: This is only an approximation. For example, it only shows the final response if there were redirects, and it automatically uncompresses the body if it was compressed. Nevertheless, it's still pretty useful.
+
+[^4]: To turn these into list-columns, you need to wrap each list in another list, something like `is_list <- map_lgl(json, is.list); json[is_list] <- map(json[is_list], list)`. This ensures that each element has length 1, the invariant for a row in a tibble.
 
