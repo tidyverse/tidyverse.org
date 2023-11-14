@@ -6,8 +6,8 @@ title: httr2 1.0.0
 date: 2023-11-14
 author: Hadley Wickham
 description: >
-    httr2 is the successor to httr, providing a pipeable interface for
-    generating HTTP requests and handling the responses. It's focussed
+    httr2 is the successor to httr, providing a pipeable interface to
+    generate HTTP requests and handle the responses. It's focussed
     on the needs of an R user wrapping a modern web API, but is flexible
     enough to handle just about any HTTP related task.
 
@@ -46,8 +46,8 @@ You can install it from CRAN with:
 install.packages("httr2")
 ```
 
-httr2 has been under development for the last two years, but this is the first time we've blogged about it because we wanted to wait until we were confident that the interface was stable.
-We're now confident that it is, and we're ready to encourage you to use it whenever you need to talk to a web server.
+httr2 has been under development for the last two years, but this is the first time we've blogged about it because we've been waiting until the user interface felt stable.
+It now does, and we're ready to encourage you to use httr2 whenever you need to talk to a web server.
 Most importantly httr2 is now a "real" package because it has a wonderful new logo, thanks to a collaborative effort involving Julie Jung, Greg Swineheart, and DALL•E 3.
 
 ```{r}
@@ -63,12 +63,13 @@ knitr::include_graphics("httr2.png")
 
 httr2 is the successor to httr.
 The biggest difference is that it has an explicit request object which you can build up over multiple function calls.
-This makes the interface fit more naturally with the pipe, generally makes life easier because you can iteratively build up a complex request.
+This makes the interface fit more naturally with the pipe, and generally makes life easier because you can iteratively build up a complex request.
+httr2 also builds on the 10 years of package development experience we've accrued since creating httr, so it should all around be more enjoyable to use.
 If you're a current httr user, there's no need to switch, as we'll continue to maintain the package for many years to come, but if you start on a new project, I'd recommend that you give httr2 a shot.
 
 If you've been following httr2 development for a while, you might want to jump to the [release notes](https://github.com/r-lib/httr2/releases/tag/v1.0.0) to see what's new (a lot!).
 The most important change in this release is that [Maximilian Girlich](https://github.com/mgirlich) is now a httr2 author, in recognition of his many contributions to the package.
-This release also features improved tools for performing multiple requests (more on that below), as well as a bunch of bug fixes and minor improvements for OAuth.
+This release also features improved tools for performing multiple requests (more on that below) and a bunch of bug fixes and minor improvements for OAuth.
 
 For the rest of this blog post, I'll assume that you're familiar with the basics of HTTP.
 If you're not, you might want to start with `vignette("httr2")` which introduces you to HTTP using httr2.
@@ -87,19 +88,20 @@ req <- request(example_url())
 req
 ```
 
-Instead of using an external website here, we're using a test server that's built-in to httr2 itself.
-This ensures that this blog post, and many httr2 examples, work independently of the rest of the internet.
+Instead of using an external website, here we're using a test server that's built in to httr2.
+This ensures that this blog post, and many httr2 examples, work independently from the rest of the internet.
 
 You can see the HTTP request that httr2 will send, without actually sending it[^2], by doing a dry run:
 
-[^2]: Well, technically, it does send the request, just to another test server that captures exactly what it was sent.
+[^2]: Well, technically, it does send the request, just to another test server that returns the request that it received.
 
 ```{r}
 req |> req_dry_run()
 ```
 
-This object will perform a simple `GET` request with user agent and accept headings automatically added by httr2.
-To make more complex requests, you modify the request object using functions that start with `req_`.
+As you can see, this request object will perform a simple `GET` request with automatic user agent and accept headers.
+
+To make more complex requests, you modify the request object with functions that start with `req_`.
 For example, you could make it a `HEAD` request, with some query parameters, and a custom user agent:
 
 ```{r}
@@ -130,7 +132,7 @@ resp <- req_json |> req_perform()
 ```
 
 Performing a request will return a response object (or throw an error, which we'll talk about next).
-You can see the basic details of the request by printing it or exactly what the raw response looked like with `resp_raw()`[^3]:
+You can see the basic details of the request by printing it or you can see the raw response with `resp_raw()`[^3]:
 
 [^3]: This is only an approximation.
     For example, it only shows the final response if there were redirects, and it automatically uncompresses the body if it was compressed.
@@ -142,7 +144,7 @@ resp
 resp |> resp_raw()
 ```
 
-But generally, you'll want to use the `resp_` functions to extract parts of the response.
+But generally, you'll want to use the `resp_` functions to extract parts of the response for further processing.
 For example, you could parse the JSON body into an R data structure:
 
 ```{r}
@@ -151,12 +153,10 @@ resp |>
   str()
 ```
 
-Or get the value of one header or a list of all of them:
+Or get the value of a header:
 
 ```{r}
 resp |> resp_header("Content-Length")
-
-resp |> resp_headers()
 ```
 
 ## Error handling
@@ -167,8 +167,8 @@ You can use `resp_status()` to see the returned status:
 resp |> resp_status()
 ```
 
-However, this will almost always be 200, because httr2 automatically follows redirects (values in the 300s) and turns HTTP failures (values in the 400s and 500s) into R errors.
-The following example shows what this looks like using an example endpoint that returns a response with the status defined in the URL:
+But this will almost always be 200, because httr2 automatically follows redirects (statuses in the 300s) and turns HTTP failures (statuses in the 400s and 500s) into R errors.
+The following example shows what error handling looks like using an example endpoint that returns a response with the status defined in the URL:
 
 ```{r, error = TRUE}
 req |> 
@@ -193,15 +193,14 @@ httr2 provides two other tools to customise error handling:
 -   `req_error()` gives you full control over what responses should be turned into R errors, and allows you to add additional information to the error message.
 -   `req_retry()` helps deal with transient errors, where you need to wait a bit and try again. For example, many APIs are rate limited and will return a 429 status if you have made too many requests.
 
-You can learn more about both of these functions in `vignette("wrapping-apis")` as they are particularly important when creating an R package (or script) that wraps a web API.
+You can learn more about both of these functions in "[Wrapping APIs](https://httr2.r-lib.org/articles/wrapping-apis.html)" as they are particularly important when creating an R package (or script) that wraps a web API.
 
 ## Control the request process
 
-There are a number of other `req_` functions don't directly affect the HTTP request but instead control the overall process of submitting a request and handling the response.
+There are a number of other `req_` functions that don't directly affect the HTTP request but instead control the overall process of submitting a request and handling the response.
 These include:
 
--   `req_cache()`, which sets up a cache so if repeated requests return the same results, you can avoid a trip to the server.
-    `req_cache()` automatically prunes the cache, ensuring that by default it stays under 1 GB
+-   `req_cache()`, which sets up a cache so if repeated requests return the same results, and you can avoid a trip to the server.
 
 -   `req_throttle()`, which automatically adds a small delay before each request so you can avoid hammering a server with many requests.
 
@@ -209,9 +208,9 @@ These include:
 
 -   `req_cookie_preserve()`, which lets you preserve cookies across requests.
 
-Additionally, httr2 provides many helpers for authenticating with OAuth, implementing many more flows than httr.
+Additionally, httr2 provides rich support for authenticating with OAuth, implementing many more OAuth flows than httr.
 You've probably used OAuth a bunch without knowing what it's called: you use it when you login to a non-Google website using your Google account, when you give your phone access to your twitter account, or when you login to a streaming app on your smart TV.
-OAuth is a big, complex, topic, and is documented in `vignette("oauth2")`
+OAuth is a big, complex, topic, and is documented in "[OAuth](https://httr2.r-lib.org/articles/oauth.html)".
 
 ## Multiple requests
 
@@ -286,4 +285,4 @@ httr2 provides other helpers to work with this object:
 
 A big thanks to all 87 folks who have helped make httr2 possible!
 
-[&#x0040;allenbaron](https://github.com/allenbaron), [&#x0040;asadow](https://github.com/asadow), [&#x0040;atheriel](https://github.com/atheriel), [&#x0040;boshek](https://github.com/boshek), [&#x0040;casa-henrym](https://github.com/casa-henrym), [&#x0040;cderv](https://github.com/cderv), [&#x0040;colmanhumphrey](https://github.com/colmanhumphrey), [&#x0040;cstjohn810](https://github.com/cstjohn810), [&#x0040;cwang23](https://github.com/cwang23), [&#x0040;DavidRLovell](https://github.com/DavidRLovell), [&#x0040;DMerch](https://github.com/DMerch), [&#x0040;dpprdan](https://github.com/dpprdan), [&#x0040;ECOSchulz](https://github.com/ECOSchulz), [&#x0040;edavidaja](https://github.com/edavidaja), [&#x0040;elipousson](https://github.com/elipousson), [&#x0040;emmansh](https://github.com/emmansh), [&#x0040;Enchufa2](https://github.com/Enchufa2), [&#x0040;ErdaradunGaztea](https://github.com/ErdaradunGaztea), [&#x0040;fangzhou-xie](https://github.com/fangzhou-xie), [&#x0040;fh-mthomson](https://github.com/fh-mthomson), [&#x0040;fkohrt](https://github.com/fkohrt), [&#x0040;flahn](https://github.com/flahn), [&#x0040;gregleleu](https://github.com/gregleleu), [&#x0040;guga31bb](https://github.com/guga31bb), [&#x0040;gvelasq](https://github.com/gvelasq), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hongooi73](https://github.com/hongooi73), [&#x0040;howardbaek](https://github.com/howardbaek), [&#x0040;jameslairdsmith](https://github.com/jameslairdsmith), [&#x0040;JBGruber](https://github.com/JBGruber), [&#x0040;jchrom](https://github.com/jchrom), [&#x0040;jemus42](https://github.com/jemus42), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jimrothstein](https://github.com/jimrothstein), [&#x0040;jjesusfilho](https://github.com/jjesusfilho), [&#x0040;jjfantini](https://github.com/jjfantini), [&#x0040;jl5000](https://github.com/jl5000), [&#x0040;jonthegeek](https://github.com/jonthegeek), [&#x0040;JosiahParry](https://github.com/JosiahParry), [&#x0040;judith-bourque](https://github.com/judith-bourque), [&#x0040;juliasilge](https://github.com/juliasilge), [&#x0040;kasperwelbers](https://github.com/kasperwelbers), [&#x0040;kelvindso](https://github.com/kelvindso), [&#x0040;kieran-mace](https://github.com/kieran-mace), [&#x0040;KoderKow](https://github.com/KoderKow), [&#x0040;lassehjorthmadsen](https://github.com/lassehjorthmadsen), [&#x0040;llrs](https://github.com/llrs), [&#x0040;lyndon-bird](https://github.com/lyndon-bird), [&#x0040;m-mohr](https://github.com/m-mohr), [&#x0040;maelle](https://github.com/maelle), [&#x0040;maxheld83](https://github.com/maxheld83), [&#x0040;mgirlich](https://github.com/mgirlich), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;michaelgfalk](https://github.com/michaelgfalk), [&#x0040;misea](https://github.com/misea), [&#x0040;MislavSag](https://github.com/MislavSag), [&#x0040;mkoohafkan](https://github.com/mkoohafkan), [&#x0040;mmuurr](https://github.com/mmuurr), [&#x0040;multimeric](https://github.com/multimeric), [&#x0040;nbenn](https://github.com/nbenn), [&#x0040;nclsbarreto](https://github.com/nclsbarreto), [&#x0040;nealrichardson](https://github.com/nealrichardson), [&#x0040;Nelson-Gon](https://github.com/Nelson-Gon), [&#x0040;olivroy](https://github.com/olivroy), [&#x0040;owenjonesuob](https://github.com/owenjonesuob), [&#x0040;paul-carteron](https://github.com/paul-carteron), [&#x0040;pbulsink](https://github.com/pbulsink), [&#x0040;ramiromagno](https://github.com/ramiromagno), [&#x0040;rplati](https://github.com/rplati), [&#x0040;rressler](https://github.com/rressler), [&#x0040;samterfa](https://github.com/samterfa), [&#x0040;schnee](https://github.com/schnee), [&#x0040;sckott](https://github.com/sckott), [&#x0040;sebastian-c](https://github.com/sebastian-c), [&#x0040;selesnow](https://github.com/selesnow), [&#x0040;Shaunson26](https://github.com/Shaunson26), [&#x0040;SokolovAnatoliy](https://github.com/SokolovAnatoliy), [&#x0040;spotrh](https://github.com/spotrh), [&#x0040;stefanedwards](https://github.com/stefanedwards), [&#x0040;taerwin](https://github.com/taerwin), [&#x0040;vanhry](https://github.com/vanhry), [&#x0040;wing328](https://github.com/wing328), [&#x0040;xinzhuohkust](https://github.com/xinzhuohkust), [&#x0040;yogat3ch](https://github.com/yogat3ch), [&#x0040;yogesh-bansal](https://github.com/yogesh-bansal), [&#x0040;yutannihilation](https://github.com/yutannihilation), and [&#x0040;zacdav-db](https://github.com/zacdav-db).
+[\@allenbaron](https://github.com/allenbaron), [\@asadow](https://github.com/asadow), [\@atheriel](https://github.com/atheriel), [\@boshek](https://github.com/boshek), [\@casa-henrym](https://github.com/casa-henrym), [\@cderv](https://github.com/cderv), [\@colmanhumphrey](https://github.com/colmanhumphrey), [\@cstjohn810](https://github.com/cstjohn810), [\@cwang23](https://github.com/cwang23), [\@DavidRLovell](https://github.com/DavidRLovell), [\@DMerch](https://github.com/DMerch), [\@dpprdan](https://github.com/dpprdan), [\@ECOSchulz](https://github.com/ECOSchulz), [\@edavidaja](https://github.com/edavidaja), [\@elipousson](https://github.com/elipousson), [\@emmansh](https://github.com/emmansh), [\@Enchufa2](https://github.com/Enchufa2), [\@ErdaradunGaztea](https://github.com/ErdaradunGaztea), [\@fangzhou-xie](https://github.com/fangzhou-xie), [\@fh-mthomson](https://github.com/fh-mthomson), [\@fkohrt](https://github.com/fkohrt), [\@flahn](https://github.com/flahn), [\@gregleleu](https://github.com/gregleleu), [\@guga31bb](https://github.com/guga31bb), [\@gvelasq](https://github.com/gvelasq), [\@hadley](https://github.com/hadley), [\@hongooi73](https://github.com/hongooi73), [\@howardbaek](https://github.com/howardbaek), [\@jameslairdsmith](https://github.com/jameslairdsmith), [\@JBGruber](https://github.com/JBGruber), [\@jchrom](https://github.com/jchrom), [\@jemus42](https://github.com/jemus42), [\@jennybc](https://github.com/jennybc), [\@jimrothstein](https://github.com/jimrothstein), [\@jjesusfilho](https://github.com/jjesusfilho), [\@jjfantini](https://github.com/jjfantini), [\@jl5000](https://github.com/jl5000), [\@jonthegeek](https://github.com/jonthegeek), [\@JosiahParry](https://github.com/JosiahParry), [\@judith-bourque](https://github.com/judith-bourque), [\@juliasilge](https://github.com/juliasilge), [\@kasperwelbers](https://github.com/kasperwelbers), [\@kelvindso](https://github.com/kelvindso), [\@kieran-mace](https://github.com/kieran-mace), [\@KoderKow](https://github.com/KoderKow), [\@lassehjorthmadsen](https://github.com/lassehjorthmadsen), [\@llrs](https://github.com/llrs), [\@lyndon-bird](https://github.com/lyndon-bird), [\@m-mohr](https://github.com/m-mohr), [\@maelle](https://github.com/maelle), [\@maxheld83](https://github.com/maxheld83), [\@mgirlich](https://github.com/mgirlich), [\@MichaelChirico](https://github.com/MichaelChirico), [\@michaelgfalk](https://github.com/michaelgfalk), [\@misea](https://github.com/misea), [\@MislavSag](https://github.com/MislavSag), [\@mkoohafkan](https://github.com/mkoohafkan), [\@mmuurr](https://github.com/mmuurr), [\@multimeric](https://github.com/multimeric), [\@nbenn](https://github.com/nbenn), [\@nclsbarreto](https://github.com/nclsbarreto), [\@nealrichardson](https://github.com/nealrichardson), [\@Nelson-Gon](https://github.com/Nelson-Gon), [\@olivroy](https://github.com/olivroy), [\@owenjonesuob](https://github.com/owenjonesuob), [\@paul-carteron](https://github.com/paul-carteron), [\@pbulsink](https://github.com/pbulsink), [\@ramiromagno](https://github.com/ramiromagno), [\@rplati](https://github.com/rplati), [\@rressler](https://github.com/rressler), [\@samterfa](https://github.com/samterfa), [\@schnee](https://github.com/schnee), [\@sckott](https://github.com/sckott), [\@sebastian-c](https://github.com/sebastian-c), [\@selesnow](https://github.com/selesnow), [\@Shaunson26](https://github.com/Shaunson26), [\@SokolovAnatoliy](https://github.com/SokolovAnatoliy), [\@spotrh](https://github.com/spotrh), [\@stefanedwards](https://github.com/stefanedwards), [\@taerwin](https://github.com/taerwin), [\@vanhry](https://github.com/vanhry), [\@wing328](https://github.com/wing328), [\@xinzhuohkust](https://github.com/xinzhuohkust), [\@yogat3ch](https://github.com/yogat3ch), [\@yogesh-bansal](https://github.com/yogesh-bansal), [\@yutannihilation](https://github.com/yutannihilation), and [\@zacdav-db](https://github.com/zacdav-db).
