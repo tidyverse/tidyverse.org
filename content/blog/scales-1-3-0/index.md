@@ -6,8 +6,8 @@ title: scales 1.3.0
 date: 2023-11-07
 author: Thomas Lin Pedersen
 description: >
-    scales 1.3.0 is a minor release focusing on streamlining the API and gradual improvements 
-    of the existing utilities
+    scales 1.3.0 is a minor release focusing on streamlining the API and gradual
+    improvements of the existing utilities
 
 photo:
   url: https://unsplash.com/photos/gold-and-silver-round-frame-magnifying-glass-j06gLuKK0GM
@@ -15,8 +15,8 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
-tags: []
-rmd_hash: 6e756c97e01daf52
+tags: [scales]
+rmd_hash: 6c94729cc82a7783
 
 ---
 
@@ -46,7 +46,7 @@ You can install it from CRAN with:
 
 This blog post will give a quick overview of the 1.3.0 release, which is mainly an upkeep release but does contain a few interesting tidbits.
 
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
+You can see a full list of changes in the [release notes](https://scales.r-lib.org/news/index.html)
 
 <div class="highlight">
 
@@ -58,35 +58,42 @@ You can see a full list of changes in the [release notes](%7B%20github_release%2
 
 ## Proper support for difftime objects
 
-While scales have had rudimentary support for objects from the hms package it has not included basic support for difftime objects from base. This is now rectified with the introduction of [`label_timespan()`](https://scales.r-lib.org/reference/label_date.html), [`breaks_timespan()`](https://scales.r-lib.org/reference/breaks_timespan.html), and [`transform_timespan()`](https://scales.r-lib.org/reference/transform_timespan.html). While the labels and breaks function can be used on their own, all the behavior is encapsulated in the timespan transform object which is kin to [`transform_hms()`](https://scales.r-lib.org/reference/transform_timespan.html).
+While scales had rudimentary support for objects from the hms package, I did not support the more common base R difftime objects. This is now rectified with the introduction of [`label_timespan()`](https://scales.r-lib.org/reference/label_date.html), [`breaks_timespan()`](https://scales.r-lib.org/reference/breaks_timespan.html), and [`transform_timespan()`](https://scales.r-lib.org/reference/transform_timespan.html). While the labels and breaks function can be used on their own, all the behavior is encapsulated in the timespan transform object which is kin to [`transform_hms()`](https://scales.r-lib.org/reference/transform_timespan.html).
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='o'>)</span>
 
 <span class='nv'>events</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='o'>(</span>
-  time <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span><span class='o'>(</span><span class='m'>30</span>, max <span class='o'>=</span> <span class='m'>200</span><span class='o'>)</span>,
+  time <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/difftime.html'>as.difftime</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span><span class='o'>(</span><span class='m'>30</span>, max <span class='o'>=</span> <span class='m'>200</span><span class='o'>)</span>, units <span class='o'>=</span> <span class='s'>"secs"</span><span class='o'>)</span>,
   magnitude <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='o'>(</span><span class='m'>30</span><span class='o'>)</span> <span class='o'>+</span> <span class='m'>2</span>
 <span class='o'>)</span>
 
 <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>events</span><span class='o'>)</span> <span class='o'>+</span> 
-  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='o'>(</span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>time</span>, y <span class='o'>=</span> <span class='m'>0</span>, size <span class='o'>=</span> <span class='nv'>magnitude</span><span class='o'>)</span>, position <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/position_jitter.html'>position_jitter</a></span><span class='o'>(</span>height <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span> 
-  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous</a></span><span class='o'>(</span>trans <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/transform_timespan.html'>transform_timespan</a></span><span class='o'>(</span><span class='o'>)</span>, limits <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='kc'>NA</span><span class='o'>)</span><span class='o'>)</span>
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='o'>(</span>
+    <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>time</span>, y <span class='o'>=</span> <span class='m'>0</span>, size <span class='o'>=</span> <span class='nv'>magnitude</span><span class='o'>)</span>, 
+    position <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/position_jitter.html'>position_jitter</a></span><span class='o'>(</span>width <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span>
+  <span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous</a></span><span class='o'>(</span>trans <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/transform_timespan.html'>transform_timespan</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
 
 </code></pre>
 <img src="figs/unnamed-chunk-2-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
-As we can see the timespan transform by default understand numeric data as seconds elapsed. Further it identifies that for this range, adding breaks for minutes makes most sense.
+As we can see the timespan transform automatically picks the unit of the difftime object. Further it identifies that for this range, adding breaks for minutes makes most sense.
 
-If we had recorded time as hours rather than seconds, we can inform the transformer of this:
+If we had recorded time as hours rather than seconds, we can see how that affects the labelling:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>events</span><span class='o'>)</span> <span class='o'>+</span> 
-  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='o'>(</span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>time</span>, y <span class='o'>=</span> <span class='m'>0</span>, size <span class='o'>=</span> <span class='nv'>magnitude</span><span class='o'>)</span>, position <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/position_jitter.html'>position_jitter</a></span><span class='o'>(</span>height <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span> 
-  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous</a></span><span class='o'>(</span>trans <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/transform_timespan.html'>transform_timespan</a></span><span class='o'>(</span><span class='s'>"hours"</span><span class='o'>)</span>, limits <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0</span>, <span class='kc'>NA</span><span class='o'>)</span><span class='o'>)</span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span class='nv'>events</span><span class='o'>$</span><span class='nv'>time</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/difftime.html'>as.difftime</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span><span class='o'>(</span><span class='m'>30</span>, max <span class='o'>=</span> <span class='m'>200</span><span class='o'>)</span>, units <span class='o'>=</span> <span class='s'>"hours"</span><span class='o'>)</span>
+<span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>events</span><span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='o'>(</span>
+    <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>time</span>, y <span class='o'>=</span> <span class='m'>0</span>, size <span class='o'>=</span> <span class='nv'>magnitude</span><span class='o'>)</span>, 
+    position <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/position_jitter.html'>position_jitter</a></span><span class='o'>(</span>width <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span>
+  <span class='o'>)</span> <span class='o'>+</span> 
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous</a></span><span class='o'>(</span>trans <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/transform_timespan.html'>transform_timespan</a></span><span class='o'>(</span><span class='s'>"hours"</span><span class='o'>)</span><span class='o'>)</span>
 
 </code></pre>
 <img src="figs/unnamed-chunk-3-1.png" width="700px" style="display: block; margin: auto;" />
@@ -95,11 +102,11 @@ If we had recorded time as hours rather than seconds, we can inform the transfor
 
 ## API brush-up
 
-scales has gone through a number of touch-ups on its API, latest with a revamp of the labels functions which are now all prefixed with `label_`. With this release we continues (and hopefully concludes) this by changing the naming of the transformation utilities and the palettes. More in line with how we cater to tab-completion when designing functions they all now shares a `transform_` and `pal_` prefix respectively. Further, we have moved from the word `trans` to the more descriptive `transform` throughout the API. On top of that we have renamed the [`label_dollar()`](https://scales.r-lib.org/reference/dollar_format.html) function to [`label_currency()`](https://scales.r-lib.org/reference/label_currency.html) to make it clear that this can be used for any type of currency, not just US dollars. All the old functions have been kept around with no plan of deprecation but we advice you to update your code to use the new names.
+scales has gone through a number of touch-ups on its API, such as revamping the labels functions to all start with `label_`. This release we continue (and hopefully conclude) the touch-ups by using a common prefix for the transformation utilities (`transform_`) and palettes (`pal_`). We have also rename [`label_dollar()`](https://scales.r-lib.org/reference/dollar_format.html) to [`label_currency()`](https://scales.r-lib.org/reference/label_currency.html) to make it clear that this can be used for any type of currency, not just dollars (US or otherwise). All the old functions have been kept around with no plan of deprecation but we advise you to update your code to use the new names.
 
 ## More transformation power
 
-This release also includes some news about transformations apart from the name changes. They have received a fair amount of bug fixes and a new build in transformation type has joined the group. [`transform_asinh()`](https://scales.r-lib.org/reference/transform_asinh.html), the inverse hyperbolic sine transformation, can be used much like log transformations, but support negative values as well.
+This release also includes some other updates to the transformations. They have received a fair amount of bug fixes and a new built-in transformation type has joined the group: [`transform_asinh()`](https://scales.r-lib.org/reference/transform_asinh.html), the inverse hyperbolic sine transformation, can be used much like log transformations, but it also supports negative values.
 
 <div class="highlight">
 
@@ -112,7 +119,7 @@ This release also includes some news about transformations apart from the name c
 
 </div>
 
-Transformation objects can also now optionally contain information about it's derivatives and inverse derivative which makes it possible to properly correct density estimations of transformed values.
+Transformation objects can now also (optionally) record the derivatives and inverse derivative which makes it possible to properly correct density estimations of transformed values.
 
 ## Fixes to range training in discrete scales
 

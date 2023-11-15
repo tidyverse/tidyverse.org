@@ -6,8 +6,8 @@ title: scales 1.3.0
 date: 2023-11-07
 author: Thomas Lin Pedersen
 description: >
-    scales 1.3.0 is a minor release focusing on streamlining the API and gradual improvements 
-    of the existing utilities
+    scales 1.3.0 is a minor release focusing on streamlining the API and gradual
+    improvements of the existing utilities
 
 photo:
   url: https://unsplash.com/photos/gold-and-silver-round-frame-magnifying-glass-j06gLuKK0GM
@@ -15,7 +15,7 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
-tags: []
+tags: [scales]
 ---
 
 ```{=html}
@@ -42,7 +42,7 @@ install.packages("scales")
 
 This blog post will give a quick overview of the 1.3.0 release, which is mainly an upkeep release but does contain a few interesting tidbits.
 
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D)
+You can see a full list of changes in the [release notes](https://scales.r-lib.org/news/index.html)
 
 ```{r setup}
 library(scales)
@@ -57,23 +57,30 @@ While scales had rudimentary support for objects from the hms package, I did not
 library(ggplot2)
 
 events <- data.frame(
-  time = runif(30, max = 200),
+  time = as.difftime(runif(30, max = 200), units = "secs"),
   magnitude = rnorm(30) + 2
 )
 
 ggplot(events) + 
-  geom_point(aes(time, y = 0, size = magnitude), position = position_jitter(height = 0)) + 
-  scale_x_continuous(trans = transform_timespan(), limits = c(0, NA))
+  geom_point(
+    aes(time, y = 0, size = magnitude), 
+    position = position_jitter(width = 0)
+  ) + 
+  scale_x_continuous(trans = transform_timespan())
 ```
 
-As we can see the timespan transform by default understand numeric data as seconds elapsed. Further it identifies that for this range, adding breaks for minutes makes most sense.
+As we can see the timespan transform automatically picks the unit of the difftime object. Further it identifies that for this range, adding breaks for minutes makes most sense.
 
-If we had recorded time as hours rather than seconds, we can inform the transformer of this:
+If we had recorded time as hours rather than seconds, we can see how that affects the labelling:
 
 ```{r}
+events$time <- as.difftime(runif(30, max = 200), units = "hours")
 ggplot(events) + 
-  geom_point(aes(time, y = 0, size = magnitude), position = position_jitter(height = 0)) + 
-  scale_x_continuous(trans = transform_timespan("hours"), limits = c(0, NA))
+  geom_point(
+    aes(time, y = 0, size = magnitude), 
+    position = position_jitter(width = 0)
+  ) + 
+  scale_x_continuous(trans = transform_timespan("hours"))
 ```
 
 ## API brush-up
