@@ -51,7 +51,7 @@ set.seed(1)
 
 ## Proper support for difftime objects
 
-While scales have had rudimentary support for objects from the hms package it has not included basic support for difftime objects from base. This is now rectified with the introduction of `label_timespan()`, `breaks_timespan()`, and `transform_timespan()`. While the labels and breaks function can be used on their own, all the behavior is encapsulated in the timespan transform object which is kin to `transform_hms()`.
+While scales had rudimentary support for objects from the hms package, I did not support the more common base R difftime objects. This is now rectified with the introduction of `label_timespan()`, `breaks_timespan()`, and `transform_timespan()`. While the labels and breaks function can be used on their own, all the behavior is encapsulated in the timespan transform object which is kin to `transform_hms()`.
 
 ```{r}
 library(ggplot2)
@@ -78,11 +78,11 @@ ggplot(events) +
 
 ## API brush-up
 
-scales has gone through a number of touch-ups on its API, latest with a revamp of the labels functions which are now all prefixed with `label_`. With this release we continues (and hopefully concludes) this by changing the naming of the transformation utilities and the palettes. More in line with how we cater to tab-completion when designing functions they all now shares a `transform_` and `pal_` prefix respectively. Further, we have moved from the word `trans` to the more descriptive `transform` throughout the API. On top of that we have renamed the `label_dollar()` function to `label_currency()` to make it clear that this can be used for any type of currency, not just US dollars. All the old functions have been kept around with no plan of deprecation but we advice you to update your code to use the new names.
+scales has gone through a number of touch-ups on its API, such as revamping the labels functions to all start with `label_`. This release we continue (and hopefully conclude) the touch-ups by using a common prefix for the transformation utilities (`transform_`) and palettes (`pal_`). We have also rename `label_dollar()` to `label_currency()` to make it clear that this can be used for any type of currency, not just dollars (US or otherwise). All the old functions have been kept around with no plan of deprecation but we advise you to update your code to use the new names.
 
 ## More transformation power
 
-This release also includes some news about transformations apart from the name changes. They have received a fair amount of bug fixes and a new build in transformation type has joined the group. `transform_asinh()`, the inverse hyperbolic sine transformation, can be used much like log transformations, but support negative values as well.
+This release also includes some other updates to the transformations. They have received a fair amount of bug fixes and a new built-in transformation type has joined the group: `transform_asinh()`, the inverse hyperbolic sine transformation, can be used much like log transformations, but it also supports negative values.
 
 ```{r, warning=FALSE}
 plot(transform_asinh(), xlim = c(-100, 100))
@@ -90,7 +90,7 @@ lines(seq(-100, 100), transform_log()$transform(seq(-100, 100)), col = "red")
 text(50, 3, label = "log-transform", col = "red", adj = 0)
 ```
 
-Transformation objects can also now optionally contain information about it's derivatives and inverse derivative which makes it possible to properly correct density estimations of transformed values.
+Transformation objects can now also (optionally) record the derivatives and inverse derivative which makes it possible to properly correct density estimations of transformed values.
 
 ## Fixes to range training in discrete scales
 
