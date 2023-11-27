@@ -102,7 +102,7 @@ If we had recorded time as hours rather than seconds, we can see how that affect
 
 ## API brush-up
 
-scales has gone through a number of touch-ups on its API, such as revamping the labels functions to all start with `label_`. This release we continue (and hopefully conclude) the touch-ups by using a common prefix for the transformation utilities (`transform_`) and palettes (`pal_`). We have also rename [`label_dollar()`](https://scales.r-lib.org/reference/dollar_format.html) to [`label_currency()`](https://scales.r-lib.org/reference/label_currency.html) to make it clear that this can be used for any type of currency, not just dollars (US or otherwise). All the old functions have been kept around with no plan of deprecation but we advise you to update your code to use the new names.
+scales has gone through a number of touch-ups on its API, such as revamping the labels functions to all start with `label_`. This release we continue (and hopefully conclude) the touch-ups by using a common prefix for the transformation utilities (`transform_`) and palettes (`pal_`). We have also renamed [`label_dollar()`](https://scales.r-lib.org/reference/dollar_format.html) to [`label_currency()`](https://scales.r-lib.org/reference/label_currency.html) to make it clear that this can be used for any type of currency, not just dollars (US or otherwise). All the old functions have been kept around with no plan of deprecation but we advise you to update your code to use the new names.
 
 ## More transformation power
 
