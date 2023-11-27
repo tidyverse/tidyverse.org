@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: scales-1-3-0
 title: scales 1.3.0
-date: 2023-11-07
+date: 2023-11-27
 author: Thomas Lin Pedersen
 description: >
     scales 1.3.0 is a minor release focusing on streamlining the API and gradual
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [scales]
-rmd_hash: 41c9aba695ea71da
+rmd_hash: 1e60f55fdd2b58f2
 
 ---
 
@@ -93,7 +93,7 @@ If we had recorded time as hours rather than seconds, we can see how that affect
     <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>time</span>, y <span class='o'>=</span> <span class='m'>0</span>, size <span class='o'>=</span> <span class='nv'>magnitude</span><span class='o'>)</span>, 
     position <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/position_jitter.html'>position_jitter</a></span><span class='o'>(</span>width <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span>
   <span class='o'>)</span> <span class='o'>+</span> 
-  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous</a></span><span class='o'>(</span>trans <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/transform_timespan.html'>transform_timespan</a></span><span class='o'>(</span><span class='s'>"hours"</span><span class='o'>)</span><span class='o'>)</span>
+  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous</a></span><span class='o'>(</span>trans <span class='o'>=</span> <span class='nf'><a href='https://scales.r-lib.org/reference/transform_timespan.html'>transform_timespan</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span>
 
 </code></pre>
 <img src="figs/unnamed-chunk-3-1.png" width="700px" style="display: block; margin: auto;" />
