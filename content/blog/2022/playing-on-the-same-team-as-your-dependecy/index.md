@@ -1,6 +1,6 @@
 ---
 output: hugodown::hugo_document
-slug: playing-on-the-same-team-as-your-dependecy
+slug: playing-on-the-same-team-as-your-dependency
 title: Playing on the same team as your dependecy
 date: 2022-09-29
 author: Thomas Lin Pedersen
