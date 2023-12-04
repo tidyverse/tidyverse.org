@@ -15,11 +15,11 @@ photo:
 
 categories: [programming] 
 tags: [tidymodels, package maintenance, tune, parsnip]
-rmd_hash: bd6d689cf1e0592d
+rmd_hash: 247c47aa9b60a376
 
 ---
 
-Twice a year, the tidymodels team comes together for "spring cleaning," a week-long project devoted to package maintenance. Ahead of the week, we come up with a list of maintenance tasks that we'd like to see consistently implemented across our packages. Many of these tasks can be completed by running one usethis function, while others are much more involved, like issue triage.[^1] In tidymodels, triaging issues in our core packages helps us to better understand common ways that users struggle to wrap their heads around an API choice we've made or find the information they need. So, among other things, refinements to the wording of our error messages is a common output of our spring cleanings. This blog post will call out three kinds of changes to our erroring that came out of this spring cleaning:
+Twice a year, the tidymodels team comes together for "[spring cleaning](https://www.tidyverse.org/blog/2023/06/spring-cleaning-2023/)", a week-long project devoted to package maintenance. Ahead of the week, we come up with a list of maintenance tasks that we'd like to see consistently implemented across our packages. Many of these tasks can be completed by running one usethis function, while others are much more involved, like issue triage.[^1] In tidymodels, triaging issues in our core packages helps us to better understand common ways that users struggle to wrap their heads around an API choice we've made or find the information they need. So, among other things, refinements to the wording of our error messages is a common output of our spring cleanings. This blog post will call out three kinds of changes to our erroring that came out of this spring cleaning:
 
 -   Improving existing errors: [The outcome went missing](#outcome)
 -   Do something where we once did nothing: [Predicting with things that can't predict](#predict)
@@ -29,23 +29,19 @@ To demonstrate, we'll walk through some examples using the tidymodels packages:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidymodels.tidymodels.org'>tidymodels</a></span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; ── <span style='font-weight: bold;'>Attaching packages</span> ──────────────────────────── tidymodels 1.1.1 ──</span></span>
-<span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>broom       </span> 1.0.5          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>recipes     </span> 1.0.8.<span style='color: #BB0000;'>9000</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dials       </span> 1.2.0          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>rsample     </span> 1.2.0     </span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dplyr       </span> 1.1.3          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tibble      </span> 3.2.1     </span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>ggplot2     </span> 3.4.4          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tidyr       </span> 1.3.0     </span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>infer       </span> 1.0.5          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tune        </span> 1.1.2.<span style='color: #BB0000;'>9000</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>modeldata   </span> 1.2.0          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflows   </span> 1.1.3     </span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>parsnip     </span> 1.1.1.<span style='color: #BB0000;'>9001</span>     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflowsets</span> 1.0.1     </span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>purrr       </span> 1.0.2          <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>yardstick   </span> 1.2.0</span></span>
-<span></span><span><span class='c'>#&gt; ── <span style='font-weight: bold;'>Conflicts</span> ─────────────────────────────── tidymodels_conflicts() ──</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidymodels.tidymodels.org'>tidymodels</a></span><span class='o'>)</span></span><span><span class='c'>#&gt; ── <span style='font-weight: bold;'>Attaching packages</span> ──────────────────────────── tidymodels 1.1.1 ──</span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>broom       </span> 1.0.5     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>recipes     </span> 1.0.8</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dials       </span> 1.2.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>rsample     </span> 1.2.0</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>dplyr       </span> 1.1.2     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tibble      </span> 3.2.1</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>ggplot2     </span> 3.4.4     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tidyr       </span> 1.3.0</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>infer       </span> 1.0.5     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>tune        </span> 1.1.2</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>modeldata   </span> 1.2.0     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflows   </span> 1.1.3</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>parsnip     </span> 1.1.1     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>workflowsets</span> 1.0.1</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>purrr       </span> 1.0.2     <span style='color: #00BB00;'>✔</span> <span style='color: #0000BB;'>yardstick   </span> 1.2.0</span></span><span><span class='c'>#&gt; ── <span style='font-weight: bold;'>Conflicts</span> ─────────────────────────────── tidymodels_conflicts() ──</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>purrr</span>::<span style='color: #00BB00;'>discard()</span> masks <span style='color: #0000BB;'>scales</span>::discard()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>filter()</span>  masks <span style='color: #0000BB;'>stats</span>::filter()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>dplyr</span>::<span style='color: #00BB00;'>lag()</span>     masks <span style='color: #0000BB;'>stats</span>::lag()</span></span>
 <span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> <span style='color: #0000BB;'>recipes</span>::<span style='color: #00BB00;'>step()</span>  masks <span style='color: #0000BB;'>stats</span>::step()</span></span>
-<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Use suppressPackageStartupMessages() to eliminate package startup messages</span></span>
-<span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #0000BB;'>•</span> Use suppressPackageStartupMessages() to eliminate package startup messages</span></span></code></pre>
 
 </div>
 
@@ -98,22 +94,20 @@ A head-scratcher! To help diagnose what's happening here, we could first try see
 <span>  <span class='nv'>mtcars_rec</span> <span class='o'>%&gt;%</span> </span>
 <span>  <span class='nf'>prep</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span> </span>
 <span></span>
-<span><span class='nv'>mtcars_rec_trained</span> <span class='o'>%&gt;%</span> <span class='nf'>bake</span><span class='o'>(</span><span class='kc'>NULL</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 32 × 5</span></span></span>
+<span><span class='nv'>mtcars_rec_trained</span> <span class='o'>%&gt;%</span> <span class='nf'>bake</span><span class='o'>(</span><span class='kc'>NULL</span><span class='o'>)</span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 32 × 5</span></span></span>
 <span><span class='c'>#&gt;      PC1   PC2    PC3     PC4    PC5</span></span>
 <span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> -<span style='color: #BB0000;'>195.</span>  12.8 -<span style='color: #BB0000;'>11.4</span>   0.016<span style='text-decoration: underline;'>4</span>  2.17 </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> -<span style='color: #BB0000;'>195.</span>  12.9 -<span style='color: #BB0000;'>11.7</span>  -<span style='color: #BB0000;'>0.479</span>   2.11 </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> -<span style='color: #BB0000;'>142.</span>  25.9 -<span style='color: #BB0000;'>16.0</span>  -<span style='color: #BB0000;'>1.34</span>   -<span style='color: #BB0000;'>1.18</span> </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> -<span style='color: #BB0000;'>279.</span> -<span style='color: #BB0000;'>38.3</span> -<span style='color: #BB0000;'>14.0</span>   0.157  -<span style='color: #BB0000;'>0.817</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> -<span style='color: #BB0000;'>399.</span> -<span style='color: #BB0000;'>37.3</span>  -<span style='color: #BB0000;'>1.38</span>  2.56   -<span style='color: #BB0000;'>0.444</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> -<span style='color: #BB0000;'>248.</span> -<span style='color: #BB0000;'>25.6</span> -<span style='color: #BB0000;'>12.2</span>  -<span style='color: #BB0000;'>3.01</span>   -<span style='color: #BB0000;'>1.08</span> </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> -<span style='color: #BB0000;'>435.</span>  20.9  13.9   0.801  -<span style='color: #BB0000;'>0.916</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> -<span style='color: #BB0000;'>160.</span> -<span style='color: #BB0000;'>20.0</span> -<span style='color: #BB0000;'>23.3</span>  -<span style='color: #BB0000;'>1.06</span>    0.787</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> -<span style='color: #BB0000;'>172.</span>  10.8 -<span style='color: #BB0000;'>18.3</span>  -<span style='color: #BB0000;'>4.40</span>   -<span style='color: #BB0000;'>0.836</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> -<span style='color: #BB0000;'>209.</span>  19.7  -<span style='color: #BB0000;'>8.94</span> -<span style='color: #BB0000;'>2.58</span>    1.33 </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 22 more rows</span></span></span>
-<span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> -<span style='color: #BB0000;'>195.</span>  12.8 -<span style='color: #BB0000;'>11.4</span>  -<span style='color: #BB0000;'>0.016</span><span style='color: #BB0000; text-decoration: underline;'>4</span> -<span style='color: #BB0000;'>2.17</span> </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> -<span style='color: #BB0000;'>195.</span>  12.9 -<span style='color: #BB0000;'>11.7</span>   0.479  -<span style='color: #BB0000;'>2.11</span> </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> -<span style='color: #BB0000;'>142.</span>  25.9 -<span style='color: #BB0000;'>16.0</span>   1.34    1.18 </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> -<span style='color: #BB0000;'>279.</span> -<span style='color: #BB0000;'>38.3</span> -<span style='color: #BB0000;'>14.0</span>  -<span style='color: #BB0000;'>0.157</span>   0.817</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> -<span style='color: #BB0000;'>399.</span> -<span style='color: #BB0000;'>37.3</span>  -<span style='color: #BB0000;'>1.38</span> -<span style='color: #BB0000;'>2.56</span>    0.444</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> -<span style='color: #BB0000;'>248.</span> -<span style='color: #BB0000;'>25.6</span> -<span style='color: #BB0000;'>12.2</span>   3.01    1.08 </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> -<span style='color: #BB0000;'>435.</span>  20.9  13.9  -<span style='color: #BB0000;'>0.801</span>   0.916</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> -<span style='color: #BB0000;'>160.</span> -<span style='color: #BB0000;'>20.0</span> -<span style='color: #BB0000;'>23.3</span>   1.06   -<span style='color: #BB0000;'>0.787</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> -<span style='color: #BB0000;'>172.</span>  10.8 -<span style='color: #BB0000;'>18.3</span>   4.40    0.836</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> -<span style='color: #BB0000;'>209.</span>  19.7  -<span style='color: #BB0000;'>8.94</span>  2.58   -<span style='color: #BB0000;'>1.33</span> </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 22 more rows</span></span></span></code></pre>
 
 </div>
 
@@ -125,8 +119,7 @@ Mmm. What happened to `mpg`? We mistakenly told `step_pca()` to perform PCA on *
 <span>  <span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>mpg</span> <span class='o'>~</span> <span class='nv'>.</span>, <span class='nv'>mtcars</span><span class='o'>)</span> <span class='o'>%&gt;%</span></span>
 <span>  <span class='nf'>step_pca</span><span class='o'>(</span><span class='nf'>all_numeric_predictors</span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span></span>
-<span><span class='nf'>workflow</span><span class='o'>(</span><span class='nv'>mtcars_rec_new</span>, <span class='nv'>linear_spec</span><span class='o'>)</span> <span class='o'>%&gt;%</span> <span class='nf'>fit</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; ══ Workflow [trained] ════════════════════════════════════════════════</span></span>
+<span><span class='nf'>workflow</span><span class='o'>(</span><span class='nv'>mtcars_rec_new</span>, <span class='nv'>linear_spec</span><span class='o'>)</span> <span class='o'>%&gt;%</span> <span class='nf'>fit</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span></span><span><span class='c'>#&gt; ══ Workflow [trained] ════════════════════════════════════════════════</span></span>
 <span><span class='c'>#&gt; <span style='font-style: italic;'>Preprocessor:</span> Recipe</span></span>
 <span><span class='c'>#&gt; <span style='font-style: italic;'>Model:</span> linear_reg()</span></span>
 <span><span class='c'>#&gt; </span></span>
@@ -144,8 +137,7 @@ Mmm. What happened to `mpg`? We mistakenly told `step_pca()` to perform PCA on *
 <span><span class='c'>#&gt; (Intercept)          PC1          PC2          PC3          PC4  </span></span>
 <span><span class='c'>#&gt;    43.39293      0.07609     -0.05266      0.57892      0.94890  </span></span>
 <span><span class='c'>#&gt;         PC5  </span></span>
-<span><span class='c'>#&gt;    -1.72569</span></span>
-<span></span></code></pre>
+<span><span class='c'>#&gt;    -1.72569</span></span></code></pre>
 
 </div>
 
@@ -153,12 +145,7 @@ Works like a charm. That error we saw previously could be much more helpful, tho
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>fit</span><span class='o'>(</span><span class='nv'>linear_spec</span>, <span class='o'>~</span> <span class='nv'>hp</span>, <span class='nv'>mtcars</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'>:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `linear_reg()` was unable to find an outcome.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Ensure that you have specified an outcome column and that it hasn't</span></span>
-<span><span class='c'>#&gt;   been removed in pre-processing.</span></span>
-<span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>fit</span><span class='o'>(</span><span class='nv'>linear_spec</span>, <span class='o'>~</span> <span class='nv'>hp</span>, <span class='nv'>mtcars</span><span class='o'>)</span></span><span><span class='c'>#&gt; Error in lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...): incompatible dimensions</span></span></code></pre>
 
 </div>
 
@@ -166,12 +153,7 @@ Or, with workflows:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>workflow</span><span class='o'>(</span><span class='nv'>mtcars_rec</span>, <span class='nv'>linear_spec</span><span class='o'>)</span> <span class='o'>%&gt;%</span> <span class='nf'>fit</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'>:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `linear_reg()` was unable to find an outcome.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Ensure that you have specified an outcome column and that it hasn't</span></span>
-<span><span class='c'>#&gt;   been removed in pre-processing.</span></span>
-<span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>workflow</span><span class='o'>(</span><span class='nv'>mtcars_rec</span>, <span class='nv'>linear_spec</span><span class='o'>)</span> <span class='o'>%&gt;%</span> <span class='nf'>fit</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span></span><span><span class='c'>#&gt; Error in eval_tidy(env$formula[[2]], env$data): object '.' not found</span></span></code></pre>
 
 </div>
 
@@ -192,24 +174,22 @@ For example, we've found that it's sometimes not clear to users which outputs th
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># fit a linear regression model to bootstrap resamples of mtcars</span></span>
 <span><span class='nv'>mtcars_res</span> <span class='o'>&lt;-</span> <span class='nf'>fit_resamples</span><span class='o'>(</span><span class='nf'>linear_reg</span><span class='o'>(</span><span class='o'>)</span>, <span class='nv'>mpg</span> <span class='o'>~</span> <span class='nv'>.</span>, <span class='nf'>bootstraps</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span><span class='o'>)</span></span>
 <span></span>
-<span><span class='nv'>mtcars_res</span></span>
-<span><span class='c'>#&gt; # Resampling results</span></span>
+<span><span class='nv'>mtcars_res</span></span><span><span class='c'>#&gt; # Resampling results</span></span>
 <span><span class='c'>#&gt; # Bootstrap sampling </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 25 × 4</span></span></span>
 <span><span class='c'>#&gt;    splits          id          .metrics         .notes          </span></span>
 <span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>       <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap01 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap02 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [32/16]&gt;</span> Bootstrap03 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap04 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap05 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap06 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [32/16]&gt;</span> Bootstrap07 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap08 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap01 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap02 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [32/15]&gt;</span> Bootstrap03 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap04 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [32/14]&gt;</span> Bootstrap05 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [32/9]&gt;</span>  Bootstrap06 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap07 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [32/12]&gt;</span> Bootstrap08 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> <span style='color: #555555;'>&lt;split [32/11]&gt;</span> Bootstrap09 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [32/10]&gt;</span> Bootstrap10 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 15 more rows</span></span></span>
-<span></span></code></pre>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [32/13]&gt;</span> Bootstrap10 <span style='color: #555555;'>&lt;tibble [2 × 4]&gt;</span> <span style='color: #555555;'>&lt;tibble [0 × 3]&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 15 more rows</span></span></span></code></pre>
 
 </div>
 
@@ -253,8 +233,7 @@ In R, formulas provide a compact, symbolic notation to specify model terms. Many
 <span><span class='nv'>gam_spec</span> <span class='o'>&lt;-</span> <span class='nf'>gen_additive_mod</span><span class='o'>(</span><span class='s'>"regression"</span><span class='o'>)</span></span>
 <span></span>
 <span><span class='c'># fit the specification using a formula with specials</span></span>
-<span><span class='nf'>fit</span><span class='o'>(</span><span class='nv'>gam_spec</span>, <span class='nv'>mpg</span> <span class='o'>~</span> <span class='nv'>cyl</span> <span class='o'>+</span> <span class='nf'>s</span><span class='o'>(</span><span class='nv'>disp</span>, k <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span>, <span class='nv'>mtcars</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; parsnip model object</span></span>
+<span><span class='nf'>fit</span><span class='o'>(</span><span class='nv'>gam_spec</span>, <span class='nv'>mpg</span> <span class='o'>~</span> <span class='nv'>cyl</span> <span class='o'>+</span> <span class='nf'>s</span><span class='o'>(</span><span class='nv'>disp</span>, k <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span>, <span class='nv'>mtcars</span><span class='o'>)</span></span><span><span class='c'>#&gt; parsnip model object</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; Family: gaussian </span></span>
@@ -266,8 +245,7 @@ In R, formulas provide a compact, symbolic notation to specify model terms. Many
 <span><span class='c'>#&gt; Estimated degrees of freedom:</span></span>
 <span><span class='c'>#&gt; 3.39  total = 5.39 </span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; GCV score: 6.380152</span></span>
-<span></span></code></pre>
+<span><span class='c'>#&gt; GCV score: 6.380152</span></span></code></pre>
 
 </div>
 
@@ -303,15 +281,8 @@ Since the distinction between model formulas and preprocessor formulas comes up 
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>mpg</span> <span class='o'>~</span> <span class='nv'>cyl</span> <span class='o'>+</span> <span class='nf'>s</span><span class='o'>(</span><span class='nv'>disp</span>, k <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span>, <span class='nv'>mtcars</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `inline_check()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> No in-line functions should be used here.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> The following function was found: `s`.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use steps to do transformations instead.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> If your modeling engine uses special terms in formulas, pass that</span></span>
-<span><span class='c'>#&gt;   formula to workflows as a model formula</span></span>
-<span><span class='c'>#&gt;   (`?parsnip::model_formula()`).</span></span>
-<span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>recipe</span><span class='o'>(</span><span class='nv'>mpg</span> <span class='o'>~</span> <span class='nv'>cyl</span> <span class='o'>+</span> <span class='nf'>s</span><span class='o'>(</span><span class='nv'>disp</span>, k <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span>, <span class='nv'>mtcars</span><span class='o'>)</span></span><span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `inline_check()`:</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> No in-line functions should be used here; use steps to define baking actions.</span></span></code></pre>
 
 </div>
 
@@ -319,13 +290,8 @@ Or:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>gam_wflow</span> <span class='o'>%&gt;%</span> <span class='nf'>fit</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'>:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> When working with generalized additive models, please supply</span></span>
-<span><span class='c'>#&gt;   the model specification to `workflows::add_model()` along with a</span></span>
-<span><span class='c'>#&gt;   `formula` argument.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> See `?parsnip::model_formula()` to learn more.</span></span>
-<span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>gam_wflow</span> <span class='o'>%&gt;%</span> <span class='nf'>fit</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span></span><span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `fit_xy()`:</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> `fit()` must be used with GAM models (due to its use of formulas).</span></span></code></pre>
 
 </div>
 
