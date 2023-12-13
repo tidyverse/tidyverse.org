@@ -1,0 +1,65 @@
+---
+output: hugodown::hugo_document
+
+slug: roxygen2-7-3-0
+title: roxygen2 7.3.0
+date: 2023-12-13
+author: Hadley Wickham
+description: >
+    This release automatically warns if forget to export an S3 method,
+    regenerates the `NAMESPACE` before documenting the rest of the package,
+    and does a better job generating aliases for the package documentation
+    topic.
+
+photo:
+  url: https://unsplash.com/photos/Hli3R6LKibo
+  author: Adi Goldstein
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [roxygen2]
+rmd_hash: 785326764b1321fe
+
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+
+We're well pleased to announce the release of [roxygen2](http://roxygen2.r-lib.org/) 7.3.0. roxygen2 allows you to write specially formatted R comments that generate R documentation files (`man/*.Rd`) and the `NAMESPACE` file. roxygen2 is used by over 9,000 CRAN packages.
+
+You can install it from CRAN with:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"roxygen2"</span><span class='o'>)</span></span></code></pre>
+
+</div>
+
+There are four major improvements in this release:
+
+-   The `NAMESPACE` roclet now reports if you have S3 methods that are missing an `@export` tag. All S3 methods need to be `@export`ed even if the generic is not. This avoids rare, but hard to debug, problems. If you think this is giving a false positive, [please file an issue](https://github.com/r-lib/roxygen2/issues/new) and suppress the warning with `@exportS3Method NULL`.
+
+    I've also considerably revamped the documentation for S3 methods in [`vignette("namespace")`](https://roxygen2.r-lib.org/dev/articles/namespace.html#s3). The docs now discuss what exporting an S3 method really means, and why it would be technically better to call it *registering* the method.
+
+-   Finally, the `NAMESPACE` roclet once again regenerates imports *before* loading package code and parsing roxygen blocks. This has been the goal for a [long time](https://github.com/r-lib/roxygen2/issues/372), but we accidentally broke it when adding support for code execution in markdown blocks. This change resolves a family of problems where you somehow bork your `NAMESPACE` and can't easily get out of it because you can't re-document the package because your code doesn't reload.
+
+-   `@docType package` now works like [`"_PACKAGE"`](https://roxygen2.r-lib.org/articles/rd-other.html#packages), including creating a `{packagename}-package` alias automatically. This resolves a bug introduced in roxygen2 7.0.0 that meant that many packages lacked the correct alias for their package documentation topic.
+
+-   `"_PACKAGE"` does a better job of automatically generating aliases. In particular, it will no longer generate a duplicate alias if you have a function with the same name as your package (like [`glue::glue()`](https://glue.tidyverse.org/reference/glue.html) or [`reprex::reprex()`](https://reprex.tidyverse.org/reference/reprex.html)). If you've previously had to hack around this bug, you can now delete any custom `@aliases` tags associated with the `"_PACKAGE"` docs.
+
+You can see a full list of other minor improvements and bug fixes in the [release notes](https://github.com/r-lib/roxygen2/releases/tag/v7.3.0).
+
+## Acknowledgements
+
+A big thanks to the 46 folks who helped make this release possible through their thoughtful questions and carefully crafted code! [@andrewmarx](https://github.com/andrewmarx), [@ashbythorpe](https://github.com/ashbythorpe), [@ateucher](https://github.com/ateucher), [@bahadzie](https://github.com/bahadzie), [@bastistician](https://github.com/bastistician), [@beginb](https://github.com/beginb), [@brodieG](https://github.com/brodieG), [@bryanhanson](https://github.com/bryanhanson), [@cbielow](https://github.com/cbielow), [@daattali](https://github.com/daattali), [@DanChaltiel](https://github.com/DanChaltiel), [@dpprdan](https://github.com/dpprdan), [@dsweber2](https://github.com/dsweber2), [@espinielli](https://github.com/espinielli), [@hadley](https://github.com/hadley), [@hughjonesd](https://github.com/hughjonesd), [@jeroen](https://github.com/jeroen), [@jmbarbone](https://github.com/jmbarbone), [@johnbaums](https://github.com/johnbaums), [@jonocarroll](https://github.com/jonocarroll), [@kathi-munk](https://github.com/kathi-munk), [@krlmlr](https://github.com/krlmlr), [@kylebutts](https://github.com/kylebutts), [@lionel-](https://github.com/lionel-), [@LouisLeNezet](https://github.com/LouisLeNezet), [@maelle](https://github.com/maelle), [@MaximilianPi](https://github.com/MaximilianPi), [@MichaelChirico](https://github.com/MichaelChirico), [@moodymudskipper](https://github.com/moodymudskipper), [@msberends](https://github.com/msberends), [@multimeric](https://github.com/multimeric), [@musvaage](https://github.com/musvaage), [@neshvig10](https://github.com/neshvig10), [@olivroy](https://github.com/olivroy), [@ralmond](https://github.com/ralmond), [@RMHogervorst](https://github.com/RMHogervorst), [@Robinlovelace](https://github.com/Robinlovelace), [@rossellhayes](https://github.com/rossellhayes), [@rsbivand](https://github.com/rsbivand), [@sbgraves237](https://github.com/sbgraves237), [@schradj](https://github.com/schradj), [@sebffischer](https://github.com/sebffischer), [@simonpcouch](https://github.com/simonpcouch), [@stemangiola](https://github.com/stemangiola), [@tau31](https://github.com/tau31), and [@trusch139](https://github.com/trusch139).
+
