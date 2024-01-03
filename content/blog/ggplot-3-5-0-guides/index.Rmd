@@ -1,0 +1,895 @@
+---
+output: hugodown::hugo_document
+
+slug: ggplot-3-5-0-guides
+title: A guide to guides
+date: 2023-12-20
+author: Teun van den Brand
+description: >
+    The new 3.5.0 release of ggplot2 implements a new guide system. Read on
+    to find out what is new.
+
+photo:
+  url: https://unsplash.com/photos/n6vS3xlnsCc
+  author: Kelley Bozarth
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [ggplot2]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're tickled pink to announce the release of [ggplot2](https://ggplot2.tidyverse.org) 3.5.0. 
+ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. 
+You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("ggplot2")
+```
+
+This blog post will outline improvements to ggplot2's guide system, which underwent a large rewrite.
+Guides, like axes and legends, are visual representations of scales and allow observers to translate graphical properties of a plot into information.
+Guides were the last remaining system in ggplot2 that clung to the S3 system.
+The guide system have now been rewritten in ggproto, the object-oriented system that powers ggplot2's extension mechanism.
+Like geoms, stats, scales, facets and coords before it, guides officially become an extension point that lets developers implement their own guides.
+We will start off discussing the user-facing changes to guides and later veer into extension territory.
+
+You can see a full list of changes in the [release notes](https://ggplot2.tidyverse.org/news/index.html).
+
+```{r setup}
+library(ggplot2)
+library(patchwork)
+```
+
+```{r options, echo = FALSE}
+knitr::opts_chunk$set(dev = "ragg_png")
+```
+
+## General
+
+One of the more visible user-facing changes is that guides no longer have style arguments.
+All of the style settings, like the 'frame' in colour bars or text positions, are controllable via the `theme()` function.
+This makes it easier to globally control the appearance of legends.
+To tweak the style of any individual guide, guides now have a `theme` argument that can set style elements.
+In the plot below, notice how the legend title settings affect both the colour bar and the legend, whereas the local options, like the red legend text, apply only to a single guide.
+
+```{r guide_theming}
+#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#|  gallon. The bottom x-axis displays a line, whereas the y-axis does not. 
+#|  The legend indicating shapes for the number of cylinders has red text.
+#|  The colour bar indicating city miles per gallon has a red rectangle around
+#|  the bar. Both the legend and colour bar titles are rotated, centered and 
+#|  on the left of the guide."
+
+ggplot(mpg, aes(displ, hwy, shape = factor(cyl), colour = cty)) +
+  geom_point() +
+  # Styling individual guides
+  guides(
+    x = guide_axis(theme = theme(axis.line = element_line())),
+    shape = 
+      guide_legend(theme = theme(legend.text = element_text(colour = "red"))),
+    colour =
+      guide_colorbar(theme = theme(legend.frame = element_rect(colour = "red")))
+  ) +
+  # Styling guides globally
+  theme(
+    legend.title.position = "left",
+    legend.title = element_text(angle = 90, hjust = 0.5)
+  )
+```
+
+## Legends
+
+For the purposes of this post, 'legend' will refer to all guides that are not axes. 
+As the term 'legend' suggests, this includes `guide_legend()` but also `guide_colourbar()`, `guide_bins()` and `guide_coloursteps()`. 
+It explicitly excludes all types of axes.
+
+### Position placement
+
+Legend positions are no longer restricted to just a single side of the plot.
+By setting the `position` argument of guides, you can tailor which guides appears where in the plot.
+Guides that do not have a position set, like the 'drv' shape legend, follow the theme's `legend.position` setting.
+
+```{r legend_positions}
+#| fig.alt = "A scatterplot showing engine displacement versus highway miles
+#|  per gallon. It has four legend placed at the top, left, bottom of the panel
+#|  and one inside the panel."
+
+p <- ggplot(mpg, aes(displ, hwy, shape = drv, colour = cty, size = year)) +
+  geom_point(aes(alpha = cyl)) +
+  guides(
+    colour = guide_colourbar(position = "bottom"),
+    size   = guide_legend(position = "top"),
+    alpha  = guide_legend(position = "inside")
+  ) +
+  theme(legend.position = "left")
+p
+```
+
+In the plot above, the legend for the 'cyl' variable is in the middle of the plot.
+In previous versions of ggplot2, you could set the `legend.position` to a coordinate to control the placement.
+However, doing this would change the default legend position, which is not always desirable.
+To cover such cases, there is now a specialised `legend.position.inside` argument that controls the positioning of legends with `position = "inside"` regardless of whether the position was specified in the theme or in the guide.
+
+```{r legend_inside}
+#| fig.alt = "The same plot as before, but the legend for the 'cyl' variable is
+#|  to the top-right of the centre."
+
+p + theme(legend.position.inside = c(0.7, 0.7))
+```
+
+The justification of legends is controllable by using the `legend.justifcation.{position}` theme setting.
+Moreover, the top and bottom guides can be aligned to the plot rather than the panel by setting the `legend.location` argument.
+The main reason behind this is that you can then align the legends with the plot's title.
+By default, when `plot.title.position = "plot"`, left legends are already aligned. 
+For this reason, the top and bottom guides are prioritised for the `legend.location` setting.
+Moreover, it avoids overlapping of legends in the corners if the justifications would dictate it.
+
+```{r legend_alignments}
+#| fig.alt = "The same plot as before, but with a plot-aligned title and 
+#|  different alignments of the legends. The left and top legends are 
+#|  left-aligned with the title."
+
+p + 
+  labs(title = "Plot-aligned title") +
+  theme(
+    legend.margin = margin(0, 0, 0, 0), # turned off for alignment
+    legend.justification.top = "left",
+    legend.justification.left = "top",
+    legend.justification.bottom = "right",
+    legend.justification.inside = c(1, 1),
+    legend.location = "plot",
+    plot.title.position = "plot"
+  )
+```
+
+### Awareness
+
+Legends are now more aware what discrete variables should be placed in which keys.
+By default, they now only draw keys for the layer which contain the relevant value.
+This saves one having to hassle with the `guide_legend(override.aes)` argument to get the keys to display just right.
+In the plot below, notice how the points and line have separate keys.
+
+```{r legend_awareness}
+#| fig.alt = "A scatterplot with trendline showing engine displacement versus
+#|  highway miles per gallon. There are two legends for colour and alpha. Both
+#|  legends show points and lines separately."
+
+p <- ggplot(mpg, aes(displ, hwy)) +
+  scale_alpha_manual(values = c(0.5, 1))
+p +
+  geom_point(aes(colour = "points", alpha = "points")) +
+  geom_line(
+    aes(colour = "line", alpha = "line"),
+    stat = "smooth", formula = y ~ x, method = "lm"
+  )
+```
+
+To revert back to the old behaviour, you can set the `show.legend = TRUE` option in the layers.
+Like before, the `show.legend` argument can still be set in an aesthetic-specific way. 
+Setting it to `TRUE` means 'always show', `FALSE` means 'never show' and `NA` means 'show if found'.
+
+```{r show_key_setting}
+#| fig.alt = "The same plot as before, but every legend keys displays points.
+#|  Lines are shown in every 'alpha' legend key, but only one 'colour' key."
+
+p +
+  geom_point(
+    aes(colour = "points", alpha = "points"),
+    show.legend = TRUE # always show
+  ) +
+  geom_line(
+    aes(colour = "line", alpha = "line"),
+    stat = "smooth", formula = y ~ x, method = "lm",
+    show.legend = c(colour = NA, alpha = TRUE) # always show in alpha
+  )
+```
+
+### Legend spacing
+
+In this release, the way spacing in legends work has been reworked.
+
+* The `legend.spacing{.x/.y}` theme setting is now used to space different guides apart. 
+Previously, it was also used space legend keys apart; that is no longer the case.
+* Spacing legend key-label pairs apart is now controlled by the `legend.key.spacing{.x/.y}` theme setting.
+* Spacing the labels from the keys is now controlled by the label element's `margin` argument.
+
+Because the legend spacing and margin options can be a bit bewildering, a small overview is added below.
+One setting not included in the overview is `legend.spacing.x`, which only applies when `legend.box = "horizontal"`.
+Which exact text margin is relevant for spacing apart keys and labels, or titles and the rest of the guide, depends on the `legend.text.position` and `legend.title.position` theme elements.
+
+```{r spacing_overview, echo=FALSE}
+#| fig.alt = "Overview of legend spacing and margin options. Two abstract
+#|  legends are placed above one another to the right of an area called 'plot'.
+#|  Various arrows with labels point out different theme settings."
+
+title <- grid::grobTree(
+  grid::rectGrob(gp = grid::gpar(fill = "#FFEE13", col = NA)),
+  grid::rectGrob(
+    gp = grid::gpar(fill = "#C7B90E", col = NA), 
+    y = unit(0.25, "cm"), height = unit(0.5, "cm")),
+  grid::rectGrob(gp = grid::gpar(fill = NA, col = "black")),
+  grid::textGrob("title", x = unit(0.5, "cm"), y = unit(0.5, "cm"), 
+                 hjust = 0, vjust = 0)
+)
+key <- grid::grobTree(
+  grid::rectGrob(gp = grid::gpar(fill = "#CD307D", col = "black")),
+  grid::textGrob("key")
+)
+label <- grid::grobTree(
+  grid::rectGrob(gp = grid::gpar(fill = "#009AE0", col = NA)),
+  grid::rectGrob(gp = grid::gpar(fill = "#0279B2", col = NA),
+                 x = unit(0.25, "cm"), width = unit(0.5, "cm")),
+  grid::rectGrob(gp = grid::gpar(fill = NA, col = "black")),
+  grid::textGrob("label", x = unit(0.5, "cm"), hjust = 0)
+)
+gt <- gtable::gtable(
+  widths  = grid::unit.c(unit(c(1,3,0.5,1,3), "cm")),
+  heights = grid::unit.c(unit(c(1,1,0.5,1), "cm"))
+)
+gt <- gtable:::gtable_add_grob(gt, title, l = 1, r = 5, t = 1, clip = "off")
+gt <- gtable::gtable_add_grob(
+  gt, rep(list(key), 4),
+  l = c(1, 1, 4, 4),
+  t = c(2, 4, 2, 4),
+  clip = "off"
+)
+gt <- gtable::gtable_add_grob(
+  gt, rep(list(label), 4),
+  l = c(2, 2, 5, 5),
+  t = c(2, 4, 2, 4),
+  clip = "off"
+)
+gt <- gtable::gtable_add_padding(gt, unit(0.25, "cm"))
+gt <- gtable::gtable_add_grob(
+  gt, grid::rectGrob(gp = grid::gpar(fill = "white", col = NA)),
+  l = 2, t = 2, r = 6, b = 5, z = -Inf
+)
+gt <- gtable::gtable_add_grob(
+  gt, grid::rectGrob(gp = grid::gpar(fill = "grey70", col = NA)),
+  l = 1, t = 1, r = 7, b = 6, z = -Inf
+)
+
+gt <- rbind(
+  gtable::gtable_add_rows(gt, unit(1.5, "cm")), gt
+)
+
+gt <- gtable::gtable_add_padding(gt, unit(0.25, "cm"))
+gt <- gtable::gtable_add_grob(
+  gt, grid::rectGrob(gp = grid::gpar(fill = "white", col = NA)),
+  l = 2, t = 2, r = 8, b = 14, z = -Inf
+)
+gt <- gtable::gtable_add_grob(
+  gt, grid::rectGrob(gp = grid::gpar(fill = "grey85", col = NA)),
+  l = 1, t = 1, r = 9, b = 15, z = -Inf
+)
+
+gt <- gtable::gtable_add_cols(gt, unit(6.1, "cm"))
+
+lab1 <- grid::grobTree(
+  grid::textGrob(
+    "legend.title = element_text(\n  margin = margin(b = ...)\n)",
+    x = unit(0.75, "cm"), gp = grid::gpar(fontfamily = "mono", fontsize = 10),
+    hjust = 0, y = unit(0.25, "cm")
+  ),
+  grid::linesGrob(x = unit(c(0.65, -0.4), "cm"), y = unit(c(0.25, 0.25), "cm"),
+                  arrow = arrow(length = unit(0.2, "cm")))
+)
+
+gt <- gtable::gtable_add_grob(gt, lab1, l = 8, t = 3, clip = "off")
+
+lab2 <- grid::grobTree(
+  grid::textGrob(
+    "legend.key.spacing.y",
+    x = unit(0.75, "cm"), gp = grid::gpar(fontfamily = "mono", fontsize = 10),
+    hjust = 0
+  ),
+  grid::linesGrob(x = unit(c(0.65, -0.4), "cm"), y = unit(c(0.5, 0.5), "npc"),
+                  arrow = arrow(length = unit(0.2, "cm")))
+)
+gt <- gtable::gtable_add_grob(gt, lab2, l = 8, t = 5, clip = "off")
+
+lab3 <- grid::grobTree(
+  grid::textGrob(
+    "legend.key.spacing.x",
+    y  = unit(1, "npc") - unit(0.15, "cm"),
+    hjust = 0, vjust = 1, gp = grid::gpar(fontfamily = "mono", fontsize = 10)
+  ),
+  grid::linesGrob(x = unit(c(0.5, 0.5), "npc"), y = unit(1, "npc") - unit(c(0.1, -0.65), "cm"),
+                  arrow = arrow(length = unit(0.2, "cm")))
+)
+gt <- gtable::gtable_add_grob(gt, lab3, l = 5, t = 8, clip = "off")
+
+lab4 <- grid::grobTree(
+  grid::textGrob(
+    "legend.text = element_text(margin = margin(l = ...))",
+    hjust = 0, vjust = 1, gp = grid::gpar(fontfamily = "mono", fontsize = 10),
+    x = unit(0.25, "cm"), y = unit(1, "npc") - unit(0.6, "cm")
+  ),
+  grid::linesGrob(
+    x = unit(c(0.25, 0.25), "cm"), y = unit(1, "npc") - unit(c(0.5, -0.65), "cm"),
+    arrow = arrow(length = unit(0.2, "cm"))
+  )
+)
+
+gt <- gtable::gtable_add_grob(gt, lab4, l = 4, t = 8, clip = "off")
+
+lab5 <- grid::grobTree(
+  grid::textGrob(
+    "legend.margin",
+    x = unit(0.75, "cm"),
+    hjust = 0, gp = grid::gpar(fontfamily = "mono", fontsize = 10)
+  ),
+  grid::linesGrob(
+    x = unit(c(0.65, 0.125), "cm"), y = unit(c(0.5, 0.5), "npc"),
+    arrow = arrow(length = unit(0.2, "cm"))
+  )
+)
+
+gt <- gtable::gtable_add_grob(gt, lab5, l = 8, t = 9, clip = "off")
+
+lab6 <- grid::grobTree(
+  grid::textGrob(
+    "legend.box.margin",
+    x = unit(0.75, "cm"),
+    hjust = 0, gp = grid::gpar(fontfamily = "mono", fontsize = 10)
+  ),
+  grid::linesGrob(
+    x = unit(c(0.65, 0.375), "cm"), y = unit(c(0.5, 0.5), "npc"),
+    arrow = arrow(length = unit(0.2, "cm"))
+  )
+)
+
+gt <- gtable::gtable_add_grob(gt, lab6, l = 8, t = 10, clip = "off")
+
+gt <- gtable::gtable_add_cols(gt, unit(c(1, 1), "cm"), pos = 0)
+
+plt <- grid::grobTree(
+  grid::rectGrob(gp = grid::gpar(fill = "limegreen", col = NA)),
+  grid::polylineGrob(
+    x = unit(c(0, 1, 1, 0), "npc"), y = unit(c(1, 1, 0, 0), "npc"),
+    gp = grid::gpar(col = "black")
+  ),
+  grid::textGrob("plot", rot = 90)
+)
+
+gt <- gtable::gtable_add_grob(gt, plt, t = 1, b = -1, l = 1, clip = "off")
+
+lab7 <- grid::grobTree(
+  grid::textGrob(
+    "legend.box.spacing", 
+    y = unit(0.5, "npc") + unit(0.2, "cm"),
+    rot = 90, hjust = 0, gp = grid::gpar(fontfamily = "mono", fontsize = 10)
+  ),
+  grid::linesGrob(
+    y = unit(c(0.5, 0.5), "npc"),
+    arrow = arrow(length = unit(0.2, "cm"), ends = "both")
+  )
+)
+
+gt <- gtable::gtable_add_grob(gt, lab7, t = 1, b = -1, l = 2)
+
+lab8 <- grid::grobTree(
+  grid::textGrob(
+    "legend.spacing.y",
+    x = unit(0.5, "cm") + unit(0.2, "cm"),
+    y = unit(0.2, "cm"), vjust = 0, hjust = 0,
+    gp = grid::gpar(fontfamily = "mono", fontsize = 10)
+  ),
+  grid::linesGrob(
+    x = unit(c(0.5, 0.5), "npc"),
+    arrow = arrow(length = unit(0.2, "cm"), ends = "both")
+  )
+)
+
+gt <- gtable::gtable_add_grob(gt, lab8, t = 8, l = 5, clip = "off")
+
+grid::grid.newpage()
+grid::grid.draw(gt)
+```
+
+When the titles and keys don't have explicit margins, appropriate margins are added automatically depending on the position. However, if you override the margins, they will be interpreted literally.
+
+```{r legend_spacing}
+#| fig.alt = "A scatterplot showing engine displacement versus highway miles
+#|  per gallon. The legend for the 'class' variable shows a key layout with
+#|  two columns. Keys are widely spacing in the vertical direction and more
+#|  narrowly in the horizontal direction. There is no space between the keys
+#|  and their labels, but plenty of space between the legend and its title."
+
+ggplot(mpg, aes(displ, hwy, colour = class)) +
+  geom_point() +
+  guides(colour = guide_legend(ncol = 2)) +
+  theme(
+    legend.key.spacing.x = unit(10, "pt"),
+    legend.key.spacing.y = unit(20, "pt"),
+    legend.text = element_text(margin = margin(l = 0)),
+    legend.title = element_text(margin = margin(b = 20))
+  )
+```
+
+For all intents and purposes, colour bar/step and bins guides are treated as legend guides with just a single key-label pair. 
+While the `legend.key.spacing` setting does not apply due to it being one single key, the other spacings and margins do apply equally.
+
+```{r legend_spacing_bar}
+#| fig.alt = "The same plot as before, but with a colourbar indicating the 'cty'
+#|  variable. Again, there is no space between the bar and the labels and ample
+#|  space between the bar and the title."
+
+ggplot(mpg, aes(displ, hwy, colour = cty)) +
+  geom_point() +
+  theme(
+    legend.text  = element_text(margin = margin(l = 0)),
+    legend.title = element_text(margin = margin(b = 20))
+  )
+```
+
+### Stretching
+
+Another experimental tweak to legends, is that they can now have stretching keys (or bars).
+The option is still considered 'experimental' because there are some things that may go wrong.
+By setting the `legend.key{.height/.width}` theme argument as a `"null"` unit, legends can now expand to fill the available space.
+
+```{r stretch_keys}
+#| fig.alt = "Scatterplot of engine displacement versus highway miles per
+#|  gallon. There is a legend guide showing the point's size and a colour.
+#|  Both the legend and the bar take up an approximately equal amount of space
+#|  on the right-hand side of the panel."
+
+p <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = cty, size = cyl), shape = 21) +
+  theme(legend.key.height = unit(1, "null"))
+p
+```
+
+The term 'available space' is a tricky one. 
+For starters, other legends placed in the same position take up space, as can be seen in the plot above.
+If your legend is the only legend in a position, more space is available and it stretches more.
+As you can see in the plot below, the legends are not aligned with the panel even when stretched.
+This is because the titles, margins and various spacings all take up space that is *not* available.
+
+```{r isolated_stretch}
+#| fig.alt = "Same plot as before, but the colour bar is placed on the left.
+#|  Both the colour bar and legend take up a lot of vertical space."
+
+p + guides(colour = guide_colourbar(position = "left"))
+```
+
+On the other hand, if one position is packed with legends, the keys may shrink instead of stretch.
+The keys can become too small to show the aesthetics properly.
+You can see in the example below that the size legend becomes cut-off due to small keys and text is spaced too closely to comfortably read.
+
+```{r shrinking_keys}
+#| fig.alt = "Same plot as before, but all legends are on the right, including
+#|  a new legend for the 'model' variable. All legends have keys that are too 
+#|  small to read the text comfortably, and the points indicating size are
+#|  clipped."
+
+p + aes(fill = model)
+```
+
+Another issue that may come up is that the 'available space' might be 0. 
+Because the plot itself is also space-filling, setting null-heights for top/bottom positions or null-widths for left/right positions means there is no available space.
+This may result in the keys or bars becoming invisible.
+For the plot below, recall that we've set the `legend.key.height` setting to a null unit.
+
+```{r disappearing_keys}
+#| fig.alt = "Still the same scatterplot but without the fill variable. Legends
+#|  are placed at the top of the panel, but the bar and key backgrounds have
+#|  disappeared. The text labels are still present."
+
+p + theme(legend.position = "top")
+```
+
+### Other improvements
+
+We welcome a new type of legend: `guide_custom()`. 
+It can be used to add any graphical object (grob) to a plot, like `annotation_custom()`. 
+There are a few differences though: it is positioned just like a legend and adds titles and margins.
+In some sense, this guide is 'special', as it is the only guide that does not directly reflect a scale.
+The downside is that it cannot read properties from the plot, but the upside is that it is very flexible.
+Be careful that if your grob does not have an absolute size, to set the `width` and `height` arguments.
+
+```{r custom_guide}
+#| fig.alt = "A map of the US state North Carolina, where fill colour indicates
+#|  the area of counties. Underneath the colour bar for the fill, there is an
+#|  eight-pointed star to the right of the panel with the title 'compass'."
+
+x <- c(0.5, 1, 1.5, 1.2, 1.5, 1, 0.5, 0.8, 1, 1.15, 2, 1.15, 1, 0.85, 0, 0.85)
+y <- c(1.5, 1.2, 1.5, 1, 0.5, 0.8, 0.5, 1, 2, 1.15, 1, 0.85, 0, 0.85, 1, 1.15)
+
+compass_rose <- grid::polygonGrob(
+  x = unit(x, "cm"), y = unit(y, "cm"), id.lengths = c(8, 8),
+  gp = grid::gpar(fill = c("grey50", "grey25"), col = NA)
+)
+
+nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+ggplot(nc) +
+  geom_sf(aes(fill = AREA)) +
+  guides(custom = guide_custom(compass_rose, title = "compass"))
+```
+
+In previous version of ggplot2, when legend titles are wider than the legends, the guide-title alignment was always left aligned.
+Now, the justification setting of the legend text determines the alignment: 1 is right or top aligned and 0 is left or bottom aligned.
+
+```{r title_justification}
+#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#|  gallon. The 'drv' variable has a legend that is left aligned, whereas the
+#|  'cyl' variable has a legend that is right-aligned."
+
+ggplot(mpg, aes(displ, hwy, shape = factor(cyl), colour = drv)) +
+  geom_point() +
+  guides(
+    shape = guide_legend(
+      title = "A title that is pretty long",
+      theme = theme(legend.title = element_text(hjust = 1))
+    ),
+    colour = guide_legend(
+      title = "Another long title",
+      theme = theme(legend.title = element_text(hjust = 0))
+    )
+  )
+```
+
+## Axes
+
+Axes refer to position guides that reflect x- and y-scales. 
+In some non-Cartesian coordinate systems, they may reflect a theta or radius, a longitude or latitude.
+Classically, they display labelled tick marks at regular intervals.
+The most common axis, is the default `guide_axis()`.
+
+### Improvements
+
+A much requested expansion of axis capabilities is the ability to draw minor ticks.
+To draw minor ticks, you can use the `minor.ticks` argument of `guide_axis()`.
+
+```{r minor_ticks}
+#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#|  gallon. Both the x and y axes have smaller ticks in between normal ticks."
+p <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  guides(
+    x = guide_axis(minor.ticks = TRUE),
+    y = guide_axis(minor.ticks = TRUE)
+  )
+p
+```
+
+The minor ticks are unlabelled ticks and follow the `minor_breaks` provided to the scale.
+Their length is determined by the `axis.minor.ticks.length` and their positional children.
+The rest of their appearance is inherited from the major ticks, as can be seen in the plot below where the minor ticks on the y-axis are also blue.
+To tweak their style separately from the major ticks, the `axis.minor.ticks.{x.bottom/x.top/y.left/y.right}` setting can be used.
+Please note that there is *no* `axis.minor.ticks` setting without the position suffixes, as they inherit from the major ticks.
+
+```{r minor_ticks_theming}
+#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#|  gallon. The y-axis has blue larger and smaller tick marks, whereas the 
+#|  x-axis has the larger ticks in black and the smaller ticks in red. The 
+#|  x-axis has 4 smaller ticks in between large ones and the smaller ticks
+#|  are half the size of larger ticks."
+p + scale_x_continuous(minor_breaks = scales::breaks_width(0.2)) +
+  theme(
+    axis.ticks.length = unit(5, "pt"),
+    axis.minor.ticks.length = rel(0.5),
+    axis.minor.ticks.x.bottom = element_line(colour = 'red'),
+    axis.ticks.y = element_line(colour = "blue")
+  )
+```
+
+Axes can now also be 'capped' at the upper and lower end.
+We hesitate to call this improvement 'new', as it has been a part of base R plotting since time immemorial.
+When axes are capped, the axis line will not be drawn up to the panel edge, but up to the first and last breaks.
+Unsurprisingly, this only affects plots where the axis line is not blank.
+
+```{r capped_axes}
+#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#|  gallon. The y-axis line starts at the bottom of the panel and continues to
+#|  the top break. The x-axis line starts at the most left break and ends at
+#|  the most right break."
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  guides(
+    x = guide_axis(cap = "both"), # Cap both ends
+    y = guide_axis(cap = "upper") # Cap the upper end
+  ) +
+  theme(axis.line = element_line())
+```
+
+### Logarithmic axes
+
+A new axis for displaying logarithmic (and related) scales has been added: `guide_axis_logticks()`.
+This axis draws three types of tick marks at log10-spaced positions.
+The ticks positions are placed in the original, untransformed data-space, so the axis plays well with scale- and coord-transformations.
+To accommodate a series of logarithmic-like transformations, such as `scales::transform_pseudo_log()` or `scales::transform_asinh()`, scales that include 0 in their limits have the ticks mirrored around 0.
+
+```{r log_axes}
+#| fig.alt = "A line plot showing a negatively sloped line with a reversed
+#| log10-transformation on the y-axis and inverse hyberbolic sine transformation
+#| on the x-axis. Large ticks appears at multiples of 10, 
+#| medium ticks at multiples of 5 and small ticks at multiples of 1."
+
+r <- seq(0.001, 0.999, length.out = 100)
+df <- data.frame(
+  x = qcauchy(r),
+  y = qlnorm(r)
+)
+
+p <- ggplot(df, aes(x, y)) +
+  geom_line() +
+  coord_trans(y = "reverse") +
+  scale_y_continuous(
+    transform = "log10",
+    breaks = c(0.1, 1, 10),
+    guide = guide_axis_logticks(long = 2, mid = 1, short = 0.5)
+  ) +
+  scale_x_continuous(
+    transform = "asinh",
+    breaks = c(-100, -10, -1, 0, 1, 10, 100),
+    guide = "axis_logticks"
+  )
+p
+```
+
+The log-ticks axis supersedes the earlier `annotation_logticks()` function.
+Because it is implemented as an axis, it has minimal fuss with the placement of labels and is immune to the clipping options in the coord.
+To mirror `annotation_logticks()` more closely, you can set a negative tick length in the theme.
+
+```{r log_ticks_inward}
+#| fig.alt = "The same plot as above, but the tick marks now point inwards."
+
+p + theme(axis.ticks.length = unit(-2.25, "pt"))
+```
+
+Indirectly related to guides, `facet_wrap()` and `facet_grid()` now have extended options for how axes should be displayed in between panels. 
+Previously, axes in between panels were only displayed when using `facet_wrap(scales = "free")`.
+That is still the case, but there are more options available for `facet_grid()` and fixed scales.
+Using the `axes = "all"` option, all axes are displayed, including those in between panels. 
+Using `axes = "all_x"` or `"all_y"`, you can narrow down which axes are displayed. 
+In addition, you can choose whether or not to display the labels of those axes with the `axis.labels` argument.
+
+```{r facet_axes_display}
+#| fig.alt = "A scatterplot facetted by the 'drv' and 'year' variables. The
+#|  x-axes in between panels are shown as tick marks without labels. The y-axes
+#|  in between panels are shown in full."
+p <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point()
+
+p + facet_grid(year ~ drv, axes = "all", axis.labels = "all_y")
+```
+
+### Theta axes
+
+The next new axis guide is `guide_axis_theta()`.
+It is a highly specialised axis for use in combination with the new `coord_radial()`.
+Instead of using `x`, `y`, `x.sec` and `y.sec` as one would for Cartesian coordinates, the axes are specified for the `r`, `r.sec`, `theta` and `theta.sec` guides.
+Because the theta guides are not linear and require different drawing logic, they are implemented as separate guides.
+They support many features of linear axes, such as capping and minor ticks, but lack dodging or text justification.
+When setting the `angle` argument, text is placed relative to the angle of the coordinates, as can be seen for the inner theta guide.
+The theta guides always adhere to the x-axis styling, regardless of the `coord_radial(theta)` setting.
+Likewise, the radial guides take their styling from the y-axes.
+
+```{r theta_axis}
+#| fig.alt = "A scatterplot in horseshoe-shaped polar coordinates. The guides
+#|  marking the angles are displayed in blue and the guides marking the radius
+#|  are marked in red. The outer angle guide has been capped and has minor
+#|  breaks, whereas the inner angle guide has rotated text. The same
+#|  is true for the right and left guides respectively."
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  coord_radial(start = 0.25 * pi, end = 1.75 * pi, donut = 0.3) +
+  guides(
+    theta     = guide_axis_theta(cap = "both", minor.ticks = TRUE),
+    theta.sec = guide_axis_theta(angle = 0),
+    r     = guide_axis(cap = "both", minor.ticks = TRUE),
+    r.sec = guide_axis(angle = 0)
+  ) +
+  theme(
+    axis.line.x = element_line(colour = "blue"),
+    axis.line.y = element_line(colour = "red")
+  )
+```
+
+### Stacked axes
+
+The last new axis is technically not an axis, but a way to combine axes.
+`guide_axis_stack()` can take multiple other axes and combine them by placing them next to oneanother.
+The first axis is placed next to the panel and subsequent axes are placed further away from the panel.
+As mentioned [at the beginning](#general), every guide now has its own `theme` argument.
+This can be used to customise individual axes that are part of `guide_axis_stack()`, or set common elements like the axis line in the plot below.
+
+```{r stack_axis}
+#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#|  gallon. The x-axis resembles railroad tracks with labels in the middle and
+#|  an additional line beneath."
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  guides(x = guide_axis_stack(
+    # Typical axis
+    "axis",
+    # Inverted ticks with no text
+    guide_axis(theme = theme(
+      axis.ticks.length.x = rel(-1), 
+      axis.text = element_blank()
+    )),
+    # Just the line
+    guide_axis(theme = theme(
+      axis.ticks = element_blank(), 
+      axis.text  = element_blank()
+    )),
+    theme = theme(axis.line = element_line())
+  ))
+```
+
+## Extending guides
+
+Guides have been rewritten in the ggproto system of object oriented programming, like much of the other components of ggplot2.
+With this rewrite, guides are officially open for extensions and may be extended in much the same way geoms, stats, facets and coord can already.
+
+Guides are closely related to scales and aesthetics, so an important part of guides is taken information from the scale and translating it to a graphic.
+They way guides typically carry information about a scale's breaks and labels is the `key` variable.
+You can glance at what the keys of a guide contain by using the `get_guide_data()` function.
+Typically, they carry the scale's mapped aesthetic, the hexadecimal colours in the example below, what those aesthetics represent in the `.value` column and how they should be labelled in the `.label` column.
+
+```{r get_guide_data}
+p <- ggplot(mpg, aes(displ, hwy, colour = drv)) +
+  geom_point() +
+  scale_colour_discrete(
+    labels = c("4-wheel drive", "front wheel drive", "rear wheel drive")
+  )
+
+get_guide_data(p, "colour")
+```
+
+Let's now make a first guide extension by adjusting the guide's key. 
+Axes are most straightforward to extend because they are the least complicated.
+We'll make an axis that accepts custom values for the guide's `key`.
+We begin by making a custom ggproto class that inherits from the axis guide.
+An important extension point is the `extract_key()` method, which determines how break information is transferred from the scale to the guide.
+In our class, we reject the scale's reality and substitute our own.
+
+```{r key_ggproto}
+GuideKey <- ggproto(
+  "Guide", GuideAxis,
+  
+  # Some parameters are required, so it is easiest to copy the base Guide's
+  # parameters into our new parameters.
+  # We add a new 'key' parameter for our own guide.
+  params = c(GuideAxis$params, list(key = NULL)),
+  
+  # It is important for guides to have a mapped aesthetic with the correct name
+  extract_key = function(scale, aesthetic, key, ...) {
+    key$aesthetic <- scale$map(key$aesthetic)
+    names(key)[names(key) == "aesthetic"] <- aesthetic
+    key
+  }
+)
+```
+
+Now we can make a guide constructor that creates a custom key to pass along on.
+The `new_guide()` functions instantiates a new guide with the given parameters.
+This function automatically rejects any parameters that are not in the class' `params` field, so it is important to declare these.
+
+```{r key_constructor}
+guide_key <- function(
+  aesthetic, value = aesthetic, label = as.character(aesthetic),
+  ...,
+  # Standard guide arguments
+  theme = NULL, title = waiver(), order = 0, position = waiver()
+) {
+  
+  key <- data.frame(aesthetic, .value = value, .label = label, ...)
+  
+  new_guide(
+    # Arguments passed on to the GuideKey$params field
+    key = key, theme = theme, title = title, order = order, position = position,
+    # Declare which aesthetics are supported
+    available_aes = c("x", "y"),
+    # Set the guide class
+    super = GuideKey
+  )
+}
+```
+
+The key can now be used inside the `guides()` function or as the `guide` argument in a position scale.
+
+```{r key_example}
+#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#|  gallon. The x-axis axis ticks are at 2.5, 3.5, 4.5, 5.5 and 6.5."
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  scale_x_continuous(
+    guide = guide_key(aesthetic = 2:6 + 0.5)
+  )
+```
+
+If we are feeling more adventurous, we can also alter they way guides are drawn.
+The majority of drawing code is in the `Guide$build_*()` methods, which is all orchestrated by the `Guide$draw()` method.
+For derived guides, such as the custom key guide we're extending here, overriding a `Guide$build_*()` method should be sufficient.
+If you are writing a completely novel guide that does not resemble the structure of any existing guide, overriding the `Guide$draw()` method might be wise.
+
+In this example, we are changing the way the labels are drawn, so we should edit the `Guide$build_labels()` method.
+We'll edit the method so that the labels are drawn with a `colour` set in the key.
+In addition to the `key` and `params` variable we've seen before, we now also have an `elements` variable, which is a list of precomputed theme elements. We can use the `elements$text` element to draw a graphical object (grob) in the style of axis text.
+Perhaps the most finicky thing about drawing guides is that a lot of settings depend on the guide's `position` parameter.
+
+```{r key_ggproto_edit}
+# Same as before
+GuideKey <- ggproto(
+  "Guide", GuideAxis,
+  params = c(GuideAxis$params, list(key = NULL)),
+  extract_key = function(scale, aesthetic, key, ...) {
+    key$aesthetic <- scale$map(key$aesthetic)
+    names(key)[names(key) == "aesthetic"] <- aesthetic
+    key
+  },
+  
+  # New method to draw labels
+  build_labels = function(key, elements, params) {
+    position <- params$position
+    # Downstream code expects a list of labels
+    list(element_grob(
+      elements$text,
+      label = key$.label,
+      x = switch(position, left = 1, right = 0, key$x),
+      y = switch(position, top = 0, bottom = 1, key$y),
+      margin_x = position %in% c("left", "right"),
+      margin_y = position %in% c("top", "bottom"),
+      colour = key$colour
+    ))
+  }
+)
+```
+
+Because we are incorporating the `...` argument to `guide_key()` in the key, adding a `colour` column to the key is straightforward.
+We can check that are guide looks correct in the different positions around the panel.
+
+```{r key_example_2}
+#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#|  gallon. There are two x-axes at the bottom and top of the plot. The bottom
+#|  has labels alternating in red and gray, and the top has red, green and blue
+#|  labels."
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  guides(
+    x = guide_key(
+      aesthetic = 2:6 + 0.5,
+      colour = c("red", "grey", "red", "grey", "red")
+    ),
+    x.sec = guide_key(
+      aesthetic = c(2, 4, 6), 
+      colour = c("tomato", "limegreen", "dodgerblue")
+    )
+  )
+```
+
+If you feel like trying out extending guides yourself, here are some exercises to consider:
+
+* Extend `guide_key()` to also pass on `family`, `face` and `size` aesthetics from the key to the labels.
+* Override the `GuideKey$build_ticks()` method to also pass on `colour` and `linewidth` settings to the tick marks. 
+  Looking at `Guide$build_ticks()` is a good starting point.
+* Compare `GuideKey$extract_key()` to `Guide$extract_key()`. 
+  What steps have been skimmed over in the example?
+
+## Acknowledgements
+
+A heartfelt thank you to all the people who have contributed their thoughts and code to the 3.5.0 release of ggplot2!
+
+[&#x0040;aarongraybill](https://github.com/aarongraybill), [&#x0040;aphalo](https://github.com/aphalo), [&#x0040;ashgreat](https://github.com/ashgreat), [&#x0040;banbh](https://github.com/banbh), [&#x0040;benimwolfspelz](https://github.com/benimwolfspelz), [&#x0040;ccsarapas](https://github.com/ccsarapas), [&#x0040;danielneilson](https://github.com/danielneilson), [&#x0040;danli349](https://github.com/danli349), [&#x0040;davidhodge931](https://github.com/davidhodge931), [&#x0040;dieghernan](https://github.com/dieghernan), [&#x0040;edent](https://github.com/edent), [&#x0040;eliocamp](https://github.com/eliocamp), [&#x0040;f2il-kieranmace](https://github.com/f2il-kieranmace), [&#x0040;garyzhubc](https://github.com/garyzhubc), [&#x0040;Generalized](https://github.com/Generalized), [&#x0040;giadasp](https://github.com/giadasp), [&#x0040;jan-glx](https://github.com/jan-glx), [&#x0040;jimjam-slam](https://github.com/jimjam-slam), [&#x0040;jtlandis](https://github.com/jtlandis), [&#x0040;jttoivon](https://github.com/jttoivon), [&#x0040;klin333](https://github.com/klin333), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;manjumc1975](https://github.com/manjumc1975), [&#x0040;math-mcshane](https://github.com/math-mcshane), [&#x0040;matthewjnield](https://github.com/matthewjnield), [&#x0040;mjskay](https://github.com/mjskay), [&#x0040;olivroy](https://github.com/olivroy), [&#x0040;paulatn240](https://github.com/paulatn240), [&#x0040;retodomax](https://github.com/retodomax), [&#x0040;Rong-Zh](https://github.com/Rong-Zh), [&#x0040;steveharoz](https://github.com/steveharoz), [&#x0040;tbates](https://github.com/tbates), [&#x0040;teunbrand](https://github.com/teunbrand), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;tjebo](https://github.com/tjebo), [&#x0040;vnijs](https://github.com/vnijs), [&#x0040;warnes](https://github.com/warnes), [&#x0040;wbvguo](https://github.com/wbvguo), [&#x0040;willgearty](https://github.com/willgearty), [&#x0040;Yunuuuu](https://github.com/Yunuuuu), and [&#x0040;yuw444](https://github.com/yuw444).
