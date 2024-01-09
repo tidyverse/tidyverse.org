@@ -93,7 +93,7 @@ data("ames", package = "modeldata")
 
 The latest release of recipes features an overhaul of the warnings and error messages to use the [cli](https://cli.r-lib.org/) package. With this, we are starting the project of providing more information signaling when things don't go well.
 
-The first type of issue we now signal for is when you try to normalize data that contains non-numeric numbers such as `NA` or `Inf`. These can sneak in for several reasons, and before this release, it happened silently. Below we are creating a recipe using the `ames` data set, and before we normalize we are taking the logarithms root of all variables that pertain to square footage. 
+The first type of issue we now signal for is when you try to normalize data that contains elements such as `NA` or `Inf`. These can sneak in for several reasons, and before this release, it happened silently. Below we are creating a recipe using the `ames` data set, and before we normalize, we are taking the logarithms root of all variables that pertain to square footage. 
 
 ```{r}
 rec <- recipe(Sale_Price ~ ., data = ames) |>
@@ -112,7 +112,7 @@ recipe(Sale_Price ~ ., data = ames) |>
   glimpse()
 ```
 
-Looking at the bare data set, we notice that the `-Inf` all appear where there are `0`, which makes sense since `log(0)`.
+Looking at the bare data set, we notice that the `-Inf` all appear where there are `0`, which makes sense since `log(0)` is undefined.
 
 ```{r}
 ames |>
@@ -161,7 +161,9 @@ In the next month or so we are planning a cascade of CRAN releases. There is a l
 
 A number of our packages will (finally) be able to cohesively fit, evaluate, tune, and predict models for event times (a.k.a., [survival analysis](https://en.wikipedia.org/wiki/Survival_analysis)). If you don't do this type of work, you might not notice the new capabilities. However, if you do, tidymodels will be able to do a lot more for you. 
 
-In addition to the new packages, we’ll highlight a lot of these new capabilities in blog posts here as well as tutorials on [`tidymodels.org`](https://www.tidymodels.org/). 
+We've also implemented a number of features related to model fairness. These tools allow tidymodels users to identify when machine learning models behave unfairly towards certain groups of people, and will also be included in the upcoming releases of tidymodels packages in Q1.
+
+We’ll highlight a lot of these new capabilities in blog posts here as well as tutorials on [`tidymodels.org`](https://www.tidymodels.org/). 
 
 So, there’s a lot more coming! We are very excited to have these features officially available and to see what people can do with them. 
 
