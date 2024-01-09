@@ -93,7 +93,7 @@ data("ames", package = "modeldata")
 
 The latest release of recipes features an overhaul of the warnings and error messages to use the [cli](https://cli.r-lib.org/) package. With this, we are starting the project of providing more information signaling when things don't go well.
 
-The first type of issue we now signal for is when you try to normalize data that contains elements such as `NA` or `Inf`. These can sneak in for several reasons, and before this release, it happened silently. Below we are creating a recipe using the `ames` data set, and before we normalize, we are taking the logarithms root of all variables that pertain to square footage. 
+The first type of issue we now signal for is when you try to normalize data that contains elements such as `NA` or `Inf`. These can sneak in for several reasons, and before this release, it happened silently. Below we are creating a recipe using the `ames` data set, and before we normalize, we are taking the logarithms of all variables that pertain to square footage. 
 
 ```{r}
 rec <- recipe(Sale_Price ~ ., data = ames) |>
@@ -102,7 +102,7 @@ rec <- recipe(Sale_Price ~ ., data = ames) |>
   prep()
 ```
 
-We now get a warning that something happened, telling us that it encountered `Inf` or `-Inf`. Knowing that, we can go back and investigate what went wrong. If we exclude `step_normalize()` and `bake()` the recipe, we see that a number of `-Inf` values appear
+We now get a warning that something happened, telling us that it encountered `Inf` or `-Inf`. Knowing that, we can go back and investigate what went wrong. If we exclude `step_normalize()` and `bake()` the recipe, we see that a number of `-Inf` values appear.
 
 ```{r}
 recipe(Sale_Price ~ ., data = ames) |>
