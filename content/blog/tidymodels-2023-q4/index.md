@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2023-q4
 title: "Q4 2023 tidymodels digest"
-date: 2024-01-08
+date: 2024-01-09
 author: Emil Hvitfeldt
 description: >
     The tidymodels team has been busy working on all sorts of new features 
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, recipes]
-rmd_hash: c1545b18956cd55f
+rmd_hash: d675d5866b9c3292
 
 ---
 
@@ -52,7 +52,7 @@ Since [our last roundup post](https://www.tidyverse.org/blog/2022/12/tidymodels-
 
 </div>
 
-We'll highlight a few especially notable changes below: Updated warnings when normalizing, and better error messages in recipes.
+We'll highlight a few especially notable changes below: updated warnings when normalizing, and better error messages in recipes.
 
 <div class="highlight">
 
@@ -66,7 +66,7 @@ We'll highlight a few especially notable changes below: Updated warnings when no
 
 The latest release of recipes features an overhaul of the warnings and error messages to use the [cli](https://cli.r-lib.org/) package. With this, we are starting the project of providing more information signaling when things don't go well.
 
-The first type of issue we now signal for is when you try to normalize data that contains non-numeric numbers such as `NA` or `Inf`. These can sneak in for several reasons, and before this release, it happened silently. Below we are creating a recipe using the `ames` data set, and before we normalize we are taking the logarithms root of all variables that pertain to square footage.
+The first type of issue we now signal for is when you try to normalize data that contains elements such as `NA` or `Inf`. These can sneak in for several reasons, and before this release, it happened silently. Below we are creating a recipe using the `ames` data set, and before we normalize, we are taking the logarithms of all variables that pertain to square footage.
 
 <div class="highlight">
 
@@ -82,7 +82,7 @@ The first type of issue we now signal for is when you try to normalize data that
 
 </div>
 
-We now get a warning that something happened. Telling us that it encountered `Inf` or `-Inf`. Knowing that we can go back and investigate what went wrong. If we exclude `step_normalize()` and `bake()` the recipe, we see that a number of `-Inf` appears
+We now get a warning that something happened, telling us that it encountered `Inf` or `-Inf`. Knowing that, we can go back and investigate what went wrong. If we exclude `step_normalize()` and `bake()` the recipe, we see that a number of `-Inf` values appear.
 
 <div class="highlight">
 
@@ -105,7 +105,7 @@ We now get a warning that something happened. Telling us that it encountered `In
 
 </div>
 
-Looking at the bare data set, we notice that the `-Inf` all appear where there are `0`, which makes sense since `log(0)`.
+Looking at the bare data set, we notice that the `-Inf` all appear where there are `0`, which makes sense since `log(0)` is undefined.
 
 <div class="highlight">
 
@@ -170,6 +170,18 @@ In the newest release, it will detail the offending variables and what was wrong
 <span></span></code></pre>
 
 </div>
+
+## Coming Attractions
+
+In the next month or so we are planning a cascade of CRAN releases. There is a lot of new functionality coming your way, especially in the tune package.
+
+A number of our packages will (finally) be able to cohesively fit, evaluate, tune, and predict models for event times (a.k.a., [survival analysis](https://en.wikipedia.org/wiki/Survival_analysis)). If you don't do this type of work, you might not notice the new capabilities. However, if you do, tidymodels will be able to do a lot more for you.
+
+We've also implemented a number of features related to model fairness. These tools allow tidymodels users to identify when machine learning models behave unfairly towards certain groups of people, and will also be included in the upcoming releases of tidymodels packages in Q1.
+
+We'll highlight a lot of these new capabilities in blog posts here as well as tutorials on [`tidymodels.org`](https://www.tidymodels.org/).
+
+So, there's a lot more coming! We are very excited to have these features officially available and to see what people can do with them.
 
 ## Acknowledgements
 
