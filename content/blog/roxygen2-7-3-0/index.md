@@ -3,10 +3,10 @@ output: hugodown::hugo_document
 
 slug: roxygen2-7-3-0
 title: roxygen2 7.3.0
-date: 2023-12-13
+date: 2024-01-11
 author: Hadley Wickham
 description: >
-    This release automatically warns if forget to export an S3 method,
+    This release automatically warns if you forget to export an S3 method,
     regenerates the `NAMESPACE` before documenting the rest of the package,
     and does a better job generating aliases for the package documentation
     topic.
@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [roxygen2]
-rmd_hash: 785326764b1321fe
+rmd_hash: f78fb31e86e66878
 
 ---
 
@@ -32,10 +32,10 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're well pleased to announce the release of [roxygen2](http://roxygen2.r-lib.org/) 7.3.0. roxygen2 allows you to write specially formatted R comments that generate R documentation files (`man/*.Rd`) and the `NAMESPACE` file. roxygen2 is used by over 9,000 CRAN packages.
+We're well pleased to announce the release of [roxygen2](http://roxygen2.r-lib.org/) 7.3.0. roxygen2 allows you to write specially formatted R comments that generate R documentation files (`man/*.Rd`) and the `NAMESPACE` file. roxygen2 is used by over 13,000 CRAN packages.
 
 You can install it from CRAN with:
 
@@ -51,7 +51,7 @@ There are four major improvements in this release:
 
     I've also considerably revamped the documentation for S3 methods in [`vignette("namespace")`](https://roxygen2.r-lib.org/dev/articles/namespace.html#s3). The docs now discuss what exporting an S3 method really means, and why it would be technically better to call it *registering* the method.
 
--   Finally, the `NAMESPACE` roclet once again regenerates imports *before* loading package code and parsing roxygen blocks. This has been the goal for a [long time](https://github.com/r-lib/roxygen2/issues/372), but we accidentally broke it when adding support for code execution in markdown blocks. This change resolves a family of problems where you somehow bork your `NAMESPACE` and can't easily get out of it because you can't re-document the package because your code doesn't reload.
+-   Finally, the `NAMESPACE` roclet once again regenerates imports *before* loading package code and parsing roxygen blocks. This has been the goal for a [long time](https://github.com/r-lib/roxygen2/issues/372), but we accidentally broke it when adding support for code execution in markdown blocks. This change resolves a family of problems where you somehow bork your `NAMESPACE` and can't easily get fix it because you can't re-document the package because you can't load your package because your `NAMESPACE` is borked.
 
 -   `@docType package` now works like [`"_PACKAGE"`](https://roxygen2.r-lib.org/articles/rd-other.html#packages), including creating a `{packagename}-package` alias automatically. This resolves a bug introduced in roxygen2 7.0.0 that meant that many packages lacked the correct alias for their package documentation topic.
 
