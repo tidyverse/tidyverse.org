@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [r-lib, withr]
-rmd_hash: 4b52adda2279dd4f
+rmd_hash: 924e13216e844d4b
 
 ---
 
@@ -86,7 +86,7 @@ However the process of cleaning up this way can be a bit verbose and feel too ma
 
 </div>
 
-To streamline the process, withr provides `local_`-prefixed tools that combine both the creation or modification of a resource and its restoration to the original state in a single function:
+Wouldn't it be great if we could wrap this code up in a function? That's the goal of withr's `local_`-prefixed functions. They combine both the creation or modification of a resource and its restoration to the original state into a single function:
 
 <div class="highlight">
 
@@ -135,15 +135,15 @@ The `with_` functions are useful for creating very small scopes for given resour
 
 Traditionally, withr implemented its own exit event system on top of [`on.exit()`](https://rdrr.io/r/base/on.exit.html). We needed an extra layer because of a couple of missing features:
 
--   When multiple resources are managed by a piece of code, the order in which these resources are restored or cleaned up sometimes matter. The most consistent order for cleanup is last in first out (LIFO). In other words the oldest resource, on which younger resources might depend, is cleaned up last.
+-   When multiple resources are managed by a piece of code, the order in which these resources are restored or cleaned up sometimes matter. The most consistent order for cleanup is last-in first-out (LIFO). In other words the oldest resource, on which younger resources might depend, is cleaned up last. But historically R only supported first-in first-out (FIFO) order.
 
--   The other missing piece was being able to inspect the contents of the exit hook. The [`sys.on.exit()`](https://rdrr.io/r/base/sys.parent.html) R helper was created for this purpose but was affected by a bug that prevented it to work elsewhere than at top-level.
+-   The other missing piece was being able to inspect the contents of the exit hook. The [`sys.on.exit()`](https://rdrr.io/r/base/sys.parent.html) R helper was created for this purpose but was affected by a bug that prevented it from working inside functions.
 
-We have contributed two changes to R 3.5.0 that filled these missing pieces. The [`sys.on.exit()`](https://rdrr.io/r/base/sys.parent.html) bug was fixed and we've added an `after` argument to [`on.exit()`](https://rdrr.io/r/base/on.exit.html) to allow FIFO ordering.
+We contributed two changes to R 3.5.0 that filled these missing pieces, fixing the [`sys.on.exit()`](https://rdrr.io/r/base/sys.parent.html) bug and adding an `after` argument to [`on.exit()`](https://rdrr.io/r/base/on.exit.html) to allow first-in first-out ordering.
 
-Until now, we haven't been able to leverage these contributions because of our policy of supporting the last 5 versions of R (see <https://www.tidyverse.org/blog/2019/04/r-version-support>). Now that more than five years have passed, it was time for a rewrite! [`withr::defer()`](https://withr.r-lib.org/reference/defer.html), our version of [`on.exit()`](https://rdrr.io/r/base/on.exit.html) that uses better defaults and allows cleaning up resources non-locally (ironically an essential feature for implementing `local_` functions) is now able to be implemented as a simple wrapper around [`on.exit()`](https://rdrr.io/r/base/on.exit.html).
+Until now, we haven't been able to leverage these contributions because of our policy of [supporting the current and previous four versions of R](https://www.tidyverse.org/blog/2019/04/r-version-support). Now that enough time has passed, it was time for a rewrite! [`withr::defer()`](https://withr.r-lib.org/reference/defer.html), our version of [`on.exit()`](https://rdrr.io/r/base/on.exit.html) that uses better defaults and allows cleaning up resources non-locally (ironically an essential feature for implementing `local_` functions) is now able to be implemented as a simple wrapper around [`on.exit()`](https://rdrr.io/r/base/on.exit.html).
 
-One benefit of the rewrite is that mixing withr tools and [`on.exit()`](https://rdrr.io/r/base/on.exit.html) in the same function now behaves more correctly in terms of the order of execution:
+One benefit of the rewrite is that mixing withr tools and [`on.exit()`](https://rdrr.io/r/base/on.exit.html) in the same function now correctly interleaves cleanup:
 
 <div class="highlight">
 
@@ -202,12 +202,10 @@ Of course [`on.exit()`](https://rdrr.io/r/base/on.exit.html) is still much faste
 
 ## Improved withr features
 
-Over the successive releases of withr we've improved the behaviour of cleanup expressions interactively, in scripts executed with [`source()`](https://rdrr.io/r/base/source.html), and in knitr.
+Over the successive releases of withr we've improved the behaviour of cleanup expressions interactively, in scripts executed with [`source()`](https://rdrr.io/r/base/source.html), and in knitr. [`on.exit()`](https://rdrr.io/r/base/on.exit.html) is a bit inconsistent when it is used outside of a function:
 
-[`on.exit()`](https://rdrr.io/r/base/on.exit.html) is a bit inconsistent when it is used outside of a function:
-
--   Interactively, it doesn't run at all
--   In [`source()`](https://rdrr.io/r/base/source.html) and in knitr, it runs "line by line" instead of a the end of the script
+-   Interactively, it doesn't do anything.
+-   In [`source()`](https://rdrr.io/r/base/source.html) and in knitr, it runs immediately instead of a the end of the script
 
 [`withr::defer()`](https://withr.r-lib.org/reference/defer.html) and the [`withr::local_`](https://withr.r-lib.org/reference/with_.html) helpers try to be more helpful for these cases.
 

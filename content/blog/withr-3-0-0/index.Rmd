@@ -71,7 +71,7 @@ local({
 })
 ```
 
-Wouldn't be great if we could wrap this code up in a function? That's the goal of withr's `local_`-prefixed functions. They combine both the creation or modification of a resource and its restoration to the original state into a single function:
+Wouldn't it be great if we could wrap this code up in a function? That's the goal of withr's `local_`-prefixed functions. They combine both the creation or modification of a resource and its restoration to the original state into a single function:
 
 ```{r}
 local({
@@ -109,13 +109,13 @@ The `with_` functions are useful for creating very small scopes for given resour
 
 Traditionally, withr implemented its own exit event system on top of `on.exit()`. We needed an extra layer because of a couple of missing features:
 
-- When multiple resources are managed by a piece of code, the order in which these resources are restored or cleaned up sometimes matter. The most consistent order for cleanup is last in first out (LIFO). In other words the oldest resource, on which younger resources might depend, is cleaned up last.
+- When multiple resources are managed by a piece of code, the order in which these resources are restored or cleaned up sometimes matter. The most consistent order for cleanup is last-in first-out (LIFO). In other words the oldest resource, on which younger resources might depend, is cleaned up last. But historically R only supported first-in first-out (FIFO) order.
 
 - The other missing piece was being able to inspect the contents of the exit hook. The `sys.on.exit()` R helper was created for this purpose but was affected by a bug that prevented it from working inside functions.
 
 We contributed two changes to R 3.5.0 that filled these missing pieces, fixing the `sys.on.exit()` bug and adding an `after` argument to `on.exit()` to allow first-in first-out ordering.
 
-Until now, we haven't been able to leverage these contributions because of our policy of [supporting the current and previous four versions of R](https://www.tidyverse.org/blog/2019/04/r-version-support). Now that more than five years have passed, it was time for a rewrite! `withr::defer()`, our version of `on.exit()` that uses better defaults and allows cleaning up resources non-locally (ironically an essential feature for implementing `local_` functions) is now able to be implemented as a simple wrapper around `on.exit()`.
+Until now, we haven't been able to leverage these contributions because of our policy of [supporting the current and previous four versions of R](https://www.tidyverse.org/blog/2019/04/r-version-support). Now that enough time has passed, it was time for a rewrite! `withr::defer()`, our version of `on.exit()` that uses better defaults and allows cleaning up resources non-locally (ironically an essential feature for implementing `local_` functions) is now able to be implemented as a simple wrapper around `on.exit()`.
 
 One benefit of the rewrite is that mixing withr tools and `on.exit()` in the same function now correctly interleaves cleanup:
 
