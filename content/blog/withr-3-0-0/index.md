@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [r-lib, withr]
-rmd_hash: 924e13216e844d4b
+rmd_hash: 3e79fc4d6eb45f80
 
 ---
 
@@ -139,7 +139,7 @@ Traditionally, withr implemented its own exit event system on top of [`on.exit()
 
 -   The other missing piece was being able to inspect the contents of the exit hook. The [`sys.on.exit()`](https://rdrr.io/r/base/sys.parent.html) R helper was created for this purpose but was affected by a bug that prevented it from working inside functions.
 
-We contributed two changes to R 3.5.0 that filled these missing pieces, fixing the [`sys.on.exit()`](https://rdrr.io/r/base/sys.parent.html) bug and adding an `after` argument to [`on.exit()`](https://rdrr.io/r/base/on.exit.html) to allow first-in first-out ordering.
+We contributed two changes to R 3.5.0 that filled these missing pieces, fixing the [`sys.on.exit()`](https://rdrr.io/r/base/sys.parent.html) bug and adding an `after` argument to [`on.exit()`](https://rdrr.io/r/base/on.exit.html) to allow last-in first-out ordering.
 
 Until now, we haven't been able to leverage these contributions because of our policy of [supporting the current and previous four versions of R](https://www.tidyverse.org/blog/2019/04/r-version-support). Now that enough time has passed, it was time for a rewrite! [`withr::defer()`](https://withr.r-lib.org/reference/defer.html), our version of [`on.exit()`](https://rdrr.io/r/base/on.exit.html) that uses better defaults and allows cleaning up resources non-locally (ironically an essential feature for implementing `local_` functions) is now able to be implemented as a simple wrapper around [`on.exit()`](https://rdrr.io/r/base/on.exit.html).
 
