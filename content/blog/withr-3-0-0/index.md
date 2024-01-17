@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [r-lib, withr]
-rmd_hash: e3de9e510df7829c
+rmd_hash: 4b52adda2279dd4f
 
 ---
 
@@ -119,7 +119,7 @@ In this case we have created a resource (a file), but the same principle applies
 
 </div>
 
-And you can equivalently use the `with_`-prefixed variants (from which the package takes his name!), this way you don't need to wrap in [`local()`](https://rdrr.io/r/base/eval.html):
+And you can equivalently use the `with_`-prefixed variants (from which the package takes its name!), this way you don't need to wrap in [`local()`](https://rdrr.io/r/base/eval.html):
 
 <div class="highlight">
 
