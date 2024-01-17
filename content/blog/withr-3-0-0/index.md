@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [r-lib, withr]
-rmd_hash: 55154297dfc8946c
+rmd_hash: e3de9e510df7829c
 
 ---
 
@@ -135,7 +135,7 @@ The `with_` functions are useful for creating very small scopes for given resour
 
 Traditionally, withr implemented its own exit event system on top of [`on.exit()`](https://rdrr.io/r/base/on.exit.html). We needed an extra layer because of a couple of missing features:
 
--   When multiple resources are managed by a piece of code, the order in which these resources are restored or cleaned up sometimes matter. The most consistent order for cleanup is first in first out (FIFO). In other words the oldest resource, on which younger resources might depend, is cleaned up last.
+-   When multiple resources are managed by a piece of code, the order in which these resources are restored or cleaned up sometimes matter. The most consistent order for cleanup is last in first out (LIFO). In other words the oldest resource, on which younger resources might depend, is cleaned up last.
 
 -   The other missing piece was being able to inspect the contents of the exit hook. The [`sys.on.exit()`](https://rdrr.io/r/base/sys.parent.html) R helper was created for this purpose but was affected by a bug that prevented it to work elsewhere than at top-level.
 
