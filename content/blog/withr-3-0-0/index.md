@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [r-lib, withr]
-rmd_hash: 3e79fc4d6eb45f80
+rmd_hash: 38748f0dd9cbb5d6
 
 ---
 
@@ -47,10 +47,10 @@ Traditionally, resource cleanups in R is done with [`base::on.exit()`](https://r
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/eval.html'>local</a></span><span class='o'>(</span><span class='o'>&#123;</span></span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/on.exit.html'>on.exit</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/message.html'>message</a></span><span class='o'>(</span><span class='s'>"Cleaning time!"</span><span class='o'>)</span><span class='o'>)</span></span>
-<span>  <span class='m'>1</span> <span class='o'>+</span> <span class='m'>2</span></span>
+<span>  <span class='nf'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='o'>(</span><span class='m'>1</span> <span class='o'>+</span> <span class='m'>2</span><span class='o'>)</span></span>
 <span><span class='o'>&#125;</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Cleaning time!</span></span>
-<span></span><span><span class='c'>#&gt; [1] 3</span></span>
+<span><span class='c'>#&gt; [1] 3</span></span>
+<span></span><span><span class='c'>#&gt; Cleaning time!</span></span>
 <span></span></code></pre>
 
 </div>
@@ -60,7 +60,7 @@ Traditionally, resource cleanups in R is done with [`base::on.exit()`](https://r
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/eval.html'>local</a></span><span class='o'>(</span><span class='o'>&#123;</span></span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/on.exit.html'>on.exit</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/message.html'>message</a></span><span class='o'>(</span><span class='s'>"Cleaning time!"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span>  <span class='kr'><a href='https://rdrr.io/r/base/stop.html'>stop</a></span><span class='o'>(</span><span class='s'>"uh oh"</span><span class='o'>)</span></span>
-<span>  <span class='m'>1</span> <span class='o'>+</span> <span class='m'>2</span></span>
+<span>  <span class='nf'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='o'>(</span><span class='m'>1</span> <span class='o'>+</span> <span class='m'>2</span><span class='o'>)</span></span>
 <span><span class='o'>&#125;</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'>:</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> uh oh</span></span>
