@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: withr-3-0-0
 title: withr 3.0.0
-date: 2024-01-17
+date: 2024-01-18
 author: Lionel Henry
 description: >
     withr is the tidyverse solution for automatically cleaning
@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [r-lib, withr]
-rmd_hash: 75ffb107a8ea8efd
+rmd_hash: 4d97bbad63361fcd
 
 ---
 
