@@ -1,0 +1,226 @@
+---
+output: hugodown::hugo_document
+
+slug: withr-3-0-0
+title: withr 3.0.0
+date: 2024-01-18
+author: Lionel Henry
+description: >
+    withr is the tidyverse solution for automatically cleaning
+    up after yourselves (temporary files, options, etc). This milestone makes withr much faster.
+
+photo:
+  url: https://unsplash.com/photos/brown-and-black-brush-on-brown-wooden-table-V0cSTljC92k
+  author: Neal E. Johnson
+
+categories: [package]
+tags: [r-lib, withr]
+---
+
+It's not without jubilant bearing that we announce the release of the 3.0.0 version of [withr](https://withr.r-lib.org/), the tidyverse solution for automatic cleanup of resources! In this release, the internals of withr were rewritten to improve the performance and increase the compatibility with base R's `on.exit()` mechanism.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("withr")
+```
+
+In this blog post we'll go over the changes that made this rewrite possible, but first we'll review the cleanup strategies made possible by withr.
+
+You can see a full list of changes in the [release notes](https://withr.r-lib.org/news/index.html#withr-300).
+
+```{r setup, echo = FALSE}
+# To avoid distracting calls to `eval()` in `local()`
+stop <- rlang::abort
+```
+
+
+## Cleaning up resources with base R and with withr
+
+Traditionally, resource cleanup in R is done with `base::on.exit()`. Cleaning up in the on-exit hook ensures that the cleanup happens both in the normal case, when the code has finished running without error, and in the error case, when something went wrong and execution is interrupted.
+
+`on.exit()` is meant to be used inside functions but it also works within `local()`, which we'll use here for our examples:
+
+```{r}
+local({
+  on.exit(message("Cleaning time!"))
+  print(1 + 2)
+})
+```
+
+```{r, error = TRUE}
+local({
+  on.exit(message("Cleaning time!"))
+  stop("uh oh")
+  print(1 + 2)
+})
+```
+
+`on.exit()` is guaranteed to run no matter what and this property makes it invaluable for resource cleaning. No more accidental littering!
+
+However the process of cleaning up this way can be a bit verbose and feel too manual. Here is how you'd create and clean up a temporary file for instance:
+
+```{r}
+local({
+  my_file <- tempfile()
+
+  file.create(my_file)
+  on.exit(file.remove(my_file))
+
+  writeLines(c("a", "b"), con = my_file)
+})
+```
+
+Wouldn't it be great if we could wrap this code up in a function? That's the goal of withr's `local_`-prefixed functions. They combine both the creation or modification of a resource and its (eventual) restoration to the original state into a single function:
+
+```{r}
+local({
+  my_file <- withr::local_tempfile()
+
+  writeLines(c("a", "b"), con = my_file)
+})
+```
+
+In this case we have created a resource (a file), but the same principle applies to modifying resources such as global options:
+
+```{r}
+local({
+  # Let's temporarily print with a single decimal place
+  withr::local_options(digits = 1)
+  print(1/3)
+})
+
+# The original option value has been restored
+getOption("digits")
+
+print(1/3)
+```
+
+And you can equivalently use the `with_`-prefixed variants (from which the package takes its name!), this way you don't need to wrap in `local()`:
+
+```{r}
+withr::with_options(list(digits = 1), print(1/3))
+```
+
+The `with_` functions are useful for creating very small scopes for given resources, inside or outside a function.
+
+
+## The withr 3.0.0 rewrite
+
+Traditionally, withr implemented its own exit event system on top of `on.exit()`. We needed an extra layer because of a couple of missing features:
+
+- When multiple resources are managed by a piece of code, the order in which these resources are restored or cleaned up sometimes matter. The most consistent order for cleanup is last-in first-out (LIFO). In other words the oldest resource, on which younger resources might depend, is cleaned up last. But historically R only supported first-in first-out (FIFO) order.
+
+- The other missing piece was being able to inspect the contents of the exit hook. The `sys.on.exit()` R helper was created for this purpose but was affected by a bug that prevented it from working inside functions.
+
+We contributed two changes to R 3.5.0 that filled these missing pieces, fixing the `sys.on.exit()` bug and adding an `after` argument to `on.exit()` to allow last-in first-out ordering.
+
+Until now, we haven't been able to leverage these contributions because of our policy of [supporting the current and previous four versions of R](https://www.tidyverse.org/blog/2019/04/r-version-support). Now that enough time has passed, it was time for a rewrite! Our version of `base::on.exit()` is `withr::defer()`. Along with better default behaviour, `withr::defer()` allows the clean up of resources non-locally (ironically an essential feature for implementing `local_` functions). Given the changes in R 3.5.0, `withr::defer()` can now be implemented as a simple wrapper around `on.exit()`.
+
+One benefit of the rewrite is that mixing withr tools and `on.exit()` in the same function now correctly interleaves cleanup:
+
+```{r}
+local({
+  on.exit(print(1))
+
+  withr::defer(print(2))
+
+  on.exit(print(3), add = TRUE, after = FALSE)
+
+  withr::defer(print(4))
+
+  print(5)
+})
+```
+
+But the main benefit is increased performance. Here is how `defer()` compared to `on.exit()` in the previous version:
+
+```{r, eval = FALSE}
+base <- function() on.exit(NULL)
+withr <- function() defer(NULL)
+
+# withr 2.5.2
+bench::mark(base(), withr(), check = FALSE)[1:8]
+#> # A tibble: 2 × 8
+#>   expression      min median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc
+#>   <bch:expr> <bch:tm> <bch:>     <dbl> <bch:byt>    <dbl> <int> <dbl>
+#> 1 base()            0   82ns  6954952.        0B    696.   9999     1
+#> 2 withr()      26.2µs 27.9µs    35172.    88.4KB     52.8  9985    15
+```
+
+withr 3.0.0 has now caught up to `on.exit()` quite a bit:
+
+```{r, eval = FALSE}
+# withr 3.0.0
+bench::mark(base(), withr(), check = FALSE)[1:8]
+#> # A tibble: 2 × 8
+#>   expression      min median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc
+#>   <bch:expr> <bch:tm> <bch:>     <dbl> <bch:byt>    <dbl> <int> <dbl>
+#> 1 base()            0   82ns  7329829.        0B       0  10000     0
+#> 2 withr()      2.95µs  3.4µs   280858.        0B     225.  9992     8
+```
+
+Of course `on.exit()` is still much faster, in part because `defer()` supports more features (more on that below), but mostly because `on.exit` is a primitive function whereas `defer()` is implemented as a normal R function. That said, we hope that we now have made `defer()` (and the `local_` and `with_` functions that use it) sufficiently fast to be used even in performance-critical micro-tools.
+
+
+## Improved withr features
+
+Over the successive releases of withr we've improved the behaviour of cleanup expressions interactively, in scripts executed with `source()`, and in knitr. `on.exit()` is a bit inconsistent when it is used outside of a function:
+
+- Interactively, it doesn't do anything.
+- In `source()` and in knitr, it runs immediately instead of a the end of the script
+
+`withr::defer()` and the `withr::local_` helpers try to be more helpful for these cases.
+
+Interactively, it saves the cleanup action in a special global hook and you get information about how to actually perform the cleanup:
+
+```{r, eval = FALSE}
+file <- withr::local_tempfile()
+#> Setting global deferred event(s).
+#> i These will be run:
+#>   * Automatically, when the R session ends.
+#>   * On demand, if you call `withr::deferred_run()`.
+#> i Use `withr::deferred_clear()` to clear them without executing.
+
+# Clean up now
+withr::deferred_run()
+#> Ran 1/1 deferred expressions
+```
+
+In knitr or `source()`[^1], the cleanup is performed at the end of the document or of the script. If you need chunk-level cleanup, use `local()` as we've been doing in the examples of this blog post:
+
+`````md
+
+Cleaning up at the end of the document:
+
+```r
+document_wide_file <- withr::local_tempfile()
+```
+
+Cleaning up at the end of the chunk:
+
+```r
+local({
+  local_file <- withr::local_tempfile()
+})
+```
+`````
+
+Starting from withr 3.0.0, you can also run `deferred_run()` inside of a chunk:
+
+`````md
+```r
+withr::deferred_run()
+#> Ran 1/1 deferred expressions
+```
+`````
+
+
+[^1]: `source()` is only supported by default when running in the global environment, which is usually the case. For the special case of sourcing in a local environment, you need to set `options(withr.hook_source = TRUE)` first.
+
+
+## Acknowledgements
+
+Thanks to the github contributors who helped us with this release!
+
+[&#x0040;ashbythorpe](https://github.com/ashbythorpe), [&#x0040;bastistician](https://github.com/bastistician), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;fkohrt](https://github.com/fkohrt), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;gdurif](https://github.com/gdurif), [&#x0040;hadley](https://github.com/hadley), [&#x0040;HenrikBengtsson](https://github.com/HenrikBengtsson), [&#x0040;honghaoli42](https://github.com/honghaoli42), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;jameslairdsmith](https://github.com/jameslairdsmith), [&#x0040;jennybc](https://github.com/jennybc), [&#x0040;jonkeane](https://github.com/jonkeane), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;maelle](https://github.com/maelle), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;MLopez-Ibanez](https://github.com/MLopez-Ibanez), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;multimeric](https://github.com/multimeric), [&#x0040;orichters](https://github.com/orichters), [&#x0040;pfuehrlich-pik](https://github.com/pfuehrlich-pik), [&#x0040;solmos](https://github.com/solmos), [&#x0040;tillea](https://github.com/tillea), and [&#x0040;vanhry](https://github.com/vanhry).
