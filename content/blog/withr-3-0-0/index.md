@@ -15,7 +15,7 @@ photo:
 
 categories: [package]
 tags: [r-lib, withr]
-rmd_hash: 38748f0dd9cbb5d6
+rmd_hash: 75ffb107a8ea8efd
 
 ---
 
@@ -29,7 +29,7 @@ You can install it from CRAN with:
 
 </div>
 
-In this blog post we'll go over the changes that made this rewrite possible, but first we'll rewiew the cleanup strategies made possible by withr.
+In this blog post we'll go over the changes that made this rewrite possible, but first we'll review the cleanup strategies made possible by withr.
 
 You can see a full list of changes in the [release notes](https://withr.r-lib.org/news/index.html#withr-300).
 
@@ -39,7 +39,7 @@ You can see a full list of changes in the [release notes](https://withr.r-lib.or
 
 ## Cleaning up resources with base R and with withr
 
-Traditionally, resource cleanups in R is done with [`base::on.exit()`](https://rdrr.io/r/base/on.exit.html). Cleaning up in the on-exit hook ensures that the cleanup happens both in the normal case, when the code has finished running without error, and in the error case, when something went wrong and execution is interrupted.
+Traditionally, resource cleanup in R is done with [`base::on.exit()`](https://rdrr.io/r/base/on.exit.html). Cleaning up in the on-exit hook ensures that the cleanup happens both in the normal case, when the code has finished running without error, and in the error case, when something went wrong and execution is interrupted.
 
 [`on.exit()`](https://rdrr.io/r/base/on.exit.html) is meant to be used inside functions but it also works within [`local()`](https://rdrr.io/r/base/eval.html), which we'll use here for our examples:
 
@@ -86,7 +86,7 @@ However the process of cleaning up this way can be a bit verbose and feel too ma
 
 </div>
 
-Wouldn't it be great if we could wrap this code up in a function? That's the goal of withr's `local_`-prefixed functions. They combine both the creation or modification of a resource and its restoration to the original state into a single function:
+Wouldn't it be great if we could wrap this code up in a function? That's the goal of withr's `local_`-prefixed functions. They combine both the creation or modification of a resource and its (eventual) restoration to the original state into a single function:
 
 <div class="highlight">
 
@@ -141,7 +141,7 @@ Traditionally, withr implemented its own exit event system on top of [`on.exit()
 
 We contributed two changes to R 3.5.0 that filled these missing pieces, fixing the [`sys.on.exit()`](https://rdrr.io/r/base/sys.parent.html) bug and adding an `after` argument to [`on.exit()`](https://rdrr.io/r/base/on.exit.html) to allow last-in first-out ordering.
 
-Until now, we haven't been able to leverage these contributions because of our policy of [supporting the current and previous four versions of R](https://www.tidyverse.org/blog/2019/04/r-version-support). Now that enough time has passed, it was time for a rewrite! [`withr::defer()`](https://withr.r-lib.org/reference/defer.html), our version of [`on.exit()`](https://rdrr.io/r/base/on.exit.html) that uses better defaults and allows cleaning up resources non-locally (ironically an essential feature for implementing `local_` functions) is now able to be implemented as a simple wrapper around [`on.exit()`](https://rdrr.io/r/base/on.exit.html).
+Until now, we haven't been able to leverage these contributions because of our policy of [supporting the current and previous four versions of R](https://www.tidyverse.org/blog/2019/04/r-version-support). Now that enough time has passed, it was time for a rewrite! Our version of [`base::on.exit()`](https://rdrr.io/r/base/on.exit.html) is [`withr::defer()`](https://withr.r-lib.org/reference/defer.html). Along with better default behaviour, [`withr::defer()`](https://withr.r-lib.org/reference/defer.html) allows the clean up of resources non-locally (ironically an essential feature for implementing `local_` functions). Given the changes in R 3.5.0, [`withr::defer()`](https://withr.r-lib.org/reference/defer.html) can now be implemented as a simple wrapper around [`on.exit()`](https://rdrr.io/r/base/on.exit.html).
 
 One benefit of the rewrite is that mixing withr tools and [`on.exit()`](https://rdrr.io/r/base/on.exit.html) in the same function now correctly interleaves cleanup:
 
@@ -198,7 +198,7 @@ withr 3.0.0 has now caught up to [`on.exit()`](https://rdrr.io/r/base/on.exit.ht
 
 </div>
 
-Of course [`on.exit()`](https://rdrr.io/r/base/on.exit.html) is still much faster, in part because `defer()` supports more features (more on that below), but mostly because `on.exit` is a primitive function whereas `defer()` is implemented as a normal R function. That said we hope that we now have made `defer()` (and the `local_` and `with_` functions that use it) sufficiently fast to be used even in performance-critical micro-tools.
+Of course [`on.exit()`](https://rdrr.io/r/base/on.exit.html) is still much faster, in part because `defer()` supports more features (more on that below), but mostly because `on.exit` is a primitive function whereas `defer()` is implemented as a normal R function. That said, we hope that we now have made `defer()` (and the `local_` and `with_` functions that use it) sufficiently fast to be used even in performance-critical micro-tools.
 
 ## Improved withr features
 
@@ -226,7 +226,7 @@ Interactively, it saves the cleanup action in a special global hook and you get 
 
 </div>
 
-In knitr or [`source()`](https://rdrr.io/r/base/source.html)[^1], the cleanup is performed at the end of the document or of the script. If you need chunk-wide cleanup, use [`local()`](https://rdrr.io/r/base/eval.html) as we've been doing in the examples of this blog post:
+In knitr or [`source()`](https://rdrr.io/r/base/source.html)[^1], the cleanup is performed at the end of the document or of the script. If you need chunk-level cleanup, use [`local()`](https://rdrr.io/r/base/eval.html) as we've been doing in the examples of this blog post:
 
 ```` md
 Cleaning up at the end of the document:
@@ -244,7 +244,7 @@ local({
 ```
 ````
 
-Starting from with 3.0.0, you can also run `deferred_run()` inside of a chunk:
+Starting from withr 3.0.0, you can also run `deferred_run()` inside of a chunk:
 
 ```` md
 ```r
