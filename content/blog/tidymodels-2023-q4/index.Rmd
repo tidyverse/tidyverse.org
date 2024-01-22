@@ -1,0 +1,181 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-2023-q4
+title: "Q4 2023 tidymodels digest"
+date: 2024-01-09
+author: Emil Hvitfeldt
+description: >
+    The tidymodels team has been busy working on all sorts of new features 
+    across the ecosystem.
+photo:
+  url: https://www.pexels.com/photo/landscape-photography-of-snow-pathway-between-trees-during-winter-688660/
+  author: Simon Berger
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [roundup] 
+tags: [tidymodels, recipes]
+---
+
+<!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+```{r}
+#| include: false
+#| label: startup
+
+library(tidymodels)
+
+data("ames", package = "modeldata")
+
+tidymodels_prefer()
+theme_set(theme_bw())
+options(pillar.advice = FALSE, pillar.min_title_chars = Inf, width = 80)
+```
+
+```{r}
+#| label: get-repo-info
+#| include: FALSE
+#| cache: TRUE
+
+since <- "2023-10-05"
+
+source("repo-functions.R")
+
+tm_data <- 
+  map_dfr(tm_pkgs, get_current_release) %>% 
+  filter(date > ymd(since)) %>% 
+  mutate(
+    repo = paste0("tidymodels/", package),
+    thanks = map_chr(repo, return_tidy_thanks, from = since),
+    thanks = glue("- {package}: {thanks}"),
+    news = glue("- {package} [({version})](https://{package}.tidymodels.org/news/index.html)")
+  )
+
+txt_pkg_list <- knitr::combine_words(tm_data$package)
+```
+
+The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles.
+
+Since the beginning of 2021, we have been publishing [quarterly updates](https://www.tidyverse.org/categories/roundup/) here on the tidyverse blog summarizing what's new in the tidymodels ecosystem. The purpose of these regular posts is to share useful new features and any updates you may have missed. You can check out the [`tidymodels` tag](https://www.tidyverse.org/tags/tidymodels/) to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused, like this post from the past couple of months:
+
+-   [Three ways errors are about to get better in tidymodels](https://www.tidyverse.org/blog/2023/11/tidymodels-errors-q4/)
+
+Since [our last roundup post](https://www.tidyverse.org/blog/2022/12/tidymodels-2022-q4/), there have been CRAN releases of `r nrow(tm_data)` tidymodels packages. Here are links to their NEWS files:
+
+```{r}
+#| echo: FALSE
+#| results: asis
+
+cat(tm_data$news, sep = "\n")
+```
+
+We'll highlight a few especially notable changes below: updated warnings when normalizing, and better error messages in recipes.
+
+```{r}
+#| message: FALSE
+library(tidymodels)
+
+data("ames", package = "modeldata")
+```
+
+## Updated warnings when normalizing
+
+The latest release of recipes features an overhaul of the warnings and error messages to use the [cli](https://cli.r-lib.org/) package. With this, we are starting the project of providing more information signaling when things don't go well.
+
+The first type of issue we now signal for is when you try to normalize data that contains elements such as `NA` or `Inf`. These can sneak in for several reasons, and before this release, it happened silently. Below we are creating a recipe using the `ames` data set, and before we normalize, we are taking the logarithms of all variables that pertain to square footage. 
+
+```{r}
+rec <- recipe(Sale_Price ~ ., data = ames) |>
+  step_log(contains("SF")) |>
+  step_normalize(all_numeric_predictors()) |>
+  prep()
+```
+
+We now get a warning that something happened, telling us that it encountered `Inf` or `-Inf`. Knowing that, we can go back and investigate what went wrong. If we exclude `step_normalize()` and `bake()` the recipe, we see that a number of `-Inf` values appear.
+
+```{r}
+recipe(Sale_Price ~ ., data = ames) |>
+  step_log(contains("SF")) |>
+  prep() |>
+  bake(new_data = NULL, contains("SF")) |>
+  glimpse()
+```
+
+Looking at the bare data set, we notice that the `-Inf` all appear where there are `0`, which makes sense since `log(0)` is undefined.
+
+```{r}
+ames |>
+  select(contains("SF")) |>
+  glimpse()
+```
+
+Knowing that it was `0` that caused the problem, we can set an `offset` to avoid taking `log(0)`.
+
+```{r}
+rec <- recipe(Sale_Price ~ ., data = ames) |>
+  step_log(contains("SF"), offset = 0.5) |>
+  step_normalize(all_numeric_predictors()) |>
+  prep()
+```
+
+These warnings appear in `step_scale()`, `step_normalize()`, `step_center()` or `step_range()`.
+
+## Better error messages in recipes
+
+Another problem that happens a lot when using recipes, is accidentally selecting variables that have the wrong types. Previously this caused the following error:
+
+```{r}
+#| eval: false
+recipe(Sale_Price ~ ., data = ames) |>
+  step_dummy(starts_with("Lot_")) |>
+  prep()
+#> Error in `step_dummy()`:
+#> Caused by error in `prep()`:
+#> ! All columns selected for the step should be string, factor, or ordered.
+```
+
+In the newest release, it will detail the offending variables and what was wrong with them.
+
+```{r}
+#| error: true
+recipe(Sale_Price ~ ., data = ames) |>
+  step_dummy(starts_with("Lot_")) |>
+  prep() |>
+  bake()
+```
+
+## Coming Attractions
+
+In the next month or so we are planning a cascade of CRAN releases. There is a lot of new functionality coming your way, especially in the tune package. 
+
+A number of our packages will (finally) be able to cohesively fit, evaluate, tune, and predict models for event times (a.k.a., [survival analysis](https://en.wikipedia.org/wiki/Survival_analysis)). If you don't do this type of work, you might not notice the new capabilities. However, if you do, tidymodels will be able to do a lot more for you. 
+
+We've also implemented a number of features related to model fairness. These tools allow tidymodels users to identify when machine learning models behave unfairly towards certain groups of people, and will also be included in the upcoming releases of tidymodels packages in Q1.
+
+We’ll highlight a lot of these new capabilities in blog posts here as well as tutorials on [`tidymodels.org`](https://www.tidymodels.org/). 
+
+So, there’s a lot more coming! We are very excited to have these features officially available and to see what people can do with them. 
+
+## Acknowledgements
+
+We'd like to thank those in the community that contributed to tidymodels in the last quarter:
+
+```{r}
+#| echo: FALSE
+#| results: asis
+
+cat(tm_data$thanks, sep = "\n")
+```
+
+We're grateful for all of the tidymodels community, from observers to users to contributors. Happy modeling!
