@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [bigrquery]
-rmd_hash: 7f632572446a9f4a
+rmd_hash: 84bebd3113f0a565
 
 ---
 
@@ -33,13 +33,13 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're stoked to announce the release of [bigrquery](http://bigrquery.r-dbi.org/) 1.4.2. bigrquery makes it easy to work with data stored in [Google BigQuery](https://developers.google.com/bigquery/), a hosted database for big data.
+We're stoked to announce the release of [bigrquery](http://bigrquery.r-dbi.org/) 1.5.0. bigrquery makes it easy to work with data stored in [Google BigQuery](https://developers.google.com/bigquery/), a hosted database for big data.
 
 You can install it from CRAN with:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"bigquery"</span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"bigrquery"</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
