@@ -15,7 +15,7 @@ photo:
 
 categories: [programming] 
 tags: [tidymodels, package maintenance, tune, parsnip]
-rmd_hash: bd6d689cf1e0592d
+rmd_hash: ba5e0be9e276feef
 
 ---
 
@@ -333,5 +333,5 @@ While I've only outlined three, there are all sorts of improvements to error mes
 
 [^1]: Issue triage consists of categorizing, prioritizing, and consolidating issues in a repository's issue tracker.
 
-[^2]: See the [tidyclust](tidyclust.tidymodels.org) package for unsupervised learning with tidymodels!
+[^2]: See the [tidyclust](https://tidyclust.tidymodels.org) package for unsupervised learning with tidymodels!
 
