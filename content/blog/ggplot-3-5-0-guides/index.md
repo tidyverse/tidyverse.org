@@ -10,13 +10,13 @@ description: >
     to find out what is new.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/brown-wooden-ruler-xnUQO2DwXOo
+  author: CHUTTERSNAP
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2]
-rmd_hash: 8c1b9f1526860030
+rmd_hash: 149b7dadd4bda44b
 
 ---
 
@@ -33,17 +33,9 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're tickled pink to announce the release of [ggplot2](https://ggplot2.tidyverse.org) 3.5.0. ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details.
+We're overjoyed to release [ggplot2](https://ggplot2.tidyverse.org) 3.5.0. This is the second blogpost outlining improvements to ggplot2's guide system, which underwent a large rewrite. Please find the [main post](#TODO:%20link) to read about other exciting changes.
 
-You can install it from CRAN with:
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"ggplot2"</span><span class='o'>)</span></span></code></pre>
-
-</div>
-
-This blog post will outline improvements to ggplot2's guide system, which underwent a large rewrite. Guides, like axes and legends, are visual representations of scales and allow observers to translate graphical properties of a plot into information. Guides were the last remaining system in ggplot2 that clung to the S3 system. The guide system have now been rewritten in ggproto, the object-oriented system that powers ggplot2's extension mechanism. Like geoms, stats, scales, facets and coords before it, guides officially become an extension point that lets developers implement their own guides. We will start off discussing the user-facing changes to guides and later veer into extension territory.
+Guides, like axes and legends, are visual representations of scales and allow observers to translate graphical properties of a plot into information. Guides were the last remaining system in ggplot2 that clung to the S3 system. The guide system have now been rewritten in ggproto, the object-oriented system that powers ggplot2's extension mechanism. Like geoms, stats, scales, facets and coords before it, guides officially become an extension point that lets developers implement their own guides. We will start off discussing the user-facing changes to guides and later veer into extension territory.
 
 You can see a full list of changes in the [release notes](https://ggplot2.tidyverse.org/news/index.html).
 
@@ -118,7 +110,7 @@ In the plot above, the legend for the 'cyl' variable is in the middle of the plo
 
 </div>
 
-The justification of legends is controllable by using the `legend.justifcation.{position}` theme setting. Moreover, the top and bottom guides can be aligned to the plot rather than the panel by setting the `legend.location` argument. The main reason behind this is that you can then align the legends with the plot's title. By default, when `plot.title.position = "plot"`, left legends are already aligned. For this reason, the top and bottom guides are prioritised for the `legend.location` setting. Moreover, it avoids overlapping of legends in the corners if the justifications would dictate it.
+The justification of legends is controllable by using the `legend.justification.{position}` theme setting. Moreover, the top and bottom guides can be aligned to the plot rather than the panel by setting the `legend.location` argument. The main reason behind this is that you can then align the legends with the plot's title. By default, when `plot.title.position = "plot"`, left legends are already aligned. For this reason, the top and bottom guides are prioritised for the `legend.location` setting. Moreover, it avoids overlapping of legends in the corners if the justifications would dictate it.
 
 <div class="highlight">
 
@@ -180,7 +172,7 @@ To revert back to the old behaviour, you can set the `show.legend = TRUE` option
 
 In this release, the way spacing in legends work has been reworked.
 
--   The `legend.spacing{.x/.y}` theme setting is now used to space different guides apart. Previously, it was also used space legend keys apart; that is no longer the case.
+-   The `legend.spacing{.x/.y}` theme setting is now used to space different guides apart. Previously, it was also used to space legend keys apart; that is no longer the case.
 -   Spacing legend key-label pairs apart is now controlled by the `legend.key.spacing{.x/.y}` theme setting.
 -   Spacing the labels from the keys is now controlled by the label element's `margin` argument.
 
@@ -478,7 +470,7 @@ The last new axis is technically not an axis, but a way to combine axes. [`guide
 
 Guides have been rewritten in the ggproto system of object oriented programming, like much of the other components of ggplot2. With this rewrite, guides are officially open for extensions and may be extended in much the same way geoms, stats, facets and coord can already.
 
-Guides are closely related to scales and aesthetics, so an important part of guides is taken information from the scale and translating it to a graphic. They way guides typically carry information about a scale's breaks and labels is the `key` variable. You can glance at what the keys of a guide contain by using the [`get_guide_data()`](https://ggplot2.tidyverse.org/reference/get_guide_data.html) function. Typically, they carry the scale's mapped aesthetic, the hexadecimal colours in the example below, what those aesthetics represent in the `.value` column and how they should be labelled in the `.label` column.
+Guides are closely related to scales and aesthetics, so an important part of guides is taken information from the scale and translating it to a graphic. The way guides typically carry information about a scale's breaks and labels is the `key` variable. You can glance at what the keys of a guide contain by using the [`get_guide_data()`](https://ggplot2.tidyverse.org/reference/get_guide_data.html) function. Typically, they carry the scale's mapped aesthetic, the hexadecimal colours in the example below, what those aesthetics represent in the `.value` column and how they should be labelled in the `.label` column.
 
 <div class="highlight">
 
