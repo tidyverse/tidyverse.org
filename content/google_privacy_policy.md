@@ -58,6 +58,10 @@ These packages may store your credentials on your local machine, for later reuse
 
 By default, an OAuth token is cached in a local file, such as `~/.R/gargle/gargle-oauth`. See the documentation for [`gargle::gargle_options()`](https://gargle.r-lib.org/reference/gargle_options.html) and [`gargle::credentials_user_oauth2()`](https://gargle.r-lib.org/reference/credentials_user_oauth2.html) for information on how to control the location of the token cache or suppress token caching, globally or at the individual token level.
 
+# Data protection policy
+
+We do not collect any data about you and we do not have any access to data that you retrieve by using this package. Security procedures are in place to protect the confidentiality of any that we might come across, and we use best practices, such as encryption and mandatory usage of 2FA, as a matter of course.
+
 # Policies for authors of packages or other applications
 
 Do not use an API key or client ID from the Tidyverse API Packages in an external package or tool. Per the Google User Data Policy
