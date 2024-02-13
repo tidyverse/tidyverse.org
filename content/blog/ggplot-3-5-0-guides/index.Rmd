@@ -672,8 +672,7 @@ Instead of using `x`, `y`, `x.sec` and `y.sec` as one would for Cartesian coordi
 Because the theta guides are not linear and require different drawing logic, they are implemented as separate guides.
 They support many features of linear axes, such as capping and minor ticks, but lack dodging or text justification.
 When setting the `angle` argument, text is placed relative to the angle of the coordinates, as can be seen for the inner theta guide.
-The theta guides always adhere to the x-axis styling, regardless of the `coord_radial(theta)` setting.
-Likewise, the radial guides take their styling from the y-axes.
+The theta guides adhere to the `{setting}.theta` styling, and radial guides to the `{setting}.r` styling.
 
 ```{r theta_axis}
 #| fig.alt = "A scatterplot in horseshoe-shaped polar coordinates. The guides
@@ -684,7 +683,7 @@ Likewise, the radial guides take their styling from the y-axes.
 
 ggplot(mpg, aes(displ, hwy)) +
   geom_point() +
-  coord_radial(start = 0.25 * pi, end = 1.75 * pi, donut = 0.3) +
+  coord_radial(start = 0.25 * pi, end = 1.75 * pi, inner.radius = 0.3) +
   guides(
     theta     = guide_axis_theta(cap = "both", minor.ticks = TRUE),
     theta.sec = guide_axis_theta(angle = 0),
@@ -692,8 +691,8 @@ ggplot(mpg, aes(displ, hwy)) +
     r.sec = guide_axis(angle = 0)
   ) +
   theme(
-    axis.line.x = element_line(colour = "blue"),
-    axis.line.y = element_line(colour = "red")
+    axis.line.theta = element_line(colour = "blue"),
+    axis.line.r     = element_line(colour = "red")
   )
 ```
 

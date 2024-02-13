@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2]
-rmd_hash: 2baf5da1efbb89ca
+rmd_hash: bc015c1eb490b899
 
 ---
 
@@ -416,13 +416,13 @@ Indirectly related to guides, [`facet_wrap()`](https://ggplot2.tidyverse.org/ref
 
 ### Theta axes
 
-The next new axis guide is [`guide_axis_theta()`](https://ggplot2.tidyverse.org/reference/guide_axis_theta.html). It is a highly specialised axis for use in combination with the new [`coord_radial()`](https://ggplot2.tidyverse.org/reference/coord_polar.html). Instead of using `x`, `y`, `x.sec` and `y.sec` as one would for Cartesian coordinates, the axes are specified for the `r`, `r.sec`, `theta` and `theta.sec` guides. Because the theta guides are not linear and require different drawing logic, they are implemented as separate guides. They support many features of linear axes, such as capping and minor ticks, but lack dodging or text justification. When setting the `angle` argument, text is placed relative to the angle of the coordinates, as can be seen for the inner theta guide. The theta guides always adhere to the x-axis styling, regardless of the `coord_radial(theta)` setting. Likewise, the radial guides take their styling from the y-axes.
+The next new axis guide is [`guide_axis_theta()`](https://ggplot2.tidyverse.org/reference/guide_axis_theta.html). It is a highly specialised axis for use in combination with the new [`coord_radial()`](https://ggplot2.tidyverse.org/reference/coord_polar.html). Instead of using `x`, `y`, `x.sec` and `y.sec` as one would for Cartesian coordinates, the axes are specified for the `r`, `r.sec`, `theta` and `theta.sec` guides. Because the theta guides are not linear and require different drawing logic, they are implemented as separate guides. They support many features of linear axes, such as capping and minor ticks, but lack dodging or text justification. When setting the `angle` argument, text is placed relative to the angle of the coordinates, as can be seen for the inner theta guide. The theta guides adhere to the `{setting}.theta` styling, and radial guides to the `{setting}.r` styling.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>mpg</span>, <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>displ</span>, <span class='nv'>hwy</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span></span>
 <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span></span>
-<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/coord_polar.html'>coord_radial</a></span><span class='o'>(</span>start <span class='o'>=</span> <span class='m'>0.25</span> <span class='o'>*</span> <span class='nv'>pi</span>, end <span class='o'>=</span> <span class='m'>1.75</span> <span class='o'>*</span> <span class='nv'>pi</span>, donut <span class='o'>=</span> <span class='m'>0.3</span><span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/coord_polar.html'>coord_radial</a></span><span class='o'>(</span>start <span class='o'>=</span> <span class='m'>0.25</span> <span class='o'>*</span> <span class='nv'>pi</span>, end <span class='o'>=</span> <span class='m'>1.75</span> <span class='o'>*</span> <span class='nv'>pi</span>, inner.radius <span class='o'>=</span> <span class='m'>0.3</span><span class='o'>)</span> <span class='o'>+</span></span>
 <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/guides.html'>guides</a></span><span class='o'>(</span></span>
 <span>    theta     <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/guide_axis_theta.html'>guide_axis_theta</a></span><span class='o'>(</span>cap <span class='o'>=</span> <span class='s'>"both"</span>, minor.ticks <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span>,</span>
 <span>    theta.sec <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/guide_axis_theta.html'>guide_axis_theta</a></span><span class='o'>(</span>angle <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span>,</span>
@@ -430,8 +430,8 @@ The next new axis guide is [`guide_axis_theta()`](https://ggplot2.tidyverse.org/
 <span>    r.sec <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/guide_axis.html'>guide_axis</a></span><span class='o'>(</span>angle <span class='o'>=</span> <span class='m'>0</span><span class='o'>)</span></span>
 <span>  <span class='o'>)</span> <span class='o'>+</span></span>
 <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='o'>(</span></span>
-<span>    axis.line.x <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_line</a></span><span class='o'>(</span>colour <span class='o'>=</span> <span class='s'>"blue"</span><span class='o'>)</span>,</span>
-<span>    axis.line.y <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_line</a></span><span class='o'>(</span>colour <span class='o'>=</span> <span class='s'>"red"</span><span class='o'>)</span></span>
+<span>    axis.line.theta <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_line</a></span><span class='o'>(</span>colour <span class='o'>=</span> <span class='s'>"blue"</span><span class='o'>)</span>,</span>
+<span>    axis.line.r     <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_line</a></span><span class='o'>(</span>colour <span class='o'>=</span> <span class='s'>"red"</span><span class='o'>)</span></span>
 <span>  <span class='o'>)</span></span>
 </code></pre>
 <img src="figs/theta_axis-1.png" alt="A scatterplot in horseshoe-shaped polar coordinates. The guides marking the angles are displayed in blue and the guides marking the radius are marked in red. The outer angle guide has been capped and has minor breaks, whereas the inner angle guide has rotated text. The same is true for the right and left guides respectively." width="700px" style="display: block; margin: auto;" />
