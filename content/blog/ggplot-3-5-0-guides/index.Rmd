@@ -61,12 +61,13 @@ To tweak the style of any individual guide, guides now have a `theme` argument t
 In the plot below, notice how the legend title settings affect both the colour bar and the legend, whereas the local options, like the red legend text, apply only to a single guide.
 
 ```{r guide_theming}
-#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#| fig.alt: > 
+#|  Scatterplot of engine displacement versus highway miles per 
 #|  gallon. The bottom x-axis displays a line, whereas the y-axis does not. 
 #|  The legend indicating shapes for the number of cylinders has red text.
 #|  The colour bar indicating city miles per gallon has a red rectangle around
 #|  the bar. Both the legend and colour bar titles are rotated, centered and 
-#|  on the left of the guide."
+#|  on the left of the guide.
 
 ggplot(mpg, aes(displ, hwy, shape = factor(cyl), colour = cty)) +
   geom_point() +
@@ -98,9 +99,10 @@ By setting the `position` argument of guides, you can tailor which guides appear
 Guides that do not have a position set, like the 'drv' shape legend, follow the theme's `legend.position` setting.
 
 ```{r legend_positions}
-#| fig.alt = "A scatterplot showing engine displacement versus highway miles
+#| fig.alt: >
+#|  A scatterplot showing engine displacement versus highway miles
 #|  per gallon. It has four legend placed at the top, left, bottom of the panel
-#|  and one inside the panel."
+#|  and one inside the panel.
 
 p <- ggplot(mpg, aes(displ, hwy, shape = drv, colour = cty, size = year)) +
   geom_point(aes(alpha = cyl)) +
@@ -119,8 +121,9 @@ However, doing this would change the default legend position, which is not alway
 To cover such cases, there is now a specialised `legend.position.inside` argument that controls the positioning of legends with `position = "inside"` regardless of whether the position was specified in the theme or in the guide.
 
 ```{r legend_inside}
-#| fig.alt = "The same plot as before, but the legend for the 'cyl' variable is
-#|  to the top-right of the centre."
+#| fig.alt: >
+#|  The same plot as before, but the legend for the 'cyl' variable is
+#|  to the top-right of the centre.
 
 p + theme(legend.position.inside = c(0.7, 0.7))
 ```
@@ -133,9 +136,10 @@ For this reason, the top and bottom guides are prioritised for the `legend.locat
 Moreover, it avoids overlapping of legends in the corners if the justifications would dictate it.
 
 ```{r legend_alignments}
-#| fig.alt = "The same plot as before, but with a plot-aligned title and 
+#| fig.alt: >
+#|  The same plot as before, but with a plot-aligned title and 
 #|  different alignments of the legends. The left and top legends are 
-#|  left-aligned with the title."
+#|  left-aligned with the title.
 
 p + 
   labs(title = "Plot-aligned title") +
@@ -158,9 +162,10 @@ This saves one having to hassle with the `guide_legend(override.aes)` argument t
 In the plot below, notice how the points and line have separate keys.
 
 ```{r legend_awareness}
-#| fig.alt = "A scatterplot with trendline showing engine displacement versus
+#| fig.alt: >
+#|  A scatterplot with trendline showing engine displacement versus
 #|  highway miles per gallon. There are two legends for colour and alpha. Both
-#|  legends show points and lines separately."
+#|  legends show points and lines separately.
 
 p <- ggplot(mpg, aes(displ, hwy)) +
   scale_alpha_manual(values = c(0.5, 1))
@@ -177,8 +182,9 @@ Like before, the `show.legend` argument can still be set in an aesthetic-specifi
 Setting it to `TRUE` means 'always show', `FALSE` means 'never show' and `NA` means 'show if found'.
 
 ```{r show_key_setting}
-#| fig.alt = "The same plot as before, but every legend keys displays points.
-#|  Lines are shown in every 'alpha' legend key, but only one 'colour' key."
+#| fig.alt: >
+#|  The same plot as before, but every legend keys displays points.
+#|  Lines are shown in every 'alpha' legend key, but only one 'colour' key.
 
 p +
   geom_point(
@@ -206,9 +212,10 @@ One setting not included in the overview is `legend.spacing.x`, which only appli
 Which exact text margin is relevant for spacing apart keys and labels, or titles and the rest of the guide, depends on the `legend.text.position` and `legend.title.position` theme elements.
 
 ```{r spacing_overview, echo=FALSE}
-#| fig.alt = "Overview of legend spacing and margin options. Two abstract
+#| fig.alt: >
+#|  Overview of legend spacing and margin options. Two abstract
 #|  legends are placed above one another to the right of an area called 'plot'.
-#|  Various arrows with labels point out different theme settings."
+#|  Various arrows with labels point out different theme settings.
 
 title <- grid::grobTree(
   grid::rectGrob(gp = grid::gpar(fill = "#FFEE13", col = NA)),
@@ -398,11 +405,12 @@ grid::grid.draw(gt)
 When the titles and keys don't have explicit margins, appropriate margins are added automatically depending on the position. However, if you override the margins, they will be interpreted literally.
 
 ```{r legend_spacing}
-#| fig.alt = "A scatterplot showing engine displacement versus highway miles
+#| fig.alt: >
+#|  A scatterplot showing engine displacement versus highway miles
 #|  per gallon. The legend for the 'class' variable shows a key layout with
 #|  two columns. Keys are widely spacing in the vertical direction and more
 #|  narrowly in the horizontal direction. There is no space between the keys
-#|  and their labels, but plenty of space between the legend and its title."
+#|  and their labels, but plenty of space between the legend and its title.
 
 ggplot(mpg, aes(displ, hwy, colour = class)) +
   geom_point() +
@@ -419,9 +427,10 @@ For all intents and purposes, colour bar/step and bins guides are treated as leg
 While the `legend.key.spacing` setting does not apply due to it being one single key, the other spacings and margins do apply equally.
 
 ```{r legend_spacing_bar}
-#| fig.alt = "The same plot as before, but with a colourbar indicating the 'cty'
+#| fig.alt: >
+#|  The same plot as before, but with a colourbar indicating the 'cty'
 #|  variable. Again, there is no space between the bar and the labels and ample
-#|  space between the bar and the title."
+#|  space between the bar and the title.
 
 ggplot(mpg, aes(displ, hwy, colour = cty)) +
   geom_point() +
@@ -438,10 +447,11 @@ The option is still considered 'experimental' because there are some things that
 By setting the `legend.key{.height/.width}` theme argument as a `"null"` unit, legends can now expand to fill the available space.
 
 ```{r stretch_keys}
-#| fig.alt = "Scatterplot of engine displacement versus highway miles per
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per
 #|  gallon. There is a legend guide showing the point's size and a colour.
 #|  Both the legend and the bar take up an approximately equal amount of space
-#|  on the right-hand side of the panel."
+#|  on the right-hand side of the panel.
 
 p <- ggplot(mpg, aes(displ, hwy)) +
   geom_point(aes(colour = cty, size = cyl), shape = 21) +
@@ -456,8 +466,9 @@ As you can see in the plot below, the legends are not aligned with the panel eve
 This is because the titles, margins and various spacings all take up space that is *not* available.
 
 ```{r isolated_stretch}
-#| fig.alt = "Same plot as before, but the colour bar is placed on the left.
-#|  Both the colour bar and legend take up a lot of vertical space."
+#| fig.alt: >
+#|  Same plot as before, but the colour bar is placed on the left.
+#|  Both the colour bar and legend take up a lot of vertical space.
 
 p + guides(colour = guide_colourbar(position = "left"))
 ```
@@ -467,10 +478,11 @@ The keys can become too small to show the aesthetics properly.
 You can see in the example below that the size legend becomes cut-off due to small keys and text is spaced too closely to comfortably read.
 
 ```{r shrinking_keys}
-#| fig.alt = "Same plot as before, but all legends are on the right, including
+#| fig.alt: >
+#|  Same plot as before, but all legends are on the right, including
 #|  a new legend for the 'model' variable. All legends have keys that are too 
 #|  small to read the text comfortably, and the points indicating size are
-#|  clipped."
+#|  clipped.
 
 p + aes(fill = model)
 ```
@@ -481,9 +493,10 @@ This may result in the keys or bars becoming invisible.
 For the plot below, recall that we've set the `legend.key.height` setting to a null unit.
 
 ```{r disappearing_keys}
-#| fig.alt = "Still the same scatterplot but without the fill variable. Legends
+#| fig.alt: >
+#|  Still the same scatterplot but without the fill variable. Legends
 #|  are placed at the top of the panel, but the bar and key backgrounds have
-#|  disappeared. The text labels are still present."
+#|  disappeared. The text labels are still present.
 
 p + theme(legend.position = "top")
 ```
@@ -498,9 +511,10 @@ The downside is that it cannot read properties from the plot, but the upside is 
 Be careful that if your grob does not have an absolute size, to set the `width` and `height` arguments.
 
 ```{r custom_guide}
-#| fig.alt = "A map of the US state North Carolina, where fill colour indicates
+#| fig.alt: >
+#|  A map of the US state North Carolina, where fill colour indicates
 #|  the area of counties. Underneath the colour bar for the fill, there is an
-#|  eight-pointed star to the right of the panel with the title 'compass'."
+#|  eight-pointed star to the right of the panel with the title 'compass'.
 
 x <- c(0.5, 1, 1.5, 1.2, 1.5, 1, 0.5, 0.8, 1, 1.15, 2, 1.15, 1, 0.85, 0, 0.85)
 y <- c(1.5, 1.2, 1.5, 1, 0.5, 0.8, 0.5, 1, 2, 1.15, 1, 0.85, 0, 0.85, 1, 1.15)
@@ -520,9 +534,10 @@ In previous version of ggplot2, when legend titles are wider than the legends, t
 Now, the justification setting of the legend text determines the alignment: 1 is right or top aligned and 0 is left or bottom aligned.
 
 ```{r title_justification}
-#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per 
 #|  gallon. The 'drv' variable has a legend that is left aligned, whereas the
-#|  'cyl' variable has a legend that is right-aligned."
+#|  'cyl' variable has a legend that is right-aligned.
 
 ggplot(mpg, aes(displ, hwy, shape = factor(cyl), colour = drv)) +
   geom_point() +
@@ -551,8 +566,9 @@ A much requested expansion of axis capabilities is the ability to draw minor tic
 To draw minor ticks, you can use the `minor.ticks` argument of `guide_axis()`.
 
 ```{r minor_ticks}
-#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
-#|  gallon. Both the x and y axes have smaller ticks in between normal ticks."
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per 
+#|  gallon. Both the x and y axes have smaller ticks in between normal ticks.
 p <- ggplot(mpg, aes(displ, hwy)) +
   geom_point() +
   guides(
@@ -569,11 +585,12 @@ To tweak their style separately from the major ticks, the `axis.minor.ticks.{x.b
 Please note that there is *no* `axis.minor.ticks` setting without the position suffixes, as they inherit from the major ticks.
 
 ```{r minor_ticks_theming}
-#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per 
 #|  gallon. The y-axis has blue larger and smaller tick marks, whereas the 
 #|  x-axis has the larger ticks in black and the smaller ticks in red. The 
 #|  x-axis has 4 smaller ticks in between large ones and the smaller ticks
-#|  are half the size of larger ticks."
+#|  are half the size of larger ticks.
 p + scale_x_continuous(minor_breaks = scales::breaks_width(0.2)) +
   theme(
     axis.ticks.length = unit(5, "pt"),
@@ -589,10 +606,11 @@ When axes are capped, the axis line will not be drawn up to the panel edge, but 
 Unsurprisingly, this only affects plots where the axis line is not blank.
 
 ```{r capped_axes}
-#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per 
 #|  gallon. The y-axis line starts at the bottom of the panel and continues to
 #|  the top break. The x-axis line starts at the most left break and ends at
-#|  the most right break."
+#|  the most right break.
 ggplot(mpg, aes(displ, hwy)) +
   geom_point() +
   guides(
@@ -610,10 +628,11 @@ The ticks positions are placed in the original, untransformed data-space, so the
 To accommodate a series of logarithmic-like transformations, such as `scales::transform_pseudo_log()` or `scales::transform_asinh()`, scales that include 0 in their limits have the ticks mirrored around 0.
 
 ```{r log_axes}
-#| fig.alt = "A line plot showing a negatively sloped line with a reversed
-#| log10-transformation on the y-axis and inverse hyberbolic sine transformation
-#| on the x-axis. Large ticks appears at multiples of 10, 
-#| medium ticks at multiples of 5 and small ticks at multiples of 1."
+#| fig.alt: >
+#|  A line plot showing a negatively sloped line with a reversed
+#|  log10-transformation on the y-axis and inverse hyberbolic sine transformation
+#|  on the x-axis. Large ticks appears at multiples of 10, 
+#|  medium ticks at multiples of 5 and small ticks at multiples of 1.
 
 r <- seq(0.001, 0.999, length.out = 100)
 df <- data.frame(
@@ -642,7 +661,8 @@ Because it is implemented as an axis, it has minimal fuss with the placement of 
 To mirror `annotation_logticks()` more closely, you can set a negative tick length in the theme.
 
 ```{r log_ticks_inward}
-#| fig.alt = "The same plot as above, but the tick marks now point inwards."
+#| fig.alt: >
+#|  The same plot as above, but the tick marks now point inwards.
 
 p + theme(axis.ticks.length = unit(-2.25, "pt"))
 ```
@@ -655,9 +675,10 @@ Using `axes = "all_x"` or `"all_y"`, you can narrow down which axes are displaye
 In addition, you can choose whether or not to display the labels of those axes with the `axis.labels` argument.
 
 ```{r facet_axes_display}
-#| fig.alt = "A scatterplot facetted by the 'drv' and 'year' variables. The
+#| fig.alt: >
+#|  A scatterplot facetted by the 'drv' and 'year' variables. The
 #|  x-axes in between panels are shown as tick marks without labels. The y-axes
-#|  in between panels are shown in full."
+#|  in between panels are shown in full.
 p <- ggplot(mpg, aes(displ, hwy)) +
   geom_point()
 
@@ -675,11 +696,12 @@ When setting the `angle` argument, text is placed relative to the angle of the c
 The theta guides adhere to the `{setting}.theta` styling, and radial guides to the `{setting}.r` styling.
 
 ```{r theta_axis}
-#| fig.alt = "A scatterplot in horseshoe-shaped polar coordinates. The guides
+#| fig.alt: >
+#|  A scatterplot in horseshoe-shaped polar coordinates. The guides
 #|  marking the angles are displayed in blue and the guides marking the radius
 #|  are marked in red. The outer angle guide has been capped and has minor
 #|  breaks, whereas the inner angle guide has rotated text. The same
-#|  is true for the right and left guides respectively."
+#|  is true for the right and left guides respectively.
 
 ggplot(mpg, aes(displ, hwy)) +
   geom_point() +
@@ -705,9 +727,10 @@ As mentioned [at the beginning](#general), every guide now has its own `theme` a
 This can be used to customise individual axes that are part of `guide_axis_stack()`, or set common elements like the axis line in the plot below.
 
 ```{r stack_axis}
-#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per 
 #|  gallon. The x-axis resembles railroad tracks with labels in the middle and
-#|  an additional line beneath."
+#|  an additional line beneath.
 
 ggplot(mpg, aes(displ, hwy)) +
   geom_point() +
@@ -801,8 +824,9 @@ guide_key <- function(
 The key can now be used inside the `guides()` function or as the `guide` argument in a position scale.
 
 ```{r key_example}
-#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
-#|  gallon. The x-axis axis ticks are at 2.5, 3.5, 4.5, 5.5 and 6.5."
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per 
+#|  gallon. The x-axis axis ticks are at 2.5, 3.5, 4.5, 5.5 and 6.5.
 
 ggplot(mpg, aes(displ, hwy)) +
   geom_point() +
@@ -853,10 +877,11 @@ Because we are incorporating the `...` argument to `guide_key()` in the key, add
 We can check that are guide looks correct in the different positions around the panel.
 
 ```{r key_example_2}
-#| fig.alt = "Scatterplot of engine displacement versus highway miles per 
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per 
 #|  gallon. There are two x-axes at the bottom and top of the plot. The bottom
 #|  has labels alternating in red and gray, and the top has red, green and blue
-#|  labels."
+#|  labels.
 
 ggplot(mpg, aes(displ, hwy)) +
   geom_point() +
