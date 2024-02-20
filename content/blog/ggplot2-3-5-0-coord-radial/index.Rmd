@@ -1,0 +1,220 @@
+---
+output: hugodown::hugo_document
+
+slug: ggplot2-3-5-0-coord-radial
+title: "ggplot2 3.5.0: Introducing: coord_radial()"
+date: 2024-02-21
+author: Teun van den Brand
+description: >
+    Introducing a new polar coordinate system that supersedes the old 
+    `coord_polar()`. Read on about the new `coord_radial()`.
+
+photo:
+  url: https://unsplash.com/photos/ferris-wheel-beside-body-of-water-under-blue-sky-during-daytime-IWOo59NUXBk
+  author: Ismail Merad
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [ggplot2, ggplot2-3-5-0]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+```{r ragg, include=FALSE}
+knitr::opts_chunk$set(dev = "ragg_png")
+```
+
+We are happy to announce the release of [ggplot2](https://ggplot2.tidyverse.org) 3.5.0.
+This is one blogpost among several outlining a new polar coordinate system.
+Please find the [main release post](/blog/2024/02/ggplot2-3-5-0/) to read about other exciting changes.
+
+Polar coordinates are a good reminder of the flexibility of the Grammar of Graphics: pie charts are just bar charts with polar coordinates.
+While the tried and tested `coord_polar()` has served well in the past to fulfill your pie chart needs, we felt it was due some modernisation.
+We realised we could not adapt `coord_polar()` to fit with the [new guide system](/blog/2024/02/ggplot2-3-5-0/#guide-rewrite) without severely breaking existing plots, so `coord_radial()` was born to give a facelift to the polar coordinate system in ggplot2.
+
+Relative to `coord_polar()`, `coord_radial()` can:
+
+1. Draw circle sectors instead of only full circles.
+1. Avoid data vanishing in the centre of the plot.
+1. Adjust text angles on the fly.
+1. Use the new guide system.
+
+## An updated look
+
+The first noticeable contrast with `coord_polar()`, is that `coord_radial()` is not particularly suited to building pie charts. 
+Instead, it uses the scale expansion conventions like `coord_cartesian()`.
+This makes sense for most chart types, but not pie charts.
+Nonetheless, you can use the `expand = FALSE` setting to use `coord_radial()` for pie charts.
+
+```{r compare_polar}
+#| fig.alt: >
+#|  Three pie charts showing the proportion of each cylinder number.
+#|  The first has a gap in the middle and at the top with a grey circle in the
+#|  background and is titled 'default'. The second is titled 'expand = FALSE' and
+#|  shows a full pie chart with tick marks labelling the angle positions. The
+#|  last plot is a full pie chart with a gray rectangular background without
+#|  tick marks and a white line around the pie.
+
+library(ggplot2)
+library(patchwork)
+library(scales)
+
+pie <- ggplot(mtcars, aes(y = factor(1), fill = factor(cyl))) +
+  geom_bar(width = 1) +
+  scale_y_discrete(guide = "none", name = NULL) +
+  guides(fill = "none")
+default   <- pie + coord_radial() + ggtitle("default")
+no_expand <- pie + coord_radial(expand = FALSE) + ggtitle("expand = FALSE")
+polar     <- pie + coord_polar() + ggtitle("coord_polar()")
+
+default | no_expand | polar
+```
+
+Some visual differences stand out in the plots above.
+In `coord_radial()`, the panel background covers the data area of the plot, not a rectangle.
+It also does not have a grid-line encircling the plot and instead uses tick marks to indicate values along the theta (angle) coordinate. You may also notice that `coord_polar()` still draws the radius axis, despite instructions to use `guide = "none"`. That is the integration with the guide system that birthed `coord_radial()`.
+
+## Partial polar plots
+
+Another important difference is that `coord_radial()` does not necessarily need to display a full circle.
+By setting the `start` and `end` arguments separately, you can now make a partial polar plot.
+This makes it much easier to make semi- or quarter-circle plots.
+
+```{r partial_polar}
+#| fig.alt: >
+#|  Two polar scatterplots of the 'mpg' dataset. The left plot is shaped like
+#|  as a semicircle and the right plot as a quarter circle.
+
+p <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point()
+
+half <- p + coord_radial(start = -0.5 * pi, end = 0.5 * pi) +
+  ggtitle("−0.5π to +0.5π")
+quarter <- p + coord_radial(start = 0, end = 0.5 * pi) +
+  ggtitle("0 to +0.5π")
+half | quarter
+```
+
+## Donuts
+
+It was already possible to turn a pie-chart into a donut-chart with `coord_polar()`.
+This is made even easier in `coord_radial()` by setting the `inner.radius` argument to make a donut hole.
+For most plots, this avoids crowding data points in the center of the plot: points with a widely different `theta` coordinate but similarly small `r` coordinate are placed further apart.
+
+```{r open_radial_plot}
+#| fig.alt: >
+#|  A donut-shaped scatterplot of the 'mpg' dataset.
+p + coord_radial(inner.radius = 0.3, r_axis_inside = TRUE)
+```
+
+## Text annotations
+
+A grievance we noticed about polar coordinates, is that it was cumbersome to rotate text annotations along with the `theta` coordinate.
+Calculating the correct angles for labels is pretty involved and usually changes from plot to plot depending on how many items need to be displayed.
+To remove some of this hassle `coord_radial()` has a `rotate_angle` switch, that will line up the text's `angle` aesthetic with the theta coordinate.
+For text angles of 0 degrees, this will place text in a tangent orientation to the circle and for angles of 90 degrees, this places text along the radius, as in the plot below.
+
+```{r text_angles}
+#| fig.alt: >
+#|  A wind rose plot showing miles per gallon for different cars. The
+#|  car names skirt the outer edge of the plot and are oriented towards the
+#|  centre.
+
+ggplot(mtcars, aes(seq_along(mpg), mpg)) +
+  geom_col(width = 1) +
+  geom_text(
+    aes(y = 32, label = rownames(mtcars)),
+    angle = 90, hjust = 1
+  ) +
+  coord_radial(rotate_angle = TRUE, expand = FALSE)
+```
+
+## Axes
+
+Because the logic of drawing axes for polar coordinates is not the same as when axes are perfectly vertical or horizontal, we used the new guide system to build an axis specific to `coord_radial()`: the `guide_axis_theta()` axis.
+Guides for `coord_radial()` can be set using `theta` and `r` name in the `guides()` function.
+While the `r` axis can be the regular `guide_axis()`, the `theta` axis uses the highly specialised `guide_axis_theta()`.
+The theta axis shares many features with typical axes, like setting the text angle or the new `minor.ticks` and `cap` settings.
+More on these settings in the [axis blog](/blog/2024/02/ggplot2-3-5-0-axes/).
+As seen in previous plots, the default is to place text horizontally.
+One neat trick we've put into `coord_radial()` is that we can set a *relative* text angle in the guides, such as in the plot below.
+
+```{r axis_angles}
+#| fig.alt: >
+#|   Boxplot of the 'mpg' dataset displayed in partial polar coordinates. The
+#|   theta labels are placed tangential to the circle. The radius labels line
+#|   up with the tick mark direction.
+
+ggplot(mpg, aes(class, displ)) +
+  geom_boxplot() +
+  coord_radial(start = 0.25 * pi, end = 1.75 * pi) +
+  guides(
+    theta = guide_axis_theta(angle = 0),
+    r     = guide_axis(angle = 0)
+  )
+```
+
+The theme elements to style these axes have the `theta` or `r` position indication, so to change the the axis line, you use the `axis.line.theta` and `axis.line.r` arguments. The theme settings can also be used to set the *absolute* angle of text.
+
+```{r axis_styling}
+#| fig.alt: >
+#|   Boxplot of the 'mpg' dataset displayed in partial polar coordinates. The
+#|   theta labels are placed vertically and a red line traces the outer circle.
+#|   The radius labels are displayed in blue.
+
+ggplot(mpg, aes(class, displ)) +
+  geom_boxplot() +
+  coord_radial(start = 0.25 * pi, end = 1.75 * pi) +
+  theme(
+    axis.line.theta = element_line(colour = "red"),
+    axis.text.theta = element_text(angle = 90),
+    axis.text.r     = element_text(colour = "blue")
+  )
+```
+
+Lastly, there can also be secondary axes.
+We anticipate that this is practically never needed, as grid lines follow the primary axes and without them, it is very hard to read from axes in polar coordinates.
+However, if there is some reason for using secondary axes on polar coordinates, you can use the `theta.sec` and `r.sec` names in the `guides()` function to control the guides.
+Please note that a secondary theta axis is entirely useless when `inner.radius = 0` (the default).
+There are no separate theme options for secondary r/theta axes, but to style them separately from the primary axes, you can use the `theme` argument in the guide instead.
+
+```{r secondary_axes}
+#| fig.alt: >
+#|  A lineplot of the 'pressure' dataset in partial polar coordinates that
+#|  is shaped like a donut with a bite taken out on top. 
+#|  The primary, outer theta axis displays temperature in degrees Celcius. 
+#|  The secondary, inner theta axis displays temperature in degrees Fahrenheit 
+#|  and has an axis line. The primary radius axis on the right displays 
+#|  pressure in millimetres of mercury. The secondary radius axis on the left
+#|  displays pressure in kilo-Pascals in red text.
+
+ggplot(pressure, aes(temperature, pressure)) +
+  geom_line(colour = "blue") +
+  scale_x_continuous(
+    labels = label_number(suffix = "°C"),
+    sec.axis = sec_axis(~ .x * 9/5 + 35, labels = label_number(suffix = "°F"))
+  ) +
+  scale_y_continuous(
+    labels = label_number(suffix = " mmHg"),
+    sec.axis = sec_axis(~ .x * 0.133322, labels = label_number(suffix = " kPa"))
+  ) +
+  guides(
+    theta.sec = guide_axis_theta(theme = theme(axis.line.theta = element_line())),
+    r.sec = guide_axis(theme = theme(axis.text.r = element_text(colour = "red")))
+  ) +
+  coord_radial(
+    start = 0.25 * pi, end = 1.75 * pi,
+    inner.radius = 0.3
+  )
+```
