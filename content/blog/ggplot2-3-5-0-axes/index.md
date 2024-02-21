@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, ggplot2-3-5-0]
-rmd_hash: dbe10bd1a6655360
+rmd_hash: fdd11e77e3570461
 
 ---
 
@@ -33,9 +33,15 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We are pleased to release [ggplot2](https://ggplot2.tidyverse.org) 3.5.0. This is one blogpost among several outlining changes to axes. Please find the [main release post](/blog/2024/02/ggplot2-3-5-0/) to read about other changes.
+We are pleased to release [ggplot2](https://ggplot2.tidyverse.org) 3.5.0. This release is a large one, so we have split the updates into multiple posts. This posts outlines changes to axes; see the [main release post](/blog/2024/02/ggplot2-3-5-0/) to learn about other changes.
 
-Axes, alongside [legends](/blog/2024/02/ggplot2-3-5-0-legends/), are visual representations of scales and allow observes to translate graphical properties of a plot into information. The innards of axes, like other guides, underwent a major overhaul with the guide system rewrite. Axes specifically are guides for positions and classically display labelled tick marks. In Cartesian coordinates, these are the x- and y-positions, but in non-Cartesian systems may reflect a theta, radius, longitude or latitude. In ggplot2, an axis is usually represented by the [`guide_axis()`](https://ggplot2.tidyverse.org/reference/guide_axis.html) function.
+Axes, alongside [legends](/blog/2024/02/ggplot2-3-5-0-legends/), are visual representations of scales and allow observers to read values off of a plot. The innards of axes, like other guides, underwent a major overhaul with the guide system rewrite. Axes specifically are guides for positions and classically display labelled tick marks. In Cartesian coordinates, these are the x- and y-positions, but in non-Cartesian systems may reflect a theta, radius, longitude or latitude. In ggplot2, an axis is usually represented by the [`guide_axis()`](https://ggplot2.tidyverse.org/reference/guide_axis.html) function. We outline the following changes to axes:
+
+-   [Minor ticks](#minor-ticks)
+-   [Capping the axis line](#capping)
+-   [Logartihmic axes](#logarithmic-axes)
+-   [Stacking axes](#stacked-axes)
+-   [Display in facets](#display-in-facets)
 
 <div class="highlight">
 
@@ -138,31 +144,7 @@ The log-ticks axis supersedes the earlier [`annotation_logticks()`](https://ggpl
 
 ## Stacked axes
 
-The last new axis is technically not an axis, but a way to combine axis. [`guide_axis_stack()`](https://ggplot2.tidyverse.org/reference/guide_axis_stack.html) can take multiple other axes and combine them by placing them next to oneanother. On its own, the usefulness of stacking axes is pretty limited. However, when extensions start defining custom position guides, it is an easy way to mix-and-match axes from different extensions. The first axis is placed next to the panel and subsequent axes are placed further away from the panel. Axes, like legends, have acquired a `theme` argument that can be used to customise the display of individual axes.
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>mpg</span>, <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span><span class='nv'>displ</span>, <span class='nv'>hwy</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span></span>
-<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span></span>
-<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/guides.html'>guides</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/guide_axis_stack.html'>guide_axis_stack</a></span><span class='o'>(</span></span>
-<span>    <span class='c'># Typical axis</span></span>
-<span>    <span class='s'>"axis"</span>,</span>
-<span>    <span class='c'># Inverted ticks with no text</span></span>
-<span>    <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/guide_axis.html'>guide_axis</a></span><span class='o'>(</span>theme <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='o'>(</span></span>
-<span>      axis.ticks.length.x <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>rel</a></span><span class='o'>(</span><span class='o'>-</span><span class='m'>1</span><span class='o'>)</span>, </span>
-<span>      axis.text <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_blank</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span>    <span class='o'>)</span><span class='o'>)</span>,</span>
-<span>    <span class='c'># Just the line</span></span>
-<span>    <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/guide_axis.html'>guide_axis</a></span><span class='o'>(</span>theme <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='o'>(</span></span>
-<span>      axis.ticks <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_blank</a></span><span class='o'>(</span><span class='o'>)</span>, </span>
-<span>      axis.text  <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_blank</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span>    <span class='o'>)</span><span class='o'>)</span>,</span>
-<span>    theme <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='o'>(</span>axis.line <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_line</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
-<span>  <span class='o'>)</span><span class='o'>)</span></span>
-</code></pre>
-<img src="figs/stack_axis-1.png" alt="Scatterplot of engine displacement versus highway miles per gallon. The x-axis resembles railroad tracks with labels in the middle and an additional line beneath." width="700px" style="display: block; margin: auto;" />
-
-</div>
+The last new axis is technically not an axis, but a way to combine axes. [`guide_axis_stack()`](https://ggplot2.tidyverse.org/reference/guide_axis_stack.html) can take multiple other axes and combine them by placing them next to one another. On its own, the usefulness of stacking axes is pretty limited. However, when extensions start defining custom position guides, it is an easy way to mix-and-match axes from different extensions. The first axis is placed next to the panel and subsequent axes are placed further away from the panel. Axes, like legends, have acquired a `theme` argument that can be used to customise the display of individual axes. Currently, there is not a compelling case to use [`guide_axis_stack()`](https://ggplot2.tidyverse.org/reference/guide_axis_stack.html), but it is an important building block for when axis extensions arrive.
 
 ## Display in facets
 
