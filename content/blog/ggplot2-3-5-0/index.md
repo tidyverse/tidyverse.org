@@ -14,7 +14,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, ggplot2-3-5-0]
-rmd_hash: f3236e900f1a46cf
+rmd_hash: 0534d3a56eb36f5f
 
 ---
 
@@ -41,7 +41,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will cover a bunch of new features included in the latest release. In addition to rewriting the guide system, we made progress supporting newer R graphics capabilities, re-purposed the use of [`I()`](https://rdrr.io/r/base/AsIs.html), and introduce an improved [polar coordinate](/blog/2024/02/ggplot2-3-5-0-coord-radial/) system, along with other improvements.
+This blog post will cover a bunch of new features included in the latest release. In addition to rewriting the guide system, we made progress supporting newer R graphics capabilities, re-purposed the use of [`I()`](https://rdrr.io/r/base/AsIs.html), and introduce an improved [polar coordinate](/blog/2024/02/ggplot2-3-5-0-coord-radial/) system, along with other improvements. As the release is quite large, we have made a [series of blog posts](https://www.tidyverse.org/tags/ggplot2-3-5-0/) covering the changes.
 
 You can see a full list of changes in the [release notes](https://ggplot2.tidyverse.org/news/index.html)
 
@@ -57,23 +57,11 @@ You can see a full list of changes in the [release notes](https://ggplot2.tidyve
 
 Axes and legends, collectively called guides, are an important component to plots, as they allow the translation of visual information back to data qualities. The extension mechanism of ggplot2 allows others to develop their own layers, facets, coords and scales through the ggproto object-oriented system. Finally, after years of being the only major system in ggplot2 still clinging to the S3 system, guides have been rewritten to use ggproto. With this rewrite, guides officially become an extension point that let developers implement their own guides. We have added a section to the [Extending ggplot2](https://ggplot2.tidyverse.org/articles/extending-ggplot2.html#creating-new-guides) vignette on how to develop a new guide.
 
-Alongside the rewrite, we made a slew of improvements to guides along the way. As these are somewhat meaty and focused topics, we cover them in separate blog posts about [axes](/blog/2024/02/ggplot2-3-5-0-axes/) and [legends](/blog/2024/02/ggplot2-3-5-0-legends/). To give a bit of an overview for completeness, we'll briefly list major changes here:
-
-1.  Guide styling now runs through [`theme()`](https://ggplot2.tidyverse.org/reference/theme.html). Guides themselves have `theme` arguments for individual customisation.
-2.  Legends now show appropriate keys if data is present in layers.
-3.  Legends can be placed at multiple positions in and around the plot.
-4.  The spacing and margins in legends have been reworked.
-5.  As an experimental feature, legends can now be stretched.
-6.  A new legend [`guide_custom()`](https://ggplot2.tidyverse.org/reference/guide_custom.html) can display any graphical object.
-7.  Axes have `minor.ticks` and `cap` options.
-8.  There is a new logarithmic axis.
-9.  There is a new axis for theta coordinates, covered in the [`coord_radial()`](https://ggplot2.tidyverse.org/reference/coord_polar.html) [post](/blog/2024/02/ggplot2-3-5-0-coord-radial/#axes).
-10. There is a new stacking operation for multiple axes.
-11. Facets have more options for displaying axes.
+Alongside the rewrite, we made a slew of improvements to guides along the way. As these are somewhat meaty and focused topics, we cover them in separate blog posts about [axes](/blog/2024/02/ggplot2-3-5-0-axes/) and [legends](/blog/2024/02/ggplot2-3-5-0-legends/).
 
 ## Patterns and gradients
 
-Patterns and gradients were first introduced in the {grid} package, which empowers ggplot2, in R 4.1.0 and were refined in R 4.2.0 to support multiple patterns and gradients. If your graphics device supported it, theme elements could already be set to patterns or gradients, even before this release.
+Patterns and gradients are provided by the grid package, which ggplot2 builds on top of. They were first introduced in R 4.1.0 and were refined in R 4.2.0 to support multiple patterns and gradients. If your graphics device supported it, theme elements could already be set to patterns or gradients, even before this release.
 
 > Note: On Windows machines, the default device in RStudio and in the knitr package is [`png()`](https://rdrr.io/r/grDevices/png.html), which does not support patterns. In RStudio, you can go to 'Tools \> Global Options \> General \> Graphics' and choose the 'ragg' or 'Cairo PNG' device from the dropdown menu to display patterns.
 
