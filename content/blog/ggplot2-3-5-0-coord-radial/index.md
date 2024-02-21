@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, ggplot2-3-5-0]
-rmd_hash: 6c7a50d8a17df96b
+rmd_hash: 4bc4198ec546b6ca
 
 ---
 
@@ -46,7 +46,7 @@ Relative to [`coord_polar()`](https://ggplot2.tidyverse.org/reference/coord_pola
 
 ## An updated look
 
-The first noticeable contrast with [`coord_polar()`](https://ggplot2.tidyverse.org/reference/coord_polar.html), is that [`coord_radial()`](https://ggplot2.tidyverse.org/reference/coord_polar.html) is not particularly suited to building pie charts. Instead, it uses the scale expansion conventions like [`coord_cartesian()`](https://ggplot2.tidyverse.org/reference/coord_cartesian.html). This makes sense for most chart types, but not pie charts. Nonetheless, you can use the `expand = FALSE` setting to use [`coord_radial()`](https://ggplot2.tidyverse.org/reference/coord_polar.html) for pie charts.
+The first noticeable contrast with [`coord_polar()`](https://ggplot2.tidyverse.org/reference/coord_polar.html) is that [`coord_radial()`](https://ggplot2.tidyverse.org/reference/coord_polar.html) is not particularly suited to building pie charts. Instead, it uses the scale expansion conventions like [`coord_cartesian()`](https://ggplot2.tidyverse.org/reference/coord_cartesian.html). This makes sense for most chart types, but not pie charts. Nonetheless, you can use the `expand = FALSE` setting to use [`coord_radial()`](https://ggplot2.tidyverse.org/reference/coord_polar.html) for pie charts.
 
 <div class="highlight">
 
@@ -103,7 +103,7 @@ It was already possible to turn a pie-chart into a donut-chart with [`coord_pola
 
 ## Text annotations
 
-A grievance we noticed about polar coordinates, is that it was cumbersome to rotate text annotations along with the `theta` coordinate. Calculating the correct angles for labels is pretty involved and usually changes from plot to plot depending on how many items need to be displayed. To remove some of this hassle [`coord_radial()`](https://ggplot2.tidyverse.org/reference/coord_polar.html) has a `rotate_angle` switch, that will line up the text's `angle` aesthetic with the theta coordinate. For text angles of 0 degrees, this will place text in a tangent orientation to the circle and for angles of 90 degrees, this places text along the radius, as in the plot below.
+A common grievance with about polar coordinates is that it was cumbersome to rotate text annotations along with the `theta` coordinate. Calculating the correct angles for labels is pretty involved and usually changes from plot to plot depending on how many items need to be displayed. To remove some of this hassle [`coord_radial()`](https://ggplot2.tidyverse.org/reference/coord_polar.html) has a `rotate_angle` switch, that will line up the text's `angle` aesthetic with the theta coordinate. For text angles of 0 degrees, this will place text in a tangent orientation to the circle and for angles of 90 degrees, this places text along the radius, as in the plot below.
 
 <div class="highlight">
 
