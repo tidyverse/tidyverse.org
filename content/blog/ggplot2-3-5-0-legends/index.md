@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, ggplot2-3-5-0]
-rmd_hash: 1321369768fef6db
+rmd_hash: caf3965e0a608d20
 
 ---
 
@@ -39,7 +39,7 @@ Legends, alongside [axes](/blog/2024/02/ggplot2-3-5-0-axes/), are visual represe
 
 ## Styling
 
-One of the more user-visible changes is that these guides no longer have styling options. Or at least, they have been soft-deprecated. Gone are the days where there were 4 possible ways to set the horizontal justification of legend text in 5 different functions. There is only one way to style guides now, and that is by using [`theme()`](https://ggplot2.tidyverse.org/reference/theme.html). The [`theme()`](https://ggplot2.tidyverse.org/reference/theme.html) function has new arguments to control the appearance of legends, which makes it easier to globally control the appearance of legends. For example: `theme(legend.frame)` replaces `guide_colourbar(frame.colour, frame.linewidth, frame.linetype)` and `theme(legend.axis.line)` replaces `guide_bins(axis, axis.colour, axis.linewidth, axis.arrow)`. To allow for tweaking the style of any individual guide, the guide functions now have a `theme` argument that can accept a theme specific to that guide.
+One of the more user-visible changes is that these guides no longer have styling options. Or at least, they have been soft-deprecated: they continue to work for now, but are scheduled for removal. Gone are the days where there were 4 possible ways to set the horizontal justification of legend text in 5 different functions. There is only one way to style guides now, and that is by using [`theme()`](https://ggplot2.tidyverse.org/reference/theme.html). The [`theme()`](https://ggplot2.tidyverse.org/reference/theme.html) function has new arguments to control the appearance of legends, which makes it easier to globally control the appearance of legends. For example: `theme(legend.frame)` replaces `guide_colourbar(frame.colour, frame.linewidth, frame.linetype)` and `theme(legend.axis.line)` replaces `guide_bins(axis, axis.colour, axis.linewidth, axis.arrow)`. To allow for tweaking the style of any individual guide, the guide functions now have a `theme` argument that can accept a theme specific to that guide.
 
 <div class="highlight">
 
@@ -204,7 +204,7 @@ For all intents and purposes, colour bar/step and bins guides are treated as leg
 
 ## Stretching
 
-Another experimental tweak to legends, is that they can now have stretching keys (or bars). The option is still considered 'experimental' because there are some things that may go wrong. By setting the `legend.key{.height/.width}` theme argument as a `"null"` unit, legends can now expand to fill the available space.
+Another experimental tweak to legends is that they can now have stretching keys (or bars). The option is still considered 'experimental' because there are some things that may go wrong. By setting the `legend.key{.height/.width}` theme argument as a `"null"` unit, legends can now expand to fill the available space.
 
 <div class="highlight">
 
