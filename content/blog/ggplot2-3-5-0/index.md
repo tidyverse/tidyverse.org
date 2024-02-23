@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: ggplot2-3-5-0
 title: ggplot2 3.5.0
-date: 2024-02-21
+date: 2024-02-23
 author: Teun van den Brand
 description: >
     ggplot2 3.5.0 is now on CRAN. Discover what is new in this release.
@@ -14,7 +14,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, ggplot2-3-5-0]
-rmd_hash: 0534d3a56eb36f5f
+rmd_hash: ab4720dc8f4afc56
 
 ---
 
@@ -41,7 +41,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will cover a bunch of new features included in the latest release. In addition to rewriting the guide system, we made progress supporting newer R graphics capabilities, re-purposed the use of [`I()`](https://rdrr.io/r/base/AsIs.html), and introduce an improved [polar coordinate](/blog/2024/02/ggplot2-3-5-0-coord-radial/) system, along with other improvements. As the release is quite large, we have made a [series of blog posts](https://www.tidyverse.org/tags/ggplot2-3-5-0/) covering the changes.
+This blog post will cover a bunch of new features included in the latest release. In addition to rewriting the guide system, we made progress supporting newer R graphics capabilities, re-purposed the use of [`I()`](https://rdrr.io/r/base/AsIs.html), and introduce an improved polar coordinate system, along with other improvements. As the release is quite large, we are making a [series of blog posts](https://www.tidyverse.org/tags/ggplot2-3-5-0/) covering the major changes.
 
 You can see a full list of changes in the [release notes](https://ggplot2.tidyverse.org/news/index.html)
 
@@ -57,7 +57,7 @@ You can see a full list of changes in the [release notes](https://ggplot2.tidyve
 
 Axes and legends, collectively called guides, are an important component to plots, as they allow the translation of visual information back to data qualities. The extension mechanism of ggplot2 allows others to develop their own layers, facets, coords and scales through the ggproto object-oriented system. Finally, after years of being the only major system in ggplot2 still clinging to the S3 system, guides have been rewritten to use ggproto. With this rewrite, guides officially become an extension point that let developers implement their own guides. We have added a section to the [Extending ggplot2](https://ggplot2.tidyverse.org/articles/extending-ggplot2.html#creating-new-guides) vignette on how to develop a new guide.
 
-Alongside the rewrite, we made a slew of improvements to guides along the way. As these are somewhat meaty and focused topics, we cover them in separate blog posts about [axes](/blog/2024/02/ggplot2-3-5-0-axes/) and [legends](/blog/2024/02/ggplot2-3-5-0-legends/).
+Alongside the rewrite, we made a slew of improvements to guides along the way. As these are somewhat meaty and focused topics, we are going to cover them in separate blog posts about axes and legends.
 
 ## Patterns and gradients
 
