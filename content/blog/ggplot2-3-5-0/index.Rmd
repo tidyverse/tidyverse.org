@@ -1,0 +1,327 @@
+---
+output: hugodown::hugo_document
+
+slug: ggplot2-3-5-0
+title: ggplot2 3.5.0
+date: 2024-02-23
+author: Teun van den Brand
+description: >
+    ggplot2 3.5.0 is now on CRAN. Discover what is new in this release.
+photo:
+  url: https://unsplash.com/photos/assorted-color-and-pattern-blanket-lot-dl-Lb5TMxF0
+  author: Megan Bucknall
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [ggplot2, ggplot2-3-5-0]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're tickled pink to announce the release of [ggplot2](https://ggplot2.tidyverse.org) 3.5.0. 
+ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. 
+You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("ggplot2")
+```
+
+This blog post will cover a bunch of new features included in the latest release.
+In addition to rewriting the guide system, we made progress supporting newer R graphics capabilities, re-purposed the use of `I()`, and introduce an improved polar coordinate system, along with other improvements.
+As the release is quite large, we are making a [series of blog posts](https://www.tidyverse.org/tags/ggplot2-3-5-0/) covering the major changes.
+
+You can see a full list of changes in the [release notes](https://ggplot2.tidyverse.org/news/index.html)
+
+```{r setup}
+library(ggplot2)
+library(patchwork)
+library(grid)
+```
+
+```{r ragg, include=FALSE}
+knitr::opts_chunk$set(dev = "ragg_png")
+```
+
+## Guide rewrite
+
+Axes and legends, collectively called guides, are an important component to plots, as they allow the translation of visual information back to data qualities.
+The extension mechanism of ggplot2 allows others to develop their own layers, facets, coords and scales through the ggproto object-oriented system.
+Finally, after years of being the only major system in ggplot2 still clinging to the S3 system, guides have been rewritten to use ggproto.
+With this rewrite, guides officially become an extension point that let developers implement their own guides.
+We have added a section to the [Extending ggplot2](https://ggplot2.tidyverse.org/articles/extending-ggplot2.html#creating-new-guides) vignette on how to develop a new guide.
+
+Alongside the rewrite, we made a slew of improvements to guides along the way.
+As these are somewhat meaty and focused topics, we are going to cover them in separate blog posts about axes and legends.
+
+## Patterns and gradients
+
+Patterns and gradients are provided by the grid package, which ggplot2 builds on top of. They were first introduced in R 4.1.0 and were refined in R 4.2.0 to support multiple patterns and gradients. 
+If your graphics device supported it, theme elements could already be set to patterns or gradients, even before this release.
+
+> Note: On Windows machines, the default device in RStudio and in the knitr package is `png()`, which does not support patterns. In RStudio, you can go to 'Tools > Global Options > General > Graphics' and choose the 'ragg' or 'Cairo PNG' device from the dropdown menu to display patterns.
+
+```{r theme_gradient}
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per
+#|  gallon. The panel background is a colour gradient starting from dark grey
+#|  in the bottom-left corner ending at light grey in the upper-right corner.
+gray_gradient <- linearGradient(scales::pal_grey()(10))
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  theme(panel.background = element_rect(fill = gray_gradient))
+```
+
+We are pleased to report that as of this release, patterns can be used as the `fill` aesthetic in most layers.
+To use a pattern, first build a gradient using {grid}'s `linearGradient()`, `radialGradient()` functions, or a pattern using the `pattern()` function.
+Because handling patterns and gradients is very similar, we will treat gradients as if they were patterns: when we say 'pattern' in the text below, please mind that we mean patterns and gradients alike.
+These patterns can be passed to a layer as the `fill` aesthetic.
+Below, you can see two behaviours of the `linearGradient()` pattern, depending on its `group` argument.
+The pattern with `group = FALSE` will display the gradient in every rectangle and `group = TRUE` will apply the gradient to all rectangles together.
+
+```{r grouping_gradient}
+#| fig.alt: >
+#|  Two barplots showing the counts of number of cylinders. The first
+#|  plot is titled 'Ungrouped gradient' and shows individual gradients in the
+#|  bars. The second is titled 'Grouped gradient' and shows a single gradient
+#|  along all bars.
+colours <- scales::viridis_pal()(10)
+grad_ungroup <- linearGradient(colours, group = FALSE)
+grad_grouped <- linearGradient(colours, group = TRUE)
+
+ungroup <- ggplot(mpg, aes(factor(cyl))) +
+  geom_bar(fill = grad_ungroup) +
+  labs(title = "Ungrouped gradient")
+
+grouped <- ggplot(mpg, aes(factor(cyl))) +
+  geom_bar(fill = grad_grouped) +
+  labs(title = "Grouped gradient")
+
+ungroup | grouped
+```
+
+Besides passing a static pattern as the `fill` aesthetic, it is also possible to map values to patterns using `scale_fill_manual()`.
+To map values to patterns, pass a list of patterns to the `values` argument of the scale.
+When providing patterns as a list, the list can be a mix of patterns and plain colours, like `"limegreen"` in the plot below.
+We are excited that people may come up with nice pattern palettes that can be used in similar fashion.
+
+```{r pattern_scale}
+#| fig.alt: >
+#|  Barplot showing counts of number of cylinders with the bars 
+#|  filled by a linear gradient, a plain green colour, a radial gradient and
+#|  a green checkerboard pattern.
+patterns <- list(
+  linearGradient(colours, group = FALSE),
+  "limegreen",
+  radialGradient(colours, group = FALSE),
+  pattern(
+    rectGrob(x = c(0.25, 0.75), y = c(0.25, 0.75), width = 0.5, height = 0.5),
+    width = unit(5, "mm"), height = unit(5, "mm"), extend = "repeat",
+    gp = gpar(fill = "limegreen")
+  )
+)
+
+ggplot(mpg, aes(factor(cyl), fill = factor(cyl))) +
+  geom_bar() +
+  scale_fill_manual(values = patterns)
+```
+
+The largest obstacle we had to overcome to support gradients in ggplot2 was to apply the `alpha` aesthetic consistently to the patterns.
+The regular `scales::alpha()` function does not work with patterns, so we implemented a new `fill_alpha()` function that applies the `alpha` aesthetic to the patterns. 
+By switching out `fill = alpha(fill, alpha)` with `fill = fill_alpha(fill, alpha)` in the `grid::gpar()` function, extension developers can enable pattern fills in their own layer extensions.
+
+The `fill_alpha()` function checks if the active device supports patterns and spits out a friendlier warning or error on demand.
+For extension developers that want to use newer graphics features, you can reuse the `check_device()` function to check feature availability or throw messages in a similar fashion.
+
+```{r check_device, error = TRUE}
+# The currently active device is the ragg::agg_png() device
+check_device(feature = "patterns", action = "test")
+check_device(feature = "glyphs", action = "abort")
+```
+
+## Ignoring scales
+
+In this release, ggplot2 has changed how the plots interact with variables created with `I()` ('AsIs' variables).
+The change is somewhat subtle, so it takes a bit of explaining.
+
+It *used to be* the case that 'AsIs' variables automatically added an identity scale to the plot.
+Identity scales in ggplot2 preserve the original input, without mapping or transforming them.
+For example, iif you give literal colour names as the `colour` aesthetic, the plot will use these exact colours.
+
+```{r literal_colours}
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per 
+#|  gallon with points in red, green and blue.
+set.seed(42)
+my_colours <- sample(c("red", "green", "blue"), nrow(mpg), replace = TRUE)
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = my_colours)) +
+  scale_colour_identity()
+```
+
+However, because identity scales *are* true scales, you cannot combine literal colours in one layer with mapped colours in the next.
+Trying to do so, will confront you with the 'unknown colour name' error.
+
+```{r scale_clash, error=TRUE}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = drv), shape = 1, size = 5) +
+  geom_point(aes(colour = my_colours)) +
+  scale_colour_identity()
+```
+
+In order to prevent such clashes between identity scales that map nothing and regular scales, we have changed how 'AsIs' variables interact with scales.
+Instead of adding an identity scale, 'AsIs' variables are now altogether *ignored* by the scale systems.
+On the surface, the new behaviour is very similar to the old one, in that for example literal colours are used.
+However, with 'AsIs' variables ignored, you can now freely combine layers with 'AsIs' input with layers that map input.
+If you need a legend for the literal variable, we recommend to use the identity scale mechanism instead.
+
+```{r asis_aesthetic}
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per 
+#|  gallon. Every point has two circles: a smaller one in red, green or blue and
+#|  a larger one mapped to the 'drv' variable.
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = drv), shape = 1, size = 5) +
+  geom_point(aes(colour = I(my_colours)), show.legend = FALSE)
+```
+
+Perhaps more salient than avoid scale clashes, is that the same applies to the `x` and `y` position aesthetics.
+There has never been a `scale_x_identity()` or `scale_y_identity()` function, so what this means may be unexpected.
+Internally, scales transform every continuous variable to the 0-1 range before drawing the graphics.
+So too do 'AsIs' position aesthetics work: you can use numbers between 0 and 1 to set the position.
+These positions are relative to the plot's panel and this mechanism opens up a great way to add plot annotations that are independent of the data.
+
+```{r asis_annotation}
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per gallon. 
+#|  The plot has a red rectangle slightly smaller than the panel, a blue circle 
+#|  touching the panel edges and text in the middle that reads:
+#|  'text in the middle'.
+t <- seq(0, 2 * pi, length.out = 100)
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(colour = "grey50") +
+  annotate(
+    "rect", 
+    xmin = I(0.05), xmax = I(0.95),
+    ymin = I(0.05), ymax = I(0.95),
+    fill = NA, colour = "red"
+  ) +
+  annotate(
+    "path",
+    x = I(cos(t) / 2 + 0.5), y = I(sin(t) / 2 + 0.5),
+    colour = "blue"
+  ) +
+  annotate(
+    "text", 
+    label = "Text in the middle",
+    x = I(0.5), y = I(0.5),
+    size = 8
+  )
+```
+
+Please take note that discrete variables as 'AsIs' position aesthetic have no interpretation and will likely result in errors.
+
+## Other improvements
+
+Coordinating text sizes between the theme and `geom_text()`/`geom_label()` has been a hassle, since the theme uses text sizes in points (pt) and geoms use text size in millimetres. Now, one can control what the `size` aesthetic means for text, by setting the `size.unit` argument.
+
+```{r size_unit_arg}
+#| fig.alt: >
+#|  A plot showing weight versus miles per gallon with individual 
+#|  cars labelled by text. The text in the plot has the same size as the text
+#|  labelling the axes.
+p <- ggplot(mtcars, aes(wt, mpg, label = rownames(mtcars)))
+p +
+  geom_text(size = 10, size.unit = "pt") +
+  theme(axis.text = element_text(size = 10))
+```
+
+Two improvements have been made to `geom_label()`.
+The first is that it now obeys an `angle` aesthetic.
+
+```{r label_angle}
+#| fig.alt: >
+#|  A plot showing weight versus miles per gallon with individual 
+#|  cars labelled by textboxes. The textboxes are displayed in different 
+#|  angles.
+p + geom_label(aes(angle = runif(nrow(mtcars), -45, 45)))
+```
+
+In addition, `geom_label()`'s `label.padding` argument can be controlled individually for every side of the text by using the `margin()` function. The legend keys for labels has also changed to reflect the geom more accurately.
+
+```{r label_padding}
+#| fig.alt: >
+#|  A plot showing weight versus miles per gallon with individual 
+#|  cars labelled by textboxes. The textboxes have a large margin on the right.
+p + geom_label(
+  aes(colour = factor(cyl)), 
+  label.padding = margin(t = 2, r = 20, b = 1, l = 0)
+)
+```
+
+Like `geom_density()` before it, `geom_violin()` now gains a `bounds` argument to restrict the range wherein density is estimated.
+
+```{r violin_bounds}
+#| fig.alt: >
+#|  Violin plot showing random numbers drawn from beta distributions 
+#|  with different parameters. The ends of the first two violins are flat at the
+#|  top and bottom.
+df <- data.frame(
+  x = c(rbeta(100, 0.5, 0.5), rbeta(100, 1, 1), rbeta(100, 2, 2)),
+  group = rep(c("A", "B", "C"), each = 100)
+)
+
+ggplot(df, aes(group, x)) +
+  geom_violin(bounds = c(0, 1))
+```
+
+The `geom_boxplot()` has acquired an option to remove (rather than hide) outliers. Setting `outliers = FALSE` removes outliers so that the plot limits do not take these into account. For hiding (and not removing) outliers, you can still set `outlier.shape = NA`.
+Also, it has gained a `staplewidth` argument that can be used to draw staples: horizontal lines at the end of the boxplot whiskers.
+The default, `staplewidth = 0`, will suppress the staples so your current box plots continue to look the same.
+
+```{r boxplot_outliers_staples}
+#| fig.alt: >
+#|  Boxplot showing the price of diamonds per cut. The y-axis does
+#|  not go much beyond the whiskers, and whiskers are decorated with a staple.
+ggplot(diamonds, aes(cut, price)) +
+  geom_boxplot(outliers = FALSE, staplewidth = 0.5)
+```
+
+The scales functions now do a better job at reporting *which* scale has encountered an error.
+
+```{r scale_messages, error=TRUE}
+#| fig.alt: >
+#|  Scatterplot showing body weight minus one versus brain weight of 
+#|  mammals. The x-axis is log-transformed.
+scale_colour_brewer(breaks = 1:5, labels = 1:4)
+
+ggplot(mpg, aes(class, displ)) +
+  geom_boxplot() +
+  scale_x_continuous()
+
+ggplot(msleep, aes(bodywt - 1, brainwt)) +
+  geom_point(na.rm = TRUE) +
+  scale_x_log10()
+```
+
+## Acknowledgements
+
+Thank you to all people who have contributed issues, code and comments to this release:
+
+[&#x0040;92amartins](https://github.com/92amartins), [&#x0040;a-torgovitsky](https://github.com/a-torgovitsky), [&#x0040;aarongraybill](https://github.com/aarongraybill), [&#x0040;aavogt](https://github.com/aavogt), [&#x0040;agila5](https://github.com/agila5), [&#x0040;ahcyip](https://github.com/ahcyip), [&#x0040;AlexanderCasper](https://github.com/AlexanderCasper), [&#x0040;alexkrohn](https://github.com/alexkrohn), [&#x0040;alofting](https://github.com/alofting), [&#x0040;andrewgustar](https://github.com/andrewgustar), [&#x0040;antagomir](https://github.com/antagomir), [&#x0040;aphalo](https://github.com/aphalo), [&#x0040;Ari04T](https://github.com/Ari04T), [&#x0040;AroneyS](https://github.com/AroneyS), [&#x0040;Asa12138](https://github.com/Asa12138), [&#x0040;ashgreat](https://github.com/ashgreat), [&#x0040;averissimo](https://github.com/averissimo), [&#x0040;bakerwm](https://github.com/bakerwm), [&#x0040;balling-dev](https://github.com/balling-dev), [&#x0040;banbh](https://github.com/banbh), [&#x0040;barracuda156](https://github.com/barracuda156), [&#x0040;BartJanvanRossum](https://github.com/BartJanvanRossum), [&#x0040;beansrowning](https://github.com/beansrowning), [&#x0040;benimwolfspelz](https://github.com/benimwolfspelz), [&#x0040;bfordAIMS](https://github.com/bfordAIMS), [&#x0040;bguiastr](https://github.com/bguiastr), [&#x0040;bnicenboim](https://github.com/bnicenboim), [&#x0040;BrianDiggs](https://github.com/BrianDiggs), [&#x0040;bsgerber](https://github.com/bsgerber), [&#x0040;burrapreeti](https://github.com/burrapreeti), [&#x0040;bwiernik](https://github.com/bwiernik), [&#x0040;ccsarapas](https://github.com/ccsarapas), [&#x0040;CGlemser](https://github.com/CGlemser), [&#x0040;chiajungTung](https://github.com/chiajungTung), [&#x0040;chipsin87](https://github.com/chipsin87), [&#x0040;cjvanlissa](https://github.com/cjvanlissa), [&#x0040;CorradoLanera](https://github.com/CorradoLanera), [&#x0040;danielneilson](https://github.com/danielneilson), [&#x0040;danli349](https://github.com/danli349), [&#x0040;DasHammett](https://github.com/DasHammett), [&#x0040;davidhodge931](https://github.com/davidhodge931), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dieghernan](https://github.com/dieghernan), [&#x0040;Ductmonkey](https://github.com/Ductmonkey), [&#x0040;edent](https://github.com/edent), [&#x0040;Elham-adabi](https://github.com/Elham-adabi), [&#x0040;ELICHOS](https://github.com/ELICHOS), [&#x0040;eliocamp](https://github.com/eliocamp), [&#x0040;ellisp](https://github.com/ellisp), [&#x0040;emuise](https://github.com/emuise), [&#x0040;erikdeluca](https://github.com/erikdeluca), [&#x0040;f2il-kieranmace](https://github.com/f2il-kieranmace), [&#x0040;FDylanT](https://github.com/FDylanT), [&#x0040;fkohrt](https://github.com/fkohrt), [&#x0040;francisbarton](https://github.com/francisbarton), [&#x0040;fredcallaway](https://github.com/fredcallaway), [&#x0040;frezza-metabolomics](https://github.com/frezza-metabolomics), [&#x0040;GabrielHoffman](https://github.com/GabrielHoffman), [&#x0040;gaospecial](https://github.com/gaospecial), [&#x0040;garyzhubc](https://github.com/garyzhubc), [&#x0040;gavinsimpson](https://github.com/gavinsimpson), [&#x0040;Generalized](https://github.com/Generalized), [&#x0040;ghost](https://github.com/ghost), [&#x0040;giadasp](https://github.com/giadasp), [&#x0040;GMSL1](https://github.com/GMSL1), [&#x0040;grantmcdermott](https://github.com/grantmcdermott), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hlynurhallgrims](https://github.com/hlynurhallgrims), [&#x0040;holgerbrandl](https://github.com/holgerbrandl), [&#x0040;hpages](https://github.com/hpages), [&#x0040;HRodenhizer](https://github.com/HRodenhizer), [&#x0040;hub-shale](https://github.com/hub-shale), [&#x0040;hughjonesd](https://github.com/hughjonesd), [&#x0040;ibuiltthis](https://github.com/ibuiltthis), [&#x0040;ingewortel](https://github.com/ingewortel), [&#x0040;isaacvock](https://github.com/isaacvock), [&#x0040;Istalan](https://github.com/Istalan), [&#x0040;istvankleijn](https://github.com/istvankleijn), [&#x0040;jacobkasper](https://github.com/jacobkasper), [&#x0040;jammainen](https://github.com/jammainen), [&#x0040;jan-glx](https://github.com/jan-glx), [&#x0040;JaredAllen2](https://github.com/JaredAllen2), [&#x0040;jashapiro](https://github.com/jashapiro), [&#x0040;jimjam-slam](https://github.com/jimjam-slam), [&#x0040;jmuhlenkamp](https://github.com/jmuhlenkamp), [&#x0040;jonspring](https://github.com/jonspring), [&#x0040;JorisChau](https://github.com/JorisChau), [&#x0040;joshhwuu](https://github.com/joshhwuu), [&#x0040;jpeasari](https://github.com/jpeasari), [&#x0040;jromanowska](https://github.com/jromanowska), [&#x0040;jsacerot](https://github.com/jsacerot), [&#x0040;jtlandis](https://github.com/jtlandis), [&#x0040;jtr13](https://github.com/jtr13), [&#x0040;jttoivon](https://github.com/jttoivon), [&#x0040;karchern](https://github.com/karchern), [&#x0040;klin333](https://github.com/klin333), [&#x0040;kmavrommatis](https://github.com/kmavrommatis), [&#x0040;kramerrs](https://github.com/kramerrs), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;kylebutts](https://github.com/kylebutts), [&#x0040;larmarange](https://github.com/larmarange), [&#x0040;latot](https://github.com/latot), [&#x0040;lhami](https://github.com/lhami), [&#x0040;liang09255](https://github.com/liang09255), [&#x0040;linzi-sg](https://github.com/linzi-sg), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;lnarwhale](https://github.com/lnarwhale), [&#x0040;manjumc1975](https://github.com/manjumc1975), [&#x0040;mariadelmarq](https://github.com/mariadelmarq), [&#x0040;matanhakim](https://github.com/matanhakim), [&#x0040;math-mcshane](https://github.com/math-mcshane), [&#x0040;mattgalbraith](https://github.com/mattgalbraith), [&#x0040;matthewjnield](https://github.com/matthewjnield), [&#x0040;mcwayrm](https://github.com/mcwayrm), [&#x0040;melissagwolf](https://github.com/melissagwolf), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;MikkoVihtakari](https://github.com/MikkoVihtakari), [&#x0040;MjelleLab](https://github.com/MjelleLab), [&#x0040;mjskay](https://github.com/mjskay), [&#x0040;mkoohafkan](https://github.com/mkoohafkan), [&#x0040;mmokrejs](https://github.com/mmokrejs), [&#x0040;modmost](https://github.com/modmost), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;morrisseyj](https://github.com/morrisseyj), [&#x0040;mps9506](https://github.com/mps9506), [&#x0040;Nh-code](https://github.com/Nh-code), [&#x0040;njtierney](https://github.com/njtierney), [&#x0040;oliviercailloux](https://github.com/oliviercailloux), [&#x0040;olivroy](https://github.com/olivroy), [&#x0040;otaviolovison](https://github.com/otaviolovison), [&#x0040;pablobernabeu](https://github.com/pablobernabeu), [&#x0040;paulatn240](https://github.com/paulatn240), [&#x0040;phauchamps](https://github.com/phauchamps), [&#x0040;quantixed](https://github.com/quantixed), [&#x0040;ralmond](https://github.com/ralmond), [&#x0040;ramiromagno](https://github.com/ramiromagno), [&#x0040;reallzg](https://github.com/reallzg), [&#x0040;retodomax](https://github.com/retodomax), [&#x0040;robbiebatley](https://github.com/robbiebatley), [&#x0040;Rong-Zh](https://github.com/Rong-Zh), [&#x0040;rossellhayes](https://github.com/rossellhayes), [&#x0040;RoyalTS](https://github.com/RoyalTS), [&#x0040;rvalieris](https://github.com/rvalieris), [&#x0040;s-andrews](https://github.com/s-andrews), [&#x0040;s-elsheikh](https://github.com/s-elsheikh), [&#x0040;schloerke](https://github.com/schloerke), [&#x0040;Sckende](https://github.com/Sckende), [&#x0040;sdmason](https://github.com/sdmason), [&#x0040;sirallen](https://github.com/sirallen), [&#x0040;slowkow](https://github.com/slowkow), [&#x0040;spaette](https://github.com/spaette), [&#x0040;steveharoz](https://github.com/steveharoz), [&#x0040;sunroofgod](https://github.com/sunroofgod), [&#x0040;szimmer](https://github.com/szimmer), [&#x0040;tbates](https://github.com/tbates), [&#x0040;teunbrand](https://github.com/teunbrand), [&#x0040;tfjaeger](https://github.com/tfjaeger), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;TimBMK](https://github.com/TimBMK), [&#x0040;TimTaylor](https://github.com/TimTaylor), [&#x0040;tjebo](https://github.com/tjebo), [&#x0040;trekonom](https://github.com/trekonom), [&#x0040;tungttnguyen](https://github.com/tungttnguyen), [&#x0040;twest820](https://github.com/twest820), [&#x0040;UliSchopp](https://github.com/UliSchopp), [&#x0040;vnijs](https://github.com/vnijs), [&#x0040;warnes](https://github.com/warnes), [&#x0040;wbvguo](https://github.com/wbvguo), [&#x0040;willgearty](https://github.com/willgearty), [&#x0040;Yann-C-INN](https://github.com/Yann-C-INN), [&#x0040;yannk-lm](https://github.com/yannk-lm), [&#x0040;Yunuuuu](https://github.com/Yunuuuu), [&#x0040;yutannihilation](https://github.com/yutannihilation), [&#x0040;yuw444](https://github.com/yuw444), [&#x0040;zekiakyol](https://github.com/zekiakyol), and [&#x0040;zhenglukai](https://github.com/zhenglukai).
+
