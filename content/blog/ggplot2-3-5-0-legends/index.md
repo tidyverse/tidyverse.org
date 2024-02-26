@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: ggplot2-3-5-0-legends
 title: "ggplot2 3.5.0: Legends"
-date: 2024-02-21
+date: 2024-02-26
 author: Teun van den Brand
 description: >
     The 3.5.0 version of ggplot2 comes with an overhaul of the guide system.
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, ggplot2-3-5-0]
-rmd_hash: caf3965e0a608d20
+rmd_hash: 1f3ad8369571f27e
 
 ---
 
@@ -35,7 +35,7 @@ TODO:
 
 We are pleased to release [ggplot2](https://ggplot2.tidyverse.org) 3.5.0. This is one blogpost among several outlining changes to legend guides. Please find the [main release post](/blog/2024/02/ggplot2-3-5-0/) to read about other changes.
 
-Legends, alongside [axes](/blog/2024/02/ggplot2-3-5-0-axes/), are visual representations of scales and allow observes to translate graphical properties of a plot into information. To no surprise, legends in ggplot2 comprise the guides called [`guide_legend()`](https://ggplot2.tidyverse.org/reference/guide_legend.html), but also [`guide_colourbar()`](https://ggplot2.tidyverse.org/reference/guide_colourbar.html), [`guide_coloursteps()`](https://ggplot2.tidyverse.org/reference/guide_coloursteps.html) and [`guide_bins()`](https://ggplot2.tidyverse.org/reference/guide_bins.html).
+Legends, alongside axes, are visual representations of scales and allow observes to translate graphical properties of a plot into information. To no surprise, legends in ggplot2 comprise the guides called [`guide_legend()`](https://ggplot2.tidyverse.org/reference/guide_legend.html), but also [`guide_colourbar()`](https://ggplot2.tidyverse.org/reference/guide_colourbar.html), [`guide_coloursteps()`](https://ggplot2.tidyverse.org/reference/guide_coloursteps.html) and [`guide_bins()`](https://ggplot2.tidyverse.org/reference/guide_bins.html).
 
 ## Styling
 
