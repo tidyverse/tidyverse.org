@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: ggplot2-3-5-0-axes
 title: "ggplot2 3.5.0: Axes"
-date: 2024-02-21
+date: 2024-02-28
 author: Teun van den Brand
 description: >
     The 3.5.0 version of ggplot2 comes with an overhaul of the guide system.
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, ggplot2-3-5-0]
-rmd_hash: fdd11e77e3570461
+rmd_hash: 675eb8b6d663deeb
 
 ---
 
@@ -171,5 +171,5 @@ In addition, you can choose to selectively suppress labels and only show ticks m
 
 </div>
 
-That wraps up the visible changes to axes for this post. To read about general changes, see the [main post](/blog/2024/02/ggplot2-3-5-0/). The changes to legends are covered in a [separate post](/blog/2024/02/ggplot2-3-5-0-legends/) and for the new polar coordinate system (and their axes) see the [last post](/blog/2024/02/ggplot2-3-5-0-coord-radial/).
+That wraps up the visible changes to axes for this post. To read about general changes, see the [main post](/blog/2024/02/ggplot2-3-5-0/). The changes to legends are covered in a [separate post](/blog/2024/02/ggplot2-3-5-0-legends/) and for the new polar coordinate system (and their axes) will be in a future post.
 
