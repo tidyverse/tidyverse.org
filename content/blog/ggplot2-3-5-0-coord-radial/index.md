@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: ggplot2-3-5-0-coord-radial
 title: "ggplot2 3.5.0: Introducing: coord_radial()"
-date: 2024-02-21
+date: 2024-03-01
 author: Teun van den Brand
 description: >
     Introducing a new polar coordinate system that supersedes the old 
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, ggplot2-3-5-0]
-rmd_hash: 4bc4198ec546b6ca
+rmd_hash: b054fe718fe75f82
 
 ---
 
