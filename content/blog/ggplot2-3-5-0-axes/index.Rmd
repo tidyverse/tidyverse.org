@@ -1,0 +1,206 @@
+---
+output: hugodown::hugo_document
+
+slug: ggplot2-3-5-0-axes
+title: "ggplot2 3.5.0: Axes"
+date: 2024-02-28
+author: Teun van den Brand
+description: >
+    The 3.5.0 version of ggplot2 comes with an overhaul of the guide system.
+    Read here what is new for axes.
+
+photo:
+  url: https://unsplash.com/photos/white-and-black-measuring-tape-9rSP3SRUYh4
+  author: CHUTTERSNAP
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [ggplot2, ggplot2-3-5-0]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We are pleased to release [ggplot2](https://ggplot2.tidyverse.org) 3.5.0.
+This release is a large one, so we have split the updates into multiple posts.
+This posts outlines changes to axes; see the [main release post](/blog/2024/02/ggplot2-3-5-0/) to learn about other changes.
+
+Axes, alongside [legends](/blog/2024/02/ggplot2-3-5-0-legends/), are visual representations of scales and allow observers to read values off of a plot.
+The innards of axes, like other guides, underwent a major overhaul with the guide system rewrite.
+Axes specifically are guides for positions and classically display labelled tick marks.
+In Cartesian coordinates, these are the x- and y-positions, but in non-Cartesian systems may reflect a theta, radius, longitude or latitude.
+In ggplot2, an axis is usually represented by the `guide_axis()` function.
+We outline the following changes to axes:
+
+* [Minor ticks](#minor-ticks)
+* [Capping the axis line](#capping)
+* [Logartihmic axes](#logarithmic-axes)
+* [Stacking axes](#stacked-axes)
+* [Display in facets](#display-in-facets)
+
+```{r options, echo = FALSE}
+knitr::opts_chunk$set(dev = "ragg_png")
+```
+
+## Minor ticks
+
+A much requested expansion of axis capabilities is the ability to draw minor ticks.
+To draw minor ticks, you can use the `minor.ticks` argument of `guide_axis()`.
+
+```{r minor_ticks}
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per 
+#|  gallon. Both the x and y axes have smaller ticks in between normal ticks.
+library(ggplot2)
+
+p <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  guides(
+    x = guide_axis(minor.ticks = TRUE),
+    y = guide_axis(minor.ticks = TRUE)
+  )
+p
+```
+
+The minor ticks are unlabelled ticks and follow the `minor_breaks` provided to the scale.
+Their length is determined by the `axis.minor.ticks.length` and their positional children.
+The rest of their appearance is inherited from the major ticks, as can be seen in the plot below where the minor ticks on the y-axis are also blue.
+To tweak their style separately from the major ticks, the `axis.minor.ticks.{x.bottom/x.top/y.left/y.right}` setting can be used.
+Please note that there is *no* `axis.minor.ticks` setting without the position suffixes, as they inherit from the major ticks.
+
+```{r minor_ticks_theming}
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per 
+#|  gallon. The y-axis has blue larger and smaller tick marks, whereas the 
+#|  x-axis has the larger ticks in black and the smaller ticks in red. The 
+#|  x-axis has 4 smaller ticks in between large ones and the smaller ticks
+#|  are half the size of larger ticks.
+p + scale_x_continuous(minor_breaks = scales::breaks_width(0.2)) +
+  theme(
+    axis.ticks.length = unit(5, "pt"),
+    axis.minor.ticks.length = rel(0.5),
+    axis.minor.ticks.x.bottom = element_line(colour = 'red'),
+    axis.ticks.y = element_line(colour = "blue")
+  )
+```
+
+## Capping
+
+Axes can now also be 'capped' at the upper and lower end.
+We hesitate to call this improvement 'new', as it has been a part of base R plotting since time immemorial.
+When axes are capped, the axis line will not be drawn up to the panel edge, but up to the first and last breaks.
+Unsurprisingly, this only affects plots where the axis line is not blank.
+
+```{r capped_axes}
+#| fig.alt: >
+#|  Scatterplot of engine displacement versus highway miles per 
+#|  gallon. The y-axis line starts at the bottom of the panel and continues to
+#|  the top break. The x-axis line starts at the most left break and ends at
+#|  the most right break.
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  guides(
+    x = guide_axis(cap = "both"), # Cap both ends
+    y = guide_axis(cap = "upper") # Cap the upper end
+  ) +
+  theme(axis.line = element_line())
+```
+
+## Logarithmic axes
+
+A new axis for displaying logarithmic (and related) scales has been added: `guide_axis_logticks()`.
+This axis draws three types of tick marks at log10-spaced positions.
+The ticks positions are placed in the original, untransformed data-space, so the axis plays well with scale- and coord-transformations.
+To accommodate a series of logarithmic-like transformations, such as `scales::transform_pseudo_log()` or `scales::transform_asinh()`, scales that include 0 in their limits have the ticks mirrored around 0.
+
+```{r log_axes}
+#| fig.alt: >
+#|  A line plot showing a negatively sloped line with a reversed
+#|  log10-transformation on the y-axis and inverse hyberbolic sine transformation
+#|  on the x-axis. Large ticks appears at multiples of 10, 
+#|  medium ticks at multiples of 5 and small ticks at multiples of 1.
+
+r <- seq(0.001, 0.999, length.out = 100)
+df <- data.frame(
+  x = qcauchy(r),
+  y = qlnorm(r)
+)
+
+p <- ggplot(df, aes(x, y)) +
+  geom_line() +
+  coord_trans(y = "reverse") +
+  scale_y_continuous(
+    transform = "log10",
+    breaks = c(0.1, 1, 10),
+    guide = guide_axis_logticks(long = 2, mid = 1, short = 0.5)
+  ) +
+  scale_x_continuous(
+    transform = "asinh",
+    breaks = c(-100, -10, -1, 0, 1, 10, 100),
+    guide = "axis_logticks"
+  )
+p
+```
+
+The log-ticks axis supersedes the earlier `annotation_logticks()` function.
+Because it is implemented as an axis, it has minimal fuss with the placement of labels and is immune to the clipping options in the coord.
+To mirror `annotation_logticks()` more closely, you can set a negative tick length in the theme.
+
+```{r log_ticks_inward}
+#| fig.alt: >
+#|  The same plot as above, but the tick marks now point inwards.
+
+p + theme(axis.ticks.length = unit(-2.25, "pt"))
+```
+
+## Stacked axes
+
+The last new axis is technically not an axis, but a way to combine axes.
+`guide_axis_stack()` can take multiple other axes and combine them by placing them next to one another.
+On its own, the usefulness of stacking axes is pretty limited.
+However, when extensions start defining custom position guides, it is an easy way to mix-and-match axes from different extensions.
+The first axis is placed next to the panel and subsequent axes are placed further away from the panel.
+Axes, like legends, have acquired a `theme` argument that can be used to customise the display of individual axes.
+Currently, there is not a compelling case to use `guide_axis_stack()`, but it is an important building block for when axis extensions arrive.
+
+## Display in facets
+
+More of an indirect improvement to axes, is the ability of facets to tweak the appearance of inner axes when scales are fixed.
+This facilitates requirements in some journals that every panel should have labelled axes.
+`facet_wrap()` and `facet_grid()` would previously only display axes in between panels when `scales = "free"` was set.
+This is still the case, but there are more options available for `facet_grid()` and fixed scales.
+Using the `axes = "all"` option, all axes are displayed, including those in between panels.
+When using `axes = "all_x"` or `axes = "all_y"`, you can narrow down which axes are displayed.
+
+```{r facet_axes_display}
+#| fig.alt: >
+#|  A scatterplot facetted by the 'drv' and 'year' variables. The
+#|  x-axes appear only at the bottom panels, whereas y-axes are displayed for
+#|  every panel.
+p <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point()
+
+p + facet_grid(year ~ drv, axes = "all_y")
+```
+
+In addition, you can choose to selectively suppress labels and only show ticks marks by using the `axis.labels` argument.
+
+```{r facet_axes_label_display}
+#| fig.alt: >
+#|  A scatterplot facetted by the 'drv' and 'year' variables. The
+#|  x-axes appear in full only at the bottom panels, and as tick marks in the
+#|  first row of panels. The y-axes are displayed in full at every panel.
+p + facet_grid(year ~ drv, axes = "all", axis.labels = "all_y")
+```
+
+That wraps up the visible changes to axes for this post. To read about general changes, see the [main post](/blog/2024/02/ggplot2-3-5-0/). The changes to legends are covered in a [separate post](/blog/2024/02/ggplot2-3-5-0-legends/) and for the new polar coordinate system (and their axes) will be in a future post.
