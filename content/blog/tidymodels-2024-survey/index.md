@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", or "other"
 categories: [other] 
 tags: [survey,tidymodels]
-rmd_hash: 763e74346f1f8bf3
+rmd_hash: f24911ea1175a6a7
 
 ---
 
@@ -40,7 +40,7 @@ At the end of 2021, we created a survey to get community input on how we priorit
 -   **H2O.ai support** was achieved with the creation of [agua](https://agua.tidymodels.org/).
 -   **Better serialization tools** are now provided in the [bundle](https://github.com/rstudio/bundle) package.
 
-Almost everything that respondents prioritized highly last year has either been completed or is currently in progress. Our main focus right now is to wrap up survival analysis, which is being done right now with a series of CRAN releases for the affected packages. The upcoming things we will be working on are postprocessing and supervised feature selection. Since this survey seemed to work well last year, we've decided to use it again to prioritize features for next year.
+Almost everything that respondents prioritized highly last year has either been completed or is currently in progress. Our main focus right now is to wrap up survival analysis, which is being done right now with a series of CRAN releases for the affected packages. Most immediately following these releases, we will be working on postprocessing and supervised feature selection. Beyond that, we'd like to once again ask the community for feedback to help us better prioritize features in the coming year.
 
 ## Looking toward 2024
 
@@ -48,19 +48,33 @@ Almost everything that respondents prioritized highly last year has either been 
 
 The current slate of our possible priorities include:
 
--   **sparse tibbles**: Many models benefit from having sparse data, both in execution time and memory usage. We can't take full advantage of this since recipes use tibbles. This project would involve making it so the tibbles used *inside of a recipe* can hold sparse data. This would not be intended as a general substitute for regular tibbles.
+### Sparse tibbles
 
--   **Causal inference interface**: While many common causal inference workflows are already possible with tidymodels, a small set of helper functions could greatly ease the experience of causal modeling in the framework. Specifically, these changes would better accommodate a two-stage modeling approach, using predictions from a propensity model to set case weights for an outcome model.
+Many models benefit from having sparse data, both in execution time and memory usage. We can't take full advantage of this since recipes use tibbles. This project would involve making it so the tibbles used *inside of a recipe* can hold sparse data. This would not be intended as a general substitute for regular tibbles.
 
--   **Improve chattr**: [chattr](https://github.com/mlverse/chattr) is an interface to LLMs (Large Language Models). It enables interaction with the model directly from the RStudio IDE. This task would involve fine-tuning it to give better results when used for tidymodels tasks.
+### Causal inference interface
 
--   **Cost-sensitive learning api**: This feature is another solution for severe class imbalances. The main part of this task is making our approaches to this uniform across models.
+While many common causal inference workflows are already possible with tidymodels, a small set of helper functions could greatly ease the experience of causal modeling in the framework. Specifically, these changes would better accommodate a two-stage modeling approach, using predictions from a propensity model to set case weights for an outcome model.
 
--   **Expand models for stacking ensembles**: As of now, the stacks package only supports combining the predictions of member models using a regularized linear model. We could extend the package to allow for combining predictions using any modeling [workflow](https://github.com/tidymodels/workflows).
+### Improve chattr
 
--   **Extend support for spatial ML**: The work on spatial resampling went well, but want to include more comprehensive support for spatial modeling.
+[chattr](https://github.com/mlverse/chattr) is an interface to large language models (LLMs). It enables interaction with the model directly from the RStudio IDE. This task would involve fine-tuning it to give better results when used for tidymodels tasks.
 
--   **Ordinal regression extension package**: Ordinal regression models are specific to classification tasks with a natural ordering to the outcome categories (e.g., low, medium, high, etc.). We could add support for modeling this type of data in a parsnip extension package.
+### Cost-sensitive learning API
+
+This feature is another solution for severe class imbalances. The main part of this task is making our approaches to this uniform across models.
+
+### Expand models for stacking ensembles
+
+As of now, the stacks package only supports combining the predictions of member models using a regularized linear model. We could extend the package to allow for combining predictions using any modeling [workflow](https://workflows.tidymodels.org).
+
+### Extend support for spatial ML
+
+[spatialsample](https://spatialsample.tidymodels.org/) introduced a number of spatial resampling methods to tidymodels. More comprehensive support for spatial ML would involve better integrating [spatial metrics](https://www.mm218.dev/posts/2022-08-11-waywiser-010-is-now-on-cran/) into the framework and introducing support for new spatial model types.
+
+### Ordinal regression extension package
+
+Ordinal regression models are specific to classification tasks with a natural ordering to the outcome categories (e.g., low, medium, high, etc.). We could add support for modeling this type of data in a parsnip extension package.
 
 [Check out our survey](TODO%20ADD%20LINK%20HERE) and tell us what your priorities are!
 
