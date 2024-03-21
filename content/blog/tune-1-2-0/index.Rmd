@@ -133,6 +133,8 @@ int_pctl(xgb_res, alpha = .1)
 
 Note that the output has the same number of rows as the `collect_metrics()` output: one for each unique pair of metric and workflow.
 
+This is very helpful for validation sets. Other resampling methods generate replicated performance statistics. We can compute simple interval estimates using the mean and standard error for those. Validation sets produce only one estimate, and these bootstrap methods are probably the best option for obtaining interval estimates. 
+
 ## Relocation of ellipses
 
 We've made a **breaking change** in argument order for several functions in the package (and downstream packages like finetune and workflowsets). Ellipses (...) are now used consistently in the package to require optional arguments to be named. For functions that previously had unused ellipses at the end of the function signature, they have been moved to follow the last argument without a default value, and several other functions that previously did not have ellipses in their signatures gained them. This applies to methods for `augment()`, `collect_predictions()`, `collect_metrics()`, `select_best()`, `show_best()`, and `conf_mat_resampled()`.
@@ -165,6 +167,10 @@ collect_metrics(xgb_res, type = "wide")
 ```
 
 Under the hood, this is indeed just a `pivot_wider()` call. We've found that it's time-consuming and error-prone to programmatically determine identifying columns when pivoting resampled metrics, so we've localized and thoroughly tested the code that we use to do so with this feature.
+
+## More love for the Brier score
+
+Tuning and resampling functions use default metrics when the user does not specify a custom metric set. For regression models, these are RMSE and R<sup>2</sup>. For classification, accuracy and the area under the ROC curve _were_ the default. We’ve also added the [Brier score](https://en.wikipedia.org/wiki/Brier_score) to the default classification metric list. 
 
 ## Acknowledgements
 
