@@ -1,0 +1,58 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-fairness
+title: Fair machine learning with tidymodels
+date: 2024-03-21
+author: Simon Couch
+description: >
+    Recent tidymodels releases integrated a set of tools for assessing whether
+    machine learning models treat groups of people differently.
+
+photo:
+  url: https://unsplash.com/photos/JBghIzjbuLs
+  author: Patrick Fore
+
+categories: [learn] 
+tags: [tidymodels, yardstick, tune]
+bibliography: refs.bib
+---
+
+We're very, very excited to announce the introduction of tools for assessing model fairness in tidymodels. This effort involved coordination from various groups at Posit over the course of over a year and resulted in a toolkit that we believe is both principled and impactful.
+
+Fairness assessment features for tidymodels extend across a number of packages; to install each, use the tidymodels meta-package:
+
+```{r}
+#| eval: false
+install.packages("tidymodels")
+```
+
+## Machine learning fairness
+
+In recent years, high-profile analyses have called attention to many contexts where the use of machine learning deepened inequities in our communities. In late 2022, a group of Posit employees across teams, roles, and technical backgrounds formed a reading group to engage with literature on machine learning fairness, a research field that aims to define what it means for a statistical model to act unfairly and take measures to address that unfairness. We then designed new software functionality and learning resources to help data scientists measure and critique the ways in which the machine learning models they've built might disparately impact people affected by that model.
+
+Perhaps the core question that fairness as a research field has tried to address is exactly what a machine learning model acting fairly entails. As a recent primer notes, "[t]he rapid growth of this new field has led to wildly inconsistent motivations, terminology, and notation, presenting a serious challenge for cataloging and comparing definitions" [@mitchell2021]. 
+
+Broadly, approaches to fairness provide tooling---whether social or algorithmic---to understand the social implications of utilizing a machine learning model. Different researchers categorize approaches to fairness differently, but work in this area can be loosely summarized as falling into one or more of the following categories: assessment, mitigation, and critique.
+
+- *Assessment*:	Fairness assessment tooling allows practitioners to measure the degree to which a machine learning model acts unfairly given some definition of fairness. The chosen definition of fairness greatly impacts whether a model’s predictions are regarded as fair. While there have been many, many definitions of fairness proposed—a popular tutorial on these approaches compares 21 canonical definitions—most all of them involve simple inequalities based on a small set of conditional probabilities [@narayanan2018; @mitchell2021].
+
+- *Mitigation*:	Given a fairness assessment, mitigation approaches reduce the degree to which a machine learning model acts unfairly given some definition of fairness. Making a model more fair according to one metric may make that model less fair according to another. Approaches to mitigation are subject to impossibility theorems, which show that "definitions are not mathematically or morally compatible in general" [@mitchell2021]. That is, there is no way to satisfy many fairness constraints at once unless we live in a world with no inequality to start with. However, more recent studies have shown that near-fairness with respect to several definitions is quite possible [@bell2023].
+
+- *Critique*:	While approaches to assessment and mitigation seek to reduce complexity and situate notions of fairness in mathematical formalism, sociotechnical critique provides tooling to better understand how mathematical notions of fairness may fail to account for the real-world complexity of social phenomena. Work in this discipline often reveals that, in the process of measuring or addressing unfairness by some definition, methods for fairness assessment and mitigation may actually ignore, necessitate, or introduce unfairness by some other definition.
+
+The work of scoping Posit’s resources for fair machine learning, in large part, involved striking the right balance between tools in these categories and integrating them thoughtfully among our existing functionality. Rather than supporting as many fairness-oriented tools as possible, our goal is to best enable users of our tools to reason well about the fairness-relevant decisions they make throughout the modeling process.
+
+## Additions to tidymodels
+
+The most recent set of tidymodels releases include changes that provide support for assessment and critique using the tidymodels framework. 
+
+The most recent yardstick release introduces [a tool to create fairness metrics](https://yardstick.tidymodels.org/reference/new_groupwise_metric.html) with the problem context in mind, as well as [some outputs of that tool](https://yardstick.tidymodels.org/reference/index.html#fairness-metrics) implementing common fairness metrics. For a higher-level introduction to the concept of a groupwise metric, we've also introduced a [new package vignette](https://yardstick.tidymodels.org/articles/grouping.html). To see those fairness metrics in action, see [this new article on tidymodels.org](https://www.tidymodels.org/learn/work/fairness-detectors/), a case study using data about GPT detectors.
+
+The most recent tune release integrates support for those fairness metrics from yardstick, allowing users to evaluate fairness criteria across resamples. To demonstrate those features in context, we've added [another new article on tidymodels.org](https://www.tidymodels.org/learn/work/fairness-readmission/), modeling hospital readmission for patients with Type I diabetes.
+
+Notably, we haven't introduced functionality to support mitigation. While a number of methods have proliferated over the years to finetune models to act more fairly with respect to some fairness criteria, each apply only in relatively niche applications with modest experimental results [@agarwal2018; @mittelstadt2023]. For now, we believe that, in practice, the efforts of practitioners---and thus our efforts to support them---are better spent engaging with the sociotechnical context of a given modeling problem [@holstein2019].
+
+We're excited to support modeling practitioners in fairness-oriented analysis of models and look forward to seeing how these methods are put to work.
+
+## References
