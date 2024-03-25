@@ -1,12 +1,12 @@
 ---
 output: hugodown::hugo_document
 
-slug: webr-0-3-0
-title: webR 0.3.0
-date: 2024-03-18
+slug: webr-0-3-1
+title: webR 0.3.1
+date: 2024-03-25
 author: George Stagg
 description: >
-    webR 0.3.0 is now available at npm, GitHub, and via CDN. Take a look at
+    webR 0.3.1 is now available at npm, GitHub, and via CDN. Take a look at
     what's new in this release.
 
 photo:
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [webr, webassembly, wasm]
-rmd_hash: 40b98f7712d538bf
+rmd_hash: b756b8dc929b03bf
 
 ---
 
@@ -31,7 +31,7 @@ TODO:
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
-* [ ] Update all 0.3.0-rc.0 references to 0.3.0
+* [x] Update all 0.3.0-rc0 references to 0.3.1
 -->
 <!-- Initialise webR in the page -->
 {{< webr-init >}}
@@ -61,16 +61,16 @@ TODO:
 
 </div>
 
-We're delighted to announce the release of [webR](https://docs.r-wasm.org/webr/latest/) 0.3.0. This release brings bug fixes, infrastructure upgrades, and exciting improvements to webR's API for creating R objects and evaluating R code from JavaScript. These new features make integrating webR with existing JavaScript frameworks such as [Observable](https://observablehq.com) a breeze.
+We're delighted to announce the release of [webR](https://docs.r-wasm.org/webr/latest/) 0.3.1. This release brings bug fixes, infrastructure upgrades, and exciting improvements to webR's API for creating R objects and evaluating R code from JavaScript. These new features make integrating webR with existing JavaScript frameworks such as [Observable](https://observablehq.com) a breeze.
 
 You can install the latest release from [npm](https://www.npmjs.com/package/webr) with the command:
 
-    npm i webr@0.3.0
+    npm i webr@0.3.1
 
 or if you're using JavaScript modules to import webR directly from CDN:
 
 ``` javascript
-import { WebR } from 'https://webr.r-wasm.org/v0.3.0/webr.mjs';
+import { WebR } from 'https://webr.r-wasm.org/v0.3.1/webr.mjs';
 ```
 
 A summary of changes is described below, with the full [release notes](https://github.com/r-wasm/webr/releases) on GitHub.
@@ -79,7 +79,7 @@ A summary of changes is described below, with the full [release notes](https://g
 
 The underlying interpreter powering webR is built from the same source code as R itself, with patches applied so that it can run in the WebAssembly environment. With this release, we have rebased our patches on the latest stable version of R[^1]. By keeping our source in sync, improvements and bug fixes made by the R Core Team also benefit any project making use of webR.
 
-WebR's core functionality is to evaluate R code from a JavaScript environment. As such, it is imperative that this works well, even with large and complex scripts. The [webR app](https://webr.r-wasm.org/v0.3.0-rc.0/) has been updated to better handle large R scripts, and scripts longer than 4096 characters should no longer cause strange issues in the R console.
+WebR's core functionality is to evaluate R code from a JavaScript environment. As such, it is imperative that this works well, even with large and complex scripts. The [webR app](https://webr.r-wasm.org/v0.3.1/) has been updated to better handle large R scripts, and scripts longer than 4096 characters should no longer cause strange issues in the R console.
 
 ### Loading WebAssembly packages
 
@@ -124,7 +124,7 @@ do_calc(-10)
 </div>
 
 ``` javascript
-// webR 0.3.0
+// webR 0.3.1
 const do_calc = await webR.evalR(`function (n){ rnorm(n) }`)
 do_calc(-10)
 ```
@@ -138,7 +138,7 @@ do_calc(-10)
 Some base R features can be problematic when running R under WebAssembly. For example, in the constrained WebAssembly sandbox the base R function [`system()`](https://rdrr.io/r/base/system.html) does not work. The latest release of webR now handles these cases more consistently, raising R [`stop()`](https://rdrr.io/r/base/stop.html) conditions rather than incorrectly returning an empty result.
 
 ``` r
-# webR 0.3.0
+# webR 0.3.1
 system()
 ```
 
@@ -342,7 +342,7 @@ An example Shiny app making use of the WebAssembly compiled ImageMagick library 
 
 With the introduction of additional system libraries and changes to the WebAssembly toolchain, the default webR package repository has also been refreshed. The repository tends to follow CRAN package releases, though is updated less frequently. **19452** WebAssembly R packages have been recompiled from source for this release, with **12969** packages, about 63% of CRAN, fully available[^4] for use in webR.
 
-As my usual caveat goes, we have not been able to test all the available packages. Feel free to try your favourite package in the [webR app](https://webr.r-wasm.org/v0.3.0-rc.0/) and let us know in a [GitHub issue](https://github.com/r-wasm/webr/issues) if there is a problem.
+As my usual caveat goes, we have not been able to test all the available packages. Feel free to try your favourite package in the [webR app](https://webr.r-wasm.org/v0.3.1/) and let us know in a [GitHub issue](https://github.com/r-wasm/webr/issues) if there is a problem.
 
 The [package repository index](https://repo.r-wasm.org) contains further information and a searchable list of WebAssembly R packages. In addition, [R-Universe](https://r-universe.dev) also builds webR-compatible binaries and so can be used as an alternative repository for access to even more R packages.
 
