@@ -12,11 +12,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/r/r.js"></script>
 <script type="module">
-  import { WebR } from 'https://webr.r-wasm.org/v0.2.0/webr.mjs';
-  globalThis.webR = new WebR({
-    serviceWorkerUrl: '/'
-  });
+  import { WebR } from 'https://webr.r-wasm.org/v0.3.1/webr.mjs';
+  globalThis.webR = new WebR();
   await globalThis.webR.init();
+  await webR.evalRVoid("webr::shim_install()");
+  await webR.evalRVoid("webr::global_prompt_install()", { withHandlers: false });
+
   globalThis.webRCodeShelter = await new globalThis.webR.Shelter();
   document.querySelectorAll(".btn-webr").forEach((btn) => {
     btn.innerText = 'Run code';

@@ -27,6 +27,7 @@
       withAutoprint: true,
       captureStreams: true,
       captureConditions: false,
+      captureGraphics: false,
       env: {},
     });
     try {
@@ -34,6 +35,17 @@
       const out = result.output.filter(
         evt => evt.type == 'stdout' || evt.type == 'stderr'
       ).map((evt) => evt.data).join('\n');
+
+      outputDiv.innerHTML = '';
+      const pre = document.createElement("pre");
+      if (/\S/.test(out)) {
+        const code = document.createElement("code");
+        code.innerText = out;
+        pre.appendChild(code);
+      } else {
+        pre.style.visibility = 'hidden';
+      }
+      outputDiv.appendChild(pre);
 
       const msgs = await webR.flush();
       msgs.forEach(msg => {
@@ -49,26 +61,13 @@
             canvas.style.width="700px";
             canvas.style.display="block";
             canvas.style.margin="auto";
+            // Add it to the output block
+            const p = document.createElement("p");
+            p.appendChild(canvas);
+            outputDiv.appendChild(p);
           }
         }
       });
-
-      outputDiv.innerHTML = '';
-      const pre = document.createElement("pre");
-      if (/\S/.test(out)) {
-        const code = document.createElement("code");
-        code.innerText = out;
-        pre.appendChild(code);
-      } else {
-        pre.style.visibility = 'hidden';
-      }
-      outputDiv.appendChild(pre);
-
-      if (canvas) {
-        const p = document.createElement("p");
-        p.appendChild(canvas);
-        outputDiv.appendChild(p);
-      }
     } finally {
       webRCodeShelter.purge();
       runButton.disabled = false;
