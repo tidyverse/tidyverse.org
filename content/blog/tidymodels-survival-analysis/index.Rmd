@@ -33,7 +33,7 @@ TODO:
 
 We're tickled pink to announce the support of survival analysis for time-to-event data across the tidymodels framework. This makes survival analysis a first-class citizen in tidymodels and gives censored regression modeling the same flexibility and ease as classification or regression. 
 
-The functionality resides in mutiple tidymodels packages. The easiest way to install them all is to install the tidymodels meta-pacakge:
+The functionality resides in multiple tidymodels packages. The easiest way to install them all is to install the tidymodels meta-package:
 
 ```{r, eval = FALSE}
 install.packages("tidymodels")
@@ -66,7 +66,7 @@ If you are already familiar with survival analysis but maybe not tidymodels, the
 
 If you are already familiar with tidymodels but maybe not survival analysis, these changes let you leverage the familiar framework for an additional type of modeling problem. Survival analysis offers methods for modeling time-to-event data. While it has its roots in medical research, it has broad applications as that event of interest can be so much more than a medical outcome. Take customer churn as an example: We are interested in how long someone is a customer for and when they churn. For customers who churned, we have the complete time for which they were customers. For existing customers, we only know how long they've been customers for _so far_. Such observations are called censored. So what are our modeling choices here? 
 
-We could look at the time and model that as a regression problem. We could look at the event status and model that as a classification problem. Both options might get us somewhere close to an answer to our original modeling question but not quite there. Survival analysis with its censored regression models lets us model an outcome that includes both aspects, the time and the event status. And with that, it can deal with both censored and uncensored observations appropriately. With this type of model, we can predict the survival time, or in more applied terms, how long someone will stay a customer for overall. We can also predict the probability of survival at a given time point. This let's us answer questions like "How likely is it that this customer will churn after 3 months?". See which prediction types are available for which models at [censored.tidymodels.org](https://censored.tidymodels.org/).
+We could look at the time and model that as a regression problem. We could look at the event status and model that as a classification problem. Both options might get us somewhere close to an answer to our original modeling question but not quite there. Censored regression models let us model an outcome that includes both aspects, the time and the event status. And with that, it can deal with both censored and uncensored observations appropriately. With this type of model, we can predict the survival time, or in more applied terms, how long someone will stay a customer for overall. We can also predict the probability of survival at a given time point. This lets us answer questions like "How likely is it that this customer will churn after 3 months?". See which prediction types are available for which models at [censored.tidymodels.org](https://censored.tidymodels.org/).
 
 
 ## Ch-ch-changes: What's new for censored regression?
@@ -77,7 +77,7 @@ The main components needed for this full-fledged integration of survival analysi
 - Survival analysis performance metrics that can take censoring into account
 - Integrating changes required by these models and metrics into the framework
 
-For the models, parsnip gained a new mode, `"censored regression"`, for existing models as well as new model types such as `proportional_hazards()`. Engines for these reside in the parsnip extension package censored. This has been around for a while and we've previously shared [our inital thoughts](https://www.tidyverse.org/blog/2021/11/survival-analysis-parsnip-adjacent/) and the [release of censored](https://www.tidyverse.org/blog/2022/08/censored-0-1-0/).
+For the models, parsnip gained a new mode, `"censored regression"`, for existing models as well as new model types such as `proportional_hazards()`. Engines for these reside in the parsnip extension package censored. The `"censored regression"` mode has been around for a while and we've previously shared posts on [our inital thoughts](https://www.tidyverse.org/blog/2021/11/survival-analysis-parsnip-adjacent/) and the [release of censored](https://www.tidyverse.org/blog/2022/08/censored-0-1-0/).
 
 Now we've added the metrics: yardstick v1.3.0 includes new metrics for assessing censored regression models. Somewhat similar to how metrics for classification models can take class predictions or probability predictions as input, these survival metrics can take predicted survival times or predictions of survival probabilities as input. 
 
@@ -87,7 +87,7 @@ The new metrics are
 - Brier score on the survival probability and its integrated version via `brier_survival()` and `brier_survival_integrated()`
 - Area under the ROC curve on the survival probabilities via `auc_roc_survival()`
 
-The probability of survival is always defined _at a certain point in time_. We call that time point the evaluation time because it is then also the time point at which we want to evaluate model performance. Metrics that work on the survival probabilities are also called _dynamic metrics_ and you read more about them here:
+The probability of survival is always defined _at a certain point in time_. We call that time point the evaluation time because it is then also the time point at which we want to evaluate model performance. Metrics that work on the survival probabilities are also called _dynamic metrics_ and you can read more about them here:
 
 - [Dynamic Performance Metrics for Event Time Data](https://www.tidymodels.org/learn/statistics/survival-metrics/)
 - [Accounting for Censoring in Performance Metrics for Event Time Data](https://www.tidymodels.org/learn/statistics/survival-metrics-details/)
@@ -98,17 +98,17 @@ While the need for evaluation times is dependent on type of metric, it is not ac
 
 You need to specify it to directly predict survival probabilities, via `predict()` or `augment()`. We introduced the corresponding `eval_time` argument first for fitted models in [parsnip and censored](https://www.tidyverse.org/blog/2023/04/censored-0-2-0/#introducing-eval_time) and have added it now for workflows. 
 
-You also need to specify it for the tuninging functions `tune_*()` from tune and finetune as they will predict survival probabilities as part of the tuning process. 
+You also need to specify it for the tuning functions `tune_*()` from tune and finetune as they will predict survival probabilities as part of the tuning process. 
 
-And lastly, the `eval_time` argument now shows up when working with tuning/resampling results such as in `show_best()` or `autoplot()`. Those changes span the packages generating and working with resampling results: tune, finetune, and workflowsets.
+Lastly, the `eval_time` argument now shows up when working with tuning/resampling results such as in `show_best()` or `autoplot()`. Those changes span the packages generating and working with resampling results: tune, finetune, and workflowsets.
 
-As we said, plenty of changes under the hood but you shouldn't need to notice them. Everything else should work "as usual", allowing the same ease and flexibility in combining tidymodels functionality for censored regression as for classification and regression.
+As we said, plenty of changes under the hood but you shouldn't need to notice them. Everything else should work "as usual," allowing the same ease and flexibility in combining tidymodels functionality for censored regression as for classification and regression.
 
 ## The pieces come together: A case study
 
-To see it all in action, check out the case study [How long until building complaints are dispositioned?](https://www.tidymodels.org/learn/statistics/survival-case-study/)! 
+To see it all in action, check out the case study [How long until building complaints are dispositioned?](https://www.tidymodels.org/learn/statistics/survival-case-study/) on the tidymodels website!
 
-The city of New York publishes data on complaints received by the Department of Buildings that include how long it takes for a complaint to be dealt with ("dispositioned") as well as several characteristics of the complaint. The case study covers a full analysis. We start with splitting the data into test and training set, explore different preprocessing strategies and model types via tuning, and predict with a final model. It should give you a good first impression of how to use tidymodels for predictive survival analysis.
+The city of New York publishes data on complaints received by the Department of Buildings that include how long it takes for a complaint to be dealt with ("dispositioned") as well as several characteristics of the complaint. The case study covers a full analysis. We start with splitting the data into test and training sets, explore different preprocessing strategies and model types via tuning, and predict with a final model. It should give you a good first impression of how to use tidymodels for predictive survival analysis.
 
 We hope you'll find this new capability of tidymodels useful!
 
