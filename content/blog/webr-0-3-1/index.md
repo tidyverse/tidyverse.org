@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [webr, webassembly, wasm]
-rmd_hash: a6903aceb8cfcd9a
+rmd_hash: 882ab46270b7d497
 
 ---
 
@@ -125,7 +125,7 @@ do_calc(-10)
 
 ``` javascript
 // webR 0.3.1
-const do_calc = await webR.evalR(`function (n){ rnorm(n) }`)
+const do_calc = await webR.evalR(`function (n) { rnorm(n) }`)
 do_calc(-10)
 ```
 
