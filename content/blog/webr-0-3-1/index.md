@@ -113,7 +113,7 @@ Conditions raised when invoking function objects are now also re-thrown as JavaS
 
 ``` javascript
 // webR 0.2.2
-const do_calc = await webR.evalR(`function (n){ rnorm(n) }`)
+const do_calc = await webR.evalR(`function (n) { rnorm(n) }`)
 do_calc(-10)
 ```
 
