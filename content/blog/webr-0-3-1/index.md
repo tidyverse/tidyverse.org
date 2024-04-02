@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [webr, webassembly, wasm]
-rmd_hash: b756b8dc929b03bf
+rmd_hash: 3110729e31766cfb
 
 ---
 
@@ -83,7 +83,7 @@ WebR's core functionality is to evaluate R code from a JavaScript environment. A
 
 ### Loading WebAssembly packages
 
-The package management functions provided by webR have been expanded and improved. Once enabled [^2], [`install.packages()`](https://rdrr.io/r/utils/install.packages.html), [`library()`](https://rdrr.io/r/base/library.html) and [`require()`](https://rdrr.io/r/base/library.html) are shimmed so that installing or loading R packages automatically downloads WebAssembly binaries from the [webR package repository](https://repo.r-wasm.org). Also, it is no longer required to run the [`library()`](https://rdrr.io/r/base/library.html) command a second time to subsequently load the package.
+The package management functions provided by webR have been expanded and improved. We set up webR with shims (interceptors) for [`install.packages()`](https://rdrr.io/r/utils/install.packages.html), [`library()`](https://rdrr.io/r/base/library.html), and [`require()`](https://rdrr.io/r/base/library.html) so that installing or loading R packages automatically downloads WebAssembly binaries from the [webR package repository](https://repo.r-wasm.org). Also, it is no longer required to run the [`library()`](https://rdrr.io/r/base/library.html) command a second time to subsequently load the package.
 
 In this interactive example, webR is configured to automatically install WebAssembly packages. Click "Run code" to download the packages listed in the R script.
 
@@ -151,7 +151,7 @@ system()
 
 ## Capturing HTML canvas graphics output
 
-The [`captureR()`](https://docs.r-wasm.org/webr/latest/evaluating.html#evaluating-r-code-and-capturing-output-with-capturer) function is designed to capture output generated when evaluating R code. With this release, plots drawn using webR's HTML canvas graphics device, [`webr::canvas()`](https://rdrr.io/pkg/webr/man/canvas.html), are also captured and returned by default.
+The [`captureR()`](https://docs.r-wasm.org/webr/latest/evaluating.html#evaluating-r-code-and-capturing-output-with-capturer) function is designed to capture output generated when evaluating R code. In addition to capturing standard text output, details about errors and other R conditions are also captured. With this release, plots drawn using webR's HTML canvas graphics device, [`webr::canvas()`](https://rdrr.io/pkg/webr/man/canvas.html), are also captured and returned by default.
 
 ``` javascript
 // Evaluate R code, capturing all output
@@ -323,7 +323,7 @@ With this, source-code level reproducible builds of the webR WebAssembly binarie
 
 ### LLVM Flang
 
-To compile Fortran sources in the R source code[^3] for webR, we require a Fortran compiler that supports outputting WebAssembly objects. This is a surprisingly tricky business, and our current solution is to maintain a patched version of LLVM's `flang-new` compiler frontend.
+To compile Fortran sources in the R source code[^2] for webR, we require a Fortran compiler that supports outputting WebAssembly objects. This is a surprisingly tricky business, and our current solution is to maintain a patched version of LLVM's `flang-new` compiler frontend.
 
 In recent months, the patches we must make to LLVM Flang have become smaller and easier to manage as the LLVM team continues to improve the Flang frontend. While too long for this post, for those interested in exactly what changes we make to enable WebAssembly output, I have written a deep-dive blog post, [Fortran on WebAssembly](https://gws.phd/posts/fortran_wasm/).
 
@@ -340,7 +340,7 @@ An example Shiny app making use of the WebAssembly compiled ImageMagick library 
 
 ## WebAssembly R package binaries
 
-With the introduction of additional system libraries and changes to the WebAssembly toolchain, the default webR package repository has also been refreshed. The repository tends to follow CRAN package releases, though is updated less frequently. **19452** WebAssembly R packages have been recompiled from source for this release, with **12969** packages, about 63% of CRAN, fully available[^4] for use in webR.
+With the introduction of additional system libraries and changes to the WebAssembly toolchain, the default webR package repository has also been refreshed. The repository tends to follow CRAN package releases, though is updated less frequently. **19452** WebAssembly R packages have been recompiled from source for this release, with **12969** packages, about 63% of CRAN, fully available[^3] for use in webR.
 
 As my usual caveat goes, we have not been able to test all the available packages. Feel free to try your favourite package in the [webR app](https://webr.r-wasm.org/v0.3.1/) and let us know in a [GitHub issue](https://github.com/r-wasm/webr/issues) if there is a problem.
 
@@ -360,9 +360,7 @@ Thank you, as always, to the users and developers contributing to webR in the fo
 
 [^1]: The latest stable release at the time of writing: [R 4.3.3 --- "Angel Food Cake"](https://cran.rstudio.com/doc/manuals/r-release/NEWS.html)
 
-[^2]: The package library shims are enabled by default in the webR app.
+[^2]: There are also many R packages containing Fortran source code.
 
-[^3]: There are also many R packages containing Fortran source code.
-
-[^4]: Here "available" means that both a binary build of an R package and all of its dependencies can be downloaded from the repository.
+[^3]: Here "available" means that both a binary build of an R package and all of its dependencies can be downloaded from the repository.
 
