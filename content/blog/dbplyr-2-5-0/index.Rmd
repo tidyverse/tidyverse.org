@@ -1,0 +1,83 @@
+---
+output: hugodown::hugo_document
+
+slug: dbplyr-2-5-0
+title: dbplyr 2.5.0
+date: 2024-04-02
+author: Hadley Wickham
+description: >
+    dbplyr 2.5.0 brings an improved syntax for referring to tables nested 
+    in schemas and catalogs, along with a bunch of minor SQL generation
+    improvements.
+photo:
+  url: https://unsplash.com/photos/gray-metal-drawers-h6xNSDlgciU
+  author: jesse orrico
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [dbplyr]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're most pleased to announce the release of [dbplyr](http://dbplyr.tidyverse.org/) 2.5.0. dbplyr is a database backend for dplyr that allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr translates it to SQL for you.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("dbplyr")
+```
+
+This post focuses on the biggest change in dbplyr 2.5.0: improved syntax for tables nested inside schema and catalogs. As usual, this release also contains a ton of minor improvements to SQL generation, and I'd highly recommend skimming the [release notes](https://github.com/tidyverse/dbplyr/releases/tag/v2.5.0) to learn the details. 
+
+```{r setup}
+library(dbplyr)
+```
+
+## Referring to tables in a schema
+
+Historically, dbplyr has provided a bewildering array of options to specify a table nested inside a schema that's in turn nested inside a catalog:
+
+```{r}
+#| eval: false
+
+con |> tbl(ident_q("catalog_name.schema_name.table_name"))
+con |> tbl(sql("SELECT * FROM catalog_name.schema_name.table_name"))
+con |> tbl(in_catalog("catalog_name", "schema_name", "table_name"))
+con |> tbl(ident_q("catalog_name.schema_name"), "table_name")
+con |> tbl(sql("catalog_name.schema_name"), "table_name")
+
+# You could also use DBI::Id(), but its syntax has also evolved
+con |> tbl(DBI::Id(database = "catalog_name", schema = "schema_name", table = "table_name"))
+con |> tbl(DBI::Id(catalog = "catalog_name", schema = "schema_name", table = "table_name"))
+con |> tbl(DBI::Id("catalog_name", "schema_name", "table_name"))
+```
+
+Many of these options were poorly supported (i.e. we would accidentally break them from time-to-time) and suffered from the lack of a holistic vision. This release aims to bring order to the chaos by providing a succinct new syntax for literal table identifiers: `I()`. This allows you to succinctly identify a table nested inside a schema or catalog:
+
+```{r}
+#| eval: false
+con |> tbl(I("catalog_name.schema_name.table_name"))
+con |> tbl(I("schema_name.table_name"))
+```
+
+`I()` is a base function, and you may be familiar with its use in models, e.g. `lm(y ~ x + I(y * z))`. It performs a similar role for both dbplyr and models: it tells the function to treat the argument as is, rather than quoting it in the case of dbplyr, or interpreting as an interaction in the case of `lm()`.
+
+`I()` is dbplyr's preferred way of specifying nested table identifiers and we will eventually formally supersede and then one day deprecate the other options. However, because their usage is quite widespread, this process will be slow and gradual, and play out over multiple years; there's no need to make changes now.
+
+(If you're the author of a dbplyr backend, you'll can take advantage of this new syntax by using the `dbplyr_table_path` class. dbplyr now provides a [few helper functions](https://dbplyr.tidyverse.org/reference/is_table_path.html) to make this easier.)
+
+## Acknowledgements
+
+A big thanks to all 46 folks who helped to make this release possible with their thoughtful comments and code contributions! [&#x0040;aarizvi](https://github.com/aarizvi), [&#x0040;abalter](https://github.com/abalter), [&#x0040;andreassoteriadesmoj](https://github.com/andreassoteriadesmoj), [&#x0040;andrew-schulman](https://github.com/andrew-schulman), [&#x0040;apalacio9502](https://github.com/apalacio9502), [&#x0040;carlinstarrs](https://github.com/carlinstarrs), [&#x0040;catalamarti](https://github.com/catalamarti), [&#x0040;chicotobi](https://github.com/chicotobi), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;dmenne](https://github.com/dmenne), [&#x0040;edgararuiz](https://github.com/edgararuiz), [&#x0040;edonnachie](https://github.com/edonnachie), [&#x0040;eitsupi](https://github.com/eitsupi), [&#x0040;ejneer](https://github.com/ejneer), [&#x0040;erydit](https://github.com/erydit), [&#x0040;espinielli](https://github.com/espinielli), [&#x0040;fh-afrachioni](https://github.com/fh-afrachioni), [&#x0040;ghost](https://github.com/ghost), [&#x0040;godislobster](https://github.com/godislobster), [&#x0040;gorcha](https://github.com/gorcha), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hild0146](https://github.com/hild0146), [&#x0040;JakeHurlbut](https://github.com/JakeHurlbut), [&#x0040;jarodmeng](https://github.com/jarodmeng), [&#x0040;Jiefei-Wang](https://github.com/Jiefei-Wang), [&#x0040;joshbal](https://github.com/joshbal), [&#x0040;kelseyroberts](https://github.com/kelseyroberts), [&#x0040;kmishra9](https://github.com/kmishra9), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;m-muecke](https://github.com/m-muecke), [&#x0040;maciekbanas](https://github.com/maciekbanas), [&#x0040;marcusmunch](https://github.com/marcusmunch), [&#x0040;mgarbuzov](https://github.com/mgarbuzov), [&#x0040;mgirlich](https://github.com/mgirlich), [&#x0040;misea](https://github.com/misea), [&#x0040;MKatz-DHSC](https://github.com/MKatz-DHSC), [&#x0040;Mkranj](https://github.com/Mkranj), [&#x0040;multimeric](https://github.com/multimeric), [&#x0040;nathanhaigh](https://github.com/nathanhaigh), [&#x0040;nilescbn](https://github.com/nilescbn), [&#x0040;talegari](https://github.com/talegari), [&#x0040;Tazinho](https://github.com/Tazinho), [&#x0040;thomashulst](https://github.com/thomashulst), [&#x0040;Thranholm](https://github.com/Thranholm), [&#x0040;tomshafer](https://github.com/tomshafer), and [&#x0040;wstvcg](https://github.com/wstvcg).
