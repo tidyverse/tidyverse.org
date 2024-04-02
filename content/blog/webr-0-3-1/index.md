@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: webr-0-3-1
 title: webR 0.3.1
-date: 2024-03-25
+date: 2024-04-02
 author: George Stagg
 description: >
     webR 0.3.1 is now available at npm, GitHub, and via CDN. Take a look at
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [webr, webassembly, wasm]
-rmd_hash: 3110729e31766cfb
+rmd_hash: a6903aceb8cfcd9a
 
 ---
 
