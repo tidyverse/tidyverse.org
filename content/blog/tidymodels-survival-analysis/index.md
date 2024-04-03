@@ -3,37 +3,38 @@ output: hugodown::hugo_document
 
 slug: tidymodels-survival-analysis
 title: Survival analysis for time-to-event data with tidymodels
-date: 2024-03-29
+date: 2024-04-03
 author: Hannah Frick
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    Recent releases integrate survival analysis into tidymodels.
+    This now unlocks the framework for censored regression and provides modeling 
+    capabilities for time-to-event data.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/vintage-brown-and-white-watch-lot-yBzrPGLjMQw
+  author: Heather Zabriskie
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [tidymodels, parsnip, censored, workflows, yardstick, tune, workflowsets]
-rmd_hash: 49d0f7e5ba4fb8eb
+rmd_hash: ddadb81f67e09534
 
 ---
 
 <!--
 TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
 * [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're tickled pink to announce the support of survival analysis for time-to-event data across the tidymodels framework. This makes survival analysis a first-class citizen in tidymodels and gives censored regression modeling the same flexibility and ease as classification or regression.
+We're tickled pink to announce the support of survival analysis for time-to-event data across tidymodels. The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. This new support makes survival analysis a first-class citizen in tidymodels and gives censored regression modeling the same flexibility and ease as classification or regression.
 
 The functionality resides in multiple tidymodels packages. The easiest way to install them all is to install the tidymodels meta-package:
 
