@@ -1,0 +1,130 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-survival-analysis
+title: Survival analysis for time-to-event data with tidymodels
+date: 2024-04-03
+author: Hannah Frick
+description: >
+    Recent releases integrate survival analysis into tidymodels.
+    This now unlocks the framework for censored regression and provides modeling 
+    capabilities for time-to-event data.
+
+photo:
+  url: https://unsplash.com/photos/vintage-brown-and-white-watch-lot-yBzrPGLjMQw
+  author: Heather Zabriskie
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [learn] 
+tags: [tidymodels, parsnip, censored, workflows, yardstick, tune, workflowsets]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're tickled pink to announce the support of survival analysis for time-to-event data across tidymodels. The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles. This new support makes survival analysis a first-class citizen in tidymodels and gives censored regression modeling the same flexibility and ease as classification or regression. 
+
+The functionality resides in multiple tidymodels packages. The easiest way to install them all is to install the tidymodels meta-package:
+
+```{r, eval = FALSE}
+install.packages("tidymodels")
+```
+
+This blog post will highlight why this is useful, explain which additions we've made to the framework, and point to several places to learn more.
+
+You can see a full list of changes in the release notes:
+
+- [parsnip](https://parsnip.tidymodels.org/news/index.html#parsnip-120)
+- [censored](https://censored.tidymodels.org/news/index.html#censored-030)
+- [yardstick](https://yardstick.tidymodels.org/news/index.html#yardstick-130)
+- [workflows](https://workflows.tidymodels.org/news/index.html#workflows-114)
+- [tune](https://tune.tidymodels.org/news/index.html#tune-120)
+- [finetune](https://finetune.tidymodels.org/news/index.html#finetune-120)
+- [workflowsets](https://workflowsets.tidymodels.org/news/index.html#workflowsets-110)
+
+
+## Increasing usefulness: Two perspectives
+
+We'd like to situate the changes from two different perspectives: How this is useful for people already familiar with survival analysis as well as for people already familiar with tidymodels. 
+
+If you are already familiar with both: Excellent, this is very much for you! Read on for more details on how these two things come together.
+
+### Adding tidymodels to your tool kit
+
+If you are already familiar with survival analysis but maybe not tidymodels, these changes now unlock a whole framework for predictive modelling for you. It applies tidyverse principles to modeling, meaning it strives to be consistent, composable, and human-centered. The framework covers the modeling process from the initial test/train split of the data all the way to tuning various models. Along the way it offers a rich selection of preprocessing techniques, resampling schemes, and performance metrics along with safe-guards against accidental overfitting. We make the full case for tidymodels at [tidymodels.org](https://www.tidymodels.org/).
+
+### Adding survival analysis to your tool kit
+
+If you are already familiar with tidymodels but maybe not survival analysis, these changes let you leverage the familiar framework for an additional type of modeling problem. Survival analysis offers methods for modeling time-to-event data. While it has its roots in medical research, it has broad applications as that event of interest can be so much more than a medical outcome. Take customer churn as an example: We are interested in how long someone is a customer for and when they churn. For customers who churned, we have the complete time for which they were customers. For existing customers, we only know how long they've been customers for _so far_. Such observations are called censored. So what are our modeling choices here? 
+
+We could look at the time and model that as a regression problem. We could look at the event status and model that as a classification problem. Both options might get us somewhere close to an answer to our original modeling question but not quite there. Censored regression models let us model an outcome that includes both aspects, the time and the event status. And with that, it can deal with both censored and uncensored observations appropriately. With this type of model, we can predict the survival time, or in more applied terms, how long someone will stay as a customer. We can also predict the probability of survival at a given time point. This lets us answer questions like "How likely is it that this customer will churn after 3 months?". See which prediction types are available for which models at [censored.tidymodels.org](https://censored.tidymodels.org/).
+
+
+## Ch-ch-changes: What's new for censored regression?
+
+The main components needed for this full-fledged integration of survival analysis into tidymodels were
+
+- Survival analysis models that can take censoring into account
+- Survival analysis performance metrics that can take censoring into account
+- Integrating changes required by these models and metrics into the framework
+
+For the models, parsnip gained a new mode, `"censored regression"`, for existing models as well as new model types such as `proportional_hazards()`. Engines for these reside in censored, the parsnip extension package for survival models. The `"censored regression"` mode has been around for a while and we've previously shared posts on [our initial thoughts](https://www.tidyverse.org/blog/2021/11/survival-analysis-parsnip-adjacent/) and the [release of censored](https://www.tidyverse.org/blog/2022/08/censored-0-1-0/).
+
+Now we've added the metrics: [yardstick v1.3.0](https://yardstick.tidymodels.org/news/index.html#yardstick-130) includes new metrics for assessing censored regression models. Somewhat similar to how metrics for classification models can take class predictions or probability predictions as input, these survival metrics can take predicted survival times or predictions of survival probabilities as input. 
+
+The new metrics are
+
+- Concordance index on the survival time via `concordance_survival()`
+- Brier score on the survival probability and its integrated version via `brier_survival()` and `brier_survival_integrated()`
+- ROC curve and the area under the ROC curve on the survival probabilities via `roc_curve_survival()` and `auc_roc_survival()` respectively
+
+The probability of survival is always defined _at a certain point in time_. We call that time point the _evaluation time_ because it is then also the time point at which we want to evaluate model performance. Metrics that work on the survival probabilities are also called _dynamic metrics_ and you can read more about them here:
+
+- [Dynamic Performance Metrics for Event Time Data](https://www.tidymodels.org/learn/statistics/survival-metrics/)
+- [Accounting for Censoring in Performance Metrics for Event Time Data](https://www.tidymodels.org/learn/statistics/survival-metrics-details/)
+
+The evaluation time is also the best example to illustrate the changes necessary to the framework. Most of them were under the hood but the evaluation time is user-facing. Let's take a look at that.
+
+While the need for evaluation times is dependent on type of metric, it is not actually specified as an argument to the metric functions. Like yardstick's other metrics, those take pre-made predictions as the input. So where do you specify it then?
+
+- You need to specify it to directly predict survival probabilities, via `predict()` or `augment()`. We introduced the corresponding `eval_time` argument first for fitted models in [parsnip and censored](https://www.tidyverse.org/blog/2023/04/censored-0-2-0/#introducing-eval_time) and have added it now for workflows. 
+- You also need to specify it for the tuning functions `tune_*()` from tune and finetune as they will predict survival probabilities as part of the tuning process. 
+- Lastly, the `eval_time` argument now shows up when working with tuning/resampling results such as in `show_best()` or `autoplot()`. Those changes span the packages generating and working with resampling results: tune, finetune, and workflowsets.
+
+As we said, plenty of changes under the hood but you shouldn't need to notice them. Everything else should work "as usual," allowing the same ease and flexibility in combining tidymodels functionality for censored regression as for classification and regression.
+
+## The pieces come together: A case study
+
+To see it all in action, check out the case study [How long until building complaints are dispositioned?](https://www.tidymodels.org/learn/statistics/survival-case-study/) on the tidymodels website!
+
+The city of New York publishes data on complaints received by the Department of Buildings that include how long it takes for a complaint to be dealt with ("dispositioned") as well as several characteristics of the complaint. The case study covers a full analysis. We start with splitting the data into test and training sets, explore different preprocessing strategies and model types via tuning, and predict with a final model. It should give you a good first impression of how to use tidymodels for predictive survival analysis.
+
+We hope you'll find this new capability of tidymodels useful!
+
+## Acknowledgements
+
+Many thanks to the people who contributed to our packages since their last release:
+
+**parsnip:** [&#x0040;AlbanOtt2](https://github.com/AlbanOtt2), [&#x0040;birbritto](https://github.com/birbritto), [&#x0040;christophscheuch](https://github.com/christophscheuch), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;Freestyleyang](https://github.com/Freestyleyang), [&#x0040;gmcmacran](https://github.com/gmcmacran), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;jmunyoon](https://github.com/jmunyoon), [&#x0040;joscani](https://github.com/joscani), [&#x0040;jxu](https://github.com/jxu), [&#x0040;marcelglueck](https://github.com/marcelglueck), [&#x0040;mattheaphy](https://github.com/mattheaphy), [&#x0040;mesdi](https://github.com/mesdi), [&#x0040;millermc38](https://github.com/millermc38), [&#x0040;nipnipj](https://github.com/nipnipj), [&#x0040;pgg1309](https://github.com/pgg1309), [&#x0040;rdavis120](https://github.com/rdavis120), [&#x0040;seb-mueller](https://github.com/seb-mueller), [&#x0040;SHo-JANG](https://github.com/SHo-JANG), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;topepo](https://github.com/topepo), [&#x0040;vidarsumo](https://github.com/vidarsumo), and [&#x0040;wzbillings](https://github.com/wzbillings).
+
+**censored:** [&#x0040;bcjaeger](https://github.com/bcjaeger), [&#x0040;brunocarlin](https://github.com/brunocarlin), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;noahtsao](https://github.com/noahtsao), and [&#x0040;tripartio](https://github.com/tripartio).
+
+**yardstick:** [&#x0040;aecoleman](https://github.com/aecoleman), [&#x0040;asb2111](https://github.com/asb2111), [&#x0040;atsyplenkov](https://github.com/atsyplenkov), [&#x0040;bgreenwell](https://github.com/bgreenwell), [&#x0040;Dpananos](https://github.com/Dpananos), [&#x0040;EduMinsky](https://github.com/EduMinsky), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;heidekrueger](https://github.com/heidekrueger), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;iacrowe](https://github.com/iacrowe), [&#x0040;jarbet](https://github.com/jarbet), [&#x0040;jxu](https://github.com/jxu), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;maxwell-geospatial](https://github.com/maxwell-geospatial), [&#x0040;moloscripts](https://github.com/moloscripts), [&#x0040;rdavis120](https://github.com/rdavis120), [&#x0040;ruddnr](https://github.com/ruddnr), [&#x0040;SimonCoulombe](https://github.com/SimonCoulombe), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;tbrittoborges](https://github.com/tbrittoborges), [&#x0040;tonyelhabr](https://github.com/tonyelhabr), [&#x0040;tripartio](https://github.com/tripartio), [&#x0040;TSI-PTG](https://github.com/TSI-PTG), [&#x0040;vnijs](https://github.com/vnijs), [&#x0040;wbuchanan](https://github.com/wbuchanan), and [&#x0040;zkrog](https://github.com/zkrog).
+
+**workflows:** [&#x0040;Milardkh](https://github.com/Milardkh), [&#x0040;simonpcouch](https://github.com/simonpcouch), and [&#x0040;topepo](https://github.com/topepo).
+
+**tune:** [&#x0040;AlbertoImg](https://github.com/AlbertoImg), [&#x0040;dramanica](https://github.com/dramanica), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;epiheather](https://github.com/epiheather), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;joranE](https://github.com/joranE), [&#x0040;jrosell](https://github.com/jrosell), [&#x0040;jxu](https://github.com/jxu), [&#x0040;kbodwin](https://github.com/kbodwin), [&#x0040;kenraywilliams](https://github.com/kenraywilliams), [&#x0040;KJT-Habitat](https://github.com/KJT-Habitat), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;marcozanotti](https://github.com/marcozanotti), [&#x0040;MasterLuke84](https://github.com/MasterLuke84), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;PathosEthosLogos](https://github.com/PathosEthosLogos), [&#x0040;Peter4801](https://github.com/Peter4801), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;topepo](https://github.com/topepo), and [&#x0040;walkerjameschris](https://github.com/walkerjameschris).
+
+**finetune:** [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;jdberson](https://github.com/jdberson), [&#x0040;jrosell](https://github.com/jrosell), [&#x0040;mfansler](https://github.com/mfansler), [&#x0040;ruddnr](https://github.com/ruddnr), [&#x0040;simonpcouch](https://github.com/simonpcouch), and [&#x0040;topepo](https://github.com/topepo).
+
+**workflowsets:** [&#x0040;dchiu911](https://github.com/dchiu911), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;jkylearmstrong](https://github.com/jkylearmstrong), [&#x0040;PathosEthosLogos](https://github.com/PathosEthosLogos), and [&#x0040;simonpcouch](https://github.com/simonpcouch).
