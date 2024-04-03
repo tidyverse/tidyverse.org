@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [tidymodels, parsnip, censored, workflows, yardstick, tune, workflowsets]
-rmd_hash: 6262d5ccf8f38426
+rmd_hash: 49d0f7e5ba4fb8eb
 
 ---
 
@@ -61,15 +61,15 @@ We'd like to situate the changes from two different perspectives: How this is us
 
 If you are already familiar with both: Excellent, this is very much for you! Read on for more details on how these two things come together.
 
-### Add tidymodels to your tool kit
+### Adding tidymodels to your tool kit
 
 If you are already familiar with survival analysis but maybe not tidymodels, these changes now unlock a whole framework for predictive modelling for you. It applies tidyverse principles to modeling, meaning it strives to be consistent, composable, and human-centered. The framework covers the modeling process from the initial test/train split of the data all the way to tuning various models. Along the way it offers a rich selection of preprocessing techniques, resampling schemes, and performance metrics along with safe-guards against accidental overfitting. We make the full case for tidymodels at [tidymodels.org](https://www.tidymodels.org/).
 
-### Add survival analysis to your tool kit
+### Adding survival analysis to your tool kit
 
 If you are already familiar with tidymodels but maybe not survival analysis, these changes let you leverage the familiar framework for an additional type of modeling problem. Survival analysis offers methods for modeling time-to-event data. While it has its roots in medical research, it has broad applications as that event of interest can be so much more than a medical outcome. Take customer churn as an example: We are interested in how long someone is a customer for and when they churn. For customers who churned, we have the complete time for which they were customers. For existing customers, we only know how long they've been customers for *so far*. Such observations are called censored. So what are our modeling choices here?
 
-We could look at the time and model that as a regression problem. We could look at the event status and model that as a classification problem. Both options might get us somewhere close to an answer to our original modeling question but not quite there. Censored regression models let us model an outcome that includes both aspects, the time and the event status. And with that, it can deal with both censored and uncensored observations appropriately. With this type of model, we can predict the survival time, or in more applied terms, how long someone will stay a customer for overall. We can also predict the probability of survival at a given time point. This lets us answer questions like "How likely is it that this customer will churn after 3 months?". See which prediction types are available for which models at [censored.tidymodels.org](https://censored.tidymodels.org/).
+We could look at the time and model that as a regression problem. We could look at the event status and model that as a classification problem. Both options might get us somewhere close to an answer to our original modeling question but not quite there. Censored regression models let us model an outcome that includes both aspects, the time and the event status. And with that, it can deal with both censored and uncensored observations appropriately. With this type of model, we can predict the survival time, or in more applied terms, how long someone will stay as a customer. We can also predict the probability of survival at a given time point. This lets us answer questions like "How likely is it that this customer will churn after 3 months?". See which prediction types are available for which models at [censored.tidymodels.org](https://censored.tidymodels.org/).
 
 ## Ch-ch-changes: What's new for censored regression?
 
@@ -81,15 +81,15 @@ The main components needed for this full-fledged integration of survival analysi
 
 For the models, parsnip gained a new mode, `"censored regression"`, for existing models as well as new model types such as `proportional_hazards()`. Engines for these reside in censored, the parsnip extension package for survival models. The `"censored regression"` mode has been around for a while and we've previously shared posts on [our initial thoughts](https://www.tidyverse.org/blog/2021/11/survival-analysis-parsnip-adjacent/) and the [release of censored](https://www.tidyverse.org/blog/2022/08/censored-0-1-0/).
 
-Now we've added the metrics: yardstick v1.3.0 includes new metrics for assessing censored regression models. Somewhat similar to how metrics for classification models can take class predictions or probability predictions as input, these survival metrics can take predicted survival times or predictions of survival probabilities as input.
+Now we've added the metrics: [yardstick v1.3.0](https://yardstick.tidymodels.org/news/index.html#yardstick-130) includes new metrics for assessing censored regression models. Somewhat similar to how metrics for classification models can take class predictions or probability predictions as input, these survival metrics can take predicted survival times or predictions of survival probabilities as input.
 
 The new metrics are
 
 -   Concordance index on the survival time via `concordance_survival()`
 -   Brier score on the survival probability and its integrated version via `brier_survival()` and `brier_survival_integrated()`
--   Area under the ROC curve on the survival probabilities via `auc_roc_survival()`
+-   ROC curve and the area under the ROC curve on the survival probabilities via `roc_curve_survival()` and `auc_roc_survival()` respectively
 
-The probability of survival is always defined *at a certain point in time*. We call that time point the evaluation time because it is then also the time point at which we want to evaluate model performance. Metrics that work on the survival probabilities are also called *dynamic metrics* and you can read more about them here:
+The probability of survival is always defined *at a certain point in time*. We call that time point the *evaluation time* because it is then also the time point at which we want to evaluate model performance. Metrics that work on the survival probabilities are also called *dynamic metrics* and you can read more about them here:
 
 -   [Dynamic Performance Metrics for Event Time Data](https://www.tidymodels.org/learn/statistics/survival-metrics/)
 -   [Accounting for Censoring in Performance Metrics for Event Time Data](https://www.tidymodels.org/learn/statistics/survival-metrics-details/)
@@ -98,11 +98,9 @@ The evaluation time is also the best example to illustrate the changes necessary
 
 While the need for evaluation times is dependent on type of metric, it is not actually specified as an argument to the metric functions. Like yardstick's other metrics, those take pre-made predictions as the input. So where do you specify it then?
 
-You need to specify it to directly predict survival probabilities, via [`predict()`](https://rdrr.io/r/stats/predict.html) or `augment()`. We introduced the corresponding `eval_time` argument first for fitted models in [parsnip and censored](https://www.tidyverse.org/blog/2023/04/censored-0-2-0/#introducing-eval_time) and have added it now for workflows.
-
-You also need to specify it for the tuning functions `tune_*()` from tune and finetune as they will predict survival probabilities as part of the tuning process.
-
-Lastly, the `eval_time` argument now shows up when working with tuning/resampling results such as in `show_best()` or `autoplot()`. Those changes span the packages generating and working with resampling results: tune, finetune, and workflowsets.
+-   You need to specify it to directly predict survival probabilities, via [`predict()`](https://rdrr.io/r/stats/predict.html) or `augment()`. We introduced the corresponding `eval_time` argument first for fitted models in [parsnip and censored](https://www.tidyverse.org/blog/2023/04/censored-0-2-0/#introducing-eval_time) and have added it now for workflows.
+-   You also need to specify it for the tuning functions `tune_*()` from tune and finetune as they will predict survival probabilities as part of the tuning process.
+-   Lastly, the `eval_time` argument now shows up when working with tuning/resampling results such as in `show_best()` or `autoplot()`. Those changes span the packages generating and working with resampling results: tune, finetune, and workflowsets.
 
 As we said, plenty of changes under the hood but you shouldn't need to notice them. Everything else should work "as usual," allowing the same ease and flexibility in combining tidymodels functionality for censored regression as for classification and regression.
 
@@ -115,6 +113,8 @@ The city of New York publishes data on complaints received by the Department of 
 We hope you'll find this new capability of tidymodels useful!
 
 ## Acknowledgements
+
+Many thanks to the people who contributed to our packages since their last release:
 
 **parsnip:** [@AlbanOtt2](https://github.com/AlbanOtt2), [@birbritto](https://github.com/birbritto), [@christophscheuch](https://github.com/christophscheuch), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@Freestyleyang](https://github.com/Freestyleyang), [@gmcmacran](https://github.com/gmcmacran), [@hfrick](https://github.com/hfrick), [@jmunyoon](https://github.com/jmunyoon), [@joscani](https://github.com/joscani), [@jxu](https://github.com/jxu), [@marcelglueck](https://github.com/marcelglueck), [@mattheaphy](https://github.com/mattheaphy), [@mesdi](https://github.com/mesdi), [@millermc38](https://github.com/millermc38), [@nipnipj](https://github.com/nipnipj), [@pgg1309](https://github.com/pgg1309), [@rdavis120](https://github.com/rdavis120), [@seb-mueller](https://github.com/seb-mueller), [@SHo-JANG](https://github.com/SHo-JANG), [@simonpcouch](https://github.com/simonpcouch), [@topepo](https://github.com/topepo), [@vidarsumo](https://github.com/vidarsumo), and [@wzbillings](https://github.com/wzbillings).
 
