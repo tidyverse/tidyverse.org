@@ -6,8 +6,8 @@ title: Tidyverse developer day 2024
 date: 2024-04-04
 author: Hadley Wickham
 description: >
-    Join the tidyverse team on August 15 
-
+    Join the tidyverse team in Seattle on August 15 for a day of 
+    fun and programming to improve the tidyverse!
 photo:
   author: JD Long
   url: https://cerebralmastication.com
@@ -15,21 +15,19 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidyverse-dev-day]
-rmd_hash: a025e8caa57c48f3
+rmd_hash: b21cb425d1bd8667
 
 ---
 
 <!--
 TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 -->
 
 It's been a hot minute since the last one, but we are very excited to announce that the next tidyverse developer day will be after [posit::conf](https://posit.co/conference/) in Seattle on August 15, 2024. A big thanks goes to [Fred Hutch Cancer Center](https://www.fredhutch.org/en.html) for giving us the space for free!
