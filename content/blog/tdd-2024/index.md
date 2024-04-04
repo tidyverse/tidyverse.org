@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidyverse-dev-day]
-rmd_hash: b21cb425d1bd8667
+rmd_hash: c595b04ea55d1664
 
 ---
 
@@ -30,7 +30,7 @@ TODO:
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 -->
 
-It's been a hot minute since the last one, but we are very excited to announce that the next tidyverse developer day will be after [posit::conf](https://posit.co/conference/) in Seattle on August 15, 2024. A big thanks goes to [Fred Hutch Cancer Center](https://www.fredhutch.org/en.html) for giving us the space for free!
+It's been a hot minute since the last one, but we are very excited to announce that the next tidyverse developer day will be after [posit::conf](https://posit.co/conference/) in Seattle on August 15, 2024. A big thanks goes to [Fred Hutch Cancer Center](https://www.fredhutch.org/en.html) for donating the space!
 
 **What is the tidyverse developer day?** TDD is a day of learning and coding to nurture regular contributors to the tidyverse. We'll provide food; you'll bring your laptop and enthusiasm. The tidyverse team and other community helpers will be on hand to help you hit the ground running and/or get over any stumbling blocks that you encounter. Don't have any ideas for something to work on? No problem! We'll be tagging issues in advance to make sure there's lots to do for any- and everyone, regardless of level of expertise.
 
