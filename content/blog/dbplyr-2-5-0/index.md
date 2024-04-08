@@ -3,11 +3,11 @@ output: hugodown::hugo_document
 
 slug: dbplyr-2-5-0
 title: dbplyr 2.5.0
-date: 2024-04-02
+date: 2024-04-08
 author: Hadley Wickham
 description: >
-    dbplyr 2.5.0 brings an improved syntax for referring to tables nested 
-    in schemas and catalogs, along with a bunch of minor SQL generation
+    dbplyr 2.5.0 brings improved syntax for referring to tables nested 
+    in schemas and catalogs along with a bunch of minor SQL generation
     improvements.
 photo:
   url: https://unsplash.com/photos/gray-metal-drawers-h6xNSDlgciU
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dbplyr]
-rmd_hash: d3866521544eca1f
+rmd_hash: 0bccf87eecfb8f59
 
 ---
 
@@ -53,7 +53,7 @@ This post focuses on the biggest change in dbplyr 2.5.0: improved syntax for tab
 
 ## Referring to tables in a schema
 
-Historically, dbplyr has provided a bewildering array of options to specify a table nested inside a schema that's in turn nested inside a catalog:
+Historically, dbplyr has provided a bewildering array of options to specify a tableinside a schema inside a catalog:
 
 <div class="highlight">
 
@@ -61,10 +61,15 @@ Historically, dbplyr has provided a bewildering array of options to specify a ta
 <span><span class='nv'>con</span> <span class='o'>|&gt;</span> <span class='nf'>tbl</span><span class='o'>(</span><span class='nf'><a href='https://dbplyr.tidyverse.org/reference/sql.html'>sql</a></span><span class='o'>(</span><span class='s'>"SELECT * FROM catalog_name.schema_name.table_name"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='nv'>con</span> <span class='o'>|&gt;</span> <span class='nf'>tbl</span><span class='o'>(</span><span class='nf'><a href='https://dbplyr.tidyverse.org/reference/in_schema.html'>in_catalog</a></span><span class='o'>(</span><span class='s'>"catalog_name"</span>, <span class='s'>"schema_name"</span>, <span class='s'>"table_name"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='nv'>con</span> <span class='o'>|&gt;</span> <span class='nf'>tbl</span><span class='o'>(</span><span class='nf'><a href='https://dbplyr.tidyverse.org/reference/ident_q.html'>ident_q</a></span><span class='o'>(</span><span class='s'>"catalog_name.schema_name"</span><span class='o'>)</span>, <span class='s'>"table_name"</span><span class='o'>)</span></span>
-<span><span class='nv'>con</span> <span class='o'>|&gt;</span> <span class='nf'>tbl</span><span class='o'>(</span><span class='nf'><a href='https://dbplyr.tidyverse.org/reference/sql.html'>sql</a></span><span class='o'>(</span><span class='s'>"catalog_name.schema_name"</span><span class='o'>)</span>, <span class='s'>"table_name"</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='c'># You could also use DBI::Id(), but its syntax has also evolved</span></span>
-<span><span class='nv'>con</span> <span class='o'>|&gt;</span> <span class='nf'>tbl</span><span class='o'>(</span><span class='nf'>DBI</span><span class='nf'>::</span><span class='nf'><a href='https://dbi.r-dbi.org/reference/Id.html'>Id</a></span><span class='o'>(</span>database <span class='o'>=</span> <span class='s'>"catalog_name"</span>, schema <span class='o'>=</span> <span class='s'>"schema_name"</span>, table <span class='o'>=</span> <span class='s'>"table_name"</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='nv'>con</span> <span class='o'>|&gt;</span> <span class='nf'>tbl</span><span class='o'>(</span><span class='nf'><a href='https://dbplyr.tidyverse.org/reference/sql.html'>sql</a></span><span class='o'>(</span><span class='s'>"catalog_name.schema_name"</span><span class='o'>)</span>, <span class='s'>"table_name"</span><span class='o'>)</span></span></code></pre>
+
+</div>
+
+You can also use [`DBI::Id()`](https://dbi.r-dbi.org/reference/Id.html), whose syntax has also evolved over time:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>con</span> <span class='o'>|&gt;</span> <span class='nf'>tbl</span><span class='o'>(</span><span class='nf'>DBI</span><span class='nf'>::</span><span class='nf'><a href='https://dbi.r-dbi.org/reference/Id.html'>Id</a></span><span class='o'>(</span>database <span class='o'>=</span> <span class='s'>"catalog_name"</span>, schema <span class='o'>=</span> <span class='s'>"schema_name"</span>, table <span class='o'>=</span> <span class='s'>"table_name"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='nv'>con</span> <span class='o'>|&gt;</span> <span class='nf'>tbl</span><span class='o'>(</span><span class='nf'>DBI</span><span class='nf'>::</span><span class='nf'><a href='https://dbi.r-dbi.org/reference/Id.html'>Id</a></span><span class='o'>(</span>catalog <span class='o'>=</span> <span class='s'>"catalog_name"</span>, schema <span class='o'>=</span> <span class='s'>"schema_name"</span>, table <span class='o'>=</span> <span class='s'>"table_name"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='nv'>con</span> <span class='o'>|&gt;</span> <span class='nf'>tbl</span><span class='o'>(</span><span class='nf'>DBI</span><span class='nf'>::</span><span class='nf'><a href='https://dbi.r-dbi.org/reference/Id.html'>Id</a></span><span class='o'>(</span><span class='s'>"catalog_name"</span>, <span class='s'>"schema_name"</span>, <span class='s'>"table_name"</span><span class='o'>)</span><span class='o'>)</span></span></code></pre>
 
@@ -79,9 +84,9 @@ Many of these options were poorly supported (i.e. we would accidentally break t
 
 </div>
 
-[`I()`](https://rdrr.io/r/base/AsIs.html) is a base function, and you may be familiar with its use in models, e.g. `lm(y ~ x + I(y * z))`. It performs a similar role for both dbplyr and models: it tells the function to treat the argument as is, rather than quoting it in the case of dbplyr, or interpreting as an interaction in the case of [`lm()`](https://rdrr.io/r/stats/lm.html).
+[`I()`](https://rdrr.io/r/base/AsIs.html) is a base function, and you may be familiar from it from modelling, e.g. `lm(y ~ x + I(y * z))`. It performs a similar role for both dbplyr and modelling function: it tells the function to treat the argument as is, rather than quoting it in the case of dbplyr, or interpreting as an interaction in the case of [`lm()`](https://rdrr.io/r/stats/lm.html).
 
-[`I()`](https://rdrr.io/r/base/AsIs.html) is dbplyr's preferred way of specifying nested table identifiers and we will eventually formally supersede and then one day deprecate the other options. However, because their usage is quite widespread, this process will be slow and gradual, and play out over multiple years; there's no need to make changes now.
+[`I()`](https://rdrr.io/r/base/AsIs.html) is dbplyr's preferred way of specifying nested table identifiers and we will eventually formally supersede and then one day deprecate the other options. However, because their usage is widespread, this process will be slow and gradual, and play out over multiple years; there's no need to make changes now.
 
 (If you're the author of a dbplyr backend, you'll can take advantage of this new syntax by using the `dbplyr_table_path` class. dbplyr now provides a [few helper functions](https://dbplyr.tidyverse.org/reference/is_table_path.html) to make this easier.)
 
