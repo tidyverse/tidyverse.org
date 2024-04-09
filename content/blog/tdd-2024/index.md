@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tdd-2024
 title: Tidyverse developer day 2024
-date: 2024-04-04
+date: 2024-04-09
 author: Hadley Wickham
 description: >
     Join the tidyverse team in Seattle on August 15 for a day of 
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidyverse-dev-day]
-rmd_hash: c595b04ea55d1664
+rmd_hash: 12beb7c6b4bdef95
 
 ---
 
