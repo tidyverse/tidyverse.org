@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [dbplyr]
-rmd_hash: 0bccf87eecfb8f59
+rmd_hash: 058bf89f21b3fa2f
 
 ---
 
@@ -53,7 +53,7 @@ This post focuses on the biggest change in dbplyr 2.5.0: improved syntax for tab
 
 ## Referring to tables in a schema
 
-Historically, dbplyr has provided a bewildering array of options to specify a tableinside a schema inside a catalog:
+Historically, dbplyr has provided a bewildering array of options to specify a table inside a schema inside a catalog:
 
 <div class="highlight">
 
@@ -84,7 +84,7 @@ Many of these options were poorly supported (i.e. we would accidentally break t
 
 </div>
 
-[`I()`](https://rdrr.io/r/base/AsIs.html) is a base function, and you may be familiar from it from modelling, e.g. `lm(y ~ x + I(y * z))`. It performs a similar role for both dbplyr and modelling function: it tells the function to treat the argument as is, rather than quoting it in the case of dbplyr, or interpreting as an interaction in the case of [`lm()`](https://rdrr.io/r/stats/lm.html).
+[`I()`](https://rdrr.io/r/base/AsIs.html) is a base function, and you may be familiar with it from modelling, e.g. `lm(y ~ x + I(y * z))`. It performs a similar role for both dbplyr and modelling function: it tells the function to treat the argument as is, rather than quoting it in the case of dbplyr, or interpreting as an interaction in the case of [`lm()`](https://rdrr.io/r/stats/lm.html).
 
 [`I()`](https://rdrr.io/r/base/AsIs.html) is dbplyr's preferred way of specifying nested table identifiers and we will eventually formally supersede and then one day deprecate the other options. However, because their usage is widespread, this process will be slow and gradual, and play out over multiple years; there's no need to make changes now.
 
