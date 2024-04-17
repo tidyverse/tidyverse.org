@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, censored, workflows, workflowsets]
-rmd_hash: 7740dd56f6fd280f
+rmd_hash: 813ed9900510ac40
 
 ---
 
@@ -80,7 +80,7 @@ We'll highlight a few especially notable changes below: new prediction options i
 
 ## New prediction options in censored
 
-As part of the framework-wide integration of survival analysis, also censored, the parsnip extension package for censored regression, received some love in the form of new prediction options.
+As part of the framework-wide integration of survival analysis, the parsnip extension package censored has received some love in the form of new prediction options.
 
 Random forests with the `"aorsf"` engine can now predict survival time, thanks to the new feature in the [aorsf](https://docs.ropensci.org/aorsf/) package itself. This means that all engines in censored can now predict survival time.
 
@@ -100,11 +100,11 @@ Let's predict survival time for the first five rows of the lung cancer dataset, 
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 1</span></span></span>
 <span><span class='c'>#&gt;   .pred_time</span></span>
 <span><span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       220.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       240.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       219.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       243.</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       239.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       239.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       263.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       236.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       257.</span></span>
 <span></span></code></pre>
 
 </div>
