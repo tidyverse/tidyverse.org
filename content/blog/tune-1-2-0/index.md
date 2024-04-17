@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [tidymodels, tune, parallelism]
-rmd_hash: 5d42d3dfd196f26d
+rmd_hash: 9c058ab4b91573c3
 
 ---
 
@@ -58,33 +58,7 @@ Throughout this post, I'll refer to the example of tuning an XGBoost model to pr
 <span>    <span class='nv'>mpg</span> <span class='o'>~</span> <span class='nv'>.</span>,</span>
 <span>    <span class='nf'>bootstraps</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span>,</span>
 <span>    control <span class='o'>=</span> <span class='nf'>control_grid</span><span class='o'>(</span>save_pred <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
-<span>  <span class='o'>)</span></span>
-<span><span class='c'>#&gt; 10407 1523847456 -1848617311 -1361277970 -979033193 -878499092 -2050794755</span></span>
-<span><span class='c'>#&gt; 10407 -1749431051 2049664161 -424116726 -1305918325 -498876097 1803933357</span></span>
-<span><span class='c'>#&gt; 10407 -442865362 -1625359351 1831887819 -1726575624 -353030159 -16171787</span></span>
-<span><span class='c'>#&gt; 10407 -893105428 336456598 1286441802 -1422091874 1062327954 -1355020861</span></span>
-<span><span class='c'>#&gt; 10407 -2092097869 1987216093 -2031709361 -1206061097 -2086771890 -1979511053</span></span>
-<span><span class='c'>#&gt; 10407 -1339583482 -364581237 1390267062 -114206992 1278702934 -213763861</span></span>
-<span><span class='c'>#&gt; 10407 1114014189 -259827034 898019029 636355055 -1372428962 1845673968</span></span>
-<span><span class='c'>#&gt; 10407 -383760607 -1886553406 269404824 -354885766 -422181986 637337179</span></span>
-<span><span class='c'>#&gt; 10407 1930150197 2022843641 145719127 -735985733 -230724074 1440864742</span></span>
-<span><span class='c'>#&gt; 10407 448913203 -1886748889 -2069212595 -1385131576 128680149 -2023352448</span></span>
-<span><span class='c'>#&gt; 10407 -313532317 -407029021 836586038 -1583585869 1126244092 1980566493</span></span>
-<span><span class='c'>#&gt; 10407 -449604037 1587505813 1871718195 -1097040931 -825066603 -2050373151</span></span>
-<span><span class='c'>#&gt; 10407 1307128455 514654381 802339433 -917513502 -1185219243 -1398759104</span></span>
-<span><span class='c'>#&gt; 10407 257800933 -2114892211 -320697118 -105352173 -1945252908 -863173574</span></span>
-<span><span class='c'>#&gt; 10407 -4901089 -48546865 722587638 1419327113 -654975314 -2145281395</span></span>
-<span><span class='c'>#&gt; 10407 -1058663242 2062304550 -1033279044 -94975559 -1818430575 -1809210516</span></span>
-<span><span class='c'>#&gt; 10407 890029441 -758415837 -1552096301 -250994848 948317958 -2071284316</span></span>
-<span><span class='c'>#&gt; 10407 -1391485567 -470194335 1303060429 -1968802035 1272928276 -511521013</span></span>
-<span><span class='c'>#&gt; 10407 503213760 -530814852 -613687476 2131961742 -1735036425 1251964395</span></span>
-<span><span class='c'>#&gt; 10407 1758305765 1359764743 -993545149 -1911762755 1624953667 -1694531802</span></span>
-<span><span class='c'>#&gt; 10407 1118715361 -1077776996 -1984740398 -338338778 851218164 1118698228</span></span>
-<span><span class='c'>#&gt; 10407 -838173101 -1021953012 -1093921146 -507804506 -1283535089 634777010</span></span>
-<span><span class='c'>#&gt; 10407 1546664513 -738661842 -1320140673 -1384151599 -1637567235 -1698604010</span></span>
-<span><span class='c'>#&gt; 10407 -263111828 702050825 -343250572 224066889 1360674532 1395537310</span></span>
-<span><span class='c'>#&gt; 10407 1129030376 485378116 -442484020 1681810023 -1768087069 280713862</span></span>
-<span></span></code></pre>
+<span>  <span class='o'>)</span></span></code></pre>
 
 </div>
 
@@ -156,7 +130,7 @@ For users, the transition to parallelism with future has several benefits:
 
 From our perspective, transitioning our parallelism support to future makes our packages much more maintainable, reducing complexity in random number generation, error handling, and progress reporting.
 
-In the next release of the package, you'll see a deprecation warning when a foreach parallel backend is registered but no future plan has been specified, so start transitioning your code sooner than later!
+In an upcoming release of the package, you'll see a deprecation warning when a foreach parallel backend is registered but no future plan has been specified, so start transitioning your code sooner than later!
 
 ## Percentile confidence intervals
 
@@ -191,7 +165,7 @@ We've made a **breaking change** in argument order for several functions in the 
 
 ## Compute new metrics without re-fitting
 
-We've also added a new function, [`compute_metrics()`](https://tune.tidymodels.org/reference/compute_metrics.html), that allows for calculating metrics that were not used when evaluating against resamples. For example, consider our `xgb_res` object. Since we didn't supply any metrics to evaluate, and this model is a regression model, tidymodels selected Root Mean Squared Error and R-Squared as defaults:
+We've also added a new function, [`compute_metrics()`](https://tune.tidymodels.org/reference/compute_metrics.html), that allows for calculating metrics that were not used when evaluating against resamples. For example, consider our `xgb_res` object. Since we didn't supply any metrics to evaluate, and this model is a regression model, tidymodels selected RMSE and R<sup>2</sup> as defaults:
 
 <div class="highlight">
 
