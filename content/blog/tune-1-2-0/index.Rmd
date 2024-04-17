@@ -23,9 +23,9 @@ tags: [tidymodels, tune, parallelism]
 opt <- options(pillar.print_min = 6, pillar.print_max = 6)
 ```
 
-We're indubitably amped to announce the release of [tune](https://tune.tidymodels.org/) 1.2.0.
+We're indubitably amped to announce the release of [tune](https://tune.tidymodels.org/) 1.2.0, a package for hyperparameter tuning in the [tidymodels framework](https://www.tidymodels.org/).
 
-You can install it from CRAN, along with the rest of the core packages in the [tidymodels framework](https://www.tidymodels.org/), using the tidymodels meta-package:
+You can install it from CRAN, along with the rest of the core packages in tidymodels, using the tidymodels meta-package:
 
 ```{r}
 #| label: install
@@ -33,7 +33,7 @@ You can install it from CRAN, along with the rest of the core packages in the [t
 install.packages("tidymodels")
 ```
 
-The 1.2.0 release of tune introduced support for two major features that we've written about on the tidyverse blog already:
+The 1.2.0 release of tune has introduced support for two major features that we've written about on the tidyverse blog already:
 
 * [Survival analysis for time-to-event data with tidymodels](https://www.tidyverse.org/blog/2024/04/tidymodels-survival-analysis/)
 * [Fair machine learning with tidymodels](https://www.tidyverse.org/blog/2024/03/tidymodels-fairness/)
@@ -71,7 +71,7 @@ collect_metrics(xgb_res)
 
 ## Modernized support for parallel processing
 
-The tidymodels framework has long supported evaluating models in parallel using the [foreach](https://cran.r-project.org/web/packages/foreach/vignettes/foreach.html) package. This release of tune introduced support for parallelism using the [futureverse](https://www.futureverse.org/) framework, and we will begin deprecating our support for foreach in a coming release.
+The tidymodels framework has long supported evaluating models in parallel using the [foreach](https://cran.r-project.org/web/packages/foreach/vignettes/foreach.html) package. This release of tune has introduced support for parallelism using the [futureverse](https://www.futureverse.org/) framework, and we will begin deprecating our support for foreach in a coming release.
 
 To tune a model in parallel with foreach, a user would load a _parallel backend_ package (usually with a name like `library(doBackend)`) and then _register_ it with foreach (with a function call like `registerDoBackend()`). The tune package would then detect that registered backend and take it from there. For example, the code to distribute the above tuning process across 10 cores with foreach would look like:
 
@@ -98,7 +98,7 @@ The code to do so with future is similarly simple. Users first load the [future]
 #| label: future
 #| eval: false
 library(future)
-plan(multisession)
+plan(multisession, workers = 10)
 
 set.seed(2024)
 
@@ -157,7 +157,7 @@ So, say I want to additionally calculate Huber Loss and Mean Absolute Percent Er
 compute_metrics(xgb_res, metric_set(huber_loss, mape))
 ```
 
-## Easily reshape resampled metrics
+## Easily pivot resampled metrics
 
 Finally, the `collect_metrics()` method for tune results recently [gained a new argument](https://tune.tidymodels.org/reference/collect_predictions.html#arguments), `type`, indicating the shape of the returned metrics. The default, `type = "long"`, is the same shape as before. The argument value `type = "wide"` will allot each metric its own column, making it easier to compare metrics across different models.
 
@@ -174,7 +174,8 @@ Tuning and resampling functions use default metrics when the user does not speci
 
 ## Acknowledgements
 
-[&#x0040;AlbertoImg](https://github.com/AlbertoImg), [&#x0040;dramanica](https://github.com/dramanica), [&#x0040;epiheather](https://github.com/epiheather), [&#x0040;joranE](https://github.com/joranE), [&#x0040;jrosell](https://github.com/jrosell), [&#x0040;jxu](https://github.com/jxu), [&#x0040;kbodwin](https://github.com/kbodwin), [&#x0040;kenraywilliams](https://github.com/kenraywilliams), [&#x0040;KJT-Habitat](https://github.com/KJT-Habitat), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;marcozanotti](https://github.com/marcozanotti), [&#x0040;MasterLuke84](https://github.com/MasterLuke84), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;PathosEthosLogos](https://github.com/PathosEthosLogos), [&#x0040;Peter4801](https://github.com/Peter4801).
+As always, we're appreciative of the community contributors who helped make this release happen: 
+[&#x0040;AlbertoImg](https://github.com/AlbertoImg), [&#x0040;dramanica](https://github.com/dramanica), [&#x0040;epiheather](https://github.com/epiheather), [&#x0040;joranE](https://github.com/joranE), [&#x0040;jrosell](https://github.com/jrosell), [&#x0040;jxu](https://github.com/jxu), [&#x0040;kbodwin](https://github.com/kbodwin), [&#x0040;kenraywilliams](https://github.com/kenraywilliams), [&#x0040;KJT-Habitat](https://github.com/KJT-Habitat), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;marcozanotti](https://github.com/marcozanotti), [&#x0040;MasterLuke84](https://github.com/MasterLuke84), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;PathosEthosLogos](https://github.com/PathosEthosLogos), and [&#x0040;Peter4801](https://github.com/Peter4801).
 
 ```{r}
 #| label: reset-opts
