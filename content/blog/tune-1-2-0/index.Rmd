@@ -122,7 +122,7 @@ In the next release of the package, you'll see a deprecation warning when a fore
 
 ## Percentile confidence intervals
 
-Following up on changes in the [most recent rsample release](https://github.com/tidymodels/rsample/releases/tag/v1.2.0), tune introduced a [method for `int_pctl()`](https://tune.tidymodels.org/dev/reference/int_pctl.tune_results.html) that calculates percentile confidence intervals for performance metrics. To calculate a 90% confidence interval for the values of each performance metric returned in `collect_metrics()`, we'd write:
+Following up on changes in the [most recent rsample release](https://github.com/tidymodels/rsample/releases/tag/v1.2.0), tune introduced a [method for `int_pctl()`](https://tune.tidymodels.org/reference/int_pctl.tune_results.html) that calculates percentile confidence intervals for performance metrics. To calculate a 90% confidence interval for the values of each performance metric returned in `collect_metrics()`, we'd write:
 
 ```{r}
 #| label: int-pctl
@@ -141,7 +141,7 @@ We've made a **breaking change** in argument order for several functions in the 
 
 ## Compute new metrics without re-fitting
 
-We also added a new function, [`compute_metrics()`](https://tune.tidymodels.org/dev/reference/compute_metrics.html), that allows for calculating metric values for metrics that were not used when evaluating against resamples. For example, consider our `xgb_res` object. Since we didn't supply any metrics to evaluate, and this model is a regression model, tidymodels selected Root Mean Squared Error and R-Squared as defaults:
+We also added a new function, [`compute_metrics()`](https://tune.tidymodels.org/reference/compute_metrics.html), that allows for calculating metric values for metrics that were not used when evaluating against resamples. For example, consider our `xgb_res` object. Since we didn't supply any metrics to evaluate, and this model is a regression model, tidymodels selected Root Mean Squared Error and R-Squared as defaults:
 
 ```{r}
 #| label: xgb-res-metrics-head
@@ -159,7 +159,7 @@ compute_metrics(xgb_res, metric_set(huber_loss, mape))
 
 ## Easily reshape resampled metrics
 
-Finally, the `collect_metrics()` method for tune results recently [gained a new argument](https://tune.tidymodels.org/dev/reference/collect_predictions.html#arguments), `type`, indicating the shape of the returned metrics. The default, `type = "long"`, is the same shape as before. The argument value `type = "wide"` will allot each metric its own column, making it easier to compare metrics across different models.
+Finally, the `collect_metrics()` method for tune results recently [gained a new argument](https://tune.tidymodels.org/reference/collect_predictions.html#arguments), `type`, indicating the shape of the returned metrics. The default, `type = "long"`, is the same shape as before. The argument value `type = "wide"` will allot each metric its own column, making it easier to compare metrics across different models.
 
 ```{r}
 #| label: collect-metrics-wide
