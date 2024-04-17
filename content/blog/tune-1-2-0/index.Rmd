@@ -35,8 +35,8 @@ install.packages("tidymodels")
 
 The 1.2.0 release of tune introduced support for two major features that we've written about on the tidyverse blog already:
 
-* TODO: link to survival analysis article
-* TODO: link to fairness article (#681)
+* [Survival analysis for time-to-event data with tidymodels](https://www.tidyverse.org/blog/2024/04/tidymodels-survival-analysis/)
+* [Fair machine learning with tidymodels](https://www.tidyverse.org/blog/2024/03/tidymodels-fairness/)
 
 While those features got their own blog posts, there are several more in this release that we thought were worth calling out. This post will highlight improvements to our support for parallel processing, introduction of support for percentile confidence intervals for performance metrics, and a few other bits and bobs. You can see a full list of changes in the [release notes]({TODO: github_release }).
 
@@ -135,7 +135,7 @@ Note that the output has the same number of rows as the `collect_metrics()` outp
 
 This is very helpful for validation sets. Other resampling methods generate replicated performance statistics. We can compute simple interval estimates using the mean and standard error for those. Validation sets produce only one estimate, and these bootstrap methods are probably the best option for obtaining interval estimates. 
 
-## Relocation of ellipses
+## Breaking change: relocation of ellipses
 
 We've made a **breaking change** in argument order for several functions in the package (and downstream packages like finetune and workflowsets). Ellipses (...) are now used consistently in the package to require optional arguments to be named. For functions that previously had unused ellipses at the end of the function signature, they have been moved to follow the last argument without a default value, and several other functions that previously did not have ellipses in their signatures gained them. This applies to methods for `augment()`, `collect_predictions()`, `collect_metrics()`, `select_best()`, `show_best()`, and `conf_mat_resampled()`.
 
