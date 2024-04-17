@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, censored, workflows, workflowsets]
-rmd_hash: 86c38c59087aa612
+rmd_hash: 7740dd56f6fd280f
 
 ---
 
@@ -82,7 +82,7 @@ We'll highlight a few especially notable changes below: new prediction options i
 
 As part of the framework-wide integration of survival analysis, also censored, the parsnip extension package for censored regression, received some love in the form of new prediction options.
 
-Random forest with the `"aorsf"` engine can now predict survival time, thanks to the new feature in the [aorsf](https://docs.ropensci.org/aorsf/) package itself. This means that now all engines in censored can predict survival time.
+Random forests with the `"aorsf"` engine can now predict survival time, thanks to the new feature in the [aorsf](https://docs.ropensci.org/aorsf/) package itself. This means that all engines in censored can now predict survival time.
 
 Let's predict survival time for the first five rows of the lung cancer dataset, survival analysis' `mtcars`.
 
@@ -100,16 +100,16 @@ Let's predict survival time for the first five rows of the lung cancer dataset, 
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 1</span></span></span>
 <span><span class='c'>#&gt;   .pred_time</span></span>
 <span><span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       218.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       241.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       242.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       240.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       269.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       220.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       240.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       239.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       239.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       263.</span></span>
 <span></span></code></pre>
 
 </div>
 
-Some models allow for predictions based on different values for tuning parameter without having to refit the model. In parsnip, we refer to this as ["the submodel trick"](https://parsnip.tidymodels.org/articles/Submodels.html). Some of those models are regularized models fitted with the [glmnet](https://glmnet.stanford.edu/) engine. In censored, the corresponding [`multi_predict()`](https://parsnip.tidymodels.org/reference/multi_predict.html) method has now gained the prediction types `"time"` and `"raw"` in addition to the existing types `"survival"` and `"linear_pred"`.
+Some models allow for predictions based on different values for tuning parameter without having to refit the model. In parsnip, we refer to this as ["the submodel trick."](https://parsnip.tidymodels.org/articles/Submodels.html) Some of those models are regularized models fitted with the [glmnet](https://glmnet.stanford.edu/) engine. In censored, the corresponding [`multi_predict()`](https://parsnip.tidymodels.org/reference/multi_predict.html) method has now gained the prediction types `"time"` and `"raw"` in addition to the existing types `"survival"` and `"linear_pred"`.
 
 Let's fit a regularized Cox model to illustrate. Note how we set the `penalty` to a fixed value of `0.1`.
 
@@ -169,7 +169,7 @@ You can see that the predicted value from [`predict()`](https://rdrr.io/r/stats/
 
 ## Consistent `augment()` for workflows and parsnip models
 
-If you are interested in exploring predictions in relation to predictors, [`augment()`](https://generics.r-lib.org/reference/augment.html) is your extened [`predict()`](https://rdrr.io/r/stats/predict.html) method: it will augment the dataset with its predictions. For classification, it will add hard class predictions as well as class probabilities. For regression, it will add the numeric prediction. If the outcome variable is part of the dataset, it also calculates residuals. This has already been the case for fitted parsnip models, and now also the [`augment()`](https://generics.r-lib.org/reference/augment.html) method for workflows calculates residuals.
+If you are interested in exploring predictions in relation to predictors, [`augment()`](https://generics.r-lib.org/reference/augment.html) is your extended [`predict()`](https://rdrr.io/r/stats/predict.html) method: it will augment the inputted dataset with its predictions. For classification, it will add hard class predictions as well as class probabilities. For regression, it will add the numeric prediction. If the outcome variable is part of the dataset, it also calculates residuals. This has already been the case for fitted parsnip models, and the [`augment()`](https://generics.r-lib.org/reference/augment.html) method for workflows will now also calculate residuals.
 
 <div class="highlight">
 
@@ -213,7 +213,7 @@ If you are interested in exploring predictions in relation to predictors, [`augm
 
 </div>
 
-Both methods also appened on the left-hand side of the data frame, rather than the right-hand side. This means that prediction columns are always visible when printed, even for data frames with many columns.
+Both methods also append on the left-hand side of the data frame, rather than the right-hand side. This means that prediction columns are always visible when printed, even for data frames with many columns.
 
 ## New autoplot type for workflow sets
 
@@ -244,7 +244,7 @@ Many tidymodels objects have [`autoplot()`](https://ggplot2.tidyverse.org/refere
 
 </div>
 
-This allows you to grasp the metric values and rank of a workflow and let's you distinguish the type of preprocessor and model. In our case, we only have one type of model, and even just one type of preprocessor, a recipe. What we are much more interested in is which recipe corresponds to which rank. The new option of `type = "wflow_id"` let's us see which values and ranks correspond with which workflow and thus also with which recipe.
+This allows you to grasp the metric values and rank of a workflow and let's you distinguish the type of preprocessor and model. In our case, we only have one type of model, and even just one type of preprocessor, a recipe. What we are much more interested in is which recipe corresponds to which rank. The new option of `type = "wflow_id"` lets us see which values and ranks correspond with which workflow and thus also with which recipe.
 
 <div class="highlight">
 
