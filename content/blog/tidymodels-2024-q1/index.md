@@ -10,13 +10,13 @@ description: >
     across the framework.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/orange-petaled-flowers-koy6FlCCy5s
+  author: Sergey Shmidt
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, censored, workflows, workflowsets]
-rmd_hash: c301a3f6f4dea049
+rmd_hash: 86c38c59087aa612
 
 ---
 
@@ -25,10 +25,10 @@ TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
 * [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
@@ -101,10 +101,10 @@ Let's predict survival time for the first five rows of the lung cancer dataset, 
 <span><span class='c'>#&gt;   .pred_time</span></span>
 <span><span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       218.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       239.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       240.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       237.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       262.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       241.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       242.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       240.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       269.</span></span>
 <span></span></code></pre>
 
 </div>
