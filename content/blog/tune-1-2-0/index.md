@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [tidymodels, tune, parallelism]
-rmd_hash: a6fa78fc43bc6d12
+rmd_hash: 25bbbed70a31a3b2
 
 ---
 
@@ -160,7 +160,7 @@ In the next release of the package, you'll see a deprecation warning when a fore
 
 ## Percentile confidence intervals
 
-Following up on changes in the [most recent rsample release](https://github.com/tidymodels/rsample/releases/tag/v1.2.0), tune introduced a [method for `int_pctl()`](https://tune.tidymodels.org/reference/int_pctl.tune_results.html) that calculates percentile confidence intervals for performance metrics. To calculate a 90% confidence interval for the values of each performance metric returned in `collect_metrics()`, we'd write:
+Following up on changes in the [most recent rsample release](https://github.com/tidymodels/rsample/releases/tag/v1.2.0), tune has introduced a [method for `int_pctl()`](https://tune.tidymodels.org/reference/int_pctl.tune_results.html) that calculates percentile confidence intervals for performance metrics. To calculate a 90% confidence interval for the values of each performance metric returned in `collect_metrics()`, we'd write:
 
 <div class="highlight">
 
@@ -191,7 +191,7 @@ We've made a **breaking change** in argument order for several functions in the 
 
 ## Compute new metrics without re-fitting
 
-We also added a new function, [`compute_metrics()`](https://tune.tidymodels.org/reference/compute_metrics.html), that allows for calculating metric values for metrics that were not used when evaluating against resamples. For example, consider our `xgb_res` object. Since we didn't supply any metrics to evaluate, and this model is a regression model, tidymodels selected Root Mean Squared Error and R-Squared as defaults:
+We've also added a new function, [`compute_metrics()`](https://tune.tidymodels.org/reference/compute_metrics.html), that allows for calculating metrics that were not used when evaluating against resamples. For example, consider our `xgb_res` object. Since we didn't supply any metrics to evaluate, and this model is a regression model, tidymodels selected Root Mean Squared Error and R-Squared as defaults:
 
 <div class="highlight">
 
