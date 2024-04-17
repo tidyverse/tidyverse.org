@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [tidymodels, tune, parallelism]
-rmd_hash: 25bbbed70a31a3b2
+rmd_hash: 5d42d3dfd196f26d
 
 ---
 
@@ -38,7 +38,7 @@ The 1.2.0 release of tune has introduced support for two major features that we'
 -   [Survival analysis for time-to-event data with tidymodels](https://www.tidyverse.org/blog/2024/04/tidymodels-survival-analysis/)
 -   [Fair machine learning with tidymodels](https://www.tidyverse.org/blog/2024/03/tidymodels-fairness/)
 
-While those features got their own blog posts, there are several more in this release that we thought were worth calling out. This post will highlight improvements to our support for parallel processing, introduction of support for percentile confidence intervals for performance metrics, and a few other bits and bobs. You can see a full list of changes in the [release notes](https://github.com/tidymodels/tune/releases/tag/v1.2.0).
+While those features got their own blog posts, there are several more features in this release that we thought were worth calling out. This post will highlight improvements to our support for parallel processing, the introduction of support for percentile confidence intervals for performance metrics, and a few other bits and bobs. You can see a full list of changes in the [release notes](https://github.com/tidymodels/tune/releases/tag/v1.2.0).
 
 <div class="highlight">
 
