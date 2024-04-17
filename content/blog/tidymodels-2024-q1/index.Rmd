@@ -152,12 +152,12 @@ augment(spec_fit, mtcars)
 augment(wflow_fit, mtcars)
 ```
 
-Both methods also append on the left-hand side of the data frame, rather than the right-hand side. This means that prediction columns are always visible when printed, even for data frames with many columns.
+Both methods also append on the left-hand side of the data frame, rather than the right-hand side. This means that prediction columns are always visible when printed, even for data frames with many columns. As you might expect, the order of the columns is the same for both methods as well.
 
 
 ## New autoplot type for workflow sets
 
-Many tidymodels objects have `autoplot()` methods for quickly getting a sense of the most important aspects of an object. For workflow sets, the method shows the value of the calcualted performance metrics, as well as the respective rank of each workflow in the set. Let's put together a workflow set on the actual `mtcars` data and take a look at the default autoplot.
+Many tidymodels objects have `autoplot()` methods for quickly getting a sense of the most important aspects of an object. For workflow sets, the method shows the value of the calculated performance metrics, as well as the respective rank of each workflow in the set. Let's put together a workflow set on the actual `mtcars` data and take a look at the default autoplot.
 
 ```{r workflowsets-autoplot}
 mt_rec <- recipe(mpg ~ ., mtcars)
@@ -173,8 +173,7 @@ set.seed(1)
 wflow_set_fit <- workflow_map(
   wflow_set, 
   "fit_resamples", 
-  resamples = bootstraps(mtcars), 
-  seed = 1
+  resamples = bootstraps(mtcars)
 )
 
 autoplot(wflow_set_fit)

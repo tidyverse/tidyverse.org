@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, censored, workflows, workflowsets]
-rmd_hash: 813ed9900510ac40
+rmd_hash: e5d577cd685ea2e8
 
 ---
 
@@ -100,11 +100,11 @@ Let's predict survival time for the first five rows of the lung cancer dataset, 
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 1</span></span></span>
 <span><span class='c'>#&gt;   .pred_time</span></span>
 <span><span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       219.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       243.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       239.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       236.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       257.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       221.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       242.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       240.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       239.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       255.</span></span>
 <span></span></code></pre>
 
 </div>
@@ -213,11 +213,11 @@ If you are interested in exploring predictions in relation to predictors, [`augm
 
 </div>
 
-Both methods also append on the left-hand side of the data frame, rather than the right-hand side. This means that prediction columns are always visible when printed, even for data frames with many columns.
+Both methods also append on the left-hand side of the data frame, rather than the right-hand side. This means that prediction columns are always visible when printed, even for data frames with many columns. As you might expect, the order of the columns is the same for both methods as well.
 
 ## New autoplot type for workflow sets
 
-Many tidymodels objects have [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html) methods for quickly getting a sense of the most important aspects of an object. For workflow sets, the method shows the value of the calcualted performance metrics, as well as the respective rank of each workflow in the set. Let's put together a workflow set on the actual `mtcars` data and take a look at the default autoplot.
+Many tidymodels objects have [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html) methods for quickly getting a sense of the most important aspects of an object. For workflow sets, the method shows the value of the calculated performance metrics, as well as the respective rank of each workflow in the set. Let's put together a workflow set on the actual `mtcars` data and take a look at the default autoplot.
 
 <div class="highlight">
 
@@ -234,8 +234,7 @@ Many tidymodels objects have [`autoplot()`](https://ggplot2.tidyverse.org/refere
 <span><span class='nv'>wflow_set_fit</span> <span class='o'>&lt;-</span> <span class='nf'>workflow_map</span><span class='o'>(</span></span>
 <span>  <span class='nv'>wflow_set</span>, </span>
 <span>  <span class='s'>"fit_resamples"</span>, </span>
-<span>  resamples <span class='o'>=</span> <span class='nf'>bootstraps</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span>, </span>
-<span>  seed <span class='o'>=</span> <span class='m'>1</span></span>
+<span>  resamples <span class='o'>=</span> <span class='nf'>bootstraps</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span></span>
 <span><span class='o'>)</span></span>
 <span></span>
 <span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/autoplot.html'>autoplot</a></span><span class='o'>(</span><span class='nv'>wflow_set_fit</span><span class='o'>)</span></span>
