@@ -1,0 +1,184 @@
+---
+output: hugodown::hugo_document
+
+slug: tune-1-2-0
+title: tune 1.2.0
+date: 2024-04-18
+author: Simon Couch
+description: >
+    While we've written about survival analysis and machine learning fairness 
+    already, the newest tune release includes a number of other major changes.
+
+photo:
+  url: https://unsplash.com/photos/1Pzhr6XPl6k
+  author: Derek Story
+
+categories: [package] 
+tags: [tidymodels, tune, parallelism]
+---
+
+```{r}
+#| label: set-opts
+#| echo: false
+opt <- options(pillar.print_min = 6, pillar.print_max = 6)
+```
+
+We're indubitably amped to announce the release of [tune](https://tune.tidymodels.org/) 1.2.0, a package for hyperparameter tuning in the [tidymodels framework](https://www.tidymodels.org/).
+
+You can install it from CRAN, along with the rest of the core packages in tidymodels, using the tidymodels meta-package:
+
+```{r}
+#| label: install
+#| eval: false
+install.packages("tidymodels")
+```
+
+The 1.2.0 release of tune has introduced support for two major features that we've written about on the tidyverse blog already:
+
+* [Survival analysis for time-to-event data with tidymodels](https://www.tidyverse.org/blog/2024/04/tidymodels-survival-analysis/)
+* [Fair machine learning with tidymodels](https://www.tidyverse.org/blog/2024/03/tidymodels-fairness/)
+
+While those features got their own blog posts, there are several more features in this release that we thought were worth calling out. This post will highlight improvements to our support for parallel processing, the introduction of support for percentile confidence intervals for performance metrics, and a few other bits and bobs. You can see a full list of changes in the [release notes](https://github.com/tidymodels/tune/releases/tag/v1.2.0).
+
+```{r}
+#| label: setup
+#| message: false
+library(tidymodels)
+```
+
+Throughout this post, I'll refer to the example of tuning an XGBoost model to predict the fuel efficiency of various car models. I hear this is already a well-explored modeling problem, but alas:
+
+```{r}
+#| label: xgb-res
+#| message: false
+set.seed(2024)
+
+xgb_res <- 
+  tune_grid(
+    boost_tree(mode = "regression", mtry = tune(), learn_rate = tune()),
+    mpg ~ .,
+    bootstraps(mtcars),
+    control = control_grid(save_pred = TRUE)
+  )
+```
+
+Note that we've used the [control option](https://tune.tidymodels.org/reference/control_grid.html) `save_pred = TRUE` to indicate that we want to save the predictions from our resampled models in the tuning results. Both `int_pctl()` and `compute_metrics()` below will need those predictions. The metrics for our resampled model look like so:
+
+```{r}
+#| label: collect-metrics
+collect_metrics(xgb_res)
+```
+
+## Modernized support for parallel processing
+
+The tidymodels framework has long supported evaluating models in parallel using the [foreach](https://cran.r-project.org/web/packages/foreach/vignettes/foreach.html) package. This release of tune has introduced support for parallelism using the [futureverse](https://www.futureverse.org/) framework, and we will begin deprecating our support for foreach in a coming release.
+
+To tune a model in parallel with foreach, a user would load a _parallel backend_ package (usually with a name like `library(doBackend)`) and then _register_ it with foreach (with a function call like `registerDoBackend()`). The tune package would then detect that registered backend and take it from there. For example, the code to distribute the above tuning process across 10 cores with foreach would look like:
+
+```{r}
+#| label: foreach
+#| eval: false
+library(doMC)
+registerDoMC(cores = 10)
+
+set.seed(2024)
+
+xgb_res <- 
+  tune_grid(
+    boost_tree(mode = "regression", mtry = tune(), learn_rate = tune()),
+    mpg ~ .,
+    bootstraps(mtcars),
+    control = control_grid(save_pred = TRUE)
+  )
+```
+
+The code to do so with future is similarly simple. Users first load the [future](https://future.futureverse.org/index.html) package, and then specify a [`plan()`](https://future.futureverse.org/reference/plan.html) which dictates how computations will be distributed. For example, the code to distribute the above tuning process across 10 cores with future looks like:
+
+```{r}
+#| label: future
+#| eval: false
+library(future)
+plan(multisession, workers = 10)
+
+set.seed(2024)
+
+xgb_res <- 
+  tune_grid(
+    boost_tree(mode = "regression", mtry = tune(), learn_rate = tune()),
+    mpg ~ .,
+    bootstraps(mtcars),
+    control = control_grid(save_pred = TRUE)
+  )
+```
+
+For users, the transition to parallelism with future has several benefits:
+
+* The futureverse presently supports a greater number of parallelism technologies and has been more likely to receive implementations for new ones.
+* Once foreach is fully deprecated, users will be able to use the [interactive logger](https://www.tidyverse.org/blog/2023/04/tuning-delights/#interactive-issue-logging) when tuning in parallel.
+
+From our perspective, transitioning our parallelism support to future makes our packages much more maintainable, reducing complexity in random number generation, error handling, and progress reporting.
+
+In an upcoming release of the package, you'll see a deprecation warning when a foreach parallel backend is registered but no future plan has been specified, so start transitioning your code sooner than later!
+
+## Percentile confidence intervals
+
+Following up on changes in the [most recent rsample release](https://github.com/tidymodels/rsample/releases/tag/v1.2.0), tune has introduced a [method for `int_pctl()`](https://tune.tidymodels.org/reference/int_pctl.tune_results.html) that calculates percentile confidence intervals for performance metrics. To calculate a 90% confidence interval for the values of each performance metric returned in `collect_metrics()`, we'd write:
+
+```{r}
+#| label: int-pctl
+set.seed(2024)
+
+int_pctl(xgb_res, alpha = .1)
+```
+
+Note that the output has the same number of rows as the `collect_metrics()` output: one for each unique pair of metric and workflow.
+
+This is very helpful for validation sets. Other resampling methods generate replicated performance statistics. We can compute simple interval estimates using the mean and standard error for those. Validation sets produce only one estimate, and these bootstrap methods are probably the best option for obtaining interval estimates. 
+
+## Breaking change: relocation of ellipses
+
+We've made a **breaking change** in argument order for several functions in the package (and downstream packages like finetune and workflowsets). Ellipses (...) are now used consistently in the package to require optional arguments to be named. For functions that previously had unused ellipses at the end of the function signature, they have been moved to follow the last argument without a default value, and several other functions that previously did not have ellipses in their signatures gained them. This applies to methods for `augment()`, `collect_predictions()`, `collect_metrics()`, `select_best()`, `show_best()`, and `conf_mat_resampled()`.
+
+## Compute new metrics without re-fitting
+
+We've also added a new function, [`compute_metrics()`](https://tune.tidymodels.org/reference/compute_metrics.html), that allows for calculating metrics that were not used when evaluating against resamples. For example, consider our `xgb_res` object. Since we didn't supply any metrics to evaluate, and this model is a regression model, tidymodels selected RMSE and R<sup>2</sup> as defaults:
+
+```{r}
+#| label: xgb-res-metrics-head
+collect_metrics(xgb_res)
+```
+
+In the past, if you wanted to evaluate that workflow against a performance metric that you hadn't included in your `tune_grid()` run, you'd need to re-run `tune_grid()`, fitting models and predicting new values all over again. Now, using the `compute_metrics()` function, you can use the `tune_grid()` output you've already generated and compute any number of new metrics without having to fit any more models as long as you use the control option `save_pred = TRUE` when tuning.
+
+So, say I want to additionally calculate Huber Loss and Mean Absolute Percent Error. I just pass those metrics along with the tuning result to `compute_metrics()`, and the result looks just like `collect_metrics()` output for the metrics originally calculated:
+
+```{r}
+#| label: compute-metrics
+compute_metrics(xgb_res, metric_set(huber_loss, mape))
+```
+
+## Easily pivot resampled metrics
+
+Finally, the `collect_metrics()` method for tune results recently [gained a new argument](https://tune.tidymodels.org/reference/collect_predictions.html#arguments), `type`, indicating the shape of the returned metrics. The default, `type = "long"`, is the same shape as before. The argument value `type = "wide"` will allot each metric its own column, making it easier to compare metrics across different models.
+
+```{r}
+#| label: collect-metrics-wide
+collect_metrics(xgb_res, type = "wide")
+```
+
+Under the hood, this is indeed just a `pivot_wider()` call. We've found that it's time-consuming and error-prone to programmatically determine identifying columns when pivoting resampled metrics, so we've localized and thoroughly tested the code that we use to do so with this feature.
+
+## More love for the Brier score
+
+Tuning and resampling functions use default metrics when the user does not specify a custom metric set. For regression models, these are RMSE and R<sup>2</sup>. For classification, accuracy and the area under the ROC curve _were_ the default. We’ve also added the [Brier score](https://en.wikipedia.org/wiki/Brier_score) to the default classification metric list. 
+
+## Acknowledgements
+
+As always, we're appreciative of the community contributors who helped make this release happen: 
+[&#x0040;AlbertoImg](https://github.com/AlbertoImg), [&#x0040;dramanica](https://github.com/dramanica), [&#x0040;epiheather](https://github.com/epiheather), [&#x0040;joranE](https://github.com/joranE), [&#x0040;jrosell](https://github.com/jrosell), [&#x0040;jxu](https://github.com/jxu), [&#x0040;kbodwin](https://github.com/kbodwin), [&#x0040;kenraywilliams](https://github.com/kenraywilliams), [&#x0040;KJT-Habitat](https://github.com/KJT-Habitat), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;marcozanotti](https://github.com/marcozanotti), [&#x0040;MasterLuke84](https://github.com/MasterLuke84), [&#x0040;mikemahoney218](https://github.com/mikemahoney218), [&#x0040;PathosEthosLogos](https://github.com/PathosEthosLogos), and [&#x0040;Peter4801](https://github.com/Peter4801).
+
+```{r}
+#| label: reset-opts
+#| echo: false
+options(opt)
+```
