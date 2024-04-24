@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2024-q1
 title: "Q1 2024 tidymodels digest"
-date: 2024-04-16
+date: 2024-04-24
 author: Hannah Frick
 description: >
     The tidymodels team has been busy working on all sorts of new features 
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
 tags: [tidymodels, censored, workflows, workflowsets]
-rmd_hash: e5d577cd685ea2e8
+rmd_hash: 20e4e25b8beff7bf
 
 ---
 
@@ -39,7 +39,16 @@ Since the beginning of 2021, we have been publishing [quarterly updates](https:/
 
 -   [Survival analysis for time-to-event data with tidymodels](https://www.tidyverse.org/blog/2024/04/tidymodels-survival-analysis/)
 -   [Fair machine learning with tidymodels](https://www.tidyverse.org/blog/2024/03/tidymodels-fairness/)
--   TODO: link to release post for tune 1.2.0
+-   [tune 1.2.0](https://www.tidyverse.org/blog/2024/04/tune-1-2-0/)
+
+Additionally, we have published several related articles on [tidymodels.org](https://www.tidymodels.org/):
+
+-   [How long until building complaints are dispositioned? A survival analysis case study](https://www.tidymodels.org/learn/statistics/survival-case-study/)
+-   [Dynamic Performance Metrics for Event Time Data](https://www.tidymodels.org/learn/statistics/survival-metrics/)
+-   [Accounting for Censoring in Performance Metrics for Event Time Data](https://www.tidymodels.org/learn/statistics/survival-metrics-details/)
+-   [Are GPT detectors fair? A machine learning fairness case study](https://www.tidymodels.org/learn/work/fairness-detectors/)
+-   [Fair prediction of hospital readmission: a machine learning fairness case study](https://www.tidymodels.org/learn/work/fairness-readmission/)
+-   [Confidence Intervals for Performance Metrics](https://www.tidymodels.org/learn/models/bootstrap-metrics/)
 
 Since [our last roundup post](https://www.tidyverse.org/blog/2024/01/tidymodels-2023-q4/), there have been CRAN releases of 21 tidymodels packages. Here are links to their NEWS files:
 
@@ -100,11 +109,11 @@ Let's predict survival time for the first five rows of the lung cancer dataset, 
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 1</span></span></span>
 <span><span class='c'>#&gt;   .pred_time</span></span>
 <span><span class='c'>#&gt;        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       221.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       242.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       240.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       239.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       255.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>       217.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>       240.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>       236.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>       236.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>       254.</span></span>
 <span></span></code></pre>
 
 </div>
