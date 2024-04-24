@@ -1,0 +1,211 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-2024-q1
+title: "Q1 2024 tidymodels digest"
+date: 2024-04-24
+author: Hannah Frick
+description: >
+    The tidymodels team has been busy working on all sorts of new features 
+    across the framework.
+
+photo:
+  url: https://unsplash.com/photos/orange-petaled-flowers-koy6FlCCy5s
+  author: Sergey Shmidt
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [roundup] 
+tags: [tidymodels, censored, workflows, workflowsets]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+```{r}
+#| include: false
+#| label: startup
+
+library(tidymodels)
+
+tidymodels_prefer()
+theme_set(theme_bw())
+```
+
+```{r}
+#| label: get-repo-info
+#| include: FALSE
+#| cache: TRUE
+
+since <- "2024-01-09"
+
+source("repo-functions.R")
+
+tm_data <- 
+  map_dfr(tm_pkgs, get_current_release) %>% 
+  filter(date > ymd(since)) %>% 
+  mutate(
+    repo = paste0("tidymodels/", package),
+    thanks = map_chr(repo, return_tidy_thanks, from = since),
+    thanks = glue("- {package}: {thanks}"),
+    news = glue("- {package} [({version})](https://{package}.tidymodels.org/news/index.html)")
+  )
+
+txt_pkg_list <- knitr::combine_words(tm_data$package)
+```
+
+The [tidymodels](https://www.tidymodels.org/) framework is a collection of R packages for modeling and machine learning using tidyverse principles.
+
+Since the beginning of 2021, we have been publishing [quarterly updates](https://www.tidyverse.org/categories/roundup/) here on the tidyverse blog summarizing what's new in the tidymodels ecosystem. The purpose of these regular posts is to share useful new features and any updates you may have missed. You can check out the [`tidymodels` tag](https://www.tidyverse.org/tags/tidymodels/) to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused, like these posts from the past couple of months:
+
+- [Survival analysis for time-to-event data with tidymodels](https://www.tidyverse.org/blog/2024/04/tidymodels-survival-analysis/)
+- [Fair machine learning with tidymodels](https://www.tidyverse.org/blog/2024/03/tidymodels-fairness/)
+- [tune 1.2.0](https://www.tidyverse.org/blog/2024/04/tune-1-2-0/)
+
+Additionally, we have published several related articles on [tidymodels.org](https://www.tidymodels.org/):
+
+- [How long until building complaints are dispositioned? A survival analysis case study](https://www.tidymodels.org/learn/statistics/survival-case-study/)
+- [Dynamic Performance Metrics for Event Time Data](https://www.tidymodels.org/learn/statistics/survival-metrics/)
+- [Accounting for Censoring in Performance Metrics for Event Time Data](https://www.tidymodels.org/learn/statistics/survival-metrics-details/)
+- [Are GPT detectors fair? A machine learning fairness case study](https://www.tidymodels.org/learn/work/fairness-detectors/)
+- [Fair prediction of hospital readmission: a machine learning fairness case study](https://www.tidymodels.org/learn/work/fairness-readmission/)
+- [Confidence Intervals for Performance Metrics](https://www.tidymodels.org/learn/models/bootstrap-metrics/)
+
+Since [our last roundup post](https://www.tidyverse.org/blog/2024/01/tidymodels-2023-q4/), there have been CRAN releases of `r nrow(tm_data)` tidymodels packages. Here are links to their NEWS files:
+
+```{r}
+#| echo: FALSE
+#| results: asis
+
+cat(tm_data$news, sep = "\n")
+```
+
+We'll highlight a few especially notable changes below: new prediction options in censored, consistency in augmenting parsnip models and workflows, as well as a new autoplot type for workflow sets.
+
+```{r}
+#| message: FALSE
+library(tidymodels)
+library(censored)
+```
+
+
+## New prediction options in censored
+
+As part of the framework-wide integration of survival analysis, the parsnip extension package censored has received some love in the form of new prediction options.
+
+Random forests with the  `"aorsf"` engine can now predict survival time, thanks to the new feature in the [aorsf](https://docs.ropensci.org/aorsf/) package itself. This means that all engines in censored can now predict survival time.
+
+Let's predict survival time for the first five rows of the lung cancer dataset, survival analysis' `mtcars`. 
+
+```{r aorsf}
+rf_spec <- rand_forest() |>
+  set_engine("aorsf") |>
+  set_mode("censored regression")
+
+rf_fit <- rf_spec |>
+  fit(Surv(time, status) ~ age + sex, data = lung)
+
+lung_5 <- lung[1:5, ]
+predict(rf_fit, new_data = lung_5, type = "time")
+```
+
+Some models allow for predictions based on different values for tuning parameter without having to refit the model. In parsnip, we refer to this as ["the submodel trick."](https://parsnip.tidymodels.org/articles/Submodels.html) Some of those models are regularized models fitted with the [glmnet](https://glmnet.stanford.edu/) engine. In censored, the corresponding `multi_predict()` method has now gained the prediction types `"time"` and `"raw"` in addition to the existing types `"survival"` and `"linear_pred"`. 
+
+Let's fit a regularized Cox model to illustrate. Note how we set the `penalty` to a fixed value of `0.1`.
+
+```{r coxnet-fit}
+cox_fit <- proportional_hazards(penalty = 0.1) |>
+  set_engine("glmnet") |>
+  set_mode("censored regression") |>
+  fit(Surv(time, status) ~ ., data = lung)
+```
+
+Predictions made with `predict()` use that penalty value of 0.1. With `multi_predict()`, we can change that value to something different without having to refit. Conveniently, we can predict for multiple penalty values as well.
+
+```{r coxnet-pred}
+predict(cox_fit, new_data = lung_5, type = "time")
+
+mpred <- multi_predict(cox_fit, new_data = lung_5, type = "time", 
+                       penalty = c(0.01, 0.1)) 
+mpred
+```
+
+The resulting tibble is nested by observation to follow the convention of one row per observation. For each observation, the predictions are stored in a tibble containing the penalty value along with the prediction.
+
+```{r coxnet-pred-detail}
+mpred$.pred[[2]]
+```
+
+You can see that the predicted value from `predict()` matches the predicted value from `multi_predict()` with a penalty of 0.1.
+
+
+## Consistent `augment()` for workflows and parsnip models
+
+If you are interested in exploring predictions in relation to predictors, `augment()` is your extended `predict()` method: it will augment the inputted dataset with its predictions. For classification, it will add hard class predictions as well as class probabilities. For regression, it will add the numeric prediction. If the outcome variable is part of the dataset, it also calculates residuals. This has already been the case for fitted parsnip models, and the `augment()` method for workflows will now also calculate residuals. 
+
+```{r augment}
+spec_fit <- fit(linear_reg(), mpg ~ ., mtcars)
+wflow_fit <- workflow(mpg ~ ., linear_reg()) %>% fit(mtcars)
+
+augment(spec_fit, mtcars)
+
+augment(wflow_fit, mtcars)
+```
+
+Both methods also append on the left-hand side of the data frame, rather than the right-hand side. This means that prediction columns are always visible when printed, even for data frames with many columns. As you might expect, the order of the columns is the same for both methods as well.
+
+
+## New autoplot type for workflow sets
+
+Many tidymodels objects have `autoplot()` methods for quickly getting a sense of the most important aspects of an object. For workflow sets, the method shows the value of the calculated performance metrics, as well as the respective rank of each workflow in the set. Let's put together a workflow set on the actual `mtcars` data and take a look at the default autoplot.
+
+```{r workflowsets-autoplot}
+mt_rec <- recipe(mpg ~ ., mtcars)
+mt_rec2 <- mt_rec |> step_normalize(all_numeric_predictors())
+mt_rec3 <- mt_rec |> step_YeoJohnson(all_numeric_predictors())
+
+wflow_set <- workflow_set(
+  list(plain = mt_rec, normalize = mt_rec2, yeo_johnson = mt_rec3), 
+  list(linear_reg())
+)
+
+set.seed(1)
+wflow_set_fit <- workflow_map(
+  wflow_set, 
+  "fit_resamples", 
+  resamples = bootstraps(mtcars)
+)
+
+autoplot(wflow_set_fit)
+```
+
+This allows you to grasp the metric values and rank of a workflow and let's you distinguish the type of preprocessor and model. In our case, we only have one type of model, and even just one type of preprocessor, a recipe. What we are much more interested in is which recipe corresponds to which rank. The new option of `type = "wflow_id"` lets us see which values and ranks correspond with which workflow and thus also with which recipe.
+
+```{r workflowsets-autoplot-new}
+autoplot(wflow_set_fit, type = "wflow_id")
+```
+
+This makes it easy to spot that it's the Yeo-Johnson transformation that makes the difference here!
+
+
+## Acknowledgements
+
+We'd like to thank those in the community that contributed to tidymodels in the last quarter:
+
+```{r}
+#| echo: FALSE
+#| results: asis
+
+cat(tm_data$thanks, sep = "\n")
+```
+
+We're grateful for all of the tidymodels community, from observers to users to contributors. Happy modeling!
