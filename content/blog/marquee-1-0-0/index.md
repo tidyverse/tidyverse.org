@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [marquee, ggplot2]
-rmd_hash: f090449d09909f87
+rmd_hash: efeb43f34dfee588
 
 ---
 
@@ -29,7 +29,7 @@ TODO:
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [x] Add intro sentence, e.g. the standard tagline for the package
 * [-] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
@@ -76,7 +76,7 @@ Since the use of markdown is second-hand nature for most people at this point, t
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>md_text</span> <span class='o'>&lt;-</span> </span>
 <span><span class='s'>"# Intro</span></span>
 <span><span class='s'>markdown has been *quite* succesful in creating a unified way of specifying </span></span>
-<span><span class='s'>_semantic_ rich text. While limited, it provides both &#123;.yellow readability&#125; and</span></span>
+<span><span class='s'>_semantic_ rich text. While limited, it provides both &#123;.steelblue readability&#125; and</span></span>
 <span><span class='s'>just enough ~power~ features.</span></span>
 <span><span class='s'></span></span>
 <span><span class='s'>    text &lt;- \"markdown **text**\"</span></span>
@@ -165,7 +165,7 @@ As we see, all discerning styling have been stripped from the rendering above. A
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>confusing_style</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://marquee.r-lib.org/reference/classic_style.html'>classic_style</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://marquee.r-lib.org/reference/style_set.html'>modify_style</a></span><span class='o'>(</span><span class='s'>"yellow"</span>, <span class='nf'><a href='https://marquee.r-lib.org/reference/style.html'>style</a></span><span class='o'>(</span>color <span class='o'>=</span> <span class='s'>"red"</span><span class='o'>)</span><span class='o'>)</span></span>
+<span>  <span class='nf'><a href='https://marquee.r-lib.org/reference/style_set.html'>modify_style</a></span><span class='o'>(</span><span class='s'>"steelblue"</span>, <span class='nf'><a href='https://marquee.r-lib.org/reference/style.html'>style</a></span><span class='o'>(</span>color <span class='o'>=</span> <span class='s'>"red"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span></span>
 <span><span class='nf'>grid</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/r/grid/grid.draw.html'>grid.draw</a></span><span class='o'>(</span><span class='nf'><a href='https://marquee.r-lib.org/reference/marquee_grob.html'>marquee_grob</a></span><span class='o'>(</span><span class='nv'>md_text</span>, <span class='nv'>confusing_style</span><span class='o'>)</span><span class='o'>)</span></span>
 </code></pre>
@@ -237,5 +237,5 @@ Lastly, while not really part of HTML syntax directly, many people rely on HTML 
 
 ## Acknowledgements
 
-Marquee is the latest in a stream of advancements when it comes to text rendering and font support in R. It builds on top of my work with [systemfonts](https://systemfonts.r-lib.org/index.html), [textshaping](https://github.com/r-lib/textshaping), and [ragg](https://ragg.r-lib.org/index.html), but also pays great debt to Paul Murrell's work on adding a new, more low level API for text rendering to grid and the graphics engine. Lastly, Claus Wilke's work on [gridtext](https://wilkelab.org/gridtext/) and [ggtext](https://wilkelab.org/ggtext/) showed the power and need for rich text support in R and filled a gap until the technical foundation for marquee was build out.
+Marquee is the latest in a stream of advancements when it comes to text rendering and font support in R. It builds on top of my work with [systemfonts](https://systemfonts.r-lib.org/index.html), [textshaping](https://github.com/r-lib/textshaping), and [ragg](https://ragg.r-lib.org/index.html), but also pays great debt to Paul Murrell's work on adding a new, more low level API for text rendering to grid and the graphics engine. Lastly, Claus Wilke's work on [gridtext](https://wilkelab.org/gridtext/) and [ggtext](https://wilkelab.org/ggtext/) showed the power and need for rich text support in R and filled a gap until the technical foundation for marquee was built out.
 
