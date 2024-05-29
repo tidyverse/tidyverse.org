@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [marquee, ggplot2]
-rmd_hash: d4f6fc14befa8fbf
+rmd_hash: 69172714802a444c
 
 ---
 
@@ -201,7 +201,9 @@ All of the above is pretty standard markdown and since I prefixed this whole blo
 
 </div>
 
-This also means that your ggplots can contain additional ggplots (or other graphics) anywhere you are allowed to place text (using [`geom_marquee()`](https://marquee.r-lib.org/reference/geom_marquee.html) and [`element_marquee()`](https://marquee.r-lib.org/reference/element_marquee.html)).
+This also means that your ggplots can contain additional ggplots (or other graphics) anywhere you are allowed to place text (using [`geom_marquee()`](https://marquee.r-lib.org/reference/geom_marquee.html) and [`element_marquee()`](https://marquee.r-lib.org/reference/element_marquee.html)) - for better or worse...
+
+<img src="figs/they_didnt_stop.gif" style="display:block;margin:auto;" />
 
 ## Limitations
 
