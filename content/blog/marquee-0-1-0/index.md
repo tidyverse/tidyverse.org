@@ -1,8 +1,8 @@
 ---
 output: hugodown::hugo_document
 
-slug: marquee-1-0-0
-title: marquee 1.0.0
+slug: marquee-0-1-0
+title: marquee 0.1.0
 date: 2024-05-29
 author: Thomas Lin Pedersen
 description: >
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [marquee, ggplot2]
-rmd_hash: 69172714802a444c
+rmd_hash: 0d0a7904a208cc31
 
 ---
 
