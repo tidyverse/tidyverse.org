@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: marquee-1-0-0
 title: marquee 1.0.0
-date: 2024-05-07
+date: 2024-05-29
 author: Thomas Lin Pedersen
 description: >
     The initial release brings markdown awareness to grid and ggplot2 to allow 
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [marquee, ggplot2]
-rmd_hash: efeb43f34dfee588
+rmd_hash: d4f6fc14befa8fbf
 
 ---
 
@@ -35,7 +35,7 @@ TODO:
 
 I am super excited to announce the initial release of [marquee](https://marquee.r-lib.org), a markdown parser and renderer for R graphics that allows native rich text formatting of text in graphics created with grid (which includes ggplot2 and lattice).
 
-The inception of this package goes all the way back to 2017
+The inception of this package goes all the way back to 2017:
 
 <blockquote class="twitter-tweet">
 <p lang="en" dir="ltr">
@@ -143,41 +143,15 @@ The second obvious use for marquee in ggplot2 is in formatting text elements. [`
 
 As alluded to above, marquee comes with a styling API that is reminiscent of CSS but completely its own. In some sense it takes the "simplicity over power" approach from markdown and applies it to styling.
 
-In marquee, each element type (e.g. a code block) has its own style. This style can be incomplete in which case it inherits the remaining specifications from the parent element in the document. As an example, the `em` element has the following default style `style(italic = TRUE)`, that is, take whatever style is currently in effect but set the text to italic. This is basically how CSS works as well, but CSS allows so much more which clutters both the API and implementation if all you ever want to do is format rich text.
+In marquee, each element type (e.g. a code block) has its own style. This style can be incomplete in which case it inherits the remaining specifications from the parent element in the document. As an example, the `em` element has the following default style `style(italic = TRUE)`, that is, take whatever style is currently in effect but also make the text italic.
 
-Apart from the direct inheritance of the marquee styling, it is also possible to use relative inheritance for numeric specifications (e.g. `lineheight = relative(2)` to double the current lineheight) or set sizes based on the current or root element font size (using [`em()`](https://marquee.r-lib.org/reference/style_helpers.html) and [`rem()`](https://marquee.r-lib.org/reference/style_helpers.html) respectively). Lastly, you can also mark a specification as "non-inheritable" using [`skip_inherit()`](https://marquee.r-lib.org/reference/style_helpers.html) in which case the inheritance moves up one level.
-
-Marquee ships with a single style set ([`classic_style()`](https://marquee.r-lib.org/reference/classic_style.html)) and you can make your own, either by modifying this, or building your own from scratch. If you choose the latter route make sure that the base element is a complete style - everything beyond that is optional.
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Create a style set with no styling beyond the base settings</span></span>
-<span><span class='nv'>no_style</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://marquee.r-lib.org/reference/style_set.html'>style_set</a></span><span class='o'>(</span>base <span class='o'>=</span> <span class='nf'><a href='https://marquee.r-lib.org/reference/style.html'>base_style</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nf'>grid</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/r/grid/grid.draw.html'>grid.draw</a></span><span class='o'>(</span><span class='nf'><a href='https://marquee.r-lib.org/reference/marquee_grob.html'>marquee_grob</a></span><span class='o'>(</span><span class='nv'>md_text</span>, <span class='nv'>no_style</span><span class='o'>)</span><span class='o'>)</span></span>
-</code></pre>
-<img src="figs/unnamed-chunk-6-1.png" width="700px" style="display: block; margin: auto;" />
-
-</div>
-
-As we see, all discerning styling have been stripped from the rendering above. All, except for the custom coloured element. As discussed previously, marquee understand custom spans named after colours and doesn't require a specific styling of these to be provided. However, if you do provide a style, that takes precedence:
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>confusing_style</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://marquee.r-lib.org/reference/classic_style.html'>classic_style</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://marquee.r-lib.org/reference/style_set.html'>modify_style</a></span><span class='o'>(</span><span class='s'>"steelblue"</span>, <span class='nf'><a href='https://marquee.r-lib.org/reference/style.html'>style</a></span><span class='o'>(</span>color <span class='o'>=</span> <span class='s'>"red"</span><span class='o'>)</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nf'>grid</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/r/grid/grid.draw.html'>grid.draw</a></span><span class='o'>(</span><span class='nf'><a href='https://marquee.r-lib.org/reference/marquee_grob.html'>marquee_grob</a></span><span class='o'>(</span><span class='nv'>md_text</span>, <span class='nv'>confusing_style</span><span class='o'>)</span><span class='o'>)</span></span>
-</code></pre>
-<img src="figs/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" />
-
-</div>
+Apart from the direct inheritance of the marquee styling, it is also possible to use relative inheritance for numeric specifications (e.g. `lineheight = relative(2)` to double the current lineheight) or set sizes based on the current or root element font size (using [`em()`](https://marquee.r-lib.org/reference/style_helpers.html) and [`rem()`](https://marquee.r-lib.org/reference/style_helpers.html) respectively). Lastly, you can also mark a specification as "non-inheritable" using [`skip_inherit()`](https://marquee.r-lib.org/reference/style_helpers.html). This essentially instructs any children to not inherit the value but instead inherit the value from the grand-parent element.
 
 ## Images
 
 Markdown (famously) supports adding images through the `![alt text](path/to/image)` syntax. Since marquee supports the full CommonMark spec, this is of course also supported. The only limitation is that the "alt text" is ignored since hovering tool-tips or screen-readers are not supported for the output types that marquee renders to.
 
-If an image is placed on a line of its own it will be rendered to fit the line height of the line. If it is placed by itself on its own line it will span the width available:
+If an image is placed on a line together with surrounding text it will be rendered to fit the line height of the line. If it is placed by itself on its own line it will span the width available:
 
 <div class="highlight">
 
@@ -198,7 +172,7 @@ If an image is placed on a line of its own it will be rendered to fit the line h
 <span></span>
 <span><span class='nf'>grid</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/r/grid/grid.draw.html'>grid.draw</a></span><span class='o'>(</span><span class='nf'><a href='https://marquee.r-lib.org/reference/marquee_grob.html'>marquee_grob</a></span><span class='o'>(</span><span class='nv'>md_img</span><span class='o'>)</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-6-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -223,9 +197,11 @@ All of the above is pretty standard markdown and since I prefixed this whole blo
 <span></span>
 <span><span class='nf'>grid</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/r/grid/grid.draw.html'>grid.draw</a></span><span class='o'>(</span><span class='nf'><a href='https://marquee.r-lib.org/reference/marquee_grob.html'>marquee_grob</a></span><span class='o'>(</span><span class='nv'>md_plots</span><span class='o'>)</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-9-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
+
+This also means that your ggplots can contain additional ggplots (or other graphics) anywhere you are allowed to place text (using [`geom_marquee()`](https://marquee.r-lib.org/reference/geom_marquee.html) and [`element_marquee()`](https://marquee.r-lib.org/reference/element_marquee.html)).
 
 ## Limitations
 

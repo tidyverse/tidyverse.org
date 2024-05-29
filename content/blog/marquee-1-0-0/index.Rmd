@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: marquee-1-0-0
 title: marquee 1.0.0
-date: 2024-05-07
+date: 2024-05-29
 author: Thomas Lin Pedersen
 description: >
     The initial release brings markdown awareness to grid and ggplot2 to allow 
@@ -138,31 +138,13 @@ As alluded to above, marquee comes with a styling API that is reminiscent of CSS
 
 In marquee, each element type (e.g. a code block) has its own style. This style can be incomplete in which case it inherits the remaining specifications from the parent element in the document. As an example, the `em` element has the following default style `style(italic = TRUE)`, that is, take whatever style is currently in effect but also make the text italic.
 
-Apart from the direct inheritance of the marquee styling, it is also possible to use relative inheritance for numeric specifications (e.g. `lineheight = relative(2)` to double the current lineheight) or set sizes based on the current or root element font size (using `em()` and `rem()` respectively). Lastly, you can also mark a specification as "non-inheritable" using `skip_inherit()` in which case the inheritance moves up one level.
-
-Marquee ships with a single style set (`classic_style()`) and you can make your own, either by modifying this, or building your own from scratch. If you choose the latter route make sure that the base element is a complete style - everything beyond that is optional.
-
-```{r}
-# Create a style set with no styling beyond the base settings
-no_style <- style_set(base = base_style())
-
-grid::grid.draw(marquee_grob(md_text, no_style))
-```
-
-As we see, all discerning styling have been stripped from the rendering above. All, except for the custom coloured element. As discussed previously, marquee understand custom spans named after colours and doesn't require a specific styling of these to be provided. However, if you do provide a style, that takes precedence:
-
-```{r}
-confusing_style <- classic_style() |> 
-  modify_style("steelblue", style(color = "red"))
-
-grid::grid.draw(marquee_grob(md_text, confusing_style))
-```
+Apart from the direct inheritance of the marquee styling, it is also possible to use relative inheritance for numeric specifications (e.g. `lineheight = relative(2)` to double the current lineheight) or set sizes based on the current or root element font size (using `em()` and `rem()` respectively). Lastly, you can also mark a specification as "non-inheritable" using `skip_inherit()`. This essentially instructs any children to not inherit the value but instead inherit the value from the grand-parent element.
 
 ## Images
 
 Markdown (famously) supports adding images through the `![alt text](path/to/image)` syntax. Since marquee supports the full CommonMark spec, this is of course also supported. The only limitation is that the "alt text" is ignored since hovering tool-tips or screen-readers are not supported for the output types that marquee renders to.
 
-If an image is placed on a line of its own it will be rendered to fit the line height of the line. If it is placed by itself on its own line it will span the width available:
+If an image is placed on a line together with surrounding text it will be rendered to fit the line height of the line. If it is placed by itself on its own line it will span the width available:
 
 ```{r}
 logo <- system.file("help", "figures", "logo.png", package = "marquee")
@@ -203,6 +185,8 @@ In the plot below, the red dot (![](point)) shows the Mazda RX4
 
 grid::grid.draw(marquee_grob(md_plots))
 ```
+
+This also means that your ggplots can contain additional ggplots (or other graphics) anywhere you are allowed to place text (using `geom_marquee()` and `element_marquee()`).
 
 ## Limitations
 
