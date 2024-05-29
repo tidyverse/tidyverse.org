@@ -1,0 +1,203 @@
+---
+output: hugodown::hugo_document
+
+slug: marquee-0-1-0
+title: marquee 0.1.0
+date: 2024-05-29
+author: Thomas Lin Pedersen
+description: >
+    The initial release brings markdown awareness to grid and ggplot2 to allow 
+    for rich text formatting in R graphics.
+
+photo:
+  url: https://unsplash.com/photos/a-close-up-of-a-metal-grate-on-a-table-9jfpVAhGC1g
+  author: Etienne Girardet
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [marquee, ggplot2]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [-] `usethis::use_tidy_thanks()`
+-->
+```
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  dpi = 300,
+  dev = "ragg_png"
+)
+```
+
+I am super excited to announce the initial release of [marquee](https://marquee.r-lib.org), a markdown parser and renderer for R graphics that allows native rich text formatting of text in graphics created with grid (which includes ggplot2 and lattice).
+
+The inception of this package goes all the way back to 2017:
+
+<blockquote class="twitter-tweet">
+
+<p lang="en" dir="ltr">
+
+May I present: Text wrapping of theme elements in <a href="https://twitter.com/hashtag/ggplot2?src=hash&amp;ref_src=twsrc%5Etfw">#ggplot2</a> with the new (experimental) element_textbox in <a href="https://twitter.com/hashtag/ggforce?src=hash&amp;ref_src=twsrc%5Etfw">#ggforce</a><a href="https://twitter.com/hashtag/rstats?src=hash&amp;ref_src=twsrc%5Etfw">#rstats</a> <a href="https://twitter.com/hashtag/dataviz?src=hash&amp;ref_src=twsrc%5Etfw">#dataviz</a> <a href="https://t.co/JJMLcuTBqx">pic.twitter.com/JJMLcuTBqx</a>
+
+</p>
+
+— Thomas Lin Pedersen (@thomasp85) <a href="https://twitter.com/thomasp85/status/816967301014634497?ref_src=twsrc%5Etfw">January 5, 2017</a>
+
+</blockquote>
+
+```{=html}
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+```
+(yeah...) where I developed an experimental feature for ggforce that allowed automatic text wrapping in `element_text()`. Years passed, slowly improving the text rendering capabilities in R until we are finally at a point in the toolchain where something like marquee can deliver on my initial plans.
+
+If this has you intrigued you can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("marquee")
+```
+
+This blog post will go through the features of marquee, along with discussing some of its current limitations, all of which are hopefully transient.
+
+```{r setup}
+library(marquee)
+```
+
+## An example
+
+Since the use of markdown is second-hand nature for most people at this point, there shouldn't be much surprise in what marquee is capable off, so let's start with an example to show the main use:
+
+```{r}
+md_text <- 
+"# Intro
+markdown has been *quite* succesful in creating a unified way of specifying 
+_semantic_ rich text. While limited, it provides both {.steelblue readability} and
+just enough ~power~ features.
+
+    text <- \"markdown **text**\"
+    marquee_grob(text)
+
+It features, among others:
+
+1. lists
+
+2. code blocks
+
+   * Indented lists
+   
+3. and more...
+"
+
+grid::grid.draw(marquee_grob(md_text))
+```
+
+The above illustrates a couple of things. First and foremost, that markdown works in very unsurprising ways and you get what you type. In fact, the full CommonMark syntax is supported along with extensions for underline and strikethrough. Further, it shows that marquee provides its own extension for specifying custom span elements in the form of the `{.class <text>}` syntax. The renderer is clever in interpreting the class so that if it corresponds to a colour name, the colour is automatically applied to the text. Lastly, it shows that the default styling of markdown closely follows the look you've come to expect from markdown rendered to HTML.
+
+## Use in ggplot2
+
+The number of people using this directly in grid is probably small. It is more likely that you access the functionality of marquee through higher level functions. Marquee provides two such functions aimed at making it easy to use marquee in ggplot2. The aim is to eventually move these into ggplot2 proper, but while we are in the initial phase of development they will stay in this package.
+
+### `geom_marquee()`
+
+The first function is (obviously) a geom. It is intended as a stand-in replacement for both `geom_text()` and `geom_label()`. As with `marquee_grob()` it works very unsurprisingly:
+
+```{r}
+library(ggplot2)
+# Add styling around the first word
+red_bold_names <- sub("(\\w+)", "{.red **\\1**}", rownames(mtcars))
+
+ggplot(mtcars) + 
+  geom_marquee(aes(x = mpg, y = disp, label = red_bold_names))
+```
+
+Apart from standard, but markdown-aware, `geom_text()` behaviour, the geom also gains a `width` aesthetic that allows you to turn on automatic soft wrapping of the text. In addition to this it gains a `style` aesthetic to finely control the style (more about styling below)
+
+### `element_marquee()`
+
+The second obvious use for marquee in ggplot2 is in formatting text elements. `element_marquee()` is a replacement for `element_text()` that does just that.
+
+```{r}
+ggplot(mtcars) + 
+  geom_point(aes(x = mpg, y = disp)) + 
+  ggtitle(md_text) + 
+  theme(plot.title = element_marquee(size = 8, width = unit(16, "cm")))
+```
+
+## Styling
+
+As alluded to above, marquee comes with a styling API that is reminiscent of CSS but completely its own. In some sense it takes the "simplicity over power" approach from markdown and applies it to styling.
+
+In marquee, each element type (e.g. a code block) has its own style. This style can be incomplete in which case it inherits the remaining specifications from the parent element in the document. As an example, the `em` element has the following default style `style(italic = TRUE)`, that is, take whatever style is currently in effect but also make the text italic.
+
+Apart from the direct inheritance of the marquee styling, it is also possible to use relative inheritance for numeric specifications (e.g. `lineheight = relative(2)` to double the current lineheight) or set sizes based on the current or root element font size (using `em()` and `rem()` respectively). Lastly, you can also mark a specification as "non-inheritable" using `skip_inherit()`. This essentially instructs any children to not inherit the value but instead inherit the value from the grand-parent element.
+
+## Images
+
+Markdown (famously) supports adding images through the `![alt text](path/to/image)` syntax. Since marquee supports the full CommonMark spec, this is of course also supported. The only limitation is that the "alt text" is ignored since hovering tool-tips or screen-readers are not supported for the output types that marquee renders to.
+
+If an image is placed on a line together with surrounding text it will be rendered to fit the line height of the line. If it is placed by itself on its own line it will span the width available:
+
+```{r}
+logo <- system.file("help", "figures", "logo.png", package = "marquee")
+header_img <- "thumbnail-wd.jpg"
+
+md_img <- 
+"# About marquee ![]({logo})
+
+Both PNG (above), JPEG (below), and SVG (not shown) are supported
+
+![]({header_img})
+
+The above image is treated like a block element
+"
+
+md_img <- marquee_glue(md_img)
+
+grid::grid.draw(marquee_grob(md_img))
+```
+
+Apart from showing support for images we also introduce a new function above, `marquee_glue()`. It is a function that works very much like `glue::glue()` and performs text interpolation. However, this variant understands the custom span syntax of marquee so that these will not be treated as interpolation sites. Further, it turns off the `#` interpretation as a comment character as this interferes with the markdown header syntax.
+
+All of the above is pretty standard markdown and since I prefixed this whole blog post with "full markdown support" it shouldn't come as a big surprise. However, marquee has one last trick up its sleeve: R graphics interpolation. Quite simply, if you, instead of providing a path to a file, provide the name of an R variable holding a graphic object, this will be included as an image. Here's how it works:
+
+```{r, fig.asp=0.9}
+plot <- ggplot(mtcars) + 
+  geom_point(aes(mpg, disp)) + 
+  geom_point(aes(mpg, disp), mtcars[1,], colour = "red", size = 3)
+
+point <- grid::pointsGrob(x = 0.5, y = 0.5, pch = 19, gp = grid::gpar(col = "red"))
+
+md_plots <- 
+"# Plots
+In the plot below, the red dot (![](point)) shows the Mazda RX4
+
+![](plot)
+"
+
+grid::grid.draw(marquee_grob(md_plots))
+```
+
+This also means that your ggplots can contain additional ggplots (or other graphics) anywhere you are allowed to place text (using `geom_marquee()` and `element_marquee()`) - for better or worse...
+
+![](figs/they_didnt_stop.gif){style="display:block;margin:auto;"}
+
+## Limitations
+
+Marquee's biggest limitation is its reliance on very new features in the graphics engine. The rendering will *not* work on anything before R 4.3, but even then it requires the graphics device to support a range of new features, most importantly the new glyph specification introduced in R 4.3. While several graphics devices do support the required features, most notably those powered by Cairo as well as all devices in ragg, many do not. The default Windows graphics device continues to lag behind and the default on macOS, while supporting glyphs, can crash in some situations bringing the whole R session down with it (this is still being investigated). So we are in no doubt threading the frontier here. All of this is set to resolve itself (maybe except for the default Windows device) as time passes.
+
+A limitation of great interest to me is the lack of support in svglite. svglite is build on a core idea of post-editability and thus wants all its text to be selectable and editable when opened in a capable program such as Adobe Illustrator. However, the graphics engine API that powers the new capabilities does not really allow this and I'm still figuring out how to reconcile it. It will eventually be solved though.
+
+Lastly, while not really part of HTML syntax directly, many people rely on HTML inside markdown documents to solve layout and styling tasks that markdown doesn't support. The way it works is that markdown passes the HTML through unmodified and then the HTML is parsed by the HTML renderer (often the browser) used to display the rendered markdown document. This makes it seem like understanding HTML is part of markdown, while it's really not. The reason I'm going through all this explanation is to say that marquee has no understanding of HTML and will not render it as expected. While some HTML tags and CSS settings have clear counterparts in markdown and the marquee styling system it is much better to have a clear "no-support" over an arbitrary limited support. `marquee_grob()`/`marquee_parse()` have an argument (`ignore_html`) that controls whether HTML are outright removed from the output (default), or if it is included verbatim.
+
+## Acknowledgements
+
+Marquee is the latest in a stream of advancements when it comes to text rendering and font support in R. It builds on top of my work with [systemfonts](https://systemfonts.r-lib.org/index.html), [textshaping](https://github.com/r-lib/textshaping), and [ragg](https://ragg.r-lib.org/index.html), but also pays great debt to Paul Murrell's work on adding a new, more low level API for text rendering to grid and the graphics engine. Lastly, Claus Wilke's work on [gridtext](https://wilkelab.org/gridtext/) and [ggtext](https://wilkelab.org/ggtext/) showed the power and need for rich text support in R and filled a gap until the technical foundation for marquee was built out.
