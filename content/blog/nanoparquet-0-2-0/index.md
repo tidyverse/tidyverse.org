@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 
 slug: nanoparquet-0-2-0
-title: nanoparquet 0 2 0
+title: nanoparquet 0.2.0
 date: 2024-05-30
 author: Gábor Csárdi
 description: >
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: []
-rmd_hash: f4fc5a820a07b0d3
+rmd_hash: b480843dee979720
 
 ---
 
