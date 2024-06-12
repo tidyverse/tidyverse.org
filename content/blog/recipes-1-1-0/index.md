@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, recipes]
-rmd_hash: 2d6d3d7956133624
+rmd_hash: 0b7a7500441aa5a0
 
 ---
 
@@ -25,14 +25,14 @@ TODO:
 * [x] Edit (or delete) the description; note this appears in the Twitter card
 * [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
 * [x] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're thrilled to announce the release of [recipes](https://recipes.tidymodels.org/) 1.1.0. censored is a parsnip extension package for survival models.
+We're thrilled to announce the release of [recipes](https://recipes.tidymodels.org/) 1.1.0. recipes lets you create a pipeable sequence of feature engineering steps.
 
 You can install it from CRAN with:
 
