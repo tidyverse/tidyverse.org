@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [parquet]
-rmd_hash: aed419869fcaba15
+rmd_hash: 7c0a936ff1e6e184
 
 ---
 
@@ -459,7 +459,7 @@ DBI::dbWriteTable(con, "mtcars", mtcars)
 
 DBI::dbExecute(con, DBI::sqlInterpolate(con,
   "COPY mtcars TO ?filename (FORMAT 'parquet', COMPRESSION 'snappy')",
-  filename = tmp
+  filename = 'mtcars.parquet'
 ))
 ```
 
