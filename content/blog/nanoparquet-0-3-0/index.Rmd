@@ -1,0 +1,341 @@
+---
+output: hugodown::hugo_document
+
+slug: nanoparquet-0-3-0
+title: nanoparquet 0.3.0
+date: 2024-06-17
+author: Gábor Csárdi
+description: >
+    Nanoparquet is a new R package that can read and write (flat) Parquet
+    files. This post covers its features and limitations.
+
+photo:
+  url: https://www.pexels.com/photo/clock-between-columns-20134435/
+  author: Marina Zvada
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package]
+tags: [parquet]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] ~~`usethis::use_tidy_thanks()`~~
+-->
+
+We're extremely pleased to announce the release of
+[nanoparquet](https://r-lib.github.io/nanoparquet/) 0.3.0.
+nanoparquet is a new R package that reads Parquet files into data frames,
+and writes data frames to Parquet files.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("nanoparquet")
+```
+
+This blog post will cover the features and limitations of nanoparquet,
+and also our future plans.
+
+```{r setup}
+library(nanoparquet)
+```
+
+```{r include = FALSE}
+library(pillar)
+```
+
+## What is Parquet?
+
+Parquet is a file format for storing data on disk.
+It is specifically designed for large data sets, read-heavy workloads
+and data analysis. The most important features of Parquet are:
+
+* **Columnar**. Data is stored column-wise, so whole columns (or large
+  chunks of columns) are easy to read quickly.
+  Columnar storage allows better compression, fast operations on a subset
+  of columns, and easy ways of removing columns or adding new columns to a
+  data file.
+
+* **Binary**. A Parquet file is not a text file. Each Parquet data type
+  is stored in a well-defined binary storage format, leaving no ambiguity
+  about how fields are persed.
+
+* **Rich types**. Parquet supports a small set of _low level_ data types
+  with well specified storage formats and encodings. On top of the low
+  level types, it implemented several higher level logical types, like
+  UTF-8 strings, time stamps, JSON strings, ENUM types (factors), etc.
+
+* **Well supported**. At this point Parquet is well supported across
+  modern languages like R, Python, Rust, Java, Go, etc. In particular,
+  Apache Arrow handles Parquet files very well, and has bindings to many
+  languages. DuckDB is a very portable tool that reads and writes Parquet
+  files, or even opens a set of Parquet files as a database.
+
+* **Performant**. Parquet columns may use various encodings and compression
+  to ensure that the data files are kept as small as possible. When running
+  an analytical query on the subset of the data, the Parquet format makes
+  it easy to skip the columns and/or rows that are irrelevant.
+
+* **Missing values**. Support for missing values is built into the Parquet
+  format.
+
+## Why we created nanoparquet?
+
+Although Parquet is well supported by modern languages, today the
+complexity of the Parquet format often outweighs its benefits for smaller
+data sets. Many tools that support Parquet are typically used for larger,
+out of memory data sets, so there is a perception that Parquet is only for
+big data. These tools typically take longer to compile or install, and
+often seem too heavy for in-memory data analysis.
+
+With nanoparquet, we wanted to have a smaller tool that has no dependencies
+and is easy to install. Our goal is to facilitate the adoption of Parquet
+for smaller data sets, especially for teams that share data between
+multiple environments, e.g. R, Python, Java, etc.
+
+## nanoparquet Features
+
+These are some of the nanoparquet features that we are most excited about.
+
+* **Lightweight**. nanoparquet has no package or system dependencies other
+  than a C++-11 compiler. It compiles in about 30 seconds, into an R
+  package that is less than a megabyte in size.
+
+* **Reads many Parquet files**. `nanoparquet::read_parquet()` supports
+  reading most Parquet files. In particular, in supports all Parquet
+  encodings and at the time of writing it supports three compression
+  codecs: Snappy, Gzip and Zstd. Make sure you read "Limitations" below.
+
+* **Writes many R data types**. `nanoparquet::write_parquet()` supports
+  writing most R data frames. In particular, missing values are handled
+  properly, factor columns are keps as factors, temporal types as well.
+  Make sure you read "Limitations" below.
+
+* **Type mappings**. nanoparquet has a well defined set of
+  [type mapping rules](https://r-lib.github.io/nanoparquet/reference/nanoparquet-types.html).
+  Use the [`parquet_column_types()`](https://r-lib.github.io/nanoparquet/dev/reference/parquet_column_types.html)
+  function to see how `read_parquet()` and `write_parquet()` maps
+  Parquet and R types for a file or a data frame.
+
+* **Metadata queries**. nanoparquet has a
+  [number of functions](https://r-lib.github.io/nanoparquet/dev/reference/index.html#extract-parquet-metadata)
+  to query the metadata and schema in Parquet files.
+
+## Examples
+
+### Reading a Parquet file
+
+The nanoparquet R package contains an example Parquet file.
+We are going to use it to demonstrate how the package works.
+
+If the pillar package is loaded, then nanoparquet data frames are
+pretty-printed.
+
+```{r}
+library(nanoparquet)
+library(pillar)
+udf <- system.file("extdata/userdata1.parquet", package = "nanoparquet")
+```
+
+Before actually reading the file, let's look up some metadata about it,
+and also how its columns will be mapped to R types:
+
+```{r}
+parquet_info(udf)
+```
+
+```{r}
+parquet_column_types(udf)
+```
+
+For every Parquet column we see its low level Parquet data type in `type`,
+e.g. `INT64` or `BYTE_ARRAY`. `r_type` the R type that `read_parquet()`
+will create for that column. If `repetition_type` is `REQUIRED`, then that
+column cannot contain missing values. `OPTIONAL` columns may have missing
+values. `logical_type` is the higher level Parquet data type.
+
+E.g. the first column is an UTC (because of the `TRUE`) timestamp, in
+microseconds. It is stored as a 64 bit integer in the file, and it will be
+converted to a `POSIXct` object by `read_parquet()`.
+
+To actually read the file into a data frame, and look at the first
+couple of rows, call
+```{r}
+ud1 <- read_parquet(udf)
+ud1
+```
+
+### Writing a Parquet file
+
+To show `write_parquet()`, we'll use the `flights` data in the nycflights13
+package:
+
+```{r}
+library(nycflights13)
+flights
+```
+
+First we check how columns of `flights` will be mapped to Parquet types:
+
+```{r}
+parquet_column_types(flights)
+```
+
+This looks fine, so we go ahead and write out the file. By default it will
+be Snappy-compressed, and many columns will be dictionary encoded.
+
+```{r}
+write_parquet(flights, "flights.parquet")
+```
+
+### Parquet metadata
+
+Use `parquet_schema()` to see the schema of a Parquet file. The schema
+also includes "internal" parquet columns. Every Parquet file is a tree
+where columns may be part of an "internal" column. nanoparquet currently
+only supports flat files, that consist of a single internal root column
+and all other columns are leaf columns and are children of the root:
+
+```{r}
+parquet_schema("flights.parquet")
+```
+
+To see more information about a Parquet file, use `parquet_metadata()`:
+
+```{r}
+parquet_metadata("flights.parquet")
+```
+
+The output will include the schema, as above, but also data about the
+row groups (`write_parquet()` always writes a single row group currently),
+and column chunks. There is one column chunk per column in each row group.
+
+The columns chunk information also tells you whether a column chunk is
+dictionary encoded, its encoding, its size, etc.
+
+```{r}
+cc <- parquet_metadata("flights.parquet")$column_chunks
+cc[, c("column", "encodings", "dictionary_page_offset")]
+```
+
+```{r}
+cc[["encodings"]][1:3]
+```
+
+## Limitations
+
+nanoparquet 0.3.0 has a number of limitations.
+
+* **Only flat tables**. `read_parquet()` can only read flat tables, i.e.
+  Parquet files where all leaf columns are children of a single root
+  column. Similarly, `write_parquet()` will not write list columns.
+
+* **Unsupported Parquet types**. `read_parquet()` reads some Parquet types
+  as raw vectors of a list column currently, e.g. `FLOAT16`, `INTERVAL`.
+  See [the manual](https://r-lib.github.io/nanoparquet/reference/nanoparquet-types.html)
+  for details.
+
+* **No encryption**. Encrypted Parquet files are not supported.
+
+* **Missing compression codecs**. `LZO`, `BROTLI` and `LZ4` compression is
+  not yet supported.
+
+* **No statistics**. nanoparquet does not read or write statistics, e.g.
+  minimum and maximum values from and to Parquet files.
+
+* **No checksums**. nanoparquet does not check or write checksums
+  currently.
+
+* **No Bloom filters**. nanoparquet does not currently support reading
+  or writing Bloom filters from or to Parquet files.
+
+* **May be slow for large files**. Being single-threaded and not fully
+  optimized, nanoparquet is probably not suited well for large data sets.
+  It should be fine for a couple of gigabytes. It may be fine if all the
+  data fits into memory comfortably.
+
+* **Single row group**. `write_parquet()` always creates a single row
+  group, which is not optimal for large files.
+
+* **Automatic encoding**. It is currently not possible to choose encodings
+  in `write_parquet()` manually.
+
+## Other tools for Parquet files
+
+If you run into some of these limitations, chances are you are dealing
+with a larget data set, and you will probably benefit from using tools
+geared towards larger Parquet files. Luckily you have several options.
+
+### In R
+
+#### Apache Arrow
+
+You can usually install the `arrow` package from CRAN. Note, however, that
+some CRAN builds are suboptimal at the time of writing, e.g. the macOS
+builds lack Parquet support and it is best to install arrow from
+[R-universe](https://apache.r-universe.dev/arrow) on these platforms.
+
+Call `arrow::read_parquet()` to read Parquet files, and
+`arrow::write_parquet()` to write them. You can also use
+`arrow::open_dataset()` to open (one or more) Parquet files and perform
+queries on them without loading all data into memory.
+
+#### DuckDB
+
+DuckDB is an excellent tool that handles Parquet files seemlessly.
+You can install the duckdb R package from CRAN.
+
+To read a Parquet file into an R data frame with DuckDB, call
+```r
+df <- duckdb:::sql("FROM 'file.parquet'")
+```
+
+Alternatively, you can open (one or more) Parquet files and query them as
+a DuckDB database, potentially without reading all data into memory at
+once.
+
+Here is an example that shows how to put an R data frame into a
+(temporary) DuckDB database, and how to export it to Parquet:
+
+```r
+drv <- duckdb::duckdb()
+con <- DBI::dbConnect(drv)
+on.exit(DBI::dbDisconnect(con), add = TRUE)
+DBI::dbWriteTable(con, "mtcars", mtcars)
+
+DBI::dbExecute(con, DBI::sqlInterpolate(con,
+  "COPY mtcars TO ?filename (FORMAT 'parquet', COMPRESSION 'snappy')",
+  filename = tmp
+))
+```
+
+### In Python
+
+There are at least three good options to handle Parquet files in Python.
+Just like for R, the first two are
+[Apache Arrow](https://arrow.apache.org/docs/python/index.html) and
+[DuckDB](https://duckdb.org/docs/api/python/overview.html).
+You can also try the
+[fastparquet](https://pypi.org/project/fastparquet/) Python package for a
+potentially lighter solution.
+
+## Acknowledgements
+
+nanoparquet would not exist without the work of Hannes Mühleisen on
+[miniparquet](https://github.com/hannes/miniparquet), which had similar
+goals, but it is discontinued now. nanoparquet is a fork of miniparquet.
+
+nanoparquet also contains code and test Parquet files from DuckDB,
+Apache Parquet, Apache Arrow, Apache Thrift, it contains libraries from
+Google, Facebook, etc. see the
+[COPYRIGHTS file](https://github.com/r-lib/nanoparquet/blob/main/inst/COPYRIGHTS)
+in the repository for the full details.
