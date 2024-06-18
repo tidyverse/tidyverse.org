@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: nanoparquet-0-3-0
 title: nanoparquet 0.3.0
-date: 2024-06-17
+date: 2024-06-18
 author: Gábor Csárdi
 description: >
     Nanoparquet is a new R package that can read and write (flat) Parquet
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [parquet]
-rmd_hash: e371c6c60337f78c
+rmd_hash: c8a160db91f3acd6
 
 ---
 
@@ -426,6 +426,8 @@ nanoparquet 0.3.0 has a number of limitations.
 -   **Single row group**. [`write_parquet()`](https://r-lib.github.io/nanoparquet/reference/write_parquet.html) always creates a single row group, which is not optimal for large files.
 
 -   **Automatic encoding**. It is currently not possible to choose encodings in [`write_parquet()`](https://r-lib.github.io/nanoparquet/reference/write_parquet.html) manually.
+
+We are planning on solving these limitations, while keeping nanoparquet as lean as possible. In particular, if you find a Parquet file that nanoparquet cannot read, please report an issue in our [issue tracker](https://github.com/r-lib/nanoparquet/issues)!
 
 ## Other tools for Parquet files
 
