@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [parquet]
-rmd_hash: 7c0a936ff1e6e184
+rmd_hash: e371c6c60337f78c
 
 ---
 
@@ -65,6 +65,8 @@ Parquet is a file format for storing data on disk. It is specifically designed f
 
 -   **Performant**. Parquet columns may use various encodings and compression to ensure that the data files are kept as small as possible. When running an analytical query on the subset of the data, the Parquet format makes it easy to skip the columns and/or rows that are irrelevant.
 
+-   **Concurrency built in**. A Parquet file can be divided into row groups. Parquet readers can read, uncompress and decode row groups in parallel. Parquet writes can encode and compress row groups in parallel. Even a single column may be divided into multiple pages, that can be (un)compressed, encode and decode in parallel.
+
 -   **Missing values**. Support for missing values is built into the Parquet format.
 
 ## Why we created nanoparquet?
@@ -77,15 +79,15 @@ With nanoparquet, we wanted to have a smaller tool that has no dependencies and 
 
 These are some of the nanoparquet features that we are most excited about.
 
--   **Lightweight**. nanoparquet has no package or system dependencies other than a C++-11 compiler. It compiles in about 30 seconds, into an R package that is less than a megabyte in size.
+-   **Lightweight**. nanoparquet has no package or system dependencies other than a C++-11 compiler. It compiles in about 30 seconds into an R package that is less than a megabyte in size.
 
 -   **Reads many Parquet files**. [`nanoparquet::read_parquet()`](https://r-lib.github.io/nanoparquet/reference/read_parquet.html) supports reading most Parquet files. In particular, in supports all Parquet encodings and at the time of writing it supports three compression codecs: Snappy, Gzip and Zstd. Make sure you read "Limitations" below.
 
--   **Writes many R data types**. [`nanoparquet::write_parquet()`](https://r-lib.github.io/nanoparquet/reference/write_parquet.html) supports writing most R data frames. In particular, missing values are handled properly, factor columns are keps as factors, temporal types as well. Make sure you read "Limitations" below.
+-   **Writes many R data types**. [`nanoparquet::write_parquet()`](https://r-lib.github.io/nanoparquet/reference/write_parquet.html) supports writing most R data frames. In particular, missing values are handled properly, factor columns are kept as factors, and temporal types are encoded correctly. Make sure you read "Limitations" below.
 
 -   **Type mappings**. nanoparquet has a well defined set of [type mapping rules](https://r-lib.github.io/nanoparquet/reference/nanoparquet-types.html). Use the [`parquet_column_types()`](https://r-lib.github.io/nanoparquet/dev/reference/parquet_column_types.html) function to see how [`read_parquet()`](https://r-lib.github.io/nanoparquet/reference/read_parquet.html) and [`write_parquet()`](https://r-lib.github.io/nanoparquet/reference/write_parquet.html) maps Parquet and R types for a file or a data frame.
 
--   **Metadata queries**. nanoparquet has a [number of functions](https://r-lib.github.io/nanoparquet/dev/reference/index.html#extract-parquet-metadata) to query the metadata and schema in Parquet files.
+-   **Metadata queries**. nanoparquet has a [number of functions](https://r-lib.github.io/nanoparquet/dev/reference/index.html#extract-parquet-metadata) that allow you to query the metadata and schema without reading in the full dataset.
 
 ## Examples
 
@@ -144,7 +146,7 @@ For every Parquet column we see its low level Parquet data type in `type`, e.g.Â
 
 E.g. the first column is an UTC (because of the `TRUE`) timestamp, in microseconds. It is stored as a 64 bit integer in the file, and it will be converted to a `POSIXct` object by [`read_parquet()`](https://r-lib.github.io/nanoparquet/reference/read_parquet.html).
 
-To actually read the file into a data frame, and look at the first couple of rows, call
+To actually read the file into a data frame, call [`read_parquet()`](https://r-lib.github.io/nanoparquet/reference/read_parquet.html):
 
 <div class="highlight">
 
@@ -405,7 +407,7 @@ The columns chunk information also tells you whether a column chunk is dictionar
 
 nanoparquet 0.3.0 has a number of limitations.
 
--   **Only flat tables**. [`read_parquet()`](https://r-lib.github.io/nanoparquet/reference/read_parquet.html) can only read flat tables, i.e. Parquet files where all leaf columns are children of a single root column. Similarly, [`write_parquet()`](https://r-lib.github.io/nanoparquet/reference/write_parquet.html) will not write list columns.
+-   **Only flat tables**. [`read_parquet()`](https://r-lib.github.io/nanoparquet/reference/read_parquet.html) can only read flat tables, i.e. Parquet files without nested columns. (Technically all Parquet files are nested, and nanoparquet supports exactly one level of nesting: a single meta column that contains all other columns.) Similarly, [`write_parquet()`](https://r-lib.github.io/nanoparquet/reference/write_parquet.html) will not write list columns.
 
 -   **Unsupported Parquet types**. [`read_parquet()`](https://r-lib.github.io/nanoparquet/reference/read_parquet.html) reads some Parquet types as raw vectors of a list column currently, e.g.Â `FLOAT16`, `INTERVAL`. See [the manual](https://r-lib.github.io/nanoparquet/reference/nanoparquet-types.html) for details.
 
