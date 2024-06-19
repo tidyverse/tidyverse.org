@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: nanoparquet-0-3-0
 title: nanoparquet 0.3.0
-date: 2024-06-18
+date: 2024-06-20
 author: Gábor Csárdi
 description: >
     Nanoparquet is a new R package that can read and write (flat) Parquet
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [parquet]
-rmd_hash: c8a160db91f3acd6
+rmd_hash: 015376a439d4504e
 
 ---
 
