@@ -50,11 +50,12 @@ From that dataset's documentation:
 
 We'll try to predict the protein content, as a percentage, using the absorbance measurements.
 
-Before we take a further look, let's split up our data:
+Before we take a further look, let's split up our data. I'll first select off two other possible outcome variables and, after splitting into training and testing sets, resample the data using 5-fold cross-validation with 2 repeats.
 
 ```{r split-meats}
 meats <- meats %>% select(-water, -fat)
 
+set.seed(1)
 meats_split <- initial_split(meats)
 meats_train <- training(meats_split)
 meats_test <- testing(meats_split)
@@ -75,7 +76,7 @@ meats_train %>%
   theme(axis.text.x = element_blank(), axis.text.y = element_blank())
 ```
 
-Almost all of these pairwise correlations between predictors are near 1, besides the last variable and every other variable. That last variable? It's the outcome.
+Almost all of these pairwise correlations between predictors are near 1, besides the last variable and every other variable. That last variable with weaker correlation values? It's the outcome.
 
 ## Baseline models
 
@@ -94,7 +95,7 @@ show_best(res_lr, metric = "rmse")
 show_best(res_lr, metric = "rsq")
 ```
 
-That best RMSE value of `r round(show_best(res_lr, metric = "rmse")$mean[1], 3)` gives us a baseline to work with, and the best R-squared `r round(show_best(res_lr, metric = "rsq")$mean[1], 3)` seems like a good start.
+That best RMSE value of `r round(show_best(res_lr, metric = "rmse")$mean[1], 2)` gives us a baseline to work with, and the best R-squared `r round(show_best(res_lr, metric = "rsq")$mean[1], 2)` seems like a good start.
 
 Many tree-based model implementations in tidymodels generally handle correlated predictors well. Just to be apples-to-apples with `"aorsf"`, let's use a different random forest engine to get a better sense for baseline performance:
 
@@ -137,9 +138,9 @@ spec_svm <-
 res_svm <- tune_grid(spec_svm, protein ~ ., meats_folds)
 ```
 
-* **Gradient boosted tree with LightGBM**. Best RMSE: `r round(show_best(res_lgb, metric = "rmse")$mean[1], 3)`. Best R-squared: `r round(show_best(res_lgb, metric = "rsq")$mean[1], 3)`.
-* **Partial least squares regression**. Best RMSE: `r round(show_best(res_pls, metric = "rmse")$mean[1], 3)`. Best R-squared: `r round(show_best(res_pls, metric = "rsq")$mean[1], 3)`.
-* **Support vector machine**. Best RMSE: `r round(show_best(res_svm, metric = "rmse")$mean[1], 3)`. Best R-squared: `r round(show_best(res_svm, metric = "rsq")$mean[1], 3)`.
+* **Gradient boosted tree with LightGBM**. Best RMSE: `r round(show_best(res_lgb, metric = "rmse")$mean[1], 2)`. Best R-squared: `r round(show_best(res_lgb, metric = "rsq")$mean[1], 2)`.
+* **Partial least squares regression**. Best RMSE: `r round(show_best(res_pls, metric = "rmse")$mean[1], 2)`. Best R-squared: `r round(show_best(res_pls, metric = "rsq")$mean[1], 2)`.
+* **Support vector machine**. Best RMSE: `r round(show_best(res_svm, metric = "rmse")$mean[1], 2)`. Best R-squared: `r round(show_best(res_svm, metric = "rsq")$mean[1], 2)`.
 
 This is a tricky one.
 
@@ -174,7 +175,7 @@ show_best(res_aorsf, metric = "rmse")
 show_best(res_aorsf, metric = "rsq")
 ```
 
-Holy smokes. The best RMSE from aorsf is `r round(show_best(res_aorsf, metric = "rmse")$mean[1], 3)`, much more performant than the previous best RMSE from the elastic net with `r round(show_best(res_lr, metric = "rmse")$mean[1], 3)`, and the best R-squared is `r round(show_best(res_aorsf, metric = "rsq")$mean[1], 3)`, much stronger than the previous best (also from the elastic net) of `r round(show_best(res_lr, metric = "rsq")$mean[1], 3)`.
+Holy smokes. The best RMSE from aorsf is `r round(show_best(res_aorsf, metric = "rmse")$mean[1], 2)`, much more performant than the previous best RMSE from the elastic net with a value of `r round(show_best(res_lr, metric = "rmse")$mean[1], 2)`, and the best R-squared is `r round(show_best(res_aorsf, metric = "rsq")$mean[1], 2)`, much stronger than the previous best (also from the elastic net) of `r round(show_best(res_lr, metric = "rsq")$mean[1], 2)`.
 
 Especially if your modeling problems involve few samples of many, highly correlated predictors, give the `"aorsf"` modeling engine a whir in your workflows and let us know what you think!
 

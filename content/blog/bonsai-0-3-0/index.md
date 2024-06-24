@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [tidymodels, parsnip, bonsai]
-rmd_hash: c59384f9ed86f6c0
+rmd_hash: 348fc3ed9d6bd04d
 
 ---
 
@@ -79,12 +79,13 @@ From that dataset's documentation:
 
 We'll try to predict the protein content, as a percentage, using the absorbance measurements.
 
-Before we take a further look, let's split up our data:
+Before we take a further look, let's split up our data. I'll first select off two other possible outcome variables and, after splitting into training and testing sets, resample the data using 5-fold cross-validation with 2 repeats.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>meats</span> <span class='o'>&lt;-</span> <span class='nv'>meats</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'>select</span><span class='o'>(</span><span class='o'>-</span><span class='nv'>water</span>, <span class='o'>-</span><span class='nv'>fat</span><span class='o'>)</span></span>
 <span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>)</span></span>
 <span><span class='nv'>meats_split</span> <span class='o'>&lt;-</span> <span class='nf'>initial_split</span><span class='o'>(</span><span class='nv'>meats</span><span class='o'>)</span></span>
 <span><span class='nv'>meats_train</span> <span class='o'>&lt;-</span> <span class='nf'>training</span><span class='o'>(</span><span class='nv'>meats_split</span><span class='o'>)</span></span>
 <span><span class='nv'>meats_test</span> <span class='o'>&lt;-</span> <span class='nf'>testing</span><span class='o'>(</span><span class='nv'>meats_split</span><span class='o'>)</span></span>
@@ -113,7 +114,7 @@ Visualizing that correlation:
 
 </div>
 
-Almost all of these pairwise correlations between predictors are near 1, besides the last variable and every other variable. That last variable? It's the outcome.
+Almost all of these pairwise correlations between predictors are near 1, besides the last variable and every other variable. That last variable with weaker correlation values? It's the outcome.
 
 ## Baseline models
 
@@ -133,25 +134,25 @@ There are several existing model implementations in tidymodels that are resilien
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 8</span></span></span>
 <span><span class='c'>#&gt;         penalty mixture .metric .estimator  mean     n std_err .config          </span></span>
 <span><span class='c'>#&gt;           <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>            </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> 0.000<span style='text-decoration: underline;'>000</span>002<span style='text-decoration: underline;'>61</span>   0.474 rmse    standard    1.13    10  0.052<span style='text-decoration: underline;'>0</span> Preprocessor1_Mo…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> 0.000<span style='text-decoration: underline;'>000</span>194     0.666 rmse    standard    1.14    10  0.048<span style='text-decoration: underline;'>9</span> Preprocessor1_Mo…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> 0.000<span style='text-decoration: underline;'>490</span>        0.346 rmse    standard    1.16    10  0.062<span style='text-decoration: underline;'>6</span> Preprocessor1_Mo…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> 0.000<span style='text-decoration: underline;'>000</span>011<span style='text-decoration: underline;'>6</span>    0.269 rmse    standard    1.16    10  0.055<span style='text-decoration: underline;'>1</span> Preprocessor1_Mo…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> 0.000<span style='text-decoration: underline;'>003</span>50      0.976 rmse    standard    1.16    10  0.069<span style='text-decoration: underline;'>8</span> Preprocessor1_Mo…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> 0.000<span style='text-decoration: underline;'>032</span>4       0.668 rmse    standard    1.24    10  0.051<span style='text-decoration: underline;'>6</span> Preprocessor1_Mo…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> 0.000<span style='text-decoration: underline;'>000</span>005<span style='text-decoration: underline;'>24</span>   0.440 rmse    standard    1.25    10  0.054<span style='text-decoration: underline;'>8</span> Preprocessor1_Mo…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> 0.000<span style='text-decoration: underline;'>000</span>461     0.839 rmse    standard    1.26    10  0.053<span style='text-decoration: underline;'>8</span> Preprocessor1_Mo…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> 0.000<span style='text-decoration: underline;'>005</span>50      0.965 rmse    standard    1.26    10  0.054<span style='text-decoration: underline;'>0</span> Preprocessor1_Mo…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> 0.000<span style='text-decoration: underline;'>000</span>048<span style='text-decoration: underline;'>9</span>    0.281 rmse    standard    1.26    10  0.053<span style='text-decoration: underline;'>4</span> Preprocessor1_Mo…</span></span>
 <span></span><span><span class='nf'>show_best</span><span class='o'>(</span><span class='nv'>res_lr</span>, metric <span class='o'>=</span> <span class='s'>"rsq"</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 8</span></span></span>
 <span><span class='c'>#&gt;         penalty mixture .metric .estimator  mean     n std_err .config          </span></span>
 <span><span class='c'>#&gt;           <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>            </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> 0.000<span style='text-decoration: underline;'>000</span>002<span style='text-decoration: underline;'>61</span>   0.474 rsq     standard   0.873    10 0.007<span style='text-decoration: underline;'>89</span> Preprocessor1_Mo…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> 0.000<span style='text-decoration: underline;'>000</span>194     0.666 rsq     standard   0.870    10 0.008<span style='text-decoration: underline;'>95</span> Preprocessor1_Mo…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> 0.000<span style='text-decoration: underline;'>000</span>011<span style='text-decoration: underline;'>6</span>    0.269 rsq     standard   0.868    10 0.008<span style='text-decoration: underline;'>05</span> Preprocessor1_Mo…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> 0.000<span style='text-decoration: underline;'>490</span>        0.346 rsq     standard   0.867    10 0.009<span style='text-decoration: underline;'>83</span> Preprocessor1_Mo…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> 0.000<span style='text-decoration: underline;'>045</span>2       0.100 rsq     standard   0.866    10 0.008<span style='text-decoration: underline;'>41</span> Preprocessor1_Mo…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> 0.000<span style='text-decoration: underline;'>032</span>4       0.668 rsq     standard   0.849    10  0.012<span style='text-decoration: underline;'>6</span> Preprocessor1_Mo…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> 0.000<span style='text-decoration: underline;'>000</span>005<span style='text-decoration: underline;'>24</span>   0.440 rsq     standard   0.848    10  0.012<span style='text-decoration: underline;'>8</span> Preprocessor1_Mo…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> 0.000<span style='text-decoration: underline;'>000</span>461     0.839 rsq     standard   0.846    10  0.011<span style='text-decoration: underline;'>4</span> Preprocessor1_Mo…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> 0.000<span style='text-decoration: underline;'>005</span>50      0.965 rsq     standard   0.846    10  0.011<span style='text-decoration: underline;'>1</span> Preprocessor1_Mo…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> 0.000<span style='text-decoration: underline;'>000</span>048<span style='text-decoration: underline;'>9</span>    0.281 rsq     standard   0.846    10  0.012<span style='text-decoration: underline;'>6</span> Preprocessor1_Mo…</span></span>
 <span></span></code></pre>
 
 </div>
 
-That best RMSE value of 1.129 gives us a baseline to work with, and the best R-squared 0.873 seems like a good start.
+That best RMSE value of 1.24 gives us a baseline to work with, and the best R-squared 0.85 seems like a good start.
 
 Many tree-based model implementations in tidymodels generally handle correlated predictors well. Just to be apples-to-apples with `"aorsf"`, let's use a different random forest engine to get a better sense for baseline performance:
 
@@ -170,29 +171,29 @@ Many tree-based model implementations in tidymodels generally handle correlated 
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 8</span></span></span>
 <span><span class='c'>#&gt;    mtry min_n .metric .estimator  mean     n std_err .config              </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>    45     3 rmse    standard    2.16    10  0.057<span style='text-decoration: underline;'>3</span> Preprocessor1_Model08</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>    70     7 rmse    standard    2.18    10  0.055<span style='text-decoration: underline;'>7</span> Preprocessor1_Model10</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>    28    10 rmse    standard    2.19    10  0.059<span style='text-decoration: underline;'>9</span> Preprocessor1_Model09</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>    16    15 rmse    standard    2.24    10  0.065<span style='text-decoration: underline;'>9</span> Preprocessor1_Model06</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>    51    18 rmse    standard    2.26    10  0.067<span style='text-decoration: underline;'>1</span> Preprocessor1_Model05</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>    96     4 rmse    standard    2.37    10  0.090<span style='text-decoration: underline;'>5</span> Preprocessor1_Model08</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>    41     6 rmse    standard    2.39    10  0.088<span style='text-decoration: underline;'>3</span> Preprocessor1_Model01</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>    88    10 rmse    standard    2.43    10  0.081<span style='text-decoration: underline;'>6</span> Preprocessor1_Model06</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>    79    17 rmse    standard    2.51    10  0.074<span style='text-decoration: underline;'>0</span> Preprocessor1_Model07</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>    27    18 rmse    standard    2.52    10  0.077<span style='text-decoration: underline;'>8</span> Preprocessor1_Model04</span></span>
 <span></span><span><span class='nf'>show_best</span><span class='o'>(</span><span class='nv'>res_rf</span>, metric <span class='o'>=</span> <span class='s'>"rsq"</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 8</span></span></span>
 <span><span class='c'>#&gt;    mtry min_n .metric .estimator  mean     n std_err .config              </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>    45     3 rsq     standard   0.503    10  0.033<span style='text-decoration: underline;'>7</span> Preprocessor1_Model08</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>    70     7 rsq     standard   0.489    10  0.031<span style='text-decoration: underline;'>7</span> Preprocessor1_Model10</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>    28    10 rsq     standard   0.485    10  0.035<span style='text-decoration: underline;'>5</span> Preprocessor1_Model09</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>    16    15 rsq     standard   0.459    10  0.038<span style='text-decoration: underline;'>9</span> Preprocessor1_Model06</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>    51    18 rsq     standard   0.454    10  0.039<span style='text-decoration: underline;'>7</span> Preprocessor1_Model05</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>    96     4 rsq     standard   0.424    10  0.038<span style='text-decoration: underline;'>5</span> Preprocessor1_Model08</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>    41     6 rsq     standard   0.409    10  0.039<span style='text-decoration: underline;'>4</span> Preprocessor1_Model01</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>    88    10 rsq     standard   0.387    10  0.036<span style='text-decoration: underline;'>5</span> Preprocessor1_Model06</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>    79    17 rsq     standard   0.353    10  0.040<span style='text-decoration: underline;'>4</span> Preprocessor1_Model07</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>    27    18 rsq     standard   0.346    10  0.039<span style='text-decoration: underline;'>7</span> Preprocessor1_Model04</span></span>
 <span></span></code></pre>
 
 </div>
 
 Not so hot. Just to show I'm not making a straw man here, I'll evaluate a few more alternative modeling approaches behind the curtain and print out their best performance metrics:
 
--   **Gradient boosted tree with LightGBM**. Best RMSE: 2.202. Best R-squared: 0.474.
--   **Partial least squares regression**. Best RMSE: 1.699. Best R-squared: 0.701.
--   **Support vector machine**. Best RMSE: 1.855. Best R-squared: 0.631.
+-   **Gradient boosted tree with LightGBM**. Best RMSE: 2.34. Best R-squared: 0.43.
+-   **Partial least squares regression**. Best RMSE: 1.39. Best R-squared: 0.81.
+-   **Support vector machine**. Best RMSE: 2.28. Best R-squared: 0.46.
 
 This is a tricky one.
 
@@ -231,25 +232,25 @@ The code to tune this model with the `"aorsf"` engine is the same as for `"range
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 8</span></span></span>
 <span><span class='c'>#&gt;    mtry min_n .metric .estimator  mean     n std_err .config              </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>    47     5 rmse    standard   0.761    10  0.048<span style='text-decoration: underline;'>7</span> Preprocessor1_Model04</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>    24     7 rmse    standard   0.765    10  0.048<span style='text-decoration: underline;'>0</span> Preprocessor1_Model08</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>    87    13 rmse    standard   0.772    10  0.041<span style='text-decoration: underline;'>7</span> Preprocessor1_Model06</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>    31    15 rmse    standard   0.773    10  0.038<span style='text-decoration: underline;'>4</span> Preprocessor1_Model02</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>    71    20 rmse    standard   0.807    10  0.031<span style='text-decoration: underline;'>3</span> Preprocessor1_Model05</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>    87    11 rmse    standard   0.786    10  0.037<span style='text-decoration: underline;'>0</span> Preprocessor1_Model02</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>    98     8 rmse    standard   0.789    10  0.036<span style='text-decoration: underline;'>3</span> Preprocessor1_Model10</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>    48     5 rmse    standard   0.793    10  0.036<span style='text-decoration: underline;'>3</span> Preprocessor1_Model01</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>    16    17 rmse    standard   0.803    10  0.032<span style='text-decoration: underline;'>5</span> Preprocessor1_Model09</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>    31    18 rmse    standard   0.813    10  0.035<span style='text-decoration: underline;'>9</span> Preprocessor1_Model05</span></span>
 <span></span><span><span class='nf'>show_best</span><span class='o'>(</span><span class='nv'>res_aorsf</span>, metric <span class='o'>=</span> <span class='s'>"rsq"</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 8</span></span></span>
 <span><span class='c'>#&gt;    mtry min_n .metric .estimator  mean     n std_err .config              </span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>    47     5 rsq     standard   0.947    10 0.006<span style='text-decoration: underline;'>57</span> Preprocessor1_Model04</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>    24     7 rsq     standard   0.946    10 0.006<span style='text-decoration: underline;'>98</span> Preprocessor1_Model08</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>    31    15 rsq     standard   0.945    10 0.006<span style='text-decoration: underline;'>27</span> Preprocessor1_Model02</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>    87    13 rsq     standard   0.945    10 0.006<span style='text-decoration: underline;'>63</span> Preprocessor1_Model06</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>    71    20 rsq     standard   0.940    10 0.006<span style='text-decoration: underline;'>14</span> Preprocessor1_Model05</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>    48     5 rsq     standard   0.946    10 0.004<span style='text-decoration: underline;'>46</span> Preprocessor1_Model01</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>    98     8 rsq     standard   0.945    10 0.004<span style='text-decoration: underline;'>82</span> Preprocessor1_Model10</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>    87    11 rsq     standard   0.945    10 0.004<span style='text-decoration: underline;'>84</span> Preprocessor1_Model02</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span>    16    17 rsq     standard   0.941    10 0.003<span style='text-decoration: underline;'>70</span> Preprocessor1_Model09</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span>    31    18 rsq     standard   0.940    10 0.005<span style='text-decoration: underline;'>47</span> Preprocessor1_Model05</span></span>
 <span></span></code></pre>
 
 </div>
 
-Holy smokes. The best RMSE from aorsf is 0.761, much more performant than the previous best RMSE from the elastic net with 1.129, and the best R-squared is 0.947, much stronger than the previous best (also from the elastic net) of 0.873.
+Holy smokes. The best RMSE from aorsf is 0.79, much more performant than the previous best RMSE from the elastic net with a value of 1.24, and the best R-squared is 0.95, much stronger than the previous best (also from the elastic net) of 0.85.
 
 Especially if your modeling problems involve few samples of many, highly correlated predictors, give the `"aorsf"` modeling engine a whir in your workflows and let us know what you think!
 
