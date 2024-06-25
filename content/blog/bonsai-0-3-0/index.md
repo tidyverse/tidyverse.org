@@ -15,11 +15,11 @@ photo:
 
 categories: [package] 
 tags: [tidymodels, parsnip, bonsai]
-rmd_hash: 1b8d1dd1f06c61b1
+rmd_hash: b62cd1aa518657a6
 
 ---
 
-We're brimming with glee to announce the release of [bonsai](bonsai.tidymodels.org) 0.3.0. bonsai is a parsnip extension package for tree-based models, and includes support for random forest and gradient-boosted tree frameworks like partykit and LightGBM. This most recent release of the package introduces support for the `"aorsf"` engine, which implements accelerated oblique random forests (Jaeger et al. 2022, Jaeger et al. 2024).
+We're brimming with glee to announce the release of [bonsai](https://bonsai.tidymodels.org) 0.3.0. bonsai is a parsnip extension package for tree-based models, and includes support for random forest and gradient-boosted tree frameworks like partykit and LightGBM. This most recent release of the package introduces support for the `"aorsf"` engine, which implements accelerated oblique random forests (Jaeger et al. 2022, Jaeger et al. 2024).
 
 You can install it from CRAN with:
 
