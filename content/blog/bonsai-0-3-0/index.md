@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [tidymodels, parsnip, bonsai]
-rmd_hash: 348fc3ed9d6bd04d
+rmd_hash: 1b8d1dd1f06c61b1
 
 ---
 
@@ -31,7 +31,7 @@ You can install it from CRAN with:
 
 This blog post will demonstrate a modeling workflow where the benefits of using oblique random forests shine through.
 
-You can see a full list of changes in the [release notes](%7B%20github_release%20%7D).
+You can see a full list of changes in the [release notes](https://bonsai.tidymodels.org/news/index.html#bonsai-030).
 
 <div class="highlight">
 
@@ -252,7 +252,7 @@ The code to tune this model with the `"aorsf"` engine is the same as for `"range
 
 Holy smokes. The best RMSE from aorsf is 0.79, much more performant than the previous best RMSE from the elastic net with a value of 1.24, and the best R-squared is 0.95, much stronger than the previous best (also from the elastic net) of 0.85.
 
-Especially if your modeling problems involve few samples of many, highly correlated predictors, give the `"aorsf"` modeling engine a whir in your workflows and let us know what you think!
+Especially if your modeling problems involve few samples of many, highly correlated predictors, give the `"aorsf"` modeling engine a whirl in your workflows and let us know what you think!
 
 ## References
 
