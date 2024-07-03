@@ -19,7 +19,7 @@ rmd_hash: efe6168c59ef5121
 
 Though package-specific minimum versions of R are given in the `Depends` fields of individual `DESCRIPTION` files, our general policy is to support the **current version**, the **devel version**, and **four previous versions** of R.
 
-**Edit 2022-11-15[^1]**
+This policy applies to all packages that we support, i.e. as well as all packages in the tidyverse, it also applies the infrastructure packages that we maintain in [r-lib](https://github.com/r-lib).
 
 Over the past several years and moving forward (as described in the "Release plans" section of the [R Developer Page](https://developer.r-project.org/)), R version releases occur annually:
 
@@ -44,7 +44,9 @@ Tidyverse minimum R version support
 
 </div>
 
-[^1]: Add table with annual historic and projected R-version support.
+[^1]: Note that we only update the required version on package release, so you may see older versions listed in published CRAN packages.
 
-[^2]: Note that older versions *may* be supported. For example, as of 2022, the [tidyverse package `Depends` field](https://github.com/tidyverse/tidyverse/blob/aeabcde8c6ae435f16b5173682d5667d292829fb/DESCRIPTION#LL17-L18) is R (\>= 3.3).
+### Edit history
 
+* 2022-11-15: Added table with annual historic and projected R-version support.
+* 2024-07-03: Clarified that the policy also applies to r-lib.
