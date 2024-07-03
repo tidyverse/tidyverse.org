@@ -17,20 +17,20 @@ rmd_hash: efe6168c59ef5121
 
 Our general policy is to support the **current version**, the **devel version**, and **four previous versions** of R. This policy applies to all packages that we support, i.e. as well as all tidyverse packages, it also applies to the infrastructure packages that we maintain in [r-lib](https://github.com/r-lib).
 
-This, the *official* minimum supported versions of R for the tidyverse are as described here:
+Thus the *official* minimum supported versions of R for the tidyverse are as follows:
 
-| Date       | Released R version | Minimum supported version |
-|-----------:|:-------------------|:--------------------------|
-| 2019-04-26 | 3.6                | 3.2                       |
-| 2020-04-24 | 4.0                | 3.3                       |
-| 2021-05-18 | 4.1                | 3.4                       |
-| 2022-04-22 | 4.2                | 3.5                       |
-| 2023-04-21 | 4.3                | 3.6                       |
-| 2024-04-24 | 4.4                | 4.0                       |
-| 2025       | 4.5                | 4.1                       |
-| 2026       | 4.6                | 4.2                       |
+| Released R version | Date       | Minimum supported version |
+|:-------------------|-----------:|:--------------------------|
+| 3.6                | 2019-04-26 | 3.2                       |
+| 4.0                | 2020-04-24 | 3.3                       |
+| 4.1                | 2021-05-18 | 3.4                       |
+| 4.2                | 2022-04-22 | 3.5                       |
+| 4.3                | 2023-04-21 | 3.6                       |
+| 4.4                | 2024-04-24 | 4.0                       |
+| 4.5                | 2025       | 4.1                       |
+| 4.6                | 2026       | 4.2                       |
 
-Note that, as described in the "Release plans" section of the [R Developer Page](https://developer.r-project.org/), R version releases occur annually in Spring. We generally update the required version in package metadata on the next package release after the R package, so you may see older versions listed in published CRAN packages.
+Note that, as described in the R Developer ["Release plans"](https://developer.r-project.org/), R version releases occur annually in Spring. We generally update the required version in package metadata on the next package release after the R release, so you may see older versions listed in published CRAN packages.
 
 ### Edit history
 
