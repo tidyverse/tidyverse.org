@@ -15,7 +15,7 @@ rmd_hash: efe6168c59ef5121
 
 ---
 
-Our general policy is to support the **current version**, the **devel version**, and **four previous versions** of R. This policy applies to all packages that we support, i.e. as well as all tidyverse packages, it also applies the infrastructure packages that we maintain in [r-lib](https://github.com/r-lib).
+Our general policy is to support the **current version**, the **devel version**, and **four previous versions** of R. This policy applies to all packages that we support, i.e. as well as all tidyverse packages, it also applies to the infrastructure packages that we maintain in [r-lib](https://github.com/r-lib).
 
 This, the *official* minimum supported versions of R for the tidyverse are as described here:
 
