@@ -1,0 +1,121 @@
+---
+output: hugodown::hugo_document
+
+slug: pkgdown-2-1-0
+title: pkgdown 2.1.0
+date: 2024-07-05
+author: Hadley Wickham
+description: >
+    pkgdown 2.1.0 includes two major new features: support for quarto vignettes
+    and a "light switch" that lets the reader switch between light and dark 
+    mode. It also contains a bunch of other improvements to both the user
+    and the developer experience.
+
+photo:
+  url: https://chatgpt.com/
+  author: ChatGPT 4o
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [devtools, pkgdown]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [s] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We're delighted to announce the release of [pkgdown](http://pkgdown.r-lib.org/) 2.1.0. pkgdown is designed to make it quick and easy to build a beautiful and accessible website for your package. 
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("pkgdown")
+```
+
+This is a massive release with a bunch of new features. I'll highlight the most important here, but as always, I highlight recommend skimming the [release notes]() for other smaller improvements and bug fixes.
+
+First, and most importantly, please join me in welcoming two new authors to pkgdown: [Olivier Roy](https://github.com/olivroy) and [Salim Brüggemann](https://github.com/salim-b). They have both contributed many improvements to the package and I'm very happy to officially have them aboard as package authors.
+
+```{r setup}
+library(pkgdown)
+```
+
+## Lifecycle changes
+
+Let's get started with the important stuff, the [lifecycle updates](https://www.tidyverse.org/blog/2021/02/lifecycle-1-0-0/). Most important we've decided to deprecate support for Bootstrap 3, which was superseded in December 2021. We're starting to more directly encourage folks to move away from it as maintaining two separate sets of site templates is a maintainance challenge. If you're still using BS3, now's the [time to upgrade](https://www.tidyverse.org/blog/2021/12/pkgdown-2-0-0/#bootstrap-5) to BS5.
+
+There are three other changes that are less likely to affect folks:
+
+* `build_site(document)` and `build_reference(document)` have been removed after being deprecated in pkgdown 1.4.0; use the [`devel` argument](https://pkgdown.r-lib.org/dev/reference/build_site.html#arg-devel) instead.
+
+* `autolink_html()` was deprecated in pkgdown 1.6.0 and now warns every time you use it; use `downlit::downlit_html_path()`.
+
+* `preview_page()` has been deprecated; use `preview_site()` instead.
+
+## Major new features
+
+### Quarto support
+
+`build_articles()` and `build_article()` now support articles and vignettes written with Quarto. To use it, make sure you have the the latest version of Quarto, 1.5, which was released last week.
+
+Combining the disparate quarto and pkgdown templating systems is a delicate art, so while I've done my best to make it work, there may be some rough edges. So please file an issue you encounter quarto features that don't work quite right. 
+
+By and large you should be able to just write in Quarto and things will just work, but if you're building your site on GitHub actions you'll also need to install quarto. Learn more at `vignette("quarto")`, which also describes the currently know limitations.
+
+### Light switch
+
+pkgdown sites can now provide a "light switch" that allows the user to switch between light and dark modes (based on work in bslib by @gadenbuie). The light switch appears at the far right at the navbar, and remembers the users choice between visits to your site.
+
+(Note that the light switch works differently to quarto dark mode. In quarto, you can provide two completely different themes for light and dark mode. In pkgdown, dark mode is a relatively thin overly that based on your light theme colours.)
+
+For now, you'll need to opt-in to the light-switch by adding the following to your `_pkgdown.yml`:
+
+```yaml
+template
+  light-switch: true
+```
+
+In the future we hope to turn it on automatically. 
+
+You can learn more about customising the light switch in `vignette("customise")`. You can choose to select your own syntax highlighting scheme for dark mode, override dark-specific BS lib variables, and move its location in the navbar.
+
+## User experience
+
+We've made a bunch of small changes to enhance the user experience of pkgdown sites:
+
+* We continue our efforts to make pkgdown sites as accessible as possible by now warning if you've forgotten to add alt text to images (including plots) in your articles (or if you're using a custom navbar component with only an icon). And new `vignette("accessibility")` describes what manual tasks you need to perform to make your site as accessible as possible.
+
+* `build_reference()` adds anchors to arguments making it possible to link directly to an argument. This is very useful when you're trying to direct folks to the documentation for a specific argument, e.g. <https://pkgdown.r-lib.org/dev/reference/build_site.html#arg-devel>.
+
+* `build_reference_index()` now displays function lifecycle badges [next to the function name](https://pkgdown.r-lib.org/dev/reference/index.html#deprecated-functions). If you want to gather together (e.g.) all the deprecated function in one spot in the reference index, you can use the new topic selector `has_lifecycle("deprecated")`.
+
+* New `template.math-rendering` allows you to control how math is rendered across your site. The default behaviour is to uses `mathml` which is low-dependency but has the lowest fidelity. If you use a lot of math on your site, you can switch back to the previous method with `mathjax`, or try out `katex`, a faster alternative.
+
+* pkgdown sites no longer depend on external content distribution networks (CDN) for common javascript, CSS, and font files. CDNs no longer provide [any performance advantages](https://www.stefanjudis.com/notes/say-goodbye-to-resource-caching-across-sites-and-domains/) and make deployment harder inside certain locked down corporate environments.
+
+* pkgdown sites now translate "Abstract", "Search site", and more. A big thanks to @jplecavalier, @dieghernan, @krlmlr, @LDalby, @rich-iannone, @jmaspons, and @mine-cetinkaya-rundel for providing updated translations in French, Spanish, Portugese, Germna, Catalan, and Turkish!
+
+  I've also written `vignette("translations")`, a brief vignette  that discusses how translation works for non-English sites, and includes how you can create translations for new languages. (This is a great way to contribute if you're multi-lingual!)
+
+### Developer experience
+
+We've also made a bunch of minor improvements to make the life of the package developer easier:
+
+* YAML validation has been substantially improved so you should get much clearer errors if you have made a mistake. Please [file an issue](https://github.com/r-lib/pkgdown/issues/new) if you find a case where the error message is not helpful.
+
+* The `build_*()` functions (apart from `build_site()`) no longer automatically preview in interactive sessions since they all emit links to any updated files. You can continue to use `preview_site()` to preview in your browser.
+
+* The `build_*()` functions now work better if you're previewing just part of a site and haven't built the whole thing. It should no longer be necessary to run `init_site()` in most cases, and you shouldn't be able to get into a state where you're told to run `init_site()` nad then it doesn't work.
+
+* We give more and clearer details of the site building process including reporting on exactly what is generated by bslib, what is copied from templates, and what redirects are generated.  
+
+## Acknowledgements
