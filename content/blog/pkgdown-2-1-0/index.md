@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [devtools, pkgdown]
-rmd_hash: 7dfefe2121a36e3a
+rmd_hash: 10b667efb6b2154c
 
 ---
 
@@ -61,7 +61,7 @@ Let's get started with the important stuff, the [lifecycle updates](https://www.
 
 There are three other changes that are less likely to affect folks:
 
--   `build_site(document)` and `build_reference(document)` have been removed after being deprecated in pkgdown 1.4.0; use the [`devel` argument](https://pkgdown.r-lib.org/dev/reference/build_site.html#arg-devel) instead.
+-   The `document` argument to [`build_site()`](https://pkgdown.r-lib.org/reference/build_site.html) and [`build_reference()`](https://pkgdown.r-lib.org/reference/build_reference.html) has been removed after being deprecated in pkgdown 1.4.0; use the [`devel` argument](https://pkgdown.r-lib.org/dev/reference/build_site.html#arg-devel) instead.
 
 -   [`autolink_html()`](https://pkgdown.r-lib.org/reference/autolink_html.html) was deprecated in pkgdown 1.6.0 and now warns every time you use it; use [`downlit::downlit_html_path()`](https://downlit.r-lib.org/reference/downlit_html_path.html).
 
@@ -81,7 +81,7 @@ By and large you should be able to just write in Quarto and things will just wor
 
 pkgdown sites can now provide a "light switch" that allows the user to switch between light and dark modes (based on work in bslib by @gadenbuie). The light switch appears at the far right at the navbar, and remembers the users choice between visits to your site.
 
-(Note that the light switch works differently to quarto dark mode. In quarto, you can provide two completely different themes for light and dark mode. In pkgdown, dark mode is a relatively thin overly that based on your light theme colours.)
+(Note that the light switch works differently to quarto dark mode. In quarto, you can provide two completely different themes for light and dark mode. In pkgdown, dark mode is a relatively thin overlay that based on your light theme colours.)
 
 For now, you'll need to opt-in to the light-switch by adding the following to your `_pkgdown.yml`:
 
