@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [devtools, pkgdown]
-rmd_hash: 05a153a2bf1febdf
+rmd_hash: 85730f4575fb962a
 
 ---
 
@@ -32,7 +32,7 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 We're delighted to announce the release of [pkgdown](http://pkgdown.r-lib.org/) 2.1.0. pkgdown is designed to make it quick and easy to build a beautiful and accessible website for your package.
@@ -45,7 +45,7 @@ You can install it from CRAN with:
 
 </div>
 
-This is a massive release with a bunch of new features. I'll highlight the most important here, but as always, I highlight recommend skimming the [release notes]() for other smaller improvements and bug fixes.
+This is a massive release with a bunch of new features. I'll highlight the most important here, but as always, I highlight recommend skimming the [release notes](https://github.com/r-lib/pkgdown/releases/tag/v2.1.0) for other smaller improvements and bug fixes.
 
 First, and most importantly, please join me in welcoming two new authors to pkgdown: [Olivier Roy](https://github.com/olivroy) and [Salim Brüggemann](https://github.com/salim-b). They have both contributed many improvements to the package and I'm very happy to officially have them aboard as package authors.
 
@@ -57,13 +57,13 @@ First, and most importantly, please join me in welcoming two new authors to pkgd
 
 ## Lifecycle changes
 
-Let's get started with the important stuff, the [lifecycle updates](https://www.tidyverse.org/blog/2021/02/lifecycle-1-0-0/). Most important we've decided to deprecate support for Bootstrap 3, which was superseded in December 2021. We're starting to more directly encourage folks to move away from it as maintaining two separate sets of site templates is a maintainance challenge. If you're still using BS3, now's the [time to upgrade](https://www.tidyverse.org/blog/2021/12/pkgdown-2-0-0/#bootstrap-5) to BS5.
+Let's get started with the important stuff, the [lifecycle updates](https://www.tidyverse.org/blog/2021/02/lifecycle-1-0-0/). Most important we've decided to deprecate support for Bootstrap 3, which was superseded in December 2021. We're starting to more directly encourage folks to move away from it as maintaining two separate sets of site templates is a time sink. If you're still using BS3, now's the [time to upgrade](https://www.tidyverse.org/blog/2021/12/pkgdown-2-0-0/#bootstrap-5).
 
 There are three other changes that are less likely to affect folks:
 
--   The `document` argument to [`build_site()`](https://pkgdown.r-lib.org/reference/build_site.html) and [`build_reference()`](https://pkgdown.r-lib.org/reference/build_reference.html) has been removed after being deprecated in pkgdown 1.4.0; use the [`devel` argument](https://pkgdown.r-lib.org/dev/reference/build_site.html#arg-devel) instead.
+-   The `document` argument to [`build_site()`](https://pkgdown.r-lib.org/reference/build_site.html) and [`build_reference()`](https://pkgdown.r-lib.org/reference/build_reference.html) has been removed after being deprecated in pkgdown 1.4.0; use the [`devel` argument](https://pkgdown.r-lib.org/reference/build_site.html#arg-devel) instead.
 
--   [`autolink_html()`](https://pkgdown.r-lib.org/reference/autolink_html.html) was deprecated in pkgdown 1.6.0 and now warns every time you use it; use [`downlit::downlit_html_path()`](https://downlit.r-lib.org/reference/downlit_html_path.html).
+-   [`autolink_html()`](https://pkgdown.r-lib.org/reference/autolink_html.html) was deprecated in pkgdown 1.6.0 and now warns every time you use it; use [`downlit::downlit_html_path()`](https://downlit.r-lib.org/reference/downlit_html_path.html) instead.
 
 -   [`preview_page()`](https://pkgdown.r-lib.org/reference/preview_page.html) has been deprecated; use [`preview_site()`](https://pkgdown.r-lib.org/reference/preview_site.html) instead.
 
@@ -71,15 +71,13 @@ There are three other changes that are less likely to affect folks:
 
 ### Quarto support
 
-[`build_articles()`](https://pkgdown.r-lib.org/reference/build_articles.html) and [`build_article()`](https://pkgdown.r-lib.org/reference/build_articles.html) now support articles and vignettes written with Quarto. To use it, make sure you have the the latest version of Quarto, 1.5, which was released last week.
+[`build_article()`](https://pkgdown.r-lib.org/reference/build_articles.html)/[`build_articles()`](https://pkgdown.r-lib.org/reference/build_articles.html) now support articles and vignettes written with Quarto. To use it, make sure you have the the latest version of Quarto, 1.5, which was released last week. By and large you should be able to just write in Quarto and things will just work, but you'll need to make a changed to your GitHub action. Learn more at [`vignette("quarto")`](https://pkgdown.r-lib.org/articles/quarto.html).
 
-Combining the disparate quarto and pkgdown templating systems is a delicate art, so while I've done my best to make it work, there may be some rough edges. So please file an issue you encounter quarto features that don't work quite right.
-
-By and large you should be able to just write in Quarto and things will just work, but if you're building your site on GitHub actions you'll also need to install quarto. Learn more at `vignette("quarto")`, which also describes the currently know limitations.
+Combining the individual quarto and pkgdown templating systems is a delicate art, so while I've done my best to make it work, there may be some rough edges. Check out the current known limitations in [`vignette("quarto")`](https://pkgdown.r-lib.org/articles/quarto.html), and please file an issue if you encounter a quarto feature that doesn't work quite right.
 
 ### Light switch
 
-pkgdown sites can now provide a "light switch" that allows the user to switch between light and dark modes (based on work in bslib by @gadenbuie). The light switch appears at the far right at the navbar, and remembers the users choice between visits to your site.
+pkgdown sites can now provide a "light switch" that allows the reader to switch between light and dark modes (based on work in bslib by [@gadenbuie](https://github.com/gadenbuie)). The light switch appears at the far right at the navbar and remembers the users choice between visits to your site.
 
 (Note that the light switch works differently to quarto dark mode. In quarto, you can provide two completely different themes for light and dark mode. In pkgdown, dark mode is a relatively thin overlay that based on your light theme colours.)
 
@@ -92,35 +90,35 @@ template
 
 In the future we hope to turn it on automatically.
 
-You can learn more about customising the light switch in `vignette("customise")`. You can choose to select your own syntax highlighting scheme for dark mode, override dark-specific BS lib variables, and move its location in the navbar.
+You can learn more about customising the light switch in [`vignette("customise")`](https://pkgdown.r-lib.org/articles/customise.html): you can choose to select your own syntax highlighting scheme for dark mode, override dark-specific BS lib variables, and move its location in the navbar.
 
 ## User experience
 
 We've made a bunch of small changes to enhance the user experience of pkgdown sites:
 
--   We continue our efforts to make pkgdown sites as accessible as possible by now warning if you've forgotten to add alt text to images (including plots) in your articles (or if you're using a custom navbar component with only an icon). And new `vignette("accessibility")` describes what manual tasks you need to perform to make your site as accessible as possible.
+-   We've continued in our efforts to make pkgdown sites as accessible as possible by now warning if you've forgotten to add alt text to images (including plots) in your articles. We've also added a new [`vignette("accessibility")`](https://pkgdown.r-lib.org/articles/accessibility.html) which describes additional manual tasks you can perform to make your site as accessible as possible.
 
--   [`build_reference()`](https://pkgdown.r-lib.org/reference/build_reference.html) adds anchors to arguments making it possible to link directly to an argument. This is very useful when you're trying to direct folks to the documentation for a specific argument, e.g. <https://pkgdown.r-lib.org/dev/reference/build_site.html#arg-devel>.
+-   [`build_reference()`](https://pkgdown.r-lib.org/reference/build_reference.html) adds anchors to arguments making it possible to link directly to an argument. This is very useful when you're trying to direct folks to the documentation for a specific argument, e.g. <https://pkgdown.r-lib.org/reference/build_site.html#arg-devel>.
 
--   [`build_reference_index()`](https://pkgdown.r-lib.org/reference/build_reference.html) now displays function lifecycle badges [next to the function name](https://pkgdown.r-lib.org/dev/reference/index.html#deprecated-functions). If you want to gather together (e.g.) all the deprecated function in one spot in the reference index, you can use the new topic selector `has_lifecycle("deprecated")`.
+-   [`build_reference_index()`](https://pkgdown.r-lib.org/reference/build_reference.html) now displays function lifecycle badges [next to the function name](https://pkgdown.r-lib.org/reference/index.html#deprecated-functions). If you want to gather together (e.g.) all the deprecated function in one spot in the reference index, you can use the new topic selector `has_lifecycle("deprecated")`.
 
--   New `template.math-rendering` allows you to control how math is rendered across your site. The default behaviour is to uses `mathml` which is low-dependency but has the lowest fidelity. If you use a lot of math on your site, you can switch back to the previous method with `mathjax`, or try out `katex`, a faster alternative.
+-   The new `template.math-rendering` option allows you to control how math is rendered on your site. The default uses `mathml` which is zero dependency but has the lowest fidelity. If you use a lot of math on your site, you can switch back to the previous method with `mathjax`, or try out `katex`, a faster alternative.
 
--   pkgdown sites no longer depend on external content distribution networks (CDN) for common javascript, CSS, and font files. CDNs no longer provide [any performance advantages](https://www.stefanjudis.com/notes/say-goodbye-to-resource-caching-across-sites-and-domains/) and make deployment harder inside certain locked down corporate environments.
+-   pkgdown sites no longer depend on external content distribution networks (CDN) for common javascript, CSS, and font files. CDNs no longer provide [any performance advantages](https://www.stefanjudis.com/notes/say-goodbye-to-resource-caching-across-sites-and-domains/) and make deployment harder inside certain locked-down corporate environments.
 
 -   pkgdown sites now translate "Abstract", "Search site", and more. A big thanks to @jplecavalier, @dieghernan, @krlmlr, @LDalby, @rich-iannone, @jmaspons, and @mine-cetinkaya-rundel for providing updated translations in French, Spanish, Portugese, Germna, Catalan, and Turkish!
 
-    I've also written `vignette("translations")`, a brief vignette that discusses how translation works for non-English sites, and includes how you can create translations for new languages. (This is a great way to contribute if you're multi-lingual!)
+    I've also written [`vignette("translations")`](https://pkgdown.r-lib.org/articles/translations.html), a brief vignette that discusses how translation works for non-English sites, and includes how you can create translations for new languages. (This is a great way to contribute to pkgdown if you are multi-lingual!)
 
 ### Developer experience
 
-We've also made a bunch of minor improvements to make the life of the package developer easier:
+We've also made a bunch of minor improvements to make improve the package developer experience:
 
--   YAML validation has been substantially improved so you should get much clearer errors if you have made a mistake. Please [file an issue](https://github.com/r-lib/pkgdown/issues/new) if you find a case where the error message is not helpful.
+-   YAML validation has been substantially improved so you should get much clearer errors if you have made a mistake in your `_pkgdown.yml`. Please [file an issue](https://github.com/r-lib/pkgdown/issues/new) if you find a case where the error message is not helpful.
 
--   The `build_*()` functions (apart from [`build_site()`](https://pkgdown.r-lib.org/reference/build_site.html)) no longer automatically preview in interactive sessions since they all emit links to any updated files. You can continue to use [`preview_site()`](https://pkgdown.r-lib.org/reference/preview_site.html) to preview in your browser.
+-   The `build_*()` functions (apart from [`build_site()`](https://pkgdown.r-lib.org/reference/build_site.html)) no longer automatically preview in interactive sessions since they all emit clickable links to any files that have changed. You can continue to use [`preview_site()`](https://pkgdown.r-lib.org/reference/preview_site.html) to open the site in your browser.
 
--   The `build_*()` functions now work better if you're previewing just part of a site and haven't built the whole thing. It should no longer be necessary to run [`init_site()`](https://pkgdown.r-lib.org/reference/init_site.html) in most cases, and you shouldn't be able to get into a state where you're told to run [`init_site()`](https://pkgdown.r-lib.org/reference/init_site.html) nad then it doesn't work.
+-   The `build_*()` functions now work better if you're previewing just part of a site and haven't built the whole thing. It should no longer be necessary to run [`init_site()`](https://pkgdown.r-lib.org/reference/init_site.html) in most cases, and you shouldn't be able to get into a state where you're told to run [`init_site()`](https://pkgdown.r-lib.org/reference/init_site.html) and then it doesn't work.
 
 -   We give more and clearer details of the site building process including reporting on exactly what is generated by bslib, what is copied from templates, and what redirects are generated.
 
