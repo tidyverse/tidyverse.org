@@ -3,10 +3,10 @@ output: hugodown::hugo_document
 
 slug: recipes-1-1-0
 title: recipes 1.1.0
-date: 2024-07-01
+date: 2024-07-08
 author: Emil Hvitfeldt
 description: >
-    recipes 1.1.0 is on CRAN! recipes now has better input checking and quality of life errors.
+    recipes 1.1.0 is on CRAN! recipes now have better input checking and quality of life errors.
 
 photo:
   url: https://unsplash.com/photos/close-up-photo-of-baked-cookies-OfdDiqx8Cz8
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, recipes]
-rmd_hash: 0b7a7500441aa5a0
+rmd_hash: 6f2b4a3bd54fecae
 
 ---
 
@@ -42,18 +42,22 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will go over some of the bigger changes in this release.
+This blog post will go over some of the bigger changes in this release. Improvements in column type checking, allowing more data types to be passed to recipes, use of long formulas and better error for misspelled argument names.
 
 You can see a full list of changes in the [release notes](https://github.com/tidymodels/recipes/releases/tag/v1.1.0).
 
-## ptype information
+## Column type checking
 
-A [longtime issue](https://github.com/tidymodels/recipes/issues/793) in recipes comes from the fact that recipes didn't keep a [prototype](https://vctrs.r-lib.org/articles/type-size.html) (ptype) of the data it was specified with. This would cause unexpected things to happen or uninformative error messages to appear if different data was used to [`prep()`](https://recipes.tidymodels.org/reference/prep.html) than was used to specify it.
+A [longtime issue](https://github.com/tidymodels/recipes/issues/793) in recipes came from the fact that recipes didn't keep a [prototype](https://vctrs.r-lib.org/articles/type-size.html) (ptype) of the data it was specified with. This would cause unexpected things to happen or uninformative error messages to appear if different data was used to [`prep()`](https://recipes.tidymodels.org/reference/prep.html) than was used to create the [`recipe()`](https://recipes.tidymodels.org/reference/recipe.html).
 
-In the below example, we specify a recipe where `x2` starts by being a character vector, but the recipe is prepped where `x2` is a numeric vector. This didn't produce any problems before,
+Every recipe you create starts with a call to [`recipe()`](https://recipes.tidymodels.org/reference/recipe.html). In the below example, we create a recipe where `x2` starts by being a character vector, but the recipe is prepped where `x2` is a numeric vector. This didn't produce any warnings or errors, silently doing something unintended.
 
 ``` r
-data_template <- tibble(outcome = rnorm(10), x1 = rnorm(10), x2 = sample(letters, 10, T))
+data_template <- tibble(
+  outcome = rnorm(10), 
+  x1 = rnorm(10), 
+  x2 = sample(letters, 10, T)
+)
 
 rec <- recipe(outcome ~ ., data_template) %>%
   step_bin2factor(all_numeric_predictors())
@@ -76,7 +80,7 @@ prep(rec, training = data_training)
 #> • Dummy variable to factor conversion for: x1 | Trained
 ```
 
-but now we get an error detailing how the data is different:
+Now, we get an error detailing how the data is different.
 
 <div class="highlight">
 
@@ -95,22 +99,11 @@ but now we get an error detailing how the data is different:
 
 </div>
 
-In addition, we are exporting the two helper functions [`recipes_ptype()`](https://recipes.tidymodels.org/reference/recipes_ptype.html) and [`recipes_ptype_validate()`](https://recipes.tidymodels.org/reference/recipes_ptype_validate.html) to extract and validate ptype information for a given recipe.
+Note that recipes created before version 1.1.0 don't contain any ptype information, and will not undergo checking. Rerunning the code to create the recipe will add ptype information to the recipe.
 
-<div class="highlight">
+## Input checking in `recipe()`
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://recipes.tidymodels.org/reference/recipes_ptype.html'>recipes_ptype</a></span><span class='o'>(</span><span class='nv'>rec</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 0 × 3</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 3 variables: x1 &lt;dbl&gt;, x2 &lt;chr&gt;, outcome &lt;dbl&gt;</span></span></span>
-<span></span></code></pre>
-
-</div>
-
-Note that recipes created before version 1.1.0 don't contain any ptype information, and will not undergo checking. Rerunning the code to specify the recipe will add ptype information to the recipe.
-
-## Input checking in recipe()
-
-Every recipe you create start with a call to [`recipe()`](https://recipes.tidymodels.org/reference/recipe.html). We have relaxed the requirements of data frames, while increasing the feedback when something goes wrong.
+We have relaxed the requirements of data frames, while making feedback more helpful when something goes wrong.
 
 The data was previously passed through [`model.frame()`](https://rdrr.io/r/stats/model.frame.html) inside the recipe, which restricted what could be handled. Previously prohibited input included data frames with list-columns or [sf](https://r-spatial.github.io/sf/) data frames. Both of these are now supported, as long as they are a `data.frame` object.
 
@@ -154,11 +147,11 @@ The data was previously passed through [`model.frame()`](https://rdrr.io/r/stats
 
 We are excited to see what people can do with these new options.
 
-Another way to specify a recipe is to use [`add_role()`](https://recipes.tidymodels.org/reference/roles.html) and [`update_role()`](https://recipes.tidymodels.org/reference/roles.html). But if you are not careful, you can end up in situations where the same variable is labeled as both the outcome and predictor.
+Another way to tell a recipe what variables should be included and what roles they should have is to use [`add_role()`](https://recipes.tidymodels.org/reference/roles.html) and [`update_role()`](https://recipes.tidymodels.org/reference/roles.html). But if you were not careful, you could end up in situations where the same variable is labeled as both the outcome and predictor.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># didn't use to throw a warning</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># didn't used to throw a warning</span></span>
 <span><span class='nf'><a href='https://recipes.tidymodels.org/reference/recipe.html'>recipe</a></span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://recipes.tidymodels.org/reference/roles.html'>update_role</a></span><span class='o'>(</span><span class='nf'><a href='https://tidyselect.r-lib.org/reference/everything.html'>everything</a></span><span class='o'>(</span><span class='o'>)</span>, new_role <span class='o'>=</span> <span class='s'>"predictor"</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://recipes.tidymodels.org/reference/roles.html'>add_role</a></span><span class='o'>(</span><span class='s'>"mpg"</span>, new_role <span class='o'>=</span> <span class='s'>"outcome"</span><span class='o'>)</span></span>
@@ -168,7 +161,7 @@ Another way to specify a recipe is to use [`add_role()`](https://recipes.tidymod
 
 </div>
 
-This specific problem can be dealt with using [`update_role()`](https://recipes.tidymodels.org/reference/roles.html) instead of [`add_role()`](https://recipes.tidymodels.org/reference/roles.html).
+This error can be avoided by using [`update_role()`](https://recipes.tidymodels.org/reference/roles.html) instead of [`add_role()`](https://recipes.tidymodels.org/reference/roles.html).
 
 <div class="highlight">
 
@@ -186,7 +179,7 @@ This specific problem can be dealt with using [`update_role()`](https://recipes.
 
 </div>
 
-## Long formulas in recipe()
+## Long formulas in `recipe()`
 
 Related to the changes we saw above, we now fully support very long formulas without hitting a `C stack usage` error.
 
@@ -211,7 +204,7 @@ Related to the changes we saw above, we now fully support very long formulas wit
 
 ## Better error for misspelled argument names
 
-If you have used recipes long enough you are very likely to have run into the following error:
+If you have used recipes long enough you are very likely to have run into the following error.
 
 ``` r
 recipe(mpg ~ ., data = mtcars) |>
@@ -222,7 +215,7 @@ recipe(mpg ~ ., data = mtcars) |>
 #> ! Can't rename variables in this context.
 ```
 
-and the first time you saw it, it didn't make much sense. Hopefully, you figured out that [step_pca()](https://recipes.tidymodels.org/reference/step_pca.html) doesn't have a `number` argument, and instead uses `num_comp` to determine the number of principal components to return. This confusion will be a thing of the past as we now include this improved error message:
+The first time you saw it, it didn't make much sense. Hopefully, you figured out that [step_pca()](https://recipes.tidymodels.org/reference/step_pca.html) doesn't have a `number` argument, and instead uses `num_comp` to determine the number of principal components to return. This confusion will be a thing of the past as we now include this improved error message.
 
 <div class="highlight">
 
@@ -230,17 +223,17 @@ and the first time you saw it, it didn't make much sense. Hopefully, you figured
 <span>  <span class='nf'><a href='https://recipes.tidymodels.org/reference/step_pca.html'>step_pca</a></span><span class='o'>(</span><span class='nf'><a href='https://recipes.tidymodels.org/reference/has_role.html'>all_numeric_predictors</a></span><span class='o'>(</span><span class='o'>)</span>, number <span class='o'>=</span> <span class='m'>4</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://recipes.tidymodels.org/reference/prep.html'>prep</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `step_pca()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='font-weight: bold;'>Caused by error in `prep()`:</span></span></span>
+<span><span class='c'>#&gt; <span style='font-weight: bold;'>Caused by error in `prep()` at recipes/R/recipe.R:479:9:</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> The following argument was specified but do not exist: `number`.</span></span>
 <span></span></code></pre>
 
 </div>
 
-## Quality of life increases in step_dummy()
+## Quality of life increases in `step_dummy()`
 
 I would imagine that one of the most used steps is [`step_dummy()`](https://recipes.tidymodels.org/reference/step_dummy.html). We have improved the errors and warnings it spits out when things go sideways.
 
-If you apply [`step_dummy()`](https://recipes.tidymodels.org/reference/step_dummy.html) to a variable that contains a lot of levels, it will produce a lot of columns, which depending on the size of your data won't fit in memory. This can lead to the following error:
+If you apply [`step_dummy()`](https://recipes.tidymodels.org/reference/step_dummy.html) to a variable that contains a lot of levels, it will produce a lot of columns, and the resulting object may not fit in memory. This can lead to the following error.
 
 ``` r
 data_id <- tibble(
@@ -276,7 +269,7 @@ Instead, you now get a more helpful error message.
 
 </div>
 
-Likewise, you will get helpful errors if [`step_dummy()`](https://recipes.tidymodels.org/reference/step_dummy.html) gets a `NA` or unseen values
+Likewise, you will get helpful errors if [`step_dummy()`](https://recipes.tidymodels.org/reference/step_dummy.html) gets a `NA` or unseen values.
 
 <div class="highlight">
 
@@ -290,8 +283,8 @@ Likewise, you will get helpful errors if [`step_dummy()`](https://recipes.tidymo
 <span><span class='nv'>rec_spec</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://recipes.tidymodels.org/reference/bake.html'>bake</a></span><span class='o'>(</span><span class='nv'>data_unseen</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Warning: <span style='color: #BBBB00;'>!</span> There are new levels in `x`: <span style='color: #0000BB;'>"c"</span>.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Consider using step_novel() (`?recipes::step_novel()`) \ before</span></span>
-<span><span class='c'>#&gt;   `step_dummy()` to handle unseen values.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Consider using step_novel() (`?recipes::step_novel()`) before `step_dummy()`</span></span>
+<span><span class='c'>#&gt;   to handle unseen values.</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 1</span></span></span>
 <span><span class='c'>#&gt;     x_b</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
@@ -322,4 +315,28 @@ Likewise, you will get helpful errors if [`step_dummy()`](https://recipes.tidymo
 A big thank you to all the people who have contributed to recipes since the release of v1.0.10:
 
 [@brynhum](https://github.com/brynhum), [@DemetriPananos](https://github.com/DemetriPananos), [@diegoperoni](https://github.com/diegoperoni), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@JiahuaQu](https://github.com/JiahuaQu), [@joranE](https://github.com/joranE), [@nhward](https://github.com/nhward), [@olivroy](https://github.com/olivroy), and [@simonpcouch](https://github.com/simonpcouch).
+
+## Chocolate Chocolate Chip Cookies
+
+preheat oven 350°F
+
+-   1/3c butter
+-   1/2 + 1/3c sugar
+
+mix until fluffy
+
+-   1 tsp vanilla
+-   1 egg
+
+mix until combined
+
+-   1/2c cocoa
+-   1/2 tsp baking soda
+-   1c flour
+
+mix until combined
+
+-   3/4c chocolate chips
+
+bake for about 8 mins, depending on size! they will crack on top, but still be soft.
 

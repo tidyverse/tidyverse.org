@@ -38,7 +38,7 @@ You can install it from CRAN with:
 install.packages("recipes")
 ```
 
-This blog post will go over some of the bigger changes in this release.
+This blog post will go over some of the bigger changes in this release. Improvements in column type checking, allowing more data types to be passed to recipes, use of long formulas and better error for misspelled argument names.
 
 You can see a full list of changes in the [release notes](https://github.com/tidymodels/recipes/releases/tag/v1.1.0).
 
@@ -50,7 +50,7 @@ library(recipes)
 
 A [longtime issue](https://github.com/tidymodels/recipes/issues/793) in recipes came from the fact that recipes didn't keep a [prototype](https://vctrs.r-lib.org/articles/type-size.html) (ptype) of the data it was specified with. This would cause unexpected things to happen or uninformative error messages to appear if different data was used to `prep()` than was used to create the `recipe()`.
 
-In the below example, we create a recipe where `x2` starts by being a character vector, but the recipe is prepped where `x2` is a numeric vector. This didn't produce any problems before.
+Every recipe you create starts with a call to `recipe()`. In the below example, we create a recipe where `x2` starts by being a character vector, but the recipe is prepped where `x2` is a numeric vector. This didn't produce any warnings or errors, silently doing something unintended.
 
 ``` r
 data_template <- tibble(
@@ -99,7 +99,7 @@ Note that recipes created before version 1.1.0 don't contain any ptype informati
 
 ## Input checking in `recipe()`
 
-Every recipe you create starts with a call to `recipe()`. We have relaxed the requirements of data frames, while making feedback more helpful when something goes wrong.
+We have relaxed the requirements of data frames, while making feedback more helpful when something goes wrong.
 
 The data was previously passed through `model.frame()` inside the recipe, which restricted what could be handled. Previously prohibited input included data frames with list-columns or [sf](https://r-spatial.github.io/sf/) data frames. Both of these are now supported, as long as they are a `data.frame` object.
 
@@ -140,7 +140,7 @@ recipe(mtcars) |>
   update_role("mpg", new_role = "outcome")
 ```
 
-## Long formulas in recipe()
+## Long formulas in `recipe()`
 
 Related to the changes we saw above, we now fully support very long formulas without hitting a `C stack usage` error.
 
@@ -176,7 +176,7 @@ recipe(mpg ~ ., data = mtcars) |>
   prep()
 ```
 
-## Quality of life increases in step_dummy()
+## Quality of life increases in `step_dummy()`
 
 I would imagine that one of the most used steps is `step_dummy()`. We have improved the errors and warnings it spits out when things go sideways.
 
@@ -236,3 +236,27 @@ rec_spec %>%
 A big thank you to all the people who have contributed to recipes since the release of v1.0.10:
 
 [&#x0040;brynhum](https://github.com/brynhum), [&#x0040;DemetriPananos](https://github.com/DemetriPananos), [&#x0040;diegoperoni](https://github.com/diegoperoni), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;JiahuaQu](https://github.com/JiahuaQu), [&#x0040;joranE](https://github.com/joranE), [&#x0040;nhward](https://github.com/nhward), [&#x0040;olivroy](https://github.com/olivroy), and [&#x0040;simonpcouch](https://github.com/simonpcouch).
+
+## Chocolate Chocolate Chip Cookies
+
+preheat oven 350°F
+
+- 1/3c butter
+- 1/2 + 1/3c sugar
+
+mix until fluffy
+
+- 1 tsp vanilla
+- 1 egg
+
+mix until combined
+
+- 1/2c cocoa
+- 1/2 tsp baking soda
+- 1c flour
+
+mix until combined
+
+- 3/4c chocolate chips
+
+bake for about 8 mins, depending on size! they will crack on top, but still be soft. 
