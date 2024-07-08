@@ -3,10 +3,10 @@ output: hugodown::hugo_document
 
 slug: recipes-1-1-0
 title: recipes 1.1.0
-date: 2024-07-01
+date: 2024-07-08
 author: Emil Hvitfeldt
 description: >
-    recipes 1.1.0 is on CRAN! recipes now has better input checking and quality of life errors.
+    recipes 1.1.0 is on CRAN! recipes now have better input checking and quality of life errors.
 
 photo:
   url: https://unsplash.com/photos/close-up-photo-of-baked-cookies-OfdDiqx8Cz8
@@ -50,7 +50,7 @@ library(recipes)
 
 A [longtime issue](https://github.com/tidymodels/recipes/issues/793) in recipes comes from the fact that recipes didn't keep a [prototype](https://vctrs.r-lib.org/articles/type-size.html) (ptype) of the data it was specified with. This would cause unexpected things to happen or uninformative error messages to appear if different data was used to `prep()` than was used to specify it in `recipe()`.
 
-In the below example, we specify a recipe where `x2` starts by being a character vector, but the recipe is prepped where `x2` is a numeric vector. This didn't produce any problems before
+In the below example, we specify a recipe where `x2` starts by being a character vector, but the recipe is prepped where `x2` is a numeric vector. This didn't produce any problems before.
 
 ``` r
 data_template <- tibble(
@@ -80,7 +80,7 @@ prep(rec, training = data_training)
 #> • Dummy variable to factor conversion for: x1 | Trained
 ```
 
-Now, we get an error detailing how the data is different:
+Now, we get an error detailing how the data is different.
 
 ```{r}
 #| error: true
@@ -156,7 +156,7 @@ recipe(long_formula, data_wide)
 
 ## Better error for misspelled argument names
 
-If you have used recipes long enough you are very likely to have run into the following error:
+If you have used recipes long enough you are very likely to have run into the following error.
 
 ``` r
 recipe(mpg ~ ., data = mtcars) |>
@@ -167,7 +167,7 @@ recipe(mpg ~ ., data = mtcars) |>
 #> ! Can't rename variables in this context.
 ```
 
-The first time you saw it, it didn't make much sense. Hopefully, you figured out that [step_pca()](https://recipes.tidymodels.org/reference/step_pca.html) doesn't have a `number` argument, and instead uses `num_comp` to determine the number of principal components to return. This confusion will be a thing of the past as we now include this improved error message:
+The first time you saw it, it didn't make much sense. Hopefully, you figured out that [step_pca()](https://recipes.tidymodels.org/reference/step_pca.html) doesn't have a `number` argument, and instead uses `num_comp` to determine the number of principal components to return. This confusion will be a thing of the past as we now include this improved error message.
 
 ```{r}
 #| error: true
@@ -180,7 +180,7 @@ recipe(mpg ~ ., data = mtcars) |>
 
 I would imagine that one of the most used steps is `step_dummy()`. We have improved the errors and warnings it spits out when things go sideways.
 
-If you apply `step_dummy()` to a variable that contains a lot of levels, it will produce a lot of columns, and the resulting object may not fit in memory. This can lead to the following error:
+If you apply `step_dummy()` to a variable that contains a lot of levels, it will produce a lot of columns, and the resulting object may not fit in memory. This can lead to the following error.
 
 ```r
 data_id <- tibble(
@@ -210,7 +210,7 @@ recipe(~ ., data = data_id) |>
   prep()
 ```
 
-Likewise, you will get helpful errors if `step_dummy()` gets a `NA` or unseen values
+Likewise, you will get helpful errors if `step_dummy()` gets a `NA` or unseen values.
 
 ```{r}
 data_train <- tibble(x = c("a", "b"))
