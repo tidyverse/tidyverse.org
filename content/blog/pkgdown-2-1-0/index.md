@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: pkgdown-2-1-0
 title: pkgdown 2.1.0
-date: 2024-07-05
+date: 2024-07-08
 author: Hadley Wickham
 description: >
     pkgdown 2.1.0 includes two major new features: support for quarto vignettes
@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [devtools, pkgdown]
-rmd_hash: 25c015f526e1f499
+rmd_hash: 54795e7da6077897
 
 ---
 
