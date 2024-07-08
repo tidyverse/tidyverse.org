@@ -48,9 +48,9 @@ library(recipes)
 
 ## Column type checking
 
-A [longtime issue](https://github.com/tidymodels/recipes/issues/793) in recipes comes from the fact that recipes didn't keep a [prototype](https://vctrs.r-lib.org/articles/type-size.html) (ptype) of the data it was specified with. This would cause unexpected things to happen or uninformative error messages to appear if different data was used to `prep()` than was used to specify it in `recipe()`.
+A [longtime issue](https://github.com/tidymodels/recipes/issues/793) in recipes comes from the fact that recipes didn't keep a [prototype](https://vctrs.r-lib.org/articles/type-size.html) (ptype) of the data it was specified with. This would cause unexpected things to happen or uninformative error messages to appear if different data was used to `prep()` than was used to create the `recipe()`.
 
-In the below example, we specify a recipe where `x2` starts by being a character vector, but the recipe is prepped where `x2` is a numeric vector. This didn't produce any problems before.
+In the below example, we create a recipe where `x2` starts by being a character vector, but the recipe is prepped where `x2` is a numeric vector. This didn't produce any problems before.
 
 ``` r
 data_template <- tibble(
@@ -95,7 +95,7 @@ prep(rec, training = data_training)
 ```
 
 
-Note that recipes created before version 1.1.0 don't contain any ptype information, and will not undergo checking. Rerunning the code to specify the recipe will add ptype information to the recipe.
+Note that recipes created before version 1.1.0 don't contain any ptype information, and will not undergo checking. Rerunning the code to create the recipe will add ptype information to the recipe.
 
 ## Input checking in `recipe()`
 
@@ -122,7 +122,7 @@ recipe(AREA ~ ., data = data_sf)
 
 We are excited to see what people can do with these new options.
 
-Another way to specify a recipe is to use `add_role()` and `update_role()`. But if you were not careful, you could end up in situations where the same variable is labeled as both the outcome and predictor.
+Another way to tell a recipe what variables should be included and what roles they should have is to use `add_role()` and `update_role()`. But if you were not careful, you could end up in situations where the same variable is labeled as both the outcome and predictor.
 
 ```{r}
 #| error: true
