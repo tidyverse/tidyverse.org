@@ -1,0 +1,262 @@
+---
+output: hugodown::hugo_document
+
+slug: recipes-1-1-0
+title: recipes 1.1.0
+date: 2024-07-08
+author: Emil Hvitfeldt
+description: >
+    recipes 1.1.0 is on CRAN! recipes now have better input checking and quality of life errors.
+
+photo:
+  url: https://unsplash.com/photos/close-up-photo-of-baked-cookies-OfdDiqx8Cz8
+  author: Food Photographer | Jennifer Pallian
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [tidymodels, recipes]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're thrilled to announce the release of [recipes](https://recipes.tidymodels.org/) 1.1.0. recipes lets you create a pipeable sequence of feature engineering steps.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("recipes")
+```
+
+This blog post will go over some of the bigger changes in this release. Improvements in column type checking, allowing more data types to be passed to recipes, use of long formulas and better error for misspelled argument names.
+
+You can see a full list of changes in the [release notes](https://github.com/tidymodels/recipes/releases/tag/v1.1.0).
+
+```{r setup, include = FALSE}
+library(recipes)
+```
+
+## Column type checking
+
+A [longtime issue](https://github.com/tidymodels/recipes/issues/793) in recipes came from the fact that recipes didn't keep a [prototype](https://vctrs.r-lib.org/articles/type-size.html) (ptype) of the data it was specified with. This would cause unexpected things to happen or uninformative error messages to appear if different data was used to `prep()` than was used to create the `recipe()`.
+
+Every recipe you create starts with a call to `recipe()`. In the below example, we create a recipe where `x2` starts by being a character vector, but the recipe is prepped where `x2` is a numeric vector. This didn't produce any warnings or errors, silently doing something unintended.
+
+``` r
+data_template <- tibble(
+  outcome = rnorm(10), 
+  x1 = rnorm(10), 
+  x2 = sample(letters, 10, T)
+)
+
+rec <- recipe(outcome ~ ., data_template) %>%
+  step_bin2factor(all_numeric_predictors())
+
+data_training <- tibble(outcome = rnorm(1000), x1 = rnorm(1000), x2 = rnorm(1000))
+
+prep(rec, training = data_training)
+#> 
+#> ── Recipe ──────────────────────────────────────────────────────────────────────
+#> 
+#> ── Inputs
+#> Number of variables by role
+#> outcome:   1
+#> predictor: 2
+#> 
+#> ── Training information
+#> Training data contained 1000 data points and no incomplete rows.
+#> 
+#> ── Operations
+#> • Dummy variable to factor conversion for: x1 | Trained
+```
+
+Now, we get an error detailing how the data is different.
+
+```{r}
+#| error: true
+data_template <- tibble(outcome = rnorm(10), x1 = rnorm(10), x2 = sample(letters, 10, T))
+
+rec <- recipe(outcome ~ ., data_template) %>%
+  step_bin2factor(all_numeric_predictors())
+
+data_training <- tibble(outcome = rnorm(1000), x1 = rnorm(1000), x2 = rnorm(1000))
+
+prep(rec, training = data_training)
+```
+
+
+Note that recipes created before version 1.1.0 don't contain any ptype information, and will not undergo checking. Rerunning the code to create the recipe will add ptype information to the recipe.
+
+## Input checking in `recipe()`
+
+We have relaxed the requirements of data frames, while making feedback more helpful when something goes wrong.
+
+The data was previously passed through `model.frame()` inside the recipe, which restricted what could be handled. Previously prohibited input included data frames with list-columns or [sf](https://r-spatial.github.io/sf/) data frames. Both of these are now supported, as long as they are a `data.frame` object.
+
+```{r}
+data_listcolumn <- tibble(
+  y = 1:4,
+  x = list(1:3, 4:6, 3:1, 1:10)
+)
+
+recipe(y ~ ., data = data_listcolumn)
+```
+
+```{r}
+library(sf)
+pathshp <- system.file("shape/nc.shp", package = "sf")
+data_sf <- st_read(pathshp, quiet = TRUE)
+
+recipe(AREA ~ ., data = data_sf)
+```
+
+We are excited to see what people can do with these new options.
+
+Another way to tell a recipe what variables should be included and what roles they should have is to use `add_role()` and `update_role()`. But if you were not careful, you could end up in situations where the same variable is labeled as both the outcome and predictor.
+
+```{r}
+#| error: true
+# didn't used to throw a warning
+recipe(mtcars) |>
+  update_role(everything(), new_role = "predictor") |>
+  add_role("mpg", new_role = "outcome")
+```
+
+This error can be avoided by using `update_role()` instead of `add_role()`.
+
+```{r}
+recipe(mtcars) |>
+  update_role(everything(), new_role = "predictor") |>
+  update_role("mpg", new_role = "outcome")
+```
+
+## Long formulas in `recipe()`
+
+Related to the changes we saw above, we now fully support very long formulas without hitting a `C stack usage` error.
+
+```{r}
+data_wide <- matrix(1:10000, ncol = 10000)
+data_wide <- as.data.frame(data_wide)
+names(data_wide) <- c(paste0("x", 1:10000))
+
+long_formula <- as.formula(paste("~ ", paste(names(data_wide), collapse = " + ")))
+
+recipe(long_formula, data_wide)
+```
+
+## Better error for misspelled argument names
+
+If you have used recipes long enough you are very likely to have run into the following error.
+
+``` r
+recipe(mpg ~ ., data = mtcars) |>
+  step_pca(all_numeric_predictors(), number = 4) |>
+  prep()
+#> Error in `step_pca()`:
+#> Caused by error in `prep()`:
+#> ! Can't rename variables in this context.
+```
+
+The first time you saw it, it didn't make much sense. Hopefully, you figured out that [step_pca()](https://recipes.tidymodels.org/reference/step_pca.html) doesn't have a `number` argument, and instead uses `num_comp` to determine the number of principal components to return. This confusion will be a thing of the past as we now include this improved error message.
+
+```{r}
+#| error: true
+recipe(mpg ~ ., data = mtcars) |>
+  step_pca(all_numeric_predictors(), number = 4) |>
+  prep()
+```
+
+## Quality of life increases in `step_dummy()`
+
+I would imagine that one of the most used steps is `step_dummy()`. We have improved the errors and warnings it spits out when things go sideways.
+
+If you apply `step_dummy()` to a variable that contains a lot of levels, it will produce a lot of columns, and the resulting object may not fit in memory. This can lead to the following error.
+
+```r
+data_id <- tibble(
+  id = as.character(1:100000), 
+  x1 = rnorm(100000), 
+  x2 = sample(letters, 100000, TRUE)
+)
+
+recipe(~ ., data = data_id) |>
+  step_dummy(all_nominal_predictors()) |>
+  prep()
+#> Error: vector memory exhausted (limit reached?)
+```
+
+Instead, you now get a more helpful error message.
+
+```{r}
+#| error: true
+data_id <- tibble(
+  id = as.character(1:100000), 
+  x1 = rnorm(100000), 
+  x2 = sample(letters, 100000, TRUE)
+)
+
+recipe(~ ., data = data_id) |>
+  step_dummy(all_nominal_predictors()) |>
+  prep()
+```
+
+Likewise, you will get helpful errors if `step_dummy()` gets a `NA` or unseen values.
+
+```{r}
+data_train <- tibble(x = c("a", "b"))
+data_unseen <- tibble(x = "c")
+
+rec_spec <- recipe(~., data = data_train) %>%
+  step_dummy(x) %>%
+  prep()
+
+rec_spec %>%
+  bake(data_unseen)
+```
+
+```{r}
+data_na <- tibble(x = NA)
+
+rec_spec %>%
+  bake(data_na)
+```
+
+## Acknowledgements
+
+A big thank you to all the people who have contributed to recipes since the release of v1.0.10:
+
+[&#x0040;brynhum](https://github.com/brynhum), [&#x0040;DemetriPananos](https://github.com/DemetriPananos), [&#x0040;diegoperoni](https://github.com/diegoperoni), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;JiahuaQu](https://github.com/JiahuaQu), [&#x0040;joranE](https://github.com/joranE), [&#x0040;nhward](https://github.com/nhward), [&#x0040;olivroy](https://github.com/olivroy), and [&#x0040;simonpcouch](https://github.com/simonpcouch).
+
+## Chocolate Chocolate Chip Cookies
+
+preheat oven 350°F
+
+- 1/3c butter
+- 1/2 + 1/3c sugar
+
+mix until fluffy
+
+- 1 tsp vanilla
+- 1 egg
+
+mix until combined
+
+- 1/2c cocoa
+- 1/2 tsp baking soda
+- 1c flour
+
+mix until combined
+
+- 3/4c chocolate chips
+
+bake for about 8 mins, depending on size! they will crack on top, but still be soft. 
