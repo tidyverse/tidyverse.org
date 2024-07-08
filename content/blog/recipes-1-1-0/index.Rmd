@@ -46,14 +46,18 @@ You can see a full list of changes in the [release notes](https://github.com/tid
 library(recipes)
 ```
 
-## ptype information
+## Column type checking
 
-A [longtime issue](https://github.com/tidymodels/recipes/issues/793) in recipes comes from the fact that recipes didn't keep a [prototype](https://vctrs.r-lib.org/articles/type-size.html) (ptype) of the data it was specified with. This would cause unexpected things to happen or uninformative error messages to appear if different data was used to `prep()` than was used to specify it.
+A [longtime issue](https://github.com/tidymodels/recipes/issues/793) in recipes comes from the fact that recipes didn't keep a [prototype](https://vctrs.r-lib.org/articles/type-size.html) (ptype) of the data it was specified with. This would cause unexpected things to happen or uninformative error messages to appear if different data was used to `prep()` than was used to specify it in `recipe()`.
 
-In the below example, we specify a recipe where `x2` starts by being a character vector, but the recipe is prepped where `x2` is a numeric vector. This didn't produce any problems before,
+In the below example, we specify a recipe where `x2` starts by being a character vector, but the recipe is prepped where `x2` is a numeric vector. This didn't produce any problems before
 
 ``` r
-data_template <- tibble(outcome = rnorm(10), x1 = rnorm(10), x2 = sample(letters, 10, T))
+data_template <- tibble(
+  outcome = rnorm(10), 
+  x1 = rnorm(10), 
+  x2 = sample(letters, 10, T)
+)
 
 rec <- recipe(outcome ~ ., data_template) %>%
   step_bin2factor(all_numeric_predictors())
@@ -76,7 +80,7 @@ prep(rec, training = data_training)
 #> • Dummy variable to factor conversion for: x1 | Trained
 ```
 
-but now we get an error detailing how the data is different:
+Now, we get an error detailing how the data is different:
 
 ```{r}
 #| error: true
@@ -90,17 +94,12 @@ data_training <- tibble(outcome = rnorm(1000), x1 = rnorm(1000), x2 = rnorm(1000
 prep(rec, training = data_training)
 ```
 
-In addition, we are exporting the two helper functions `recipes_ptype()` and `recipes_ptype_validate()` to extract and validate ptype information for a given recipe.
-
-```{r}
-recipes_ptype(rec)
-```
 
 Note that recipes created before version 1.1.0 don't contain any ptype information, and will not undergo checking. Rerunning the code to specify the recipe will add ptype information to the recipe.
 
-## Input checking in recipe()
+## Input checking in `recipe()`
 
-Every recipe you create start with a call to `recipe()`. We have relaxed the requirements of data frames, while increasing the feedback when something goes wrong.
+Every recipe you create starts with a call to `recipe()`. We have relaxed the requirements of data frames, while making feedback more helpful when something goes wrong.
 
 The data was previously passed through `model.frame()` inside the recipe, which restricted what could be handled. Previously prohibited input included data frames with list-columns or [sf](https://r-spatial.github.io/sf/) data frames. Both of these are now supported, as long as they are a `data.frame` object.
 
@@ -123,17 +122,17 @@ recipe(AREA ~ ., data = data_sf)
 
 We are excited to see what people can do with these new options.
 
-Another way to specify a recipe is to use `add_role()` and `update_role()`. But if you are not careful, you can end up in situations where the same variable is labeled as both the outcome and predictor.
+Another way to specify a recipe is to use `add_role()` and `update_role()`. But if you were not careful, you could end up in situations where the same variable is labeled as both the outcome and predictor.
 
 ```{r}
 #| error: true
-# didn't use to throw a warning
+# didn't used to throw a warning
 recipe(mtcars) |>
   update_role(everything(), new_role = "predictor") |>
   add_role("mpg", new_role = "outcome")
 ```
 
-This specific problem can be dealt with using `update_role()` instead of `add_role()`.
+This error can be avoided by using `update_role()` instead of `add_role()`.
 
 ```{r}
 recipe(mtcars) |>
@@ -168,7 +167,7 @@ recipe(mpg ~ ., data = mtcars) |>
 #> ! Can't rename variables in this context.
 ```
 
-and the first time you saw it, it didn't make much sense. Hopefully, you figured out that [step_pca()](https://recipes.tidymodels.org/reference/step_pca.html) doesn't have a `number` argument, and instead uses `num_comp` to determine the number of principal components to return. This confusion will be a thing of the past as we now include this improved error message:
+The first time you saw it, it didn't make much sense. Hopefully, you figured out that [step_pca()](https://recipes.tidymodels.org/reference/step_pca.html) doesn't have a `number` argument, and instead uses `num_comp` to determine the number of principal components to return. This confusion will be a thing of the past as we now include this improved error message:
 
 ```{r}
 #| error: true
@@ -181,7 +180,7 @@ recipe(mpg ~ ., data = mtcars) |>
 
 I would imagine that one of the most used steps is `step_dummy()`. We have improved the errors and warnings it spits out when things go sideways.
 
-If you apply `step_dummy()` to a variable that contains a lot of levels, it will produce a lot of columns, which depending on the size of your data won't fit in memory. This can lead to the following error:
+If you apply `step_dummy()` to a variable that contains a lot of levels, it will produce a lot of columns, and the resulting object may not fit in memory. This can lead to the following error:
 
 ```r
 data_id <- tibble(
