@@ -12,21 +12,21 @@ We highly recommend pairing R4DS with the [Posit cheatsheets](https://posit.co/r
 
 ## Books
 
-* [Statistical Inference via Data Science: A ModernDive into R and the tidyverse](https://www.moderndive.com/) by
+* [Statistical Inference via Data Science: A ModernDive into R and the Tidyverse](https://www.moderndive.com/) by
   Chester Ismay and Albert Y. Kim. "Help! I’m new to R and RStudio and I need to learn them! What do I do?" If you're asking yourself this, this book is for you.
 
-* [ggplot2: elegant graphics for data science](https://ggplot2-book.org/) by 
+* [ggplot2: Elegant Graphics for Data Science](https://ggplot2-book.org/) by 
   Hadley Wickham. Goes into greater depth into the ggplot2 visualisation 
   system.
 
-* [Solutions and notes for R4DS, 1st Edition](https://jrnold.github.io/r4ds-exercise-solutions/) 
+* [R for Data Science (1e): Exercise Solutions](https://jrnold.github.io/r4ds-exercise-solutions/) 
   by Jeffrey B. Arnold. Work in progress.
 
 * [Data Manipulation in R](http://geni.us/datamanipulationir) by Steph Locke. Covers data manipulation in a tidyverse way.
 
 ## Workshops
 
-  * [Mastering the Tidyverse](https://www.jumpingrivers.com/training/course/data-tidyverse-dplyr-tidyr-lubridate-forcats/) by Jumping Rivers. This course will show you how you can use R to efficiently clean and wrangle your data into a format that’s ready for analysis. You will learn about the Tidyverse, what tidy data really is, and how to practically achieve it with packages such as dplyr, tidyr, lubridate, and forcats.
+  * [Data Wrangling in the Tidyverse](https://www.jumpingrivers.com/training/course/data-tidyverse-dplyr-tidyr-lubridate-forcats/) by Jumping Rivers. This course will show you how you can use R to efficiently clean and wrangle your data into a format that’s ready for analysis. You will learn about the Tidyverse, what tidy data really is, and how to practically achieve it with packages such as dplyr, tidyr, lubridate, and forcats.
   * [Learn R for Data Analysis](https://itsalocke.com/courses/intro-to-r/) by Locke Data. Attend this two day course to get hands-on with the R programming language. Learn how to connect to different data sources, wrangle the data into the shape you need, visualise it, and compile everything into reports.
 
 ## Teaching materials
