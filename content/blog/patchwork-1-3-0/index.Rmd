@@ -1,0 +1,239 @@
+---
+output: hugodown::hugo_document
+
+slug: patchwork-1-3-0
+title: patchwork 1.3.0
+date: 2024-09-13
+author: Thomas Lin Pedersen
+description: >
+    patchwork 1.3.0 has just been released bringing refinements to the `free()`
+    function and full on support for gt tables
+
+photo:
+  url: https://unsplash.com/photos/sewing-silk-and-scissors-dG35-kUxv34
+  author: Dihn Pham
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package]
+tags: [patchwork, gt, ggplot2]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+I'm excited to present [patchwork](https://patchwork.data-imaginist.com) 1.3.0, our package for creating multifigure plot compositions. This versions adds table support and improves support for "free"ing components to span across multiple grid cells.
+
+You can install patchwork from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("patchwork")
+```
+
+You can see a full list of changes in the [release notes](https://patchwork.data-imaginist.com/news/index.html)
+
+```{r setup}
+library(patchwork)
+library(ggplot2)
+library(gt)
+```
+
+## Tables are figures too
+
+The new and shiny feature of the release is that patchwork now has native support for gt objects, making it possible to compose beautifully formatted tables together with your figures. This has been made possible through Teun Van den Brand's effort to provide grob output to gt. While this means that you can now pass in gt objects to `wrap_elements()` in the same way as other supported data types, it also goes one step further, using the semantics of the table design to add table specific formatting options through the new `wrap_table()` function.
+
+But let's take a step back and see how the simplest support works in reality:
+
+```{r}
+p1 <- ggplot(airquality) +
+  geom_line(aes(x = Day, y = Temp, colour = month.name[Month])) +
+  labs(colour = "Month")
+
+aq <- airquality[sample(nrow(airquality), 10), ]
+p1 + gt(aq) + ggtitle("Sample of the dataset")
+```
+
+A few things can be gathered already from this small example. Tables can have titles (and subtitles, captions, and tags) like regular plots (in that sense they behave like `wrap_elements()` output). Also, and this is perhaps more interesting, patchwork is aware that the first row is special (a header row), and thus places that on top of the panel area so that the plot region of the left plot is aligned with the body of the table, not the full table.
+
+Lastly, we see that tables often have a fixed size, contrary to plots which can shrink and expand based on how much room they have. Because of this, our table is overflowing it's region in the plot above creating a not-so-great look.
+
+Let's see how we can use `wrap_table()` to control some of these behaviors. First, while we could decrease the font size in the table to make it smaller, we could also allow it some more space instead. We could do this by using `plot_layout(widths = ...)` but it would require a fair amount of guessing on our side to get it just right. Thankfully, patchwork is smart enough to figure it out for us and we can instruct it to do so using the `space` argument in `wrap_table()`. Setting it to `"free_y"` instructs it to fix the width to the table width but keep the height free:
+
+```{r}
+p1 + wrap_table(aq, space = "free_y")
+```
+
+Setting `space` to `"fixed"` would constrain both the width and the height of the area it occupies. Since we only have a single row in our layout this would leave us with some empty horizontal space:
+
+```{r}
+p1 + wrap_table(aq, space = "fixed")
+```
+
+If the space is fixed in the y direction and the table has any source notes or footnotes, these will behave like the column header and be placed outside the panel area depending on the `panel` setting
+
+```{r}
+aq_footer <- gt(aq) |>
+  tab_source_note("This is not part of the table body")
+p1 + wrap_table(aq_footer, space = "fixed")
+```
+
+While the space argument is great for making the composition look good and the table well placed in the whole, it can also serve a different purpose of making sure that rows (or columns) are aligned with the axis of a plot. There are no facilities to ensure that the breaks order matches between plots and tables so that is the responsibility of the user, but otherwise this is a great way to use tables to directly augment a plot:
+
+```{r}
+p2 <- ggplot(airquality) +
+  geom_boxplot(aes(x = month.name[Month], y = Temp)) +
+  theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
+  scale_x_discrete(expand = c(0, 0.5))
+
+# Construct our table
+table <- rbind(
+  tapply(airquality$Temp, airquality$Month, max),
+  tapply(airquality$Temp, airquality$Month, median),
+  tapply(airquality$Temp, airquality$Month, min)
+)
+colnames(table) <- month.name[5:9]
+table <- data.frame(
+  Measure = c("Max", "Median", "Min"),
+  table
+)
+table <- gt(table, rowname_col = "Measure") |>
+  cols_width(contains(month.name) ~ px(100)) |>
+  cols_align(align = "center") |>
+  cols_align(align = "right", columns = "Measure")
+
+p2 / wrap_table(table, space = "fixed")
+```
+
+Circling back, there was another argument to `wrap_table()` we didn't get into yet. In the plot above, we see that the row names are conveniently aligned with the axis rather than the panel of the plot above, in the same way as the headers where placed outside the panel area. This is a nice default and generally makes sense for the semantics of a table, but you might want something different. The `panel` argument allows you to control this exact behavior. It takes `"body"`, `"full"`, `"rows"`, or `"cols"` which indicate what portion of the table should be inside the panel area. The default is `"body"` which places row and column names outside the panel. `"full"`, on the contrary, places everything inside, while `"rows"` and `"cols"` are half versions that allows you to keep either column *or* row names outside the panel respectively.
+
+```{r}
+# Place all rows (including the header row) inside the panel area
+p1 + wrap_table(aq, panel = "rows", space = "free_y")
+```
+
+Just like the tables support ggplot2-like titles, they also support tags, meaning that patchworks auto-tagging works as expected. It can be turned off using the `ignore_tag` argument but often you'd want to treat it as a figure in the figure text:
+
+```{r}
+p1 + wrap_table(aq, panel = "rows", space = "free_y") +
+  plot_annotation(tag_levels = "A") &
+  theme(plot.tag = element_text(margin = margin(0, 6, 6, 0)))
+```
+
+### Accesibility
+
+We truly believe that the features laid out above will be a boon for augmenting your data visualisation with data that can be read precisely at a glance. However, we would be remiss to not note how tables that are part of a patchwork visualisation doesn't have the same accessibility featurees as a gt table included directly in e.g. an HTML output. This is because graphics are rasterised into a PNG file and thus looses all semantical information that is inherent in a table. This should be kept in mind when providing Alt text for your figures so you ensure they are legible for everyone.
+
+### Future
+
+The support on the patchwork end is likely done at this point, but the conversion to grobs that has been added to gt is still somewhat young and will improve over time. It is likely that markdown formatting (through marquee) and other niceties will get added, leading to even more power in composing tables with plots using patchwork as the glue between them. As with the [support for gt in typst](https://quarto.org/docs/blog/posts/2024-07-02-beautiful-tables-in-typst/) the support for gt in patchwork is part of our larger effort to bring the power of gt to more environments and create a single unified solution to table styling.
+
+## With freedom comes great responsibility
+
+The second leg of this release concerns the `free()` function which was introduced in the last release. I devoted a whole section of my posit::conf talk this year to talk about `free()` and how it was a good thing to say no to requests for functionality until you have a solution that fits into your API and doesn't add clutter. I really like how the API for `free()` turned out but I also knew it could do more. In this release it delivers on those promises with two additional arguments.
+
+### Which side?
+
+As it were, `free()` could only be used to completely turn off alignment of a plot, e.g. like below:
+
+```{r}
+p1 <- ggplot(mtcars) +
+  geom_bar(aes(y = factor(gear), fill = factor(gear))) +
+  scale_y_discrete(
+    "",
+    labels = c("3 gears are often enough",
+               "But, you know, 4 is a nice number",
+               "I would def go with 5 gears in a modern car")
+  )
+p2 <- ggplot(mtcars) + geom_point(aes(mpg, disp))
+
+free(p1) / p2
+```
+
+We can see that panel alignment has been turned off both to the left and to the right (and top and bottom if it were visible). But perhaps you are only interested in un-aligning the left side, keeping the legend to the right of both plots. Now you can, thanks to the `side` argument which takes a string containing one or more of the `t`, `r`, `b`, and `l` characters to indicate which sides to apply the freeing to (default is `"trbl"` meaning "target all sides").
+
+```{r}
+free(p1, side = "l") / p2
+```
+
+Freeing works inside nested patchworks, where you can target various sides at various levels:
+
+```{r}
+p3 <- ggplot(mtcars) +
+  geom_boxplot(aes(y = factor(gear), disp)) +
+  scale_y_discrete(
+    "",
+    labels = c("... and 3",
+               "4 of them",
+               "5 gears")
+  )
+
+
+nested <- p2 / free(p1, side = "l")
+
+free(nested, side = "r") /
+  p3
+```
+
+### What does "freeing" means anyway?
+
+While being able to target specific sides is pretty great in and off itself, we are not done yet. After being able to *not* align panels the most requested feature was the possibility of moving the axis title closer to the axis text if alignment had pushed it apart. Consider again our unfreed patchwork:
+
+```{r}
+p1 / p2
+```
+
+While we can "fix" it by letting the top panel stretch, another way to improve upon it would be to move the dangling y-axis title of the bottom plot closer to the axis. Enter the `type` argument to `free()` which informs patchwork how to not align the input. The default (`"panel"`) works just as `free()` always has, but the other two values opens up some new nifty goodies. Setting `type = "label"` does exactly what we discussed above, freeing the label from alignment so it sticks together with the axis and axis text:
+
+```{r}
+p1 /
+  free(p2, type = "label")
+```
+
+The other type is `"space"` which works slightly different. Using this you tell patchwork to not reserve any space for what the side(s) contain. This is perfect in situation where you already have empty space next to it that can fit the content. Consider this plot:
+
+```{r}
+plot_spacer() + p1 +
+  p2 + p2
+```
+
+Ugh, the axis text of the top plot pushes everything apart even though there is ample of space for it in the empty region on the left. This is where `type = "space"` comes in handy:
+
+```{r}
+plot_spacer() + free(p1, type = "space", side = "l") +
+  p2 + p2
+```
+
+Of course, such power comes with the responsibility of you ensuring there is actually space for it — otherwise it will escape out of the figure area:
+
+```{r}
+free(p1, type = "space", side = "l") /
+  p2
+```
+
+All the different types of freeing can be stacked on top of each other so you can have a plot that keeps the left axis label together with the axis while also stretches the right side to take up empty space:
+
+```{r}
+p1 /
+  free(free(p2, "panel", "r"), "label", "l")
+```
+
+But as always, don't go overboard. If you find yourself needing to use an elaborate combination of stacked `free()` calls there is a good chance that something with your core composition needs rethinking.
+
+## The rest
+
+The above are the clear highlights of this release. It also contains the standard bug fixes — especially in the area of axis collecting which was introduced in the last release and came with a bunch of edge cases that were unaccounted for. There is also a new utility function: `merge()` which is an alternative to the `-` operator that I don't think many users understood or used. It allows you to merge all plots together into a nested patchwork so that the right hand side is added to a new composition.
+
+## Acknowledgements
+
+Thank you to all people who have contributed issues, code and comments to this release:
+
+[&#x0040;BenVolpe94](https://github.com/BenVolpe94), [&#x0040;daniellembecker](https://github.com/daniellembecker), [&#x0040;dchiu911](https://github.com/dchiu911), [&#x0040;ericKuo722](https://github.com/ericKuo722), [&#x0040;Fan-iX](https://github.com/Fan-iX), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;jack-davison](https://github.com/jack-davison), [&#x0040;karchern](https://github.com/karchern), [&#x0040;laresbernardo](https://github.com/laresbernardo), [&#x0040;marchtaylor](https://github.com/marchtaylor), [&#x0040;mariadelmarq](https://github.com/mariadelmarq), [&#x0040;Maschette](https://github.com/Maschette), [&#x0040;michaeltopper1](https://github.com/michaeltopper1), [&#x0040;mkoohafkan](https://github.com/mkoohafkan), [&#x0040;n-kall](https://github.com/n-kall), [&#x0040;person-c](https://github.com/person-c), [&#x0040;pettyalex](https://github.com/pettyalex), [&#x0040;petzi53](https://github.com/petzi53), [&#x0040;phispu](https://github.com/phispu), [&#x0040;psychelzh](https://github.com/psychelzh), [&#x0040;rinivarg](https://github.com/rinivarg), [&#x0040;selkamand](https://github.com/selkamand), [&#x0040;Soham6298](https://github.com/Soham6298), [&#x0040;svraka](https://github.com/svraka), [&#x0040;teng-gao](https://github.com/teng-gao), [&#x0040;teunbrand](https://github.com/teunbrand), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;timz0605](https://github.com/timz0605), [&#x0040;wish1832](https://github.com/wish1832), and [&#x0040;Yunuuuu](https://github.com/Yunuuuu).
