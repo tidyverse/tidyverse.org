@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [patchwork, gt, ggplot2]
-rmd_hash: 045736d23c6a00c1
+rmd_hash: 004fc65b9ebe62b8
 
 ---
 
@@ -30,10 +30,10 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-I'm excited to present a brand new release of [patchwork](https://patchwork.data-imaginist.com), our package for creating multifigure plot compositions. This brings the version to 1.3.0. While not a monumental release it does provide enough improvements to warrant a bit of text, so if you are a user of patchwork, please read on about what we have in store for you.
+I'm excited to present [patchwork](https://patchwork.data-imaginist.com) 1.3.0, our package for creating multifigure plot compositions. This versions adds table support and improves support for "free"ing components to span across multiple grid cells.
 
 You can install patchwork from CRAN with:
 
@@ -55,9 +55,9 @@ You can see a full list of changes in the [release notes](https://patchwork.data
 
 ## Tables are figures too
 
-The new and shiny feature of the release is that patchwork now has native support for gt objects, making it possible to compose beautifully formatted tables together with your figures. This has been made possible through Teun Van den Brand effort to provide grob output to gt. While the support means that you can now pass in gt objects to [`wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html) in the same way as other supported data types, it goes one step further, using the semantics of the table design to add table specific formatting options through the new [`wrap_table()`](https://patchwork.data-imaginist.com/reference/wrap_table.html) function.
+The new and shiny feature of the release is that patchwork now has native support for gt objects, making it possible to compose beautifully formatted tables together with your figures. This has been made possible through Teun Van den Brand's effort to provide grob output to gt. While this means that you can now pass in gt objects to [`wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html) in the same way as other supported data types, it also goes one step further, using the semantics of the table design to add table specific formatting options through the new [`wrap_table()`](https://patchwork.data-imaginist.com/reference/wrap_table.html) function.
 
-But let's take a step back and see how the simplest support works in reality
+But let's take a step back and see how the simplest support works in reality:
 
 <div class="highlight">
 
@@ -162,13 +162,17 @@ Just like the tables support ggplot2-like titles, they also support tags, meanin
 
 </div>
 
+### Accesibility
+
+We truly believe that the features laid out above will be a boon for augmenting your data visualisation with data that can be read precisely at a glance. However, we would be remiss to not note how tables that are part of a patchwork visualisation doesn't have the same accessibility featurees as a gt table included directly in e.g. an HTML output. This is because graphics are rasterised into a PNG file and thus looses all semantical information that is inherent in a table. This should be kept in mind when providing Alt text for your figures so you ensure they are legible for everyone.
+
 ### Future
 
-The support on the patchwork end is likely done at this point, but the conversion to grobs that has been added to gt is still somewhat young and will improve over time. It is likely that markdown formatting (through marquee) and other niceties will get added, leading to even more power in composing tables with plots using patchwork as the glue between them.
+The support on the patchwork end is likely done at this point, but the conversion to grobs that has been added to gt is still somewhat young and will improve over time. It is likely that markdown formatting (through marquee) and other niceties will get added, leading to even more power in composing tables with plots using patchwork as the glue between them. As with the [support for gt in typst](https://quarto.org/docs/blog/posts/2024-07-02-beautiful-tables-in-typst/) the support for gt in patchwork is part of our larger effort to bring the power of gt to more environments and create a single unified solution to table styling.
 
 ## With freedom comes great responsibility
 
-The second leg of this release concerns the [`free()`](https://patchwork.data-imaginist.com/reference/free.html) function which was introduced in the last release. I devoted a whole section of my posit::conf talk this year to talk about [`free()`](https://patchwork.data-imaginist.com/reference/free.html) and how it was a good thing to say no to requests for functionality until you have a solution that fits into your API and doesn't add clutter. I really like how the API for [`free()`](https://patchwork.data-imaginist.com/reference/free.html) turned out but I also knew it could do more. In this release it delivers on those promises with two additional arguments being added to it.
+The second leg of this release concerns the [`free()`](https://patchwork.data-imaginist.com/reference/free.html) function which was introduced in the last release. I devoted a whole section of my posit::conf talk this year to talk about [`free()`](https://patchwork.data-imaginist.com/reference/free.html) and how it was a good thing to say no to requests for functionality until you have a solution that fits into your API and doesn't add clutter. I really like how the API for [`free()`](https://patchwork.data-imaginist.com/reference/free.html) turned out but I also knew it could do more. In this release it delivers on those promises with two additional arguments.
 
 ### Which side?
 
@@ -227,7 +231,7 @@ Freeing works inside nested patchworks, where you can target various sides at va
 
 ### What does "freeing" means anyway?
 
-While being able to target specific sides is pretty great in and off itself, we are not done yet. After being able to *not* align panels the most requested feature was the possibility of moving the axis title closer to the axis text if alignment had pushed it apart. Consider again our unfreed patchwork
+While being able to target specific sides is pretty great in and off itself, we are not done yet. After being able to *not* align panels the most requested feature was the possibility of moving the axis title closer to the axis text if alignment had pushed it apart. Consider again our unfreed patchwork:
 
 <div class="highlight">
 
