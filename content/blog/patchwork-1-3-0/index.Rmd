@@ -28,10 +28,10 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] `hugodown::use_tidy_thumbnails()`
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [ ] `usethis::use_tidy_thanks()`
+* [x] `usethis::use_tidy_thanks()`
 -->
 
-I'm excited to present a brand new release of [patchwork](https://patchwork.data-imaginist.com), our package for creating multifigure plot compositions. This brings the version to 1.3.0. While not a monumental release it does provide enough improvements to warrant a bit of text, so if you are a user of patchwork, please read on about what we have in store for you.
+I'm excited to present a [patchwork](https://patchwork.data-imaginist.com) 1.3.0, our package for creating multifigure plot compositions. This versions adds table support and improves support for "free"ing components to span across multiple grid cells.```
 
 You can install patchwork from CRAN with:
 
@@ -49,9 +49,9 @@ library(gt)
 
 ## Tables are figures too
 
-The new and shiny feature of the release is that patchwork now has native support for gt objects, making it possible to compose beautifully formatted tables together with your figures. This has been made possible through Teun Van den Brand effort to provide grob output to gt. While the support means that you can now pass in gt objects to `wrap_elements()` in the same way as other supported data types, it goes one step further, using the semantics of the table design to add table specific formatting options through the new `wrap_table()` function.
+The new and shiny feature of the release is that patchwork now has native support for gt objects, making it possible to compose beautifully formatted tables together with your figures. This has been made possible through Teun Van den Brand's effort to provide grob output to gt. While this means that you can now pass in gt objects to `wrap_elements()` in the same way as other supported data types, it also goes one step further, using the semantics of the table design to add table specific formatting options through the new `wrap_table()` function.
 
-But let's take a step back and see how the simplest support works in reality
+But let's take a step back and see how the simplest support works in reality:
 
 ```{r}
 p1 <- ggplot(airquality) +
@@ -134,7 +134,7 @@ The support on the patchwork end is likely done at this point, but the conversio
 
 ## With freedom comes great responsibility
 
-The second leg of this release concerns the `free()` function which was introduced in the last release. I devoted a whole section of my posit::conf talk this year to talk about `free()` and how it was a good thing to say no to requests for functionality until you have a solution that fits into your API and doesn't add clutter. I really like how the API for `free()` turned out but I also knew it could do more. In this release it delivers on those promises with two additional arguments being added to it.
+The second leg of this release concerns the `free()` function which was introduced in the last release. I devoted a whole section of my posit::conf talk this year to talk about `free()` and how it was a good thing to say no to requests for functionality until you have a solution that fits into your API and doesn't add clutter. I really like how the API for `free()` turned out but I also knew it could do more. In this release it delivers on those promises with two additional arguments.
 
 ### Which side?
 
@@ -181,7 +181,7 @@ free(nested, side = "r") /
 
 ### What does "freeing" means anyway?
 
-While being able to target specific sides is pretty great in and off itself, we are not done yet. After being able to *not* align panels the most requested feature was the possibility of moving the axis title closer to the axis text if alignment had pushed it apart. Consider again our unfreed patchwork
+While being able to target specific sides is pretty great in and off itself, we are not done yet. After being able to *not* align panels the most requested feature was the possibility of moving the axis title closer to the axis text if alignment had pushed it apart. Consider again our unfreed patchwork:
 
 ```{r}
 p1 / p2
