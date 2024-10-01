@@ -16,7 +16,7 @@ photo:
 
 categories: [roundup] 
 tags: [tidymodels, postprocessing, workflows]
-rmd_hash: c331625022b91d17
+rmd_hash: 1a0df9f6133627f8
 
 ---
 
@@ -261,7 +261,7 @@ The $R^2$ looks quite strong!
 
 </div>
 
-Let's take a closer look at the predictions, though. How well is it calibrated? We can use the [`cal_plot_regression()`](https://probably.tidymodels.org/reference/cal_plot_regression.html) helper from the probably package to put together a quick diagnostic plot.
+Let's take a closer look at the predictions, though. How well are they calibrated? We can use the [`cal_plot_regression()`](https://probably.tidymodels.org/reference/cal_plot_regression.html) helper from the probably package to put together a quick diagnostic plot.
 
 <div class="highlight">
 
