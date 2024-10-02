@@ -16,7 +16,7 @@ photo:
 
 categories: [roundup] 
 tags: [tidymodels, postprocessing, workflows]
-rmd_hash: 1a0df9f6133627f8
+rmd_hash: 50dedb8a9b889586
 
 ---
 
@@ -131,7 +131,7 @@ If we wanted the model to predict `"Class2"` more often, we could increase the p
 
 </div>
 
-tailors must be fitted before they can predict on new data. For adjustments like [`adjust_probability_threshold()`](https://tailor.tidymodels.org/reference/adjust_probability_threshold.html), there's no training that actually happens at the [`fit()`](https://generics.r-lib.org/reference/fit.html) step besides recording the name and type of relevant variables. For other adjustments, like numeric calibration with [`adjust_numeric_calibration()`](https://tailor.tidymodels.org/reference/adjust_numeric_calibration.html), parameters are actually estimated at the [`fit()`](https://generics.r-lib.org/reference/fit.html) step and separate data should be used to train the postprocessor and evaluate its performance. More on this in [Tailors in context](#tailors-in-context).
+tailors must be fitted before they can predict on new data. For adjustments like [`adjust_probability_threshold()`](https://tailor.tidymodels.org/reference/adjust_probability_threshold.html), there's no training that actually happens at the [`fit()`](https://generics.r-lib.org/reference/fit.html) step besides recording the name and type of relevant variables. For other adjustments, like numeric calibration with [`adjust_numeric_calibration()`](https://tailor.tidymodels.org/reference/adjust_numeric_calibration.html), parameters are actually estimated at the [`fit()`](https://generics.r-lib.org/reference/fit.html) stage and separate data should be used to train the postprocessor and evaluate its performance. More on this in [Tailors in context](#tailors-in-context).
 
 In this case, though, we can [`fit()`](https://generics.r-lib.org/reference/fit.html) on the whole dataset. The resulting object is still a tailor, but is now flagged as trained.
 
@@ -177,7 +177,7 @@ Changing the probability threshold is one of many possible adjustments available
 -   For transformation of probabilities to hard class predictions: [thresholds](https://tailor.tidymodels.org/reference/adjust_probability_threshold.html), [equivocal zones](https://tailor.tidymodels.org/reference/adjust_equivocal_zone.html)
 -   For numeric outcomes: [calibration](https://tailor.tidymodels.org/reference/adjust_numeric_calibration.html), [range](https://tailor.tidymodels.org/reference/adjust_numeric_range.html)
 
-Support for tailors in now plumbed through workflows (via [`add_tailor()`](https://workflows.tidymodels.org/dev/reference/add_tailor.html)) and tune, and rsample includes a set of infastructural changes to prevent data leakage behind the scenes. That said, we haven't yet implemented support for tuning parameters in tailors, but we plan to implement that before this functionality heads to CRAN.
+Support for tailors is now plumbed through workflows (via [`add_tailor()`](https://workflows.tidymodels.org/dev/reference/add_tailor.html)) and tune, and rsample includes a set of infrastructural changes to prevent data leakage behind the scenes. That said, we haven't yet implemented support for tuning parameters in tailors, but we plan to implement that before this functionality heads to CRAN.
 
 ## Tailors in context
 
