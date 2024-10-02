@@ -96,7 +96,7 @@ tlr <-
 tlr
 ```
 
-tailors must be fitted before they can predict on new data. For adjustments like `adjust_probability_threshold()`, there's no training that actually happens at the `fit()` step besides recording the name and type of relevant variables. For other adjustments, like numeric calibration with `adjust_numeric_calibration()`, parameters are actually estimated at the `fit()` step and separate data should be used to train the postprocessor and evaluate its performance. More on this in [Tailors in context](#tailors-in-context).
+tailors must be fitted before they can predict on new data. For adjustments like `adjust_probability_threshold()`, there's no training that actually happens at the `fit()` step besides recording the name and type of relevant variables. For other adjustments, like numeric calibration with `adjust_numeric_calibration()`, parameters are actually estimated at the `fit()` stage and separate data should be used to train the postprocessor and evaluate its performance. More on this in [Tailors in context](#tailors-in-context).
 
 In this case, though, we can `fit()` on the whole dataset. The resulting object is still a tailor, but is now flagged as trained.
 
@@ -128,7 +128,7 @@ Changing the probability threshold is one of many possible adjustments available
 -   For transformation of probabilities to hard class predictions: [thresholds](https://tailor.tidymodels.org/reference/adjust_probability_threshold.html), [equivocal zones](https://tailor.tidymodels.org/reference/adjust_equivocal_zone.html)
 -   For numeric outcomes: [calibration](https://tailor.tidymodels.org/reference/adjust_numeric_calibration.html), [range](https://tailor.tidymodels.org/reference/adjust_numeric_range.html)
 
-Support for tailors in now plumbed through workflows (via [`add_tailor()`](https://workflows.tidymodels.org/dev/reference/add_tailor.html)) and tune, and rsample includes a set of infastructural changes to prevent data leakage behind the scenes. That said, we haven't yet implemented support for tuning parameters in tailors, but we plan to implement that before this functionality heads to CRAN.
+Support for tailors is now plumbed through workflows (via [`add_tailor()`](https://workflows.tidymodels.org/dev/reference/add_tailor.html)) and tune, and rsample includes a set of infrastructural changes to prevent data leakage behind the scenes. That said, we haven't yet implemented support for tuning parameters in tailors, but we plan to implement that before this functionality heads to CRAN.
 
 ## Tailors in context
 
