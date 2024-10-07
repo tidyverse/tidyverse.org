@@ -16,7 +16,7 @@ photo:
 
 categories: [roundup] 
 tags: [tidymodels, postprocessing, workflows]
-rmd_hash: 7f9ffcd35513b08e
+rmd_hash: 36f5b4babf9cb0e9
 
 ---
 
@@ -51,10 +51,14 @@ Existing tidymodels users might have spotted something funky already; who is thi
 
 The tailor package introduces tailor objects, which compose iterative adjustments to model predictions. tailor is to postprocessing as recipes is to preprocessing; applying your mental model of recipes to tailor should get you a good bit of the way there.
 
+<div style="width: 140%; max-width: 140%; overflow-x: auto;">
+
 | Tool | Applied to\... | Initialize with\... | Composes\... | Train with\... | Predict with\... |
 |------------|------------|------------|------------|------------|------------|
 | recipes | Training data | `recipe()` | `step_*()`s | `prep()` | `bake()` |
 | tailor | Model predictions | [`tailor()`](https://tailor.tidymodels.org/reference/tailor.html) | `adjust_*()`ments | [`fit()`](https://generics.r-lib.org/reference/fit.html) | [`predict()`](https://rdrr.io/r/stats/predict.html) |
+
+</div>
 
 First, users can initialize a tailor object with [`tailor()`](https://tailor.tidymodels.org/reference/tailor.html).
 
@@ -99,7 +103,7 @@ As an example, we'll apply this tailor to the `two_class_example` data made avai
 
 </div>
 
-This data gives the true value of an outcome variable `truth` as well as predicted probabilities (`Class1` and `Class2`). The hard class predictions, in predicted, are `"Class1"` if the probability assigned to `"Class1"` is above .5, and `"Class2"` otherwise.
+This data gives the true value of an outcome variable `truth` as well as predicted probabilities (`Class1` and `Class2`). The hard class predictions, in `predicted`, are `"Class1"` if the probability assigned to `"Class1"` is above .5, and `"Class2"` otherwise.
 
 The model predicts `"Class1"` more often than it does `"Class2"`.
 
@@ -140,8 +144,8 @@ In this case, though, we can [`fit()`](https://generics.r-lib.org/reference/fit.
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tlr_trained</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://generics.r-lib.org/reference/fit.html'>fit</a></span><span class='o'>(</span></span>
 <span>  <span class='nv'>tlr</span>,</span>
 <span>  <span class='nv'>two_class_example</span>,</span>
-<span>  outcome <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>truth</span><span class='o'>)</span>,</span>
-<span>  estimate <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>predicted</span><span class='o'>)</span>,</span>
+<span>  outcome <span class='o'>=</span> <span class='nv'>truth</span>,</span>
+<span>  estimate <span class='o'>=</span> <span class='nv'>predicted</span>,</span>
 <span>  probabilities <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>Class1</span>, <span class='nv'>Class2</span><span class='o'>)</span></span>
 <span><span class='o'>)</span></span>
 <span></span>
