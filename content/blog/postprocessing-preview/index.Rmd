@@ -49,10 +49,14 @@ Existing tidymodels users might have spotted something funky already; who is thi
 
 The tailor package introduces tailor objects, which compose iterative adjustments to model predictions. tailor is to postprocessing as recipes is to preprocessing; applying your mental model of recipes to tailor should get you a good bit of the way there.
 
+<div style="width: 140%; max-width: 140%; overflow-x: auto;">
+
 | Tool | Applied to\... | Initialize with\... | Composes\... | Train with\... | Predict with\... |
 |------------|------------|------------|------------|------------|------------|
 | recipes | Training data | `recipe()` | `step_*()`s | `prep()` | `bake()` |
 | tailor | Model predictions | `tailor()` | `adjust_*()`ments | `fit()` | `predict()` |
+
+</div>
 
 First, users can initialize a tailor object with `tailor()`.
 
@@ -190,8 +194,7 @@ collect_predictions(delivery_res) %>%
   cal_plot_regression(truth = time_to_delivery, estimate = .pred)
 ```
 
-
-Ooof. 
+Ooof.
 
 In comes tailor! Numeric calibration can help address the correlated errors here. We can add a tailor to our existing workflow to "bump up" predictions towards their true value.
 
