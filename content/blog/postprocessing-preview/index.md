@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: postprocessing-preview
 title: Postprocessing is coming to tidymodels
-date: 2024-10-01
+date: 2024-10-08
 author: Simon Couch, Hannah Frick, and Max Kuhn
 description: >
     The tidymodels team has been hard at work on postprocessing, a set of
@@ -16,7 +16,7 @@ photo:
 
 categories: [roundup] 
 tags: [tidymodels, postprocessing, workflows]
-rmd_hash: 36f5b4babf9cb0e9
+rmd_hash: d7ee1b6420697bfc
 
 ---
 
