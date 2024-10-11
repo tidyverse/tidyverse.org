@@ -23,6 +23,7 @@
     let canvas = undefined;
     await webR.init();
     await webR.evalRVoid('webr::canvas(width={{ .Get "width" | safeJS }}, height={{ .Get "height" | safeJS }})');
+    await webR.FS.syncfs(false);
     const result = await webRCodeShelter.captureR(editor.getValue(), {
       withAutoprint: true,
       captureStreams: true,
