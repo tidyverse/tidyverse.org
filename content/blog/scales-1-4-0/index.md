@@ -10,8 +10,8 @@ description: >
     Read about colour manipulation, palettes and new label functions.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/a-close-up-of-a-person-holding-a-paintbrush-Xrelr7cTYm4
+  author: Jennie Razumnaya
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
