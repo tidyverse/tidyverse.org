@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [scales]
-rmd_hash: 7584dc3906fb6e3d
+rmd_hash: 31a31e8ee7f5311f
 
 ---
 
@@ -25,10 +25,10 @@ TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
 * [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
@@ -96,9 +96,11 @@ Having palettes as a class rather than plain functions, allows us to store usefu
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>palette_type</a></span><span class='o'>(</span><span class='nv'>my_palette</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "colour"</span></span>
-<span></span><span><span class='nf'><a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>palette_nlevels</a></span><span class='o'>(</span><span class='nv'>my_palette</span><span class='o'>)</span></span>
+<span></span><span></span>
+<span><span class='nf'><a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>palette_nlevels</a></span><span class='o'>(</span><span class='nv'>my_palette</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] 3</span></span>
-<span></span><span><span class='nf'><a href='https://scales.r-lib.org/reference/colour_manip.html'>col_shift</a></span><span class='o'>(</span><span class='nv'>my_palette</span>, <span class='m'>180</span><span class='o'>)</span><span class='o'>(</span><span class='m'>3</span><span class='o'>)</span></span>
+<span></span><span></span>
+<span><span class='nf'><a href='https://scales.r-lib.org/reference/colour_manip.html'>col_shift</a></span><span class='o'>(</span><span class='nv'>my_palette</span>, <span class='m'>180</span><span class='o'>)</span><span class='o'>(</span><span class='m'>3</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "#FFC3FF" "#E4A735" "#00B100"</span></span>
 <span></span></code></pre>
 
@@ -121,7 +123,8 @@ Another thing to make working with palettes easier, is that the 'scales' package
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='nf'><a href='https://scales.r-lib.org/reference/get_palette.html'>palette_names</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "greens 2"   "r4"         "greens 3"   "blues"      "terrain"   </span></span>
 <span><span class='c'>#&gt; [6] "tableau 10"</span></span>
-<span></span><span><span class='nf'><a href='https://scales.r-lib.org/reference/get_palette.html'>get_palette</a></span><span class='o'>(</span><span class='s'>"Okabe-Ito"</span><span class='o'>)</span><span class='o'>(</span><span class='m'>8</span><span class='o'>)</span></span>
+<span></span><span></span>
+<span><span class='nf'><a href='https://scales.r-lib.org/reference/get_palette.html'>get_palette</a></span><span class='o'>(</span><span class='s'>"Okabe-Ito"</span><span class='o'>)</span><span class='o'>(</span><span class='m'>8</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "#000000" "#E69F00" "#56B4E9" "#009E73" "#F0E442" "#0072B2" "#D55E00"</span></span>
 <span><span class='c'>#&gt; [8] "#CC79A7"</span></span>
 <span></span></code></pre>
@@ -201,7 +204,8 @@ Lastly, we haven't completely forgotton about numeric labels either. We have int
 <span></span>
 <span><span class='nf'><a href='https://scales.r-lib.org/reference/label_currency.html'>label_currency</a></span><span class='o'>(</span>accuracy <span class='o'>=</span> <span class='m'>0.01</span><span class='o'>)</span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0.1</span>, <span class='m'>10</span>, <span class='m'>1000000</span>, <span class='o'>-</span><span class='m'>1000</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "0,10€"         "10,00€"        "1 000 000,00€" "-1 000,00€"</span></span>
-<span></span><span><span class='nf'><a href='https://scales.r-lib.org/reference/label_ordinal.html'>label_ordinal</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>4</span><span class='o'>)</span></span>
+<span></span><span></span>
+<span><span class='nf'><a href='https://scales.r-lib.org/reference/label_ordinal.html'>label_ordinal</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>4</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "1er" "2e"  "3e"  "4e"</span></span>
 <span></span></code></pre>
 
