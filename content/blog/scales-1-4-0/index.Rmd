@@ -40,7 +40,7 @@ You can install it from CRAN with:
 install.packages("scales")
 ```
 
-This blog post will give an overview of the 1.4.0 release, which has some nifty upgrades for working with colours.
+This blog post will give an overview of the 1.4.0 release, which has some nifty upgrades for working with colours and labels.
 
 You can see a full list of changes in the [release notes](https://scales.r-lib.org/news/index.html)
 
@@ -76,7 +76,7 @@ text(x = ncol(m) + 0.25, y = -(1:nrow(m)) + 0.5, rownames(m), adj = 0)
 
 ## Palettes
 
-Also palettes have been reworked this release to reflect more useful properties.
+Palettes have also been reworked in this release to include some useful properties.
 Palettes now come in one of two classes: 'pal_discrete' or 'pal_continuous'.
 
 ```{r}
@@ -84,7 +84,7 @@ my_palette <- manual_pal(c("palegreen", "deepskyblue", "magenta"))
 class(my_palette)
 ```
 
-Having palettes as a class rather than plain functions, allows us to store useful metadata about the palette.
+Having palettes as a class rather than as plain functions, allows us to store useful metadata about the palette which can be used downstream.
 In addition, most colour palette functions also allow the aforementioned colour manipulation functions to work on the palette output.
 
 ```{r}
@@ -95,7 +95,7 @@ palette_nlevels(my_palette)
 col_shift(my_palette, 180)(3)
 ```
 
-This metadata can then be used to expand discrete palettes to continuous palettes with `as_continuous_pal()` or vise versa to chop up a continuous palette into discrete palettes with `as_discrete_pal()`.
+With the new setup it is now possible to expand discrete palettes to continuous palettes with `as_continuous_pal()` or vise versa to chop up continuous palettes into discrete palettes with `as_discrete_pal()`.
 
 ```{r}
 plot(as_continuous_pal(my_palette))
@@ -123,7 +123,7 @@ plot(get_palette("aurora"))
 
 ## Labels
 
-Lastly, please let us introduce you to our two new labelling functions and two new convenience functions for labels.
+This release also provides improvements to labelling in the form of two new labelling functions and two new convenience functions for labels.
 In contrast to most of scales' label functions, these label functions are great for discrete input.
 First up is `label_glue()`, which uses the string interpolation from the glue package to format your labels.
 
@@ -131,9 +131,9 @@ First up is `label_glue()`, which uses the string interpolation from the glue pa
 label_glue("The {x} penguin")(c("Gentoo", "Chinstrap", "Adelie"))
 ```
 
-The next labeling function is convenient when some variable you use consists of shortcodes or abbreviations.
+The other labelling function, `label_dictionary()`, is convenient when some variable you use consists of short-codes or abbreviations.
 You can provide `label_dictionary()` with a named vector that translates the values to prettier labels.
-If you value didn't exist in the dictionary, these stay as-is by default.
+If one or more of your values doesn't exist in the dictionary, they stay as-is by default.
 
 ```{r}
 dict <- c(
@@ -143,7 +143,7 @@ dict <- c(
 label_dictionary(dict)(c("diy", "tldr", "bff"))
 ```
 
-The first label convenience function we'd like to tell you about is the `compose_label()` function.
+`compose_label()` is a useful convenience function we've added which will help you to create custom labelling behaviour without needing to write a labelling function from scratch.
 Similar to `compose_trans()`, it allows you to chain together different labelling functions.
 
 ```{r}
