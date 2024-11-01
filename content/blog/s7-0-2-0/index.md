@@ -15,7 +15,7 @@ description: >
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: []
-rmd_hash: 3492a079747cbfde
+rmd_hash: 0194d7dc65aa7bbe
 
 ---
 
@@ -32,7 +32,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're excited to announce that [S7](https://rconsortium.github.io/S7/) v0.2.0 is now available on CRAN! S7 is a new object-oriented programming (OOP) system designed to superceed both S3 and S4. You might wonder why R needs a new OOP system when we already have two. The reason lies in the history of R's OOP journey: S3 is a simple and effective system for single dispatch, while S4 adds formal class definitions and multiple dispatch, but at the cost of complexity. This has forced developers to choose between the simplicity of S3 and the sophistication of S4.
+We're excited to announce that [S7](https://rconsortium.github.io/S7/) v0.2.0 is now available on CRAN! S7 is a new object-oriented programming (OOP) system designed to supersede both S3 and S4. You might wonder why R needs a new OOP system when we already have two. The reason lies in the history of R's OOP journey: S3 is a simple and effective system for single dispatch, while S4 adds formal class definitions and multiple dispatch, but at the cost of complexity. This has forced developers to choose between the simplicity of S3 and the sophistication of S4.
 
 The goal of S7 is to unify the OOP landscape by building on S3's existing dispatch system and incorporating the most useful features of S4 (along with some new ones), all with a simpler syntax. S7's design and implementation have been a collaborative effort by a working group from the [R Consortium](https://www.r-consortium.org), including representatives from R-Core, Bioconductor, tidyverse/Posit, ROpenSci, and the wider R community. Since S7 builds on S3, it is fully compatible with existing S3-based code. It's also been thoughtfully designed to work with S4, and as we learn more about the challenges of transitioning from S4 to S7, we'll continue to add features to ease this process.
 
