@@ -10,14 +10,12 @@ description: >
     It combines the simplicity of S3 with the structure of S4 to create a 
     clearer system that's accessible to everyone.
 
-photo:
-  url: https://unsplash.com/photos/a-pile-of-bricks-sitting-next-to-each-other-O-rCs_m4dvM
-  author: Lluvia Morales
+# photo: from Tomasz's iPhone
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: []
-rmd_hash: cc54bc543d7768f7
+rmd_hash: 3492a079747cbfde
 
 ---
 
@@ -48,13 +46,13 @@ Our long-term goal is to include S7 in base R, but for now, you can install it f
 
 ## What's new in the second release
 
-The second release of S7 brings refinements and bug fixes. Key new features include:
+The second release of S7 brings refinements and bug fixes. Highlights include:
 
--   The ability to define classes with lazy property default values.
--   Initialization logic for properties with custom setters.
--   Substantial speed improvements for property setting and getting with `@` and `@<-`.
--   Expanded support for base S3 classes.
--   [`convert()`](https://rconsortium.github.io/S7/reference/convert.html) now implements a default method for transforming a parent class instance into a subclass.
+-   Support for lazy property defaults, making class setup more flexible.
+-   Custom property setters now run on object initialization.
+-   Significant speed improvements for setting and getting properties with `@` and `@<-`.
+-   Expanded compatibility with base S3 classes.
+-   [`convert()`](https://rconsortium.github.io/S7/reference/convert.html) now provides a default method for transforming a parent class into a subclass.
 
 Additionally, there are numerous bug fixes and quality-of-life improvements, such as better error messages, improved support for base Ops methods, and compatibility improvements for using `@` in R versions prior to 4.3. You can see a full list of changes in the [release notes](https://github.com/RConsortium/S7/blob/main/NEWS.md).
 
