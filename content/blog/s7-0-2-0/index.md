@@ -11,11 +11,14 @@ description: >
     clearer system that's accessible to everyone.
 
 # photo: from Tomasz's iPhone
+photo:
+  author: Tomasz Kalinowski
+  url: https://github.com/t-kalinowski
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [s7]
-rmd_hash: 5e3cb4da60bd9b75
+rmd_hash: 5bafd8f7327a1526
 
 ---
 
