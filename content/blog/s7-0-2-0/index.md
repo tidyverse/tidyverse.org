@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [s7]
-rmd_hash: 5bafd8f7327a1526
+rmd_hash: d35e6f9e5844a74b
 
 ---
 
@@ -67,11 +67,11 @@ S7 is a great fit for R users who like to try new things but don't need to be th
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/rconsortium/S7/'>S7</a></span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://rconsortium.github.io/S7/'>S7</a></span><span class='o'>)</span></span></code></pre>
 
 </div>
 
-Let's dive into the basics of S7. To learn more, check out the package vignettes, including a more detailed introduction in [`vignette("S7")`](https://rconsortium.github.io/OOP-WG/articles/S7.html), and coverage of generics and methods in [`vignette("generics-methods")`](https://rconsortium.github.io/OOP-WG/articles/generics-methods.html), and classes and objects in [`vignette("classes-objects")`](https://rconsortium.github.io/OOP-WG/articles/classes-objects.html).
+Let's dive into the basics of S7. To learn more, check out the package vignettes, including a more detailed introduction in [`vignette("S7")`](https://rconsortium.github.io/S7/articles/S7.html), and coverage of generics and methods in [`vignette("generics-methods")`](https://rconsortium.github.io/S7/articles/generics-methods.html), and classes and objects in [`vignette("classes-objects")`](https://rconsortium.github.io/S7/articles/classes-objects.html).
 
 ### Classes and objects
 
