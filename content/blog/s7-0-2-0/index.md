@@ -3,19 +3,19 @@ output: hugodown::hugo_document
 
 slug: s7-0-2-0
 title: S7 0.2.0
-date: 2024-10-30
+date: 2024-11-07
 author: Tomasz Kalinowski and Hadley Wickham
 description: >
-    S7 is a new package that simplifies object-oriented programming (OOP) in R. 
-    It combines the simplicity of S3 with the structure of S4 to create a 
+    S7 is a new package that simplifies object-oriented programming (OOP) in R.
+    It combines the simplicity of S3 with the structure of S4 to create a
     clearer system that's accessible to everyone.
 
 # photo: from Tomasz's iPhone
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
-categories: [package] 
-tags: []
-rmd_hash: 0194d7dc65aa7bbe
+categories: [package]
+tags: [s7]
+rmd_hash: 5e3cb4da60bd9b75
 
 ---
 
@@ -70,7 +70,7 @@ S7 is a great fit for R users who like to try new things but don't need to be th
 
 Let's dive into the basics of S7. To learn more, check out the package vignettes, including a more detailed introduction in [`vignette("S7")`](https://rconsortium.github.io/OOP-WG/articles/S7.html), and coverage of generics and methods in [`vignette("generics-methods")`](https://rconsortium.github.io/OOP-WG/articles/generics-methods.html), and classes and objects in [`vignette("classes-objects")`](https://rconsortium.github.io/OOP-WG/articles/classes-objects.html).
 
-### Classes and Objects
+### Classes and objects
 
 S7 classes have formal definitions, specified by [`new_class()`](https://rconsortium.github.io/S7/reference/new_class.html), which includes a list of properties and an optional validator. For example, the following code creates a `Range` class with `start` and `end` properties, and a validator to ensure that `start` is always less than `end`:
 
@@ -137,7 +137,7 @@ Properties are automatically validated against the type declared in [`new_class(
 
 </div>
 
-### Generics and Methods
+### Generics and methods
 
 Like S3 and S4, S7 uses **functional OOP**, where methods belong to **generic** functions, and method calls look like regular function calls: `generic(object, arg2, arg3)`. A generic uses the types of its arguments to automatically pick the appropriate method implementation.
 
@@ -188,7 +188,7 @@ And you can retrieve the method for a specific class:
 
 </div>
 
-## Known Limitations
+## Known limitations
 
 While we are pleased with S7's design, there are still some limitations:
 
