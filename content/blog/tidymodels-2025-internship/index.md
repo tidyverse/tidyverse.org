@@ -12,7 +12,6 @@ photo:
   url: https://unsplash.com/photos/black-and-red-pendant-lamp-9rrtd2z5jdg
   author: Jordane Mathieu
 
-# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [other] 
 tags: [tidymodels, internship]
 ---
@@ -37,5 +36,5 @@ If you want to know what the internship is like, a few of our alumni have writte
 - [_I know what I did last summer_ (2022)](https://www.mm218.dev/posts/2022-08-15-last-summer/)
 
 
-We can't wait to get started. 
+We can't wait to get started and look forward to reading your applications. 
 
