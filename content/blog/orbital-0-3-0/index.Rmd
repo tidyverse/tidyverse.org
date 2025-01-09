@@ -1,0 +1,143 @@
+---
+output: hugodown::hugo_document
+
+slug: orbital-0-3-0
+title: orbital 0.3.0
+date: 2025-01-08
+author: Emil Hvitfeldt
+description: >
+    orbital 0.3.0 is on CRAN! orbital now has classification support.
+
+photo:
+  url: https://www.pexels.com/photo/aerial-view-earth-exploration-flying-60132/
+  author: SpaceX
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [tidymodels, orbital]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're thrilled to announce the release of [orbital](https://orbital.tidymodels.org/) 0.3.0. orbital lets you predict in databases using tidymodels workflows.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("orbital")
+```
+
+This blog post will cover the highlights, which are classification support and the new augment method.
+
+You can see a full list of changes in the [release notes](https://orbital.tidymodels.org/news/index.html#orbital-030).
+
+```{r setup, include = FALSE}
+library(tidymodels)
+library(orbital)
+```
+
+## Classification support
+
+The biggest improvement in this version is that `orbital()` now works for supported classification models. See [vignette](https://orbital.tidymodels.org/articles/supported-models.html#supported-models) for list of all supported models.
+
+Let's start by fitting a classification model on the `penguins` data set, using {xgboost} as the engine.
+
+```{r}
+rec_spec <- recipe(species ~ ., data = penguins) |>
+  step_unknown(all_nominal_predictors()) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_impute_mean(all_numeric_predictors()) |>
+  step_zv(all_predictors())
+
+lr_spec <- boost_tree() |>
+  set_mode("classification") |>
+  set_engine("xgboost")
+
+wf_spec <- workflow(rec_spec, lr_spec)
+wf_fit <- fit(wf_spec, data = penguins)
+```
+
+With this fitted workflow object, we can call `orbital()` on it to create an orbital object.
+
+```{r}
+orbital_obj <- orbital(wf_fit)
+orbital_obj
+```
+
+This object contains all the information that is needed to produce predictions. Which we can produce with `predict()`.
+
+```{r}
+predict(orbital_obj, penguins)
+```
+
+The main thing to note here is that the orbital package produces character vectors instead of factors. This is done as a unifying approach since many databases don't have factor types.
+
+Speaking of databases, you can `predict()` on an orbital object using tables from databases. Below we create an ephemeral in-memory RSQLite database.
+
+```{r}
+library(DBI)
+library(RSQLite)
+
+con_sqlite <- dbConnect(SQLite(), path = ":memory:")
+penguins_sqlite <- copy_to(con_sqlite, penguins, name = "penguins_table")
+```
+
+And we can predict with it like normal. All the calculations are sent to the database for execution.
+
+```{r}
+predict(orbital_obj, penguins_sqlite)
+```
+
+This works the same with [many types of databases](https://orbital.tidymodels.org/articles/databases.html).
+
+Classification is different from regression in part because it comes with multiple prediction types. The above example showed the default which is hard classification. You can set the type of prediction you want with the `type` argument to `orbital`. For classification models, possible options are `"class"` and `"prob"`.
+
+```{r}
+orbital_obj_prob <- orbital(wf_fit, type = c("class", "prob"))
+orbital_obj_prob
+```
+
+Notice how we can select both `"class"` and `"prob"`. The predictions now include both hard and soft class predictions.
+
+```{r}
+predict(orbital_obj_prob, penguins)
+```
+
+That works equally well in databases.
+
+```{r}
+predict(orbital_obj_prob, penguins_sqlite)
+```
+
+## New augment method
+
+The users of tidymodels have found the `augment()` function to be a handy tool. This function performs predictions and returns them alongside the original data set. 
+
+This release adds `augment()` support for orbital objects.
+
+```{r}
+augment(orbital_obj, penguins)
+```
+
+The function works for most databases, but for technical reasons doesn't work with all. It has been confirmed to not work work in spark databases or arrow tables.
+
+```{r}
+augment(orbital_obj, penguins_sqlite)
+```
+
+## Acknowledgements
+
+A big thank you to all the people who have contributed to orbital since the release of v0.3.0:
+
+[&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;joscani](https://github.com/joscani), [&#x0040;jrosell](https://github.com/jrosell), [&#x0040;npelikan](https://github.com/npelikan), and [&#x0040;szimmer](https://github.com/szimmer).
