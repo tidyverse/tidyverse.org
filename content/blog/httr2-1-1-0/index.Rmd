@@ -32,11 +32,11 @@ TODO:
 * [ ] `usethis::use_tidy_thanks()`
 -->
 
-We're chuffed to announce the release of [httr2 1.1.0](https://httr2.r-lib.org). httr2 (pronounced "hitter2") is a comprehensive HTTP client package that provides a modern, pipeable API for working with web APIs. It builds on top of [{curl}](https://jeroen.r-universe.dev/curl) to provide features like mutable request objects, built-in rate limiting & retry tooling, comprehensive OAuth support, and secure handling of secrets and credentials
-
-As well as changes in httr2 1.1.0 this blog post includes changes in httr2 1.0.1 through 1.0.7, during which we've been iterating on various features and fixing numerous bugs. For a complete list of changes, you can check the [GitHub release notes](https://github.com/r-lib/httr2/releases) or the [NEWS file](https://httr2.r-lib.org/news/index.html).
+We're chuffed to announce the release of [httr2 1.1.0](https://httr2.r-lib.org). httr2 (pronounced "hitter2") is a comprehensive HTTP client that provides a modern, pipeable API for working with web APIs. It builds on top of [{curl}](https://jeroen.r-universe.dev/curl) to provide features like explicit request objects, built-in rate limiting & retry tooling, comprehensive OAuth support, and secure handling of secrets and credentials.
 
 In this blog post, we'll dive into the new streaming interface built around `req_perform_connection()`, explore the suite of URL manipulation tools, and highlight a few of the other biggest changes (including better support for AWS and enhancements to the caching system), and update you on the lifecycle changes.
+
+As well as the changes in version 1.1.0 this blog post covers the most important enhacenments in versions 1.0.1 through 1.0.7, where we've been iterating on various features and fixing _numerous_ bugs. For a complete list of changes, you can check the [GitHub release notes](https://github.com/r-lib/httr2/releases) or the [NEWS file](https://httr2.r-lib.org/news/index.html).
 
 ## Installation
 
@@ -49,7 +49,7 @@ install.packages("httr2")
 
 ## Streaming data
 
-The headline feature of this release is improved support for streaming data, which is particularly valuable for applications like real-time LLM responses. The new streaming interface provides more flexibility and reliability compared to the previous implementation. The star of the show is `req_perform_connection()`, which replaces the old callback-based `req_perform_stream()`. Unlike its predecessor, `req_perform_connection()` returns a regular response object with a connection object for the body:
+The headline feature of this release is a better API for streaming responses. The star of the show is `req_perform_connection()`, which supersedes the older callback-based `req_perform_stream()`. Unlike its predecessor, `req_perform_connection()` returns a regular response object with a connection object for the body:
 
 ```{r}
 library(httr2)
@@ -59,7 +59,7 @@ resp <- req_perform_connection(req)
 resp
 ```
 
-Once you have a streaming connection you can repeatly call a `resp_stream_*()` function to pull down data in chunks.
+Once you have a streaming connection you can repeatedly call a `resp_stream_*()` function to pull down data in chunks, using `resp_stream_is_complete()` to figure out when the stream is complete.
 
 ```{r}
 while (!resp_stream_is_complete(resp)) {
@@ -68,13 +68,13 @@ while (!resp_stream_is_complete(resp)) {
 }
 ```
 
-As you can see, `resp_stream_is_complete()` tells you when the stream is complete. As well as `resp_stream_raw()`, which returns a raw vector, you can also use `resp_stream_lines()` to stream lines, and `resp_stream_sse()` to stream [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
+As well as `resp_stream_raw()`, which returns a raw vector, you can also use `resp_stream_lines()` to stream lines and `resp_stream_sse()` to stream [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
 
-We've worked on these functions to support streaming chat responses for [ellmer](https://ellmer.tidyverse.org), our new package that makes it easy to chat with a LLM models from a variety of providers. So even though this feature is pretty new, it feels like it's been battle-tested and the interface feels pretty stable.
+We've worked on these functions to support streaming chat responses for [ellmer](https://ellmer.tidyverse.org), our new package for chatting with LLMs from a variety of providers. So even though this feature is pretty new, it feels like it's been battle-tested and the interface feels stable.
 
 ## URL manipulation tools
 
-Working with URLs got easier with a suite of new functions: `url_modify()`, `url_modify_query()`, and `url_modify_relative()`.
+Working with URLs got easier with three new functions: `url_modify()`, `url_modify_query()`, and `url_modify_relative()`.
 
 ```{r}
 # url_modify() modifies components of a URL
@@ -100,20 +100,24 @@ We also added `req_url_relative()` which uses `url_modify_relative()` and makes 
 
 ## Other improvements
 
-* We've made it easier to talk to AWS web services with `req_auth_aws_v4()` to sign requests using AWS's format and `resp_stream_aws()` to stream data using AWS's special format. Special thanks to the [lifion-aws-event-stream](https://github.com/lifion/lifion-aws-event-stream/) project for providing a clear reference implementation.
+There are a handful of other improvements that are worth highlighting:
 
-* We've run-down a long list of bugs that made `req_cache()` previously unreliable. This includes improved handling of header modifications, better cache pruning, and new debugging options. If you're working with a web API that supports caching we highly recommend that you try it out. The next release of {[gh](https://github.com/r-lib/gh)} includes caching support and my experience with the dev version suggests a pretty nice performance improvment.
+* We've made it easier to talk to AWS web services with `req_auth_aws_v4()` for signing requests and `resp_stream_aws()` for streaming responses. Special thanks goes to the [lifion-aws-event-stream](https://github.com/lifion/lifion-aws-event-stream/) project for providing a clear reference implementation.
+
+* We've run-down a long list of bugs that made `req_cache()` unreliable. This includes improved handling of header-only changes, better cache pruning, and new debugging options. If you're working with a web API that supports caching, we highly recommend that you try it out. The next release of {[gh](https://github.com/r-lib/gh)} includes caching support and my use of the dev version suggests a pretty nice performance improvment.
 
 * `is_online()` provides an easy way to check internet connectivity.
 
-* `req_perform_promise()` allows you to execute requests in the background (thanks to @gergness) using an efficient approach that waits on curl socket activity (thanks to @shikokuchuo).
+* `req_perform_promise()` allows you to execute requests in the background (thanks to [@gergness](https://github.com/gergness)) using an efficient approach that waits on curl socket activity (thanks to [@shikokuchuo](https://github.com/shikokuchuo)).
 
 ## Breaking changes
 
-As httr2 matures, we're making some lifecycle changes:
+As httr2 continues to mature, we're making some lifecycle changes:
 
 * `req_perform_iterative()` is now stable and no longer experimental.
 * `req_perform_stream()` is superseded by `req_perform_connection()`, as mentioned above.
 * `with_mock()` and `local_mock()` are defunct and will be rmeoved in the next release. Use `with_mocked_responses()` and `local_mocked_responses()` instead.
 
 ## Acknowledgements
+
+A big thanks to all 76 folks who filed issues, created PRs and generally helped to make httr2 better! [&#x0040;Aariq](https://github.com/Aariq), [&#x0040;AGeographer](https://github.com/AGeographer), [&#x0040;amael-ls](https://github.com/amael-ls), [&#x0040;anishjoni](https://github.com/anishjoni), [&#x0040;asadow](https://github.com/asadow), [&#x0040;atheriel](https://github.com/atheriel), [&#x0040;awpsoras](https://github.com/awpsoras), [&#x0040;billsanto](https://github.com/billsanto), [&#x0040;bonushenricus](https://github.com/bonushenricus), [&#x0040;botan](https://github.com/botan), [&#x0040;burgerga](https://github.com/burgerga), [&#x0040;CareCT](https://github.com/CareCT), [&#x0040;cderv](https://github.com/cderv), [&#x0040;cole-brokamp](https://github.com/cole-brokamp), [&#x0040;covid19ec](https://github.com/covid19ec), [&#x0040;datapumpernickel](https://github.com/datapumpernickel), [&#x0040;denskh](https://github.com/denskh), [&#x0040;deschen1](https://github.com/deschen1), [&#x0040;DyfanJones](https://github.com/DyfanJones), [&#x0040;erydit](https://github.com/erydit), [&#x0040;exetico](https://github.com/exetico), [&#x0040;fh-mthomson](https://github.com/fh-mthomson), [&#x0040;frzambra](https://github.com/frzambra), [&#x0040;gergness](https://github.com/gergness), [&#x0040;GreenGrassBlueOcean](https://github.com/GreenGrassBlueOcean), [&#x0040;guslipkin](https://github.com/guslipkin), [&#x0040;hadley](https://github.com/hadley), [&#x0040;i2z1](https://github.com/i2z1), [&#x0040;isachng93](https://github.com/isachng93), [&#x0040;IshuaWang](https://github.com/IshuaWang), [&#x0040;JamesHWade](https://github.com/JamesHWade), [&#x0040;jameslairdsmith](https://github.com/jameslairdsmith), [&#x0040;JBGruber](https://github.com/JBGruber), [&#x0040;jcheng5](https://github.com/jcheng5), [&#x0040;jeroen](https://github.com/jeroen), [&#x0040;jimbrig](https://github.com/jimbrig), [&#x0040;jjesusfilho](https://github.com/jjesusfilho), [&#x0040;jl5000](https://github.com/jl5000), [&#x0040;jmuhlenkamp](https://github.com/jmuhlenkamp), [&#x0040;jonthegeek](https://github.com/jonthegeek), [&#x0040;JosiahParry](https://github.com/JosiahParry), [&#x0040;jwimberl](https://github.com/jwimberl), [&#x0040;krjaworski](https://github.com/krjaworski), [&#x0040;m-muecke](https://github.com/m-muecke), [&#x0040;maarten-vermeyen](https://github.com/maarten-vermeyen), [&#x0040;MarekGierlinski](https://github.com/MarekGierlinski), [&#x0040;maxsutton](https://github.com/maxsutton), [&#x0040;mgirlich](https://github.com/mgirlich), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;mkoohafkan](https://github.com/mkoohafkan), [&#x0040;MSHelm](https://github.com/MSHelm), [&#x0040;mstei4176](https://github.com/mstei4176), [&#x0040;mthomas-ketchbrook](https://github.com/mthomas-ketchbrook), [&#x0040;NateNohling](https://github.com/NateNohling), [&#x0040;nick-youngblut](https://github.com/nick-youngblut), [&#x0040;pbulsink](https://github.com/pbulsink), [&#x0040;PietrH](https://github.com/PietrH), [&#x0040;pkautio](https://github.com/pkautio), [&#x0040;plietar](https://github.com/plietar), [&#x0040;pmlefeuvre-met](https://github.com/pmlefeuvre-met), [&#x0040;rkrug](https://github.com/rkrug), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;salim-b](https://github.com/salim-b), [&#x0040;shikokuchuo](https://github.com/shikokuchuo), [&#x0040;simplyalexander](https://github.com/simplyalexander), [&#x0040;sluga](https://github.com/sluga), [&#x0040;stefanedwards](https://github.com/stefanedwards), [&#x0040;steveputman](https://github.com/steveputman), [&#x0040;tebancr](https://github.com/tebancr), [&#x0040;thohan88](https://github.com/thohan88), [&#x0040;tony2015116](https://github.com/tony2015116), [&#x0040;toobiwankenobi](https://github.com/toobiwankenobi), [&#x0040;verhovsky](https://github.com/verhovsky), [&#x0040;walinchus](https://github.com/walinchus), [&#x0040;werkstattcodes](https://github.com/werkstattcodes), and [&#x0040;zacdav-db](https://github.com/zacdav-db).
