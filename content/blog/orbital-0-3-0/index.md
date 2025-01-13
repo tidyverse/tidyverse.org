@@ -2,8 +2,8 @@
 output: hugodown::hugo_document
 
 slug: orbital-0-3-0
-title: recipes 0.3.0
-date: 2025-01-08
+title: orbital 0.3.0
+date: 2025-01-13
 author: Emil Hvitfeldt
 description: >
     orbital 0.3.0 is on CRAN! orbital now has classification support.
@@ -15,21 +15,21 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, orbital]
-rmd_hash: a761c1ce3dd0bb76
+rmd_hash: 6e2f809440c9e273
 
 ---
 
 <!--
 TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 We're thrilled to announce the release of [orbital](https://orbital.tidymodels.org/) 0.3.0. orbital lets you predict in databases using tidymodels workflows.
@@ -164,7 +164,7 @@ And we can predict with it like normal. All the calculations are sent to the dat
 
 This works the same with [many types of databases](https://orbital.tidymodels.org/articles/databases.html).
 
-Classification is different from regression in part because it comes with multiple prediction types. The above example showed the default which is hard classification. You can set the type of prediction you want with the `type` argument to `orbital`. For classification models, it takes `"class"` and `"prob"`.
+Classification is different from regression in part because it comes with multiple prediction types. The above example showed the default which is hard classification. You can set the type of prediction you want with the `type` argument to `orbital`. For classification models, possible options are `"class"` and `"prob"`.
 
 <div class="highlight">
 
