@@ -18,18 +18,19 @@ tags: [tidymodels, internship]
 
 We are chuffed once again to offer a summer internship with the tidymodels team. 
 
-We've had eight previous summer interns and these led to the creation of a number of new packages: [agua](https://agua.tidymodels.org/), [applicable](https://applicable.tidymodels.org/),  [bundle](https://rstudio.github.io/bundle/), [butcher](https://butcher.tidymodels.org/),  [shinymodels](https://shinymodels.tidymodels.org/), [spatialsample](https://spatialsample.tidymodels.org/), and [stacks](https://stacks.tidymodels.org/). Our own [Simon Couch](https://www.simonpcouch.com/) is a former intern who won [an award](https://community.amstat.org/jointscsg-section/awards/john-m-chambers) for his work. 
+We've had eight previous summer interns and these led to the creation of a number of new packages: [agua](https://agua.tidymodels.org/), [applicable](https://applicable.tidymodels.org/), [bundle](https://rstudio.github.io/bundle/), [butcher](https://butcher.tidymodels.org/), [shinymodels](https://shinymodels.tidymodels.org/), [spatialsample](https://spatialsample.tidymodels.org/), and [stacks](https://stacks.tidymodels.org/). Our own [Simon Couch](https://www.simonpcouch.com/) is a former intern who won [an award](https://community.amstat.org/jointscsg-section/awards/john-m-chambers) for his work. 
 
 This year, the primary focus is on expanding our feature selection capabilities. Some of this will involve new recipe steps and other functions. Towards the end of the internship, there might be time to work on other things, too!
 
 To apply, make sure that you have a GitHub handle and follow this link: 
 
+**[`https://posit.co/job-detail/?gh_jid=6323043003`](https://posit.co/job-detail/?gh_jid=6323043003)**
 
-This year, the internship is US-based.  
+The internship is US-based.  
 
 If you want to know what the internship is like, a few of our alumni have written about it: 
 
-- [_A summer with rstudio_ (2018)](https://www.alexpghayes.com/post/2018-08-10_a-summer-with-rstudio/)
+- [_A summer with RStudio_ (2018)](https://www.alexpghayes.com/post/2018-08-10_a-summer-with-rstudio/)
 - [_RStudio Summer Internship_ (2018)](https://fbchow.rbind.io/2018/07/27/rstudio-summer-internship/)
 - [_This Is Not Like the Others_ (2019)](https://education.rstudio.com/blog/2019/12/this-is-not-like-the-others/)
 - [_Tidymodels Internship_ (2020)](https://education.rstudio.com/blog/2020/06/tidymodels-internship/)
