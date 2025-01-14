@@ -1,0 +1,119 @@
+---
+output: hugodown::hugo_document
+
+slug: httr2-1-1-0
+title: httr2 1.1.0
+date: 2025-01-09
+author: Hadley Wickham
+description: >
+    httr2 1.1.0 introduces powerful new streaming capabilities with
+    `req_perform_connection()`. This release also brings comprehensive URL
+    manipulation tools and improved support for AWS.
+
+photo:
+  url: https://unsplash.com/photos/person-holding-two-baseballs-3k_FcShH0jY
+  author: Jose Morales
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package]
+tags: [httr2]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We're chuffed to announce the release of [httr2 1.1.0](https://httr2.r-lib.org). httr2 (pronounced "hitter2") is a comprehensive HTTP client package that provides a modern, pipeable API for working with web APIs. It builds on top of [{curl}](https://jeroen.r-universe.dev/curl) to provide features like mutable request objects, built-in rate limiting & retry tooling, comprehensive OAuth support, and secure handling of secrets and credentials
+
+As well as changes in httr2 1.1.0 this blog post includes changes in httr2 1.0.1 through 1.0.7, during which we've been iterating on various features and fixing numerous bugs. For a complete list of changes, you can check the [GitHub release notes](https://github.com/r-lib/httr2/releases) or the [NEWS file](https://httr2.r-lib.org/news/index.html).
+
+In this blog post, we'll dive into the new streaming interface built around `req_perform_connection()`, explore the suite of URL manipulation tools, and highlight a few of the other biggest changes (including better support for AWS and enhancements to the caching system), and update you on the lifecycle changes.
+
+## Installation
+
+Install httr2 from CRAN with:
+
+```{r}
+#| eval: false
+install.packages("httr2")
+```
+
+## Streaming data
+
+The headline feature of this release is improved support for streaming data, which is particularly valuable for applications like real-time LLM responses. The new streaming interface provides more flexibility and reliability compared to the previous implementation. The star of the show is `req_perform_connection()`, which replaces the old callback-based `req_perform_stream()`. Unlike its predecessor, `req_perform_connection()` returns a regular response object with a connection object for the body:
+
+```{r}
+library(httr2)
+
+req <- request(example_url()) |> req_template("/stream-bytes/:n", n = 10240)
+resp <- req_perform_connection(req)
+resp
+```
+
+Once you have a streaming connection you can repeatly call a `resp_stream_*()` function to pull down data in chunks.
+
+```{r}
+while (!resp_stream_is_complete(resp)) {
+  bytes <- resp_stream_raw(resp, kb = 2)
+  cat("Downloaded ", length(bytes), " bytes\n", sep = "")
+}
+```
+
+As you can see, `resp_stream_is_complete()` tells you when the stream is complete. As well as `resp_stream_raw()`, which returns a raw vector, you can also use `resp_stream_lines()` to stream lines, and `resp_stream_sse()` to stream [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
+
+We've worked on these functions to support streaming chat responses for [ellmer](https://ellmer.tidyverse.org), our new package that makes it easy to chat with a LLM models from a variety of providers. So even though this feature is pretty new, it feels like it's been battle-tested and the interface feels pretty stable.
+
+## URL manipulation tools
+
+Working with URLs got easier with a suite of new functions: `url_modify()`, `url_modify_query()`, and `url_modify_relative()`.
+
+```{r}
+# url_modify() modifies components of a URL
+url_modify("https://example.com", hostname = "github.com")
+url_modify("https://example.com", scheme = "http")
+url_modify("https://example.com", path = "abc", query = list(foo = "bar"))
+
+# url_modify_query() lets you modify individual query parameters
+# modifying an existing parameter:
+url_modify_query("http://example.com?a=1&b=2", a = 10)
+# delete a parameter:
+url_modify_query("http://example.com?a=1&b=2", b = NULL)
+# add a new parameter:
+url_modify_query("http://example.com?a=1&b=2", c = 3)
+
+# url_modify_relative() navigates to a relative URL
+url_modify_relative("https://example.com/a/b/c.html", "/d/e/f.html")
+url_modify_relative("https://example.com/a/b/c.html", "C.html")
+url_modify_relative("https://example.com/a/b/c.html", "../B.html")
+```
+
+We also added `req_url_relative()` which uses `url_modify_relative()` and makes it easier to navigate to a relative URL for an existing request.
+
+## Other improvements
+
+* We've made it easier to talk to AWS web services with `req_auth_aws_v4()` to sign requests using AWS's format and `resp_stream_aws()` to stream data using AWS's special format. Special thanks to the [lifion-aws-event-stream](https://github.com/lifion/lifion-aws-event-stream/) project for providing a clear reference implementation.
+
+* We've run-down a long list of bugs that made `req_cache()` previously unreliable. This includes improved handling of header modifications, better cache pruning, and new debugging options. If you're working with a web API that supports caching we highly recommend that you try it out. The next release of {[gh](https://github.com/r-lib/gh)} includes caching support and my experience with the dev version suggests a pretty nice performance improvment.
+
+* `is_online()` provides an easy way to check internet connectivity.
+
+* `req_perform_promise()` allows you to execute requests in the background (thanks to @gergness) using an efficient approach that waits on curl socket activity (thanks to @shikokuchuo).
+
+## Breaking changes
+
+As httr2 matures, we're making some lifecycle changes:
+
+* `req_perform_iterative()` is now stable and no longer experimental.
+* `req_perform_stream()` is superseded by `req_perform_connection()`, as mentioned above.
+* `with_mock()` and `local_mock()` are defunct and will be rmeoved in the next release. Use `with_mocked_responses()` and `local_mocked_responses()` instead.
+
+## Acknowledgements
