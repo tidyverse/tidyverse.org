@@ -1,0 +1,171 @@
+---
+output: hugodown::hugo_document
+
+slug: text-rendering-updates
+title: Updates to Text Rendering in R Graphics
+date: 2025-01-17
+author: Thomas Lin Pedersen
+description: >
+    There has been a recent flurry of updates to packages involved in rendering
+    text from R. This blog post will go through what this means for you as a
+    user and developer.
+
+photo:
+  url: https://unsplash.com/photos/a-sign-on-the-side-of-a-building-in-a-foreign-language-O5TLxKaOZUs
+  author: Tim Mossholder
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [roundup]
+tags: [systemfonts, textshaping, marquee, graphics]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  dev = "ragg_png"
+)
+```
+
+<blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:6cf4jj62ofgoswlxcqdvtcg5/app.bsky.feed.post/3lfevs4qe5k2l" data-bluesky-cid="bafyreigvpe72rfvuw47nr6qrec2je2lntsowdnzer5vz2imjbejree6ebm"><p lang="en">text rendering is one of those disciplines where, if you think you finally got it right, you can be 100% certain that you didn&#x27;t</p>&mdash; Thomas Lin Pedersen (<a href="https://bsky.app/profile/did:plc:6cf4jj62ofgoswlxcqdvtcg5?ref_src=embed">@thomasp85.com</a>) <a href="https://bsky.app/profile/did:plc:6cf4jj62ofgoswlxcqdvtcg5/post/3lfevs4qe5k2l?ref_src=embed">January 10, 2025 at 10:44 AM</a></blockquote><script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
+
+No reason to hide the fact: Text rendering is complicated! When I set out to improve the support for modern text rendering features in R all those years ago, I don't think I truly appreciated that fact. And probably for the better, since I'm not sure I would have taken on the task.
+
+Taking the quote above as a universal truth (it comes from a reputable source after all), I'm sure I'll never be fully done, but recent work on the whole stack at least makes me worry less about the correctness. This post will go through the changes that span the [systemfonts](https://github.com/r-lib/systemfonts), [textshaping](https://github.com/r-lib/textshaping), and [marquee](https://marquee.r-lib.org) packages and let you now how you, as a user or developer, should take advantage of them.
+
+## Working with non-installed fonts
+
+The genesis of the systemfonts package was a need to be able to tap into the operating systems font library so that whatever was installed on the system would be available to graphics devices (assuming those devices used systemfonts). The scope of the package has gradually increased and one of the needs that has become obvious over time is a way to work with fonts that aren't installed on the system (E.g. if you want to bundle a font with a package, or if you are deploying a Shiny app that uses a specific font for the graphics). Until now the `register_font()` and `register_variant()` functions have been the only option for letting systemfonts know about fonts other than those installed on the system. However, both of these functions were designed to circumvent limitations in the R graphics system when it comes to font selection (e.g. no way to use a "thin" font variant as the only weight option in the graphics system is bold yes/no) and as such were clunky to use for introducing new fonts.
+
+With the new version of systemfonts we get a dedicated way to tell systemfonts "please consider these font files as equals to the installed ones". The function is called `add_fonts()` and all you need to do is to pass in a vector of paths to font files and these will then be reachable by systemfonts. In addition to this function, systemfonts also comes with `scan_local_fonts()` that looks in `./fonts` and `~/fonts` and adds any fonts located there. The function is called when systemfonts is loaded so placing font files in either of these locations will make them accessible at all times. This is great for deploying projects because all you need to do is to include a `fonts` folder at the root of you project and these fonts will then always be available wherever you deploy your code.
+
+While it is nice to have good access to the font files on your computer, the files has to come from somewhere. Nowadays that *somewhere* is usually [Google Fonts](https://fonts.google.com) or some other online font repository. systemfonts is now aware of a few of these repositories (Google Fonts and [Font Squirrel](https://www.fontsquirrel.com) for now), and can search and download from these (using `search_web_fonts()`, `get_from_google_fonts()`, and `get_from_font_squirrel()`). The downloaded fonts are automatically added using `add_fonts()` so they are immediately available, and by default they are placed in `~/fonts` so that they persist across R sessions and projects.
+
+But what if you don't want to think too much about all these details and just want to ensure that some specific font is available when a piece of code is running? In that case `require_font()` got you covered. This function allows you to state a dependency on a font in a script. The function scans the available fonts on the system and, if it doesn't find anything, proceeds to look for the font in the online repositories, downloading it if it finds it. If that also fails the function will either throw an error, or map the required font to a fallback of your choosing:
+
+```{r}
+#| fig.height: 3
+library(systemfonts)
+require_font("Rubik Moonrocks")
+
+plot.new()
+text(0.5, 0.5, "Fancy Font", family = "Rubik Moonrocks", cex = 6)
+```
+
+Remember that all of these niceties only goes into effect if you use a graphics device that uses systemfonts. For now that more or less means that you should use ragg (you should use ragg anyway so that is not a terrible requirement).
+
+## Getting to the Glyphs
+
+Most fonts these days are based on a vector outline. That means that they can be scaled smoothly to any size and doesn't take up a lot of storage space. It also means that there are polygons inside the font files and that these can be extracted! This is now possible with systemfonts and the new `glyph_outline()` and `glyph_raster()` functions.
+
+```{r}
+#| fig.width: 4.5
+#| fig.height: 4.5
+# Get the location of the glyph inside the font
+moonrocks <- font_info("Rubik Moonrocks")
+G <- glyph_info("G", path = moonrocks$path, index = moonrocks$index)
+
+# Extract the outline of the glyph and plot it
+outline <- glyph_outline(G$index, moonrocks$path, moonrocks$index, size = 400)
+grid::grid.path(
+  x = outline$x,
+  y = outline$y + 20, # To raise the baseline a bit
+  id = outline$contour,
+  default.units = "bigpts",
+  gp = grid::gpar(fill = "grey", col = "black", lwd = 4)
+)
+```
+
+Extracting them as polygons means that we can do all sorts of weird stuff with them if we so pleases:
+
+```{r}
+#| fig.width: 5.5
+#| fig.height: 4.5
+# Skew the glyph making it italic
+grid::grid.path(
+  x = outline$x + outline$y * 0.4,
+  y = outline$y + 20, # To raise the baseline a bit
+  id = outline$contour,
+  default.units = "bigpts",
+  gp = grid::gpar(fill = "grey", col = "black", lwd = 4)
+)
+```
+
+(real italic glyphs are designed to look good skewed, not just skewed versions of the regular glyphs)
+
+Remember how I said "most fonts" in the beginning of this section. There are still fonts that do not provide an outline, the prime example being most emoji fonts. The glyphs in such fonts are encoded as multiple bitmaps at fixed sizes (Microsofts emoji font going a different way by encoding them as SVGs). Since we can't get to the data as outlines we can instead extract it as a raster:
+
+```{r}
+#| fig.width: 4.5
+#| fig.height: 4.6
+emoji <- font_info("emoji")
+dancer <- glyph_info("💃", path = emoji$path, index = emoji$index)
+raster <- glyph_raster(dancer$index, emoji$path, emoji$index, size = 400)
+grid::grid.draw(glyph_raster_grob(raster[[1]], 0, 50))
+```
+
+In the above we used the `glyph_raster_grob()` helper function to create a raster grob with the correct scaling of the resulting raster.
+
+Raster extraction is not only for bitmap encoded fonts since it is easy to go from an outline to a raster (but not the other way around). Freetype (which systemfonts uses) includes a very efficient scanline rasterizer (the same as used in ragg) and we can thus get a raster version of any font:
+
+```{r}
+#| fig.width: 4.5
+#| fig.height: 4.5
+raster2 <- glyph_raster(G$index, moonrocks$path, moonrocks$index, size = 400)
+grid::grid.draw(glyph_raster_grob(raster2[[1]], 0, 20))
+```
+
+## The Way the Text Flows
+
+The thing that provoked me to writing the quote that started this blog post was my work on the textshaping package. This package is largely invisible to the user but together with systemfonts it is responsible for laying out strings of text correctly, figuring out the location of every glyph and finding alternative fonts if the selected one doesn't contain the glyph. textshaping powers ragg as well as marquee, doing the heavy lifting of translating a string of text into glyphs and locations.
+
+Part of converting a string into glyphs and coordinates (a process known as text shaping) is to figure out which way the text flows and act accordingly. For many people left-to-right flow is the natural text direction, but this is merely a cultural bias and many scripts with a different flow exists (arabic and hebrew being the two most dominant right-to-left flowing scripts). So, part of shaping requires figuring out what script a specific character belongs to and what direction it flows. This is all fairly simple when a string internally agrees on the direction of flow, but can get much more complicated when scripts are embedded within other scripts that doesn't have the same flow (not to mention scripts embedded even deeper). Combine all of this with soft wrapping of text inside an embedded script and you got the recipe for a headache. textshaping (through me) already made the claim that it fully supported bi-directional text but it turned out that I severely misjudged the complexity. Because of this, the shaping engine has been rewritten almost from scratch. Based on the starting quote I can't quite claim that it now works 100% correctly but it does pass all 91.707 test cases for bidirectional text provided by the Unicode consortium so there's that.
+
+Again, it is unlikely that you will come into contact with textshaping directly so you will mostly experience these improvements in the way text just appears more correct (to the extend that this was ever an issue for you). The place you are most likely to stumble upon these changes is marquee, which uses textshaping under the hood. Styling in marquee has been expanded to include a `text_direction` setting. It defaults to `"auto"` which mean "deduce it from the text you get", but you can also set it to `"ltr"` or `"rtl"` to set the direction explicitly. Be aware that this setting doesn't change how single glyphs flow so you cannot use it to e.g. write arabic in left-to-right flow. Instead it governs the paragraph-level direction and thus how bi-directional text should be assembled. It also governs to which side indentation happen and the placement of bullets in bullet lists. Often, leaving it on the default value will work fine. There are also two new values for the `align` setting. `"auto"` picks either `"left"` or `"right"` depending on the text direction, while `"justified"` picks either `"justified-left"` or `"justified-right"`. This makes it much easier to work natively with right-to-left text as everything just looks as it should. To top it off, `classic_style()` gains an `ltr` argument that controls whether the styling in general should cater to left-to-right or right-to-left text. It controls things such as the position of the grey bar in quotation blocks and the indentation of nested lists.
+
+## A marquee for Everyone
+
+Speaking of marquee, the biggest obstacle it has put in front of its users is that it is build on very new features in R. The ability to write text by placing glyphs one at a time was only added in R 4.2 and not every graphics device supports it yet (worse still, the implementation in the default Mac quartz device caused the session to crash). Again, ragg is your friend, but the Cairo devices also has excellent support.
+
+Text rendering, however, should always work. It is quite frustrating for text to not show up when you expect it to. Because of this it has been a clear plan to expand the support for marquee somehow. With the new version of marquee this is finally a reality. How does it work? Well, remember when we talked about extracting glyph outlines and rasters? If marquee encounters a graphics device that doesn't provide the necessary features it will take matter into it's own hand, extract all the necessary polygons and bitmaps and plot them. It is certainly not faster than relying on the optimized routines of the graphics device and it can also lead to visual degradation at smaller font sizes. But it works - everywhere.
+
+To show it off, here is an svg created with svglite which doesn't have the required new features:
+
+```{r}
+#| results: asis
+library(marquee)
+text <- "_Fancy_ {.red Font}📝"
+
+m_grob <- marquee_grob(
+  text,
+  classic_style(
+    body_font = "Rubik Moonrocks",
+    base_size = 72
+  )
+)
+
+s <- svglite::svgstring(width = 7, height = 3)
+grid::grid.draw(m_grob)
+invisible(dev.off())
+
+s()
+```
+
+If you inspect the SVG above you'll see that rather than being made up of text elements it is a collection of path and image elements.
+
+Again, it is unlikely that many people will use marquee like this. It is much more likely that they will encounter it through ggplot2 in the form of `geom_marquee()` and `element_marquee()`. Still, the takeaway is the same - it is now safe to use marquee even when you don't know which graphics device will be used to render the text with.
+
+## What's Next?
+
+Circling back to the starting quote. I'm 100% certain I'm not done yet. I believe the next big push will be proper support for vertical text in textshaping (it currently only deals with horizontal text). I also have some plans to get marquee to automatically translate the numbers in ordered lists into their proper representation in the script that is being used, so that e.g. '3.' will be shown as '.٣' when used with Arabic text.
