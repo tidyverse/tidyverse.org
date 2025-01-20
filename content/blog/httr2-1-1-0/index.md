@@ -3,12 +3,12 @@ output: hugodown::hugo_document
 
 slug: httr2-1-1-0
 title: httr2 1.1.0
-date: 2025-01-09
+date: 2025-01-20
 author: Hadley Wickham
 description: >
     httr2 1.1.0 introduces powerful new streaming capabilities with
     `req_perform_connection()`. This release also brings comprehensive URL
-    manipulation tools and improved support for AWS.
+    manipulation tools and improved AWS support.
 
 photo:
   url: https://unsplash.com/photos/person-holding-two-baseballs-3k_FcShH0jY
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [httr2]
-rmd_hash: 6a236a39ca96b9d6
+rmd_hash: 79ea9949f8362448
 
 ---
 
@@ -31,14 +31,14 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 We're chuffed to announce the release of [httr2 1.1.0](https://httr2.r-lib.org). httr2 (pronounced "hitter2") is a comprehensive HTTP client that provides a modern, pipeable API for working with web APIs. It builds on top of [{curl}](https://jeroen.r-universe.dev/curl) to provide features like explicit request objects, built-in rate limiting & retry tooling, comprehensive OAuth support, and secure handling of secrets and credentials.
 
-In this blog post, we'll dive into the new streaming interface built around [`req_perform_connection()`](https://httr2.r-lib.org/reference/req_perform_connection.html), explore the suite of URL manipulation tools, and highlight a few of the other biggest changes (including better support for AWS and enhancements to the caching system), and update you on the lifecycle changes.
+In this blog post, we'll dive into the new streaming interface built around [`req_perform_connection()`](https://httr2.r-lib.org/reference/req_perform_connection.html), explore the new suite of URL manipulation tools, and highlight a few of the other biggest changes (including better support for AWS and enhancements to the caching system), and update you on the lifecycle changes.
 
-As well as the changes in version 1.1.0 this blog post covers the most important enhacenments in versions 1.0.1 through 1.0.7, where we've been iterating on various features and fixing *numerous* bugs. For a complete list of changes, you can check the [GitHub release notes](https://github.com/r-lib/httr2/releases) or the [NEWS file](https://httr2.r-lib.org/news/index.html).
+This blog post includes the most important enhacenments in versions 1.0.1 through 1.0.7, where we've been iterating on various features and fixing *numerous* bugs. For a complete list of changes, you can check the [GitHub release notes](https://github.com/r-lib/httr2/releases) or the [NEWS file](https://httr2.r-lib.org/news/index.html).
 
 ## Installation
 
@@ -52,7 +52,9 @@ Install httr2 from CRAN with:
 
 ## Streaming data
 
-The headline feature of this release is a better API for streaming responses. The star of the show is [`req_perform_connection()`](https://httr2.r-lib.org/reference/req_perform_connection.html), which supersedes the older callback-based [`req_perform_stream()`](https://httr2.r-lib.org/reference/req_perform_stream.html). Unlike its predecessor, [`req_perform_connection()`](https://httr2.r-lib.org/reference/req_perform_connection.html) returns a regular response object with a connection object for the body:
+The headline feature of this release is a better API for streaming responses, where the body is not available immediately but is streamed back over time. This is particularly important for interacting with LLMs, where it's needed to make chat responses feel snappy. You can try it out in [ellmer](https://ellmer.tidyverse.org), our new package for chatting with LLMs from a variety of providers.
+
+The most important new function is [`req_perform_connection()`](https://httr2.r-lib.org/reference/req_perform_connection.html), which supersedes the older callback-based [`req_perform_stream()`](https://httr2.r-lib.org/reference/req_perform_stream.html). Unlike its predecessor, [`req_perform_connection()`](https://httr2.r-lib.org/reference/req_perform_connection.html) returns a regular response object with a connection object for the body:
 
 <div class="highlight">
 
@@ -62,7 +64,7 @@ The headline feature of this release is a better API for streaming responses. Th
 <span><span class='nv'>resp</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/req_perform_connection.html'>req_perform_connection</a></span><span class='o'>(</span><span class='nv'>req</span><span class='o'>)</span></span>
 <span><span class='nv'>resp</span></span>
 <span><span class='c'>#&gt; <span style='color: #0000BB;'>&lt;httr2_response&gt;</span></span></span>
-<span></span><span><span class='c'>#&gt; <span style='font-weight: bold;'>GET</span> http://127.0.0.1:54691/stream-bytes/10240</span></span>
+<span></span><span><span class='c'>#&gt; <span style='font-weight: bold;'>GET</span> http://127.0.0.1:49165/stream-bytes/10240</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>Status</span>: 200 OK</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>Content-Type</span>: application/octet-stream</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>Body</span>: Streaming connection</span></span>
@@ -70,7 +72,7 @@ The headline feature of this release is a better API for streaming responses. Th
 
 </div>
 
-Once you have a streaming connection you can repeatedly call a `resp_stream_*()` function to pull down data in chunks, using [`resp_stream_is_complete()`](https://httr2.r-lib.org/reference/resp_stream_raw.html) to figure out when the stream is complete.
+Once you have a streaming connection you can repeatedly call a `resp_stream_*()` function to pull down data in chunks, using [`resp_stream_is_complete()`](https://httr2.r-lib.org/reference/resp_stream_raw.html) to figure out when to stop.
 
 <div class="highlight">
 
@@ -83,18 +85,15 @@ Once you have a streaming connection you can repeatedly call a `resp_stream_*()`
 <span><span class='c'>#&gt; Downloaded 2048 bytes</span></span>
 <span><span class='c'>#&gt; Downloaded 2048 bytes</span></span>
 <span><span class='c'>#&gt; Downloaded 2048 bytes</span></span>
-<span><span class='c'>#&gt; Downloaded 0 bytes</span></span>
 <span></span></code></pre>
 
 </div>
 
-As well as [`resp_stream_raw()`](https://httr2.r-lib.org/reference/resp_stream_raw.html), which returns a raw vector, you can also use [`resp_stream_lines()`](https://httr2.r-lib.org/reference/resp_stream_raw.html) to stream lines and [`resp_stream_sse()`](https://httr2.r-lib.org/reference/resp_stream_raw.html) to stream [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
-
-We've worked on these functions to support streaming chat responses for [ellmer](https://ellmer.tidyverse.org), our new package for chatting with LLMs from a variety of providers. So even though this feature is pretty new, it feels like it's been battle-tested and the interface feels stable.
+As well as [`resp_stream_raw()`](https://httr2.r-lib.org/reference/resp_stream_raw.html), which returns a raw vector, you can use [`resp_stream_lines()`](https://httr2.r-lib.org/reference/resp_stream_raw.html) to stream lines and [`resp_stream_sse()`](https://httr2.r-lib.org/reference/resp_stream_raw.html) to stream [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
 
 ## URL manipulation tools
 
-Working with URLs got easier with three new functions: [`url_modify()`](https://httr2.r-lib.org/reference/url_modify.html), [`url_modify_query()`](https://httr2.r-lib.org/reference/url_modify.html), and [`url_modify_relative()`](https://httr2.r-lib.org/reference/url_modify.html).
+Working with URLs got easier with three new functions: [`url_modify()`](https://httr2.r-lib.org/reference/url_modify.html), [`url_modify_query()`](https://httr2.r-lib.org/reference/url_modify.html), and [`url_modify_relative()`](https://httr2.r-lib.org/reference/url_modify.html). You can see how they work in the examples below:
 
 <div class="highlight">
 
@@ -128,7 +127,7 @@ Working with URLs got easier with three new functions: [`url_modify()`](https://
 
 </div>
 
-We also added [`req_url_relative()`](https://httr2.r-lib.org/reference/req_url.html) which uses [`url_modify_relative()`](https://httr2.r-lib.org/reference/url_modify.html) and makes it easier to navigate to a relative URL for an existing request.
+We also added [`req_url_relative()`](https://httr2.r-lib.org/reference/req_url.html) to make it easier to navigate to a relative URL for an existing request.
 
 ## Other improvements
 
@@ -136,7 +135,7 @@ There are a handful of other improvements that are worth highlighting:
 
 -   We've made it easier to talk to AWS web services with [`req_auth_aws_v4()`](https://httr2.r-lib.org/reference/req_auth_aws_v4.html) for signing requests and [`resp_stream_aws()`](https://httr2.r-lib.org/reference/resp_stream_raw.html) for streaming responses. Special thanks goes to the [lifion-aws-event-stream](https://github.com/lifion/lifion-aws-event-stream/) project for providing a clear reference implementation.
 
--   We've run-down a long list of bugs that made [`req_cache()`](https://httr2.r-lib.org/reference/req_cache.html) unreliable. This includes improved handling of header-only changes, better cache pruning, and new debugging options. If you're working with a web API that supports caching, we highly recommend that you try it out. The next release of {[gh](https://github.com/r-lib/gh)} includes caching support and my use of the dev version suggests a pretty nice performance improvment.
+-   We've run-down a long list of bugs that made [`req_cache()`](https://httr2.r-lib.org/reference/req_cache.html) unreliable. This includes improving the handling of header-only changes, better cache pruning, and new debugging options. If you're working with a web API that supports caching, we highly recommend that you try it out. The next release of {[gh](https://github.com/r-lib/gh)} will use a cache by default, and my use of the dev version suggests that it gives a pretty nice performance improvment.
 
 -   [`is_online()`](https://httr2.r-lib.org/reference/is_online.html) provides an easy way to check internet connectivity.
 
@@ -144,7 +143,7 @@ There are a handful of other improvements that are worth highlighting:
 
 ## Breaking changes
 
-As httr2 continues to mature, we're making some lifecycle changes:
+As httr2 continues to mature, we've made some lifecycle changes:
 
 -   [`req_perform_iterative()`](https://httr2.r-lib.org/reference/req_perform_iterative.html) is now stable and no longer experimental.
 -   [`req_perform_stream()`](https://httr2.r-lib.org/reference/req_perform_stream.html) is superseded by [`req_perform_connection()`](https://httr2.r-lib.org/reference/req_perform_connection.html), as mentioned above.
