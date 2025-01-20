@@ -7,8 +7,8 @@ date: 2025-01-20
 author: Hadley Wickham
 description: >
     httr2 1.1.0 introduces powerful new streaming capabilities with
-    `req_perform_connection()`. This release also brings comprehensive URL
-    manipulation tools and improved AWS support.
+    `req_perform_connection()`, as well as comprehensive URL
+    manipulation tools, improved AWS support, and a bunch of bug fixes.
 
 photo:
   url: https://unsplash.com/photos/person-holding-two-baseballs-3k_FcShH0jY
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [httr2]
-rmd_hash: 79ea9949f8362448
+rmd_hash: 6fe4a18693b9845b
 
 ---
 
@@ -64,7 +64,7 @@ The most important new function is [`req_perform_connection()`](https://httr2.r-
 <span><span class='nv'>resp</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/req_perform_connection.html'>req_perform_connection</a></span><span class='o'>(</span><span class='nv'>req</span><span class='o'>)</span></span>
 <span><span class='nv'>resp</span></span>
 <span><span class='c'>#&gt; <span style='color: #0000BB;'>&lt;httr2_response&gt;</span></span></span>
-<span></span><span><span class='c'>#&gt; <span style='font-weight: bold;'>GET</span> http://127.0.0.1:49165/stream-bytes/10240</span></span>
+<span></span><span><span class='c'>#&gt; <span style='font-weight: bold;'>GET</span> http://127.0.0.1:49283/stream-bytes/10240</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>Status</span>: 200 OK</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>Content-Type</span>: application/octet-stream</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>Body</span>: Streaming connection</span></span>
@@ -85,6 +85,7 @@ Once you have a streaming connection you can repeatedly call a `resp_stream_*()`
 <span><span class='c'>#&gt; Downloaded 2048 bytes</span></span>
 <span><span class='c'>#&gt; Downloaded 2048 bytes</span></span>
 <span><span class='c'>#&gt; Downloaded 2048 bytes</span></span>
+<span><span class='c'>#&gt; Downloaded 0 bytes</span></span>
 <span></span></code></pre>
 
 </div>
