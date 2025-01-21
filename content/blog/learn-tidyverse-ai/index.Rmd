@@ -46,13 +46,15 @@ Additionally, there is an environmental impact to using these tools.
 
 ## The experience
 
-### Case study 1: Plotting billboard rankings
+### Case study 1: Reshaping and plotting
 
-We'll start with a prompt directly out of [R for Data Science](https://r4ds.hadley.nz/), specifically an example that is [worked out in the book](https://r4ds.hadley.nz/data-tidy.html#sec-billboard) on pivoting the `billboard` data frame longer to plot it.
+The first case study features an example on reshaping and plotting the `billboard` data frame and it's directly out of [R for Data Science](https://r4ds.hadley.nz/).
+In fact, it's [worked out in the book](https://r4ds.hadley.nz/data-tidy.html#sec-billboard).
+Here is the initial prompt:
 
 > Use the billboard dataset in the tidyr package to create a visualization of rank vs. week number for each song in the dataset.
 
-The following is what Chat GPT suggests as the first answer.
+And the following is what [Chat GPT](https://chatgpt.com/) by Open AI suggests as the first answer.
 
 > The `billboard` dataset from the tidyr package contains weekly rankings of songs on the Billboard charts. Here's how you can visualize the rank vs. week number for each song in the dataset using R:
 ```{r}
@@ -115,7 +117,7 @@ For example, a subsequent prompt like the following fixes this issue:
 
 > Can you redraw the plot without coloring each line by track?
 
-You can see this in action at <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba>. 
+You can see this in action at <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba>, in the second prompt.
 Here is the updated code suggested by Chat GPT:
 
 ```{r}
@@ -147,10 +149,107 @@ Furthermore, while Chat GPT "solves" the problem, a thorough code review reveals
   - Changing the type of `week` to numeric can be done in a `mutate()` statement with the tidyverse, which would then warrant loading the dplyr package.
   - This can also be done within `pivot_longer()` with the `names_transform` argument.
 
-All of these are addressable with further prompts, as I've done at <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba>.
+All of these are addressable with further prompts, as I've done at <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba>, in the last two prompts.
 But doing so requires being able to identify these issues and explicitly asking for corrections.
 In practice, I wouldn't have asked Chat GPT to correct everything for me, I would have stopped after the first suggestion, which was a pretty good starting point, and made the improvements myself.
 However, a new learner might assume (and based on my experience seeing lots of near learner code, *does* assume) the first answer is the *right* and *good* or *best* answer since (1) it looks reasonable and (2) it works, sort of.
+
+Furthermore, requesting improvements in subsequent calls can result in surprising changes that the user hasn't asked for.
+We saw an example of this above, in updating the alpha level.
+Similarly, in https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba you can see that asking Chat GPT to not load the packages individually but to use `library(tidyverse)` instead results in this change as well as not loading the data with a `data()` call and adding a data transformation step with `mutate()` to convert `week` to numeric:
+
+```{r}
+#| message: false
+# Load the tidyverse package
+library(tidyverse)
+
+# Load the billboard dataset and prepare the data
+billboard_long <- billboard |>
+  pivot_longer(
+    cols = starts_with("wk"),
+    names_to = "week",
+    values_to = "rank",
+    names_prefix = "wk",
+    values_drop_na = TRUE
+  ) |>
+  mutate(week = as.numeric(week))  # Convert week to numeric
+```
+
+Both of these are welcome changes, but it can be surprising to a new learner why they're combined with updating the `library()` call.
+This is happening because with each call Chat GPT is "trying again" -- it's not just editing the previous answer but it's regenerating an answer with additional context.
+
+### Case study 2: Data cleaning
+
+The next example is a lot more vague as it's a task that, if someone asked me for help, I would reply with "Can you share the data with me?", but Chat GPT happily generates an answer.
+That's probably one of the reasons why people love these tools, they never respond to a question with another question, at least not in my experience.
+
+Below is the prompt for this case study.
+I'll provide it with no background first, so you can read it as the AI tool would "read" it without any background.
+
+> Another variable that needs some cleaning up is `membership_status`. Currently it should either be `NA` or contain some text that says "Select ... to register for this group". Recode this variable to say `"Closed"` if the current value is `NA` or `"Open"` otherwise. Save the resulting dataset with this new variables as `clubs`, i.e., overwrite the original data frame.
+> Then, display the first 10 rows of the dataset, moving `membership_status` to the beginning of the dataset to make sure it appears in the output in your rendered document.
+
+This time, let's try [Claude](https://claude.ai/) by Anthropic.
+Below is the first response:
+
+> I'll help you clean up the membership_status variable. Let's break this down into steps:
+```{r}
+#| eval: false
+# Recode membership_status to "Closed" if NA, "Open" otherwise
+clubs$membership_status <- ifelse(is.na(clubs$membership_status), "Closed", "Open")
+
+# Reorder columns to put membership_status first
+clubs <- clubs[, c("membership_status", setdiff(names(clubs), "membership_status"))]
+
+# Display first 10 rows
+head(clubs, 10)
+```
+
+> This code will:
+>
+> - Use `ifelse()` to recode the variable based on whether it's NA
+> - Reorder the columns to put membership_status first
+> - Show the first 10 rows of the modified dataset
+> 
+> Would you like me to explain any part of this solution in more detail?
+
+Thhe suggested code does not use the tidyverse. 
+In fact, it's perhaps surprising that it uses R, this could very well have been a task for Python or anoher language commonly used for data science problems.
+
+Let's try again:
+
+> Can you suggest an answer that uses the tidyverse instead of base R?
+
+And here is the result:
+
+> Here's how to accomplish the same tasks using tidyverse functions:
+
+```{r}
+#| eval: false
+
+clubs <- clubs %>%
+  mutate(membership_status = if_else(is.na(membership_status), 
+                                   "Closed", 
+                                   "Open")) %>%
+  relocate(membership_status)
+
+clubs %>% 
+  head(10)
+```
+
+> This tidyverse solution:
+>
+> - Uses mutate() with `if_else()` to recode the variable
+> - Uses relocate() to move membership_status to the front
+> - Shows the first 10 rows using head()
+>
+> The tidyverse version is more readable and follows the principle of chaining operations with the pipe operator (`%>%`). `if_else()` is the tidyverse equivalent of base R's `ifelse()`, with stricter type checking.
+> 
+> Would you like me to explain any of these functions in more detail?
+
+We're getting there!
+
+### Case study 3:
 
 ## Tips and good practices
 

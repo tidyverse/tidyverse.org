@@ -136,13 +136,13 @@ TODO:
 <p>Before we get started, though, it’s important to note that knowledge bases of Large Language Models (LLMs) that underlie popular generative AI tools are private and lack transparency. There are important societal concerns about the fairness of equitable access to these tools. It’s unclear how developers or users of these models can be held accountable. Additionally, there is an environmental impact to using these tools.</p>
 <section id="the-experience" class="level2">
 <h2 class="anchored" data-anchor-id="the-experience">The experience</h2>
-<section id="case-study-1-plotting-billboard-rankings" class="level3">
-<h3 class="anchored" data-anchor-id="case-study-1-plotting-billboard-rankings">Case study 1: Plotting billboard rankings</h3>
-<p>We’ll start with a prompt directly out of <a href="https://r4ds.hadley.nz/">R for Data Science</a>, specifically an example that is <a href="https://r4ds.hadley.nz/data-tidy.html#sec-billboard">worked out in the book</a> on pivoting the <code>billboard</code> data frame longer to plot it.</p>
+<section id="case-study-1-reshaping-and-plotting" class="level3">
+<h3 class="anchored" data-anchor-id="case-study-1-reshaping-and-plotting">Case study 1: Reshaping and plotting</h3>
+<p>The first case study features an example on reshaping and plotting the <code>billboard</code> data frame and it’s directly out of <a href="https://r4ds.hadley.nz/">R for Data Science</a>. In fact, it’s <a href="https://r4ds.hadley.nz/data-tidy.html#sec-billboard">worked out in the book</a>. Here is the initial prompt:</p>
 <blockquote class="blockquote">
 <p>Use the billboard dataset in the tidyr package to create a visualization of rank vs.&nbsp;week number for each song in the dataset.</p>
 </blockquote>
-<p>The following is what Chat GPT suggests as the first answer.</p>
+<p>And the following is what <a href="https://chatgpt.com/">Chat GPT</a> by Open AI suggests as the first answer.</p>
 <blockquote class="blockquote">
 <p>The <code>billboard</code> dataset from the tidyr package contains weekly rankings of songs on the Billboard charts. Here’s how you can visualize the rank vs.&nbsp;week number for each song in the dataset using R:</p>
 </blockquote>
@@ -208,7 +208,7 @@ TODO:
 <blockquote class="blockquote">
 <p>Can you redraw the plot without coloring each line by track?</p>
 </blockquote>
-<p>You can see this in action at <a href="https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba" class="uri">https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba</a>. Here is the updated code suggested by Chat GPT:</p>
+<p>You can see this in action at <a href="https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba" class="uri">https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba</a>, in the second prompt. Here is the updated code suggested by Chat GPT:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the visualization without coloring by track</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(billboard_long, <span class="fu">aes</span>(<span class="at">x =</span> week, <span class="at">y =</span> rank, <span class="at">group =</span> track)) <span class="sc">+</span></span>
@@ -240,7 +240,88 @@ TODO:
 <li>This can also be done within <code>pivot_longer()</code> with the <code>names_transform</code> argument.</li>
 </ul></li>
 </ul>
-<p>All of these are addressable with further prompts, as I’ve done at <a href="https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba" class="uri">https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba</a>. But doing so requires being able to identify these issues and explicitly asking for corrections. In practice, I wouldn’t have asked Chat GPT to correct everything for me, I would have stopped after the first suggestion, which was a pretty good starting point, and made the improvements myself. However, a new learner might assume (and based on my experience seeing lots of near learner code, <em>does</em> assume) the first answer is the <em>right</em> and <em>good</em> or <em>best</em> answer since (1) it looks reasonable and (2) it works, sort of.</p>
+<p>All of these are addressable with further prompts, as I’ve done at <a href="https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba" class="uri">https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba</a>, in the last two prompts. But doing so requires being able to identify these issues and explicitly asking for corrections. In practice, I wouldn’t have asked Chat GPT to correct everything for me, I would have stopped after the first suggestion, which was a pretty good starting point, and made the improvements myself. However, a new learner might assume (and based on my experience seeing lots of near learner code, <em>does</em> assume) the first answer is the <em>right</em> and <em>good</em> or <em>best</em> answer since (1) it looks reasonable and (2) it works, sort of.</p>
+<p>Furthermore, requesting improvements in subsequent calls can result in surprising changes that the user hasn’t asked for. We saw an example of this above, in updating the alpha level. Similarly, in https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba you can see that asking Chat GPT to not load the packages individually but to use <code>library(tidyverse)</code> instead results in this change as well as not loading the data with a <code>data()</code> call and adding a data transformation step with <code>mutate()</code> to convert <code>week</code> to numeric:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the tidyverse package</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the billboard dataset and prepare the data</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>billboard_long <span class="ot">&lt;-</span> billboard <span class="sc">|&gt;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"wk"</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"week"</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"rank"</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_prefix =</span> <span class="st">"wk"</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_drop_na =</span> <span class="cn">TRUE</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">week =</span> <span class="fu">as.numeric</span>(week))  <span class="co"># Convert week to numeric</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Both of these are welcome changes, but it can be surprising to a new learner why they’re combined with updating the <code>library()</code> call. This is happening because with each call Chat GPT is “trying again” – it’s not just editing the previous answer but it’s regenerating an answer with additional context.</p>
+</section>
+<section id="case-study-2-data-cleaning" class="level3">
+<h3 class="anchored" data-anchor-id="case-study-2-data-cleaning">Case study 2: Data cleaning</h3>
+<p>The next example is a lot more vague as it’s a task that, if someone asked me for help, I would reply with “Can you share the data with me?”, but Chat GPT happily generates an answer. That’s probably one of the reasons why people love these tools, they never respond to a question with another question, at least not in my experience.</p>
+<p>Below is the prompt for this case study. I’ll provide it with no background first, so you can read it as the AI tool would “read” it without any background.</p>
+<blockquote class="blockquote">
+<p>Another variable that needs some cleaning up is <code>membership_status</code>. Currently it should either be <code>NA</code> or contain some text that says “Select … to register for this group”. Recode this variable to say <code>"Closed"</code> if the current value is <code>NA</code> or <code>"Open"</code> otherwise. Save the resulting dataset with this new variables as <code>clubs</code>, i.e., overwrite the original data frame. Then, display the first 10 rows of the dataset, moving <code>membership_status</code> to the beginning of the dataset to make sure it appears in the output in your rendered document.</p>
+</blockquote>
+<p>This time, let’s try <a href="https://claude.ai/">Claude</a> by Anthropic. Below is the first response:</p>
+<blockquote class="blockquote">
+<p>I’ll help you clean up the membership_status variable. Let’s break this down into steps:</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Recode membership_status to "Closed" if NA, "Open" otherwise</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>clubs<span class="sc">$</span>membership_status <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(clubs<span class="sc">$</span>membership_status), <span class="st">"Closed"</span>, <span class="st">"Open"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Reorder columns to put membership_status first</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>clubs <span class="ot">&lt;-</span> clubs[, <span class="fu">c</span>(<span class="st">"membership_status"</span>, <span class="fu">setdiff</span>(<span class="fu">names</span>(clubs), <span class="st">"membership_status"</span>))]</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Display first 10 rows</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(clubs, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<blockquote class="blockquote">
+<p>This code will:</p>
+<ul>
+<li>Use <code>ifelse()</code> to recode the variable based on whether it’s NA</li>
+<li>Reorder the columns to put membership_status first</li>
+<li>Show the first 10 rows of the modified dataset</li>
+</ul>
+<p>Would you like me to explain any part of this solution in more detail?</p>
+</blockquote>
+<p>Thhe suggested code does not use the tidyverse. In fact, it’s perhaps surprising that it uses R, this could very well have been a task for Python or anoher language commonly used for data science problems.</p>
+<p>Let’s try again:</p>
+<blockquote class="blockquote">
+<p>Can you suggest an answer that uses the tidyverse instead of base R?</p>
+</blockquote>
+<p>And here is the result:</p>
+<blockquote class="blockquote">
+<p>Here’s how to accomplish the same tasks using tidyverse functions:</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>clubs <span class="ot">&lt;-</span> clubs <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">membership_status =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(membership_status), </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                                   <span class="st">"Closed"</span>, </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="st">"Open"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(membership_status)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>clubs <span class="sc">%&gt;%</span> </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<blockquote class="blockquote">
+<p>This tidyverse solution:</p>
+<ul>
+<li>Uses mutate() with <code>if_else()</code> to recode the variable</li>
+<li>Uses relocate() to move membership_status to the front</li>
+<li>Shows the first 10 rows using head()</li>
+</ul>
+<p>The tidyverse version is more readable and follows the principle of chaining operations with the pipe operator (<code>%&gt;%</code>). <code>if_else()</code> is the tidyverse equivalent of base R’s <code>ifelse()</code>, with stricter type checking.</p>
+<p>Would you like me to explain any of these functions in more detail?</p>
+</blockquote>
+<p>We’re getting there!</p>
+</section>
+<section id="case-study-3" class="level3">
+<h3 class="anchored" data-anchor-id="case-study-3">Case study 3:</h3>
 </section>
 </section>
 <section id="tips-and-good-practices" class="level2">
