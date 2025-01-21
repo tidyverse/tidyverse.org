@@ -1,0 +1,138 @@
+---
+output: hugodown::hugo_document
+
+slug: learn-tidyverse-ai
+title: Learning the tidyverse with the help of AI tools
+date: 2025-01-20
+author: Mine Çetinkaya-Rundel
+description: >
+    Tips and recommendations for learning the tidyverse with AI tools.
+
+photo:
+  url: https://unsplash.com/photos/zwd435-ewb4
+  author: Andrea De Santis
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [learn] 
+tags: []
+---
+
+```{=html}
+<!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+```
+
+As an educator who teaches data science with R, I have LOTS of opinions about the use of artificial intelligence (AI) tools when learning R. But I will keep this post the use of generative AI tools, like Chat GPT, in learning R, and specifically learning to do data science with R and the tidyverse.[^1]
+
+[^1]: And maybe a future post on teaching R in the age of AI!
+
+First, let's take a look at what asking for help from a generative AI tool, specifically Chat GPT, looks like. We'll start with a prompt directly out of [R for Data Science](https://r4ds.hadley.nz/), specifically an example that is [worked out in the book](https://r4ds.hadley.nz/data-tidy.html#sec-billboard) on pivoting the `billboard` data frame longer to plot it.
+
+> Use the billboard dataset in the tidyr package to create a visualization of rank vs. week number for each song in the dataset.
+
+The following is what Chat GPT suggests as the first answer.
+
+> The `billboard` dataset from the tidyr package contains weekly rankings of songs on the Billboard charts. Here's how you can visualize the rank vs. week number for each song in the dataset using R:
+```{r}
+# Load required libraries
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+
+# Load the billboard dataset
+data("billboard")
+
+# Prepare the data for visualization
+billboard_long <- billboard |>
+  pivot_longer(
+    cols = starts_with("wk"),
+    names_to = "week",
+    values_to = "rank",
+    names_prefix = "wk",
+    values_drop_na = TRUE
+  )
+
+# Convert week to a numeric value
+billboard_long$week <- as.numeric(billboard_long$week)
+
+# Create the visualization
+ggplot(billboard_long, aes(x = week, y = rank, group = track, color = track)) +
+  geom_line(show.legend = FALSE, alpha = 0.6) +
+  scale_y_reverse() +  # Reverse the y-axis since rank 1 is the top position
+  labs(
+    title = "Song Rank vs. Week Number",
+    x = "Week Number",
+    y = "Rank",
+    caption = "Data: Billboard (tidyr package)"
+  ) +
+  theme_minimal()
+```
+
+Chat GPT also provides a neat explanation of the code:
+
+> Explanation
+> 1. Pivoting the Data: The `billboard` dataset is in wide format, with week columns (`wk1`, `wk2`, etc.). We use `pivot_longer()` to reshape it into a long format with week and rank columns.
+> 2. Rank vs. Week Plot: Each song's weekly rankings are connected with lines (`geom_line()`), and we reverse the y-axis since rank 1 is the best.
+> 3. Grouping by Track: The group aesthetic ensures lines are drawn separately for each song.
+> Output
+> This will create a line plot where each line represents a song's rank progression over weeks. The y-axis is reversed to reflect higher rankings at the top.
+
+There are a few things about this answer that are promising:
+
+- The response is a tidyverse approach.
+- It uses `pivot_longer()` as opposed to the superseded alternative `gather()`.
+- The plot features a reversed y-axis, [just like in the book](https://r4ds.hadley.nz/data-tidy.html#fig-billboard-ranks)
+
+However, the resulting plot doesn't show exactly what the prompt asked for -- the lines are colored by `track`, which produces a busy plot that is difficult to interpret.
+While this is not ideal, it's something a new learner can easily spot and ask Chat GPT for a follow up correcting it.
+For example, a subsequent prompt like the following fixes this issue:
+
+> Can you redraw the plot without coloring each line by track?
+
+You can see this in action at https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba. 
+Here is the updated code suggested by Chat GPT:
+
+```{r}
+# Create the visualization without coloring by track
+ggplot(billboard_long, aes(x = week, y = rank, group = track)) +
+  geom_line(alpha = 0.3, color = "blue") +
+  scale_y_reverse() +  # Reverse the y-axis since rank 1 is the top position
+  labs(
+    title = "Song Rank vs. Week Number",
+    x = "Week Number",
+    y = "Rank",
+    caption = "Data: Billboard (tidyr package)"
+  ) +
+  theme_minimal()
+```
+
+Note, however, that the only change wasn't omitting the `color = track` aesthetic mapping.
+The `alpha` level is also changed (from 0.6 to 0.3) without a justification for that change and the lines are colored `"blue"`.
+None of these are *bad* or *wrong* choices, but they can be confusing for new learners.
+Similarly, using `theme_minimal()` is not a bad or wrong choice either[^2], but it's not *necessary*, but this might not be obvious to a new learner.
+
+[^2]: In fact, it's my preferred ggplot2 theme!
+
+Furthermore, while Chat GPT "solves" the problem, a thorough code review reveals a number of not-so-great things about the answer that can be confusing for new learners or promote poor coding practices:
+
+- The code loads packages that are not necessary: tidyr and ggplot2 packages are sufficient for this code, we don't also need dplyr. Additionally, learners coming from R for Data Science likely expect `library(tidyverse)` in analysis code, instead of loading the packages individualy.
+- There is no need to load the `billboard` dataset, it's available to use once the tidyr package is loaded. Additionally, quotes are not needed, `data(billboard)` also works.
+- The code mixes up tidyverse and base R styles:
+  - Changing the type of `week` to numeric can be done in a `mutate()` statement with the tidyverse, which would then warrant loading the dplyr package.
+  - This can also be done within `pivot_longer()` with the `names_transform` argument.
+
+All of these are addressable with further prompts, as I've done at https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba.
+But doing so requires being able to identify these issues and explicitly asking for corrections.
+In practice, I wouldn't have asked Chat GPT to correct everything for me, I would have stopped after the first suggestion, which was a pretty good starting point, and made the improvements myself.
+However, a new learner might assume (and based on my experience seeing lots of near learner code, *does* assume) the first answer is the *right* and *good* or *best* answer since (1) it looks reasonable and (2) it works, sort of.
+
