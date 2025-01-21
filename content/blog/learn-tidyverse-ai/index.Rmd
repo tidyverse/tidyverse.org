@@ -56,6 +56,7 @@ The following is what Chat GPT suggests as the first answer.
 
 > The `billboard` dataset from the tidyr package contains weekly rankings of songs on the Billboard charts. Here's how you can visualize the rank vs. week number for each song in the dataset using R:
 ```{r}
+#| message: false
 # Load required libraries
 library(tidyr)
 library(ggplot2)
@@ -92,11 +93,14 @@ ggplot(billboard_long, aes(x = week, y = rank, group = track, color = track)) +
 
 Chat GPT also provides a neat explanation of the code:
 
-> Explanation
+> **Explanation**
+>
 > 1. Pivoting the Data: The `billboard` dataset is in wide format, with week columns (`wk1`, `wk2`, etc.). We use `pivot_longer()` to reshape it into a long format with week and rank columns.
 > 2. Rank vs. Week Plot: Each song's weekly rankings are connected with lines (`geom_line()`), and we reverse the y-axis since rank 1 is the best.
 > 3. Grouping by Track: The group aesthetic ensures lines are drawn separately for each song.
-> Output
+>
+> **Output**
+>
 > This will create a line plot where each line represents a song's rank progression over weeks. The y-axis is reversed to reflect higher rankings at the top.
 
 There are a few things about this answer that are promising:
@@ -111,7 +115,7 @@ For example, a subsequent prompt like the following fixes this issue:
 
 > Can you redraw the plot without coloring each line by track?
 
-You can see this in action at https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba. 
+You can see this in action at <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba>. 
 Here is the updated code suggested by Chat GPT:
 
 ```{r}
@@ -143,7 +147,7 @@ Furthermore, while Chat GPT "solves" the problem, a thorough code review reveals
   - Changing the type of `week` to numeric can be done in a `mutate()` statement with the tidyverse, which would then warrant loading the dplyr package.
   - This can also be done within `pivot_longer()` with the `names_transform` argument.
 
-All of these are addressable with further prompts, as I've done at https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba.
+All of these are addressable with further prompts, as I've done at <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba>.
 But doing so requires being able to identify these issues and explicitly asking for corrections.
 In practice, I wouldn't have asked Chat GPT to correct everything for me, I would have stopped after the first suggestion, which was a pretty good starting point, and made the improvements myself.
 However, a new learner might assume (and based on my experience seeing lots of near learner code, *does* assume) the first answer is the *right* and *good* or *best* answer since (1) it looks reasonable and (2) it works, sort of.
