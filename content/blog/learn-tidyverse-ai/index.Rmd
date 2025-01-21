@@ -36,7 +36,19 @@ As an educator who teaches data science with R, I have LOTS of opinions about th
 
 [^1]: And maybe a future post on teaching R in the age of AI!
 
-First, let's take a look at what asking for help from a generative AI tool, specifically Chat GPT, looks like. We'll start with a prompt directly out of [R for Data Science](https://r4ds.hadley.nz/), specifically an example that is [worked out in the book](https://r4ds.hadley.nz/data-tidy.html#sec-billboard) on pivoting the `billboard` data frame longer to plot it.
+I'll first walk you through three case studies that demonstrate what asking for help from a generative AI tool looks like.
+Then, I'll wrap up the post with some tips and good practices for getting the most out of help provided by these tools.
+
+Before we get started, though, it's important to note that knowledge bases of Large Language Models (LLMs) that underlie popular generative AI tools are private and lack transparency. 
+There are important societal concerns about the fairness of equitable access to these tools. 
+It's unclear how developers or users of these models can be held accountable.
+Additionally, there is an environmental impact to using these tools.
+
+## The experience
+
+### Case study 1: Plotting billboard rankings
+
+We'll start with a prompt directly out of [R for Data Science](https://r4ds.hadley.nz/), specifically an example that is [worked out in the book](https://r4ds.hadley.nz/data-tidy.html#sec-billboard) on pivoting the `billboard` data frame longer to plot it.
 
 > Use the billboard dataset in the tidyr package to create a visualization of rank vs. week number for each song in the dataset.
 
@@ -136,3 +148,50 @@ But doing so requires being able to identify these issues and explicitly asking 
 In practice, I wouldn't have asked Chat GPT to correct everything for me, I would have stopped after the first suggestion, which was a pretty good starting point, and made the improvements myself.
 However, a new learner might assume (and based on my experience seeing lots of near learner code, *does* assume) the first answer is the *right* and *good* or *best* answer since (1) it looks reasonable and (2) it works, sort of.
 
+## Tips and good practices
+
+-   Obvious: provide context and engineer prompts.
+
+-   Run the code it gives you, line-by-line (even if in a pipeline)
+
+    -   Sometimes unnecessary `group()`/`ungroup()`s or `select()`s get injected
+
+    -   tidyverse data transformation pipelines and ggplot layers are easy to run at once, with code doing many things with one execution prompt (compared to base R where you execute each line of code separately)
+
+    -   approach as "i'm trying to learn how to do this" not "solve this for me"
+
+-   For humans, taste for code develops faster than ability
+
+    -   For LLMs this is the opposite
+
+    -   They'll happily barf out code that runs without regard to cohesive syntax, avoiding redundancies, etc.
+
+    -   Some "cleanup" tips:
+
+        -   Remove redundant library calls.
+
+        -   Use `pkg::function()` syntax only as needed and consistently.
+
+        -   Avoid mixing and matching base R and tidyverse syntax (e.g., in one step finding mean in a `summarize()` call and in another step as mean of a vector, `mean(df$var)`.
+
+        -   Remove unnecessary `print()` statements.
+
+-   Might suggest code that is wrong:
+
+    -   if it errors, that's easy to catch
+
+    -   sometimes it suggests arguments that don't exist that R might silently ignore
+
+        -   could be an argument you don't need
+
+        -   could be one you need but not being used
+
+        -   could saying "only use arguments that are real" helpful?
+
+-   Can get stuck, start a new chat instead of continuing in the same.
+
+-   copilot – figure out wait time that works for you, not too fast
+
+-   maybe replacement for addins
+
+-   generate a dataset with certain features, helps with creating reprex examples, helps with iteration
