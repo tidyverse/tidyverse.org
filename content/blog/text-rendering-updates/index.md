@@ -60,7 +60,6 @@ While it is nice to have good access to the font files on your computer, the fil
 
 
 ``` r
-#| eval: false
 # Search and download fonts
 systemfonts::get_from_font_squirrel("Quicksand")
 systemfonts::get_from_google_fonts("Rubik Moonrocks")
@@ -160,13 +159,9 @@ library(marquee)
 # Create a style specific for rtl text
 rtl_style <- classic_style(
   text_direction = "rtl", # Forces bidi text to be assembled from right to left
-  adjust = "auto", # Will convert itself to "right"
+  align = "auto", # Will convert itself to "right"
   ltr = FALSE # Will move bullet padding and bar along quote blocks to the right
 )
-```
-
-```
-## Error in base_style(family = body_font, size = base_size, ...): unused argument (adjust = "auto")
 ```
 
 ## A marquee for Everyone
