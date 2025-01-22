@@ -213,7 +213,8 @@ head(clubs, 10)
 > 
 > Would you like me to explain any part of this solution in more detail?
 
-Thhe suggested code does not use the tidyverse. 
+I like the offer to explain more at the end!
+However, the suggested code does not use the tidyverse. 
 In fact, it's perhaps surprising that it uses R, this could very well have been a task for Python or anoher language commonly used for data science problems.
 
 Let's try again:
@@ -226,7 +227,6 @@ And here is the result:
 
 ```{r}
 #| eval: false
-
 clubs <- clubs %>%
   mutate(membership_status = if_else(is.na(membership_status), 
                                    "Closed", 
@@ -248,6 +248,30 @@ clubs %>%
 > Would you like me to explain any of these functions in more detail?
 
 We're getting there!
+For new learners of the tidyverse there are still a few aspects of this code that might be misleading:
+
+- It doesn't use the base pipe operator (`|>`), which is the pipe operator used in R for Data Science.
+- Line breaks and indentation does not follow [tidyverse style guidelines](https://style.tidyverse.org/pipes.html#long-lines), which suggest that if the arguments to a function don't all fit on one line, each argument should go on its own line.
+- If `clubs` is a tibble, printing it will only display the first 10 rows anyway, so there's no need for the `head()` call.
+
+Once again, it's possible to ask the tool to make these updates.
+Claude doesn't provide a sharing link for the conversation, but I've saved it at https://gist.github.com/mine-cetinkaya-rundel/c74dc7c5f2a27a846574edd063988431.
+Even with vague prompts like "If clubs is a tibble, it'll only print out the first 10 rows anyway," it does exactly what we would want it to do, resulting in the following:
+
+```{r}
+#| eval: false
+clubs <- clubs |>
+  mutate(membership_status = if_else(is.na(membership_status), "Closed", "Open")) |>
+  relocate(membership_status)
+
+clubs
+```
+
+The operative word here being "want".
+Once again, someone with enough experience with R and the tidyverse would not explicitly ask for these improvements; they would just make them themselves and carry on.
+But someone who is just learning the tidyverse would likely stop much earlier.
+In my experience, many new learners stop after the very first prompt, which looks unfamiliar, and hence potentially intimidating.
+For learners of the tidyverse, the simple "Can you do this with the tidyverse?" can be a very useful prompt improvement that gets them majority of the way there.
 
 ### Case study 3:
 

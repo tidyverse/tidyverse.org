@@ -289,7 +289,7 @@ TODO:
 </ul>
 <p>Would you like me to explain any part of this solution in more detail?</p>
 </blockquote>
-<p>Thhe suggested code does not use the tidyverse. In fact, it’s perhaps surprising that it uses R, this could very well have been a task for Python or anoher language commonly used for data science problems.</p>
+<p>I like the offer to explain more at the end! However, the suggested code does not use the tidyverse. In fact, it’s perhaps surprising that it uses R, this could very well have been a task for Python or anoher language commonly used for data science problems.</p>
 <p>Let’s try again:</p>
 <blockquote class="blockquote">
 <p>Can you suggest an answer that uses the tidyverse instead of base R?</p>
@@ -318,7 +318,21 @@ TODO:
 <p>The tidyverse version is more readable and follows the principle of chaining operations with the pipe operator (<code>%&gt;%</code>). <code>if_else()</code> is the tidyverse equivalent of base R’s <code>ifelse()</code>, with stricter type checking.</p>
 <p>Would you like me to explain any of these functions in more detail?</p>
 </blockquote>
-<p>We’re getting there!</p>
+<p>We’re getting there! For new learners of the tidyverse there are still a few aspects of this code that might be misleading:</p>
+<ul>
+<li>It doesn’t use the base pipe operator (<code>|&gt;</code>), which is the pipe operator used in R for Data Science.</li>
+<li>Line breaks and indentation does not follow <a href="https://style.tidyverse.org/pipes.html#long-lines">tidyverse style guidelines</a>, which suggest that if the arguments to a function don’t all fit on one line, each argument should go on its own line.</li>
+<li>If <code>clubs</code> is a tibble, printing it will only display the first 10 rows anyway, so there’s no need for the <code>head()</code> call.</li>
+</ul>
+<p>Once again, it’s possible to ask the tool to make these updates. Claude doesn’t provide a sharing link for the conversation, but I’ve saved it at https://gist.github.com/mine-cetinkaya-rundel/c74dc7c5f2a27a846574edd063988431. Even with vague prompts like “If clubs is a tibble, it’ll only print out the first 10 rows anyway,” it does exactly what we would want it to do, resulting in the following:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>clubs <span class="ot">&lt;-</span> clubs <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">membership_status =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(membership_status), <span class="st">"Closed"</span>, <span class="st">"Open"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(membership_status)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>clubs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The operative word here being “want”. Once again, someone with enough experience with R and the tidyverse would not explicitly ask for these improvements; they would just make them themselves and carry on. But someone who is just learning the tidyverse would likely stop much earlier. In my experience, many new learners stop after the very first prompt, which looks unfamiliar, and hence potentially intimidating. For learners of the tidyverse, the simple “Can you do this with the tidyverse?” can be a very useful prompt improvement that gets them majority of the way there.</p>
 </section>
 <section id="case-study-3" class="level3">
 <h3 class="anchored" data-anchor-id="case-study-3">Case study 3:</h3>
