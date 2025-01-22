@@ -1,0 +1,307 @@
+---
+output: hugodown::hugo_document
+
+slug: learn-tidyverse-ai
+title: Learning the tidyverse with the help of AI tools
+date: 2025-01-21
+author: Mine Çetinkaya-Rundel
+description: >
+    Tips and recommendations for learning the tidyverse with AI tools.
+
+photo:
+  url: https://unsplash.com/photos/zwd435-ewb4
+  author: Andrea De Santis
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [learn] 
+tags: []
+rmd_hash: 4015f9106e8fe7c3
+
+---
+
+<!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+
+As an educator who teaches data science with R, I have LOTS of opinions about the use of artificial intelligence (AI) tools when learning R. But I will keep this post the use of generative AI tools, like Chat GPT, in learning R, and specifically learning to do data science with R and the tidyverse.[^1]
+
+I'll first walk you through three case studies that demonstrate what asking for help from a generative AI tool looks like. Then, I'll wrap up the post with some tips and good practices for getting the most out of help provided by these tools.
+
+Before we get started, though, it's important to note that knowledge bases of Large Language Models (LLMs) that underlie popular generative AI tools are private and lack transparency. There are important societal concerns about the fairness of equitable access to these tools. It's unclear how developers or users of these models can be held accountable. Additionally, there is an environmental impact to using these tools.
+
+## The experience
+
+### Case study 1: Reshaping and plotting
+
+The first case study features an example on reshaping and plotting the `billboard` data frame and it's directly out of [R for Data Science](https://r4ds.hadley.nz/). In fact, it's [worked out in the book](https://r4ds.hadley.nz/data-tidy.html#sec-billboard). Here is the initial prompt:
+
+> Use the billboard dataset in the tidyr package to create a visualization of rank vs. week number for each song in the dataset.
+
+And the following is what [Chat GPT](https://chatgpt.com/) by Open AI suggests as the first answer.
+
+> The `billboard` dataset from the tidyr package contains weekly rankings of songs on the Billboard charts. Here's how you can visualize the rank vs. week number for each song in the dataset using R:
+>
+> <div class="highlight">
+>
+> <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Load required libraries</span></span>
+> <span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidyr.tidyverse.org'>tidyr</a></span><span class='o'>)</span></span>
+> <span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='o'>)</span></span>
+> <span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='o'>)</span></span>
+> <span></span>
+> <span><span class='c'># Load the billboard dataset</span></span>
+> <span><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='s'>"billboard"</span><span class='o'>)</span></span>
+> <span></span>
+> <span><span class='c'># Prepare the data for visualization</span></span>
+> <span><span class='nv'>billboard_long</span> <span class='o'>&lt;-</span> <span class='nv'>billboard</span> <span class='o'>|&gt;</span></span>
+> <span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/pivot_longer.html'>pivot_longer</a></span><span class='o'>(</span></span>
+> <span>    cols <span class='o'>=</span> <span class='nf'><a href='https://tidyselect.r-lib.org/reference/starts_with.html'>starts_with</a></span><span class='o'>(</span><span class='s'>"wk"</span><span class='o'>)</span>,</span>
+> <span>    names_to <span class='o'>=</span> <span class='s'>"week"</span>,</span>
+> <span>    values_to <span class='o'>=</span> <span class='s'>"rank"</span>,</span>
+> <span>    names_prefix <span class='o'>=</span> <span class='s'>"wk"</span>,</span>
+> <span>    values_drop_na <span class='o'>=</span> <span class='kc'>TRUE</span></span>
+> <span>  <span class='o'>)</span></span>
+> <span></span>
+> <span><span class='c'># Convert week to a numeric value</span></span>
+> <span><span class='nv'>billboard_long</span><span class='o'>$</span><span class='nv'>week</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='o'>(</span><span class='nv'>billboard_long</span><span class='o'>$</span><span class='nv'>week</span><span class='o'>)</span></span>
+> <span></span>
+> <span><span class='c'># Create the visualization</span></span>
+> <span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>billboard_long</span>, <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>week</span>, y <span class='o'>=</span> <span class='nv'>rank</span>, group <span class='o'>=</span> <span class='nv'>track</span>, color <span class='o'>=</span> <span class='nv'>track</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span></span>
+> <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='o'>(</span>show.legend <span class='o'>=</span> <span class='kc'>FALSE</span>, alpha <span class='o'>=</span> <span class='m'>0.6</span><span class='o'>)</span> <span class='o'>+</span></span>
+> <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_y_reverse</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span>  <span class='c'># Reverse the y-axis since rank 1 is the top position</span></span>
+> <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='o'>(</span></span>
+> <span>    title <span class='o'>=</span> <span class='s'>"Song Rank vs. Week Number"</span>,</span>
+> <span>    x <span class='o'>=</span> <span class='s'>"Week Number"</span>,</span>
+> <span>    y <span class='o'>=</span> <span class='s'>"Rank"</span>,</span>
+> <span>    caption <span class='o'>=</span> <span class='s'>"Data: Billboard (tidyr package)"</span></span>
+> <span>  <span class='o'>)</span> <span class='o'>+</span></span>
+> <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_minimal</a></span><span class='o'>(</span><span class='o'>)</span></span>
+> </code></pre>
+> <img src="figs/unnamed-chunk-1-1.png" width="700px" style="display: block; margin: auto;" />
+>
+> </div>
+
+Chat GPT also provides a neat explanation of the code:
+
+> **Explanation**
+>
+> 1.  Pivoting the Data: The `billboard` dataset is in wide format, with week columns (`wk1`, `wk2`, etc.). We use [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) to reshape it into a long format with week and rank columns.
+> 2.  Rank vs. Week Plot: Each song's weekly rankings are connected with lines ([`geom_line()`](https://ggplot2.tidyverse.org/reference/geom_path.html)), and we reverse the y-axis since rank 1 is the best.
+> 3.  Grouping by Track: The group aesthetic ensures lines are drawn separately for each song.
+>
+> **Output**
+>
+> This will create a line plot where each line represents a song's rank progression over weeks. The y-axis is reversed to reflect higher rankings at the top.
+
+There are a few things about this answer that are promising:
+
+-   The response is a tidyverse approach.
+-   It uses [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) as opposed to the superseded alternative [`gather()`](https://tidyr.tidyverse.org/reference/gather.html).
+-   The plot features a reversed y-axis, [just like in the book](https://r4ds.hadley.nz/data-tidy.html#fig-billboard-ranks)
+
+However, the resulting plot doesn't show exactly what the prompt asked for -- the lines are colored by `track`, which produces a busy plot that is difficult to interpret. While this is not ideal, it's something a new learner can easily spot and ask Chat GPT for a follow up correcting it. For example, a subsequent prompt like the following fixes this issue:
+
+> Can you redraw the plot without coloring each line by track?
+
+You can see this in action at <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba>, in the second prompt. Here is the updated code suggested by Chat GPT:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Create the visualization without coloring by track</span></span>
+<span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>billboard_long</span>, <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>week</span>, y <span class='o'>=</span> <span class='nv'>rank</span>, group <span class='o'>=</span> <span class='nv'>track</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='o'>(</span>alpha <span class='o'>=</span> <span class='m'>0.3</span>, color <span class='o'>=</span> <span class='s'>"blue"</span><span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_y_reverse</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span>  <span class='c'># Reverse the y-axis since rank 1 is the top position</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='o'>(</span></span>
+<span>    title <span class='o'>=</span> <span class='s'>"Song Rank vs. Week Number"</span>,</span>
+<span>    x <span class='o'>=</span> <span class='s'>"Week Number"</span>,</span>
+<span>    y <span class='o'>=</span> <span class='s'>"Rank"</span>,</span>
+<span>    caption <span class='o'>=</span> <span class='s'>"Data: Billboard (tidyr package)"</span></span>
+<span>  <span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_minimal</a></span><span class='o'>(</span><span class='o'>)</span></span>
+</code></pre>
+<img src="figs/unnamed-chunk-2-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
+Note, however, that the only change wasn't omitting the `color = track` aesthetic mapping. The `alpha` level is also changed (from 0.6 to 0.3) without a justification for that change and the lines are colored `"blue"`. None of these are *bad* or *wrong* choices, but they can be confusing for new learners. Similarly, using [`theme_minimal()`](https://ggplot2.tidyverse.org/reference/ggtheme.html) is not a bad or wrong choice either[^2], but it's not *necessary*, but this might not be obvious to a new learner.
+
+Furthermore, while Chat GPT "solves" the problem, a thorough code review reveals a number of not-so-great things about the answer that can be confusing for new learners or promote poor coding practices:
+
+-   The code loads packages that are not necessary: tidyr and ggplot2 packages are sufficient for this code, we don't also need dplyr. Additionally, learners coming from R for Data Science likely expect [`library(tidyverse)`](https://tidyverse.tidyverse.org) in analysis code, instead of loading the packages individualy.
+-   There is no need to load the `billboard` dataset, it's available to use once the tidyr package is loaded. Additionally, quotes are not needed, `data(billboard)` also works.
+-   The code mixes up tidyverse and base R styles:
+    -   Changing the type of `week` to numeric can be done in a [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) statement with the tidyverse, which would then warrant loading the dplyr package.
+    -   This can also be done within [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) with the `names_transform` argument.
+
+All of these are addressable with further prompts, as I've done at <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba>, in the last two prompts. But doing so requires being able to identify these issues and explicitly asking for corrections. In practice, I wouldn't have asked Chat GPT to correct everything for me, I would have stopped after the first suggestion, which was a pretty good starting point, and made the improvements myself. However, a new learner might assume (and based on my experience seeing lots of near learner code, *does* assume) the first answer is the *right* and *good* or *best* answer since (1) it looks reasonable and (2) it works, sort of.
+
+Furthermore, requesting improvements in subsequent calls can result in surprising changes that the user hasn't asked for. We saw an example of this above, in updating the alpha level. Similarly, in <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba> you can see that asking Chat GPT to not load the packages individually but to use [`library(tidyverse)`](https://tidyverse.tidyverse.org) instead results in this change as well as not loading the data with a [`data()`](https://rdrr.io/r/utils/data.html) call and adding a data transformation step with [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) to convert `week` to numeric:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Load the tidyverse package</span></span>
+<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Load the billboard dataset and prepare the data</span></span>
+<span><span class='nv'>billboard_long</span> <span class='o'>&lt;-</span> <span class='nv'>billboard</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/pivot_longer.html'>pivot_longer</a></span><span class='o'>(</span></span>
+<span>    cols <span class='o'>=</span> <span class='nf'><a href='https://tidyselect.r-lib.org/reference/starts_with.html'>starts_with</a></span><span class='o'>(</span><span class='s'>"wk"</span><span class='o'>)</span>,</span>
+<span>    names_to <span class='o'>=</span> <span class='s'>"week"</span>,</span>
+<span>    values_to <span class='o'>=</span> <span class='s'>"rank"</span>,</span>
+<span>    names_prefix <span class='o'>=</span> <span class='s'>"wk"</span>,</span>
+<span>    values_drop_na <span class='o'>=</span> <span class='kc'>TRUE</span></span>
+<span>  <span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>week <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='o'>(</span><span class='nv'>week</span><span class='o'>)</span><span class='o'>)</span>  <span class='c'># Convert week to numeric</span></span></code></pre>
+
+</div>
+
+Both of these are welcome changes, but it can be surprising to a new learner why they're combined with updating the [`library()`](https://rdrr.io/r/base/library.html) call. This is happening because with each call Chat GPT is "trying again" -- it's not just editing the previous answer but it's regenerating an answer with additional context.
+
+### Case study 2: Data cleaning
+
+The next example is a lot more vague as it's a task that, if someone asked me for help, I would reply with "Can you share the data with me?", but Chat GPT happily generates an answer. That's probably one of the reasons why people love these tools, they never respond to a question with another question, at least not in my experience.
+
+Below is the prompt for this case study. I'll provide it with no background first, so you can read it as the AI tool would "read" it without any background.
+
+> Another variable that needs some cleaning up is `membership_status`. Currently it should either be `NA` or contain some text that says "Select ... to register for this group". Recode this variable to say `"Closed"` if the current value is `NA` or `"Open"` otherwise. Save the resulting dataset with this new variables as `clubs`, i.e., overwrite the original data frame. Then, display the first 10 rows of the dataset, moving `membership_status` to the beginning of the dataset to make sure it appears in the output in your rendered document.
+
+This time, let's try [Claude](https://claude.ai/) by Anthropic. Below is the first response:
+
+> I'll help you clean up the membership_status variable. Let's break this down into steps:
+>
+> <div class="highlight">
+>
+> <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Recode membership_status to "Closed" if NA, "Open" otherwise</span></span>
+> <span><span class='nv'>clubs</span><span class='o'>$</span><span class='nv'>membership_status</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='o'>(</span><span class='nv'>clubs</span><span class='o'>$</span><span class='nv'>membership_status</span><span class='o'>)</span>, <span class='s'>"Closed"</span>, <span class='s'>"Open"</span><span class='o'>)</span></span>
+> <span></span>
+> <span><span class='c'># Reorder columns to put membership_status first</span></span>
+> <span><span class='nv'>clubs</span> <span class='o'>&lt;-</span> <span class='nv'>clubs</span><span class='o'>[</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"membership_status"</span>, <span class='nf'><a href='https://generics.r-lib.org/reference/setops.html'>setdiff</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='o'>(</span><span class='nv'>clubs</span><span class='o'>)</span>, <span class='s'>"membership_status"</span><span class='o'>)</span><span class='o'>)</span><span class='o'>]</span></span>
+> <span></span>
+> <span><span class='c'># Display first 10 rows</span></span>
+> <span><span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='nv'>clubs</span>, <span class='m'>10</span><span class='o'>)</span></span></code></pre>
+>
+> </div>
+
+> This code will:
+>
+> -   Use [`ifelse()`](https://rdrr.io/r/base/ifelse.html) to recode the variable based on whether it's NA
+> -   Reorder the columns to put membership_status first
+> -   Show the first 10 rows of the modified dataset
+>
+> Would you like me to explain any part of this solution in more detail?
+
+I like the offer to explain more at the end! However, the suggested code does not use the tidyverse. In fact, it's perhaps surprising that it uses R, this could very well have been a task for Python or anoher language commonly used for data science problems.
+
+Let's try again:
+
+> Can you suggest an answer that uses the tidyverse instead of base R?
+
+And here is the result:
+
+> Here's how to accomplish the same tasks using tidyverse functions:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>clubs</span> <span class='o'>&lt;-</span> <span class='nv'>clubs</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>membership_status <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/if_else.html'>if_else</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='o'>(</span><span class='nv'>membership_status</span><span class='o'>)</span>, </span>
+<span>                                   <span class='s'>"Closed"</span>, </span>
+<span>                                   <span class='s'>"Open"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/relocate.html'>relocate</a></span><span class='o'>(</span><span class='nv'>membership_status</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>clubs</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+<span>  <span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='m'>10</span><span class='o'>)</span></span></code></pre>
+
+</div>
+
+> This tidyverse solution:
+>
+> -   Uses mutate() with [`if_else()`](https://dplyr.tidyverse.org/reference/if_else.html) to recode the variable
+> -   Uses relocate() to move membership_status to the front
+> -   Shows the first 10 rows using head()
+>
+> The tidyverse version is more readable and follows the principle of chaining operations with the pipe operator (`%>%`). [`if_else()`](https://dplyr.tidyverse.org/reference/if_else.html) is the tidyverse equivalent of base R's [`ifelse()`](https://rdrr.io/r/base/ifelse.html), with stricter type checking.
+>
+> Would you like me to explain any of these functions in more detail?
+
+We're getting there! For new learners of the tidyverse there are still a few aspects of this code that might be misleading:
+
+-   It doesn't use the base pipe operator (`|>`), which is the pipe operator used in R for Data Science.
+-   Line breaks and indentation does not follow [tidyverse style guidelines](https://style.tidyverse.org/pipes.html#long-lines), which suggest that if the arguments to a function don't all fit on one line, each argument should go on its own line.
+-   If `clubs` is a tibble, printing it will only display the first 10 rows anyway, so there's no need for the [`head()`](https://rdrr.io/r/utils/head.html) call.
+
+Once again, it's possible to ask the tool to make these updates. Claude doesn't provide a sharing link for the conversation, but I've saved it at <https://gist.github.com/mine-cetinkaya-rundel/c74dc7c5f2a27a846574edd063988431>. Even with vague prompts like "If clubs is a tibble, it'll only print out the first 10 rows anyway," it does exactly what we would want it to do, resulting in the following:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>clubs</span> <span class='o'>&lt;-</span> <span class='nv'>clubs</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>membership_status <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/if_else.html'>if_else</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='o'>(</span><span class='nv'>membership_status</span><span class='o'>)</span>, <span class='s'>"Closed"</span>, <span class='s'>"Open"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/relocate.html'>relocate</a></span><span class='o'>(</span><span class='nv'>membership_status</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>clubs</span></span></code></pre>
+
+</div>
+
+The operative word here being "want". Once again, someone with enough experience with R and the tidyverse would not explicitly ask for these improvements; they would just make them themselves and carry on. But someone who is just learning the tidyverse would likely stop much earlier. In my experience, many new learners stop after the very first prompt, which looks unfamiliar, and hence potentially intimidating. For learners of the tidyverse, the simple "Can you do this with the tidyverse?" can be a very useful prompt improvement that gets them majority of the way there.
+
+### Case study 3:
+
+## Tips and good practices
+
+-   Obvious: provide context and engineer prompts.
+
+-   Run the code it gives you, line-by-line (even if in a pipeline)
+
+    -   Sometimes unnecessary `group()`/[`ungroup()`](https://dplyr.tidyverse.org/reference/group_by.html)s or [`select()`](https://dplyr.tidyverse.org/reference/select.html)s get injected
+
+    -   tidyverse data transformation pipelines and ggplot layers are easy to run at once, with code doing many things with one execution prompt (compared to base R where you execute each line of code separately)
+
+    -   approach as "i'm trying to learn how to do this" not "solve this for me"
+
+-   For humans, taste for code develops faster than ability
+
+    -   For LLMs this is the opposite
+
+    -   They'll happily barf out code that runs without regard to cohesive syntax, avoiding redundancies, etc.
+
+    -   Some "cleanup" tips:
+
+        -   Remove redundant library calls.
+
+        -   Use `pkg::function()` syntax only as needed and consistently.
+
+        -   Avoid mixing and matching base R and tidyverse syntax (e.g., in one step finding mean in a [`summarize()`](https://dplyr.tidyverse.org/reference/summarise.html) call and in another step as mean of a vector, `mean(df$var)`.
+
+        -   Remove unnecessary [`print()`](https://rdrr.io/r/base/print.html) statements.
+
+-   Might suggest code that is wrong:
+
+    -   if it errors, that's easy to catch
+
+    -   sometimes it suggests arguments that don't exist that R might silently ignore
+
+        -   could be an argument you don't need
+
+        -   could be one you need but not being used
+
+        -   could saying "only use arguments that are real" helpful?
+
+-   Can get stuck, start a new chat instead of continuing in the same.
+
+-   copilot -- figure out wait time that works for you, not too fast
+
+-   maybe replacement for addins
+
+-   generate a dataset with certain features, helps with creating reprex examples, helps with iteration
+
+[^1]: And maybe a future post on teaching R in the age of AI!
+
+[^2]: In fact, it's my preferred ggplot2 theme!
+
