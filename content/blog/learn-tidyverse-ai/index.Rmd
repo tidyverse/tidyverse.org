@@ -32,15 +32,16 @@ TODO:
 -->
 ```
 
-As an educator who teaches data science with R, I have LOTS of opinions about the use of artificial intelligence (AI) tools when learning R. But I will keep this post the use of generative AI tools, like Chat GPT, in learning R, and specifically learning to do data science with R and the tidyverse.[^1]
+As an educator who teaches data science with R, I have LOTS of opinions about the use of artificial intelligence (AI) tools when learning R.
+But I will keep this post the use of generative AI tools, like Chat GPT, in learning R, and specifically learning to do data science with R and the tidyverse.[^1]
 
 [^1]: And maybe a future post on teaching R in the age of AI!
 
 I'll first walk you through three case studies that demonstrate what asking for help from a generative AI tool looks like.
 Then, I'll wrap up the post with some tips and good practices for getting the most out of help provided by these tools.
 
-Before we get started, though, it's important to note that knowledge bases of Large Language Models (LLMs) that underlie popular generative AI tools are private and lack transparency. 
-There are important societal concerns about the fairness of equitable access to these tools. 
+Before we get started, though, it's important to note that knowledge bases of Large Language Models (LLMs) that underlie popular generative AI tools are private and lack transparency.
+There are important societal concerns about the fairness of equitable access to these tools.
 It's unclear how developers or users of these models can be held accountable.
 Additionally, there is an environmental impact to using these tools.
 
@@ -56,7 +57,9 @@ Here is the initial prompt:
 
 And the following is what [Chat GPT](https://chatgpt.com/) by Open AI suggests as the first answer.
 
-> The `billboard` dataset from the tidyr package contains weekly rankings of songs on the Billboard charts. Here's how you can visualize the rank vs. week number for each song in the dataset using R:
+> The `billboard` dataset from the tidyr package contains weekly rankings of songs on the Billboard charts.
+> Here's how you can visualize the rank vs. week number for each song in the dataset using R:
+
 ```{r}
 #| message: false
 # Load required libraries
@@ -97,19 +100,20 @@ Chat GPT also provides a neat explanation of the code:
 
 > **Explanation**
 >
-> 1. Pivoting the Data: The `billboard` dataset is in wide format, with week columns (`wk1`, `wk2`, etc.). We use `pivot_longer()` to reshape it into a long format with week and rank columns.
-> 2. Rank vs. Week Plot: Each song's weekly rankings are connected with lines (`geom_line()`), and we reverse the y-axis since rank 1 is the best.
-> 3. Grouping by Track: The group aesthetic ensures lines are drawn separately for each song.
+> 1.  Pivoting the Data: The `billboard` dataset is in wide format, with week columns (`wk1`, `wk2`, etc.). We use `pivot_longer()` to reshape it into a long format with week and rank columns.
+> 2.  Rank vs. Week Plot: Each song's weekly rankings are connected with lines (`geom_line()`), and we reverse the y-axis since rank 1 is the best.
+> 3.  Grouping by Track: The group aesthetic ensures lines are drawn separately for each song.
 >
 > **Output**
 >
-> This will create a line plot where each line represents a song's rank progression over weeks. The y-axis is reversed to reflect higher rankings at the top.
+> This will create a line plot where each line represents a song's rank progression over weeks.
+> The y-axis is reversed to reflect higher rankings at the top.
 
 There are a few things about this answer that are promising:
 
-- The response is a tidyverse approach.
-- It uses `pivot_longer()` as opposed to the superseded alternative `gather()`.
-- The plot features a reversed y-axis, [just like in the book](https://r4ds.hadley.nz/data-tidy.html#fig-billboard-ranks)
+-   The response is a tidyverse approach.
+-   It uses `pivot_longer()` as opposed to the superseded alternative `gather()`.
+-   The plot features a reversed y-axis, [just like in the book](https://r4ds.hadley.nz/data-tidy.html#fig-billboard-ranks)
 
 However, the resulting plot doesn't show exactly what the prompt asked for -- the lines are colored by `track`, which produces a busy plot that is difficult to interpret.
 While this is not ideal, it's something a new learner can easily spot and ask Chat GPT for a follow up correcting it.
@@ -143,11 +147,11 @@ Similarly, using `theme_minimal()` is not a bad or wrong choice either[^2], but 
 
 Furthermore, while Chat GPT "solves" the problem, a thorough code review reveals a number of not-so-great things about the answer that can be confusing for new learners or promote poor coding practices:
 
-- The code loads packages that are not necessary: tidyr and ggplot2 packages are sufficient for this code, we don't also need dplyr. Additionally, learners coming from R for Data Science likely expect `library(tidyverse)` in analysis code, instead of loading the packages individualy.
-- There is no need to load the `billboard` dataset, it's available to use once the tidyr package is loaded. Additionally, quotes are not needed, `data(billboard)` also works.
-- The code mixes up tidyverse and base R styles:
-  - Changing the type of `week` to numeric can be done in a `mutate()` statement with the tidyverse, which would then warrant loading the dplyr package.
-  - This can also be done within `pivot_longer()` with the `names_transform` argument.
+-   The code loads packages that are not necessary: tidyr and ggplot2 packages are sufficient for this code, we don't also need dplyr. Additionally, learners coming from R for Data Science likely expect `library(tidyverse)` in analysis code, instead of loading the packages individualy.
+-   There is no need to load the `billboard` dataset, it's available to use once the tidyr package is loaded. Additionally, quotes are not needed, `data(billboard)` also works.
+-   The code mixes up tidyverse and base R styles:
+    -   Changing the type of `week` to numeric can be done in a `mutate()` statement with the tidyverse, which would then warrant loading the dplyr package.
+    -   This can also be done within `pivot_longer()` with the `names_transform` argument.
 
 All of these are addressable with further prompts, as I've done at <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba>, in the last two prompts.
 But doing so requires being able to identify these issues and explicitly asking for corrections.
@@ -156,7 +160,7 @@ However, a new learner might assume (and based on my experience seeing lots of n
 
 Furthermore, requesting improvements in subsequent calls can result in surprising changes that the user hasn't asked for.
 We saw an example of this above, in updating the alpha level.
-Similarly, in https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba you can see that asking Chat GPT to not load the packages individually but to use `library(tidyverse)` instead results in this change as well as not loading the data with a `data()` call and adding a data transformation step with `mutate()` to convert `week` to numeric:
+Similarly, in <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba> you can see that asking Chat GPT to not load the packages individually but to use `library(tidyverse)` instead results in this change as well as not loading the data with a `data()` call and adding a data transformation step with `mutate()` to convert `week` to numeric:
 
 ```{r}
 #| message: false
@@ -186,13 +190,18 @@ That's probably one of the reasons why people love these tools, they never respo
 Below is the prompt for this case study.
 I'll provide it with no background first, so you can read it as the AI tool would "read" it without any background.
 
-> Another variable that needs some cleaning up is `membership_status`. Currently it should either be `NA` or contain some text that says "Select ... to register for this group". Recode this variable to say `"Closed"` if the current value is `NA` or `"Open"` otherwise. Save the resulting dataset with this new variables as `clubs`, i.e., overwrite the original data frame.
+> Another variable that needs some cleaning up is `membership_status`.
+> Currently it should either be `NA` or contain some text that says "Select ... to register for this group".
+> Recode this variable to say `"Closed"` if the current value is `NA` or `"Open"` otherwise.
+> Save the resulting dataset with this new variables as `clubs`, i.e., overwrite the original data frame.
 > Then, display the first 10 rows of the dataset, moving `membership_status` to the beginning of the dataset to make sure it appears in the output in your rendered document.
 
 This time, let's try [Claude](https://claude.ai/) by Anthropic.
 Below is the first response:
 
-> I'll help you clean up the membership_status variable. Let's break this down into steps:
+> I'll help you clean up the membership_status variable.
+> Let's break this down into steps:
+
 ```{r}
 #| eval: false
 # Recode membership_status to "Closed" if NA, "Open" otherwise
@@ -207,14 +216,14 @@ head(clubs, 10)
 
 > This code will:
 >
-> - Use `ifelse()` to recode the variable based on whether it's NA
-> - Reorder the columns to put membership_status first
-> - Show the first 10 rows of the modified dataset
-> 
+> -   Use `ifelse()` to recode the variable based on whether it's NA
+> -   Reorder the columns to put membership_status first
+> -   Show the first 10 rows of the modified dataset
+>
 > Would you like me to explain any part of this solution in more detail?
 
 I like the offer to explain more at the end!
-However, the suggested code does not use the tidyverse. 
+However, the suggested code does not use the tidyverse.
 In fact, it's perhaps surprising that it uses R, this could very well have been a task for Python or anoher language commonly used for data science problems.
 
 Let's try again:
@@ -239,20 +248,21 @@ clubs %>%
 
 > This tidyverse solution:
 >
-> - Uses mutate() with `if_else()` to recode the variable
-> - Uses relocate() to move membership_status to the front
-> - Shows the first 10 rows using head()
+> -   Uses mutate() with `if_else()` to recode the variable
+> -   Uses relocate() to move membership_status to the front
+> -   Shows the first 10 rows using head()
 >
-> The tidyverse version is more readable and follows the principle of chaining operations with the pipe operator (`%>%`). `if_else()` is the tidyverse equivalent of base R's `ifelse()`, with stricter type checking.
-> 
+> The tidyverse version is more readable and follows the principle of chaining operations with the pipe operator (`%>%`).
+> `if_else()` is the tidyverse equivalent of base R's `ifelse()`, with stricter type checking.
+>
 > Would you like me to explain any of these functions in more detail?
 
 We're getting there!
 For new learners of the tidyverse there are still a few aspects of this code that might be misleading:
 
-- It doesn't use the base pipe operator (`|>`), which is the pipe operator used in R for Data Science.
-- Line breaks and indentation does not follow [tidyverse style guidelines](https://style.tidyverse.org/pipes.html#long-lines), which suggest that if the arguments to a function don't all fit on one line, each argument should go on its own line.
-- If `clubs` is a tibble, printing it will only display the first 10 rows anyway, so there's no need for the `head()` call.
+-   It doesn't use the base pipe operator (`|>`), which is the pipe operator used in R for Data Science.
+-   Line breaks and indentation does not follow [tidyverse style guidelines](https://style.tidyverse.org/pipes.html#long-lines), which suggest that if the arguments to a function don't all fit on one line, each argument should go on its own line.
+-   If `clubs` is a tibble, printing it will only display the first 10 rows anyway, so there's no need for the `head()` call.
 
 Once again, it's possible to ask the tool to make these updates.
 Claude doesn't provide a sharing link for the conversation, but I've saved it at <https://gist.github.com/mine-cetinkaya-rundel/c74dc7c5f2a27a846574edd063988431>.
