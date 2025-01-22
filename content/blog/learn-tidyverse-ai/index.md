@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: []
-rmd_hash: 4015f9106e8fe7c3
+rmd_hash: c9e2aa70d5b8685b
 
 ---
 
@@ -32,7 +32,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-As an educator who teaches data science with R, I have LOTS of opinions about the use of artificial intelligence (AI) tools when learning R. But I will keep this post the use of generative AI tools, like Chat GPT, in learning R, and specifically learning to do data science with R and the tidyverse.[^1]
+As an educator who teaches data science with R, I have LOTS of opinions about using artificial intelligence (AI) tools when learning R. But I will keep this post the use of generative AI tools, like Chat GPT, in learning R, and specifically learning to do data science with R and the tidyverse.[^1]
 
 I'll first walk you through three case studies that demonstrate what asking for help from a generative AI tool looks like. Then, I'll wrap up the post with some tips and good practices for getting the most out of help provided by these tools.
 
@@ -49,45 +49,45 @@ The first case study features an example on reshaping and plotting the `billboar
 And the following is what [Chat GPT](https://chatgpt.com/) by Open AI suggests as the first answer.
 
 > The `billboard` dataset from the tidyr package contains weekly rankings of songs on the Billboard charts. Here's how you can visualize the rank vs. week number for each song in the dataset using R:
->
-> <div class="highlight">
->
-> <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Load required libraries</span></span>
-> <span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidyr.tidyverse.org'>tidyr</a></span><span class='o'>)</span></span>
-> <span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='o'>)</span></span>
-> <span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='o'>)</span></span>
-> <span></span>
-> <span><span class='c'># Load the billboard dataset</span></span>
-> <span><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='s'>"billboard"</span><span class='o'>)</span></span>
-> <span></span>
-> <span><span class='c'># Prepare the data for visualization</span></span>
-> <span><span class='nv'>billboard_long</span> <span class='o'>&lt;-</span> <span class='nv'>billboard</span> <span class='o'>|&gt;</span></span>
-> <span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/pivot_longer.html'>pivot_longer</a></span><span class='o'>(</span></span>
-> <span>    cols <span class='o'>=</span> <span class='nf'><a href='https://tidyselect.r-lib.org/reference/starts_with.html'>starts_with</a></span><span class='o'>(</span><span class='s'>"wk"</span><span class='o'>)</span>,</span>
-> <span>    names_to <span class='o'>=</span> <span class='s'>"week"</span>,</span>
-> <span>    values_to <span class='o'>=</span> <span class='s'>"rank"</span>,</span>
-> <span>    names_prefix <span class='o'>=</span> <span class='s'>"wk"</span>,</span>
-> <span>    values_drop_na <span class='o'>=</span> <span class='kc'>TRUE</span></span>
-> <span>  <span class='o'>)</span></span>
-> <span></span>
-> <span><span class='c'># Convert week to a numeric value</span></span>
-> <span><span class='nv'>billboard_long</span><span class='o'>$</span><span class='nv'>week</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='o'>(</span><span class='nv'>billboard_long</span><span class='o'>$</span><span class='nv'>week</span><span class='o'>)</span></span>
-> <span></span>
-> <span><span class='c'># Create the visualization</span></span>
-> <span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>billboard_long</span>, <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>week</span>, y <span class='o'>=</span> <span class='nv'>rank</span>, group <span class='o'>=</span> <span class='nv'>track</span>, color <span class='o'>=</span> <span class='nv'>track</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span></span>
-> <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='o'>(</span>show.legend <span class='o'>=</span> <span class='kc'>FALSE</span>, alpha <span class='o'>=</span> <span class='m'>0.6</span><span class='o'>)</span> <span class='o'>+</span></span>
-> <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_y_reverse</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span>  <span class='c'># Reverse the y-axis since rank 1 is the top position</span></span>
-> <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='o'>(</span></span>
-> <span>    title <span class='o'>=</span> <span class='s'>"Song Rank vs. Week Number"</span>,</span>
-> <span>    x <span class='o'>=</span> <span class='s'>"Week Number"</span>,</span>
-> <span>    y <span class='o'>=</span> <span class='s'>"Rank"</span>,</span>
-> <span>    caption <span class='o'>=</span> <span class='s'>"Data: Billboard (tidyr package)"</span></span>
-> <span>  <span class='o'>)</span> <span class='o'>+</span></span>
-> <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_minimal</a></span><span class='o'>(</span><span class='o'>)</span></span>
-> </code></pre>
-> <img src="figs/unnamed-chunk-1-1.png" width="700px" style="display: block; margin: auto;" />
->
-> </div>
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Load required libraries</span></span>
+<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidyr.tidyverse.org'>tidyr</a></span><span class='o'>)</span></span>
+<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='o'>)</span></span>
+<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Load the billboard dataset</span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='o'>(</span><span class='s'>"billboard"</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Prepare the data for visualization</span></span>
+<span><span class='nv'>billboard_long</span> <span class='o'>&lt;-</span> <span class='nv'>billboard</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://tidyr.tidyverse.org/reference/pivot_longer.html'>pivot_longer</a></span><span class='o'>(</span></span>
+<span>    cols <span class='o'>=</span> <span class='nf'><a href='https://tidyselect.r-lib.org/reference/starts_with.html'>starts_with</a></span><span class='o'>(</span><span class='s'>"wk"</span><span class='o'>)</span>,</span>
+<span>    names_to <span class='o'>=</span> <span class='s'>"week"</span>,</span>
+<span>    values_to <span class='o'>=</span> <span class='s'>"rank"</span>,</span>
+<span>    names_prefix <span class='o'>=</span> <span class='s'>"wk"</span>,</span>
+<span>    values_drop_na <span class='o'>=</span> <span class='kc'>TRUE</span></span>
+<span>  <span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Convert week to a numeric value</span></span>
+<span><span class='nv'>billboard_long</span><span class='o'>$</span><span class='nv'>week</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='o'>(</span><span class='nv'>billboard_long</span><span class='o'>$</span><span class='nv'>week</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Create the visualization</span></span>
+<span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nv'>billboard_long</span>, <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>week</span>, y <span class='o'>=</span> <span class='nv'>rank</span>, group <span class='o'>=</span> <span class='nv'>track</span>, color <span class='o'>=</span> <span class='nv'>track</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='o'>(</span>show.legend <span class='o'>=</span> <span class='kc'>FALSE</span>, alpha <span class='o'>=</span> <span class='m'>0.6</span><span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_y_reverse</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span>  <span class='c'># Reverse the y-axis since rank 1 is the top position</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='o'>(</span></span>
+<span>    title <span class='o'>=</span> <span class='s'>"Song Rank vs. Week Number"</span>,</span>
+<span>    x <span class='o'>=</span> <span class='s'>"Week Number"</span>,</span>
+<span>    y <span class='o'>=</span> <span class='s'>"Rank"</span>,</span>
+<span>    caption <span class='o'>=</span> <span class='s'>"Data: Billboard (tidyr package)"</span></span>
+<span>  <span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_minimal</a></span><span class='o'>(</span><span class='o'>)</span></span>
+</code></pre>
+<img src="figs/unnamed-chunk-1-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
 
 Chat GPT also provides a neat explanation of the code:
 
@@ -169,26 +169,26 @@ Both of these are welcome changes, but it can be surprising to a new learner why
 
 The next example is a lot more vague as it's a task that, if someone asked me for help, I would reply with "Can you share the data with me?", but Chat GPT happily generates an answer. That's probably one of the reasons why people love these tools, they never respond to a question with another question, at least not in my experience.
 
-Below is the prompt for this case study. I'll provide it with no background first, so you can read it as the AI tool would "read" it without any background.
+Below is the prompt for this case study. I'll provide it with no background first so you can read it as the AI tool would "read" it without any background.
 
 > Another variable that needs some cleaning up is `membership_status`. Currently it should either be `NA` or contain some text that says "Select ... to register for this group". Recode this variable to say `"Closed"` if the current value is `NA` or `"Open"` otherwise. Save the resulting dataset with this new variables as `clubs`, i.e., overwrite the original data frame. Then, display the first 10 rows of the dataset, moving `membership_status` to the beginning of the dataset to make sure it appears in the output in your rendered document.
 
 This time, let's try [Claude](https://claude.ai/) by Anthropic. Below is the first response:
 
 > I'll help you clean up the membership_status variable. Let's break this down into steps:
->
-> <div class="highlight">
->
-> <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Recode membership_status to "Closed" if NA, "Open" otherwise</span></span>
-> <span><span class='nv'>clubs</span><span class='o'>$</span><span class='nv'>membership_status</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='o'>(</span><span class='nv'>clubs</span><span class='o'>$</span><span class='nv'>membership_status</span><span class='o'>)</span>, <span class='s'>"Closed"</span>, <span class='s'>"Open"</span><span class='o'>)</span></span>
-> <span></span>
-> <span><span class='c'># Reorder columns to put membership_status first</span></span>
-> <span><span class='nv'>clubs</span> <span class='o'>&lt;-</span> <span class='nv'>clubs</span><span class='o'>[</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"membership_status"</span>, <span class='nf'><a href='https://generics.r-lib.org/reference/setops.html'>setdiff</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='o'>(</span><span class='nv'>clubs</span><span class='o'>)</span>, <span class='s'>"membership_status"</span><span class='o'>)</span><span class='o'>)</span><span class='o'>]</span></span>
-> <span></span>
-> <span><span class='c'># Display first 10 rows</span></span>
-> <span><span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='nv'>clubs</span>, <span class='m'>10</span><span class='o'>)</span></span></code></pre>
->
-> </div>
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Recode membership_status to "Closed" if NA, "Open" otherwise</span></span>
+<span><span class='nv'>clubs</span><span class='o'>$</span><span class='nv'>membership_status</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='o'>(</span><span class='nv'>clubs</span><span class='o'>$</span><span class='nv'>membership_status</span><span class='o'>)</span>, <span class='s'>"Closed"</span>, <span class='s'>"Open"</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Reorder columns to put membership_status first</span></span>
+<span><span class='nv'>clubs</span> <span class='o'>&lt;-</span> <span class='nv'>clubs</span><span class='o'>[</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"membership_status"</span>, <span class='nf'><a href='https://generics.r-lib.org/reference/setops.html'>setdiff</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='o'>(</span><span class='nv'>clubs</span><span class='o'>)</span>, <span class='s'>"membership_status"</span><span class='o'>)</span><span class='o'>)</span><span class='o'>]</span></span>
+<span></span>
+<span><span class='c'># Display first 10 rows</span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='nv'>clubs</span>, <span class='m'>10</span><span class='o'>)</span></span></code></pre>
+
+</div>
 
 > This code will:
 >
@@ -231,7 +231,7 @@ And here is the result:
 >
 > Would you like me to explain any of these functions in more detail?
 
-We're getting there! For new learners of the tidyverse there are still a few aspects of this code that might be misleading:
+We're getting there! For new learners of the tidyverse, there are still a few aspects of this code that might be misleading:
 
 -   It doesn't use the base pipe operator (`|>`), which is the pipe operator used in R for Data Science.
 -   Line breaks and indentation does not follow [tidyverse style guidelines](https://style.tidyverse.org/pipes.html#long-lines), which suggest that if the arguments to a function don't all fit on one line, each argument should go on its own line.
