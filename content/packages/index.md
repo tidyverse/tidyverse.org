@@ -51,9 +51,8 @@ As well as [readr](https://readr.tidyverse.org), for reading flat files, the tid
 
 ## Wrangle
 
-In addition to [tidyr](https://tidyr.tidyverse.org), and [dplyr](https://dplyr.tidyverse.org), there are five packages (including [stringr](https://stringr.tidyverse.org) and [forcats](https://forcats.tidyverse.org)) which are designed to work with specific types of data:
+In addition to [tidyr](https://tidyr.tidyverse.org), [dplyr](https://dplyr.tidyverse.org), and the three specialized packages already in core tidyverse ([stringr](https://stringr.tidyverse.org), [forcats](https://forcats.tidyverse.org) and [lubridate](https://lubridate.tidyverse.org)), there are two others which are designed to work with specific types of data:
 
-* [lubridate](https://lubridate.tidyverse.org) for dates and date-times.
 * [hms](https://hms.tidyverse.org) for time-of-day values.
 * [blob](https://blob.tidyverse.org) for storing blob (binary) data.
 

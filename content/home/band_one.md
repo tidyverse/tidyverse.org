@@ -3,13 +3,14 @@ title: "R packages for data science"
 col0:
   row1: "dplyr"
   row2: "ggplot2"
-  row3: "readr"
-col1:
-  row2: "forcats"
   row3: "stringr"
+col1:
+  row1: "tibble"
+  row2: "readr"
+  row3: "forcats"
 col2:
-  row2: "tibble"
-  row3: "tidyr"
+  row2: "tidyr"
+  row3: "lubridate"
   row4: "purrr"
 ---
 
