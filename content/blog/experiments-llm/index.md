@@ -15,9 +15,13 @@ photo:
 
 categories: [roundup] 
 tags: [ellmer, ai]
-rmd_hash: b823e5569b78fbf6
+rmd_hash: d0b2359c1c1523c9
 
 ---
+
+The last few months, I've been exploring how AI/LLMs might make my time developing R packages and doing data science more productive. This post will describe three experimental R packages---[pal](https://simonpcouch.github.io/pal/), [ensure](https://simonpcouch.github.io/ensure/), and [gander](https://simonpcouch.github.io/gander/)---that came out of that exploration, and the core tools underlying them. Taken together, I've found that these packages allow me to automate many of the less interesting parts of my work, turning all sorts of 45-second tasks into 5-second ones. Excitement from folks in the community has been very encouraging so far, and I'm looking forward to getting each of these packages buttoned up and sent off to CRAN in the coming weeks!
+
+## Background
 
 Twice a year, the tidyverse team sets a week aside for "spring cleaning," bringing all of our R packages up to snuff with the most current tooling and standardizing various bits of our development process. Some of these updates can happen by calling a single function, while others are much more involved. One of those more involved updates is updating erroring code, transitioning away from base R (e.g. [`stop()`](https://rdrr.io/r/base/stop.html)), rlang (e.g. [`rlang::abort()`](https://rlang.r-lib.org/reference/abort.html)), [glue](https://glue.tidyverse.org/), and homegrown combinations of them. cli's new syntax is easier to work with as a developer and more visually pleasing as a user.
 
