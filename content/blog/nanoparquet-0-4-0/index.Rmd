@@ -43,13 +43,14 @@ install.packages("nanoparquet")
 ```
 
 This blog post will show the most important new features of nanoparquet
-0.4.0: You can see a full list of changes in the [release notes]({ TODO }).
+0.4.0: You can see a full list of changes in the [release notes](
+  https://nanoparquet.r-lib.org/news/index.html#nanoparquet-040).
 
 ## Brand new `read_parquet()`
 
 nanoparquet 0.4.0 comes with a completely rewritten Parquet reader.
 The new version has an architecture that is easier to embed into R, and
-facilitates great features, like `append_parquet()` and the new
+facilitates fantastic new features, like `append_parquet()` and the new
 `col_select` argument. (More to come!) The new reader is also much faster,
 see the "Benchmarks" chapter.
 
@@ -58,9 +59,9 @@ see the "Benchmarks" chapter.
 `read_parquet()` now has a new argument called `col_select`, that lets you
 read a subset of the columns from the Parquet file. Unlike for row oriented
 file formats like CSV, this means that the reader never needs to touch the
-columns that are not needed for analysis. Reading a handful of columns only
-always takes the same amount of time, no matter how many more columns the
-Parquet file might have!
+columns that are not needed for. The time required for reading a subset of
+columns is independent of how many more columns the Parquet file might
+have!
 
 You can either use column indices or column names to specify the columns
 to read. Here is an example.
@@ -123,9 +124,10 @@ Parquet file.
 ## Schemas and type conversions
 
 In nanoparquet 0.4.0 `write_parquet()` takes a `schema` argument that
-can customize the R to Parquet type mappings. E.g. by default
+can customize the R to Parquet type mappings. For example by default
 `write_parquet()` writes an R character vector as a `STRING` Parquet type.
-If you'd like to write a certain character column as an `ENUM` type
+If you'd like to write a certain character column as an `ENUM`
+type^[A Parquet `ENUM` type is very similar to a factor in R.]
 instead, you'll need to specify that in `schema`:
 
 ```{r schema}
@@ -140,8 +142,8 @@ read_parquet_schema("newflights.parquet")
 Here we wrote the `carrier` column as `ENUM`, and left the other other
 columns to use the default type mappings.
 
-See the [`nanoparquet-types`](
-  https://nanoparquet.r-lib.org/dev/reference/nanoparquet-types.html#r-s-data-types
+See the [`?nanoparquet-types`](
+  https://nanoparquet.r-lib.org/reference/nanoparquet-types.html#r-s-data-types
 ) manual page for the possible type mappings (lots of new ones!) and also
 for the default ones.
 
@@ -158,7 +160,7 @@ encoding. The following forces the `PLAIN` encoding for all columns. This
 encoding is very fast to write, but creates a larger file. You can also
 specify different encodings for different columns, see the
 [`write_parquet()` manual page](
-  https://nanoparquet.r-lib.org/dev/reference/write_parquet.html).
+  https://nanoparquet.r-lib.org/reference/write_parquet.html).
 
 ```{r encoding}
 write_parquet(
@@ -172,7 +174,7 @@ file.size("plainflights.parquet")
 
 See more about the implemented encodings and how the defaults are
 selected in the [`parquet-encodings` manual page](
-  https://nanoparquet.r-lib.org/dev/reference/parquet-encodings.html).
+  https://nanoparquet.r-lib.org/reference/parquet-encodings.html).
 
 ## API changes
 
@@ -188,7 +190,7 @@ old behaviour when called with a file name, with a warning, so this is not
 a breaking change (yet), and old code still works.
 
 See the complete list of API changes in the [Changelog](
-  https://nanoparquet.r-lib.org/dev/news/index.html).
+  https://nanoparquet.r-lib.org/news/index.html).
 
 ## Benchmarks
 
@@ -202,7 +204,7 @@ memory). For these data nanoparquet is indeed very competitive with both
 Arrow and DuckDB.
 
 You can see the full results [on the website](
-  https://nanoparquet.r-lib.org/dev/articles/benchmarks.html).
+  https://nanoparquet.r-lib.org/articles/benchmarks.html).
 
 ## Other changes
 
@@ -210,12 +212,12 @@ Other important changes in nanoparquet 0.4.0 include:
 
 * `write_parquet()` can now write multiple row groups. By default it puts
   at most 10 million rows in a single row group. (This is subject to
-    https://nanoparquet.r-lib.org/dev/references/parquet_options.html
+    https://nanoparquet.r-lib.org/references/parquet_options.html
   ) on how to change the default.
 
 * `write_parquet()` now writes minimum and maximum statistics (by default)
   for most Parquet types. See the [`parquet_options()` manual page](
-    https://nanoparquet.r-lib.org/dev/reference/parquet_options.html
+    https://nanoparquet.r-lib.org/reference/parquet_options.html
   ) on how to turn this off, which will probably make the writer faster.
 
 * `write_parquet()` can now write version 2 data pages. The default is
