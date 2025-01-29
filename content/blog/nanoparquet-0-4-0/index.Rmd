@@ -1,0 +1,232 @@
+---
+output: hugodown::hugo_document
+
+slug: nanoparquet-0-4-0
+title: nanoparquet 0.4.0
+date: 2025-01-28
+author: Gábor Csárdi
+description: >
+    nanoparquet 0.4.0 comes with a new and much faster `read_parquet()`,
+    configurable type mappings in `write_parquet()`, and a new
+    `append_parquet()`.
+
+photo:
+  url: https://www.pexels.com/photo/person-running-in-the-hallway-796545/
+  author: Michael Foster
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package]
+tags: [parquet]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're thrilled to announce the release of [nanoparquet](
+  https://nanoparquet.r-lib.org/) 0.4.0. nanoparquet is an R package that
+reads and writes Parquet files.
+
+You can install it from CRAN with:
+
+```r
+install.packages("nanoparquet")
+```
+
+This blog post will show the most important new features of nanoparquet
+0.4.0: You can see a full list of changes in the [release notes](
+  https://nanoparquet.r-lib.org/news/index.html#nanoparquet-040).
+
+## Brand new `read_parquet()`
+
+nanoparquet 0.4.0 comes with a completely rewritten Parquet reader.
+The new version has an architecture that is easier to embed into R, and
+facilitates fantastic new features, like `append_parquet()` and the new
+`col_select` argument. (More to come!) The new reader is also much faster,
+see the "Benchmarks" chapter.
+
+## Read a subset of columns
+
+`read_parquet()` now has a new argument called `col_select`, that lets you
+read a subset of the columns from the Parquet file. Unlike for row oriented
+file formats like CSV, this means that the reader never needs to touch the
+columns that are not needed for. The time required for reading a subset of
+columns is independent of how many more columns the Parquet file might
+have!
+
+You can either use column indices or column names to specify the columns
+to read. Here is an example.
+
+```{r setup}
+library(nanoparquet)
+library(pillar)
+```
+
+```{r include = FALSE}
+if (!file.exists("flights.parquet")) {
+  write_parquet(nycflights13::flights, "flights.parquet")
+}
+```
+
+This is the `nycflights13::flights` data set:
+
+```{r col_select}
+read_parquet(
+  "flights.parquet",
+  col_select = c("dep_time", "arr_time", "carrier")
+)
+```
+
+Use `read_parquet_schema()` if you want to see the structure of the Parquet
+file first:
+
+```{r read_parquet_schema}
+read_parquet_schema("flights.parquet")
+```
+
+The output of `read_parquet_schema()` also shows you the R type that
+nanoparquet will use for each column.
+
+## Appending to Parquet files
+
+The new `append_parquet()` function makes it easy to append new data to
+a Parquet file, without first reading the whole file into memory.
+The schema of the file and the schema new data must match of course. Lets
+merge `nycflights13::flights` and `nycflights23::flights`:
+
+```{r append_parquet}
+file.copy("flights.parquet", "allflights.parquet", overwrite = TRUE)
+append_parquet(nycflights23::flights, "allflights.parquet")
+```
+
+`read_parquet_info()` returns the most basic information about a Parquet
+file:
+
+```{r read_parquet_info}
+read_parquet_info("flights.parquet")
+read_parquet_info("allflights.parquet")
+```
+
+Note that you should probably still create a backup copy of the original
+file when using `append_parquet()`. If the appending process is interrupted
+by a power failure, then you might end up with an incomplete and invalid
+Parquet file.
+
+## Schemas and type conversions
+
+In nanoparquet 0.4.0 `write_parquet()` takes a `schema` argument that
+can customize the R to Parquet type mappings. For example by default
+`write_parquet()` writes an R character vector as a `STRING` Parquet type.
+If you'd like to write a certain character column as an `ENUM`
+type^[A Parquet `ENUM` type is very similar to a factor in R.]
+instead, you'll need to specify that in `schema`:
+
+```{r schema}
+write_parquet(
+  nycflights13::flights,
+  "newflights.parquet",
+  schema = parquet_schema(carrier = "ENUM")
+)
+read_parquet_schema("newflights.parquet")
+```
+
+Here we wrote the `carrier` column as `ENUM`, and left the other other
+columns to use the default type mappings.
+
+See the [`?nanoparquet-types`](
+  https://nanoparquet.r-lib.org/reference/nanoparquet-types.html#r-s-data-types
+) manual page for the possible type mappings (lots of new ones!) and also
+for the default ones.
+
+## Encodings
+
+It is now also possible to customize the encoding of each column in
+`write_parquet()`, via the `encoding` argument. By default
+`write_parquet()` tries to choose a good encoding based on the type and the
+values of a column. E.g. it checks a small sample for repeated values to
+decide if it is worth using a dictionary encoding (`RLE_DICTIONARY`).
+
+If `write_parquet()` gets it wrong, use the `encoding` argument to force an
+encoding. The following forces the `PLAIN` encoding for all columns. This
+encoding is very fast to write, but creates a larger file. You can also
+specify different encodings for different columns, see the
+[`write_parquet()` manual page](
+  https://nanoparquet.r-lib.org/reference/write_parquet.html).
+
+```{r encoding}
+write_parquet(
+  nycflights13::flights,
+  "plainflights.parquet",
+  encoding = "PLAIN"
+)
+file.size("flights.parquet")
+file.size("plainflights.parquet")
+```
+
+See more about the implemented encodings and how the defaults are
+selected in the [`parquet-encodings` manual page](
+  https://nanoparquet.r-lib.org/reference/parquet-encodings.html).
+
+## API changes
+
+Some nanoparquet functions have new, better names in nanoparquet 0.4.0.
+In particular, all functions that read from a Parquet file have a
+`read_parquet` prefix now. The old functions still work, with a warning.
+
+Also, the `parquet_schema()` function is now for creating a new Parquet
+schema from scratch, and not for inferring a schema from a data frame
+(use `infer_parquet_schema()`) or for reading the schema from a Parquet
+file (use `read_parquet_schema()`). `parquet_schema()` falls back to the
+old behaviour when called with a file name, with a warning, so this is not
+a breaking change (yet), and old code still works.
+
+See the complete list of API changes in the [Changelog](
+  https://nanoparquet.r-lib.org/news/index.html).
+
+## Benchmarks
+
+We are very excited about the performance of the new Parquet reader, and
+the Parquet writer was always quite speedy, so we ran a simple benchmark.
+
+We compared nanoparquet to the Parquet implementations in Apache Arrow and
+DuckDB, and also to CSV readers and writers, on a real data set, for
+samples of 330k, 6.7 million and 67.4 million rows (40MB, 800MB and 8GB in
+memory). For these data nanoparquet is indeed very competitive with both
+Arrow and DuckDB.
+
+You can see the full results [on the website](
+  https://nanoparquet.r-lib.org/articles/benchmarks.html).
+
+## Other changes
+
+Other important changes in nanoparquet 0.4.0 include:
+
+* `write_parquet()` can now write multiple row groups. By default it puts
+  at most 10 million rows in a single row group. (This is subject to
+    https://nanoparquet.r-lib.org/references/parquet_options.html
+  ) on how to change the default.
+
+* `write_parquet()` now writes minimum and maximum statistics (by default)
+  for most Parquet types. See the [`parquet_options()` manual page](
+    https://nanoparquet.r-lib.org/reference/parquet_options.html
+  ) on how to turn this off, which will probably make the writer faster.
+
+* `write_parquet()` can now write version 2 data pages. The default is
+  still version 1, but it might change in the future.
+
+* New `compression_level` option to select the compression level manually.
+
+* `read_parquet()` can now read from an R connection.
+
+## Acknowledgements
+
+[&#x0040;alvarocombo](https://github.com/alvarocombo), [&#x0040;D3SL](https://github.com/D3SL), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), and [&#x0040;RealTYPICAL](https://github.com/RealTYPICAL).
