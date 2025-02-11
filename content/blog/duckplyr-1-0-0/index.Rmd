@@ -128,8 +128,8 @@ nrow(stingy)
 - `"thrifty"`: automatically materialize _up to a maximum size of 1 million cells_.
 
 ```{r, error = TRUE}
-out <- babynames |>
-  duckdb_tibble(prudence = "stingy") |> # like the famous duck Uncle Scrooge :-)
+thrifty <- babynames |>
+  duckdb_tibble(prudence = "stingy") |> 
   filter(n > 1000) |>
   summarize(
     .by = c(sex, year),
@@ -137,8 +137,8 @@ out <- babynames |>
   ) |>
   filter(sex == "F")
 
-class(out)
-nrow(out)
+class(thrifty)
+nrow(thrifty)
 ```
 
 By default, duckplyr data frames are _lavish_, but duckplyr data frames created from Parquet data (presumedly large) are _thrifty_.
