@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: f09463d75dcb4599
+rmd_hash: 59f17c4d7fab4ccc
 
 ---
 
@@ -85,91 +85,7 @@ The duckplyr package is a *drop-in replacement for dplyr* that uses *DuckDB for 
 
 </div>
 
-The very tagline of duckplyr, being a drop-in replacement for dplyr that uses DuckDB for speed, creates a tension:
-
--   When using dplyr, we are not used to explicitly collect results, we simply access them: the data.frames are "eager" by default. Adding a [`collect()`](https://dplyr.tidyverse.org/reference/compute.html) step by default would confuse users and make "drop-in replacement" an exaggeration. The collection of results, called materialization, has to be automatic by default. Therefore, *duckplyr needs eagerness*!
-
--   The whole advantage of using DuckDB under the hood is letting DuckDB optimize computations, like dtplyr does with data.table. *Therefore, duckplyr needs laziness*!
-
-As a consequence, duckplyr is lazy on the inside for all DuckDB operations but eager on the outside, thanks to [ALTREP](https://duckdb.org/2024/04/02/duckplyr.html#eager-vs-lazy-materialization), a powerful R feature that among other things supports *deferred evaluation*.
-
-> "ALTREP allows R objects to have different in-memory representations, and for custom code to be executed whenever those objects are accessed." Hannes Mühleisen.
-
-If the duckplyr data.frame is accessed by...
-
--   duckplyr, then the operations continue to be lazy (until a call to `collect.duckplyr_df()` for instance).
--   not duckplyr (say, ggplot2, or [`nrow()`](https://rdrr.io/r/base/nrow.html)), then a special callback is executed, allowing materialization of the data frame.
-
-Therefore, duckplyr can be both *lazy* (within itself) and *not lazy* (for the outside world).
-
-Now, the default automatic materialization can be problematic if dealing with large data: what if the materialization eats up all memory? Therefore, the duckplyr package has a safeguard called `prudence` with three levels.
-
--   `"lavish"`: automatically materialize *regardless of size*,
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>out</span> <span class='o'>&lt;-</span> <span class='nv'>babynames</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>as_duckdb_tibble</a></span><span class='o'>(</span>prudence <span class='o'>=</span> <span class='s'>"lavish"</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='c'># default value of prudence :-)</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>n</span> <span class='o'>&gt;</span> <span class='m'>1000</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span></span>
-<span>    .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>sex</span>, <span class='nv'>year</span><span class='o'>)</span>,</span>
-<span>    babies_n <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>n</span><span class='o'>)</span></span>
-<span>  <span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>sex</span> <span class='o'>==</span> <span class='s'>"F"</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nf'><a href='https://rdrr.io/r/base/class.html'>class</a></span><span class='o'>(</span><span class='nv'>out</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] "duckplyr_df" "tbl_df"      "tbl"         "data.frame"</span></span>
-<span></span><span><span class='nf'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='o'>(</span><span class='nv'>out</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 138</span></span>
-<span></span></code></pre>
-
-</div>
-
--   `"stingy"`: *never* automatically materialize,
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>stingy</span> <span class='o'>&lt;-</span> <span class='nv'>babynames</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>as_duckdb_tibble</a></span><span class='o'>(</span>prudence <span class='o'>=</span> <span class='s'>"stingy"</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='c'># like the famous duck Uncle Scrooge :-)</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>n</span> <span class='o'>&gt;</span> <span class='m'>1500</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span></span>
-<span>    .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>sex</span>, <span class='nv'>year</span><span class='o'>)</span>,</span>
-<span>    babies_n <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>n</span><span class='o'>)</span></span>
-<span>  <span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>sex</span> <span class='o'>==</span> <span class='s'>"F"</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nf'><a href='https://rdrr.io/r/base/class.html'>class</a></span><span class='o'>(</span><span class='nv'>stingy</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] "prudent_duckplyr_df" "duckplyr_df"         "tbl_df"             </span></span>
-<span><span class='c'>#&gt; [4] "tbl"                 "data.frame"</span></span>
-<span></span><span><span class='nf'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='o'>(</span><span class='nv'>stingy</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Error: Materialization would result in 1 rows, which exceeds the limit of 0. Use collect() or as_tibble() to materialize.</span></span>
-<span></span></code></pre>
-
-</div>
-
--   `"thrifty"`: automatically materialize *up to a maximum size of 1 million cells*.
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>thrifty</span> <span class='o'>&lt;-</span> <span class='nv'>babynames</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>as_duckdb_tibble</a></span><span class='o'>(</span>prudence <span class='o'>=</span> <span class='s'>"stingy"</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>n</span> <span class='o'>&gt;</span> <span class='m'>1000</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span></span>
-<span>    .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>sex</span>, <span class='nv'>year</span><span class='o'>)</span>,</span>
-<span>    babies_n <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>n</span><span class='o'>)</span></span>
-<span>  <span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>sex</span> <span class='o'>==</span> <span class='s'>"F"</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nf'><a href='https://rdrr.io/r/base/class.html'>class</a></span><span class='o'>(</span><span class='nv'>thrifty</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] "prudent_duckplyr_df" "duckplyr_df"         "tbl_df"             </span></span>
-<span><span class='c'>#&gt; [4] "tbl"                 "data.frame"</span></span>
-<span></span><span><span class='nf'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='o'>(</span><span class='nv'>thrifty</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Error: Materialization would result in 1 rows, which exceeds the limit of 0. Use collect() or as_tibble() to materialize.</span></span>
-<span></span></code></pre>
-
-</div>
-
-By default, duckplyr data frames are *lavish*, but duckplyr data frames created from Parquet data (presumedly large) are *thrifty*.
+Like with other dplyr backends like dtplyr and dbplyr, duckplyr allows you to get faster results. Unlike other dplyr backends, duckplyr does not require you to learn a different syntax.
 
 ## How to use duckplyr
 
@@ -211,16 +127,16 @@ The result can finally be materialized to memory, or computed temporarily, or co
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 138 × 3</span></span></span>
 <span><span class='c'>#&gt;    sex    year babies_n</span></span>
 <span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> F      <span style='text-decoration: underline;'>1</span>987  1<span style='text-decoration: underline;'>206</span>547</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> F      <span style='text-decoration: underline;'>2</span>003  1<span style='text-decoration: underline;'>089</span>123</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> F      <span style='text-decoration: underline;'>2</span>013   <span style='text-decoration: underline;'>969</span>323</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> F      <span style='text-decoration: underline;'>1</span>905   <span style='text-decoration: underline;'>175</span>938</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> F      <span style='text-decoration: underline;'>1</span>909   <span style='text-decoration: underline;'>216</span>752</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> F      <span style='text-decoration: underline;'>1</span>913   <span style='text-decoration: underline;'>447</span>899</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> F      <span style='text-decoration: underline;'>1</span>953  1<span style='text-decoration: underline;'>570</span>770</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> F      <span style='text-decoration: underline;'>1</span>954  1<span style='text-decoration: underline;'>623</span>587</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> F      <span style='text-decoration: underline;'>1</span>959  1<span style='text-decoration: underline;'>670</span>225</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> F      <span style='text-decoration: underline;'>1</span>977  1<span style='text-decoration: underline;'>067</span>210</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> F      <span style='text-decoration: underline;'>1</span>992  1<span style='text-decoration: underline;'>226</span>792</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> F      <span style='text-decoration: underline;'>1</span>997  1<span style='text-decoration: underline;'>112</span>135</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> F      <span style='text-decoration: underline;'>2</span>002  1<span style='text-decoration: underline;'>089</span>406</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> F      <span style='text-decoration: underline;'>2</span>005  1<span style='text-decoration: underline;'>083</span>492</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> F      <span style='text-decoration: underline;'>2</span>012   <span style='text-decoration: underline;'>961</span>393</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> F      <span style='text-decoration: underline;'>1</span>902   <span style='text-decoration: underline;'>154</span>806</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> F      <span style='text-decoration: underline;'>1</span>907   <span style='text-decoration: underline;'>194</span>763</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> F      <span style='text-decoration: underline;'>1</span>917   <span style='text-decoration: underline;'>851</span>315</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> F      <span style='text-decoration: underline;'>1</span>924   <span style='text-decoration: underline;'>992</span>331</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> F      <span style='text-decoration: underline;'>1</span>938   <span style='text-decoration: underline;'>871</span>255</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 128 more rows</span></span></span>
 <span></span><span></span>
 <span><span class='c'># to a file</span></span>
@@ -231,16 +147,16 @@ The result can finally be materialized to memory, or computed temporarily, or co
 <span><span class='c'>#&gt; <span style='color: #555555;'># A duckplyr data frame: 3 variables</span></span></span>
 <span><span class='c'>#&gt;    sex    year babies_n</span></span>
 <span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> FALSE  <span style='text-decoration: underline;'>1</span>987  1<span style='text-decoration: underline;'>206</span>547</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> FALSE  <span style='text-decoration: underline;'>2</span>003  1<span style='text-decoration: underline;'>089</span>123</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> FALSE  <span style='text-decoration: underline;'>2</span>013   <span style='text-decoration: underline;'>969</span>323</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> FALSE  <span style='text-decoration: underline;'>1</span>905   <span style='text-decoration: underline;'>175</span>938</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> FALSE  <span style='text-decoration: underline;'>1</span>909   <span style='text-decoration: underline;'>216</span>752</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> FALSE  <span style='text-decoration: underline;'>1</span>913   <span style='text-decoration: underline;'>447</span>899</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> FALSE  <span style='text-decoration: underline;'>1</span>953  1<span style='text-decoration: underline;'>570</span>770</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> FALSE  <span style='text-decoration: underline;'>1</span>954  1<span style='text-decoration: underline;'>623</span>587</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> FALSE  <span style='text-decoration: underline;'>1</span>959  1<span style='text-decoration: underline;'>670</span>225</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> FALSE  <span style='text-decoration: underline;'>1</span>977  1<span style='text-decoration: underline;'>067</span>210</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> FALSE  <span style='text-decoration: underline;'>1</span>992  1<span style='text-decoration: underline;'>226</span>792</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> FALSE  <span style='text-decoration: underline;'>1</span>997  1<span style='text-decoration: underline;'>112</span>135</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> FALSE  <span style='text-decoration: underline;'>2</span>002  1<span style='text-decoration: underline;'>089</span>406</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> FALSE  <span style='text-decoration: underline;'>2</span>005  1<span style='text-decoration: underline;'>083</span>492</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> FALSE  <span style='text-decoration: underline;'>2</span>012   <span style='text-decoration: underline;'>961</span>393</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> FALSE  <span style='text-decoration: underline;'>1</span>902   <span style='text-decoration: underline;'>154</span>806</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> FALSE  <span style='text-decoration: underline;'>1</span>907   <span style='text-decoration: underline;'>194</span>763</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> FALSE  <span style='text-decoration: underline;'>1</span>917   <span style='text-decoration: underline;'>851</span>315</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> FALSE  <span style='text-decoration: underline;'>1</span>924   <span style='text-decoration: underline;'>992</span>331</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> FALSE  <span style='text-decoration: underline;'>1</span>938   <span style='text-decoration: underline;'>871</span>255</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ more rows</span></span></span>
 <span></span><span><span class='nf'><a href='https://rdrr.io/r/base/file.info.html'>file.size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] 2560</span></span>
