@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: 38b9694928fe9459
+rmd_hash: fac80b838381ce99
 
 ---
 
@@ -103,7 +103,7 @@ To *replace* dplyr with duckplyr, you can either
 
 </div>
 
--   Create individual "duck frames" which allows you to control their automatic materialization parameters. To do so, you can use *conversion functions* like [`duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html) or [`as_duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html), or *ingestion functions* like [`read_csv_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html).
+-   Create individual "duck frames" which allows you to control their automatic materialization parameters to [protect memory](https://duckplyr.tidyverse.org/articles/prudence.html). To do so, you can use *conversion functions* like [`duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html) or [`as_duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html), or *ingestion functions* like [`read_csv_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html).
 
 Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline. The duckplyr package performs the computation using DuckDB.
 
