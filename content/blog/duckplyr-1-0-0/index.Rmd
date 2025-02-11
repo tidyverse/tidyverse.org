@@ -1,0 +1,127 @@
+---
+output: hugodown::hugo_document
+
+slug: duckplyr-1-0-0
+title: duckplyr fully joins the tidyverse!
+date: 2025-02-11
+author: Kirill Müller and Maëlle Salmon
+description: >
+    duckplyr 1.0.0 is on CRAN and part of the tidyverse! duckplyr is a drop-in
+    replacement for dplyr, powered by DuckDB for speed.
+
+photo:
+  url: https://www.pexels.com/photo/a-mallard-duck-on-water-6918877/
+  author: Kiril Gruev
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags:
+  - duckplyr
+  - dplyr
+  - tidyverse
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0. 
+duckplyr is a drop-in replacement for dplyr, powered by DuckDB for speed.
+It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org).
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("duckplyr")
+```
+
+In this article, we'll introduce you to the basic usage of duckplyr, show how it can help you handle large data, and explain how you can help improve the package.
+
+
+## A drop-in replacement for dplyr
+
+The duckplyr package is a drop-in replacement for dplyr that uses DuckDB for speed.
+
+First, data is inputted using either conversion (from data in memory) or ingestion (from data in files) functions.
+Alternatively, calling `library(duckplyr)` overwrites dplyr methods, enabling duckplyr for the entire session no matter how data.frames are created.
+
+```{r load}
+library(conflicted)
+library(duckplyr)
+conflict_prefer("filter", "dplyr", quiet = TRUE)
+```
+
+Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline.
+The duckplyr package performs the computation using DuckDB, or, if a specific operation is not supported, fallbacks to dplyr.
+
+
+```{r}
+library("babynames")
+out <- babynames |>
+  filter(n > 1000) |>
+  summarize(
+    .by = c(sex, year),
+    babies_n = sum(n)
+  ) |>
+  filter(sex == "F")
+```
+
+The result can finally be materialized to memory, or computed temporarily, or computed to a file.
+
+```{r}
+# to memory
+out
+
+# to a file
+csv_file <- withr::local_tempfile()
+file.size(csv_file)
+compute_csv(out, csv_file)
+file.size(csv_file)
+```
+
+When duckplyr itself does not support specific functionality, it falls back to dplyr.
+For instance, row names are not supported yet:
+
+```{r}
+mtcars |>
+  summarize(
+    .by = cyl,
+    disp = mean(disp, na.rm = TRUE),
+    sd = sd(disp, na.rm = TRUE)
+  )
+```
+
+Current limitations are documented in a vignette.
+You can change the verbosity of fallbacks, refer to [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html).
+
+
+
+## A handy tool for large data
+
+## Help us improve duckplyr!
+
+Our goals for future development of duckplyr include:
+
+- Enabling users to provide custom translations of dplyr functionality;
+- Making it easier to contribute code to duckplyr.
+
+You can already help though, in three main ways:
+
+- Please report any issue especially regarding unknown incompabilities. See [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
+- Contribute to the codebase after reading duckplyr's contributing guide.
+- Turn on telemetry to help us hear about the most frequent fallbacks so we can prioritize working on the corresponding missing dplyr translation. See [`vignette("telemetry")](https://duckplyr.tidyverse.org/articles/telemetry.html) and the [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html) function.
+
+## Acknowledgements
+
+A big thanks to all 54 folks who filed issues, created PRs and generally helped to improve duckplyr!
+
+[&#x0040;adamschwing](https://github.com/adamschwing), [&#x0040;andreranza](https://github.com/andreranza), [&#x0040;apalacio9502](https://github.com/apalacio9502), [&#x0040;apsteinmetz](https://github.com/apsteinmetz), [&#x0040;barracuda156](https://github.com/barracuda156), [&#x0040;beniaminogreen](https://github.com/beniaminogreen), [&#x0040;bob-rietveld](https://github.com/bob-rietveld), [&#x0040;brichards920](https://github.com/brichards920), [&#x0040;cboettig](https://github.com/cboettig), [&#x0040;davidjayjackson](https://github.com/davidjayjackson), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;Ed2uiz](https://github.com/Ed2uiz), [&#x0040;eitsupi](https://github.com/eitsupi), [&#x0040;era127](https://github.com/era127), [&#x0040;etiennebacher](https://github.com/etiennebacher), [&#x0040;eutwt](https://github.com/eutwt), [&#x0040;fmichonneau](https://github.com/fmichonneau), [&#x0040;github-actions[bot]](https://github.com/github-actions[bot]), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hannes](https://github.com/hannes), [&#x0040;hawkfish](https://github.com/hawkfish), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;JanSulavik](https://github.com/JanSulavik), [&#x0040;JavOrraca](https://github.com/JavOrraca), [&#x0040;jeroen](https://github.com/jeroen), [&#x0040;jhk0530](https://github.com/jhk0530), [&#x0040;joakimlinde](https://github.com/joakimlinde), [&#x0040;JosiahParry](https://github.com/JosiahParry), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;larry77](https://github.com/larry77), [&#x0040;lnkuiper](https://github.com/lnkuiper), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;luisDVA](https://github.com/luisDVA), [&#x0040;maelle](https://github.com/maelle), [&#x0040;math-mcshane](https://github.com/math-mcshane), [&#x0040;meersel](https://github.com/meersel), [&#x0040;multimeric](https://github.com/multimeric), [&#x0040;mytarmail](https://github.com/mytarmail), [&#x0040;nicki-dese](https://github.com/nicki-dese), [&#x0040;PMassicotte](https://github.com/PMassicotte), [&#x0040;prasundutta87](https://github.com/prasundutta87), [&#x0040;rafapereirabr](https://github.com/rafapereirabr), [&#x0040;Robinlovelace](https://github.com/Robinlovelace), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;sparrow925](https://github.com/sparrow925), [&#x0040;stefanlinner](https://github.com/stefanlinner), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;TimTaylor](https://github.com/TimTaylor), [&#x0040;Tmonster](https://github.com/Tmonster), [&#x0040;toppyy](https://github.com/toppyy), [&#x0040;wibeasley](https://github.com/wibeasley), [&#x0040;yjunechoe](https://github.com/yjunechoe), [&#x0040;ywhcuhk](https://github.com/ywhcuhk), and [&#x0040;zhjx19](https://github.com/zhjx19).
