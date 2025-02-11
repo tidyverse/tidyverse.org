@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: ed41cb71bcbcdebc
+rmd_hash: 7c7e425ccb1202f2
 
 ---
 
@@ -188,7 +188,7 @@ When duckplyr itself does not support specific functionality, it falls back to d
 
 </div>
 
-Current limitations are documented in a vignette. You can change the verbosity of fallbacks, refer to [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html).
+Current limitations are documented in a [vignette](https://duckplyr.tidyverse.org/articles/limits.html). You can change the verbosity of fallbacks, refer to [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html).
 
 ### For large data
 
