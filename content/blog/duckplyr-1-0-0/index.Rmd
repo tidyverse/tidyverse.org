@@ -49,13 +49,15 @@ In this article, we'll introduce you to the basic concepts behind duckplyr, show
 ## A drop-in replacement for dplyr
 
 The duckplyr package is a _drop-in replacement for dplyr_ that uses _DuckDB for speed_.
-You can simply drop duckplyr into your pipeline by loading it, then computations will be efficiently carried out by DuckDB.
+You can simply _drop_ duckplyr into your pipeline by loading it, then computations will be efficiently carried out by DuckDB.
 
 ```{r}
 library(conflicted)
 library(duckplyr)
 conflict_prefer("filter", "dplyr", quiet = TRUE)
 library("babynames")
+
+
 out <- babynames |>
   filter(n > 1000) |>
   summarize(
@@ -69,7 +71,7 @@ class(out)
 
 The very tagline of duckplyr, being a drop-in replacement for dplyr that uses DuckDB for speed, creates a tension:
 
--   When using dplyr, we are not used to explicitly collect results, we just access them: the data.frames are eager by default.
+-   When using dplyr, we are not used to explicitly collect results, we simply access them: the data.frames are "eager" by default.
     Adding a `collect()` step by default would confuse users and make "drop-in replacement" an exaggeration.
     Therefore, _duckplyr needs eagerness_!
 
@@ -83,7 +85,7 @@ As a consequence, duckplyr is lazy on the inside for all DuckDB operations but e
 If the duckplyr data.frame is accessed by...
 
 -   duckplyr, then the operations continue to be lazy (until a call to `collect.duckplyr_df()` for instance).
--   not duckplyr (say, ggplot2), then a special callback is executed, allowing materialization of the data frame.
+-   not duckplyr (say, ggplot2, or `nrow()`), then a special callback is executed, allowing materialization of the data frame.
 
 Therefore, duckplyr can be both *lazy* (within itself) and *not lazy* (for the outside world).
 
@@ -91,26 +93,71 @@ Now, the default materialization can be problematic if dealing with large data: 
 Therefore, the duckplyr package has a safeguard called `prudence` with three levels.
 
 - `"lavish"`: automatically materialize _regardless of size_,
-- `"stingy"` (like the famous duck Uncle Scrooge): _never_ automatically materialize,
+
+```{r}
+out <- babynames |>
+  duckdb_tibble(prudence = "lavish") |> # default value of prudence :-)
+  filter(n > 1000) |>
+  summarize(
+    .by = c(sex, year),
+    babies_n = sum(n)
+  ) |>
+  filter(sex == "F")
+
+class(out)
+nrow(out)
+```
+
+- `"stingy"`: _never_ automatically materialize,
+
+```{r, error = TRUE}
+stingy <- babynames |>
+  duckdb_tibble(prudence = "stingy") |> # like the famous duck Uncle Scrooge :-)
+  filter(n > 1500) |>
+  summarize(
+    .by = c(sex, year),
+    babies_n = sum(n)
+  ) |>
+  filter(sex == "F")
+
+class(stingy)
+nrow(stingy)
+```
+
 - `"thrifty"`: automatically materialize _up to a maximum size of 1 million cells_.
 
-By default, duckplyr frames are _lavish_, but duckplyr frames created from Parquet data (presumedly large) are _thrifty_.
+```{r, error = TRUE}
+out <- babynames |>
+  duckdb_tibble(prudence = "stingy") |> # like the famous duck Uncle Scrooge :-)
+  filter(n > 1000) |>
+  summarize(
+    .by = c(sex, year),
+    babies_n = sum(n)
+  ) |>
+  filter(sex == "F")
+
+class(out)
+nrow(out)
+```
+
+By default, duckplyr data frames are _lavish_, but duckplyr data frames created from Parquet data (presumedly large) are _thrifty_.
 
 ## How to use duckplyr
 
+To _replace_ dplyr with duckplyr, you can either
 
-First, data is inputted using either conversion (from data in memory) or ingestion (from data in files) functions.
-Alternatively, calling `library(duckplyr)` overwrites dplyr methods, enabling duckplyr for the entire session no matter how data.frames are created.
+- load duckplyr and then keep your pipeline as is. Calling `library(duckplyr)` overwrites dplyr methods, enabling duckplyr for the entire session no matter how data.frames are created.
 
-```{r load}
+```r
 library(conflicted)
 library(duckplyr)
 conflict_prefer("filter", "dplyr", quiet = TRUE)
 ```
 
+- Create individual "duck frames" which allows you to control their automatic materialization parameters. To do so, you can use _conversion functions_ like `duckdb_tibble()` or `as_duckdb_tibble()`, or _ingestion functions_ like `read_csv_duckdb()`.
+
 Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline.
 The duckplyr package performs the computation using DuckDB.
-
 
 ```{r}
 library("babynames")
@@ -150,6 +197,36 @@ mtcars |>
 
 Current limitations are documented in a vignette.
 You can change the verbosity of fallbacks, refer to [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html).
+
+### For large data
+
+For large data, duckplyr is a worthy alternative to dtplyr and dbplyr.
+
+With large datasets, you want:
+
+- input data in an efficient format, like Parquet files. Therefore you might input data using `read_parquet_duckdb()`.
+- efficient computation, which duckplyr provides via DuckDB's holistic optimization, without your having to use another syntax than dplyr.
+- the output to not clutter all the memory. Therefore you can make use of these features:
+    - the `prudence` parameter, to disable automatic materialization completely or to disable automatic materialization up to a certain output size.
+    - computation to files using  `compute_parquet()` or `compute_csv()`.
+
+A drawback of analyzing large data with duckplyr is that the limitations of duckplyr won't be compensated by fallbacks since fallbacks to dplyr necessitate putting data into memory.
+Therefore, if your pipeline encounters fallbacks, you might want to workaround them by converting the duck frame into a table through `compute()` then running SQL code through the experimental `read_sql_duckdb()` function.
+
+```{r}
+data <-
+  duckdb_tibble(a = 2) |>
+  mutate(b = 3)
+
+computed_data <-
+  data |>
+  compute(name = "computed_data")
+
+sql_data <-
+  read_sql_duckdb("SELECT *, a * b AS c FROM computed_data")
+
+sql_data
+```
 
 ## Help us improve duckplyr!
 
