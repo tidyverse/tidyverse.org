@@ -73,6 +73,7 @@ The very tagline of duckplyr, being a drop-in replacement for dplyr that uses Du
 
 -   When using dplyr, we are not used to explicitly collect results, we simply access them: the data.frames are "eager" by default.
     Adding a `collect()` step by default would confuse users and make "drop-in replacement" an exaggeration.
+    The collection of results, called materialization, has to be automatic by default.
     Therefore, _duckplyr needs eagerness_!
 
 -   The whole advantage of using DuckDB under the hood is letting DuckDB optimize computations, like dtplyr does with data.table.
@@ -89,7 +90,7 @@ If the duckplyr data.frame is accessed by...
 
 Therefore, duckplyr can be both *lazy* (within itself) and *not lazy* (for the outside world).
 
-Now, the default materialization can be problematic if dealing with large data: what if the materialization eats up all memory?
+Now, the default automatic materialization can be problematic if dealing with large data: what if the materialization eats up all memory?
 Therefore, the duckplyr package has a safeguard called `prudence` with three levels.
 
 - `"lavish"`: automatically materialize _regardless of size_,
