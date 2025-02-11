@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: 41aa37bebc1f420a
+rmd_hash: bc4ad3d08fdee469
 
 ---
 
@@ -129,16 +129,16 @@ The result can finally be materialized to memory, or computed temporarily, or co
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 138 × 3</span></span></span>
 <span><span class='c'>#&gt;    sex    year babies_n</span></span>
 <span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> F      <span style='text-decoration: underline;'>1</span>911   <span style='text-decoration: underline;'>272</span>192</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> F      <span style='text-decoration: underline;'>1</span>918   <span style='text-decoration: underline;'>918</span>670</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> F      <span style='text-decoration: underline;'>1</span>949  1<span style='text-decoration: underline;'>420</span>468</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> F      <span style='text-decoration: underline;'>1</span>960  1<span style='text-decoration: underline;'>665</span>748</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> F      <span style='text-decoration: underline;'>1</span>961  1<span style='text-decoration: underline;'>655</span>653</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> F      <span style='text-decoration: underline;'>1</span>963  1<span style='text-decoration: underline;'>567</span>168</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> F      <span style='text-decoration: underline;'>1</span>968  1<span style='text-decoration: underline;'>269</span>891</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> F      <span style='text-decoration: underline;'>1</span>970  1<span style='text-decoration: underline;'>346</span>851</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> F      <span style='text-decoration: underline;'>1</span>975  1<span style='text-decoration: underline;'>022</span>858</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> F      <span style='text-decoration: underline;'>1</span>983  1<span style='text-decoration: underline;'>175</span>102</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> F      <span style='text-decoration: underline;'>1</span>995  1<span style='text-decoration: underline;'>139</span>006</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> F      <span style='text-decoration: underline;'>1</span>903   <span style='text-decoration: underline;'>152</span>367</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> F      <span style='text-decoration: underline;'>1</span>914   <span style='text-decoration: underline;'>564</span>502</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> F      <span style='text-decoration: underline;'>1</span>916   <span style='text-decoration: underline;'>815</span>256</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> F      <span style='text-decoration: underline;'>1</span>921   <span style='text-decoration: underline;'>980</span>269</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> F      <span style='text-decoration: underline;'>1</span>935   <span style='text-decoration: underline;'>816</span>510</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> F      <span style='text-decoration: underline;'>1</span>943  1<span style='text-decoration: underline;'>133</span>004</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> F      <span style='text-decoration: underline;'>1</span>955  1<span style='text-decoration: underline;'>634</span>537</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> F      <span style='text-decoration: underline;'>1</span>962  1<span style='text-decoration: underline;'>605</span>822</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> F      <span style='text-decoration: underline;'>1</span>973  1<span style='text-decoration: underline;'>047</span>513</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 128 more rows</span></span></span>
 <span></span><span></span>
 <span><span class='c'># to a file</span></span>
@@ -149,16 +149,16 @@ The result can finally be materialized to memory, or computed temporarily, or co
 <span><span class='c'>#&gt; <span style='color: #555555;'># A duckplyr data frame: 3 variables</span></span></span>
 <span><span class='c'>#&gt;    sex    year babies_n</span></span>
 <span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> FALSE  <span style='text-decoration: underline;'>1</span>911   <span style='text-decoration: underline;'>272</span>192</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> FALSE  <span style='text-decoration: underline;'>1</span>918   <span style='text-decoration: underline;'>918</span>670</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> FALSE  <span style='text-decoration: underline;'>1</span>949  1<span style='text-decoration: underline;'>420</span>468</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> FALSE  <span style='text-decoration: underline;'>1</span>960  1<span style='text-decoration: underline;'>665</span>748</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> FALSE  <span style='text-decoration: underline;'>1</span>961  1<span style='text-decoration: underline;'>655</span>653</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> FALSE  <span style='text-decoration: underline;'>1</span>963  1<span style='text-decoration: underline;'>567</span>168</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> FALSE  <span style='text-decoration: underline;'>1</span>968  1<span style='text-decoration: underline;'>269</span>891</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> FALSE  <span style='text-decoration: underline;'>1</span>970  1<span style='text-decoration: underline;'>346</span>851</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> FALSE  <span style='text-decoration: underline;'>1</span>975  1<span style='text-decoration: underline;'>022</span>858</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> FALSE  <span style='text-decoration: underline;'>1</span>983  1<span style='text-decoration: underline;'>175</span>102</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> FALSE  <span style='text-decoration: underline;'>1</span>995  1<span style='text-decoration: underline;'>139</span>006</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> FALSE  <span style='text-decoration: underline;'>1</span>903   <span style='text-decoration: underline;'>152</span>367</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> FALSE  <span style='text-decoration: underline;'>1</span>914   <span style='text-decoration: underline;'>564</span>502</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> FALSE  <span style='text-decoration: underline;'>1</span>916   <span style='text-decoration: underline;'>815</span>256</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> FALSE  <span style='text-decoration: underline;'>1</span>921   <span style='text-decoration: underline;'>980</span>269</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> FALSE  <span style='text-decoration: underline;'>1</span>935   <span style='text-decoration: underline;'>816</span>510</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> FALSE  <span style='text-decoration: underline;'>1</span>943  1<span style='text-decoration: underline;'>133</span>004</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> FALSE  <span style='text-decoration: underline;'>1</span>955  1<span style='text-decoration: underline;'>634</span>537</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> FALSE  <span style='text-decoration: underline;'>1</span>962  1<span style='text-decoration: underline;'>605</span>822</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> FALSE  <span style='text-decoration: underline;'>1</span>973  1<span style='text-decoration: underline;'>047</span>513</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ more rows</span></span></span>
 <span></span><span><span class='nf'><a href='https://rdrr.io/r/base/file.info.html'>file.size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] 2560</span></span>
@@ -230,11 +230,11 @@ A drawback of analyzing large data with duckplyr is that the limitations of duck
 
 Our goals for future development of duckplyr include:
 
--   Increase the native support for dplyr functionality;
+-   Increasing the native support for dplyr functionality;
 -   Enabling users to provide [custom translations](https://github.com/tidyverse/duckplyr/issues/158) of dplyr functionality;
 -   Making it easier to contribute code to duckplyr.
 
-You can already help though, in three main ways:
+You can help!
 
 -   Please report any issue especially regarding unknown incompabilities. See [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
 -   Contribute to the codebase after reading duckplyr's [contributing guide](https://duckplyr.tidyverse.org/CONTRIBUTING.html).
