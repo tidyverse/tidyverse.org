@@ -137,14 +137,14 @@ You can change the verbosity of fallbacks, refer to [`duckplyr::fallback_sitrep(
 
 ### For large data
 
-For large data, duckplyr is a worthy alternative to dtplyr and dbplyr.
+For large data, duckplyr is a legitimate alternative to dtplyr and dbplyr.
 
 With large datasets, you want:
 
-- input data in an efficient format, like Parquet files. Therefore you might input data using `read_parquet_duckdb()`.
+- input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like `read_parquet_duckdb()`.
 - efficient computation, which duckplyr provides via DuckDB's holistic optimization, without your having to use another syntax than dplyr.
-- the output to not clutter all the memory. Therefore you can make use of these features:
-    - the `prudence` parameter, to disable automatic materialization completely or to disable automatic materialization up to a certain output size.
+- the output to not clutter all the memory, which duckplyr supports through two features:
+    - the control of automatic materialization (collection of results into memory) thanks to the `prudence` parameter. You can disable automatic materialization completely or, as a compromise, disable it up to a certain output size.
     - computation to files using  `compute_parquet()` or `compute_csv()`.
 
 A drawback of analyzing large data with duckplyr is that the limitations of duckplyr won't be compensated by fallbacks since fallbacks to dplyr necessitate putting data into memory.

@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: fac80b838381ce99
+rmd_hash: c49f2d437cb32cf5
 
 ---
 
@@ -192,14 +192,14 @@ Current limitations are documented in a vignette. You can change the verbosity o
 
 ### For large data
 
-For large data, duckplyr is a worthy alternative to dtplyr and dbplyr.
+For large data, duckplyr is a legitimate alternative to dtplyr and dbplyr.
 
 With large datasets, you want:
 
--   input data in an efficient format, like Parquet files. Therefore you might input data using [`read_parquet_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html).
+-   input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like [`read_parquet_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html).
 -   efficient computation, which duckplyr provides via DuckDB's holistic optimization, without your having to use another syntax than dplyr.
--   the output to not clutter all the memory. Therefore you can make use of these features:
-    -   the `prudence` parameter, to disable automatic materialization completely or to disable automatic materialization up to a certain output size.
+-   the output to not clutter all the memory, which duckplyr supports through two features:
+    -   the control of automatic materialization (collection of results into memory) thanks to the `prudence` parameter. You can disable automatic materialization completely or, as a compromise, disable it up to a certain output size.
     -   computation to files using [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_file.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_file.html).
 
 A drawback of analyzing large data with duckplyr is that the limitations of duckplyr won't be compensated by fallbacks since fallbacks to dplyr necessitate putting data into memory. Therefore, if your pipeline encounters fallbacks, you might want to workaround them by converting the duck frame into a table through [`compute()`](https://dplyr.tidyverse.org/reference/compute.html) then running SQL code through the experimental [`read_sql_duckdb()`](https://duckplyr.tidyverse.org/reference/read_sql_duckdb.html) function.
