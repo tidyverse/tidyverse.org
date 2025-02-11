@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: c49f2d437cb32cf5
+rmd_hash: 4726224528648f98
 
 ---
 
@@ -199,10 +199,10 @@ With large datasets, you want:
 -   input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like [`read_parquet_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html).
 -   efficient computation, which duckplyr provides via DuckDB's holistic optimization, without your having to use another syntax than dplyr.
 -   the output to not clutter all the memory, which duckplyr supports through two features:
-    -   the control of automatic materialization (collection of results into memory) thanks to the `prudence` parameter. You can disable automatic materialization completely or, as a compromise, disable it up to a certain output size.
-    -   computation to files using [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_file.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_file.html).
+    -   the [control of automatic materialization](https://duckplyr.tidyverse.org/articles/prudence.html) (collection of results into memory) thanks to the `prudence` parameter. You can disable automatic materialization completely or, as a compromise, disable it up to a certain output size.
+    -   [computation to files](https://duckplyr.tidyverse.org/reference/compute_file.html) using [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_file.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_file.html).
 
-A drawback of analyzing large data with duckplyr is that the limitations of duckplyr won't be compensated by fallbacks since fallbacks to dplyr necessitate putting data into memory. Therefore, if your pipeline encounters fallbacks, you might want to workaround them by converting the duck frame into a table through [`compute()`](https://dplyr.tidyverse.org/reference/compute.html) then running SQL code through the experimental [`read_sql_duckdb()`](https://duckplyr.tidyverse.org/reference/read_sql_duckdb.html) function.
+A drawback of analyzing large data with duckplyr is that the limitations of duckplyr won't be compensated by fallbacks, since fallbacks to dplyr necessitate putting data into memory. Therefore, if your pipeline encounters fallbacks, you might want to workaround them by converting the duck frame into a table through [`compute()`](https://dplyr.tidyverse.org/reference/compute.html) then running SQL code through the experimental [`read_sql_duckdb()`](https://duckplyr.tidyverse.org/reference/read_sql_duckdb.html) function.
 
 <div class="highlight">
 
