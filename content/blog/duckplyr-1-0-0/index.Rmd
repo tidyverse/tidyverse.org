@@ -97,7 +97,7 @@ Therefore, the duckplyr package has a safeguard called `prudence` with three lev
 
 ```{r}
 out <- babynames |>
-  duckdb_tibble(prudence = "lavish") |> # default value of prudence :-)
+  as_duckdb_tibble(prudence = "lavish") |> # default value of prudence :-)
   filter(n > 1000) |>
   summarize(
     .by = c(sex, year),
@@ -113,7 +113,7 @@ nrow(out)
 
 ```{r, error = TRUE}
 stingy <- babynames |>
-  duckdb_tibble(prudence = "stingy") |> # like the famous duck Uncle Scrooge :-)
+  as_duckdb_tibble(prudence = "stingy") |> # like the famous duck Uncle Scrooge :-)
   filter(n > 1500) |>
   summarize(
     .by = c(sex, year),
@@ -129,7 +129,7 @@ nrow(stingy)
 
 ```{r, error = TRUE}
 thrifty <- babynames |>
-  duckdb_tibble(prudence = "stingy") |> 
+  as_duckdb_tibble(prudence = "stingy") |> 
   filter(n > 1000) |>
   summarize(
     .by = c(sex, year),
