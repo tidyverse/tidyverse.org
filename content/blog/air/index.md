@@ -19,7 +19,7 @@ editor:
   markdown:
     wrap: sentence
     canonical: true
-rmd_hash: 528e3f0056de8881
+rmd_hash: 2255e91eba9f7883
 
 ---
 
@@ -54,7 +54,7 @@ If you already know how formatters work and want to jump straight in, follow one
 
 -   For command line users, Air binaries can be installed using our [standalone installer scripts](https://posit-dev.github.io/air/cli.html).
 
-For both Positron and VS Code, the most important thing to enable after installing the extension is format on save for R. You can do that by running `Preferences: Open User Settings (JSON)` from the Command Palette, and then adding these lines:
+For both Positron and VS Code, the most important thing to enable after installing the extension is format on save for R. You can do that by adding these lines to your `settings.json` file:
 
 ``` json
 {
@@ -63,6 +63,12 @@ For both Positron and VS Code, the most important thing to enable after installi
     }
 }
 ```
+
+To open your `settings.json` file, run one of the following from the Command Palette:
+
+-   Run `Preferences: Open User Settings (JSON)` to modify global user settings.
+
+-   Run `Preferences: Open Workspace Settings (JSON)` to modify project specific settings. You may want to use this if you drop in on multiple projects, but not all of them use Air.
 
 If your preferred editor isn't listed here, but does support the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/), then it is likely that we can add support for Air there as well. Feel free to open an [issue](https://github.com/posit-dev/air/issues)!
 
