@@ -19,21 +19,26 @@ editor:
   markdown:
     wrap: sentence
     canonical: true
-rmd_hash: be95e05694b3d96a
+rmd_hash: 528e3f0056de8881
 
 ---
 
-We're thrilled to announce [Air](https://posit-dev.github.io/air/), an extremely fast R formatter. I find that it's much easier to show what Air can do rather than tell, so we'll start with a few examples. Let's jump into Positron with some unformatted dplyr code for `case_when()`. Saving the file (yep, that's it!) calls Air, which automatically and instantaneously styles the code.
+We're thrilled to announce [Air](https://posit-dev.github.io/air/), an extremely fast R formatter. Formatters are used to automatically style code, but I find that it's much easier to show what Air can do rather than tell, so we'll start with a few examples. In the video below, we're inside [Positron](https://positron.posit.co/) and we're looking at some unformatted code. Saving the file (yep, that's it!) invokes Air, which automatically and instantaneously formats the code.
 
 <video controls autoplay loop muted width="100%" src="video/case-when.mov" style="border: 2px solid #CCC;">
 </video>
 
-Next, let's go over to RStudio. Here we've got a pipe chain that could use a little styling. Like in Positron, just save the file:
+Next, let's go over to [RStudio](https://posit.co/products/open-source/rstudio/). Here we've got a pipe chain that could use a little formatting. Like in Positron, just save the file:
 
 <video controls autoplay loop muted width="100%" src="video/ggplot.mov" style="border: 2px solid #CCC;">
 </video>
 
-Throughout the rest of this post, you'll find details about what a formatter is, why you'd want to use one, and you'll learn about how Air makes decisions on how to format your R code.
+Lastly, we'll jump back into Positron. Rather than formatting a single file on save, you might want to instead format an entire project (particularly when first adopting Air). To do so, just run `air format .` in a terminal from the project root, and Air will recursively format any R files it finds along the way (smartly excluding known generated files, like `cpp11.R`). Here we'll run Air on dplyr for the first time ever, analyzing and reformatting over 150 files instantly:
+
+<video controls autoplay loop muted width="100%" src="video/project.mov" style="border: 2px solid #CCC;">
+</video>
+
+Throughout the rest of this post you'll learn what a formatter is, why you'd want to use one, and you'll learn a little about how Air decides to format your R code.
 
 Note that Air is still in alpha, so there may be some breaking changes over the next few releases, but we still feel very confident in the current state of Air, and can't wait for you to try it!
 
@@ -49,13 +54,23 @@ If you already know how formatters work and want to jump straight in, follow one
 
 -   For command line users, Air binaries can be installed using our [standalone installer scripts](https://posit-dev.github.io/air/cli.html).
 
+For both Positron and VS Code, the most important thing to enable after installing the extension is format on save for R. You can do that by running `Preferences: Open User Settings (JSON)` from the Command Palette, and then adding these lines:
+
+``` json
+{
+    "[r]": {
+        "editor.formatOnSave": true
+    }
+}
+```
+
 If your preferred editor isn't listed here, but does support the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/), then it is likely that we can add support for Air there as well. Feel free to open an [issue](https://github.com/posit-dev/air/issues)!
 
 ## What's a formatter?
 
 A formatter is in charge of the *layout* of your R code. Formatters do not change the meaning of code; instead they ensure that whitespace, newlines, and other punctuation conform to a set of rules and standards, such as:
 
--   Making sure your code is **indented** with the appropriate amount of leading whitespace depending on the context. By default, Air uses an indentation of 2 spaces. You will see this indentation in pipelines:
+-   Making sure your code is **indented** with the appropriate amount of leading whitespace. By default, Air uses 2 spaces for indentation. You will see this indentation in pipelines:
 
     ``` r
     data |>
@@ -63,7 +78,7 @@ A formatter is in charge of the *layout* of your R code. Formatters do not chang
       geom_point()
     ```
 
-    As well as *expanded* (i.e. vertically laid out) function calls:
+    As well as in function calls:
 
     ``` r
     list(
@@ -72,32 +87,33 @@ A formatter is in charge of the *layout* of your R code. Formatters do not chang
     )
     ```
 
--   Preventing your code from overflowing a given **line width**. By default, we use a line width of 80 characters. It does so by splitting lines of code that have become too long over multiple lines. For instance, let's say that we've set the line width to be extremely small and these expressions would overflow:
+-   Preventing your code from overflowing a given **line width**. By default, Air uses a line width of 80 characters. It enforces this by splitting long lines of code over multiple lines. For instance, notice how long these expressions are, they would "overflow" past 80 characters:
 
     ``` r
-                      # <- imagine the line width is set to here   
-    data |> select(foo)
+    band_members |> select(name) |> full_join(band_instruments2, by = join_by(name == artist))
 
-    foo <- function(bar = 1, baz = 2) {
-      list(bar, baz)
+    left_join <- function(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ..., keep = NULL) {
+      UseMethod("left_join")
     }
     ```
 
-    To respect the very small line width, Air would switch these expressions from a horizontal layout (called "flat") to a vertical one (called "expanded"):
+    Air reformats these expressions by switching them from a horizontal layout (called "flat") to a vertical one (called "expanded"):
 
     ``` r
-                      # <- imagine the line width is set to here
-    data |>
-      select(foo)
+    band_members |> 
+      select(name) |> 
+      full_join(band_instruments2, by = join_by(name == artist))
 
-    foo <- function(
-      bar = 1,
-      baz = 2
+    left_join <- function(
+      x,
+      y,
+      by = NULL,
+      copy = FALSE,
+      suffix = c(".x", ".y"),
+      ...,
+      keep = NULL
     ) {
-      list(
-        bar,
-        baz
-      )
+      UseMethod("left_join")
     }
     ```
 
@@ -113,15 +129,90 @@ A formatter is in charge of the *layout* of your R code. Formatters do not chang
     1 + 2:3 * (4 / 5)
     ```
 
-In general, a formatter takes over the whitespace in your code and moves elements around to respect style conventions and maximize readability.
-
 ## How does a formatter improve your workflow?
 
-By using a formatter it might seem like you're rescinding control over the layout of your code. And indeed you are! However, putting Air in charge of styling your code has substantial advantages.
+By using a formatter it might seem like you're giving up control over the layout of your code. And indeed you are! However, putting Air in charge of styling your code has substantial advantages.
 
-First, it automatically forces you to write legible code that is neither too wide nor too narrow, with proper breathing room around syntactic elements. Having a formatter as a companion significantly improves the process of writing code as you no longer have to think about style as much - the formatter does that for you!
+First, it automatically forces you to write legible code that is neither too wide nor too narrow, with proper breathing room around syntactic elements. Having a formatter as a companion significantly improves the process of writing code as you no longer have to think about style - the formatter does that for you!
 
 Second, it reduces friction when working in a team. By agreeing to use a formatter in a project, collaborators no longer have to discuss styling and layout issues. Code sent to you by a colleague will adhere to the standards that you're used to. Code review no longer has to be about style nitpicks and can focus on the substance of the changes instead.
+
+## How does Air decide how to format your code?
+
+Air tries to strike a balance between enforcing rigid rules and allowing authors some control over the layout. Our main source of styling rules is the [Tidyverse style guide](https://style.tidyverse.org), but we occasionally deviate from these.
+
+There is a trend among modern formatters of being *opinionated*. Air certainly fits this trend and provides very few [configuration options](https://posit-dev.github.io/air/configuration.html), mostly: the indent style (spaces versus tabs), the indent width, and the line width. However, Air also puts code authors in charge of certain aspects of the layout through the notion of **persistent line breaks**.
+
+In general, Air is in control of deciding where to put vertical space (line breaks) in your code. For instance if you write:
+
+``` r
+dictionary <- list(bob = "apple",
+  jill = "juice")
+```
+
+Air will figure out that this expression fits on a single line without exceeding the line width. It will discard the line break and reformat to:
+
+``` r
+dictionary <- list(bob = "apple", jill = "juice")
+```
+
+However there are very specific places at which you can insert a line break that Air perceives as persistent:
+
+-   Before the very first argument in a function call. This:
+
+    ``` r
+    # Persistent line break after `(` and before `bob`
+    dictionary <- list(
+      bob = "apple", jill = "juice")
+    ```
+
+    gets formatted as:
+
+    ``` r
+    dictionary <- list(
+      bob = "apple", 
+      jill = "juice"
+    )
+    ```
+
+-   Before the very first right-hand side expression in a pipeline. This:
+
+    ``` r
+    # Persistent line break after `|>` and before `select`
+    data |>
+      select(foo) |> filter(!bar)
+    ```
+
+    gets formatted as:
+
+    ``` r
+    data |>
+      select(foo) |>
+      filter(!bar)
+    ```
+
+A persistent line break will never be removed by Air. But you can remove it manually. Taking the last example, if you join the first lines like this:
+
+``` r
+# Removed persistent line break after `(`
+dictionary <- list(bob = "apple", 
+  jill = "juice"
+)
+
+# Removed persistent line break after `|>`
+data |> select(foo) |>
+  filter(!bar)
+```
+
+Air will recognize that you've removed the persistent line break, and reformat as:
+
+``` r
+dictionary <- list(bob = "apple", jill = "juice")
+
+data |> select(foo) |> filter(!bar)
+```
+
+The goal of this feature is to strike a balance between being opinionated and recognizing that users often know when taking up more vertical space results in more readable output.
 
 ## How can I use Air?
 
@@ -145,82 +236,11 @@ As we've touched on above, Air can be integrated into your IDE to format code on
 
     -   Automatically format each PR by pushing the results of `air format` as a commit
 
-## How does Air decide how to format your code?
-
-Air tries to strike a balance between enforcing rigid rules and allowing authors some control over the layout. Our main source of styling rules is the [Tidyverse style guide](https://style.tidyverse.org), but we occasionally deviate from these.
-
-There is a trend among modern formatters of being *opinionated*. Air certainly fits this trend and provides very few [configuration options](https://posit-dev.github.io/air/configuration.html), mostly the indent style (spaces versus tabs), the indent width, and the line width. However, Air also puts code authors in charge of certain aspects of the layout through the notion of **persistent line breaks**.
-
-In general, Air is in control of deciding where to put vertical space (line breaks) in your code. For instance if you write:
-
-``` r
-list(foo,
-bar)
-```
-
-Air will figure out that this expression fits on a single line without exceeding the line width. It will discard the line break and reformat to:
-
-``` r
-list(foo, bar)
-```
-
-However there are very specific places at which you can enforce a line break, i.e. make it persistent.
-
--   Before the very first argument in a function call. This:
-
-    ``` r
-    list(
-    foo, bar)
-    ```
-
-    gets formatted as:
-
-    ``` r
-    list(
-      foo,
-      bar
-    )
-    ```
-
--   Before the very first right-hand side expression in a pipeline. This:
-
-    ``` r
-    data |>
-    select(foo) |> filter(!bar)
-    ```
-
-    gets formatted as:
-
-    ``` r
-    data |>
-      select(foo) |>
-      filter(!bar)
-    ```
-
-A persistent line break will never be removed by Air. But you can remove it manually. Taking the last example, if you join the first lines like this:
-
-``` r
-list(foo,
-  bar
-)
-
-data |> select(foo) |>
-  filter(!bar)
-```
-
-Air will recognize that you've removed the persistent line break, and reformat as:
-
-``` r
-list(foo, bar)
-
-data |> select(foo) |> filter(!bar)
-```
-
-The goal of this feature is to strike a balance between being opinionated and recognizing that users often know when taking up more vertical space results in more readable output.
+We don't have guides for all of these use cases yet, but the best place to stay up to date is the [Air website](https://posit-dev.github.io/air/).
 
 ## How is this different from styler?
 
-Air would not exist without the preexisting work and dedication poured into [styler](https://github.com/r-lib/styler). Created by [Lorenz Walthert](https://github.com/lorenzwalthert) and [Kirill Müller](https://github.com/krlmlr), styler proved that the R community does care about how their code is formatted, and had been the primary implementation of the [tidyverse style guide](https://style.tidyverse.org/) for many years. We've spoken to Lorenz about Air, and we are all very excited about what Air can do for the future of formatting in R.
+Air would not exist without the preexisting work and dedication poured into [styler](https://github.com/r-lib/styler). Created by [Lorenz Walthert](https://github.com/lorenzwalthert) and [Kirill Müller](https://github.com/krlmlr), styler proved that the R community does care about how their code is formatted, and has been the primary implementation of the [tidyverse style guide](https://style.tidyverse.org/) for many years. We've spoken to Lorenz about Air, and we are all very excited about what Air can do for the future of formatting in R.
 
 Air is different from styler in a few key ways:
 
@@ -230,25 +250,25 @@ Air is different from styler in a few key ways:
 
 -   Air respects a line width, with a default of 80 characters.
 
--   Air does not require R to run. Unlike styler, which is an R package, Air is written in Rust and is distributed as a pre-compiled binary for many platforms. This makes Air easily usable across IDEs or on CI with very little setup required.
+-   Air does not require R to run. Unlike styler, which is an R package, Air is written in Rust and is distributed as a pre-compiled binary for many platforms. This makes Air easy to use across IDEs or on CI with very little setup required.
 
 ## How fast is "extremely fast"?
 
 Air is written in Rust using the formatting infrastructure provided by [Biome](https://github.com/biomejs/biome)[^2]. This is also the same infrastructure that [Ruff](https://github.com/astral-sh/ruff), the fast Python formatter, originally forked from. Both of those projects are admired for their performance, and Air is no exception.
 
-One big goal for Air is for the "format on save" gesture to be imperceptibly fast, encouraging you to keep it on at all times. Benchmarking formatters is a bit hand wavy due to some having built in caching, so bear with me, but one way to proxy this performance is by formatting a large single file, for example the 800+ line [join.R](https://github.com/tidyverse/dplyr/blob/main/R/join.R) in dplyr. Formatting this takes[^3]:
+One goal for Air is for "format on save" to be imperceptibly fast, encouraging you to keep it on at all times. Benchmarking formatters is a bit hand wavy due to some having built in caching, so bear with me, but one way to proxy this performance is by formatting a large single file, for example the 800+ line [join.R](https://github.com/tidyverse/dplyr/blob/main/R/join.R) in dplyr. Formatting this takes[^3]:
 
 -   0.01 seconds with Air
 
 -   1 second with styler (no cache)
 
-So, ~100x faster for Air. If you make a few changes in the file after the first round of formatting and run the formatter again, then you get something like:
+So, ~100x faster for Air! If you make a few changes in the file after the first round of formatting and run the formatter again, then you get something like:
 
 -   0.01 seconds with Air
 
 -   0.5 seconds with styler (with cache)
 
-Half a second for styler might not sound that bad (and indeed, for a formatter written in R it's pretty good), but it's slow enough that you'll "feel" it if you try and invoke styler on every save.
+Half a second for styler might not sound that bad (and indeed, for a formatter written in R it's pretty good), but it's slow enough that you'll "feel" it if you try and invoke styler on every save. But 0.01 seconds? You'll never even know its running!
 
 The differences get even more drastic if you format entire projects. Formatting the ~150 R files in dplyr takes[^4]:
 
