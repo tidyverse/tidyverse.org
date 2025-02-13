@@ -85,6 +85,27 @@ Unlike other dplyr backends, duckplyr does not require you to learn a different 
 The duckplyr package is fully compatible with dplyr: if an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr.
 Over time, we expect fewer and fewer fallbacks to dplyr to be needed.
 
+The very tagline of duckplyr, being a drop-in replacement for dplyr that uses DuckDB for speed, creates a tension:
+
+-   When using dplyr, we are not used to explicitly collect results, we simply access them: the data.frames are "eager" by default.
+    Adding a `collect()` step by default would confuse users and make "drop-in replacement" an exaggeration.
+    The collection of results, called materialization, has to be automatic by default.
+    Therefore, _duckplyr needs eagerness_!
+
+-   The whole advantage of using DuckDB under the hood is letting DuckDB optimize computations, like dtplyr does with data.table.
+    _Therefore, duckplyr needs laziness_!
+
+As a consequence, duckplyr is lazy on the inside for all DuckDB operations but eager on the outside, thanks to [ALTREP](https://duckdb.org/2024/04/02/duckplyr.html#eager-vs-lazy-materialization), a powerful R feature that among other things supports *deferred evaluation*.
+
+> "ALTREP allows R objects to have different in-memory representations, and for custom code to be executed whenever those objects are accessed." Hannes Mühleisen.
+
+If the duckplyr data.frame is accessed by...
+
+-   duckplyr, then the operations continue to be lazy (until a call to `collect.duckplyr_df()` for instance).
+-   not duckplyr (say, ggplot2, `nrow()`, or a dplyr operation not yet supported by duckplyr), then a special callback is executed, allowing materialization of the data frame.
+
+Therefore, duckplyr can be both *lazy* (within itself) and *not lazy* (for the outside world).
+
 ## How to use duckplyr
 
 To _replace_ dplyr with duckplyr, you can:
