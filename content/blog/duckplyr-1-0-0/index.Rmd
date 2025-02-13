@@ -87,30 +87,34 @@ Over time, we expect fewer and fewer fallbacks to dplyr to be needed.
 
 ## How to use duckplyr
 
-To _replace_ dplyr with duckplyr, you can either
+To _replace_ dplyr with duckplyr, you can:
 
-- load duckplyr and then keep your pipeline as is. Calling `library(duckplyr)` overwrites dplyr methods, enabling duckplyr for the entire session no matter how data.frames are created.
+- Load duckplyr and then keep your pipeline as is. Calling `library(duckplyr)` overwrites dplyr methods, enabling duckplyr for the entire session no matter how data.frames are created.
+    This is shown in the example above.
+
+- Create individual "duck frames" using _conversion functions_ like `duckdb_tibble()` or `as_duckdb_tibble()`, or _ingestion functions_ like `read_csv_duckdb()`.
+    Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline.
+    The duckplyr package performs the computation using DuckDB.
+
+    ```{r}
+    # Undo the effect of library(duckplyr)
+    methods_restore()
+
+    out <- babynames |>
+      as_duckdb_tibble() |>
+      mutate(prevalence = if_else(prop >= 0.01, "frequent", "rare")) |>
+      summarize(
+        .by = c(sex, year, prevalence),
+        babies_n = sum(n)
+      ) |>
+      filter(sex == "F")
+    class(out)
+    ```
+
+In both cases, printing the result only shows the first few rows, as with dbplyr.
 
 ```{r}
-library(conflicted)
-library(duckplyr)
-conflict_prefer("filter", "dplyr", quiet = TRUE)
-```
-
-- Create individual "duck frames" which allows you to control their automatic materialization parameters to [protect memory](https://duckplyr.tidyverse.org/articles/prudence.html). To do so, you can use _conversion functions_ like `duckdb_tibble()` or `as_duckdb_tibble()`, or _ingestion functions_ like `read_csv_duckdb()`.
-
-Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline.
-The duckplyr package performs the computation using DuckDB.
-
-```{r}
-library(babynames)
-out <- babynames |>
-  filter(n > 1000) |>
-  summarize(
-    .by = c(sex, year),
-    babies_n = sum(n)
-  ) |>
-  filter(sex == "F")
+out
 ```
 
 The result can finally be materialized to memory, or computed temporarily, or computed to a file.
