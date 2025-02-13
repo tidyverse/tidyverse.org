@@ -3,19 +3,19 @@ output: hugodown::hugo_document
 
 slug: duckplyr-1-0-0
 title: duckplyr fully joins the tidyverse!
-date: 2025-02-11
+date: 2025-02-13
 author: Kirill Müller and Maëlle Salmon
 description: >
-    duckplyr 1.0.0 is on CRAN and part of the tidyverse! duckplyr is a drop-in
-    replacement for dplyr, powered by DuckDB for speed. It is the most dplyr-like
-    of dplyr backends.
+    duckplyr 1.0.0 is on CRAN and part of the tidyverse!
+    A drop-in replacement for dplyr, powered by DuckDB for speed.
+    It is the most dplyr-like of dplyr backends.
 
 photo:
   url: https://www.pexels.com/photo/a-mallard-duck-on-water-6918877/
   author: Kiril Gruev
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
-categories: [package] 
+categories: [package]
 tags:
   - duckplyr
   - dplyr
@@ -35,10 +35,18 @@ TODO:
 * [x] `usethis::use_tidy_thanks()`
 -->
 
-We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0. 
+We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0.
 duckplyr is a drop-in, fully compatible replacement for dplyr, powered by [DuckDB](https://duckdb.org/) for speed.
 It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org).
 You can use it instead of dplyr for data small or large.
+
+<!-- FIXME:
+
+We have many more dplyr backends, the two above are just from the tidyverse.
+GitHub search: https://github.com/search?q=org%3Acran+%2FS3method%5B%28%5D%28mutate%7Csummarise%29+*%2C%2F&type=code
+Do we need an "awesome dplyr" like https://github.com/krlmlr/awesome-vctrs/?
+
+-->
 
 You can install it from CRAN with:
 
@@ -46,96 +54,95 @@ You can install it from CRAN with:
 install.packages("duckplyr")
 ```
 
-In this article, we'll introduce you to the basic concepts behind duckplyr, show how it can help you handle normal sized but also large data, and explain how you can help improve the package.
+In this article, we'll show how duckplyr can help you with data of different size, explain how you can help improve the package, and ... .
 
 ## A drop-in replacement for dplyr
 
 The duckplyr package is a _drop-in replacement for dplyr_ that uses _DuckDB for speed_.
 You can simply _drop_ duckplyr into your pipeline by loading it, then computations will be efficiently carried out by DuckDB.
-DuckDB is a [fast database system](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
+DuckDB is a fast in-memory analytical database system.
+If you haven't heard about it, watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
 
 ```{r}
 library(conflicted)
 library(duckplyr)
 conflict_prefer("filter", "dplyr", quiet = TRUE)
-library("babynames")
-
+library(babynames)
 
 out <- babynames |>
-  filter(n > 1000) |>
+  mutate(prevalence = if_else(prop >= 0.01, "frequent", "rare")) |>
   summarize(
-    .by = c(sex, year),
+    .by = c(sex, year, prevalence),
     babies_n = sum(n)
   ) |>
   filter(sex == "F")
 class(out)
-
+out
 ```
 
 Like with other dplyr backends like dtplyr and dbplyr, duckplyr allows you to get faster results.
 Unlike other dplyr backends, duckplyr does not require you to learn a different syntax.
-
 The duckplyr package is fully compatible with dplyr: if an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr.
-In that case, the operation is not slower than dplyr but not faster either.
-The duckplyr package is actively developed so that over time, we expect fewer and fewer fallbacks to dplyr to be needed.
+Over time, we expect fewer and fewer fallbacks to dplyr to be needed.
 
 ## How to use duckplyr
 
-To _replace_ dplyr with duckplyr, you can either
+To _replace_ dplyr with duckplyr, you can:
 
-- load duckplyr and then keep your pipeline as is. Calling `library(duckplyr)` overwrites dplyr methods, enabling duckplyr for the entire session no matter how data.frames are created.
+- Load duckplyr and then keep your pipeline as is. Calling `library(duckplyr)` overwrites dplyr methods, enabling duckplyr for the entire session no matter how data.frames are created.
+    This is shown in the example above.
+
+- Create individual "duck frames" using _conversion functions_ like `duckdb_tibble()` or `as_duckdb_tibble()`, or _ingestion functions_ like `read_csv_duckdb()`.
+    Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline.
+    The duckplyr package performs the computation using DuckDB.
+
+    ```{r}
+    # Undo the effect of library(duckplyr)
+    methods_restore()
+
+    out <- babynames |>
+      as_duckdb_tibble() |>
+      mutate(prevalence = if_else(prop >= 0.01, "frequent", "rare")) |>
+      summarize(
+        .by = c(sex, year, prevalence),
+        babies_n = sum(n)
+      ) |>
+      filter(sex == "F")
+    class(out)
+    ```
+
+In both cases, printing the result only shows the first few rows, as with dbplyr.
 
 ```{r}
-library(conflicted)
-library(duckplyr)
-conflict_prefer("filter", "dplyr", quiet = TRUE)
-```
-
-- Create individual "duck frames" which allows you to control their automatic materialization parameters to [protect memory](https://duckplyr.tidyverse.org/articles/prudence.html). To do so, you can use _conversion functions_ like `duckdb_tibble()` or `as_duckdb_tibble()`, or _ingestion functions_ like `read_csv_duckdb()`.
-
-Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline.
-The duckplyr package performs the computation using DuckDB.
-
-```{r}
-library("babynames")
-out <- babynames |>
-  filter(n > 1000) |>
-  summarize(
-    .by = c(sex, year),
-    babies_n = sum(n)
-  ) |>
-  filter(sex == "F")
+out
 ```
 
 The result can finally be materialized to memory, or computed temporarily, or computed to a file.
 
 ```{r}
 # to memory
-out
+collect(out)
 
 # to a file
 csv_file <- withr::local_tempfile()
-file.size(csv_file)
 compute_csv(out, csv_file)
-file.size(csv_file)
+fs::file_size(csv_file)
 ```
 
 When duckplyr itself does not support specific functionality, it falls back to dplyr.
-For instance, row names are not supported yet:
+For instance, pivoting is not supported yet, still it works thanks to the fallback mechanism.
 
 ```{r}
-mtcars |>
-  summarize(
-    .by = cyl,
-    disp = mean(disp, na.rm = TRUE),
-    sd = sd(disp, na.rm = TRUE)
-  )
+out |>
+  tidyr::pivot_wider(names_from = prevalence, values_from = babies_n, values_fill = 0L) |>
+  mutate(share_frequent = frequent / (frequent + rare))
 ```
 
-Current limitations are documented in a [vignette](https://duckplyr.tidyverse.org/articles/limits.html).
-You can change the verbosity of fallbacks, refer to [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html).
+For performance reasons, the output order of the result is not guaranteed to be stable.
+If you need a stable order, you can use `arrange()` or force output order stability by setting an environment variable.
+This and other limitations are documented in [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
 
-### For large data
+## Large data
 
 For large data, duckplyr is a legitimate alternative to dtplyr and dbplyr.
 
@@ -144,11 +151,14 @@ With large datasets, you want:
 - input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like `read_parquet_duckdb()`.
 - efficient computation, which duckplyr provides via DuckDB's holistic optimization, without your having to use another syntax than dplyr.
 - the output to not clutter all the memory, which duckplyr supports through two features:
-    - the [control of automatic materialization](https://duckplyr.tidyverse.org/articles/prudence.html) (collection of results into memory) thanks to the `prudence` parameter. You can disable automatic materialization completely or, as a compromise, disable it up to a certain output size.
-    - [computation to files](https://duckplyr.tidyverse.org/reference/compute_file.html) using  `compute_parquet()` or `compute_csv()`.
+    - computation to files using  [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_file.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_file.html).
+    - the control of automatic materialization (collection of results into memory). You can disable automatic materialization completely or, as a compromise, disable it up to a certain output size. See [`vignette("prudence")`](https://duckplyr.tidyverse.org/articles/prudence.html) for details
+
+See [`vignette("large")`](https://duckplyr.tidyverse.org/articles/large.html) for a walkthrough and more details.
 
 A drawback of analyzing large data with duckplyr is that the limitations of duckplyr won't be compensated by fallbacks, since fallbacks to dplyr necessitate putting data into memory.
-Therefore, if your pipeline encounters fallbacks, you might want to work around them by converting the duck frame into a table through `compute()` then running SQL code through the experimental `read_sql_duckdb()` function. Again, over time, we expect more native support for dplyr functionality.
+Therefore, if your pipeline encounters fallbacks, you might want to work around them by converting the duck frame into a table through `compute()` then running SQL code through the experimental `read_sql_duckdb()` function.
+Again, over time, we expect more native support for dplyr functionality.
 
 ```{r}
 data <-
@@ -169,18 +179,46 @@ sql_data
 
 Our goals for future development of duckplyr include:
 
-- Increasing the native support for dplyr functionality;
 - Enabling users to provide [custom translations](https://github.com/tidyverse/duckplyr/issues/158) of dplyr functionality;
-- Making it easier to contribute code to duckplyr.
+- Making it easier to contribute code to duckplyr;
+- Supporting more dplyr and tidyr functionality natively in DuckDB.
 
-You can help! 
+You can help!
 
-- Please report any issue especially regarding unknown incompabilities. See [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
+- Please report any issues, especially regarding unknown incompabilities. See [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
 - Contribute to the codebase after reading duckplyr's [contributing guide](https://duckplyr.tidyverse.org/CONTRIBUTING.html).
 - Turn on telemetry to help us hear about the most frequent fallbacks so we can prioritize working on the corresponding missing dplyr translation. See [`vignette("telemetry")`](https://duckplyr.tidyverse.org/articles/telemetry.html) and the [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html) function.
 
+## How does this even work?
+
+The very tagline of duckplyr, being a drop-in replacement for dplyr that uses DuckDB for speed, creates a tension:
+
+-   When using dplyr, we are not used to explicitly collect results, we simply access them: the data.frames are "eager" by default.
+    Adding a `collect()` step by default would confuse users and make "drop-in replacement" an exaggeration.
+    The collection of results, called materialization, has to be automatic by default.
+    Therefore, _duckplyr needs eagerness_!
+
+-   The whole advantage of using DuckDB under the hood is letting DuckDB optimize computations. This works best if DuckDB sees the entire pipeline.
+    _Therefore, duckplyr needs laziness_!
+
+As a consequence, duckplyr is lazy on the inside for all DuckDB operations but eager on the outside, thanks to [ALTREP](https://duckdb.org/2024/04/02/duckplyr.html#eager-vs-lazy-materialization), a powerful R feature that among other things supports *deferred evaluation*.
+
+> "ALTREP allows R objects to have different in-memory representations, and for custom code to be executed whenever those objects are accessed." Hannes Mühleisen.
+
+If the duckplyr data.frame is accessed by...
+
+-   duckplyr, then the operations continue to be lazy (until a call to `collect.duckplyr_df()` for instance).
+-   not duckplyr (say, ggplot2, `nrow()`, or a dplyr operation not yet supported by duckplyr), then a special callback is executed, allowing materialization of the data frame.
+
+Therefore, duckplyr can be both *lazy* (within itself) and *not lazy* (for the outside world).
+See [`vignette("fallback")`](https://duckplyr.tidyverse.org/articles/fallback.html) for more details.
+
 ## Acknowledgements
 
-A big thanks to all 54 folks who filed issues, created PRs and generally helped to improve duckplyr!
+A big thanks to all folks who filed issues, created PRs and generally helped to improve duckplyr!
 
-[&#x0040;adamschwing](https://github.com/adamschwing), [&#x0040;andreranza](https://github.com/andreranza), [&#x0040;apalacio9502](https://github.com/apalacio9502), [&#x0040;apsteinmetz](https://github.com/apsteinmetz), [&#x0040;barracuda156](https://github.com/barracuda156), [&#x0040;beniaminogreen](https://github.com/beniaminogreen), [&#x0040;bob-rietveld](https://github.com/bob-rietveld), [&#x0040;brichards920](https://github.com/brichards920), [&#x0040;cboettig](https://github.com/cboettig), [&#x0040;davidjayjackson](https://github.com/davidjayjackson), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;Ed2uiz](https://github.com/Ed2uiz), [&#x0040;eitsupi](https://github.com/eitsupi), [&#x0040;era127](https://github.com/era127), [&#x0040;etiennebacher](https://github.com/etiennebacher), [&#x0040;eutwt](https://github.com/eutwt), [&#x0040;fmichonneau](https://github.com/fmichonneau), [&#x0040;github-actions[bot]](https://github.com/github-actions[bot]), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hannes](https://github.com/hannes), [&#x0040;hawkfish](https://github.com/hawkfish), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;JanSulavik](https://github.com/JanSulavik), [&#x0040;JavOrraca](https://github.com/JavOrraca), [&#x0040;jeroen](https://github.com/jeroen), [&#x0040;jhk0530](https://github.com/jhk0530), [&#x0040;joakimlinde](https://github.com/joakimlinde), [&#x0040;JosiahParry](https://github.com/JosiahParry), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;larry77](https://github.com/larry77), [&#x0040;lnkuiper](https://github.com/lnkuiper), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;luisDVA](https://github.com/luisDVA), [&#x0040;maelle](https://github.com/maelle), [&#x0040;math-mcshane](https://github.com/math-mcshane), [&#x0040;meersel](https://github.com/meersel), [&#x0040;multimeric](https://github.com/multimeric), [&#x0040;mytarmail](https://github.com/mytarmail), [&#x0040;nicki-dese](https://github.com/nicki-dese), [&#x0040;PMassicotte](https://github.com/PMassicotte), [&#x0040;prasundutta87](https://github.com/prasundutta87), [&#x0040;rafapereirabr](https://github.com/rafapereirabr), [&#x0040;Robinlovelace](https://github.com/Robinlovelace), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;sparrow925](https://github.com/sparrow925), [&#x0040;stefanlinner](https://github.com/stefanlinner), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;TimTaylor](https://github.com/TimTaylor), [&#x0040;Tmonster](https://github.com/Tmonster), [&#x0040;toppyy](https://github.com/toppyy), [&#x0040;wibeasley](https://github.com/wibeasley), [&#x0040;yjunechoe](https://github.com/yjunechoe), [&#x0040;ywhcuhk](https://github.com/ywhcuhk), and [&#x0040;zhjx19](https://github.com/zhjx19).
+<!-- FIXME: Can we use_tidy_thanks also for the duckdb repo?, and perhaps merge the two? -->
+
+[&#x0040;adamschwing](https://github.com/adamschwing), [&#x0040;andreranza](https://github.com/andreranza), [&#x0040;apalacio9502](https://github.com/apalacio9502), [&#x0040;apsteinmetz](https://github.com/apsteinmetz), [&#x0040;barracuda156](https://github.com/barracuda156), [&#x0040;beniaminogreen](https://github.com/beniaminogreen), [&#x0040;bob-rietveld](https://github.com/bob-rietveld), [&#x0040;brichards920](https://github.com/brichards920), [&#x0040;cboettig](https://github.com/cboettig), [&#x0040;davidjayjackson](https://github.com/davidjayjackson), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;Ed2uiz](https://github.com/Ed2uiz), [&#x0040;eitsupi](https://github.com/eitsupi), [&#x0040;era127](https://github.com/era127), [&#x0040;etiennebacher](https://github.com/etiennebacher), [&#x0040;eutwt](https://github.com/eutwt), [&#x0040;fmichonneau](https://github.com/fmichonneau), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hannes](https://github.com/hannes), [&#x0040;hawkfish](https://github.com/hawkfish), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;JanSulavik](https://github.com/JanSulavik), [&#x0040;JavOrraca](https://github.com/JavOrraca), [&#x0040;jeroen](https://github.com/jeroen), [&#x0040;jhk0530](https://github.com/jhk0530), [&#x0040;joakimlinde](https://github.com/joakimlinde), [&#x0040;JosiahParry](https://github.com/JosiahParry), [&#x0040;larry77](https://github.com/larry77), [&#x0040;lnkuiper](https://github.com/lnkuiper), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;luisDVA](https://github.com/luisDVA), [&#x0040;maelle](https://github.com/maelle), [&#x0040;math-mcshane](https://github.com/math-mcshane), [&#x0040;meersel](https://github.com/meersel), [&#x0040;multimeric](https://github.com/multimeric), [&#x0040;mytarmail](https://github.com/mytarmail), [&#x0040;nicki-dese](https://github.com/nicki-dese), [&#x0040;PMassicotte](https://github.com/PMassicotte), [&#x0040;prasundutta87](https://github.com/prasundutta87), [&#x0040;rafapereirabr](https://github.com/rafapereirabr), [&#x0040;Robinlovelace](https://github.com/Robinlovelace), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;sparrow925](https://github.com/sparrow925), [&#x0040;stefanlinner](https://github.com/stefanlinner), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;TimTaylor](https://github.com/TimTaylor), [&#x0040;Tmonster](https://github.com/Tmonster), [&#x0040;toppyy](https://github.com/toppyy), [&#x0040;wibeasley](https://github.com/wibeasley), [&#x0040;yjunechoe](https://github.com/yjunechoe), [&#x0040;ywhcuhk](https://github.com/ywhcuhk), and [&#x0040;zhjx19](https://github.com/zhjx19).
+
+Special thanks to Joe Thorley ([&#x0040;joethorley](https://github.com/joethorley)) for help with choosing the right words.
