@@ -3,24 +3,24 @@ output: hugodown::hugo_document
 
 slug: duckplyr-1-0-0
 title: duckplyr fully joins the tidyverse!
-date: 2025-02-11
+date: 2025-02-13
 author: Kirill Müller and Maëlle Salmon
 description: >
-    duckplyr 1.0.0 is on CRAN and part of the tidyverse! duckplyr is a drop-in
-    replacement for dplyr, powered by DuckDB for speed. It is the most dplyr-like
-    of dplyr backends.
+    duckplyr 1.0.0 is on CRAN and part of the tidyverse!
+    A drop-in replacement for dplyr, powered by DuckDB for speed.
+    It is the most dplyr-like of dplyr backends.
 
 photo:
   url: https://www.pexels.com/photo/a-mallard-duck-on-water-6918877/
   author: Kiril Gruev
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
-categories: [package] 
+categories: [package]
 tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: bc4ad3d08fdee469
+rmd_hash: 5235ed3e5e2f9ed6
 
 ---
 
@@ -39,6 +39,14 @@ TODO:
 
 We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0. duckplyr is a drop-in, fully compatible replacement for dplyr, powered by [DuckDB](https://duckdb.org/) for speed. It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org). You can use it instead of dplyr for data small or large.
 
+<!-- FIXME:
+
+We have many more dplyr backends, the two above are just from the tidyverse.
+GitHub search: https://github.com/search?q=org%3Acran+%2FS3method%5B%28%5D%28mutate%7Csummarise%29+*%2C%2F&type=code
+Do we need an "awesome dplyr" like https://github.com/krlmlr/awesome-vctrs/?
+
+-->
+
 You can install it from CRAN with:
 
 <div class="highlight">
@@ -47,11 +55,11 @@ You can install it from CRAN with:
 
 </div>
 
-In this article, we'll introduce you to the basic concepts behind duckplyr, show how it can help you handle normal sized but also large data, and explain how you can help improve the package.
+In this article, we'll show how duckplyr can help you with data of different size, explain how you can help improve the package, and ... .
 
 ## A drop-in replacement for dplyr
 
-The duckplyr package is a *drop-in replacement for dplyr* that uses *DuckDB for speed*. You can simply *drop* duckplyr into your pipeline by loading it, then computations will be efficiently carried out by DuckDB. DuckDB is a [fast database system](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
+The duckplyr package is a *drop-in replacement for dplyr* that uses *DuckDB for speed*. You can simply *drop* duckplyr into your pipeline by loading it, then computations will be efficiently carried out by DuckDB. DuckDB is a fast in-memory analytical database system[^1].
 
 <div class="highlight">
 
@@ -69,54 +77,90 @@ The duckplyr package is a *drop-in replacement for dplyr* that uses *DuckDB for 
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> Overwriting <span style='color: #0000BB;'>dplyr</span> methods with <span style='color: #0000BB;'>duckplyr</span> methods.</span></span>
 <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Turn off with `duckplyr::methods_restore()`.</span></span>
 <span></span><span><span class='nf'><a href='https://conflicted.r-lib.org/reference/conflict_prefer.html'>conflict_prefer</a></span><span class='o'>(</span><span class='s'>"filter"</span>, <span class='s'>"dplyr"</span>, quiet <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
-<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='s'><a href='https://github.com/hadley/babynames'>"babynames"</a></span><span class='o'>)</span></span>
-<span></span>
+<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/hadley/babynames'>babynames</a></span><span class='o'>)</span></span>
 <span></span>
 <span><span class='nv'>out</span> <span class='o'>&lt;-</span> <span class='nv'>babynames</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>n</span> <span class='o'>&gt;</span> <span class='m'>1000</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>prevalence <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/if_else.html'>if_else</a></span><span class='o'>(</span><span class='nv'>prop</span> <span class='o'>&gt;=</span> <span class='m'>0.01</span>, <span class='s'>"frequent"</span>, <span class='s'>"rare"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span></span>
-<span>    .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>sex</span>, <span class='nv'>year</span><span class='o'>)</span>,</span>
+<span>    .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>sex</span>, <span class='nv'>year</span>, <span class='nv'>prevalence</span><span class='o'>)</span>,</span>
 <span>    babies_n <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>n</span><span class='o'>)</span></span>
 <span>  <span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>sex</span> <span class='o'>==</span> <span class='s'>"F"</span><span class='o'>)</span></span>
 <span><span class='nf'><a href='https://rdrr.io/r/base/class.html'>class</a></span><span class='o'>(</span><span class='nv'>out</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "tbl_df"     "tbl"        "data.frame"</span></span>
+<span></span><span><span class='nv'>out</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 274 × 4</span></span></span>
+<span><span class='c'>#&gt;    sex    year prevalence babies_n</span></span>
+<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> F      <span style='text-decoration: underline;'>1</span>987 frequent     <span style='text-decoration: underline;'>297</span>108</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> F      <span style='text-decoration: underline;'>1</span>989 rare        1<span style='text-decoration: underline;'>532</span>468</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> F      <span style='text-decoration: underline;'>1</span>990 rare        1<span style='text-decoration: underline;'>615</span>554</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> F      <span style='text-decoration: underline;'>1</span>994 frequent     <span style='text-decoration: underline;'>152</span>385</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> F      <span style='text-decoration: underline;'>1</span>997 rare        1<span style='text-decoration: underline;'>591</span>568</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> F      <span style='text-decoration: underline;'>2</span>010 frequent      <span style='text-decoration: underline;'>43</span>544</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> F      <span style='text-decoration: underline;'>1</span>880 frequent      <span style='text-decoration: underline;'>32</span>206</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> F      <span style='text-decoration: underline;'>1</span>881 frequent      <span style='text-decoration: underline;'>30</span>102</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> F      <span style='text-decoration: underline;'>1</span>883 frequent      <span style='text-decoration: underline;'>36</span>753</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> F      <span style='text-decoration: underline;'>1</span>884 frequent      <span style='text-decoration: underline;'>41</span>902</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 264 more rows</span></span></span>
 <span></span></code></pre>
 
 </div>
 
 Like with other dplyr backends like dtplyr and dbplyr, duckplyr allows you to get faster results. Unlike other dplyr backends, duckplyr does not require you to learn a different syntax.
 
-The duckplyr package is fully compatible with dplyr: if an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr. In that case, the operation is not slower than dplyr but not faster either. The duckplyr package is actively developed so that over time, we expect fewer and fewer fallbacks to dplyr to be needed.
+The duckplyr package is fully compatible with dplyr: if an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr. Over time, we expect fewer and fewer fallbacks to dplyr to be needed.
 
 ## How to use duckplyr
 
-To *replace* dplyr with duckplyr, you can either
+To *replace* dplyr with duckplyr, you can:
 
--   load duckplyr and then keep your pipeline as is. Calling [`library(duckplyr)`](https://duckplyr.tidyverse.org) overwrites dplyr methods, enabling duckplyr for the entire session no matter how data.frames are created.
+-   Load duckplyr and then keep your pipeline as is. Calling [`library(duckplyr)`](https://duckplyr.tidyverse.org) overwrites dplyr methods, enabling duckplyr for the entire session no matter how data.frames are created. This is shown in the example above.
 
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://conflicted.r-lib.org/'>conflicted</a></span><span class='o'>)</span></span>
-<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://duckplyr.tidyverse.org'>duckplyr</a></span><span class='o'>)</span></span>
-<span><span class='nf'><a href='https://conflicted.r-lib.org/reference/conflict_prefer.html'>conflict_prefer</a></span><span class='o'>(</span><span class='s'>"filter"</span>, <span class='s'>"dplyr"</span>, quiet <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span></code></pre>
-
-</div>
-
--   Create individual "duck frames" which allows you to control their automatic materialization parameters to [protect memory](https://duckplyr.tidyverse.org/articles/prudence.html). To do so, you can use *conversion functions* like [`duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html) or [`as_duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html), or *ingestion functions* like [`read_csv_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html).
+-   Create individual "duck frames" using *conversion functions* like [`duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html) or [`as_duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html), or *ingestion functions* like [`read_csv_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html).
 
 Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline. The duckplyr package performs the computation using DuckDB.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='s'><a href='https://github.com/hadley/babynames'>"babynames"</a></span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Undo the effect of library(duckplyr)</span></span>
+<span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/methods_overwrite.html'>methods_restore</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Restoring <span style='color: #0000BB;'>dplyr</span> methods.</span></span>
+<span></span><span></span>
 <span><span class='nv'>out</span> <span class='o'>&lt;-</span> <span class='nv'>babynames</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>n</span> <span class='o'>&gt;</span> <span class='m'>1000</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>as_duckdb_tibble</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>prevalence <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/if_else.html'>if_else</a></span><span class='o'>(</span><span class='nv'>prop</span> <span class='o'>&gt;=</span> <span class='m'>0.01</span>, <span class='s'>"frequent"</span>, <span class='s'>"rare"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span></span>
-<span>    .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>sex</span>, <span class='nv'>year</span><span class='o'>)</span>,</span>
+<span>    .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>sex</span>, <span class='nv'>year</span>, <span class='nv'>prevalence</span><span class='o'>)</span>,</span>
 <span>    babies_n <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>n</span><span class='o'>)</span></span>
 <span>  <span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>sex</span> <span class='o'>==</span> <span class='s'>"F"</span><span class='o'>)</span></span></code></pre>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>sex</span> <span class='o'>==</span> <span class='s'>"F"</span><span class='o'>)</span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/base/class.html'>class</a></span><span class='o'>(</span><span class='nv'>out</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] "duckplyr_df" "tbl_df"      "tbl"         "data.frame"</span></span>
+<span></span></code></pre>
+
+</div>
+
+In both cases, printing the result only shows the first few rows, as with dbplyr.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>out</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A duckplyr data frame: 4 variables</span></span></span>
+<span><span class='c'>#&gt;    sex    year prevalence babies_n</span></span>
+<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> F      <span style='text-decoration: underline;'>1</span>998 frequent     <span style='text-decoration: underline;'>127</span>278</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> F      <span style='text-decoration: underline;'>2</span>002 rare        1<span style='text-decoration: underline;'>749</span>505</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> F      <span style='text-decoration: underline;'>2</span>004 rare        1<span style='text-decoration: underline;'>767</span>595</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> F      <span style='text-decoration: underline;'>2</span>005 frequent      <span style='text-decoration: underline;'>44</span>276</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> F      <span style='text-decoration: underline;'>2</span>013 frequent      <span style='text-decoration: underline;'>42</span>149</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> F      <span style='text-decoration: underline;'>2</span>014 rare        1<span style='text-decoration: underline;'>740</span>357</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> F      <span style='text-decoration: underline;'>1</span>889 frequent      <span style='text-decoration: underline;'>52</span>371</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> F      <span style='text-decoration: underline;'>1</span>892 frequent      <span style='text-decoration: underline;'>60</span>860</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> F      <span style='text-decoration: underline;'>1</span>898 frequent      <span style='text-decoration: underline;'>60</span>277</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> F      <span style='text-decoration: underline;'>1</span>900 rare         <span style='text-decoration: underline;'>238</span>062</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ more rows</span></span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -125,72 +169,60 @@ The result can finally be materialized to memory, or computed temporarily, or co
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># to memory</span></span>
-<span><span class='nv'>out</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 138 × 3</span></span></span>
-<span><span class='c'>#&gt;    sex    year babies_n</span></span>
-<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> F      <span style='text-decoration: underline;'>1</span>995  1<span style='text-decoration: underline;'>139</span>006</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> F      <span style='text-decoration: underline;'>1</span>903   <span style='text-decoration: underline;'>152</span>367</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> F      <span style='text-decoration: underline;'>1</span>914   <span style='text-decoration: underline;'>564</span>502</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> F      <span style='text-decoration: underline;'>1</span>916   <span style='text-decoration: underline;'>815</span>256</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> F      <span style='text-decoration: underline;'>1</span>921   <span style='text-decoration: underline;'>980</span>269</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> F      <span style='text-decoration: underline;'>1</span>935   <span style='text-decoration: underline;'>816</span>510</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> F      <span style='text-decoration: underline;'>1</span>943  1<span style='text-decoration: underline;'>133</span>004</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> F      <span style='text-decoration: underline;'>1</span>955  1<span style='text-decoration: underline;'>634</span>537</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> F      <span style='text-decoration: underline;'>1</span>962  1<span style='text-decoration: underline;'>605</span>822</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> F      <span style='text-decoration: underline;'>1</span>973  1<span style='text-decoration: underline;'>047</span>513</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 128 more rows</span></span></span>
-<span></span><span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='o'>(</span><span class='nv'>out</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] 274</span></span>
+<span></span><span><span class='c'># or for instance collect(out)</span></span>
+<span></span>
 <span><span class='c'># to a file</span></span>
 <span><span class='nv'>csv_file</span> <span class='o'>&lt;-</span> <span class='nf'>withr</span><span class='nf'>::</span><span class='nf'><a href='https://withr.r-lib.org/reference/with_tempfile.html'>local_tempfile</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='nf'><a href='https://rdrr.io/r/base/file.info.html'>file.size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] NA</span></span>
-<span></span><span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/compute_file.html'>compute_csv</a></span><span class='o'>(</span><span class='nv'>out</span>, <span class='nv'>csv_file</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A duckplyr data frame: 3 variables</span></span></span>
-<span><span class='c'>#&gt;    sex    year babies_n</span></span>
-<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> FALSE  <span style='text-decoration: underline;'>1</span>995  1<span style='text-decoration: underline;'>139</span>006</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> FALSE  <span style='text-decoration: underline;'>1</span>903   <span style='text-decoration: underline;'>152</span>367</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> FALSE  <span style='text-decoration: underline;'>1</span>914   <span style='text-decoration: underline;'>564</span>502</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> FALSE  <span style='text-decoration: underline;'>1</span>916   <span style='text-decoration: underline;'>815</span>256</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> FALSE  <span style='text-decoration: underline;'>1</span>921   <span style='text-decoration: underline;'>980</span>269</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> FALSE  <span style='text-decoration: underline;'>1</span>935   <span style='text-decoration: underline;'>816</span>510</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> FALSE  <span style='text-decoration: underline;'>1</span>943  1<span style='text-decoration: underline;'>133</span>004</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> FALSE  <span style='text-decoration: underline;'>1</span>955  1<span style='text-decoration: underline;'>634</span>537</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> FALSE  <span style='text-decoration: underline;'>1</span>962  1<span style='text-decoration: underline;'>605</span>822</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> FALSE  <span style='text-decoration: underline;'>1</span>973  1<span style='text-decoration: underline;'>047</span>513</span></span>
+<span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/compute_file.html'>compute_csv</a></span><span class='o'>(</span><span class='nv'>out</span>, <span class='nv'>csv_file</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A duckplyr data frame: 4 variables</span></span></span>
+<span><span class='c'>#&gt;    sex    year prevalence babies_n</span></span>
+<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> FALSE  <span style='text-decoration: underline;'>1</span>992 frequent     <span style='text-decoration: underline;'>197</span>690</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> FALSE  <span style='text-decoration: underline;'>1</span>993 frequent     <span style='text-decoration: underline;'>205</span>151</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> FALSE  <span style='text-decoration: underline;'>1</span>999 rare        1<span style='text-decoration: underline;'>724</span>934</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> FALSE  <span style='text-decoration: underline;'>2</span>000 rare        1<span style='text-decoration: underline;'>746</span>110</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> FALSE  <span style='text-decoration: underline;'>2</span>001 frequent      <span style='text-decoration: underline;'>67</span>931</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> FALSE  <span style='text-decoration: underline;'>2</span>012 frequent      <span style='text-decoration: underline;'>43</span>238</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> FALSE  <span style='text-decoration: underline;'>2</span>015 frequent      <span style='text-decoration: underline;'>40</span>104</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> FALSE  <span style='text-decoration: underline;'>2</span>016 frequent      <span style='text-decoration: underline;'>38</span>798</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> FALSE  <span style='text-decoration: underline;'>1</span>882 rare          <span style='text-decoration: underline;'>74</span>175</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> FALSE  <span style='text-decoration: underline;'>1</span>885 frequent      <span style='text-decoration: underline;'>42</span>428</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ more rows</span></span></span>
-<span></span><span><span class='nf'><a href='https://rdrr.io/r/base/file.info.html'>file.size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 2560</span></span>
+<span></span><span><span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; 6.73K</span></span>
 <span></span></code></pre>
 
 </div>
 
-When duckplyr itself does not support specific functionality, it falls back to dplyr. For instance, row names are not supported yet:
+When duckplyr itself does not support specific functionality, it falls back to dplyr. For instance, filtering on grouped data is not supported yet, still it works thanks to the fallback mechanism.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>mtcars</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span></span>
-<span>    .by <span class='o'>=</span> <span class='nv'>cyl</span>,</span>
-<span>    disp <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>disp</span>, na.rm <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span>,</span>
-<span>    sd <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='o'>(</span><span class='nv'>disp</span>, na.rm <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
-<span>  <span class='o'>)</span></span>
-<span><span class='c'>#&gt; Error processing duckplyr query with DuckDB, falling back to dplyr.</span></span>
-<span><span class='c'>#&gt; <span style='font-weight: bold;'>Caused by error in `duckdb_rel_from_df()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Need data frame without row names to convert to relational, got</span></span>
-<span><span class='c'>#&gt;   character row names.</span></span>
-<span></span><span><span class='c'>#&gt;   cyl     disp sd</span></span>
-<span><span class='c'>#&gt; 1   6 183.3143 NA</span></span>
-<span><span class='c'>#&gt; 2   4 105.1364 NA</span></span>
-<span><span class='c'>#&gt; 3   8 353.1000 NA</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>babynames</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>n</span> <span class='o'>&gt;</span> <span class='m'>10000</span>, .by <span class='o'>=</span> <span class='s'>"name"</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5,844 × 5</span></span></span>
+<span><span class='c'>#&gt;     year sex   name      n   prop</span></span>
+<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span>  <span style='text-decoration: underline;'>1</span>888 F     Mary  <span style='text-decoration: underline;'>11</span>754 0.062<span style='text-decoration: underline;'>0</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span>  <span style='text-decoration: underline;'>1</span>889 F     Mary  <span style='text-decoration: underline;'>11</span>648 0.061<span style='text-decoration: underline;'>6</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span>  <span style='text-decoration: underline;'>1</span>890 F     Mary  <span style='text-decoration: underline;'>12</span>078 0.059<span style='text-decoration: underline;'>9</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span>  <span style='text-decoration: underline;'>1</span>891 F     Mary  <span style='text-decoration: underline;'>11</span>703 0.059<span style='text-decoration: underline;'>5</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span>  <span style='text-decoration: underline;'>1</span>892 F     Mary  <span style='text-decoration: underline;'>13</span>172 0.058<span style='text-decoration: underline;'>6</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span>  <span style='text-decoration: underline;'>1</span>893 F     Mary  <span style='text-decoration: underline;'>12</span>784 0.056<span style='text-decoration: underline;'>8</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span>  <span style='text-decoration: underline;'>1</span>894 F     Mary  <span style='text-decoration: underline;'>13</span>151 0.055<span style='text-decoration: underline;'>7</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span>  <span style='text-decoration: underline;'>1</span>895 F     Mary  <span style='text-decoration: underline;'>13</span>446 0.054<span style='text-decoration: underline;'>4</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span>  <span style='text-decoration: underline;'>1</span>896 F     Mary  <span style='text-decoration: underline;'>13</span>811 0.054<span style='text-decoration: underline;'>8</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span>  <span style='text-decoration: underline;'>1</span>897 F     Mary  <span style='text-decoration: underline;'>13</span>413 0.054<span style='text-decoration: underline;'>0</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 5,834 more rows</span></span></span>
 <span></span></code></pre>
 
 </div>
 
-Current limitations are documented in a [vignette](https://duckplyr.tidyverse.org/articles/limits.html). You can change the verbosity of fallbacks, refer to [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html).
+For performance reasons, the output order of the result is not guaranteed to be stable. If you need a stable order, you can use [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) or force output order stability by setting an environment variable. This and other limitations are documented in [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
 
-### For large data
+## Large data
 
 For large data, duckplyr is a legitimate alternative to dtplyr and dbplyr.
 
@@ -199,8 +231,10 @@ With large datasets, you want:
 -   input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like [`read_parquet_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html).
 -   efficient computation, which duckplyr provides via DuckDB's holistic optimization, without your having to use another syntax than dplyr.
 -   the output to not clutter all the memory, which duckplyr supports through two features:
-    -   the [control of automatic materialization](https://duckplyr.tidyverse.org/articles/prudence.html) (collection of results into memory) thanks to the `prudence` parameter. You can disable automatic materialization completely or, as a compromise, disable it up to a certain output size.
-    -   [computation to files](https://duckplyr.tidyverse.org/reference/compute_file.html) using [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_file.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_file.html).
+    -   computation to files using [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_file.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_file.html).
+    -   the control of automatic materialization (collection of results into memory). You can disable automatic materialization completely or, as a compromise, disable it up to a certain output size. See [`vignette("prudence")`](https://duckplyr.tidyverse.org/articles/prudence.html) for details
+
+See [`vignette("large")`](https://duckplyr.tidyverse.org/articles/large.html) for a walkthrough and more details.
 
 A drawback of analyzing large data with duckplyr is that the limitations of duckplyr won't be compensated by fallbacks, since fallbacks to dplyr necessitate putting data into memory. Therefore, if your pipeline encounters fallbacks, you might want to work around them by converting the duck frame into a table through [`compute()`](https://dplyr.tidyverse.org/reference/compute.html) then running SQL code through the experimental [`read_sql_duckdb()`](https://duckplyr.tidyverse.org/reference/read_sql_duckdb.html) function. Again, over time, we expect more native support for dplyr functionality.
 
@@ -230,19 +264,27 @@ A drawback of analyzing large data with duckplyr is that the limitations of duck
 
 Our goals for future development of duckplyr include:
 
--   Increasing the native support for dplyr functionality;
 -   Enabling users to provide [custom translations](https://github.com/tidyverse/duckplyr/issues/158) of dplyr functionality;
--   Making it easier to contribute code to duckplyr.
+-   Making it easier to contribute code to duckplyr;
+-   Supporting more dplyr and tidyr functionality natively in DuckDB.
 
 You can help!
 
--   Please report any issue especially regarding unknown incompabilities. See [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
+-   Please report any issues, especially regarding unknown incompabilities. See [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
 -   Contribute to the codebase after reading duckplyr's [contributing guide](https://duckplyr.tidyverse.org/CONTRIBUTING.html).
 -   Turn on telemetry to help us hear about the most frequent fallbacks so we can prioritize working on the corresponding missing dplyr translation. See [`vignette("telemetry")`](https://duckplyr.tidyverse.org/articles/telemetry.html) and the [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html) function.
 
-## Acknowledgements
+## Acknowledgements and additional resources
 
-A big thanks to all 54 folks who filed issues, created PRs and generally helped to improve duckplyr!
+A big thanks to all folks who filed issues, created PRs and generally helped to improve duckplyr!
 
-[@adamschwing](https://github.com/adamschwing), [@andreranza](https://github.com/andreranza), [@apalacio9502](https://github.com/apalacio9502), [@apsteinmetz](https://github.com/apsteinmetz), [@barracuda156](https://github.com/barracuda156), [@beniaminogreen](https://github.com/beniaminogreen), [@bob-rietveld](https://github.com/bob-rietveld), [@brichards920](https://github.com/brichards920), [@cboettig](https://github.com/cboettig), [@davidjayjackson](https://github.com/davidjayjackson), [@DavisVaughan](https://github.com/DavisVaughan), [@Ed2uiz](https://github.com/Ed2uiz), [@eitsupi](https://github.com/eitsupi), [@era127](https://github.com/era127), [@etiennebacher](https://github.com/etiennebacher), [@eutwt](https://github.com/eutwt), [@fmichonneau](https://github.com/fmichonneau), [@github-actions\[bot\]](https://github.com/github-actions%5Bbot%5D), [@hadley](https://github.com/hadley), [@hannes](https://github.com/hannes), [@hawkfish](https://github.com/hawkfish), [@IndrajeetPatil](https://github.com/IndrajeetPatil), [@JanSulavik](https://github.com/JanSulavik), [@JavOrraca](https://github.com/JavOrraca), [@jeroen](https://github.com/jeroen), [@jhk0530](https://github.com/jhk0530), [@joakimlinde](https://github.com/joakimlinde), [@JosiahParry](https://github.com/JosiahParry), [@krlmlr](https://github.com/krlmlr), [@larry77](https://github.com/larry77), [@lnkuiper](https://github.com/lnkuiper), [@lorenzwalthert](https://github.com/lorenzwalthert), [@luisDVA](https://github.com/luisDVA), [@maelle](https://github.com/maelle), [@math-mcshane](https://github.com/math-mcshane), [@meersel](https://github.com/meersel), [@multimeric](https://github.com/multimeric), [@mytarmail](https://github.com/mytarmail), [@nicki-dese](https://github.com/nicki-dese), [@PMassicotte](https://github.com/PMassicotte), [@prasundutta87](https://github.com/prasundutta87), [@rafapereirabr](https://github.com/rafapereirabr), [@Robinlovelace](https://github.com/Robinlovelace), [@romainfrancois](https://github.com/romainfrancois), [@sparrow925](https://github.com/sparrow925), [@stefanlinner](https://github.com/stefanlinner), [@thomasp85](https://github.com/thomasp85), [@TimTaylor](https://github.com/TimTaylor), [@Tmonster](https://github.com/Tmonster), [@toppyy](https://github.com/toppyy), [@wibeasley](https://github.com/wibeasley), [@yjunechoe](https://github.com/yjunechoe), [@ywhcuhk](https://github.com/ywhcuhk), and [@zhjx19](https://github.com/zhjx19).
+<!-- FIXME: Can we use_tidy_thanks also for the duckdb repo?, and perhaps merge the two? -->
+
+[@adamschwing](https://github.com/adamschwing), [@andreranza](https://github.com/andreranza), [@apalacio9502](https://github.com/apalacio9502), [@apsteinmetz](https://github.com/apsteinmetz), [@barracuda156](https://github.com/barracuda156), [@beniaminogreen](https://github.com/beniaminogreen), [@bob-rietveld](https://github.com/bob-rietveld), [@brichards920](https://github.com/brichards920), [@cboettig](https://github.com/cboettig), [@davidjayjackson](https://github.com/davidjayjackson), [@DavisVaughan](https://github.com/DavisVaughan), [@Ed2uiz](https://github.com/Ed2uiz), [@eitsupi](https://github.com/eitsupi), [@era127](https://github.com/era127), [@etiennebacher](https://github.com/etiennebacher), [@eutwt](https://github.com/eutwt), [@fmichonneau](https://github.com/fmichonneau), [@hadley](https://github.com/hadley), [@hannes](https://github.com/hannes), [@hawkfish](https://github.com/hawkfish), [@IndrajeetPatil](https://github.com/IndrajeetPatil), [@JanSulavik](https://github.com/JanSulavik), [@JavOrraca](https://github.com/JavOrraca), [@jeroen](https://github.com/jeroen), [@jhk0530](https://github.com/jhk0530), [@joakimlinde](https://github.com/joakimlinde), [@JosiahParry](https://github.com/JosiahParry), [@larry77](https://github.com/larry77), [@lnkuiper](https://github.com/lnkuiper), [@lorenzwalthert](https://github.com/lorenzwalthert), [@luisDVA](https://github.com/luisDVA), [@maelle](https://github.com/maelle), [@math-mcshane](https://github.com/math-mcshane), [@meersel](https://github.com/meersel), [@multimeric](https://github.com/multimeric), [@mytarmail](https://github.com/mytarmail), [@nicki-dese](https://github.com/nicki-dese), [@PMassicotte](https://github.com/PMassicotte), [@prasundutta87](https://github.com/prasundutta87), [@rafapereirabr](https://github.com/rafapereirabr), [@Robinlovelace](https://github.com/Robinlovelace), [@romainfrancois](https://github.com/romainfrancois), [@sparrow925](https://github.com/sparrow925), [@stefanlinner](https://github.com/stefanlinner), [@thomasp85](https://github.com/thomasp85), [@TimTaylor](https://github.com/TimTaylor), [@Tmonster](https://github.com/Tmonster), [@toppyy](https://github.com/toppyy), [@wibeasley](https://github.com/wibeasley), [@yjunechoe](https://github.com/yjunechoe), [@ywhcuhk](https://github.com/ywhcuhk), and [@zhjx19](https://github.com/zhjx19).
+
+Special thanks to Joe Thorley ([@joethorley](https://github.com/joethorley)) for help with choosing the right words.
+
+Eager to learn more about duckplyr -- beside by trying it out yourself? The pkgdown website of duckplyr features several [articles](https://duckplyr.tidyverse.org/articles/). Furthermore, the blog post ["duckplyr: dplyr Powered by DuckDB"](https://duckdb.org/2024/04/02/duckplyr.html) by Hannes Mühleisen provides some context on duckplyr including its inner workings, as also see in a [section](https://blog.r-hub.io/2025/02/13/lazy-meanings/#duckplyr-lazy-evaluation-and-prudence) of the R-hub blog post ["Lazy introduction to laziness in R"](https://blog.r-hub.io/2025/02/13/lazy-meanings/) by Maëlle Salmon, Athanasia Mo Mowinckel and Hannah Frick.
+
+[^1]: If you haven't heard about it, you can watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
 

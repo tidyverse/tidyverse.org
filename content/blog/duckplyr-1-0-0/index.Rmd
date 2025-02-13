@@ -60,8 +60,10 @@ In this article, we'll show how duckplyr can help you with data of different siz
 
 The duckplyr package is a _drop-in replacement for dplyr_ that uses _DuckDB for speed_.
 You can simply _drop_ duckplyr into your pipeline by loading it, then computations will be efficiently carried out by DuckDB.
-DuckDB is a fast in-memory analytical database system.
-If you haven't heard about it, watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
+DuckDB is a fast in-memory analytical database system[^duckdb].
+
+[^duckdb]: If you haven't heard about it, you can watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
+
 
 ```{r}
 library(conflicted)
@@ -82,6 +84,7 @@ out
 
 Like with other dplyr backends like dtplyr and dbplyr, duckplyr allows you to get faster results.
 Unlike other dplyr backends, duckplyr does not require you to learn a different syntax.
+
 The duckplyr package is fully compatible with dplyr: if an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr.
 Over time, we expect fewer and fewer fallbacks to dplyr to be needed.
 
@@ -93,23 +96,25 @@ To _replace_ dplyr with duckplyr, you can:
     This is shown in the example above.
 
 - Create individual "duck frames" using _conversion functions_ like `duckdb_tibble()` or `as_duckdb_tibble()`, or _ingestion functions_ like `read_csv_duckdb()`.
-    Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline.
-    The duckplyr package performs the computation using DuckDB.
 
-    ```{r}
-    # Undo the effect of library(duckplyr)
-    methods_restore()
 
-    out <- babynames |>
-      as_duckdb_tibble() |>
-      mutate(prevalence = if_else(prop >= 0.01, "frequent", "rare")) |>
-      summarize(
-        .by = c(sex, year, prevalence),
-        babies_n = sum(n)
-      ) |>
-      filter(sex == "F")
-    class(out)
-    ```
+Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline.
+The duckplyr package performs the computation using DuckDB.
+
+```{r}
+# Undo the effect of library(duckplyr)
+methods_restore()
+
+out <- babynames |>
+  as_duckdb_tibble() |>
+  mutate(prevalence = if_else(prop >= 0.01, "frequent", "rare")) |>
+  summarize(
+    .by = c(sex, year, prevalence),
+    babies_n = sum(n)
+  ) |>
+  filter(sex == "F")
+class(out)
+```
 
 In both cases, printing the result only shows the first few rows, as with dbplyr.
 
@@ -121,7 +126,8 @@ The result can finally be materialized to memory, or computed temporarily, or co
 
 ```{r}
 # to memory
-collect(out)
+nrow(out)
+# or for instance collect(out)
 
 # to a file
 csv_file <- withr::local_tempfile()
@@ -130,12 +136,11 @@ fs::file_size(csv_file)
 ```
 
 When duckplyr itself does not support specific functionality, it falls back to dplyr.
-For instance, pivoting is not supported yet, still it works thanks to the fallback mechanism.
+For instance, filtering on grouped data is not supported yet, still it works thanks to the fallback mechanism.
 
 ```{r}
-out |>
-  tidyr::pivot_wider(names_from = prevalence, values_from = babies_n, values_fill = 0L) |>
-  mutate(share_frequent = frequent / (frequent + rare))
+babynames |>
+  filter(n > 10000, .by = "name")
 ```
 
 For performance reasons, the output order of the result is not guaranteed to be stable.
@@ -189,31 +194,7 @@ You can help!
 - Contribute to the codebase after reading duckplyr's [contributing guide](https://duckplyr.tidyverse.org/CONTRIBUTING.html).
 - Turn on telemetry to help us hear about the most frequent fallbacks so we can prioritize working on the corresponding missing dplyr translation. See [`vignette("telemetry")`](https://duckplyr.tidyverse.org/articles/telemetry.html) and the [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html) function.
 
-## How does this even work?
-
-The very tagline of duckplyr, being a drop-in replacement for dplyr that uses DuckDB for speed, creates a tension:
-
--   When using dplyr, we are not used to explicitly collect results, we simply access them: the data.frames are "eager" by default.
-    Adding a `collect()` step by default would confuse users and make "drop-in replacement" an exaggeration.
-    The collection of results, called materialization, has to be automatic by default.
-    Therefore, _duckplyr needs eagerness_!
-
--   The whole advantage of using DuckDB under the hood is letting DuckDB optimize computations. This works best if DuckDB sees the entire pipeline.
-    _Therefore, duckplyr needs laziness_!
-
-As a consequence, duckplyr is lazy on the inside for all DuckDB operations but eager on the outside, thanks to [ALTREP](https://duckdb.org/2024/04/02/duckplyr.html#eager-vs-lazy-materialization), a powerful R feature that among other things supports *deferred evaluation*.
-
-> "ALTREP allows R objects to have different in-memory representations, and for custom code to be executed whenever those objects are accessed." Hannes Mühleisen.
-
-If the duckplyr data.frame is accessed by...
-
--   duckplyr, then the operations continue to be lazy (until a call to `collect.duckplyr_df()` for instance).
--   not duckplyr (say, ggplot2, `nrow()`, or a dplyr operation not yet supported by duckplyr), then a special callback is executed, allowing materialization of the data frame.
-
-Therefore, duckplyr can be both *lazy* (within itself) and *not lazy* (for the outside world).
-See [`vignette("fallback")`](https://duckplyr.tidyverse.org/articles/fallback.html) for more details.
-
-## Acknowledgements
+## Acknowledgements and additional resources
 
 A big thanks to all folks who filed issues, created PRs and generally helped to improve duckplyr!
 
@@ -222,3 +203,7 @@ A big thanks to all folks who filed issues, created PRs and generally helped to 
 [&#x0040;adamschwing](https://github.com/adamschwing), [&#x0040;andreranza](https://github.com/andreranza), [&#x0040;apalacio9502](https://github.com/apalacio9502), [&#x0040;apsteinmetz](https://github.com/apsteinmetz), [&#x0040;barracuda156](https://github.com/barracuda156), [&#x0040;beniaminogreen](https://github.com/beniaminogreen), [&#x0040;bob-rietveld](https://github.com/bob-rietveld), [&#x0040;brichards920](https://github.com/brichards920), [&#x0040;cboettig](https://github.com/cboettig), [&#x0040;davidjayjackson](https://github.com/davidjayjackson), [&#x0040;DavisVaughan](https://github.com/DavisVaughan), [&#x0040;Ed2uiz](https://github.com/Ed2uiz), [&#x0040;eitsupi](https://github.com/eitsupi), [&#x0040;era127](https://github.com/era127), [&#x0040;etiennebacher](https://github.com/etiennebacher), [&#x0040;eutwt](https://github.com/eutwt), [&#x0040;fmichonneau](https://github.com/fmichonneau), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hannes](https://github.com/hannes), [&#x0040;hawkfish](https://github.com/hawkfish), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;JanSulavik](https://github.com/JanSulavik), [&#x0040;JavOrraca](https://github.com/JavOrraca), [&#x0040;jeroen](https://github.com/jeroen), [&#x0040;jhk0530](https://github.com/jhk0530), [&#x0040;joakimlinde](https://github.com/joakimlinde), [&#x0040;JosiahParry](https://github.com/JosiahParry), [&#x0040;larry77](https://github.com/larry77), [&#x0040;lnkuiper](https://github.com/lnkuiper), [&#x0040;lorenzwalthert](https://github.com/lorenzwalthert), [&#x0040;luisDVA](https://github.com/luisDVA), [&#x0040;maelle](https://github.com/maelle), [&#x0040;math-mcshane](https://github.com/math-mcshane), [&#x0040;meersel](https://github.com/meersel), [&#x0040;multimeric](https://github.com/multimeric), [&#x0040;mytarmail](https://github.com/mytarmail), [&#x0040;nicki-dese](https://github.com/nicki-dese), [&#x0040;PMassicotte](https://github.com/PMassicotte), [&#x0040;prasundutta87](https://github.com/prasundutta87), [&#x0040;rafapereirabr](https://github.com/rafapereirabr), [&#x0040;Robinlovelace](https://github.com/Robinlovelace), [&#x0040;romainfrancois](https://github.com/romainfrancois), [&#x0040;sparrow925](https://github.com/sparrow925), [&#x0040;stefanlinner](https://github.com/stefanlinner), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;TimTaylor](https://github.com/TimTaylor), [&#x0040;Tmonster](https://github.com/Tmonster), [&#x0040;toppyy](https://github.com/toppyy), [&#x0040;wibeasley](https://github.com/wibeasley), [&#x0040;yjunechoe](https://github.com/yjunechoe), [&#x0040;ywhcuhk](https://github.com/ywhcuhk), and [&#x0040;zhjx19](https://github.com/zhjx19).
 
 Special thanks to Joe Thorley ([&#x0040;joethorley](https://github.com/joethorley)) for help with choosing the right words.
+
+Eager to learn more about duckplyr -- beside by trying it out yourself?
+The pkgdown website of duckplyr features several [articles](https://duckplyr.tidyverse.org/articles/).
+Furthermore, the blog post ["duckplyr: dplyr Powered by DuckDB"](https://duckdb.org/2024/04/02/duckplyr.html) by Hannes Mühleisen provides some context on duckplyr including its inner workings, as also see in a [section](https://blog.r-hub.io/2025/02/13/lazy-meanings/#duckplyr-lazy-evaluation-and-prudence) of the R-hub blog post ["Lazy introduction to laziness in R"](https://blog.r-hub.io/2025/02/13/lazy-meanings/) by Maëlle Salmon, Athanasia Mo Mowinckel and Hannah Frick. 
