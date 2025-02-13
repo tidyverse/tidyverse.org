@@ -70,14 +70,13 @@ conflict_prefer("filter", "dplyr", quiet = TRUE)
 library(babynames)
 
 out <- babynames |>
-  filter(n > 1000) |>
+  mutate(is_frequent = (prop >= 0.01)) |>
   summarize(
-    .by = c(sex, year),
+    .by = c(sex, year, is_frequent),
     babies_n = sum(n)
   ) |>
   filter(sex == "F")
 class(out)
-
 ```
 
 Like with other dplyr backends like dtplyr and dbplyr, duckplyr allows you to get faster results.
