@@ -121,29 +121,26 @@ The result can finally be materialized to memory, or computed temporarily, or co
 
 ```{r}
 # to memory
-out
+collect(out)
 
 # to a file
 csv_file <- withr::local_tempfile()
-file.size(csv_file)
 compute_csv(out, csv_file)
-file.size(csv_file)
+fs::file_size(csv_file)
 ```
 
 When duckplyr itself does not support specific functionality, it falls back to dplyr.
-For instance, row names are not supported yet:
+For instance, pivoting is not supported yet, still it works thanks to the fallback mechanism.
 
 ```{r}
-mtcars |>
-  summarize(
-    .by = cyl,
-    disp = mean(disp, na.rm = TRUE),
-    sd = sd(disp, na.rm = TRUE)
-  )
+out |>
+  tidyr::pivot_wider(names_from = prevalence, values_from = babies_n, values_fill = 0L) |>
+  mutate(share_frequent = frequent / (frequent + rare))
 ```
 
-Current limitations are documented in a [vignette](https://duckplyr.tidyverse.org/articles/limits.html).
-You can change the verbosity of fallbacks, refer to [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html).
+For performance reasons, the output order of the result is not guaranteed to be stable.
+If you need a stable order, you can use `arrange()`.
+Other limitations are documented in [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
 
 ### For large data
 
