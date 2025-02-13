@@ -19,7 +19,7 @@ editor:
   markdown:
     wrap: sentence
     canonical: true
-rmd_hash: 2255e91eba9f7883
+rmd_hash: 135a316e941bab88
 
 ---
 
@@ -40,7 +40,7 @@ Lastly, we'll jump back into Positron. Rather than formatting a single file on s
 
 Throughout the rest of this post you'll learn what a formatter is, why you'd want to use one, and you'll learn a little about how Air decides to format your R code.
 
-Note that Air is still in alpha, so there may be some breaking changes over the next few releases, but we still feel very confident in the current state of Air, and can't wait for you to try it!
+Note that Air is still in alpha, so there may be some breaking changes over the next few releases. We also encourage you to use it in combination with a version control system, like git, so that you can clearly see the changes Air makes. That said, we still feel very confident in the current state of Air, and can't wait for you to try it!
 
 ## Installing Air
 
@@ -50,7 +50,7 @@ If you already know how formatters work and want to jump straight in, follow one
 
 -   For VS Code, Air is [available](https://marketplace.visualstudio.com/items?itemName=Posit.air-vscode) on the VS Code Marketplace as an Extension. Install it from the Extensions pane within VS Code, then read our [VS Code guide](https://posit-dev.github.io/air/editor-vscode.html).
 
--   For RStudio, Air can be set as an external formatter, but you'll need to install the command line tool for Air first. Read our [RStudio guide](https://posit-dev.github.io/air/editor-rstudio.html) to get started.
+-   For RStudio, Air can be set as an external formatter, but you'll need to install the command line tool for Air first. Read our [RStudio guide](https://posit-dev.github.io/air/editor-rstudio.html) to get started. Note that this is an experimental feature on the RStudio side, so the exact setup may change a little until it is fully stabilized.
 
 -   For command line users, Air binaries can be installed using our [standalone installer scripts](https://posit-dev.github.io/air/cli.html).
 
@@ -68,7 +68,7 @@ To open your `settings.json` file, run one of the following from the Command Pal
 
 -   Run `Preferences: Open User Settings (JSON)` to modify global user settings.
 
--   Run `Preferences: Open Workspace Settings (JSON)` to modify project specific settings. You may want to use this if you drop in on multiple projects, but not all of them use Air.
+-   Run `Preferences: Open Workspace Settings (JSON)` to modify project specific settings. You may want to use this instead of setting the user level setting if you drop in on multiple projects, but not all of them use Air. If you work on a project with collaborators, we recommend that you check in these project specific settings to your repository to ensure that every collaborator is using the same formatting settings.
 
 If your preferred editor isn't listed here, but does support the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/), then it is likely that we can add support for Air there as well. Feel free to open an [issue](https://github.com/posit-dev/air/issues)!
 
@@ -284,7 +284,19 @@ The differences get even more drastic if you format entire projects. Formatting 
 
 Over 300x faster!
 
-Out of curiosity, we ran Air over all ~900 R files in base R and it finished in under 2 seconds. We didn't try this with styler :)
+Out of curiosity, we also ran Air over all ~900 R files in base R and it finished in under 2 seconds.
+
+## Wrapping up
+
+By contributing this formatter to the R community, our objective is threefold:
+
+-   Vastly improve your enjoyment of writing well-styled R code by removing the chore of editing whitespace.
+
+-   Reduce friction in collaborative projects by establishing a consistent style once and for all.
+
+-   Improve the overall readability of R code for the community.
+
+We hope that Air will prove to be a valuable companion in your daily workflow!
 
 [^1]: The Shiny team already has a [GitHub Action](https://github.com/rstudio/shiny-workflows/tree/main/format-r-code) to help with this. We will likely work on refining this and incorporating it more officially into an Air or r-lib repository.
 
