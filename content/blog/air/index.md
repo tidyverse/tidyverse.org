@@ -19,7 +19,7 @@ editor:
   markdown:
     wrap: sentence
     canonical: true
-rmd_hash: 135a316e941bab88
+rmd_hash: e3bcbfe8176eabfd
 
 ---
 
@@ -232,15 +232,15 @@ As we've touched on above, Air can be integrated into your IDE to format code on
 
 -   At the command line:
 
-    -   Format entire projects with `air format`
+    -   Format entire projects with `air format .`
 
     -   Set up a git precommit hook to invoke Air before committing
 
 -   In CI:
 
-    -   Check that each PR conforms to formatting standards with `air format --check`[^1]
+    -   Use a GitHub Action to check that each PR conforms to formatting standards with `air format . --check`[^1]
 
-    -   Automatically format each PR by pushing the results of `air format` as a commit
+    -   Use a GitHub Action to automatically format each PR by pushing the results of `air format` as a commit
 
 We don't have guides for all of these use cases yet, but the best place to stay up to date is the [Air website](https://posit-dev.github.io/air/).
 
