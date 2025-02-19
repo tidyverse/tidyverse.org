@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: air
 title: Air, an extremely fast R formatter
-date: 2025-02-12
+date: 2025-02-20
 author: Davis Vaughan and Lionel Henry
 description: >
     We are thrilled to announce Air, a new R formatter.
@@ -19,7 +19,7 @@ editor:
   markdown:
     wrap: sentence
     canonical: true
-rmd_hash: e3bcbfe8176eabfd
+rmd_hash: 2dfff01bd0ae119a
 
 ---
 
@@ -37,6 +37,8 @@ Lastly, we'll jump back into Positron. Rather than formatting a single file on s
 
 <video controls autoplay loop muted width="100%" src="video/project.mov" style="border: 2px solid #CCC;">
 </video>
+
+Within the tidyverse, we're already using Air in some of our largest packages, like [dplyr](https://github.com/tidyverse/dplyr/pull/7662), [tidyr](https://github.com/tidyverse/tidyr/pull/1591), and [recipes](https://github.com/tidymodels/recipes/pull/1425).
 
 Throughout the rest of this post you'll learn what a formatter is, why you'd want to use one, and you'll learn a little about how Air decides to format your R code.
 
