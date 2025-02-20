@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: 88ce5c433832d52a
+rmd_hash: 332a2beadebaecaf
 
 ---
 
@@ -153,9 +153,6 @@ To *replace* dplyr with duckplyr, you can:
 Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline. The duckplyr package performs the computation using DuckDB.
 
 <div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Restoring <span style='color: #0000BB;'>dplyr</span> methods.</span></span>
-<span></span></code></pre>
 
 </div>
 
@@ -307,8 +304,8 @@ And now we compare the two:
 <span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 6</span></span></span>
 <span><span class='c'>#&gt;   expression                   min   median `itr/sec` mem_alloc `gc/sec`</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>              <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:byt&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem)       1.74s    1.74s     0.576   878.6MB     1.15</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem) 243.83ms 245.36ms     4.07     94.2KB     0</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem)       1.76s    1.76s     0.568   878.6MB     1.14</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem) 245.94ms 252.72ms     3.96     94.2KB     0</span></span>
 <span></span></code></pre>
 
 </div>
