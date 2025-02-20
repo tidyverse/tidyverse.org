@@ -35,8 +35,8 @@ TODO:
 * [x] `usethis::use_tidy_thanks()`
 -->
 
-We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0, 
-a package powered by [DuckDB](https://duckdb.org/).
+We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0.
+This is a new dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^duckdb].
 It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org).
 You can use it instead of dplyr for data small or large.
 
@@ -101,9 +101,12 @@ out
 ```
 
 Like with other dplyr backends like dtplyr and dbplyr, duckplyr allows you to get faster results without learning a different syntax.
+Unlike other dplyr backends, duckplyr does not require you to change existing code or learn specific idiosyncracies.
+Not only is the syntax the same, the semantics are too!
 
 The duckplyr package is fully compatible with dplyr: if an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr.
 Over time, we expect fewer and fewer fallbacks to dplyr to be needed.
+
 
 ## How to use duckplyr
 
@@ -144,7 +147,6 @@ out <- lineitem |>
   arrange(l_returnflag, l_linestatus)
 ```
 
-In both cases, printing the result only shows the first few rows, as with dbplyr.
 The result can finally be materialized to memory, or computed temporarily, or computed to a file.
 
 ```{r}
@@ -158,7 +160,7 @@ compute_csv(out, csv_file)
 fs::file_size(csv_file)
 ```
 
-When duckplyr itself does not support specific functionality, it falls back to dplyr.
+Operations not yet supported by duckplyr are automatically outsourced to dplyr.
 For instance, filtering on grouped data is not supported yet, still it works thanks to the fallback mechanism.
 
 ```{r}
@@ -236,19 +238,22 @@ bench::mark(
 ```
 
 In this benchmark, the pipeline run with duckplyr is clearly faster than the pipeline run with dplyr.
+Start using duckplyr today by attaching it and running your existing dplyr code.
+Many operations will be carried out with DuckDB, faster than with dplyr.
 
 ## Data larger than memory
 
 For data larger than memory, duckplyr is a legitimate alternative to dtplyr and dbplyr.
 
-With large datasets, you want:
+With datasets that approach or surpass the size of your machine's RAM, you want:
 
 - input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like `read_parquet_duckdb()`.
-- efficient computation, which duckplyr provides via DuckDB's holistic optimization, without your having to use another syntax than dplyr.
+- efficient computation, which duckplyr provides via DuckDB's holistic optimization, without your having to adapt your code.
 - the output to not clutter all the memory, which duckplyr supports through two features:
     - computation to files using  [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_file.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_file.html).
     - the control of automatic materialization (collection of results into memory). You can disable automatic materialization completely or, as a compromise, disable it up to a certain output size. See [`vignette("prudence")`](https://duckplyr.tidyverse.org/articles/prudence.html) for details.
 
+This workflow is fully supported by duckplyr.
 See [`vignette("large")`](https://duckplyr.tidyverse.org/articles/large.html) for a walkthrough and more details.
 
 ## Help us improve duckplyr!

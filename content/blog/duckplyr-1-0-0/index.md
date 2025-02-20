@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: 7772821fad718d12
+rmd_hash: 25ec6beea6aeb056
 
 ---
 
@@ -37,7 +37,7 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0, a package powered by [DuckDB](https://duckdb.org/). It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org). You can use it instead of dplyr for data small or large.
+We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0. This is a new dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^1]. It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org). You can use it instead of dplyr for data small or large.
 
 <!-- FIXME:
 
@@ -88,7 +88,7 @@ Imagine you have to wrangle a huge dataset. Here we generate one using the [data
 
 </div>
 
-We could transform the data using dplyr but we could also transform it using a tool that'll scale well to ever larger data, using duckplyr. The duckplyr package is a *drop-in replacement for dplyr* that uses *DuckDB for speed*. You can simply *drop* duckplyr into your pipeline by loading it, then computations will be efficiently carried out by DuckDB. DuckDB is a fast in-memory analytical database system[^1].
+We could transform the data using dplyr but we could also transform it using a tool that'll scale well to ever larger data, using duckplyr. The duckplyr package is a *drop-in replacement for dplyr* that uses *DuckDB for speed*. You can simply *drop* duckplyr into your pipeline by loading it, then computations will be efficiently carried out by DuckDB. DuckDB is a fast in-memory analytical database system[^2].
 
 Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but execute it with duckplyr.
 
@@ -138,7 +138,7 @@ Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but ex
 
 </div>
 
-Like with other dplyr backends like dtplyr and dbplyr, duckplyr allows you to get faster results without learning a different syntax.
+Like with other dplyr backends like dtplyr and dbplyr, duckplyr allows you to get faster results without learning a different syntax. Unlike other dplyr backends, duckplyr does not require you to change existing code or learn specific idiosyncracies. Not only is the syntax the same, the semantics are too!
 
 The duckplyr package is fully compatible with dplyr: if an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr. Over time, we expect fewer and fewer fallbacks to dplyr to be needed.
 
@@ -181,7 +181,7 @@ Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipel
 
 </div>
 
-In both cases, printing the result only shows the first few rows, as with dbplyr. The result can finally be materialized to memory, or computed temporarily, or computed to a file.
+The result can finally be materialized to memory, or computed temporarily, or computed to a file.
 
 <div class="highlight">
 
@@ -203,12 +203,12 @@ In both cases, printing the result only shows the first few rows, as with dbplyr
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 4 more variables: avg_qty &lt;dbl&gt;, avg_price &lt;dbl&gt;, avg_disc &lt;dbl&gt;,</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>#   count_order &lt;dbl&gt;</span></span></span>
 <span></span><span><span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; 647</span></span>
+<span><span class='c'>#&gt; 652</span></span>
 <span></span></code></pre>
 
 </div>
 
-When duckplyr itself does not support specific functionality, it falls back to dplyr. For instance, filtering on grouped data is not supported yet, still it works thanks to the fallback mechanism.
+Operations not yet supported by duckplyr are automatically outsourced to dplyr. For instance, filtering on grouped data is not supported yet, still it works thanks to the fallback mechanism.
 
 <div class="highlight">
 
@@ -307,27 +307,27 @@ And now we compare the two:
 <span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 6</span></span></span>
 <span><span class='c'>#&gt;   expression                   min   median `itr/sec` mem_alloc `gc/sec`</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>              <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:byt&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem)       1.76s    1.76s     0.567   878.6MB     1.13</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem)  247.4ms 250.06ms     4.00     94.2KB     0</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem)       943ms    943ms      1.06   878.6MB     1.06</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem)    248ms    249ms      4.02    94.2KB     0</span></span>
 <span></span></code></pre>
 
 </div>
 
-In this benchmark, the pipeline run with duckplyr is clearly faster than the pipeline run with dplyr.
+In this benchmark, the pipeline run with duckplyr is clearly faster than the pipeline run with dplyr. Start using duckplyr today by attaching it and running your existing dplyr code. Many operations will be carried out with DuckDB, faster than with dplyr.
 
 ## Data larger than memory
 
 For data larger than memory, duckplyr is a legitimate alternative to dtplyr and dbplyr.
 
-With large datasets, you want:
+With datasets that approach or surpass the size of your machine's RAM, you want:
 
 -   input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like [`read_parquet_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html).
--   efficient computation, which duckplyr provides via DuckDB's holistic optimization, without your having to use another syntax than dplyr.
+-   efficient computation, which duckplyr provides via DuckDB's holistic optimization, without your having to adapt your code.
 -   the output to not clutter all the memory, which duckplyr supports through two features:
     -   computation to files using [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_file.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_file.html).
     -   the control of automatic materialization (collection of results into memory). You can disable automatic materialization completely or, as a compromise, disable it up to a certain output size. See [`vignette("prudence")`](https://duckplyr.tidyverse.org/articles/prudence.html) for details.
 
-See [`vignette("large")`](https://duckplyr.tidyverse.org/articles/large.html) for a walkthrough and more details.
+This workflow is fully supported by duckplyr. See [`vignette("large")`](https://duckplyr.tidyverse.org/articles/large.html) for a walkthrough and more details.
 
 ## Help us improve duckplyr!
 
@@ -356,4 +356,6 @@ Special thanks to Joe Thorley ([@joethorley](https://github.com/joethorley)) for
 Eager to learn more about duckplyr -- beside by trying it out yourself? The pkgdown website of duckplyr features several [articles](https://duckplyr.tidyverse.org/articles/). Furthermore, the blog post ["duckplyr: dplyr Powered by DuckDB"](https://duckdb.org/2024/04/02/duckplyr.html) by Hannes Mühleisen provides some context on duckplyr including its inner workings, as also seen in a [section](https://blog.r-hub.io/2025/02/13/lazy-meanings/#duckplyr-lazy-evaluation-and-prudence) of the R-hub blog post ["Lazy introduction to laziness in R"](https://blog.r-hub.io/2025/02/13/lazy-meanings/) by Maëlle Salmon, Athanasia Mo Mowinckel and Hannah Frick.
 
 [^1]: If you haven't heard about it, you can watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
+
+[^2]: If you haven't heard about it, you can watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
 
