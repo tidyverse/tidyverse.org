@@ -97,6 +97,7 @@ out <- lineitem |>
     .by = c(l_returnflag, l_linestatus)
   ) |>
   arrange(l_returnflag, l_linestatus)
+out
 ```
 
 Like with other dplyr backends like dtplyr and dbplyr, duckplyr allows you to get faster results without learning a different syntax.
@@ -144,11 +145,6 @@ out <- lineitem |>
 ```
 
 In both cases, printing the result only shows the first few rows, as with dbplyr.
-
-```{r}
-out
-```
-
 The result can finally be materialized to memory, or computed temporarily, or computed to a file.
 
 ```{r}
@@ -176,6 +172,68 @@ lineitem |>
 For performance reasons, the output order of the result is not guaranteed to be stable.
 If you need a stable order, you can use `arrange()` or force output order stability by setting an environment variable.
 This and other limitations are documented in [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
+
+Using duckplyr is faster than using dplyr.
+Below we compare the same pipeline, "TPC-H benchmark query 1", with dplyr and duckplyr.
+
+Here is the function that runs the pipeline with dplyr.
+
+```{r}
+tpch_dplyr <- function(lineitem) {
+  lineitem |>
+    select(l_shipdate, l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
+    filter(l_shipdate <= !!as.Date("1998-09-02")) |>
+    select(l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
+    summarise(
+      sum_qty = sum(l_quantity),
+      sum_base_price = sum(l_extendedprice),
+      sum_disc_price = sum(l_extendedprice * (1 - l_discount)),
+      sum_charge = sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)),
+      avg_qty = mean(l_quantity),
+      avg_price = mean(l_extendedprice),
+      avg_disc = mean(l_discount),
+      count_order = n(),
+      .by = c(l_returnflag, l_linestatus)
+    ) |>
+    arrange(l_returnflag, l_linestatus) 
+}
+```
+
+Here is the function that runs it with duckplyr. 
+The only differences are the lines `duckplyr::as_duckdb_tibble()` and `collect()` (for ensuring materialization otherwise the comparison isn't fair).
+
+```{r}
+tpch_duckplyr <- function(lineitem) {
+  lineitem |>
+    duckplyr::as_duckdb_tibble() |> # difference 1/2
+    select(l_shipdate, l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
+    filter(l_shipdate <= !!as.Date("1998-09-02")) |>
+    select(l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
+    summarise(
+      sum_qty = sum(l_quantity),
+      sum_base_price = sum(l_extendedprice),
+      sum_disc_price = sum(l_extendedprice * (1 - l_discount)),
+      sum_charge = sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)),
+      avg_qty = mean(l_quantity),
+      avg_price = mean(l_extendedprice),
+      avg_disc = mean(l_discount),
+      count_order = n(),
+      .by = c(l_returnflag, l_linestatus)
+    ) |>
+    arrange(l_returnflag, l_linestatus) |>
+    collect() # difference 2/2
+}
+```
+
+And now we compare the two:
+
+```{r}
+bench::mark(
+  tpch_dplyr(lineitem),
+  tpch_duckplyr(lineitem),
+  check = ~ all.equal(.x, .y, tolerance = 1e-10)
+)
+```
 
 ## Data larger than memory
 
