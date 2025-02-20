@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: 547e1120b3daa6c6
+rmd_hash: 7772821fad718d12
 
 ---
 
@@ -55,7 +55,7 @@ You can install it from CRAN with:
 
 </div>
 
-In this article, we'll show how duckplyr can help you with data of different size, explain how you can help improve the package, and ... .
+In this article, we'll show how duckplyr can help you with data of different size, and explain how you can help improve the package.
 
 ## A drop-in replacement for dplyr
 
@@ -203,7 +203,7 @@ In both cases, printing the result only shows the first few rows, as with dbplyr
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 4 more variables: avg_qty &lt;dbl&gt;, avg_price &lt;dbl&gt;, avg_disc &lt;dbl&gt;,</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>#   count_order &lt;dbl&gt;</span></span></span>
 <span></span><span><span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; 652</span></span>
+<span><span class='c'>#&gt; 647</span></span>
 <span></span></code></pre>
 
 </div>
@@ -307,11 +307,13 @@ And now we compare the two:
 <span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 6</span></span></span>
 <span><span class='c'>#&gt;   expression                   min   median `itr/sec` mem_alloc `gc/sec`</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>              <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:byt&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem)       1.95s    1.95s     0.514   878.6MB     1.03</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem) 537.78ms 537.78ms     1.86     94.2KB     0</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem)       1.76s    1.76s     0.567   878.6MB     1.13</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem)  247.4ms 250.06ms     4.00     94.2KB     0</span></span>
 <span></span></code></pre>
 
 </div>
+
+In this benchmark, the pipeline run with duckplyr is clearly faster than the pipeline run with dplyr.
 
 ## Data larger than memory
 
