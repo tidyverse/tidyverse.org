@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: d138d78f9a4a441c
+rmd_hash: 547e1120b3daa6c6
 
 ---
 
@@ -203,7 +203,7 @@ In both cases, printing the result only shows the first few rows, as with dbplyr
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 4 more variables: avg_qty &lt;dbl&gt;, avg_price &lt;dbl&gt;, avg_disc &lt;dbl&gt;,</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>#   count_order &lt;dbl&gt;</span></span></span>
 <span></span><span><span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; 650</span></span>
+<span><span class='c'>#&gt; 652</span></span>
 <span></span></code></pre>
 
 </div>
@@ -307,8 +307,8 @@ And now we compare the two:
 <span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 6</span></span></span>
 <span><span class='c'>#&gt;   expression                   min   median `itr/sec` mem_alloc `gc/sec`</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>              <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:byt&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem)       1.69s    1.69s     0.591   878.6MB     1.18</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem) 242.07ms 243.75ms     4.09     94.2KB     0</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem)       1.95s    1.95s     0.514   878.6MB     1.03</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem) 537.78ms 537.78ms     1.86     94.2KB     0</span></span>
 <span></span></code></pre>
 
 </div>
@@ -326,30 +326,6 @@ With large datasets, you want:
     -   the control of automatic materialization (collection of results into memory). You can disable automatic materialization completely or, as a compromise, disable it up to a certain output size. See [`vignette("prudence")`](https://duckplyr.tidyverse.org/articles/prudence.html) for details.
 
 See [`vignette("large")`](https://duckplyr.tidyverse.org/articles/large.html) for a walkthrough and more details.
-
-A drawback of analyzing data larger than memory with duckplyr is that the limitations of duckplyr won't be compensated by fallbacks, since fallbacks to dplyr necessitate putting data into memory. Therefore, if your pipeline encounters fallbacks, you might want to work around them by converting the duck frame into a table through [`compute()`](https://dplyr.tidyverse.org/reference/compute.html) then running SQL code through the experimental [`read_sql_duckdb()`](https://duckplyr.tidyverse.org/reference/read_sql_duckdb.html) function. Again, over time, we expect more native support for dplyr functionality.
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>data</span> <span class='o'>&lt;-</span></span>
-<span>  <span class='nf'><a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>duckdb_tibble</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>b <span class='o'>=</span> <span class='m'>3</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nv'>computed_data</span> <span class='o'>&lt;-</span></span>
-<span>  <span class='nv'>data</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/compute.html'>compute</a></span><span class='o'>(</span>name <span class='o'>=</span> <span class='s'>"computed_data"</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nv'>sql_data</span> <span class='o'>&lt;-</span></span>
-<span>  <span class='nf'><a href='https://duckplyr.tidyverse.org/reference/read_sql_duckdb.html'>read_sql_duckdb</a></span><span class='o'>(</span><span class='s'>"SELECT *, a * b AS c FROM computed_data"</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nv'>sql_data</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A duckplyr data frame: 3 variables</span></span></span>
-<span><span class='c'>#&gt;       a     b     c</span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>     2     3     6</span></span>
-<span></span></code></pre>
-
-</div>
 
 ## Help us improve duckplyr!
 
