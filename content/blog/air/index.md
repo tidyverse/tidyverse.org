@@ -19,7 +19,7 @@ editor:
   markdown:
     wrap: sentence
     canonical: true
-rmd_hash: 89a3b17dfcbb27e9
+rmd_hash: bbeaded2c01fe63b
 
 ---
 
@@ -42,7 +42,7 @@ Within the tidyverse, we're already using Air in some of our largest packages, l
 
 Throughout the rest of this post you'll learn what a formatter is, why you'd want to use one, and you'll learn a little about how Air decides to format your R code.
 
-Note that Air is still in alpha, so there may be some breaking changes over the next few releases. We also encourage you to use it in combination with a version control system, like git, so that you can clearly see the changes Air makes. That said, we still feel very confident in the current state of Air, and can't wait for you to try it!
+Note that Air is still in beta, so there may be some breaking changes over the next few releases. We also encourage you to use it in combination with a version control system, like git, so that you can clearly see the changes Air makes. That said, we still feel very confident in the current state of Air, and can't wait for you to try it!
 
 ## Installing Air
 
