@@ -220,29 +220,16 @@ tpch_dplyr <- function(lineitem) {
 }
 ```
 
-Here is the function that runs it with duckplyr. 
-The only differences are the lines `duckplyr::as_duckdb_tibble()` and `collect()` (for ensuring materialization otherwise the comparison isn't fair).
+Here is the function that runs it with duckplyr.
+We can use exactly the same code (by forwarding to the dplyr function) and only need to change the input data to a duck frame.
+The `collect()` at the end ensures materialization, otherwise the comparison isn't fair.
 
 ```{r}
 tpch_duckplyr <- function(lineitem) {
   lineitem |>
-    duckplyr::as_duckdb_tibble() |> # difference 1/2
-    select(l_shipdate, l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
-    filter(l_shipdate <= !!as.Date("1998-09-02")) |>
-    select(l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
-    summarise(
-      sum_qty = sum(l_quantity),
-      sum_base_price = sum(l_extendedprice),
-      sum_disc_price = sum(l_extendedprice * (1 - l_discount)),
-      sum_charge = sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)),
-      avg_qty = mean(l_quantity),
-      avg_price = mean(l_extendedprice),
-      avg_disc = mean(l_discount),
-      count_order = n(),
-      .by = c(l_returnflag, l_linestatus)
-    ) |>
-    arrange(l_returnflag, l_linestatus) |>
-    collect() # difference 2/2
+    duckplyr::as_duckdb_tibble() |>
+    tpch_dplyr() |>
+    collect()
 }
 ```
 
