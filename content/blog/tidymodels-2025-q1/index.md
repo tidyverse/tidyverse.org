@@ -1,0 +1,145 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-2025-q1
+title: Q1 2025 tidymodels digest
+date: 2025-02-25
+author: Max Kuhn
+description: >
+    A summary of the goings on for the tidymodels group in later 2024 and early 2025.
+
+photo:
+  author: George Stage and Max Kuhn
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [roundup] 
+tags: [tidymodels]
+---
+
+<!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We've sent a steady stream of tidymodels packages to CRAN recently. We usually release them in batches since many of our packages are tightly coupled with one another. Internally, this process is referred to as the "cascade" of CRAN submissions.  
+
+The post will update you on which packages have changed and the major improvements you should know. 
+
+Here's a list of the packages and their News sections: 
+
+- [baguette](https://baguette.tidymodels.org/news/index.html)
+- [brulee](https://brulee.tidymodels.org/news/index.html)
+- [censored](https://censored.tidymodels.org/news/index.html)
+- [dials](https://dials.tidymodels.org/news/index.html)
+- [hardhat](https://hardhat.tidymodels.org/news/index.html)
+- [orbital](https://orbital.tidymodels.org/news/index.html)
+- [parsnip](https://parsnip.tidymodels.org/news/index.html)
+- [recipes](https://recipes.tidymodels.org/news/index.html)
+- [tune](https://tune.tidymodels.org/news/index.html)
+- [workflows](https://workflows.tidymodels.org/news/index.html)
+
+Let's look at a few specific updates.
+
+## Improvements in errors and warnings
+
+A group effort was made to improve our error and warning messages across many packages. This started with an internal “upkeep week” (which ended up being 3-4 weeks) and concluded at the [Tidy Dev Day in Seattle](https://www.tidyverse.org/blog/2024/04/tdd-2024/) after Posit conf.  
+
+The goal was to use new tools in the cli and rlang packages to make messages more informative than they used to be. For example, using 
+
+```r
+tidy(pca_extract_trained, number = 3, type = "variances")
+```
+
+used to result in the error message 
+
+```
+Error in `match.arg()`:
+! 'arg' should be one of "coef", "variance"
+```
+
+The new system references the function that you called and not the underlying base R function (and also suggests a solution): 
+
+```
+Error in `tidy()`:
+! `type` must be one of "coef" or "variance", not "variances".
+i Did you mean "variance"?
+```      
+
+The rlang package created a set of standalone files that contain high-quality type checkers and related functions. This also improves the information that users get from an error. For example, using a based formula value in `fit(linear_reg(), "boop", mtcars)`, the old message was: 
+
+```
+Error in `fit()`:
+! The `formula` argument must be a formula, but it is a <character>.
+```
+
+and now you see
+
+```
+Error in `fit()`:
+! `formula` must be a formula, not the string "boop".
+```
+
+This was _a lot_ of work and still isn’t finished. Two events helped us get as far as we did. 
+
+First, Simon Couch made the [chores](https://simonpcouch.github.io/chores/) package (its previous name was “pal”), which enabled us to use AI tools to solve small-scope problems, such as converting old rlang error code to use the new cli syntax. I can’t overestimate how much of a speed-up this was for us. 
+
+Second, at developer day, many external folks pitched in to make pull requests from a list of issues:
+
+<div class="figure" style="text-align: center">
+<img src="IMG_4743.jpeg" alt="Organizing Tidy Dev Day issues."  />
+<p class="caption">Organizing Tidy Dev Day issues.</p>
+</div>
+
+I love these sessions for many reasons, but mostly because we meet users and contributors to our packages in person and work with them on specific tasks. 
+
+There is a lot more to do here; we have a lot of secondary packages that would benefit from these improvements too. 
+
+## parsnip
+
+One big update in parsnip was a new modeling mode of `"quantile regression"`. Daniel McDonald and Ryan Tibshirani largely drove the motive for this for their work in disease modeling. The mode does not have many engines yet. We need to implement some performance statistics in the yardstick package before integrating these models into the whole tidymodels ecosystem. 
+
+For now, you can generate quantile predictions using: 
+
+
+We’ve added some additional neural network models based on some improvements in the brulee package. Namely, two-layer networks can be tuned for feed-forward networks on tabular data (using torch). 
+
+One improvement that has been simmering for a long time is the ability to exploit sparse data structures better. We’ve improved our `fit()` interfaces for the few model engines that can use sparsely encoded data. There is much more to come on this in a few months, especially around recipes, so stay tuned. 
+
+Finally, we’ve created a set of [checklists](https://parsnip.tidymodels.org/articles/checklists.html) that can be used when creating new models or engines. These are very helpful, even for us, since there is a lot of minutiae to remember. 
+
+## tune
+
+This was a small maintenance release mostly related to parallel processing. At the start, tidymodels facilitated parallelism using the [foreach](https://cran.r-project.org/package=foreach) package. That package is mature but not actively developed, so we have been slowly moving toward using the [future](https://www.futureverse.org/packages-overview.html) package(s). 
+
+The [first step in this journey](http://localhost:1313/blog/2024/04/tune-1-2-0/#modernized-support-for-parallel-processing) was to keep using foreach internally (but lean toward future) but to encourage users to move from directly invoking the foreach package and, instead, load and sue the future package. 
+
+We’re now moving folks into the second stage. tune will now raise a warning when:
+
+- A parallel backend has been registered with foreach, and
+- No [`plan()`](https://future.futureverse.org/reference/plan.html) has been specified with future.
+
+This will allow users to transition their existing code to only future and allow us to update existing documentation and training materials. 
+
+We anticipate that the third stage, **removing foreach entirely**, will occur sometime before the 2025 Posit conference in September. 
+
+
+## The next cascade
+
+We are working hard on two major initiatives that we plan on showing off at Posit conf. 
+
+First is integrated support for sparse **data**. The emphasis is on “data” because users can use sparse data frames _or_ the usual sparse matrix format. This is a big deal because it does not force you to convert non-numeric data into a numeric matrix format. Again, we’ll discuss this more in the future, but you should be able to use sparse data frames in parsnip, recipes, tune, etc. 
+
+The second initiative is the longstanding goal of adding **postprocessing** to tidymodels. Just as you can add a preprocessor to a model workflow, you will be able to add a set of postprocessing adjustments to the predictions your model generates. 
+
+These should come to fruition (and CRAN) around August 2025. 
+
+## Acknowledgements
+
