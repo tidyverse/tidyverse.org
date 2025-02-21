@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: 332a2beadebaecaf
+rmd_hash: f69c8c1493849a67
 
 ---
 
@@ -55,7 +55,7 @@ You can install it from CRAN with:
 
 </div>
 
-In this article, we'll show how duckplyr can help you with data of different size, and explain how you can help improve the package.
+This article shows how duckplyr can be used instead of dplyr with data of different size, explain how you can help improve the package, and share a selection of other resources.
 
 ## A drop-in replacement for dplyr
 
@@ -94,8 +94,10 @@ Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but ex
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; </span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://conflicted.r-lib.org/'>conflicted</a></span><span class='o'>)</span></span>
+<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://duckplyr.tidyverse.org'>duckplyr</a></span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; Loading required package: dplyr</span></span>
+<span></span><span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; Attaching package: 'dplyr'</span></span>
 <span></span><span><span class='c'>#&gt; The following objects are masked from 'package:stats':</span></span>
 <span><span class='c'>#&gt; </span></span>
@@ -103,9 +105,7 @@ Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but ex
 <span></span><span><span class='c'>#&gt; The following objects are masked from 'package:base':</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt;     intersect, setdiff, setequal, union</span></span>
-<span></span><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://conflicted.r-lib.org/'>conflicted</a></span><span class='o'>)</span></span>
-<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://duckplyr.tidyverse.org'>duckplyr</a></span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> Overwriting <span style='color: #0000BB;'>dplyr</span> methods with <span style='color: #0000BB;'>duckplyr</span> methods.</span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> Overwriting <span style='color: #0000BB;'>dplyr</span> methods with <span style='color: #0000BB;'>duckplyr</span> methods.</span></span>
 <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Turn off with `duckplyr::methods_restore()`.</span></span>
 <span></span><span><span class='nf'><a href='https://conflicted.r-lib.org/reference/conflict_prefer.html'>conflict_prefer</a></span><span class='o'>(</span><span class='s'>"filter"</span>, <span class='s'>"dplyr"</span>, quiet <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
 <span><span class='nv'>out</span> <span class='o'>&lt;-</span> <span class='nv'>lineitem</span> <span class='o'>|&gt;</span></span>
@@ -152,7 +152,14 @@ To *replace* dplyr with duckplyr, you can:
 
 Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline. The duckplyr package performs the computation using DuckDB.
 
+*We only need the chunk below because we had loaded duckplyr in a previous example.*
+
 <div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Undo the effect of library(duckplyr)</span></span>
+<span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/methods_overwrite.html'>methods_restore</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Restoring <span style='color: #0000BB;'>dplyr</span> methods.</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -200,7 +207,7 @@ The result can finally be materialized to memory, or computed temporarily, or co
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 4 more variables: avg_qty &lt;dbl&gt;, avg_price &lt;dbl&gt;, avg_disc &lt;dbl&gt;,</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>#   count_order &lt;dbl&gt;</span></span></span>
 <span></span><span><span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; 650</span></span>
+<span><span class='c'>#&gt; 653</span></span>
 <span></span></code></pre>
 
 </div>
@@ -209,8 +216,7 @@ Operations not yet supported by duckplyr are automatically outsourced to dplyr. 
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># filter(n == max(n), .by = c(year, sex)</span></span>
-<span><span class='nv'>lineitem</span> <span class='o'>|&gt;</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>lineitem</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'>duckplyr</span><span class='nf'>::</span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>as_duckdb_tibble</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>l_shipdate</span>, <span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span>, <span class='nv'>l_quantity</span>, <span class='nv'>l_extendedprice</span>, <span class='nv'>l_discount</span>, <span class='nv'>l_tax</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>l_quantity</span> <span class='o'>==</span> <span class='nf'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='o'>(</span><span class='nv'>l_quantity</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span><span class='o'>)</span><span class='o'>)</span></span>
@@ -234,8 +240,6 @@ Operations not yet supported by duckplyr are automatically outsourced to dplyr. 
 <span></span></code></pre>
 
 </div>
-
-For performance reasons, the output order of the result is not guaranteed to be stable. If you need a stable order, you can use [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) or force output order stability by setting an environment variable. This and other limitations are documented in [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
 
 Using duckplyr is faster than using dplyr. Below we compare the same pipeline, "TPC-H benchmark query 1", with dplyr and duckplyr.
 
@@ -304,8 +308,8 @@ And now we compare the two:
 <span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 6</span></span></span>
 <span><span class='c'>#&gt;   expression                   min   median `itr/sec` mem_alloc `gc/sec`</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>              <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:byt&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem)       1.76s    1.76s     0.568   878.6MB     1.14</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem) 245.94ms 252.72ms     3.96     94.2KB     0</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem)       892ms    892ms      1.12   878.6MB     1.12</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem)    277ms    284ms      3.52    94.2KB     0</span></span>
 <span></span></code></pre>
 
 </div>
