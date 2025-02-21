@@ -73,9 +73,9 @@ Imagine you have to wrangle a huge dataset.
 Here we generate one using the [data generator from the TPC-H benchmark](https://duckdb.org/2024/04/02/duckplyr.html#benchmark-tpc-h-q1).
 
 ```{r}
-lineitem <- duckdb:::sql("INSTALL tpch; LOAD tpch; CALL dbgen(sf=1); FROM lineitem;")
-lineitem <- tibble::as_tibble(lineitem)
-dplyr::glimpse(lineitem)
+lineitem_tbl <- duckdb:::sql("INSTALL tpch; LOAD tpch; CALL dbgen(sf=1); FROM lineitem;")
+lineitem_tbl <- tibble::as_tibble(lineitem_tbl)
+dplyr::glimpse(lineitem_tbl)
 ```
 
 We could transform the data using dplyr but we could also transform it using a tool that'll scale well to ever larger data: duckplyr.
@@ -96,7 +96,7 @@ library(conflicted)
 library(duckplyr)
 conflict_prefer("filter", "dplyr", quiet = TRUE)
 
-out <- lineitem |>
+out <- lineitem_tbl |>
   select(l_shipdate, l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
   filter(l_shipdate <= !!as.Date("1998-09-02")) |>
   select(l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
@@ -139,7 +139,7 @@ Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipel
 The duckplyr package performs the computation using DuckDB.
 
 ```{r}
-out <- lineitem |>
+out <- lineitem_tbl |>
   duckplyr::as_duckdb_tibble() |> # this is the only change :-)
   select(l_shipdate, l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
   filter(l_shipdate <= !!as.Date("1998-09-02")) |>
@@ -181,7 +181,7 @@ Operations not yet supported by duckplyr are automatically outsourced to dplyr.
 For instance, filtering on grouped data is not supported yet, still it works thanks to the fallback mechanism.
 
 ```{r}
-lineitem |>
+lineitem_tbl |>
   duckplyr::as_duckdb_tibble() |>
   select(l_shipdate, l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
   filter(l_quantity == max(l_quantity), .by = c(l_returnflag, l_linestatus))
@@ -237,8 +237,8 @@ And now we compare the two:
 
 ```{r}
 bench::mark(
-  tpch_dplyr(lineitem),
-  tpch_duckplyr(lineitem),
+  tpch_dplyr(lineitem_tbl),
+  tpch_duckplyr(lineitem_tbl),
   check = ~ all.equal(.x, .y, tolerance = 1e-10)
 )
 ```
