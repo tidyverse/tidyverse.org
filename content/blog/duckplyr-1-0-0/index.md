@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: c2771282fb004cd4
+rmd_hash: c6cb699aa87636af
 
 ---
 
@@ -193,9 +193,8 @@ For programming, the resulting object is indistinguishable from a regular tibble
 <span><span class='c'>#&gt; [1] "list"</span></span>
 <span></span><span><span class='nf'><a href='https://rdrr.io/r/base/class.html'>class</a></span><span class='o'>(</span><span class='nv'>out</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "duckplyr_df" "tbl_df"      "tbl"         "data.frame"</span></span>
-<span></span><span><span class='nv'>out</span><span class='o'>$</span><span class='nv'>year</span><span class='o'>[</span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span><span class='o'>]</span></span>
-<span><span class='c'>#&gt; Warning: Unknown or uninitialised column: `year`.</span></span>
-<span></span><span><span class='c'>#&gt; NULL</span></span>
+<span></span><span><span class='nv'>out</span><span class='o'>$</span><span class='nv'>count_order</span></span>
+<span><span class='c'>#&gt; [1] 1478493   38854 2920374 1478870</span></span>
 <span></span></code></pre>
 
 </div>
@@ -217,7 +216,7 @@ The result could also be computed to a file.
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 4 more variables: avg_qty &lt;dbl&gt;, avg_price &lt;dbl&gt;, avg_disc &lt;dbl&gt;,</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>#   count_order &lt;dbl&gt;</span></span></span>
 <span></span><span><span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; 653</span></span>
+<span><span class='c'>#&gt; 648</span></span>
 <span></span></code></pre>
 
 </div>
@@ -318,8 +317,8 @@ And now we compare the two:
 <span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 6</span></span></span>
 <span><span class='c'>#&gt;   expression                   min   median `itr/sec` mem_alloc `gc/sec`</span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>              <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:byt&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem)       935ms    935ms      1.07   878.6MB     1.07</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem)    262ms    267ms      3.74    94.2KB     0</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem)       890ms    890ms      1.12   878.6MB     1.12</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem)    260ms    276ms      3.62    94.2KB     0</span></span>
 <span></span></code></pre>
 
 </div>
