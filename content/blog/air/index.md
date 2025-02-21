@@ -19,7 +19,7 @@ editor:
   markdown:
     wrap: sentence
     canonical: true
-rmd_hash: bbeaded2c01fe63b
+rmd_hash: a1e330e44da98a68
 
 ---
 
@@ -72,7 +72,9 @@ To open your `settings.json` file, run one of the following from the Command Pal
 
 -   Run `Preferences: Open Workspace Settings (JSON)` to modify project specific settings. You may want to use this instead of setting the user level setting if you drop in on multiple projects, but not all of them use Air. If you work on a project with collaborators, we recommend that you check in these project specific settings to your repository to ensure that every collaborator is using the same formatting settings.
 
-If your preferred editor isn't listed here, but does support the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/), then it is likely that we can add support for Air there as well. Feel free to open an [issue](https://github.com/posit-dev/air/issues)!
+If your preferred editor isn't listed here, but does support the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/), then it is likely that we can add support for Air there as well.
+
+If you have any questions or run into issues installing or using Air, feel free to open an [issue](https://github.com/posit-dev/air/issues)!
 
 ## What's a formatter?
 
