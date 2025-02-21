@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: air
 title: Air, an extremely fast R formatter
-date: 2025-02-20
+date: 2025-02-21
 author: Davis Vaughan and Lionel Henry
 description: >
     We are thrilled to announce Air, a new R formatter.
@@ -19,7 +19,7 @@ editor:
   markdown:
     wrap: sentence
     canonical: true
-rmd_hash: 2dfff01bd0ae119a
+rmd_hash: 89a3b17dfcbb27e9
 
 ---
 
@@ -221,6 +221,31 @@ data |> select(foo) |> filter(!bar)
 ```
 
 The goal of this feature is to strike a balance between being opinionated and recognizing that users often know when taking up more vertical space results in more readable output.
+
+## How can I disable formatting?
+
+If you need to disable formatting for a single expression, you can use a `# fmt: skip` comment. This is particularly useful for manual alignment.
+
+``` r
+# This skips formatting for `list()` and its arguments, retaining the manual alignment
+# fmt: skip
+list(
+  dollar = "USA",
+  yen    = "Japan",
+  yuan   = "China"
+)
+
+# This skips formatting for `tribble()` and its arguments
+# fmt: skip
+tribble(
+  ~x, ~y,
+   1,  2,
+)
+```
+
+If there is a file that Air should skip altogether, you can use a `# fmt: skip file` comment at the very top of the file.
+
+To learn more about these features, see the [documentation](https://posit-dev.github.io/air/formatter.html#disabling-formatting).
 
 ## How can I use Air?
 
