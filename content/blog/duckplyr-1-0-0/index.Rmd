@@ -97,9 +97,7 @@ library(duckplyr)
 conflict_prefer("filter", "dplyr", quiet = TRUE)
 
 out <- lineitem_tbl |>
-  select(l_shipdate, l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
   filter(l_shipdate <= !!as.Date("1998-09-02")) |>
-  select(l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
   summarise(
     sum_qty = sum(l_quantity),
     sum_base_price = sum(l_extendedprice),
@@ -141,9 +139,7 @@ The duckplyr package performs the computation using DuckDB.
 ```{r}
 out <- lineitem_tbl |>
   duckplyr::as_duckdb_tibble() |> # this is the only change :-)
-  select(l_shipdate, l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
   filter(l_shipdate <= !!as.Date("1998-09-02")) |>
-  select(l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
   summarise(
     sum_qty = sum(l_quantity),
     sum_base_price = sum(l_extendedprice),
@@ -183,7 +179,6 @@ For instance, filtering on grouped data is not supported yet, still it works tha
 ```{r}
 lineitem_tbl |>
   duckplyr::as_duckdb_tibble() |>
-  select(l_shipdate, l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
   filter(l_quantity == max(l_quantity), .by = c(l_returnflag, l_linestatus))
 ```
 
@@ -202,9 +197,7 @@ Here is the function that runs the pipeline with dplyr.
 ```{r}
 tpch_dplyr <- function(lineitem) {
   lineitem |>
-    select(l_shipdate, l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
     filter(l_shipdate <= !!as.Date("1998-09-02")) |>
-    select(l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
     summarise(
       sum_qty = sum(l_quantity),
       sum_base_price = sum(l_extendedprice),
