@@ -46,6 +46,7 @@ Here's a list of the packages and their News sections:
 - [hardhat](https://hardhat.tidymodels.org/news/index.html)
 - [parsnip](https://parsnip.tidymodels.org/news/index.html)
 - [recipes](https://recipes.tidymodels.org/news/index.html)
+- [tidymodels](https://tidymodels.tidymodels.org/news/index.html)
 - [tune](https://tune.tidymodels.org/news/index.html)
 - [workflows](https://workflows.tidymodels.org/news/index.html)
 
