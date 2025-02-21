@@ -54,7 +54,7 @@ You can install it from CRAN with:
 install.packages("duckplyr")
 ```
 
-In this article, we'll show how duckplyr can help you with data of different size, and explain how you can help improve the package.
+This article shows how duckplyr can be used instead of dplyr with data of different size, explain how you can help improve the package, and share a selection of other resources.
 
 ## A drop-in replacement for dplyr
 
@@ -76,7 +76,6 @@ You can simply _drop_ duckplyr into your pipeline by loading it, then computatio
 Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but execute it with duckplyr.
 
 ```{r}
-library(dplyr)
 library(conflicted)
 library(duckplyr)
 conflict_prefer("filter", "dplyr", quiet = TRUE)
@@ -163,16 +162,11 @@ Operations not yet supported by duckplyr are automatically outsourced to dplyr.
 For instance, filtering on grouped data is not supported yet, still it works thanks to the fallback mechanism.
 
 ```{r}
-# filter(n == max(n), .by = c(year, sex)
 lineitem |>
   duckplyr::as_duckdb_tibble() |>
   select(l_shipdate, l_returnflag, l_linestatus, l_quantity, l_extendedprice, l_discount, l_tax) |>
   filter(l_quantity == max(l_quantity), .by = c(l_returnflag, l_linestatus))
 ```
-
-For performance reasons, the output order of the result is not guaranteed to be stable.
-If you need a stable order, you can use `arrange()` or force output order stability by setting an environment variable.
-This and other limitations are documented in [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
 
 Using duckplyr is faster than using dplyr.
 Below we compare the same pipeline, "TPC-H benchmark query 1", with dplyr and duckplyr.
