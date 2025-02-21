@@ -9,7 +9,7 @@ description: >
     A summary of the goings on for the tidymodels group in later 2024 and early 2025.
 
 photo:
-  author: George Stage and Max Kuhn
+  author: George Stagg and Max Kuhn
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [roundup] 
@@ -48,7 +48,7 @@ Here's a list of the packages and their News sections:
 
 Let's look at a few specific updates.
 
-## Improvements in errors and warnings
+## Improvements in Errors and Warnings
 
 A group effort was made to improve our error and warning messages across many packages. This started with an internal “upkeep week” (which ended up being 3-4 weeks) and concluded at the [Tidy Dev Day in Seattle](https://www.tidyverse.org/blog/2024/04/tdd-2024/) after Posit conf.  
 
@@ -73,7 +73,7 @@ Error in `tidy()`:
 i Did you mean "variance"?
 ```      
 
-The rlang package created a set of standalone files that contain high-quality type checkers and related functions. This also improves the information that users get from an error. For example, using a based formula value in `fit(linear_reg(), "boop", mtcars)`, the old message was: 
+The rlang package created a set of [standalone files](https://usethis.r-lib.org/reference/use_standalone.html) that contain high-quality type checkers and related functions. This also improves the information that users get from an error. For example, using a based formula value in `fit(linear_reg(), "boop", mtcars)`, the old message was: 
 
 ```
 Error in `fit()`:
@@ -89,7 +89,7 @@ Error in `fit()`:
 
 This was _a lot_ of work and still isn’t finished. Two events helped us get as far as we did. 
 
-First, Simon Couch made the [chores](https://simonpcouch.github.io/chores/) package (its previous name was “pal”), which enabled us to use AI tools to solve small-scope problems, such as converting old rlang error code to use the new cli syntax. I can’t overestimate how much of a speed-up this was for us. 
+First, Simon Couch made the [chores](https://simonpcouch.github.io/chores/) package (its previous name was “pal”), which enabled us to use AI tools to solve small-scope problems, such as converting old rlang error code to use the new [cli syntax](https://rlang.r-lib.org/reference/topic-condition-formatting.html). I can’t overstate how much of a speed-up this was for us. 
 
 Second, at developer day, many external folks pitched in to make pull requests from a list of issues:
 
@@ -106,7 +106,7 @@ I love these sessions for many reasons, but mostly because we meet users and con
 
 There is a lot more to do here; we have a lot of secondary packages that would benefit from these improvements too. 
 
-## parsnip
+## The parsnip Package
 
 One big update in parsnip was a new modeling mode of `"quantile regression"`. Daniel McDonald and Ryan Tibshirani largely drove the motive for this for their work in disease modeling. The mode does not have many engines yet. We need to implement some performance statistics in the yardstick package before integrating these models into the whole tidymodels ecosystem. 
 
@@ -119,7 +119,7 @@ One improvement that has been simmering for a long time is the ability to exploi
 
 Finally, we’ve created a set of [checklists](https://parsnip.tidymodels.org/articles/checklists.html) that can be used when creating new models or engines. These are very helpful, even for us, since there is a lot of minutiae to remember. 
 
-## tune
+## The tune Package
 
 This was a small maintenance release mostly related to parallel processing. At the start, tidymodels facilitated parallelism using the [foreach](https://cran.r-project.org/package=foreach) package. That package is mature but not actively developed, so we have been slowly moving toward using the [future](https://www.futureverse.org/packages-overview.html) package(s). 
 
@@ -135,17 +135,19 @@ This will allow users to transition their existing code to only future and allow
 We anticipate that the third stage, **removing foreach entirely**, will occur sometime before the 2025 Posit conference in September. 
 
 
-## The next cascade
+## The Next Cascade
 
-We are working hard on two major initiatives that we plan on showing off at Posit conf. 
+We are working hard on a few major initiatives that we plan on showing off at Posit conf. 
 
 First is integrated support for sparse **data**. The emphasis is on “data” because users can use sparse data frames _or_ the usual sparse matrix format. This is a big deal because it does not force you to convert non-numeric data into a numeric matrix format. Again, we’ll discuss this more in the future, but you should be able to use sparse data frames in parsnip, recipes, tune, etc. 
 
-The second initiative is the longstanding goal of adding **postprocessing** to tidymodels. Just as you can add a preprocessor to a model workflow, you will be able to add a set of postprocessing adjustments to the predictions your model generates. 
+The second initiative is the longstanding goal of adding **postprocessing** to tidymodels. Just as you can add a preprocessor to a model workflow, you will be able to add a set of postprocessing adjustments to the predictions your model generates. See [Simon's blog post](https://www.simonpcouch.com/blog/2024-10-16-postprocessing/) and our [previous post](https://www.tidyverse.org/blog/2024/10/postprocessing-preview/) for a sneak peek. 
 
 These should come to fruition (and CRAN) around August 2025. 
 
 ## Acknowledgements
+
+We want to sincerely thank everyone who contributed to these packages since their previous versions: 
 
 [&#x0040;AlbertoImg](https://github.com/AlbertoImg), [&#x0040;asb2111](https://github.com/asb2111), [&#x0040;balraadjsings](https://github.com/balraadjsings), [&#x0040;bcjaeger](https://github.com/bcjaeger), [&#x0040;beansrowning](https://github.com/beansrowning), [&#x0040;BrennanAntone](https://github.com/BrennanAntone), [&#x0040;cheryldietrich](https://github.com/cheryldietrich), [&#x0040;chillerb](https://github.com/chillerb), [&#x0040;conarr5](https://github.com/conarr5), [&#x0040;corybrunson](https://github.com/corybrunson), [&#x0040;dajmcdon](https://github.com/dajmcdon), [&#x0040;davidrsch](https://github.com/davidrsch), [&#x0040;Edgar-Zamora](https://github.com/Edgar-Zamora), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;gimholte](https://github.com/gimholte), [&#x0040;grantmcdermott](https://github.com/grantmcdermott), [&#x0040;grouptheory](https://github.com/grouptheory), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;ilaria-kode](https://github.com/ilaria-kode), [&#x0040;JamesHWade](https://github.com/JamesHWade), [&#x0040;jesusherranz](https://github.com/jesusherranz), [&#x0040;jkylearmstrong](https://github.com/jkylearmstrong), [&#x0040;joranE](https://github.com/joranE), [&#x0040;joscani](https://github.com/joscani), [&#x0040;Joscelinrocha](https://github.com/Joscelinrocha), [&#x0040;josho88](https://github.com/josho88), [&#x0040;joshuagi](https://github.com/joshuagi), [&#x0040;JosiahParry](https://github.com/JosiahParry), [&#x0040;jrosell](https://github.com/jrosell), [&#x0040;jrwinget](https://github.com/jrwinget), [&#x0040;KarlKoe](https://github.com/KarlKoe), [&#x0040;kscott-1](https://github.com/kscott-1), [&#x0040;lilykoff](https://github.com/lilykoff), [&#x0040;lionel-](https://github.com/lionel-), [&#x0040;LouisMPenrod](https://github.com/LouisMPenrod), [&#x0040;luisDVA](https://github.com/luisDVA), [&#x0040;marcelglueck](https://github.com/marcelglueck), [&#x0040;marcozanotti](https://github.com/marcozanotti), [&#x0040;martaalcalde](https://github.com/martaalcalde), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;mihem](https://github.com/mihem), [&#x0040;mitchellmanware](https://github.com/mitchellmanware), [&#x0040;naokiohno](https://github.com/naokiohno), [&#x0040;nhward](https://github.com/nhward), [&#x0040;npelikan](https://github.com/npelikan), [&#x0040;obgeneralao](https://github.com/obgeneralao), [&#x0040;owenjonesuob](https://github.com/owenjonesuob), [&#x0040;pbhogale](https://github.com/pbhogale), [&#x0040;Peter4801](https://github.com/Peter4801), [&#x0040;pgg1309](https://github.com/pgg1309), [&#x0040;reisner](https://github.com/reisner), [&#x0040;rfsaldanha](https://github.com/rfsaldanha), [&#x0040;rkb965](https://github.com/rkb965), [&#x0040;RobLBaker](https://github.com/RobLBaker), [&#x0040;RodDalBen](https://github.com/RodDalBen), [&#x0040;SantiagoD999](https://github.com/SantiagoD999), [&#x0040;shum461](https://github.com/shum461), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;szimmer](https://github.com/szimmer), [&#x0040;talegari](https://github.com/talegari), [&#x0040;therealjpetereit](https://github.com/therealjpetereit), [&#x0040;topepo](https://github.com/topepo), [&#x0040;walkerjameschris](https://github.com/walkerjameschris), and  [&#x0040;ZWael](https://github.com/ZWael)
 
