@@ -138,14 +138,6 @@ To _replace_ dplyr with duckplyr, you can:
 Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline.
 The duckplyr package performs the computation using DuckDB.
 
-_We only need the chunk below because we had loaded duckplyr in a previous example._
-
-```{r}
-# Undo the effect of library(duckplyr)
-methods_restore()
-```
-
-
 ```{r}
 out <- lineitem |>
   duckplyr::as_duckdb_tibble() |> # this is the only change :-)
@@ -197,6 +189,13 @@ lineitem |>
 
 Using duckplyr is faster than using dplyr.
 Below we compare the same pipeline, "TPC-H benchmark query 1", with dplyr and duckplyr.
+
+_Because we compare dplyr with duckplyr here, we no longer can use duckplyr for all dplyr operations._
+
+```{r}
+# Undo the effect of library(duckplyr)
+methods_restore()
+```
 
 Here is the function that runs the pipeline with dplyr.
 
