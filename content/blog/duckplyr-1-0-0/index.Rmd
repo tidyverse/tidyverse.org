@@ -147,13 +147,19 @@ out <- lineitem |>
   arrange(l_returnflag, l_linestatus)
 ```
 
-The result can finally be materialized to memory, or computed temporarily, or computed to a file.
+
+For programming, the resulting object is indistinguishable from a regular tibble, except for the additional class.
+
 
 ```{r}
-# to memory
-nrow(out)
-# or for instance collect(out)
+typeof(out)
+class(out)
+out$year[1:3]
+```
 
+The result could also be computed to a file.
+
+```{r}
 # to a file
 csv_file <- withr::local_tempfile()
 compute_csv(out, csv_file)
