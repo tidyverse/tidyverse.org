@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: 38165f5a96e6477f
+rmd_hash: 4ab938fee82c27c6
 
 ---
 
@@ -55,7 +55,7 @@ You can install it from CRAN with:
 
 </div>
 
-This article shows how duckplyr can be used instead of dplyr with data of different size, explain how you can help improve the package, and share a selection of further resources.
+This article shows how duckplyr can be used instead of dplyr with data of different size for faster computation, explain how you can help improve the package, and share a selection of further resources.
 
 ## A drop-in replacement for dplyr
 
@@ -63,84 +63,78 @@ Imagine you have to wrangle a huge dataset. Here we generate one using the [data
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>lineitem</span> <span class='o'>&lt;-</span> <span class='nf'>duckdb</span><span class='nf'>:::</span><span class='nf'>sql</span><span class='o'>(</span><span class='s'>"INSTALL tpch; LOAD tpch; CALL dbgen(sf=1); FROM lineitem;"</span><span class='o'>)</span></span>
-<span><span class='nv'>lineitem</span> <span class='o'>&lt;-</span> <span class='nf'>tibble</span><span class='nf'>::</span><span class='nf'><a href='https://tibble.tidyverse.org/reference/as_tibble.html'>as_tibble</a></span><span class='o'>(</span><span class='nv'>lineitem</span><span class='o'>)</span></span>
-<span><span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://pillar.r-lib.org/reference/glimpse.html'>glimpse</a></span><span class='o'>(</span><span class='nv'>lineitem</span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>lineitem_tbl</span> <span class='o'>&lt;-</span> <span class='nf'>duckdb</span><span class='nf'>:::</span><span class='nf'>sql</span><span class='o'>(</span><span class='s'>"INSTALL tpch; LOAD tpch; CALL dbgen(sf=1); FROM lineitem;"</span><span class='o'>)</span></span>
+<span><span class='nv'>lineitem_tbl</span> <span class='o'>&lt;-</span> <span class='nf'>tibble</span><span class='nf'>::</span><span class='nf'><a href='https://tibble.tidyverse.org/reference/as_tibble.html'>as_tibble</a></span><span class='o'>(</span><span class='nv'>lineitem_tbl</span><span class='o'>)</span></span>
+<span><span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://pillar.r-lib.org/reference/glimpse.html'>glimpse</a></span><span class='o'>(</span><span class='nv'>lineitem_tbl</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Rows: 6,001,215</span></span>
 <span><span class='c'>#&gt; Columns: 16</span></span>
-<span><span class='c'>#&gt; $ l_orderkey      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 3, 3, 3, 4, 5, 5, 5, 6, …</span></span>
-<span><span class='c'>#&gt; $ l_partkey       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 155190, 67310, 63700, 2132, 24027, 15635, 106170, 4297…</span></span>
-<span><span class='c'>#&gt; $ l_suppkey       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 7706, 7311, 3701, 4633, 1534, 638, 1191, 1798, 6540, 3…</span></span>
-<span><span class='c'>#&gt; $ l_linenumber    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 1, 2, 3, 4, 5, 6, 1, 1, 2, 3, 4, 5, 6, 1, 1, 2, 3, 1, …</span></span>
-<span><span class='c'>#&gt; $ l_quantity      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 17, 36, 8, 28, 24, 32, 38, 45, 49, 27, 2, 28, 26, 30, …</span></span>
-<span><span class='c'>#&gt; $ l_extendedprice <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 21168.23, 45983.16, 13309.60, 28955.64, 22824.48, 4962…</span></span>
-<span><span class='c'>#&gt; $ l_discount      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 0.04, 0.09, 0.10, 0.09, 0.10, 0.07, 0.00, 0.06, 0.10, …</span></span>
-<span><span class='c'>#&gt; $ l_tax           <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 0.02, 0.06, 0.02, 0.06, 0.04, 0.02, 0.05, 0.00, 0.00, …</span></span>
-<span><span class='c'>#&gt; $ l_returnflag    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "N", "N", "N", "N", "N", "N", "N", "R", "R", "A", "A",…</span></span>
-<span><span class='c'>#&gt; $ l_linestatus    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "O", "O", "O", "O", "O", "O", "O", "F", "F", "F", "F",…</span></span>
-<span><span class='c'>#&gt; $ l_shipdate      <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span> 1996-03-13, 1996-04-12, 1996-01-29, 1996-04-21, 1996-…</span></span>
-<span><span class='c'>#&gt; $ l_commitdate    <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span> 1996-02-12, 1996-02-28, 1996-03-05, 1996-03-30, 1996-…</span></span>
-<span><span class='c'>#&gt; $ l_receiptdate   <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span> 1996-03-22, 1996-04-20, 1996-01-31, 1996-05-16, 1996-…</span></span>
-<span><span class='c'>#&gt; $ l_shipinstruct  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "DELIVER IN PERSON", "TAKE BACK RETURN", "TAKE BACK RE…</span></span>
-<span><span class='c'>#&gt; $ l_shipmode      <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "TRUCK", "MAIL", "REG AIR", "AIR", "FOB", "MAIL", "RAI…</span></span>
-<span><span class='c'>#&gt; $ l_comment       <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "to beans x-ray carefull", " according to the final fo…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_orderkey     </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 3, 3, 3, 4, 5, 5, 5, 6, …</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_partkey      </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 155190, 67310, 63700, 2132, 24027, 15635, 106170, 4297…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_suppkey      </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 7706, 7311, 3701, 4633, 1534, 638, 1191, 1798, 6540, 3…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_linenumber   </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 1, 2, 3, 4, 5, 6, 1, 1, 2, 3, 4, 5, 6, 1, 1, 2, 3, 1, …</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_quantity     </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 17, 36, 8, 28, 24, 32, 38, 45, 49, 27, 2, 28, 26, 30, …</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_extendedprice</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 21168.23, 45983.16, 13309.60, 28955.64, 22824.48, 4962…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_discount     </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 0.04, 0.09, 0.10, 0.09, 0.10, 0.07, 0.00, 0.06, 0.10, …</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_tax          </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 0.02, 0.06, 0.02, 0.06, 0.04, 0.02, 0.05, 0.00, 0.00, …</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_returnflag   </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "N", "N", "N", "N", "N", "N", "N", "R", "R", "A", "A",…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_linestatus   </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "O", "O", "O", "O", "O", "O", "O", "F", "F", "F", "F",…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_shipdate     </span> <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span> 1996-03-13, 1996-04-12, 1996-01-29, 1996-04-21, 1996-…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_commitdate   </span> <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span> 1996-02-12, 1996-02-28, 1996-03-05, 1996-03-30, 1996-…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_receiptdate  </span> <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span> 1996-03-22, 1996-04-20, 1996-01-31, 1996-05-16, 1996-…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_shipinstruct </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "DELIVER IN PERSON", "TAKE BACK RETURN", "TAKE BACK RE…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_shipmode     </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "TRUCK", "MAIL", "REG AIR", "AIR", "FOB", "MAIL", "RAI…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_comment      </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "to beans x-ray carefull", " according to the final fo…</span></span>
 <span></span></code></pre>
 
 </div>
 
 We could transform the data using dplyr but we could also transform it using a tool that'll scale well to ever larger data: duckplyr. The duckplyr package is a *drop-in replacement for dplyr* that uses *DuckDB for speed*. You can simply *drop* duckplyr into your pipeline by loading it, then computations will be efficiently carried out by DuckDB.
 
-Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but execute it with duckplyr.
+Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but execute it with duckplyr. We use a function because the same code is reused throughout the article.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://conflicted.r-lib.org/'>conflicted</a></span><span class='o'>)</span></span>
 <span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://duckplyr.tidyverse.org'>duckplyr</a></span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Loading required package: dplyr</span></span>
-<span></span><span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Attaching package: 'dplyr'</span></span>
-<span></span><span><span class='c'>#&gt; The following objects are masked from 'package:stats':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     filter, lag</span></span>
-<span></span><span><span class='c'>#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     intersect, setdiff, setequal, union</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> Overwriting <span style='color: #0000BB;'>dplyr</span> methods with <span style='color: #0000BB;'>duckplyr</span> methods.</span></span>
 <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Turn off with `duckplyr::methods_restore()`.</span></span>
 <span></span><span><span class='nf'><a href='https://conflicted.r-lib.org/reference/conflict_prefer.html'>conflict_prefer</a></span><span class='o'>(</span><span class='s'>"filter"</span>, <span class='s'>"dplyr"</span>, quiet <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
-<span><span class='nv'>out</span> <span class='o'>&lt;-</span> <span class='nv'>lineitem</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>l_shipdate</span>, <span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span>, <span class='nv'>l_quantity</span>, <span class='nv'>l_extendedprice</span>, <span class='nv'>l_discount</span>, <span class='nv'>l_tax</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>l_shipdate</span> <span class='o'>&lt;=</span> <span class='o'>!</span><span class='o'>!</span><span class='nf'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span><span class='o'>(</span><span class='s'>"1998-09-02"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span>, <span class='nv'>l_quantity</span>, <span class='nv'>l_extendedprice</span>, <span class='nv'>l_discount</span>, <span class='nv'>l_tax</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span></span>
-<span>    sum_qty <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_quantity</span><span class='o'>)</span>,</span>
-<span>    sum_base_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span><span class='o'>)</span>,</span>
-<span>    sum_disc_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>-</span> <span class='nv'>l_discount</span><span class='o'>)</span><span class='o'>)</span>,</span>
-<span>    sum_charge <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>-</span> <span class='nv'>l_discount</span><span class='o'>)</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>+</span> <span class='nv'>l_tax</span><span class='o'>)</span><span class='o'>)</span>,</span>
-<span>    avg_qty <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_quantity</span><span class='o'>)</span>,</span>
-<span>    avg_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span><span class='o'>)</span>,</span>
-<span>    avg_disc <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_discount</span><span class='o'>)</span>,</span>
-<span>    count_order <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span>,</span>
-<span>    .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span><span class='o'>)</span></span>
-<span>  <span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span><span class='o'>)</span></span>
-<span><span class='nv'>out</span></span>
+<span></span>
+<span><span class='nv'>tpch_dplyr</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>lineitem</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
+<span>  <span class='nv'>lineitem</span> <span class='o'>|&gt;</span></span>
+<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>l_shipdate</span> <span class='o'>&lt;=</span> <span class='o'>!</span><span class='o'>!</span><span class='nf'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span><span class='o'>(</span><span class='s'>"1998-09-02"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span></span>
+<span>      sum_qty <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_quantity</span><span class='o'>)</span>,</span>
+<span>      sum_base_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span><span class='o'>)</span>,</span>
+<span>      sum_disc_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>-</span> <span class='nv'>l_discount</span><span class='o'>)</span><span class='o'>)</span>,</span>
+<span>      sum_charge <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>-</span> <span class='nv'>l_discount</span><span class='o'>)</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>+</span> <span class='nv'>l_tax</span><span class='o'>)</span><span class='o'>)</span>,</span>
+<span>      avg_qty <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_quantity</span><span class='o'>)</span>,</span>
+<span>      avg_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span><span class='o'>)</span>,</span>
+<span>      avg_disc <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_discount</span><span class='o'>)</span>,</span>
+<span>      count_order <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span>,</span>
+<span>      .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span><span class='o'>)</span></span>
+<span>    <span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span><span class='o'>)</span></span>
+<span><span class='o'>&#125;</span></span>
+<span></span>
+<span><span class='nf'>tpch_dplyr</span><span class='o'>(</span><span class='nv'>lineitem_tbl</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 10</span></span></span>
-<span><span class='c'>#&gt;   l_returnflag l_linestatus  sum_qty sum_base_price sum_disc_price    sum_charge</span></span>
+<span><span class='c'>#&gt;   <span style='font-weight: bold;'>l_returnflag</span> <span style='font-weight: bold;'>l_linestatus</span>  <span style='font-weight: bold;'>sum_qty</span> <span style='font-weight: bold;'>sum_base_price</span> <span style='font-weight: bold;'>sum_disc_price</span>    <span style='font-weight: bold;'>sum_charge</span></span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A            F            37<span style='text-decoration: underline;'>734</span>107   <span style='text-decoration: underline;'>56</span>586<span style='text-decoration: underline;'>554</span>401.   <span style='text-decoration: underline;'>53</span>758<span style='text-decoration: underline;'>257</span>135.  <span style='text-decoration: underline;'>55</span>909<span style='text-decoration: underline;'>065</span>223.</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> N            F              <span style='text-decoration: underline;'>991</span>417    <span style='text-decoration: underline;'>1</span>487<span style='text-decoration: underline;'>504</span>710.    <span style='text-decoration: underline;'>1</span>413<span style='text-decoration: underline;'>082</span>168.   <span style='text-decoration: underline;'>1</span>469<span style='text-decoration: underline;'>649</span>223.</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> N            O            74<span style='text-decoration: underline;'>476</span>040  <span style='text-decoration: underline;'>111</span>701<span style='text-decoration: underline;'>729</span>698.  <span style='text-decoration: underline;'>106</span>118<span style='text-decoration: underline;'>230</span>308. <span style='text-decoration: underline;'>110</span>367<span style='text-decoration: underline;'>043</span>872.</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>4</span> R            F            37<span style='text-decoration: underline;'>719</span>753   <span style='text-decoration: underline;'>56</span>568<span style='text-decoration: underline;'>041</span>381.   <span style='text-decoration: underline;'>53</span>741<span style='text-decoration: underline;'>292</span>685.  <span style='text-decoration: underline;'>55</span>889<span style='text-decoration: underline;'>619</span>120.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 4 more variables: avg_qty &lt;dbl&gt;, avg_price &lt;dbl&gt;, avg_disc &lt;dbl&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   count_order &lt;int&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 4 more variables: </span><span style='color: #555555; font-weight: bold;'>avg_qty</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>avg_price</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>avg_disc</span><span style='color: #555555;'> &lt;dbl&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   </span><span style='color: #555555; font-weight: bold;'>count_order</span><span style='color: #555555;'> &lt;int&gt;</span></span></span>
 <span></span></code></pre>
 
 </div>
 
 Like with other dplyr backends like dtplyr and dbplyr, duckplyr allows you to get faster results without learning a different syntax. Unlike other dplyr backends, duckplyr does not require you to change existing code or learn specific idiosyncrasies. Not only is the syntax the same, the semantics are too!
 
-The duckplyr package is fully compatible with dplyr: if an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr. Over time, we expect fewer and fewer fallbacks to dplyr to be needed.
+Start using duckplyr today by attaching it and running your existing dplyr code. Many operations will be carried out with DuckDB, faster than with dplyr. The duckplyr package is fully compatible with dplyr: if an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr. Over time, we expect fewer and fewer fallbacks to dplyr to be needed.
 
 ## How to use duckplyr
 
@@ -150,38 +144,25 @@ To *replace* dplyr with duckplyr, you can:
 
 -   Create individual "duck frames" using *conversion functions* like [`duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html) or [`as_duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html), or *ingestion functions* like [`read_csv_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html).
 
-Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline. The duckplyr package performs the computation using DuckDB.
-
-*We only need the chunk below because we had loaded duckplyr in a previous example.*
+Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline, with the exact same semantics. The duckplyr package performs the computation using DuckDB.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Undo the effect of library(duckplyr)</span></span>
-<span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/methods_overwrite.html'>methods_restore</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Restoring <span style='color: #0000BB;'>dplyr</span> methods.</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>out</span> <span class='o'>&lt;-</span> <span class='nv'>lineitem_tbl</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'>duckplyr</span><span class='nf'>::</span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>as_duckdb_tibble</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>  <span class='nf'>tpch_dplyr</span><span class='o'>(</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>out</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A duckplyr data frame: 10 variables</span></span></span>
+<span><span class='c'>#&gt;   <span style='font-weight: bold;'>l_returnflag</span> <span style='font-weight: bold;'>l_linestatus</span>  <span style='font-weight: bold;'>sum_qty</span> <span style='font-weight: bold;'>sum_base_price</span> <span style='font-weight: bold;'>sum_disc_price</span>    <span style='font-weight: bold;'>sum_charge</span></span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A            F            37<span style='text-decoration: underline;'>734</span>107   <span style='text-decoration: underline;'>56</span>586<span style='text-decoration: underline;'>554</span>401.   <span style='text-decoration: underline;'>53</span>758<span style='text-decoration: underline;'>257</span>135.  <span style='text-decoration: underline;'>55</span>909<span style='text-decoration: underline;'>065</span>223.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> N            F              <span style='text-decoration: underline;'>991</span>417    <span style='text-decoration: underline;'>1</span>487<span style='text-decoration: underline;'>504</span>710.    <span style='text-decoration: underline;'>1</span>413<span style='text-decoration: underline;'>082</span>168.   <span style='text-decoration: underline;'>1</span>469<span style='text-decoration: underline;'>649</span>223.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> N            O            74<span style='text-decoration: underline;'>476</span>040  <span style='text-decoration: underline;'>111</span>701<span style='text-decoration: underline;'>729</span>698.  <span style='text-decoration: underline;'>106</span>118<span style='text-decoration: underline;'>230</span>308. <span style='text-decoration: underline;'>110</span>367<span style='text-decoration: underline;'>043</span>872.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> R            F            37<span style='text-decoration: underline;'>719</span>753   <span style='text-decoration: underline;'>56</span>568<span style='text-decoration: underline;'>041</span>381.   <span style='text-decoration: underline;'>53</span>741<span style='text-decoration: underline;'>292</span>685.  <span style='text-decoration: underline;'>55</span>889<span style='text-decoration: underline;'>619</span>120.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 4 more variables: </span><span style='color: #555555; font-weight: bold;'>avg_qty</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>avg_price</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>avg_disc</span><span style='color: #555555;'> &lt;dbl&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   </span><span style='color: #555555; font-weight: bold;'>count_order</span><span style='color: #555555;'> &lt;int&gt;</span></span></span>
 <span></span></code></pre>
-
-</div>
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>out</span> <span class='o'>&lt;-</span> <span class='nv'>lineitem</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'>duckplyr</span><span class='nf'>::</span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>as_duckdb_tibble</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='c'># this is the only change :-)</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>l_shipdate</span>, <span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span>, <span class='nv'>l_quantity</span>, <span class='nv'>l_extendedprice</span>, <span class='nv'>l_discount</span>, <span class='nv'>l_tax</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>l_shipdate</span> <span class='o'>&lt;=</span> <span class='o'>!</span><span class='o'>!</span><span class='nf'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span><span class='o'>(</span><span class='s'>"1998-09-02"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span>, <span class='nv'>l_quantity</span>, <span class='nv'>l_extendedprice</span>, <span class='nv'>l_discount</span>, <span class='nv'>l_tax</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span></span>
-<span>    sum_qty <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_quantity</span><span class='o'>)</span>,</span>
-<span>    sum_base_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span><span class='o'>)</span>,</span>
-<span>    sum_disc_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>-</span> <span class='nv'>l_discount</span><span class='o'>)</span><span class='o'>)</span>,</span>
-<span>    sum_charge <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>-</span> <span class='nv'>l_discount</span><span class='o'>)</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>+</span> <span class='nv'>l_tax</span><span class='o'>)</span><span class='o'>)</span>,</span>
-<span>    avg_qty <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_quantity</span><span class='o'>)</span>,</span>
-<span>    avg_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span><span class='o'>)</span>,</span>
-<span>    avg_disc <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_discount</span><span class='o'>)</span>,</span>
-<span>    count_order <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span>,</span>
-<span>    .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span><span class='o'>)</span></span>
-<span>  <span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
@@ -203,103 +184,76 @@ The result could also be computed to a file.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># to a file</span></span>
-<span><span class='nv'>csv_file</span> <span class='o'>&lt;-</span> <span class='nf'>withr</span><span class='nf'>::</span><span class='nf'><a href='https://withr.r-lib.org/reference/with_tempfile.html'>local_tempfile</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>csv_file</span> <span class='o'>&lt;-</span> <span class='nf'>withr</span><span class='nf'>::</span><span class='nf'><a href='https://withr.r-lib.org/reference/with_tempfile.html'>local_tempfile</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/compute_csv.html'>compute_csv</a></span><span class='o'>(</span><span class='nv'>out</span>, <span class='nv'>csv_file</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A duckplyr data frame: 10 variables</span></span></span>
-<span><span class='c'>#&gt;   l_returnflag l_linestatus  sum_qty sum_base_price sum_disc_price    sum_charge</span></span>
+<span><span class='c'>#&gt;   <span style='font-weight: bold;'>l_returnflag</span> <span style='font-weight: bold;'>l_linestatus</span>  <span style='font-weight: bold;'>sum_qty</span> <span style='font-weight: bold;'>sum_base_price</span> <span style='font-weight: bold;'>sum_disc_price</span>    <span style='font-weight: bold;'>sum_charge</span></span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A            F            37<span style='text-decoration: underline;'>734</span>107   <span style='text-decoration: underline;'>56</span>586<span style='text-decoration: underline;'>554</span>401.   <span style='text-decoration: underline;'>53</span>758<span style='text-decoration: underline;'>257</span>135.  <span style='text-decoration: underline;'>55</span>909<span style='text-decoration: underline;'>065</span>223.</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> N            F              <span style='text-decoration: underline;'>991</span>417    <span style='text-decoration: underline;'>1</span>487<span style='text-decoration: underline;'>504</span>710.    <span style='text-decoration: underline;'>1</span>413<span style='text-decoration: underline;'>082</span>168.   <span style='text-decoration: underline;'>1</span>469<span style='text-decoration: underline;'>649</span>223.</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> N            O            74<span style='text-decoration: underline;'>476</span>040  <span style='text-decoration: underline;'>111</span>701<span style='text-decoration: underline;'>729</span>698.  <span style='text-decoration: underline;'>106</span>118<span style='text-decoration: underline;'>230</span>308. <span style='text-decoration: underline;'>110</span>367<span style='text-decoration: underline;'>043</span>872.</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>4</span> R            F            37<span style='text-decoration: underline;'>719</span>753   <span style='text-decoration: underline;'>56</span>568<span style='text-decoration: underline;'>041</span>381.   <span style='text-decoration: underline;'>53</span>741<span style='text-decoration: underline;'>292</span>685.  <span style='text-decoration: underline;'>55</span>889<span style='text-decoration: underline;'>619</span>120.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 4 more variables: avg_qty &lt;dbl&gt;, avg_price &lt;dbl&gt;, avg_disc &lt;dbl&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   count_order &lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 4 more variables: </span><span style='color: #555555; font-weight: bold;'>avg_qty</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>avg_price</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>avg_disc</span><span style='color: #555555;'> &lt;dbl&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   </span><span style='color: #555555; font-weight: bold;'>count_order</span><span style='color: #555555;'> &lt;dbl&gt;</span></span></span>
 <span></span><span><span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; 653</span></span>
+<span><span class='c'>#&gt; 652</span></span>
 <span></span></code></pre>
 
 </div>
 
-Operations not yet supported by duckplyr are automatically outsourced to dplyr. For instance, filtering on grouped data is not supported yet, still it works thanks to the fallback mechanism.
+Operations not yet supported by duckplyr are automatically outsourced to dplyr. For instance, filtering on grouped data is not supported yet, still it works thanks to the fallback mechanism. By default, the fallback is silent. Here, we make it visible by setting an environment variable.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>lineitem</span> <span class='o'>|&gt;</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/Sys.setenv.html'>Sys.setenv</a></span><span class='o'>(</span>DUCKPLYR_FALLBACK_INFO <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>lineitem_tbl</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'>duckplyr</span><span class='nf'>::</span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>as_duckdb_tibble</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>l_shipdate</span>, <span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span>, <span class='nv'>l_quantity</span>, <span class='nv'>l_extendedprice</span>, <span class='nv'>l_discount</span>, <span class='nv'>l_tax</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>l_quantity</span> <span class='o'>==</span> <span class='nf'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='o'>(</span><span class='nv'>l_quantity</span><span class='o'>)</span>, .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Cannot process duckplyr query with DuckDB, falling back to dplyr.</span></span>
 <span><span class='c'>#&gt; <span style='color: #0000BB;'>ℹ</span> `filter(.by = ...)` not implemented, try `mutate(.by = ...)` followed by a simple `filter()`.</span></span>
-<span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A duckplyr data frame: 7 variables</span></span></span>
-<span><span class='c'>#&gt;    l_shipdate l_returnflag l_linestatus l_quantity l_extendedprice l_discount</span></span>
-<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>             <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> 1994-08-08 A            F                    50          <span style='text-decoration: underline;'>73</span>426.       0.08</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> 1994-09-17 A            F                    50          <span style='text-decoration: underline;'>59</span>962.       0.02</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> 1996-06-12 N            O                    50          <span style='text-decoration: underline;'>55</span>204.       0.02</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> 1994-12-11 A            F                    50          <span style='text-decoration: underline;'>61</span>106        0.09</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> 1997-03-24 N            O                    50          <span style='text-decoration: underline;'>97</span>144        0.07</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> 1994-08-18 R            F                    50          <span style='text-decoration: underline;'>96</span>694.       0.06</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> 1994-04-20 A            F                    50          <span style='text-decoration: underline;'>84</span>581        0.05</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> 1996-03-21 N            O                    50          <span style='text-decoration: underline;'>54</span>156        0.08</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> 1997-01-24 N            O                    50          <span style='text-decoration: underline;'>71</span>718.       0.06</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> 1997-03-28 N            O                    50          <span style='text-decoration: underline;'>78</span>626        0.01</span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A duckplyr data frame: 16 variables</span></span></span>
+<span><span class='c'>#&gt;    <span style='font-weight: bold;'>l_orderkey</span> <span style='font-weight: bold;'>l_partkey</span> <span style='font-weight: bold;'>l_suppkey</span> <span style='font-weight: bold;'>l_linenumber</span> <span style='font-weight: bold;'>l_quantity</span> <span style='font-weight: bold;'>l_extendedprice</span></span></span>
+<span><span class='c'>#&gt;         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span>          5     <span style='text-decoration: underline;'>37</span>531        35            3         50          <span style='text-decoration: underline;'>73</span>426.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span>        131     <span style='text-decoration: underline;'>44</span>255      <span style='text-decoration: underline;'>9</span>264            2         50          <span style='text-decoration: underline;'>59</span>962.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span>        199    <span style='text-decoration: underline;'>132</span>072      <span style='text-decoration: underline;'>9</span>612            1         50          <span style='text-decoration: underline;'>55</span>204.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span>        231    <span style='text-decoration: underline;'>198</span>124       644            3         50          <span style='text-decoration: underline;'>61</span>106 </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span>        260    <span style='text-decoration: underline;'>155</span>887      <span style='text-decoration: underline;'>5</span>888            1         50          <span style='text-decoration: underline;'>97</span>144 </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span>        263    <span style='text-decoration: underline;'>142</span>891       434            3         50          <span style='text-decoration: underline;'>96</span>694.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span>        323    <span style='text-decoration: underline;'>163</span>628      <span style='text-decoration: underline;'>1</span>177            1         50          <span style='text-decoration: underline;'>84</span>581 </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span>        354     <span style='text-decoration: underline;'>58</span>125      <span style='text-decoration: underline;'>8</span>126            3         50          <span style='text-decoration: underline;'>54</span>156 </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span>        484    <span style='text-decoration: underline;'>183</span>351      <span style='text-decoration: underline;'>5</span>870            3         50          <span style='text-decoration: underline;'>71</span>718.</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span>        485    <span style='text-decoration: underline;'>149</span>523      <span style='text-decoration: underline;'>9</span>524            1         50          <span style='text-decoration: underline;'>78</span>626 </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ more rows</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 1 more variable: l_tax &lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 10 more variables: </span><span style='color: #555555; font-weight: bold;'>l_discount</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>l_tax</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>l_returnflag</span><span style='color: #555555;'> &lt;chr&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   </span><span style='color: #555555; font-weight: bold;'>l_linestatus</span><span style='color: #555555;'> &lt;chr&gt;, </span><span style='color: #555555; font-weight: bold;'>l_shipdate</span><span style='color: #555555;'> &lt;date&gt;, </span><span style='color: #555555; font-weight: bold;'>l_commitdate</span><span style='color: #555555;'> &lt;date&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   </span><span style='color: #555555; font-weight: bold;'>l_receiptdate</span><span style='color: #555555;'> &lt;date&gt;, </span><span style='color: #555555; font-weight: bold;'>l_shipinstruct</span><span style='color: #555555;'> &lt;chr&gt;, </span><span style='color: #555555; font-weight: bold;'>l_shipmode</span><span style='color: #555555;'> &lt;chr&gt;,</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>#   </span><span style='color: #555555; font-weight: bold;'>l_comment</span><span style='color: #555555;'> &lt;chr&gt;</span></span></span>
 <span></span></code></pre>
 
 </div>
 
-Using duckplyr is faster than using dplyr. Below we compare the same pipeline, "TPC-H benchmark query 1", with dplyr and duckplyr.
+## Benchmark
 
-Here is the function that runs the pipeline with dplyr.
+Using duckplyr is faster than using dplyr. Below we compare the same pipeline, "TPC-H benchmark query 1", with dplyr and duckplyr. The comparison is done in a fresh R session where dplyr is attached but duckplyr is not.
 
-<div class="highlight">
+``` r
+# Restart R
+library(dplyr)
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tpch_dplyr</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>lineitem</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
-<span>  <span class='nv'>lineitem</span> <span class='o'>|&gt;</span></span>
-<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>l_shipdate</span>, <span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span>, <span class='nv'>l_quantity</span>, <span class='nv'>l_extendedprice</span>, <span class='nv'>l_discount</span>, <span class='nv'>l_tax</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>l_shipdate</span> <span class='o'>&lt;=</span> <span class='o'>!</span><span class='o'>!</span><span class='nf'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span><span class='o'>(</span><span class='s'>"1998-09-02"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span>, <span class='nv'>l_quantity</span>, <span class='nv'>l_extendedprice</span>, <span class='nv'>l_discount</span>, <span class='nv'>l_tax</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span></span>
-<span>      sum_qty <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_quantity</span><span class='o'>)</span>,</span>
-<span>      sum_base_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span><span class='o'>)</span>,</span>
-<span>      sum_disc_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>-</span> <span class='nv'>l_discount</span><span class='o'>)</span><span class='o'>)</span>,</span>
-<span>      sum_charge <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>-</span> <span class='nv'>l_discount</span><span class='o'>)</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>+</span> <span class='nv'>l_tax</span><span class='o'>)</span><span class='o'>)</span>,</span>
-<span>      avg_qty <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_quantity</span><span class='o'>)</span>,</span>
-<span>      avg_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span><span class='o'>)</span>,</span>
-<span>      avg_disc <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_discount</span><span class='o'>)</span>,</span>
-<span>      count_order <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span>,</span>
-<span>      .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span><span class='o'>)</span></span>
-<span>    <span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span><span class='o'>)</span> </span>
-<span><span class='o'>&#125;</span></span></code></pre>
+tpch_dplyr <- function ...
+```
 
-</div>
-
-Here is the function that runs it with duckplyr. The only differences are the lines [`duckplyr::as_duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html) and [`collect()`](https://dplyr.tidyverse.org/reference/compute.html) (for ensuring materialization otherwise the comparison isn't fair).
+We use `tpch_dplyr()` as defined above to run the query with dplyr. The function that runs it with duckplyr only wraps the input data in a duck frame and forwards it to the dplyr function. The [`collect()`](https://dplyr.tidyverse.org/reference/compute.html) at the end ensures materialization, otherwise the comparison isn't fair.
 
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tpch_duckplyr</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>lineitem</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
 <span>  <span class='nv'>lineitem</span> <span class='o'>|&gt;</span></span>
-<span>    <span class='nf'>duckplyr</span><span class='nf'>::</span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>as_duckdb_tibble</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='c'># difference 1/2</span></span>
-<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>l_shipdate</span>, <span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span>, <span class='nv'>l_quantity</span>, <span class='nv'>l_extendedprice</span>, <span class='nv'>l_discount</span>, <span class='nv'>l_tax</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>l_shipdate</span> <span class='o'>&lt;=</span> <span class='o'>!</span><span class='o'>!</span><span class='nf'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span><span class='o'>(</span><span class='s'>"1998-09-02"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span>, <span class='nv'>l_quantity</span>, <span class='nv'>l_extendedprice</span>, <span class='nv'>l_discount</span>, <span class='nv'>l_tax</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span></span>
-<span>      sum_qty <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_quantity</span><span class='o'>)</span>,</span>
-<span>      sum_base_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span><span class='o'>)</span>,</span>
-<span>      sum_disc_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>-</span> <span class='nv'>l_discount</span><span class='o'>)</span><span class='o'>)</span>,</span>
-<span>      sum_charge <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>-</span> <span class='nv'>l_discount</span><span class='o'>)</span> <span class='o'>*</span> <span class='o'>(</span><span class='m'>1</span> <span class='o'>+</span> <span class='nv'>l_tax</span><span class='o'>)</span><span class='o'>)</span>,</span>
-<span>      avg_qty <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_quantity</span><span class='o'>)</span>,</span>
-<span>      avg_price <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_extendedprice</span><span class='o'>)</span>,</span>
-<span>      avg_disc <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>l_discount</span><span class='o'>)</span>,</span>
-<span>      count_order <span class='o'>=</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='o'>(</span><span class='o'>)</span>,</span>
-<span>      .by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span><span class='o'>)</span></span>
-<span>    <span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nv'>l_returnflag</span>, <span class='nv'>l_linestatus</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/compute.html'>collect</a></span><span class='o'>(</span><span class='o'>)</span> <span class='c'># difference 2/2</span></span>
+<span>    <span class='nf'>duckplyr</span><span class='nf'>::</span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>as_duckdb_tibble</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>    <span class='nf'>tpch_dplyr</span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
+<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/compute.html'>collect</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='o'>&#125;</span></span></code></pre>
 
 </div>
@@ -309,33 +263,30 @@ And now we compare the two:
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>bench</span><span class='nf'>::</span><span class='nf'><a href='https://bench.r-lib.org/reference/mark.html'>mark</a></span><span class='o'>(</span></span>
-<span>  <span class='nf'>tpch_dplyr</span><span class='o'>(</span><span class='nv'>lineitem</span><span class='o'>)</span>,</span>
-<span>  <span class='nf'>tpch_duckplyr</span><span class='o'>(</span><span class='nv'>lineitem</span><span class='o'>)</span>,</span>
+<span>  <span class='nf'>tpch_dplyr</span><span class='o'>(</span><span class='nv'>lineitem_tbl</span><span class='o'>)</span>,</span>
+<span>  <span class='nf'>tpch_duckplyr</span><span class='o'>(</span><span class='nv'>lineitem_tbl</span><span class='o'>)</span>,</span>
 <span>  check <span class='o'>=</span> <span class='o'>~</span> <span class='nf'><a href='https://rdrr.io/r/base/all.equal.html'>all.equal</a></span><span class='o'>(</span><span class='nv'>.x</span>, <span class='nv'>.y</span>, tolerance <span class='o'>=</span> <span class='m'>1e-10</span><span class='o'>)</span></span>
 <span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Warning: Some expressions had a GC in every iteration; so filtering is disabled.</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 6</span></span></span>
-<span><span class='c'>#&gt;   expression                   min   median `itr/sec` mem_alloc `gc/sec`</span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>              <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:byt&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem)     748.7ms    749ms      1.34   878.6MB     2.67</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem)   87.3ms    103ms      9.79    94.2KB     0</span></span>
+<span><span class='c'>#&gt;   <span style='font-weight: bold;'>expression</span>                       <span style='font-weight: bold;'>min</span>   <span style='font-weight: bold;'>median</span> <span style='font-weight: bold;'>`itr/sec`</span> <span style='font-weight: bold;'>mem_alloc</span> <span style='font-weight: bold;'>`gc/sec`</span></span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>                  <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:byt&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem_tbl)     830.6ms  830.6ms      1.20    1.25GB     2.41</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem_tbl)   84.4ms   88.2ms     11.3    18.86KB     0</span></span>
 <span></span></code></pre>
 
 </div>
 
-In this benchmark, the pipeline run with duckplyr is clearly faster than the pipeline run with dplyr. Start using duckplyr today by attaching it and running your existing dplyr code. Many operations will be carried out with DuckDB, faster than with dplyr.
+In this example, the pipeline run with duckplyr is clearly faster than the pipeline run with dplyr. It also appears to use much less memory, but this is misleading: DuckDB uses memory outside of R's memory management, so the memory usage is not visible to R.
 
 ## Data larger than memory
 
-For data larger than memory, duckplyr is a legitimate alternative to dtplyr and dbplyr.
-
 With datasets that approach or surpass the size of your machine's RAM, you want:
 
--   input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like [`read_parquet_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html).
--   efficient computation, which duckplyr provides via DuckDB's holistic optimization, without your having to adapt your code.
--   the output to not clutter all the memory, which duckplyr supports through two features:
-    -   computation to files using [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_file.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_file.html).
-    -   the control of automatic materialization (collection of results into memory). You can disable automatic materialization completely or, as a compromise, disable it up to a certain output size. See [`vignette("prudence")`](https://duckplyr.tidyverse.org/articles/prudence.html) for details.
+-   input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like [`read_parquet_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html);
+-   efficient computation, which duckplyr provides via DuckDB's holistic optimization, without having to adapt your code;
+-   large results to not clutter your memory by dumping them to files using [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_parquet.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_csv.html);
+-   small results processed seamlessly with dplyr, using all verbs and functions.
 
 This workflow is fully supported by duckplyr. See [`vignette("large")`](https://duckplyr.tidyverse.org/articles/large.html) for a walkthrough and more details.
 
