@@ -161,7 +161,6 @@ out$count_order
 The result could also be computed to a file.
 
 ```{r}
-# to a file
 csv_file <- withr::local_tempfile()
 compute_csv(out, csv_file)
 fs::file_size(csv_file)
@@ -220,12 +219,10 @@ It also appears to use much less memory, but this is misleading: DuckDB uses mem
 
 ## Data larger than memory
 
-For data larger than memory, duckplyr is a legitimate alternative to dtplyr and dbplyr.
-
 With datasets that approach or surpass the size of your machine's RAM, you want:
 
 - input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like `read_parquet_duckdb()`;
-- efficient computation, which duckplyr provides via DuckDB's holistic optimization, without your having to adapt your code;
+- efficient computation, which duckplyr provides via DuckDB's holistic optimization, without having to adapt your code;
 - large results to not clutter your memory by dumping them to files using  [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_parquet.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_csv.html);
 - small results processed seamlessly with dplyr, using all verbs and functions.
 
@@ -250,7 +247,7 @@ You can help!
 
 Eager to learn more about duckplyr -- beside by trying it out yourself?
 The pkgdown website of duckplyr features several [articles](https://duckplyr.tidyverse.org/articles/).
-Furthermore, the blog post ["duckplyr: dplyr Powered by DuckDB"](https://duckdb.org/2024/04/02/duckplyr.html) by Hannes Mühleisen provides some context on duckplyr including its inner workings, as also seen in a [section](https://blog.r-hub.io/2025/02/13/lazy-meanings/#duckplyr-lazy-evaluation-and-prudence) of the R-hub blog post ["Lazy introduction to laziness in R"](https://blog.r-hub.io/2025/02/13/lazy-meanings/) by Maëlle Salmon, Athanasia Mo Mowinckel and Hannah Frick. 
+Furthermore, the blog post ["duckplyr: dplyr Powered by DuckDB"](https://duckdb.org/2024/04/02/duckplyr.html) by Hannes Mühleisen provides some context on duckplyr including its inner workings, as also seen in a [section](https://blog.r-hub.io/2025/02/13/lazy-meanings/#duckplyr-lazy-evaluation-and-prudence) of the R-hub blog post ["Lazy introduction to laziness in R"](https://blog.r-hub.io/2025/02/13/lazy-meanings/) by Maëlle Salmon, Athanasia Mo Mowinckel and Hannah Frick.
 
 ## Acknowledgements
 
