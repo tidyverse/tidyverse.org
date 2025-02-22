@@ -54,8 +54,6 @@ options(
   pillar.max_footer_lines = 7,
   pillar.bold = TRUE
 )
-
-Sys.setenv(DUCKPLYR_FALLBACK_INFO = TRUE)
 ```
 
 
@@ -168,8 +166,12 @@ fs::file_size(csv_file)
 
 Operations not yet supported by duckplyr are automatically outsourced to dplyr.
 For instance, filtering on grouped data is not supported yet, still it works thanks to the fallback mechanism.
+By default, the fallback is silent.
+Here, we make it visible by setting an environment variable.
 
 ```{r}
+Sys.setenv(DUCKPLYR_FALLBACK_INFO = TRUE)
+
 lineitem_tbl |>
   duckplyr::as_duckdb_tibble() |>
   filter(l_quantity == max(l_quantity), .by = c(l_returnflag, l_linestatus))
