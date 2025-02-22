@@ -85,6 +85,7 @@ You can simply _drop_ duckplyr into your pipeline by loading it, then computatio
 [^duckdb]: If you haven't heard about it, you can watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
 
 Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but execute it with duckplyr.
+We use a function because the same code is reused throughout the article.
 
 ```{r include=FALSE}
 options(conflicts.policy = list(warn = FALSE))
@@ -96,21 +97,24 @@ library(conflicted)
 library(duckplyr)
 conflict_prefer("filter", "dplyr", quiet = TRUE)
 
-out <- lineitem_tbl |>
-  filter(l_shipdate <= !!as.Date("1998-09-02")) |>
-  summarise(
-    sum_qty = sum(l_quantity),
-    sum_base_price = sum(l_extendedprice),
-    sum_disc_price = sum(l_extendedprice * (1 - l_discount)),
-    sum_charge = sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)),
-    avg_qty = mean(l_quantity),
-    avg_price = mean(l_extendedprice),
-    avg_disc = mean(l_discount),
-    count_order = n(),
-    .by = c(l_returnflag, l_linestatus)
-  ) |>
-  arrange(l_returnflag, l_linestatus)
-out
+tpch_dplyr <- function(lineitem) {
+  lineitem |>
+    filter(l_shipdate <= !!as.Date("1998-09-02")) |>
+    summarise(
+      sum_qty = sum(l_quantity),
+      sum_base_price = sum(l_extendedprice),
+      sum_disc_price = sum(l_extendedprice * (1 - l_discount)),
+      sum_charge = sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)),
+      avg_qty = mean(l_quantity),
+      avg_price = mean(l_extendedprice),
+      avg_disc = mean(l_discount),
+      count_order = n(),
+      .by = c(l_returnflag, l_linestatus)
+    ) |>
+    arrange(l_returnflag, l_linestatus)
+}
+
+tpch_dplyr(lineitem_tbl)
 ```
 
 Like with other dplyr backends like dtplyr and dbplyr, duckplyr allows you to get faster results without learning a different syntax.
@@ -138,20 +142,10 @@ The duckplyr package performs the computation using DuckDB.
 
 ```{r}
 out <- lineitem_tbl |>
-  duckplyr::as_duckdb_tibble() |> # this is the only change :-)
-  filter(l_shipdate <= !!as.Date("1998-09-02")) |>
-  summarise(
-    sum_qty = sum(l_quantity),
-    sum_base_price = sum(l_extendedprice),
-    sum_disc_price = sum(l_extendedprice * (1 - l_discount)),
-    sum_charge = sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)),
-    avg_qty = mean(l_quantity),
-    avg_price = mean(l_extendedprice),
-    avg_disc = mean(l_discount),
-    count_order = n(),
-    .by = c(l_returnflag, l_linestatus)
-  ) |>
-  arrange(l_returnflag, l_linestatus)
+  duckplyr::as_duckdb_tibble() |>
+  tpch_dplyr()
+
+out
 ```
 
 
@@ -184,37 +178,22 @@ lineitem_tbl |>
 
 Using duckplyr is faster than using dplyr.
 Below we compare the same pipeline, "TPC-H benchmark query 1", with dplyr and duckplyr.
+The comparison is done in a fresh R session where dplyr is attached but duckplyr is not.
 
-_Because we compare dplyr with duckplyr here, we no longer can use duckplyr for all dplyr operations._
-
-```{r}
+```{r include = FALSE}
 # Undo the effect of library(duckplyr)
 methods_restore()
 ```
 
-Here is the function that runs the pipeline with dplyr.
+```r
+# Restart R
+library(dplyr)
 
-```{r}
-tpch_dplyr <- function(lineitem) {
-  lineitem |>
-    filter(l_shipdate <= !!as.Date("1998-09-02")) |>
-    summarise(
-      sum_qty = sum(l_quantity),
-      sum_base_price = sum(l_extendedprice),
-      sum_disc_price = sum(l_extendedprice * (1 - l_discount)),
-      sum_charge = sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)),
-      avg_qty = mean(l_quantity),
-      avg_price = mean(l_extendedprice),
-      avg_disc = mean(l_discount),
-      count_order = n(),
-      .by = c(l_returnflag, l_linestatus)
-    ) |>
-    arrange(l_returnflag, l_linestatus) 
-}
+tpch_dplyr <- function ...
 ```
 
-Here is the function that runs it with duckplyr.
-We can use exactly the same code (by forwarding to the dplyr function) and only need to change the input data to a duck frame.
+We use `tpch_dplyr()` as defined above to run the query with dplyr.
+The function that runs it with duckplyr only wraps the input data in a duck frame and forwards it to the dplyr function.
 The `collect()` at the end ensures materialization, otherwise the comparison isn't fair.
 
 ```{r}
