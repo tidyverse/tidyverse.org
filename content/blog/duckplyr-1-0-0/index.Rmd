@@ -38,7 +38,6 @@ TODO:
 We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0.
 This is a new dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^duckdb].
 It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org).
-You can use it instead of dplyr for data small or large.
 
 <!-- FIXME:
 
@@ -83,7 +82,7 @@ You can simply _drop_ duckplyr into your pipeline by loading it, then computatio
 [^duckdb]: If you haven't heard about it, you can watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
 
 Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but execute it with duckplyr.
-We use a function because the same code is reused throughout the article.
+We use a function because this code is reused throughout the article.
 
 ```{r include=FALSE}
 options(conflicts.policy = list(warn = FALSE))
@@ -135,7 +134,7 @@ To _replace_ dplyr with duckplyr, you can:
 - Create individual "duck frames" using _conversion functions_ like `duckdb_tibble()` or `as_duckdb_tibble()`, or _ingestion functions_ like `read_csv_duckdb()`.
 
 
-Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline, with the exact same semantics.
+In both cases, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline, with the exact same semantics.
 The duckplyr package performs the computation using DuckDB.
 
 ```{r}
@@ -180,9 +179,8 @@ lineitem_tbl |>
 
 ## Benchmark
 
-Using duckplyr is faster than using dplyr.
-Below we compare the same pipeline, "TPC-H benchmark query 1", with dplyr and duckplyr.
-The comparison is done in a fresh R session where dplyr is attached but duckplyr is not.
+duckplyr is often much faster than dplyr.
+The comparison below is done in a fresh R session where dplyr is attached but duckplyr is not.
 
 ```{r include = FALSE}
 # Undo the effect of library(duckplyr)
@@ -198,7 +196,9 @@ tpch_dplyr <- function ...
 
 We use `tpch_dplyr()` as defined above to run the query with dplyr.
 The function that runs it with duckplyr only wraps the input data in a duck frame and forwards it to the dplyr function.
-The `collect()` at the end ensures materialization, otherwise the comparison isn't fair.
+The `collect()` at the end is required only for this benchmark to ensure fairness.[^collect]
+
+[^collect]: If omitted, the results would be unchanged but the measurements would be wrong. The computation would then be triggered by the check. See `vignette("prudence")` for details.
 
 ```{r}
 tpch_duckplyr <- function(lineitem) {

@@ -20,7 +20,7 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: 4ab938fee82c27c6
+rmd_hash: 3f544f8448990759
 
 ---
 
@@ -37,7 +37,7 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0. This is a new dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^1]. It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org). You can use it instead of dplyr for data small or large.
+We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0. This is a new dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^1]. It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org).
 
 <!-- FIXME:
 
@@ -90,7 +90,7 @@ Imagine you have to wrangle a huge dataset. Here we generate one using the [data
 
 We could transform the data using dplyr but we could also transform it using a tool that'll scale well to ever larger data: duckplyr. The duckplyr package is a *drop-in replacement for dplyr* that uses *DuckDB for speed*. You can simply *drop* duckplyr into your pipeline by loading it, then computations will be efficiently carried out by DuckDB.
 
-Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but execute it with duckplyr. We use a function because the same code is reused throughout the article.
+Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but execute it with duckplyr. We use a function because this code is reused throughout the article.
 
 <div class="highlight">
 
@@ -144,7 +144,7 @@ To *replace* dplyr with duckplyr, you can:
 
 -   Create individual "duck frames" using *conversion functions* like [`duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html) or [`as_duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html), or *ingestion functions* like [`read_csv_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html).
 
-Then, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline, with the exact same semantics. The duckplyr package performs the computation using DuckDB.
+In both cases, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline, with the exact same semantics. The duckplyr package performs the computation using DuckDB.
 
 <div class="highlight">
 
@@ -196,7 +196,7 @@ The result could also be computed to a file.
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 4 more variables: </span><span style='color: #555555; font-weight: bold;'>avg_qty</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>avg_price</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>avg_disc</span><span style='color: #555555;'> &lt;dbl&gt;,</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>#   </span><span style='color: #555555; font-weight: bold;'>count_order</span><span style='color: #555555;'> &lt;dbl&gt;</span></span></span>
 <span></span><span><span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; 652</span></span>
+<span><span class='c'>#&gt; 651</span></span>
 <span></span></code></pre>
 
 </div>
@@ -236,7 +236,7 @@ Operations not yet supported by duckplyr are automatically outsourced to dplyr. 
 
 ## Benchmark
 
-Using duckplyr is faster than using dplyr. Below we compare the same pipeline, "TPC-H benchmark query 1", with dplyr and duckplyr. The comparison is done in a fresh R session where dplyr is attached but duckplyr is not.
+duckplyr is often much faster than dplyr. The comparison below is done in a fresh R session where dplyr is attached but duckplyr is not.
 
 ``` r
 # Restart R
@@ -245,7 +245,7 @@ library(dplyr)
 tpch_dplyr <- function ...
 ```
 
-We use `tpch_dplyr()` as defined above to run the query with dplyr. The function that runs it with duckplyr only wraps the input data in a duck frame and forwards it to the dplyr function. The [`collect()`](https://dplyr.tidyverse.org/reference/compute.html) at the end ensures materialization, otherwise the comparison isn't fair.
+We use `tpch_dplyr()` as defined above to run the query with dplyr. The function that runs it with duckplyr only wraps the input data in a duck frame and forwards it to the dplyr function. The [`collect()`](https://dplyr.tidyverse.org/reference/compute.html) at the end is required only for this benchmark to ensure fairness.[^2]
 
 <div class="highlight">
 
@@ -271,8 +271,8 @@ And now we compare the two:
 <span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 6</span></span></span>
 <span><span class='c'>#&gt;   <span style='font-weight: bold;'>expression</span>                       <span style='font-weight: bold;'>min</span>   <span style='font-weight: bold;'>median</span> <span style='font-weight: bold;'>`itr/sec`</span> <span style='font-weight: bold;'>mem_alloc</span> <span style='font-weight: bold;'>`gc/sec`</span></span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>                  <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:byt&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem_tbl)     830.6ms  830.6ms      1.20    1.25GB     2.41</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem_tbl)   84.4ms   88.2ms     11.3    18.86KB     0</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem_tbl)     834.3ms    834ms      1.20    1.25GB     2.40</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem_tbl)   87.2ms     88ms     11.3    18.86KB     0</span></span>
 <span></span></code></pre>
 
 </div>
@@ -317,4 +317,6 @@ A big thanks to all folks who filed issues, created PRs and generally helped to 
 Special thanks to Joe Thorley ([@joethorley](https://github.com/joethorley)) for help with choosing the right words.
 
 [^1]: If you haven't heard about it, you can watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
+
+[^2]: If omitted, the results would be unchanged but the measurements would be wrong. The computation would then be triggered by the check. See `vignette("prudence")` for details.
 
