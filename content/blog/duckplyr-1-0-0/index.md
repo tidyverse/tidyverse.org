@@ -20,34 +20,11 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: 3f544f8448990759
+rmd_hash: 57d25fe64e482d20
 
 ---
 
-<!--
-TODO:
-* [x] Look over / edit the post's title in the yaml
-* [x] Edit (or delete) the description; note this appears in the Twitter card
-* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [x] Find photo & update yaml metadata
-* [x] Create `thumbnail-sq.jpg`; height and width should be equal
-* [x] Create `thumbnail-wd.jpg`; width should be >5x height
-* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [x] Add intro sentence, e.g. the standard tagline for the package
-* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
--->
-
-We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0. This is a new dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^1]. It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org).
-
-<!-- FIXME:
-
-We have many more dplyr backends, the two above are just from the tidyverse.
-GitHub search: https://github.com/search?q=org%3Acran+%2FS3method%5B%28%5D%28mutate%7Csummarise%29+*%2C%2F&type=code
-Do we need an "awesome dplyr" like https://github.com/krlmlr/awesome-vctrs/?
-
--->
-
-You can install it from CRAN with:
+We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0. This is a new dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^1]. It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org). You can install it from CRAN with:
 
 <div class="highlight">
 
