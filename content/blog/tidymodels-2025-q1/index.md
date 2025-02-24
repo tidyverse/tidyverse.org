@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-2025-q1
 title: Q1 2025 tidymodels digest
-date: 2025-02-25
+date: 2025-02-27
 author: Max Kuhn
 description: >
     A summary of the goings on for the tidymodels group in later 2024 and early 2025.
@@ -117,15 +117,6 @@ You can generate quantile predictions by first creating a model specification, w
 
 ``` r
 library(tidymodels)
-tidymodels_perfer()
-```
-
-```
-## Error in tidymodels_perfer(): could not find function "tidymodels_perfer"
-```
-
-``` r
-library(tidymodels)
 tidymodels_prefer()
 
 ames <- 
@@ -201,33 +192,25 @@ For prediction, tidymodels always returns a data frame with as many rows as the 
 
 ``` r
 quant_pred <- predict(quant_fit, ames) 
+quant_pred |> slice(1:4)
+```
 
+```
+## # A tibble: 4 × 1
+##   .pred_quantile
+##        <qtls(3)>
+## 1         [5.33]
+## 2         [5.33]
+## 3         [5.33]
+## 4         [5.31]
+```
+
+``` r
 class(quant_pred$.pred_quantile)
 ```
 
 ```
 ## [1] "quantile_pred" "vctrs_vctr"    "list"
-```
-
-``` r
-quant_pred
-```
-
-```
-## # A tibble: 2,930 × 1
-##    .pred_quantile
-##         <qtls(3)>
-##  1         [5.33]
-##  2         [5.33]
-##  3         [5.33]
-##  4         [5.31]
-##  5         [5.35]
-##  6         [5.34]
-##  7         [5.39]
-##  8         [5.34]
-##  9         [5.35]
-## 10         [5.32]
-## # ℹ 2,920 more rows
 ```
 
 where the output `[5.31]` shows the middle quantile. 
@@ -278,7 +261,7 @@ quant_pred$.pred_quantile |>
 <p class="caption">10%, 50%, and 90% quantile predictions.</p>
 </div>
 
-For now, the new mode does not have many engines yet. We need to implement some performance statistics in the yardstick package before integrating these models into the whole tidymodels ecosystem. 
+For now, the new mode does not have many engines. We need to implement some performance statistics in the yardstick package before integrating these models into the whole tidymodels ecosystem. 
 
 In other news, we’ve added some additional neural network models based on some improvements in the brulee package. Namely, two-layer networks can be tuned for feed-forward networks on tabular data (using torch). 
 
@@ -288,9 +271,9 @@ Finally, we’ve created a set of [checklists](https://parsnip.tidymodels.org/ar
 
 ## The tune Package
 
-This was a small maintenance release mostly related to parallel processing. At the start, tidymodels facilitated parallelism using the [foreach](https://cran.r-project.org/package=foreach) package. That package is mature but not actively developed, so we have been slowly moving toward using the [future](https://www.futureverse.org/packages-overview.html) package(s). 
+This was a small maintenance release mostly related to parallel processing. Up to now, facilitated parallelism using the [foreach](https://cran.r-project.org/package=foreach) package. That package is mature but not actively developed, so we have been slowly moving toward using the [future](https://www.futureverse.org/packages-overview.html) package(s). 
 
-The [first step in this journey](https://www.tidyverse.org/blog/2024/04/tune-1-2-0/#modernized-support-for-parallel-processing) was to keep using foreach internally (but lean toward future) but to encourage users to move from directly invoking the foreach package and, instead, load and sue the future package. 
+The [first step in this journey](https://www.tidyverse.org/blog/2024/04/tune-1-2-0/#modernized-support-for-parallel-processing) was to keep using foreach internally (but lean toward future) but to encourage users to move from directly invoking the foreach package and, instead, load and use the future package. 
 
 We’re now moving folks into the second stage. tune will now raise a warning when:
 
