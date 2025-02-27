@@ -33,9 +33,9 @@ The tidymodels framework is a collection of R packages for modeling and machine 
 
 Since the beginning of 2021, we have been publishing quarterly updates here on the tidyverse blog summarizing what’s new in the tidymodels ecosystem. The purpose of these regular posts is to share useful new features and any updates you may have missed. You can check out the tidymodels tag to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused.
 
-We've recently sent a steady stream of tidymodels packages to CRAN recently. We usually release them in batches since many of our packages are tightly coupled with one another. Internally, this process is referred to as the "cascade" of CRAN submissions.  
+We've sent a steady stream of tidymodels packages to CRAN recently. We usually release them in batches since many of our packages are tightly coupled with one another. Internally, this process is referred to as the "cascade" of CRAN submissions.  
 
-The post will update you on which packages have changed and the major improvements you should know. 
+The post will update you on which packages have changed and the major improvements you should know about. 
 
 Here's a list of the packages and their News sections: 
 
@@ -52,17 +52,17 @@ Here's a list of the packages and their News sections:
 
 Let's look at a few specific updates.
 
-## Improvements in Errors and Warnings
+## Improvements in errors and warnings
 
-A group effort was made to improve our error and warning messages across many packages. This started with an internal "upkeep week" (which ended up being 3-4 weeks) and concluded at the [Tidy Dev Day in Seattle](https://www.tidyverse.org/blog/2024/04/tdd-2024/) after Posit conf.  
+A group effort was made to improve our error and warning messages across many packages. This started with an internal "upkeep week" (which ended up being 3-4 weeks) and concluded at the [Tidy Dev Day in Seattle](https://www.tidyverse.org/blog/2024/04/tdd-2024/) after posit::conf(2024).  
 
-The goal was to use new tools in the cli and rlang packages to make messages more informative than they used to be. For example, using 
+The goal was to use new tools in the cli and rlang packages to make messages more informative than they used to be. For example, using:
 
 ```r
 tidy(pca_extract_trained, number = 3, type = "variances")
 ```
 
-used to result in the error message 
+used to result in the error message:
 
 ```
 Error in `match.arg()`:
@@ -84,14 +84,14 @@ Error in `fit()`:
 ! The `formula` argument must be a formula, but it is a <character>.
 ```
 
-and now you see
+and now you see:
 
 ```
 Error in `fit()`:
 ! `formula` must be a formula, not the string "boop".
 ```
 
-This was _a lot_ of work and we're still isn’t finished. Two events helped us get as far as we did. 
+This was _a lot_ of work and we're still aren’t finished. Two events helped us get as far as we did. 
 
 First, Simon Couch made the [chores](https://simonpcouch.github.io/chores/) package (its previous name was "pal"), which enabled us to use AI tools to solve small-scope problems, such as converting old rlang error code to use the new [cli syntax](https://rlang.r-lib.org/reference/topic-condition-formatting.html). I can’t overstate how much of a speed-up this was for us. 
 
@@ -106,9 +106,9 @@ I love these sessions for many reasons, but mostly because we meet users and con
 
 There is a lot more to do here; we have a lot of secondary packages that would benefit from these improvements too. 
 
-## The parsnip Package
+## Quantile regression in parsnip
 
-One big update in parsnip was a new modeling mode of `"quantile regression"`. Daniel McDonald and Ryan Tibshirani largely provided some inertia for this work based on their disease modeling framework. 
+One big update in parsnip was a new modeling mode of `"quantile regression"`. Daniel McDonald and Ryan Tibshirani largely provided some inertia for this work based on their [disease modeling framework](https://delphi.cmu.edu/). 
 
 You can generate quantile predictions by first creating a model specification, which includes the quantiles that you want to predict:
 
@@ -157,16 +157,16 @@ quant_fit
 ```
 
 ```
-## ══ Workflow [trained] ═════════════════════════════════════════════════════════════════════
+## ══ Workflow [trained] ═════════════════════════════════════════════════
 ## Preprocessor: Recipe
 ## Model: linear_reg()
 ## 
-## ── Preprocessor ───────────────────────────────────────────────────────────────────────────
+## ── Preprocessor ───────────────────────────────────────────────────────
 ## 1 Recipe Step
 ## 
 ## • step_spline_natural()
 ## 
-## ── Model ──────────────────────────────────────────────────────────────────────────────────
+## ── Model ──────────────────────────────────────────────────────────────
 ## Call:
 ## quantreg::rq(formula = ..y ~ ., tau = quantile_levels, data = data)
 ## 
@@ -187,7 +187,7 @@ quant_fit
 ## Degrees of freedom: 2930 total; 2919 residual
 ```
 
-For prediction, tidymodels always returns a data frame with as many rows as the input data set (i.e., `ames`). The result is a special vctrs class: 
+For prediction, tidymodels always returns a data frame with as many rows as the input data set (here: `ames`). The result for quantile predictions is a special vctrs class: 
 
 
 ``` r
@@ -215,7 +215,7 @@ class(quant_pred$.pred_quantile)
 
 where the output `[5.31]` shows the middle quantile. 
 
-We can expand the set of quantile predictions so that there are three rows for each source row in `ames` . There’s also an integer column called `.row` so that we can merge the data with the source data:  
+We can expand the set of quantile predictions so that there are three rows for each source row in `ames`. There’s also an integer column called `.row` so that we can merge the data with the source data:  
 
 
 ``` r
@@ -252,12 +252,11 @@ quant_pred$.pred_quantile |>
   ggplot(aes(x = Latitude)) + 
   geom_point(data = ames, aes(y = Sale_Price), alpha = 1 / 5) +
   geom_line(aes(y = .pred_quantile, col = format(.quantile_levels)), 
-            show.legend = FALSE, linewidth = 1.5) +
-  theme_bw()
+            show.legend = FALSE, linewidth = 1.5) 
 ```
 
 <div class="figure" style="text-align: center">
-<img src="figure/quant-plot-1.png" alt="10%, 50%, and 90% quantile predictions." width="80%" />
+<img src="figure/quant-plot-1.svg" alt="10%, 50%, and 90% quantile predictions." width="80%" />
 <p class="caption">10%, 50%, and 90% quantile predictions.</p>
 </div>
 
@@ -269,9 +268,9 @@ One other improvement has been simmering for a long time: the ability to exploit
 
 Finally, we’ve created a set of [checklists](https://parsnip.tidymodels.org/articles/checklists.html) that can be used when creating new models or engines. These are very helpful, even for us, since there is a lot of minutiae to remember. 
 
-## The tune Package
+## Parallelism in tune
 
-This was a small maintenance release mostly related to parallel processing. Up to now, facilitated parallelism using the [foreach](https://cran.r-project.org/package=foreach) package. That package is mature but not actively developed, so we have been slowly moving toward using the [future](https://www.futureverse.org/packages-overview.html) package(s). 
+This was a small maintenance release mostly related to parallel processing. Up to now, tune facilitated parallelism using the [foreach](https://cran.r-project.org/package=foreach) package. That package is mature but not actively developed, so we have been slowly moving toward using the [future](https://www.futureverse.org/packages-overview.html) package(s). 
 
 The [first step in this journey](https://www.tidyverse.org/blog/2024/04/tune-1-2-0/#modernized-support-for-parallel-processing) was to keep using foreach internally (but lean toward future) but to encourage users to move from directly invoking the foreach package and, instead, load and use the future package. 
 
@@ -282,17 +281,19 @@ We’re now moving folks into the second stage. tune will now raise a warning wh
 
 This will allow users to transition their existing code to only future and allow us to update existing documentation and training materials. 
 
-We anticipate that the third stage, **removing foreach entirely**, will occur sometime before the 2025 Posit conference in September. 
+We anticipate that the third stage, **removing foreach entirely**, will occur sometime before posit::conf(2025) in September. 
 
-## The Next Cascade
+## Things to look forward to
 
-We are working hard on a few major initiatives that we plan on showing off at Posit conf. 
+We are working hard on a few major initiatives that we plan on showing off at posit::conf(2025). 
 
-First is integrated support for sparse **data**. The emphasis is on "data" because users can use sparse data frames _or_ the usual sparse matrix format. This is a big deal because it does not force you to convert non-numeric data into a numeric matrix format. Again, we’ll discuss this more in the future, but you should be able to use sparse data frames in parsnip, recipes, tune, etc. 
+First is integrated support for sparse **data**. The emphasis is on "data" because users can use a data frame of sparse vectors _or_ the usual sparse matrix format. This is a big deal because it does not force you to convert non-numeric data into a numeric matrix format. Again, we’ll discuss this more in the future, but you should be able to use sparse data frames in parsnip, recipes, tune, etc. 
 
-The second initiative is the longstanding goal of adding **postprocessing** to tidymodels. Just as you can add a preprocessor to a model workflow, you will be able to add a set of postprocessing adjustments to the predictions your model generates. See [Simon's blog post](https://www.simonpcouch.com/blog/2024-10-16-postprocessing/) and our [previous post](https://www.tidyverse.org/blog/2024/10/postprocessing-preview/) for a sneak peek. 
+The second initiative is the longstanding goal of adding **postprocessing** to tidymodels. Just as you can add a preprocessor to a model workflow, you will be able to add a set of postprocessing adjustments to the predictions your model generates. See our [previous post](https://www.tidyverse.org/blog/2024/10/postprocessing-preview/) for a sneak peek. 
 
-These should come to fruition (and CRAN) around August 2025. 
+Finally, this year's [summer internship](https://www.tidyverse.org/blog/2025/01/tidymodels-2025-internship/) focuses on supervised feature selection methods. We’ll also have releases (and probably another package) for these tools. 
+
+These should come to fruition (and CRAN) before or around August 2025. 
 
 ## Acknowledgements
 

@@ -56,13 +56,13 @@ Let's look at a few specific updates.
 
 A group effort was made to improve our error and warning messages across many packages. This started with an internal "upkeep week" (which ended up being 3-4 weeks) and concluded at the [Tidy Dev Day in Seattle](https://www.tidyverse.org/blog/2024/04/tdd-2024/) after posit::conf(2024).  
 
-The goal was to use new tools in the cli and rlang packages to make messages more informative than they used to be. For example, using 
+The goal was to use new tools in the cli and rlang packages to make messages more informative than they used to be. For example, using:
 
 ```r
 tidy(pca_extract_trained, number = 3, type = "variances")
 ```
 
-used to result in the error message 
+used to result in the error message:
 
 ```
 Error in `match.arg()`:
@@ -84,7 +84,7 @@ Error in `fit()`:
 ! The `formula` argument must be a formula, but it is a <character>.
 ```
 
-and now you see
+and now you see:
 
 ```
 Error in `fit()`:
@@ -112,7 +112,7 @@ There is a lot more to do here; we have a lot of secondary packages that would b
 
 ## Quantile regression in parsnip
 
-One big update in parsnip was a new modeling mode of `"quantile regression"`. Daniel McDonald and Ryan Tibshirani largely provided some inertia for this work based on their disease modeling framework. 
+One big update in parsnip was a new modeling mode of `"quantile regression"`. Daniel McDonald and Ryan Tibshirani largely provided some inertia for this work based on their [disease modeling framework](https://delphi.cmu.edu/). 
 
 You can generate quantile predictions by first creating a model specification, which includes the quantiles that you want to predict:
 
@@ -120,6 +120,7 @@ You can generate quantile predictions by first creating a model specification, w
 #| label: sshhh
 #| include: false
 library(tidymodels)
+theme_set(theme_bw())
 ```
 
 ```{r}
@@ -179,7 +180,9 @@ Here are the predicted quantile values:
 ```{r}
 #| label: quant-plot
 #| fig.align: center
-#| fig.height: 6.25
+#| dev: svglite
+#| fig.height: 4
+#| fig.width: 6.25
 #| out.width: 80%
 #| fig.cap: 10%, 50%, and 90% quantile predictions. 
 
@@ -190,8 +193,7 @@ quant_pred$.pred_quantile |>
   ggplot(aes(x = Latitude)) + 
   geom_point(data = ames, aes(y = Sale_Price), alpha = 1 / 5) +
   geom_line(aes(y = .pred_quantile, col = format(.quantile_levels)), 
-            show.legend = FALSE, linewidth = 1.5) +
-  theme_bw()
+            show.legend = FALSE, linewidth = 1.5) 
 ```
 
 For now, the new mode does not have many engines. We need to implement some performance statistics in the yardstick package before integrating these models into the whole tidymodels ecosystem. 
@@ -221,9 +223,11 @@ We anticipate that the third stage, **removing foreach entirely**, will occur so
 
 We are working hard on a few major initiatives that we plan on showing off at posit::conf(2025). 
 
-First is integrated support for sparse **data**. The emphasis is on "data" because users can use sparse data frames _or_ the usual sparse matrix format. This is a big deal because it does not force you to convert non-numeric data into a numeric matrix format. Again, we’ll discuss this more in the future, but you should be able to use sparse data frames in parsnip, recipes, tune, etc. 
+First is integrated support for sparse **data**. The emphasis is on "data" because users can use a data frame of sparse vectors _or_ the usual sparse matrix format. This is a big deal because it does not force you to convert non-numeric data into a numeric matrix format. Again, we’ll discuss this more in the future, but you should be able to use sparse data frames in parsnip, recipes, tune, etc. 
 
 The second initiative is the longstanding goal of adding **postprocessing** to tidymodels. Just as you can add a preprocessor to a model workflow, you will be able to add a set of postprocessing adjustments to the predictions your model generates. See our [previous post](https://www.tidyverse.org/blog/2024/10/postprocessing-preview/) for a sneak peek. 
+
+Finally, this year's [summer internship](https://www.tidyverse.org/blog/2025/01/tidymodels-2025-internship/) focuses on supervised feature selection methods. We’ll also have releases (and probably another package) for these tools. 
 
 These should come to fruition (and CRAN) before or around August 2025. 
 
