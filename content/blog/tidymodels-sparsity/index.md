@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, recipes, parsnip, workflows]
-rmd_hash: 04c849ffdbfc01df
+rmd_hash: ba40241057d16881
 
 ---
 
@@ -36,7 +36,7 @@ TODO:
 
 We're stoked to announce tidymodels now fully supports sparse data from end to end. We have been working on this for [over 5 years](https://github.com/tidymodels/recipes/pull/515). This is an extension of the work we have done [previously](https://www.tidyverse.org/blog/2020/11/tidymodels-sparse-support/) with blueprints, which would carry the data sparsely some of the way.
 
-You will need recipes $\ge$ 1.2.0, parsnip $\ge$ 1.3.0, workflows $\ge$ 1.2.0 or later for this to work.
+You will need [recipes 1.2.0](https://recipes.tidymodels.org/news/index.html#recipes-120), [parsnip 1.3.0](https://parsnip.tidymodels.org/news/index.html#parsnip-130), [workflows 1.2.0](https://workflows.tidymodels.org/news/index.html#workflows-120) or later for this to work.
 
 ## What are sparse data?
 
@@ -116,7 +116,7 @@ With a few exceptions, it should work like any other data set. However, this app
 
 The second limitation is that it only works with non-formula methods for parsnip and workflows. This means that you can use a recipe with `add_recipe()` or select variables directly with `add_variables()` when using a workflow. And you need to use `fit_xy()` instead of `fit()` when using a parsnip object by itself.
 
-TODO: add tidymodels.org post about sparse matrix in tidymodels
+If this is of interest we also have a <https://www.tidymodels.org/> post about [using sparse matrices in tidymodels](https://www.tidymodels.org/learn/work/sparse-matrix/).
 
 ## Sparse data from recipes steps
 
@@ -176,5 +176,5 @@ These improvements are tightly related to memory allocation, which depends on th
 
 Please see the post on tidymodels.org, which goes into more detail about when you are likely to benefit from this and how to change your recipes and workflows to take full advantage of this new feature.
 
-TODO: add tidymodels.org post about sparse recipes in tidymodels
+There is also a <https://www.tidymodels.org/> post going into a bit more detail about how to [use recipes to produce sparse data](https://www.tidymodels.org/learn/work/sparse-recipe/).
 
