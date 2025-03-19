@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, recipes, parsnip, workflows]
-rmd_hash: 73c451a2adf6f695
+rmd_hash: 04c849ffdbfc01df
 
 ---
 
@@ -34,21 +34,21 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're stoked to announce tidymodels now fully supports sparse data from end to end. We have been working on this for [almost 5 years](https://github.com/tidymodels/recipes/pull/515). This is an extension of the work we have done [previously](https://www.tidyverse.org/blog/2020/11/tidymodels-sparse-support/) with blueprints, which would carry the data sparsely some of the way.
+We're stoked to announce tidymodels now fully supports sparse data from end to end. We have been working on this for [over 5 years](https://github.com/tidymodels/recipes/pull/515). This is an extension of the work we have done [previously](https://www.tidyverse.org/blog/2020/11/tidymodels-sparse-support/) with blueprints, which would carry the data sparsely some of the way.
 
-You will need recipes 1.2.0, parsnip 1.3.0, workflows 1.2.0 or later for this to work.
+You will need recipes $\ge$ 1.2.0, parsnip $\ge$ 1.3.0, workflows $\ge$ 1.2.0 or later for this to work.
 
-## What is sparse data?
+## What are sparse data?
 
-The term **sparse data** refers to a data set that contains a lot of zeroes. Sparse data appears in all kinds of fields and can be produced in a number of preprocessing methods. The reason why we care about sparse data is because of how computers store numbers. A 32-bit integer value takes 4 bytes to store. An array of 32-bit integers takes 40 bytes and so on. This happens because each value is written down.
+The term **sparse data** refers to a data set containing many zeroes. Sparse data appears in all kinds of fields and can be produced in a number of preprocessing methods. The reason why we care about sparse data is because of how computers store numbers. A 32-bit integer value takes 4 bytes to store. An array of 32-bit integers takes 40 bytes, and so on. This happens because each value is written down.
 
-A sparse representation instead stores the locations and values of the non-zero entries. The following vector with 20 entries could be represented sparsely using the 3 values `positions = c(1, 3, 7)`, `values = c(3, 5, 8)`, and `length = 20`.
+A sparse representation instead stores the locations and values of the non-zero entries. Suppose we have the following vector with 20 entries:
 
 ``` r
 c(0, 0, 1, 0, 3, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 ```
 
-Using 7 values to represent a vector of 20 elements. Since some modeling tasks contain even sparser data, this type of representation starts to give real benefits.
+It could be represented sparsely using the 3 values `positions = c(1, 3, 7)`, `values = c(3, 5, 8)`, and `length = 20`. Now, we have seven values to represent a vector of 20 elements. Since some modeling tasks contain even sparser data, this type of representation starts to show real benefits in terms of execution time and memory consumption.
 
 The tidymodels set of packages has undergone several internal changes to allow it to represent data sparsely internally when it would be beneficial. These changes allow you to fit models that contain sparse data faster and more memory efficiently than before. Moreover, it allows you to fit models previously not possible due to them not fitting in memory.
 
@@ -66,7 +66,7 @@ The `permeability_qsar` data set from the modeldata package contains quite a lot
 
 </div>
 
-Then we can use it like we normally would with a standard matrix or data.frame.
+We can now use this sparse matrix in our code the same way as a dense matrix or data frame:
 
 <div class="highlight">
 
@@ -79,7 +79,7 @@ Then we can use it like we normally would with a standard matrix or data.frame.
 
 </div>
 
-Fitting it using the same sparse matrix.
+Model training has the usual syntax:
 
 <div class="highlight">
 
@@ -87,7 +87,7 @@ Fitting it using the same sparse matrix.
 
 </div>
 
-Lastly predicting with the sparse matrix.
+as does prediction:
 
 <div class="highlight">
 
@@ -112,7 +112,7 @@ Lastly predicting with the sparse matrix.
 
 Note that only some models/engines work well with sparse data. These are all listed here <https://www.tidymodels.org/find/sparse/>. If the model doesn't support sparse data, it will be coerced into the default non-sparse representation and used as usual.
 
-It should work like any other data set for most parts. With a few exceptions. There are two main limitations to this approach. The first is that we are limited to regression tasks, since the outcome has to be numeric to be part of the matrix.
+With a few exceptions, it should work like any other data set. However, this approach has two main limitations. The first is that we are limited to regression tasks since the outcome has to be numeric to be part of the sparse matrix.
 
 The second limitation is that it only works with non-formula methods for parsnip and workflows. This means that you can use a recipe with `add_recipe()` or select variables directly with `add_variables()` when using a workflow. And you need to use `fit_xy()` instead of `fit()` when using a parsnip object by itself.
 
@@ -122,11 +122,11 @@ TODO: add tidymodels.org post about sparse matrix in tidymodels
 
 Where this sparsity support really starts to shine is when the recipe we use will generate sparse data. They come in two flavors, sparsity creation steps and sparsity preserving steps. Both listed here: <https://www.tidymodels.org/find/sparse/>.
 
-Some steps like `step_dummy()`, `step_indicate_na()`, and [`textrecipes::step_tf()`](https://textrecipes.tidymodels.org/reference/step_tf.html) will almost always produce a lot of zeroes. We take advantage of that by generating it sparsely when it is beneficial. If these steps end up producing sparse vectors, we want to make sure the sparsity is preserved. A couple of handfuls of steps such as `step_impute_mean()` and `step_scale()` have been updated to be able to efficiently work with sparse vectors. Both types of steps are detailed in the above-linked list of compatible methods.
+Some steps like `step_dummy()`, `step_indicate_na()`, and [`textrecipes::step_tf()`](https://textrecipes.tidymodels.org/reference/step_tf.html) will almost always produce a lot of zeroes. We take advantage of that by generating it sparsely when it is beneficial. If these steps end up producing sparse vectors, we want to make sure the sparsity is preserved. A couple of handfuls of steps, such as `step_impute_mean()` and `step_scale(),` have been updated to be able to work efficiently with sparse vectors. Both types of steps are detailed in the above-linked list of compatible methods.
 
-What it means in practice is that if you use a model/engine that supports sparse data and have a recipe that produces enough sparse data, then the steps will switch to produce sparse data. Increasing performance when possible while preserving performance otherwise.
+What this means in practice is that if you use a model/engine that supports sparse data and have a recipe that produces enough sparse data, then the steps will switch to produce sparse data by using a new sparse data format to store the data (when appropriate) as the recipe is being processed. Then if the model can accept sparse objects, we convert the data from our new sparse format to a standard sparse matrix object. Increasing performance when possible while preserving performance otherwise.
 
-Below is a simple recipe using the `ames` data set. `step_dummy()` is applied to all the categorical predictors, leading to a good amount of zeroes.
+Below is a simple recipe using the `ames` data set. `step_dummy()` is applied to all the categorical predictors, leading to a significant amount of zeroes.
 
 <div class="highlight">
 
@@ -172,9 +172,9 @@ We see similar speedups when we predictor with around 20ms and 25.2MB now, compa
 
 </div>
 
-These improvements are tightly related to the memory allocation which depends on the sparsity of the data set that is produced by the recipe. This is why it is hard to say how much benefit you will see. We have seen orders of magnitudes of improvements, both in terms of time and memory allocation. We have also been able to fit models where previously the data was too big to fit in memory.
+These improvements are tightly related to memory allocation, which depends on the sparsity of the data set produced by the recipe. This is why it is hard to say how much benefit you will see. We have seen orders of magnitudes of improvements, both in terms of time and memory allocation. We have also been able to fit models where previously the data was too big to fit in memory.
 
-Please see the post on tidymodels.org which goes into more detail as to when you are likely to see a benefit from this, and how to change your recipes and workflows to take full advantage of this new feature.
+Please see the post on tidymodels.org, which goes into more detail about when you are likely to benefit from this and how to change your recipes and workflows to take full advantage of this new feature.
 
 TODO: add tidymodels.org post about sparse recipes in tidymodels
 
