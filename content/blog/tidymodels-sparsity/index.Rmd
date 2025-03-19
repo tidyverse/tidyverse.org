@@ -103,7 +103,7 @@ Where this sparsity support really starts to shine is when the recipe we use wil
 
 Some steps like `step_dummy()`, `step_indicate_na()`, and `textrecipes::step_tf()` will almost always produce a lot of zeroes. We take advantage of that by generating it sparsely when it is beneficial. If these steps end up producing sparse vectors, we want to make sure the sparsity is preserved. A couple of handfuls of steps, such as `step_impute_mean()` and `step_scale(),` have been updated to be able to work efficiently with sparse vectors. Both types of steps are detailed in the above-linked list of compatible methods.
 
-What this means in practice is that if you use a model/engine that supports sparse data and have a recipe that produces enough sparse data, then the steps will switch to produce sparse data, increasing performance when possible while preserving performance otherwise. 
+What this means in practice is that if you use a model/engine that supports sparse data and have a recipe that produces enough sparse data, then the steps will switch to produce sparse data by using a new sparse data format to store the data (when appropriate) as the recipe is being processed. Then if the model can accept sparse objects, we convert the data from our new sparse format to a standard sparse matrix object. Increasing performance when possible while preserving performance otherwise.  
 
 Below is a simple recipe using the `ames` data set. `step_dummy()` is applied to all the categorical predictors, leading to a significant amount of zeroes.
 
