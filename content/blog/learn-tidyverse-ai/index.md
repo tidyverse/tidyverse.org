@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [ai]
-rmd_hash: 8779c8ca3798f95c
+rmd_hash: d93df71dc009c1fd
 
 ---
 
@@ -32,7 +32,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-As an educator who teaches data science with R, I have LOTS of opinions about using artificial intelligence (AI) tools when learning R. But I will keep this post the use of generative AI tools, like Chat GPT, in learning R, and specifically learning to do data science with R and the tidyverse.[^1]
+As an educator who teaches data science with R, I have LOTS of opinions about using artificial intelligence (AI) tools when learning R. But I will keep this post to the use of generative AI tools, like ChatGPT, in learning R, and specifically learning to do data science with R and the tidyverse.[^1]
 
 I'll first walk you through three case studies that demonstrate what asking for help from a generative AI tool looks like. Then, I'll wrap up the post with some tips and good practices for getting the most out of help provided by these tools in the context of writing tidyverse code.
 
@@ -44,7 +44,7 @@ The first case study features an example on reshaping and plotting the `billboar
 
 > Use the billboard dataset in the tidyr package to create a visualization of rank vs. week number for each song in the dataset.
 
-And the following is what [Chat GPT](https://chatgpt.com/) by Open AI suggests as the first answer.
+And the following is what [ChatGPT](https://chatgpt.com/) by OpenAI suggests as the first answer:
 
 > The `billboard` dataset from the tidyr package contains weekly rankings of songs on the Billboard charts. Here's how you can visualize the rank vs. week number for each song in the dataset using R:
 
@@ -87,7 +87,7 @@ And the following is what [Chat GPT](https://chatgpt.com/) by Open AI suggests a
 
 </div>
 
-Chat GPT also provides a neat explanation of the code:
+ChatGPT also provides a neat explanation of the code:
 
 > **Explanation**
 >
@@ -105,11 +105,11 @@ There are a few things about this answer that are promising:
 -   It uses [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) as opposed to the superseded alternative [`gather()`](https://tidyr.tidyverse.org/reference/gather.html).
 -   The plot features a reversed y-axis, [just like in the book](https://r4ds.hadley.nz/data-tidy.html#fig-billboard-ranks)
 
-However, the resulting plot doesn't show exactly what the prompt asked for -- the lines are colored by `track`, which produces a busy plot that is difficult to interpret. While this is not ideal, it's something a new learner can easily spot and ask Chat GPT for a follow up correcting it. For example, a subsequent prompt like the following fixes this issue:
+However, the resulting plot doesn't show exactly what the prompt asked for -- the lines are colored by `track`, which produces a busy plot that is difficult to interpret. While this is not ideal, it's something a new learner can easily spot and ask ChatGPT for a follow up correcting it. For example, a subsequent prompt like the following fixes this issue:
 
 > Can you redraw the plot without coloring each line by track?
 
-You can see this in action at <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba>, in the second prompt. Here is the updated code suggested by Chat GPT:
+You can see this in action in [this saved chat](https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba), in the second prompt. Here is the updated code suggested by ChatGPT:
 
 <div class="highlight">
 
@@ -131,7 +131,7 @@ You can see this in action at <https://chatgpt.com/share/678f1dee-4af0-8000-befe
 
 Note, however, that the only change wasn't omitting the `color = track` aesthetic mapping. The `alpha` level is also changed (from 0.6 to 0.3) without a justification for that change and the lines are colored `"blue"`. None of these are *bad* or *wrong* choices, but they can be confusing for new learners. Similarly, using [`theme_minimal()`](https://ggplot2.tidyverse.org/reference/ggtheme.html) is not a bad or wrong choice either[^2], but it's not *necessary*, but this might not be obvious to a new learner.
 
-Furthermore, while Chat GPT "solves" the problem, a thorough code review reveals a number of not-so-great things about the answer that can be confusing for new learners or promote poor coding practices:
+Furthermore, while ChatGPT "solves" the problem, a thorough code review reveals a number of not-so-great things about the answer that can be confusing for new learners or promote poor coding practices:
 
 -   The code loads packages that are not necessary: tidyr and ggplot2 packages are sufficient for this code, we don't also need dplyr. Additionally, learners coming from R for Data Science likely expect [`library(tidyverse)`](https://tidyverse.tidyverse.org) in analysis code, instead of loading the packages individualy.
 -   There is no need to load the `billboard` dataset, it's available to use once the tidyr package is loaded. Additionally, quotes are not needed, `data(billboard)` also works.
@@ -139,9 +139,9 @@ Furthermore, while Chat GPT "solves" the problem, a thorough code review reveals
     -   Changing the type of `week` to numeric can be done in a [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) statement with the tidyverse, which would then warrant loading the dplyr package.
     -   This can also be done within [`pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html) with the `names_transform` argument.
 
-All of these are addressable with further prompts, as I've done at <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba>, in the last two prompts. But doing so requires being able to identify these issues and explicitly asking for corrections. In practice, I wouldn't have asked Chat GPT to correct everything for me, I would have stopped after the first suggestion, which was a pretty good starting point, and made the improvements myself. However, a new learner might assume (and based on my experience seeing lots of near learner code, *does* assume) the first answer is the *right* and *good* or *best* answer since (1) it looks reasonable and (2) it works, sort of.
+All of these are addressable with further prompts, as I've done at [the saved chat](https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba), in the last two prompts. But doing so requires being able to identify these issues and explicitly asking for corrections. In practice, I wouldn't have asked ChatGPT to correct everything for me, I would have stopped after the first suggestion, which was a pretty good starting point, and made the improvements myself. However, a new learner might assume (and based on my experience seeing lots of new learner code, *does* assume) the first answer is the *right* and *good* or *best* answer since (1) it looks reasonable and (2) it works, sort of.
 
-Furthermore, requesting improvements in subsequent calls can result in surprising changes that the user hasn't asked for. We saw an example of this above, in updating the alpha level. Similarly, in <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba> you can see that asking Chat GPT to not load the packages individually but to use [`library(tidyverse)`](https://tidyverse.tidyverse.org) instead results in this change as well as not loading the data with a [`data()`](https://rdrr.io/r/utils/data.html) call and adding a data transformation step with [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) to convert `week` to numeric:
+Furthermore, requesting improvements in subsequent calls can result in surprising changes that the user hasn't asked for. We saw an example of this above, in updating the alpha level. Similarly, in [the saved chat](https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba) you can see that asking ChatGPT to not load the packages individually but to use [`library(tidyverse)`](https://tidyverse.tidyverse.org) instead results in this change as well as not loading the data with a [`data()`](https://rdrr.io/r/utils/data.html) call and adding a data transformation step with [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) to convert `week` to numeric:
 
 <div class="highlight">
 
@@ -161,11 +161,11 @@ Furthermore, requesting improvements in subsequent calls can result in surprisin
 
 </div>
 
-Both of these are welcome changes, but it can be surprising to a new learner why they're combined with updating the [`library()`](https://rdrr.io/r/base/library.html) call. This is happening because with each call Chat GPT is "trying again" -- it's not just editing the previous answer but it's regenerating an answer with additional context.
+Both of these are welcome changes, but it can be surprising to a new learner why they're combined with updating the [`library()`](https://rdrr.io/r/base/library.html) call. This is happening because with each call ChatGPT is "trying again" -- it's not just editing the previous answer but it's regenerating an answer with additional context.
 
 ## Case study 2: Data cleaning
 
-The next example is a lot more vague as it's a task that, if someone asked me for help, I would reply with "Can you share the data with me?", but Chat GPT happily generates an answer. That's probably one of the reasons why people love these tools, they never respond to a question with another question, at least not in my experience.
+The next example is a lot more vague as it's a task that, if someone asked me for help, I would reply with "Can you share the data with me?", but ChatGPT happily generates an answer. That's probably one of the reasons why people love these tools, they never respond to a question with another question, at least not in my experience.
 
 Below is the prompt for this case study. I'll provide it with no background first so you can read it as the AI tool would "read" it without any background.
 
@@ -498,7 +498,7 @@ I'll wrap up this post with some tips and good practices for using AI tools for 
 
 2.  **Check for errors:** This also seems obvious -- you should run the code the tool suggests and check for errors. If the code gives an error, this is easy to catch and potentially easy to address. However, sometimes the code suggests arguments that don't exist that R might silently ignore. These might be unneeded arguments or a needed argument but not used properly due to how it's called or the value it's set to. Such errors are more difficult to identify, particularly in functions you might not be familiar with.
 
-3.  **Run the code it gives you, line-by-line, even if the code is in a pipeline:** Tidyverse data transformation pipelines and ggplot layers are easy to run at once, with the code doing many things with one execution prompt, compared to Base R code where you execute each line of code separately. The scaffolded nature of these pipelines are very nice for keeping all steps associated with a task together and not generating unnecessary interim objects along the way. However, it requires self-discipline to inspect the code line-by-line as opposed to just inspecting the final output. For example, I regularly encounter unnecessary `group()`/[`ungroup()`](https://dplyr.tidyverse.org/reference/group_by.html)s or [`select()`](https://dplyr.tidyverse.org/reference/select.html)s steps get injected into pipelines. Identifying these requires running the pipeline code line-by-line, and then you can remove or modify them to simplify your answer. My recommendation would be to approach the working with AI tools for code generation with an "I'm trying to learn how to do this" attitude. It's then natural to investigate and interact with each step of the answer. If you approach it with a "Solve this for me" attitude, it's a lot harder to be critical of seemingly functioning and seemingly good enough code.
+3.  **Run the code it gives you, line-by-line, even if the code is in a pipeline:** Tidyverse data transformation pipelines and ggplot layers are easy to run at once, with the code doing many things with one execution prompt, compared to Base R code where you execute each line of code separately. The scaffolded nature of these pipelines are very nice for keeping all steps associated with a task together and not generating unnecessary interim objects along the way. However, it requires self-discipline to inspect the code line-by-line as opposed to just inspecting the final output. For example, I regularly encounter unnecessary [`group_by()`](https://dplyr.tidyverse.org/reference/group_by.html)/[`ungroup()`](https://dplyr.tidyverse.org/reference/group_by.html)s or [`select()`](https://dplyr.tidyverse.org/reference/select.html)s steps injected into pipelines. Identifying these requires running the pipeline code line-by-line, and then you can remove or modify them to simplify your answer. My recommendation would be to approach the working with AI tools for code generation with an "I'm trying to learn how to do this" attitude. It's then natural to investigate and interact with each step of the answer. If you approach it with a "Solve this for me" attitude, it's a lot harder to be critical of seemingly functioning and seemingly good enough code.
 
 4.  **Improve code smell:** While I don't have empirical evidence for this, I believe for humans, taste for good code develops faster than ability. For LLMs, this is the opposite. These tools will happily barf out code that runs without regard to cohesive syntax, avoiding redundancies, etc. Therefore, it's essential to "clean up" the suggested code to improve its "code smell". Below are some steps I regularly use:
 
@@ -506,6 +506,7 @@ I'll wrap up this post with some tips and good practices for using AI tools for 
     -   Use `pkg::function()` syntax only as needed and consistently.
     -   Avoid mixing and matching base R and tidyverse syntax (e.g., in one step finding mean in a [`summarize()`](https://dplyr.tidyverse.org/reference/summarise.html) call and in another step as mean of a vector, `mean(df$var)`.
     -   Remove unnecessary [`print()`](https://rdrr.io/r/base/print.html) statements.[^3]
+    -   Consider whether code comments address the "why" or the "what." If comments describe relatively self-documenting code, consider removing them.
 
 5.  **Stuck? Start a new chat:** Each new prompt in a chat/thread is evaluated within the context of previous prompts in that thread. If you're stuck and not getting to a good answer after modifying your prompt a few times, start fresh with a new chat/thread instead.
 
