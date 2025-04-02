@@ -1,6 +1,9 @@
 ---
 output: hugodown::hugo_document
 
+toc: true
+toc-depth: 2
+
 slug: learn-tidyverse-ai
 title: Learning the tidyverse with the help of AI tools
 date: 2025-04-04
@@ -15,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [ai]
-rmd_hash: 48d630a3055c0034
+rmd_hash: 408a1be510b9d3bc
 
 ---
 
