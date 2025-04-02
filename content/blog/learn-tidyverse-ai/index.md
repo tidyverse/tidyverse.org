@@ -1,9 +1,6 @@
 ---
 output: hugodown::hugo_document
 
-toc: true
-toc-depth: 2
-
 slug: learn-tidyverse-ai
 title: Learning the tidyverse with the help of AI tools
 date: 2025-04-04
@@ -18,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [ai]
-rmd_hash: 408a1be510b9d3bc
+rmd_hash: 8779c8ca3798f95c
 
 ---
 
@@ -41,9 +38,7 @@ I'll first walk you through three case studies that demonstrate what asking for 
 
 Before we get started, though, it's important to note that knowledge bases of Large Language Models (LLMs) that underlie popular generative AI tools are private and lack transparency. There are important societal concerns about the fairness of equitable access to these tools. It's unclear how developers or users of these models can be held accountable. Additionally, there is an environmental impact to using these tools.
 
-## The experience
-
-### Case study 1: Reshaping and plotting
+## Case study 1: Reshaping and plotting
 
 The first case study features an example on reshaping and plotting the `billboard` data frame and it's directly out of [R for Data Science](https://r4ds.hadley.nz/). In fact, it's [worked out in the book](https://r4ds.hadley.nz/data-tidy.html#sec-billboard). Here is the initial prompt:
 
@@ -168,7 +163,7 @@ Furthermore, requesting improvements in subsequent calls can result in surprisin
 
 Both of these are welcome changes, but it can be surprising to a new learner why they're combined with updating the [`library()`](https://rdrr.io/r/base/library.html) call. This is happening because with each call Chat GPT is "trying again" -- it's not just editing the previous answer but it's regenerating an answer with additional context.
 
-### Case study 2: Data cleaning
+## Case study 2: Data cleaning
 
 The next example is a lot more vague as it's a task that, if someone asked me for help, I would reply with "Can you share the data with me?", but Chat GPT happily generates an answer. That's probably one of the reasons why people love these tools, they never respond to a question with another question, at least not in my experience.
 
@@ -254,7 +249,7 @@ Once again, it's possible to ask the tool to make these updates. Claude doesn't 
 
 The operative word here being "want". Once again, someone with enough experience with R and the tidyverse would not explicitly ask for these improvements; they would just make them themselves and carry on. But someone who is just learning the tidyverse would likely stop much earlier. In my experience, many new learners stop after the very first prompt, which looks unfamiliar, and hence potentially intimidating. For learners of the tidyverse, the simple "Can you do this with the tidyverse?" can be a very useful prompt improvement that gets them majority of the way there.
 
-### Case study 3: Web scraping
+## Case study 3: Web scraping
 
 For the third and last example we'll try scraping some data from the web, specifically some [structured North Carolina weather data](https://www.usclimatedata.com/climate/durham/north-carolina/united-states/usnc0192). For this example, I've used [perplexity.ai](https://www.perplexity.ai/).
 
@@ -334,7 +329,13 @@ First, this code doesn't give us what we want:
 
 </div>
 
-We only have the first six months (the first table) and the formatting is not great, especially for the column names. Additionally, this doesn't look like a tidy data frame -- a better organization would be months in rows and temperatures in columns. Let's follow up with a better articulated prompt:
+We only have the first six months (the first table) and the formatting is not great, especially for the column names. Additionally, this doesn't look like a tidy data frame -- a better organization would be months in rows and temperatures in columns.
+
+<div class="highlight">
+
+</div>
+
+Let's follow up with a better articulated prompt:
 
 > Update the code to scrape data for all months from both of the tables on the website and organizing the data with months as rows and temperature types as columns.
 
@@ -410,6 +411,12 @@ There is a lot going on here, especially for a new learner, and the result is ul
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> Average low in ºF Av. low Lo               28    70   </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>3</span> Av. precipitation in inch Av. precip. Pre.  4.45  3.94</span></span>
 <span></span></code></pre>
+
+</div>
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/rm.html'>rm</a></span><span class='o'>(</span><span class='nv'>combined_data</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
