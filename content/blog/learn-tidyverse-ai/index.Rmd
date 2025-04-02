@@ -94,7 +94,7 @@ ggplot(billboard_long, aes(x = week, y = rank, group = track, color = track)) +
   theme_minimal()
 ```
 
-Chat GPT also provides a neat explanation of the code:
+ChatGPT also provides a neat explanation of the code:
 
 > **Explanation**
 >
@@ -114,13 +114,13 @@ There are a few things about this answer that are promising:
 -   The plot features a reversed y-axis, [just like in the book](https://r4ds.hadley.nz/data-tidy.html#fig-billboard-ranks)
 
 However, the resulting plot doesn't show exactly what the prompt asked for -- the lines are colored by `track`, which produces a busy plot that is difficult to interpret.
-While this is not ideal, it's something a new learner can easily spot and ask Chat GPT for a follow up correcting it.
+While this is not ideal, it's something a new learner can easily spot and ask ChatGPT for a follow up correcting it.
 For example, a subsequent prompt like the following fixes this issue:
 
 > Can you redraw the plot without coloring each line by track?
 
 You can see this in action at <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba>, in the second prompt.
-Here is the updated code suggested by Chat GPT:
+Here is the updated code suggested by ChatGPT:
 
 ```{r}
 # Create the visualization without coloring by track
@@ -143,7 +143,7 @@ Similarly, using `theme_minimal()` is not a bad or wrong choice either[^2], but 
 
 [^2]: In fact, it's my preferred ggplot2 theme!
 
-Furthermore, while Chat GPT "solves" the problem, a thorough code review reveals a number of not-so-great things about the answer that can be confusing for new learners or promote poor coding practices:
+Furthermore, while ChatGPT "solves" the problem, a thorough code review reveals a number of not-so-great things about the answer that can be confusing for new learners or promote poor coding practices:
 
 -   The code loads packages that are not necessary: tidyr and ggplot2 packages are sufficient for this code, we don't also need dplyr. Additionally, learners coming from R for Data Science likely expect `library(tidyverse)` in analysis code, instead of loading the packages individualy.
 -   There is no need to load the `billboard` dataset, it's available to use once the tidyr package is loaded. Additionally, quotes are not needed, `data(billboard)` also works.
@@ -153,12 +153,12 @@ Furthermore, while Chat GPT "solves" the problem, a thorough code review reveals
 
 All of these are addressable with further prompts, as I've done at <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba>, in the last two prompts.
 But doing so requires being able to identify these issues and explicitly asking for corrections.
-In practice, I wouldn't have asked Chat GPT to correct everything for me, I would have stopped after the first suggestion, which was a pretty good starting point, and made the improvements myself.
+In practice, I wouldn't have asked ChatGPT to correct everything for me, I would have stopped after the first suggestion, which was a pretty good starting point, and made the improvements myself.
 However, a new learner might assume (and based on my experience seeing lots of new learner code, *does* assume) the first answer is the *right* and *good* or *best* answer since (1) it looks reasonable and (2) it works, sort of.
 
 Furthermore, requesting improvements in subsequent calls can result in surprising changes that the user hasn't asked for.
 We saw an example of this above, in updating the alpha level.
-Similarly, in <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba> you can see that asking Chat GPT to not load the packages individually but to use `library(tidyverse)` instead results in this change as well as not loading the data with a `data()` call and adding a data transformation step with `mutate()` to convert `week` to numeric:
+Similarly, in <https://chatgpt.com/share/678f1dee-4af0-8000-befe-6df0a8d70fba> you can see that asking ChatGPT to not load the packages individually but to use `library(tidyverse)` instead results in this change as well as not loading the data with a `data()` call and adding a data transformation step with `mutate()` to convert `week` to numeric:
 
 ```{r}
 #| message: false
@@ -178,11 +178,11 @@ billboard_long <- billboard |>
 ```
 
 Both of these are welcome changes, but it can be surprising to a new learner why they're combined with updating the `library()` call.
-This is happening because with each call Chat GPT is "trying again" -- it's not just editing the previous answer but it's regenerating an answer with additional context.
+This is happening because with each call ChatGPT is "trying again" -- it's not just editing the previous answer but it's regenerating an answer with additional context.
 
 ## Case study 2: Data cleaning
 
-The next example is a lot more vague as it's a task that, if someone asked me for help, I would reply with "Can you share the data with me?", but Chat GPT happily generates an answer.
+The next example is a lot more vague as it's a task that, if someone asked me for help, I would reply with "Can you share the data with me?", but ChatGPT happily generates an answer.
 That's probably one of the reasons why people love these tools, they never respond to a question with another question, at least not in my experience.
 
 Below is the prompt for this case study.
