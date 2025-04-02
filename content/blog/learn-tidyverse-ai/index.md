@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [ai]
-rmd_hash: d93df71dc009c1fd
+rmd_hash: 5a287678721b0fbe
 
 ---
 
@@ -415,8 +415,6 @@ There is a lot going on here, especially for a new learner, and the result is ul
 </div>
 
 <div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/rm.html'>rm</a></span><span class='o'>(</span><span class='nv'>combined_data</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
