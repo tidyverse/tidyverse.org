@@ -14,8 +14,8 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
-tags: []
-rmd_hash: d8e8956b5188efc5
+tags: [ai]
+rmd_hash: 48d630a3055c0034
 
 ---
 
@@ -497,15 +497,11 @@ I'll wrap up this post with some tips and good practices for using AI tools for 
     -   Avoid mixing and matching base R and tidyverse syntax (e.g., in one step finding mean in a [`summarize()`](https://dplyr.tidyverse.org/reference/summarise.html) call and in another step as mean of a vector, `mean(df$var)`.
     -   Remove unnecessary [`print()`](https://rdrr.io/r/base/print.html) statements.[^3]
 
-<!-- -->
+5.  **Stuck? Start a new chat:** Each new prompt in a chat/thread is evaluated within the context of previous prompts in that thread. If you're stuck and not getting to a good answer after modifying your prompt a few times, start fresh with a new chat/thread instead.
 
-1.  **Stuck? Start a new chat:** Each new prompt in a chat/thread is evaluated within the context of previous prompts in that thread. If you're stuck and not getting to a good answer after modifying your prompt a few times, start fresh with a new chat/thread instead.
+6.  **Use code completion tools sparingly if you're a new user:** Code completion tools, like [GitHub Copilot](https://github.com/features/copilot), can be huge productivity boosters. But, especially for new learners, they can also be huge distractions as they tend to take action before the user is able to complete a thought in their head. My recommendation for new learners would be to avoid these tools altogether until they get a little faster at going from idea to code by themselves, or at a minimum until they feel like they can consistently write high quality prompts that generate the desired code on the first try. And my recommendation for anyone using code completion tools is to experiment with wait time between prompt and code generation and set a time that works for well for themselves. In my experience, the default wait time can be too short, resulting in code being generated before I can finish writing my prompt or reviewing the prompt I write.[^4]
 
-2.  **Use code completion tools sparingly if you're a new user:** Code completion tools, like [GitHub Copilot](https://github.com/features/copilot), can be huge productivity boosters. But, especially for new learners, they can also be huge distractions as they tend to take action before the user is able to complete a thought in their head. My recommendation for new learners would be to avoid these tools altogether until they get a little faster at going from idea to code by themselves, or at a minimum until they feel like they can consistently write high quality prompts that generate the desired code on the first try. And my recommendation for anyone using code completion tools is to experiment with wait time between prompt and code generation and set a time that works for well for themselves. In my experience, the default wait time can be too short, resulting in code being generated before I can finish writing my prompt or reviewing the prompt I write.[^4]
-
-<!-- -->
-
-1.  **Use AI tools for help with getting help:** So far the focus of this post has been on generating code to accomplish certain data science tasks. Perhaps the most important, and most difficult, data science task is asking good questions when you're stuck troubleshooting. And it usually requires or is greatly helped by creating a minimum reproducible example and using tools like [reprex](https://reprex.tidyverse.org/). This often starts with creating a small dataset with certain features, and AI tools can be pretty useful for generating such toy examples.
+7.  **Use AI tools for help with getting help:** So far the focus of this post has been on generating code to accomplish certain data science tasks. Perhaps the most important, and most difficult, data science task is asking good questions when you're stuck troubleshooting. And it usually requires or is greatly helped by creating a minimum reproducible example and using tools like [reprex](https://reprex.tidyverse.org/). This often starts with creating a small dataset with certain features, and AI tools can be pretty useful for generating such toy examples.
 
 [^1]: And maybe a future post on teaching R in the age of AI!
 
@@ -513,5 +509,5 @@ I'll wrap up this post with some tips and good practices for using AI tools for 
 
 [^3]: I've never seen as many [`print()`](https://rdrr.io/r/base/print.html) statements in R code as I have over the last year of reading code from hundreds of students who use AI tools to generate code for their assignments with varying levels of success! I don't know why these tools love [`print()`](https://rdrr.io/r/base/print.html) statements!
 
-[^4]: For exmaple, in RStudio, go to Tools \> Global Options \> select Copilot from the left menu and adjust "Show code suggestions after keyboard idle (ms)".
+[^4]: For example, in RStudio, go to Tools \> Global Options \> select Copilot from the left menu and adjust "Show code suggestions after keyboard idle (ms)".
 
