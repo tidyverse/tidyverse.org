@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: learn-tidyverse-ai
 title: Learning the tidyverse with the help of AI tools
-date: 2025-01-21
+date: 2025-04-04
 author: Mine Çetinkaya-Rundel
 description: >
     Tips and recommendations for learning the tidyverse with AI tools.
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: []
-rmd_hash: c9e2aa70d5b8685b
+rmd_hash: d8e8956b5188efc5
 
 ---
 
@@ -34,7 +34,7 @@ TODO:
 
 As an educator who teaches data science with R, I have LOTS of opinions about using artificial intelligence (AI) tools when learning R. But I will keep this post the use of generative AI tools, like Chat GPT, in learning R, and specifically learning to do data science with R and the tidyverse.[^1]
 
-I'll first walk you through three case studies that demonstrate what asking for help from a generative AI tool looks like. Then, I'll wrap up the post with some tips and good practices for getting the most out of help provided by these tools.
+I'll first walk you through three case studies that demonstrate what asking for help from a generative AI tool looks like. Then, I'll wrap up the post with some tips and good practices for getting the most out of help provided by these tools in the context of writing tidyverse code.
 
 Before we get started, though, it's important to note that knowledge bases of Large Language Models (LLMs) that underlie popular generative AI tools are private and lack transparency. There are important societal concerns about the fairness of equitable access to these tools. It's unclear how developers or users of these models can be held accountable. Additionally, there is an environmental impact to using these tools.
 
@@ -251,57 +251,267 @@ Once again, it's possible to ask the tool to make these updates. Claude doesn't 
 
 The operative word here being "want". Once again, someone with enough experience with R and the tidyverse would not explicitly ask for these improvements; they would just make them themselves and carry on. But someone who is just learning the tidyverse would likely stop much earlier. In my experience, many new learners stop after the very first prompt, which looks unfamiliar, and hence potentially intimidating. For learners of the tidyverse, the simple "Can you do this with the tidyverse?" can be a very useful prompt improvement that gets them majority of the way there.
 
-### Case study 3:
+### Case study 3: Web scraping
+
+For the third and last example we'll try scraping some data from the web, specifically some [structured North Carolina weather data](https://www.usclimatedata.com/climate/durham/north-carolina/united-states/usnc0192). For this example, I've used [perplexity.ai](https://www.perplexity.ai/).
+
+My first prompt was:
+
+> Write code for scraping data from <https://www.usclimatedata.com/climate/durham/north-carolina/united-states/usnc0192>.
+
+This resulted in an answer using Python, BeautifulSoup, and pandas. So I followed up with:
+
+> Use R instead.
+
+This resulted in the following.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Load required libraries</span></span>
+<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://rvest.tidyverse.org/'>rvest</a></span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; </span></span>
+<span><span class='c'>#&gt; Attaching package: 'rvest'</span></span>
+<span></span><span><span class='c'>#&gt; The following object is masked from 'package:readr':</span></span>
+<span><span class='c'>#&gt; </span></span>
+<span><span class='c'>#&gt;     guess_encoding</span></span>
+<span></span><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Define the URL for Durham, North Carolina climate data</span></span>
+<span><span class='nv'>url</span> <span class='o'>&lt;-</span> <span class='s'>"https://www.usclimatedata.com/climate/durham/north-carolina/united-states/usnc0192"</span></span>
+<span></span>
+<span><span class='c'># Read the HTML content from the website</span></span>
+<span><span class='nv'>webpage</span> <span class='o'>&lt;-</span> <span class='nf'><a href='http://xml2.r-lib.org/reference/read_xml.html'>read_html</a></span><span class='o'>(</span><span class='nv'>url</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Extract the table containing climate data</span></span>
+<span><span class='nv'>climate_table</span> <span class='o'>&lt;-</span> <span class='nv'>webpage</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>  <span class='nf'><a href='https://rvest.tidyverse.org/reference/rename.html'>html_nodes</a></span><span class='o'>(</span><span class='s'>"table"</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>  <span class='nv'>.</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='c'># Assuming the first table contains the relevant data</span></span>
+<span>  <span class='nf'><a href='https://rvest.tidyverse.org/reference/html_table.html'>html_table</a></span><span class='o'>(</span>fill <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Convert the table to a data frame</span></span>
+<span><span class='nv'>climate_data</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/as.data.frame.html'>as.data.frame</a></span><span class='o'>(</span><span class='nv'>climate_table</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Display the scraped data</span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='o'>(</span><span class='nv'>climate_data</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt;                                              JanJa FebFe MarMa AprAp MayMa</span></span>
+<span><span class='c'>#&gt; 1             Average high in ºF Av. high Hi 49.00  53.0 62.00 71.00 79.00</span></span>
+<span><span class='c'>#&gt; 2               Average low in ºF Av. low Lo 28.00  29.0 37.00 46.00 56.00</span></span>
+<span><span class='c'>#&gt; 3 Av. precipitation in inch Av. precip. Pre.  4.45   3.7  4.69  3.43  4.61</span></span>
+<span><span class='c'>#&gt;   JunJu</span></span>
+<span><span class='c'>#&gt; 1 85.00</span></span>
+<span><span class='c'>#&gt; 2 65.00</span></span>
+<span><span class='c'>#&gt; 3  4.02</span></span>
+<span></span></code></pre>
+
+</div>
+
+Additionally, the suggestion included optional code for writing the data to CSV even though it wasn't part of the prompt, though also not bad practice either when scraping data from the web.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Optional: Save the data to a CSV file</span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/utils/write.table.html'>write.csv</a></span><span class='o'>(</span><span class='nv'>climate_data</span>, <span class='s'>"durham_climate_data.csv"</span>, row.names <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span></code></pre>
+
+</div>
+
+First, this code doesn't give us what we want:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>climate_data</span></span>
+<span><span class='c'>#&gt;                                              JanJa FebFe MarMa AprAp MayMa</span></span>
+<span><span class='c'>#&gt; 1             Average high in ºF Av. high Hi 49.00  53.0 62.00 71.00 79.00</span></span>
+<span><span class='c'>#&gt; 2               Average low in ºF Av. low Lo 28.00  29.0 37.00 46.00 56.00</span></span>
+<span><span class='c'>#&gt; 3 Av. precipitation in inch Av. precip. Pre.  4.45   3.7  4.69  3.43  4.61</span></span>
+<span><span class='c'>#&gt;   JunJu</span></span>
+<span><span class='c'>#&gt; 1 85.00</span></span>
+<span><span class='c'>#&gt; 2 65.00</span></span>
+<span><span class='c'>#&gt; 3  4.02</span></span>
+<span></span></code></pre>
+
+</div>
+
+We only have the first six months (the first table) and the formatting is not great, especially for the column names. Additionally, this doesn't look like a tidy data frame -- a better organization would be months in rows and temperatures in columns. Let's follow up with a better articulated prompt:
+
+> Update the code to scrape data for all months from both of the tables on the website and organizing the data with months as rows and temperature types as columns.
+
+Here is the updated suggestion:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://rvest.tidyverse.org/'>rvest</a></span><span class='o'>)</span></span>
+<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='o'>)</span></span>
+<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidyr.tidyverse.org'>tidyr</a></span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>url</span> <span class='o'>&lt;-</span> <span class='s'>"https://www.usclimatedata.com/climate/durham/north-carolina/united-states/usnc0192"</span></span>
+<span></span>
+<span><span class='c'># Read HTML content</span></span>
+<span><span class='nv'>webpage</span> <span class='o'>&lt;-</span> <span class='nf'><a href='http://xml2.r-lib.org/reference/read_xml.html'>read_html</a></span><span class='o'>(</span><span class='nv'>url</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Extract all tables</span></span>
+<span><span class='nv'>climate_tables</span> <span class='o'>&lt;-</span> <span class='nv'>webpage</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>  <span class='nf'><a href='https://rvest.tidyverse.org/reference/rename.html'>html_nodes</a></span><span class='o'>(</span><span class='s'>"table"</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>  <span class='nf'><a href='https://rvest.tidyverse.org/reference/html_table.html'>html_table</a></span><span class='o'>(</span>header <span class='o'>=</span> <span class='kc'>TRUE</span>, fill <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Check if we have at least 2 tables</span></span>
+<span><span class='kr'>if</span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='o'>(</span><span class='nv'>climate_tables</span><span class='o'>)</span> <span class='o'>&gt;=</span> <span class='m'>2</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
+<span>  <span class='c'># Process first table (Average High Temperatures)</span></span>
+<span>  <span class='nv'>high_temp</span> <span class='o'>&lt;-</span> <span class='nv'>climate_tables</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span>Month <span class='o'>=</span> <span class='m'>1</span>, High <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>High <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/grep.html'>gsub</a></span><span class='o'>(</span><span class='s'>"[^0-9.]"</span>, <span class='s'>""</span>, <span class='nv'>High</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span></span>
+<span>  </span>
+<span>  <span class='c'># Process second table (Average Low Temperatures)</span></span>
+<span>  <span class='nv'>low_temp</span> <span class='o'>&lt;-</span> <span class='nv'>climate_tables</span><span class='o'>[[</span><span class='m'>2</span><span class='o'>]</span><span class='o'>]</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span>Month <span class='o'>=</span> <span class='m'>1</span>, Low <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>Low <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/grep.html'>gsub</a></span><span class='o'>(</span><span class='s'>"[^0-9.]"</span>, <span class='s'>""</span>, <span class='nv'>Low</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span></span>
+<span>  </span>
+<span>  <span class='c'># Combine and organize data</span></span>
+<span>  <span class='nv'>combined_data</span> <span class='o'>&lt;-</span> <span class='nv'>high_temp</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>full_join</a></span><span class='o'>(</span><span class='nv'>low_temp</span>, by <span class='o'>=</span> <span class='s'>"Month"</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='nv'>Month</span>, levels <span class='o'>=</span> <span class='nv'>month.name</span><span class='o'>)</span><span class='o'>)</span></span>
+<span>  </span>
+<span>  <span class='c'># Display cleaned data</span></span>
+<span>  <span class='nf'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='o'>(</span><span class='nv'>combined_data</span><span class='o'>)</span></span>
+<span>  </span>
+<span>  <span class='c'># Save to CSV</span></span>
+<span>  <span class='nf'><a href='https://rdrr.io/r/utils/write.table.html'>write.csv</a></span><span class='o'>(</span><span class='nv'>combined_data</span>, <span class='s'>"durham_temperatures.csv"</span>, row.names <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span>
+<span><span class='o'>&#125;</span> <span class='kr'>else</span> <span class='o'>&#123;</span></span>
+<span>  <span class='kr'><a href='https://rdrr.io/r/base/stop.html'>stop</a></span><span class='o'>(</span><span class='s'>"Required tables not found - website structure may have changed"</span><span class='o'>)</span></span>
+<span><span class='o'>&#125;</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 3</span></span></span>
+<span><span class='c'>#&gt;   Month                                       High   Low</span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                                      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Average high in ºF Av. high Hi             49    89   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> Average low in ºF Av. low Lo               28    70   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> Av. precipitation in inch Av. precip. Pre.  4.45  3.94</span></span>
+<span></span></code></pre>
+
+</div>
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'>#&gt; [1] TRUE</span></span>
+<span></span></code></pre>
+
+</div>
+
+There is a lot going on here, especially for a new learner, and the result is ultimately not what we want:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>combined_data</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 3</span></span></span>
+<span><span class='c'>#&gt;   Month                                       High   Low</span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                                      <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Average high in ºF Av. high Hi             49    89   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> Average low in ºF Av. low Lo               28    70   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> Av. precipitation in inch Av. precip. Pre.  4.45  3.94</span></span>
+<span></span></code></pre>
+
+</div>
+
+Let's try one more time, following up with this prompt:
+
+> This is not what I wanted. First scrape the data from the two tables for months January to June and July to December. Then put them together. Then reshape the data to have months as rows and temperature types as columns.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://rvest.tidyverse.org/'>rvest</a></span><span class='o'>)</span></span>
+<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='o'>)</span></span>
+<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://tidyr.tidyverse.org'>tidyr</a></span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>url</span> <span class='o'>&lt;-</span> <span class='s'>"https://www.usclimatedata.com/climate/durham/north-carolina/united-states/usnc0192"</span></span>
+<span><span class='nv'>webpage</span> <span class='o'>&lt;-</span> <span class='nf'><a href='http://xml2.r-lib.org/reference/read_xml.html'>read_html</a></span><span class='o'>(</span><span class='nv'>url</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Extract all climate tables (4 tables total)</span></span>
+<span><span class='nv'>all_tables</span> <span class='o'>&lt;-</span> <span class='nv'>webpage</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+<span>  <span class='nf'><a href='https://rvest.tidyverse.org/reference/rename.html'>html_nodes</a></span><span class='o'>(</span><span class='s'>"table.climate-table"</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+<span>  <span class='nf'><a href='https://rvest.tidyverse.org/reference/html_table.html'>html_table</a></span><span class='o'>(</span>header <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Process temperature data from first two tables (Jan-Jun and Jul-Dec)</span></span>
+<span><span class='nv'>high_temp</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/bind_rows.html'>bind_rows</a></span><span class='o'>(</span></span>
+<span>  <span class='nv'>all_tables</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span>Month <span class='o'>=</span> <span class='m'>1</span>, High <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span>,</span>
+<span>  <span class='nv'>all_tables</span><span class='o'>[[</span><span class='m'>2</span><span class='o'>]</span><span class='o'>]</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span>Month <span class='o'>=</span> <span class='m'>1</span>, High <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span></span>
+<span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>High <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/grep.html'>gsub</a></span><span class='o'>(</span><span class='s'>"°F"</span>, <span class='s'>""</span>, <span class='nv'>High</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; Error in all_tables[[1]]: subscript out of bounds</span></span>
+<span></span><span></span>
+<span><span class='nv'>low_temp</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/bind_rows.html'>bind_rows</a></span><span class='o'>(</span></span>
+<span>  <span class='nv'>all_tables</span><span class='o'>[[</span><span class='m'>3</span><span class='o'>]</span><span class='o'>]</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span>Month <span class='o'>=</span> <span class='m'>1</span>, Low <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span>,</span>
+<span>  <span class='nv'>all_tables</span><span class='o'>[[</span><span class='m'>4</span><span class='o'>]</span><span class='o'>]</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span>Month <span class='o'>=</span> <span class='m'>1</span>, Low <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span></span>
+<span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>Low <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/grep.html'>gsub</a></span><span class='o'>(</span><span class='s'>"°F"</span>, <span class='s'>""</span>, <span class='nv'>Low</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; Error in all_tables[[3]]: subscript out of bounds</span></span>
+<span></span><span></span>
+<span><span class='c'># Combine and format final dataset</span></span>
+<span><span class='nv'>climate_data</span> <span class='o'>&lt;-</span> <span class='nv'>high_temp</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>low_temp</span>, by <span class='o'>=</span> <span class='s'>"Month"</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>Month <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='o'>(</span><span class='nv'>Month</span>, levels <span class='o'>=</span> <span class='nv'>month.name</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='o'>(</span><span class='nv'>Month</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> </span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>Month</span>, <span class='nv'>High</span>, <span class='nv'>Low</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='c'># Display formatted results</span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='o'>(</span><span class='nv'>climate_data</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 3</span></span></span>
+<span><span class='c'>#&gt;   Month  High   Low</span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;fct&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> <span style='color: #BB0000;'>NA</span>    49    89   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> <span style='color: #BB0000;'>NA</span>    28    70   </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> <span style='color: #BB0000;'>NA</span>     4.45  3.94</span></span>
+<span></span></code></pre>
+
+</div>
+
+Unfortunately this gives an error. However, the presentation in the answer from Perplexity makes it seem like the data were scraped successfully since a table with rows as months and columns as temperature types is included in the explanation:
+
+           Month High Low
+    1    January   50  30
+    2   February   54  32
+    3      March   63  39
+    4      April   72  47
+    5        May   79  56
+    6       June   85  64
+    7       July   89  69
+    8     August   87  68
+    9  September   81  60
+    10   October   72  49
+    11  November   63  39
+    12  December   54  32
+
+I'm not sure how these data were extracted, but we know it's not with the R code provided above. The values are also not correct (e.g., high and low in January should be 49 and 28, instead), so it's completely unclear where they're coming from. You can follow along with this thread at <https://www.perplexity.ai/search/write-code-for-scraping-data-f-6kRnwLDTTpe8vItl08Bo3g>. I tried a few more prompts and finally gave up. While the other two tasks were much more straightforward, the web scraping task seems to be more difficult for this tool. I should note that I used different services for each task, and the lack of success in this last one might be due to that as well.
+
+Ultimately, though, as the complexity of the task increases, it (understandably) gets more difficult to get to straightforward and new-learner-friendly answers with simple prompts.
 
 ## Tips and good practices
 
--   Obvious: provide context and engineer prompts.
+I'll wrap up this post with some tips and good practices for using AI tools for (tidyverse) code generation. But first, a disclaimer -- this landscape is changing super quickly. Today's good practices might not be the best approaches for tomorrow. However, the following have held true over the last year so there's a good chance they will remain relevant for some time into the future.
 
--   Run the code it gives you, line-by-line (even if in a pipeline)
+1.  **Provide context and engineer prompts:** This might be obvious, but it should be stated. Providing context, even something as simple as "use R" or "use tidyverse" can go a long way in getting a semi-successful first suggestion. Then, continue engineering the prompt until you achieve the results you need, being more articulate about what you want at each step. This is easier said than done, though, for new learners. If you don't know what the right answer should look like, it's much harder to be articulate in your prompt to get to that answer. On the other hand, if you do know what the right answer should look like, you might be more likely to just write the code yourself, instead of coaching the AI tool to get there.
 
-    -   Sometimes unnecessary `group()`/[`ungroup()`](https://dplyr.tidyverse.org/reference/group_by.html)s or [`select()`](https://dplyr.tidyverse.org/reference/select.html)s get injected
+2.  **Check for errors:** This also seems obvious -- you should run the code the tool suggests and check for errors. If the code gives an error, this is easy to catch and potentially easy to address. However, sometimes the code suggests arguments that don't exist that R might silently ignore. These might be unneeded arguments or a needed argument but not used properly due to how it's called or the value it's set to. Such errors are more difficult to identify, particularly in functions you might not be familiar with.
 
-    -   tidyverse data transformation pipelines and ggplot layers are easy to run at once, with code doing many things with one execution prompt (compared to base R where you execute each line of code separately)
+3.  **Run the code it gives you, line-by-line, even if the code is in a pipeline:** Tidyverse data transformation pipelines and ggplot layers are easy to run at once, with the code doing many things with one execution prompt, compared to Base R code where you execute each line of code separately. The scaffolded nature of these pipelines are very nice for keeping all steps associated with a task together and not generating unnecessary interim objects along the way. However, it requires self-discipline to inspect the code line-by-line as opposed to just inspecting the final output. For example, I regularly encounter unnecessary `group()`/[`ungroup()`](https://dplyr.tidyverse.org/reference/group_by.html)s or [`select()`](https://dplyr.tidyverse.org/reference/select.html)s steps get injected into pipelines. Identifying these requires running the pipeline code line-by-line, and then you can remove or modify them to simplify your answer. My recommendation would be to approach the working with AI tools for code generation with an "I'm trying to learn how to do this" attitude. It's then natural to investigate and interact with each step of the answer. If you approach it with a "Solve this for me" attitude, it's a lot harder to be critical of seemingly functioning and seemingly good enough code.
 
-    -   approach as "i'm trying to learn how to do this" not "solve this for me"
+4.  **Improve code smell:** While I don't have empirical evidence for this, I believe for humans, taste for good code develops faster than ability. For LLMs, this is the opposite. These tools will happily barf out code that runs without regard to cohesive syntax, avoiding redundancies, etc. Therefore, it's essential to "clean up" the suggested code to improve its "code smell". Below are some steps I regularly use:
 
--   For humans, taste for code develops faster than ability
+    -   Remove redundant library calls.
+    -   Use `pkg::function()` syntax only as needed and consistently.
+    -   Avoid mixing and matching base R and tidyverse syntax (e.g., in one step finding mean in a [`summarize()`](https://dplyr.tidyverse.org/reference/summarise.html) call and in another step as mean of a vector, `mean(df$var)`.
+    -   Remove unnecessary [`print()`](https://rdrr.io/r/base/print.html) statements.[^3]
 
-    -   For LLMs this is the opposite
+<!-- -->
 
-    -   They'll happily barf out code that runs without regard to cohesive syntax, avoiding redundancies, etc.
+1.  **Stuck? Start a new chat:** Each new prompt in a chat/thread is evaluated within the context of previous prompts in that thread. If you're stuck and not getting to a good answer after modifying your prompt a few times, start fresh with a new chat/thread instead.
 
-    -   Some "cleanup" tips:
+2.  **Use code completion tools sparingly if you're a new user:** Code completion tools, like [GitHub Copilot](https://github.com/features/copilot), can be huge productivity boosters. But, especially for new learners, they can also be huge distractions as they tend to take action before the user is able to complete a thought in their head. My recommendation for new learners would be to avoid these tools altogether until they get a little faster at going from idea to code by themselves, or at a minimum until they feel like they can consistently write high quality prompts that generate the desired code on the first try. And my recommendation for anyone using code completion tools is to experiment with wait time between prompt and code generation and set a time that works for well for themselves. In my experience, the default wait time can be too short, resulting in code being generated before I can finish writing my prompt or reviewing the prompt I write.[^4]
 
-        -   Remove redundant library calls.
+<!-- -->
 
-        -   Use `pkg::function()` syntax only as needed and consistently.
-
-        -   Avoid mixing and matching base R and tidyverse syntax (e.g., in one step finding mean in a [`summarize()`](https://dplyr.tidyverse.org/reference/summarise.html) call and in another step as mean of a vector, `mean(df$var)`.
-
-        -   Remove unnecessary [`print()`](https://rdrr.io/r/base/print.html) statements.
-
--   Might suggest code that is wrong:
-
-    -   if it errors, that's easy to catch
-
-    -   sometimes it suggests arguments that don't exist that R might silently ignore
-
-        -   could be an argument you don't need
-
-        -   could be one you need but not being used
-
-        -   could saying "only use arguments that are real" helpful?
-
--   Can get stuck, start a new chat instead of continuing in the same.
-
--   copilot -- figure out wait time that works for you, not too fast
-
--   maybe replacement for addins
-
--   generate a dataset with certain features, helps with creating reprex examples, helps with iteration
+1.  **Use AI tools for help with getting help:** So far the focus of this post has been on generating code to accomplish certain data science tasks. Perhaps the most important, and most difficult, data science task is asking good questions when you're stuck troubleshooting. And it usually requires or is greatly helped by creating a minimum reproducible example and using tools like [reprex](https://reprex.tidyverse.org/). This often starts with creating a small dataset with certain features, and AI tools can be pretty useful for generating such toy examples.
 
 [^1]: And maybe a future post on teaching R in the age of AI!
 
 [^2]: In fact, it's my preferred ggplot2 theme!
+
+[^3]: I've never seen as many [`print()`](https://rdrr.io/r/base/print.html) statements in R code as I have over the last year of reading code from hundreds of students who use AI tools to generate code for their assignments with varying levels of success! I don't know why these tools love [`print()`](https://rdrr.io/r/base/print.html) statements!
+
+[^4]: For exmaple, in RStudio, go to Tools \> Global Options \> select Copilot from the left menu and adjust "Show code suggestions after keyboard idle (ms)".
 
