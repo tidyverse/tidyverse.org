@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: rsample-1-3-0
 title: rsample 1.3.0
-date: 2025-03-12
+date: 2025-04-03
 author: Hannah Frick
 description: >
     This release brings more flexibilty to the grouping of bootstrap confidence 
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, rsample]
-rmd_hash: efa6e63a67af9dba
+rmd_hash: af7cff0d6c062422
 
 ---
 
@@ -31,7 +31,7 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 We're thrilled to announce the release of [rsample](https://rsample.tidymodels.org/) 1.3.0. rsample makes it easy to create resamples for assessing model performance. It is part of the tidymodels framework, a collection of R packages for modeling and machine learning using tidyverse principles.
@@ -46,7 +46,7 @@ You can install it from CRAN with:
 
 This blog post will walk you through the more flexible grouping for calculating bootstrap confidence intervals and highlight the contributions made by participants of the tidyverse developer day.
 
-You can see a full list of changes in the [release notes](FIXME).
+You can see a full list of changes in the [release notes](https://rsample.tidymodels.org/news/index.html#rsample-130).
 
 <div class="highlight">
 
@@ -64,7 +64,7 @@ You can calculate the confidence intervals based on a grouping in your data. How
 
 The motivating application for us was to be able to calculate confidence intervals around multiple model performance metrics, including dynamic metrics for time-to-event models which depend on an evaluation time point. So in this case, the metric is one grouping variable and the evaluation time another. But let's pull back complexity for an example of how the new rsample functionality works!
 
-We have a dataset with delivery times for orders made up by one or more items. We'll do some data wrangling with it, so we are also loading dplyr.
+We have a dataset with delivery times for orders containing one or more items. We'll do some data wrangling with it, so we are also loading dplyr.
 
 <div class="highlight">
 
@@ -116,7 +116,7 @@ Note that the name for the weekend indicator column, `.weekend`, starts with a d
 
 </div>
 
-Next, we are making a small function that calculates the ratio of average delivery times with and without the item included in the order, as a estimate of how much a specific item in on order increases the delivery time.
+Next, we are making a small function that calculates the ratio of average delivery times with and without the item included in the order, as a estimate of how much a specific item in an order increases the delivery time.
 
 <div class="highlight">
 
@@ -178,20 +178,20 @@ Now we have everything we need to calculate the confidence intervals, stashed in
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>item_ci</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/int_pctl.html'>int_pctl</a></span><span class='o'>(</span><span class='nv'>item_stats</span>, statistics <span class='o'>=</span> <span class='nv'>stats</span>, alpha <span class='o'>=</span> <span class='m'>0.1</span><span class='o'>)</span></span>
 <span><span class='nv'>item_ci</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 54 × 7</span></span></span>
-<span><span class='c'>#&gt;    term    .weekend .lower .estimate .upper .alpha .method   </span></span>
-<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> item_01 weekday   1.05      1.07    1.09    0.1 percentile</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> item_01 weekend   1.04      1.07    1.10    0.1 percentile</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> item_02 weekday   1.00      1.02    1.03    0.1 percentile</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> item_02 weekend   0.996     1.01    1.03    0.1 percentile</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> item_03 weekday   1.01      1.02    1.04    0.1 percentile</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> item_03 weekend   0.970     0.990   1.01    0.1 percentile</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> item_04 weekday   0.989     1.00    1.02    0.1 percentile</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> item_04 weekend   0.998     1.02    1.03    0.1 percentile</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> item_05 weekday   0.987     1.00    1.02    0.1 percentile</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> item_05 weekend   0.982     1.00    1.03    0.1 percentile</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 44 more rows</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 27 × 6</span></span></span>
+<span><span class='c'>#&gt;    term    .lower .estimate .upper .alpha .method   </span></span>
+<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> item_01  1.04       1.07   1.10    0.1 percentile</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> item_02  0.999      1.02   1.03    0.1 percentile</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> item_03  0.974      1.01   1.03    0.1 percentile</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> item_04  0.991      1.01   1.03    0.1 percentile</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> item_05  0.984      1.00   1.02    0.1 percentile</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> item_06  0.996      1.02   1.05    0.1 percentile</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> item_07  0.992      1.02   1.04    0.1 percentile</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> item_08  0.993      1.01   1.03    0.1 percentile</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> item_09  0.996      1.01   1.03    0.1 percentile</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> item_10  1.04       1.06   1.09    0.1 percentile</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 17 more rows</span></span></span>
 <span></span></code></pre>
 
 </div>
@@ -209,11 +209,21 @@ It was possible, however, to create implicit LOO samples by using [`vfold_cv()`]
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rsample.tidymodels.org/reference/vfold_cv.html'>vfold_cv</a></span><span class='o'>(</span><span class='nv'>mtcars</span>, v <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `vfold_cv()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Leave-one-out cross-validation is not supported by this function.</span></span>
-<span><span class='c'>#&gt; <span style='color: #BB0000;'>✖</span> You set `v` to `nrow(data)`, which would result in a leave-one-out</span></span>
-<span><span class='c'>#&gt;   cross-validation.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Use `loo_cv()` in this case.</span></span>
+<span><span class='c'>#&gt; #  32-fold cross-validation </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 32 × 2</span></span></span>
+<span><span class='c'>#&gt;    splits         id    </span></span>
+<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> <span style='color: #555555;'>&lt;split [31/1]&gt;</span> Fold01</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> <span style='color: #555555;'>&lt;split [31/1]&gt;</span> Fold02</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> <span style='color: #555555;'>&lt;split [31/1]&gt;</span> Fold03</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> <span style='color: #555555;'>&lt;split [31/1]&gt;</span> Fold04</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> <span style='color: #555555;'>&lt;split [31/1]&gt;</span> Fold05</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> <span style='color: #555555;'>&lt;split [31/1]&gt;</span> Fold06</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> <span style='color: #555555;'>&lt;split [31/1]&gt;</span> Fold07</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> <span style='color: #555555;'>&lt;split [31/1]&gt;</span> Fold08</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> <span style='color: #555555;'>&lt;split [31/1]&gt;</span> Fold09</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> <span style='color: #555555;'>&lt;split [31/1]&gt;</span> Fold10</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 22 more rows</span></span></span>
 <span></span></code></pre>
 
 </div>
@@ -228,10 +238,7 @@ For some error messages, the additional functionality in cli makes it easy to im
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rsample.tidymodels.org/reference/permutations.html'>permutations</a></span><span class='o'>(</span><span class='nv'>mtcars</span>, <span class='nf'><a href='https://tidyselect.r-lib.org/reference/everything.html'>everything</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `permutations()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> You have selected all columns to permute.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> This effectively reorders the rows in the original data without changing the</span></span>
-<span><span class='c'>#&gt;   data structure.</span></span>
-<span><span class='c'>#&gt; → Please select fewer columns to permute.</span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> You have selected all columns to permute. This effectively reorders the rows in the original data without changing the data structure. Please select fewer columns to permute.</span></span>
 <span></span></code></pre>
 
 </div>
@@ -239,4 +246,8 @@ For some error messages, the additional functionality in cli makes it easy to im
 Changes like these are super helpful to users and developers alike. A big thank you to all the contributors!
 
 ## Acknowledgements
+
+Many thanks to all the people who contributed to rsample since the last release!
+
+[@agmurray](https://github.com/agmurray), [@brshallo](https://github.com/brshallo), [@ccani007](https://github.com/ccani007), [@dicook](https://github.com/dicook), [@Dpananos](https://github.com/Dpananos), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@gaborcsardi](https://github.com/gaborcsardi), [@gregor-fausto](https://github.com/gregor-fausto), [@hfrick](https://github.com/hfrick), [@JamesHWade](https://github.com/JamesHWade), [@jttoivon](https://github.com/jttoivon), [@krz](https://github.com/krz), [@laurabrianna](https://github.com/laurabrianna), [@malcolmbarrett](https://github.com/malcolmbarrett), [@MatthieuStigler](https://github.com/MatthieuStigler), [@msberends](https://github.com/msberends), [@nmercadeb](https://github.com/nmercadeb), [@PriKalra](https://github.com/PriKalra), [@seb09](https://github.com/seb09), [@simonpcouch](https://github.com/simonpcouch), [@topepo](https://github.com/topepo), [@ZWael](https://github.com/ZWael), and [@zz77zz](https://github.com/zz77zz).
 
