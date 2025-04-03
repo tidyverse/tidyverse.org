@@ -1,0 +1,160 @@
+---
+output: hugodown::hugo_document
+
+slug: rsample-1-3-0
+title: rsample 1.3.0
+date: 2025-04-03
+author: Hannah Frick
+description: >
+    This release brings more flexibilty to the grouping of bootstrap confidence 
+    intervals. It also contains many contributions from the tidyverse developer 
+    day.
+
+photo:
+  url: https://unsplash.com/photos/a-row-of-shelves-filled-with-lots-of-shoes-yZxBkDr73AM
+  author: Erik Mclean
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [tidymodels, rsample]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+```
+
+We're thrilled to announce the release of [rsample](https://rsample.tidymodels.org/) 1.3.0. rsample makes it easy to create resamples for assessing model performance. It is part of the tidymodels framework, a collection of R packages for modeling and machine learning using tidyverse principles.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("rsample")
+```
+
+This blog post will walk you through the more flexible grouping for calculating bootstrap confidence intervals and highlight the contributions made by participants of the tidyverse developer day.
+
+You can see a full list of changes in the [release notes](https://rsample.tidymodels.org/news/index.html#rsample-130).
+
+```{r setup}
+library(rsample)
+```
+
+## Flexible grouping for bootstrap intervals
+
+Resampling allows you get an understanding of the variability of an estimate, e.g., a summary statistic of your data. 
+If you want to lean on statistical theory and get confidence intervals for your estimate, you can reach for the bootstrap resampling scheme: calculating your summary statistic on the bootstrap samples enables you to calculate confidence intervals around your point estimate. 
+
+rsample contains a family of `int_*()` functions to calculate bootstrap confidence intervals of different flavors: percentile intervals, "BCa" intervals, and bootstrap-t intervals. If you want to dive into the technical details, Chapter 11 of [CASI](https://hastie.su.domains/CASI/) is a good place to start.
+
+You can calculate the confidence intervals based on a grouping in your data. However, so far, rsample would only let you provide a single grouping variable. With this release, we are extending this functionality to allow a more flexible grouping. 
+
+The motivating application for us was to be able to calculate confidence intervals around multiple model performance metrics, including dynamic metrics for time-to-event models which depend on an evaluation time point. So in this case, the metric is one grouping variable and the evaluation time another. But let's pull back complexity for an example of how the new rsample functionality works!
+
+We have a dataset with delivery times for orders containing one or more items. We'll do some data wrangling with it, so we are also loading dplyr.
+
+```{r}
+library(dplyr)
+data(deliveries, package = "modeldata")
+
+deliveries
+```
+
+Instead of fitting a whole model here, we are calculating a straightforward summary statistic for how much delivery time increases if an item is included in the order. So the item is one grouping factor. As a second one, we are using whether the order was delivered on a weekday or a weekend. Let's start by making that weekend indicator and reshaping the data to make it easier to calculate our summary statistic. 
+
+Note that the name for the weekend indicator column, `.weekend`, starts with a dot. That is important as it is the convention to signal to rsample that this is an additional grouping variable.
+
+```{r}
+item_data <- deliveries %>%
+  mutate(.weekend = ifelse(day %in% c("Sat", "Sun"), "weekend", "weekday")) %>%
+  select(time_to_delivery, .weekend, starts_with("item")) %>%
+  tidyr::pivot_longer(starts_with("item"), names_to = "item", values_to = "value") 
+```
+
+Next, we are making a small function that calculates the ratio of average delivery times with and without the item included in the order, as a estimate of how much a specific item in an order increases the delivery time. 
+
+```{r}
+relative_increase <- function(data) {
+  data %>%
+    mutate(includes_item = value > 0) %>%
+    summarize(
+      has = mean(time_to_delivery[includes_item]),
+      has_not = mean(time_to_delivery[!includes_item]),
+      .by = c(item, .weekend)
+    ) %>%
+    mutate(estimate = has / has_not) %>%
+    select(term = item, .weekend, estimate)
+}
+```
+
+We can calculate that on our entire dataset.
+
+```{r}
+relative_increase(item_data)
+```
+
+This is fine, but what we really want here is to get confidence intervals around these estimates!
+
+So let's make bootstrap samples and calculate our statistic on those.
+
+```{r}
+set.seed(1)
+item_bootstrap <- bootstraps(item_data, times = 1000)
+
+item_stats <-
+  item_bootstrap %>%
+  mutate(stats = purrr::map(splits, ~ analysis(.x) %>% relative_increase()))
+```
+
+Now we have everything we need to calculate the confidence intervals, stashed into the tibbles in the `stats` column: an `estimate`, a `term` (the primary grouping variable), and our additional grouping variable `.weekend`, starting with a dot. What's left to do is call one of the `int_*()` functions and specify which column contains the statistics. Here, we'll calculate percentile intervals with `int_pctl()`.
+
+```{r}
+item_ci <- int_pctl(item_stats, statistics = stats, alpha = 0.1)
+item_ci
+```
+
+
+
+## Tidyverse developer day
+
+At the tidyverse developer day after posit::conf, rsample got a lot of love in form of contributions by various community members. People improved documentation and examples, move deprecations along, tightened checks to support good practice, and upgraded errors and warnings, both in style and content. None of these changes are flashy new features but all of them are essential to rsample working well!
+
+So for example, leave-one-out (LOO) cross-validation is not a great choice of resampling scheme in most situations.
+From [Tidy modeling with R](https://www.tmwr.org/resampling#leave-one-out-cross-validation):
+
+> For anything but pathologically small samples, LOO is computationally excessive, and it may not have good statistical properties.
+
+It was possible, however, to create implicit LOO samples by using `vfold_cv()` with the number of folds set to the number of rows in the data.
+With a dev day contribution, this now errors:
+
+```{r, error = TRUE}
+vfold_cv(mtcars, v = nrow(mtcars))
+```
+
+This is to make users pause and consider if this a good choice for their dataset. If you require LOO, you can still use `loo_cv()`.
+
+Error messages in general have been a focus of ours across various tidymodels packages, rsample is no exception. We opened a bunch of issues to tackle all of rsample - and all got closed! Some of these changes are purely internal, upgrading manual formatting to let the cli package do the work. While the error message in most cases doesn't *look* different, it's a great deal more consistency in formatting.
+
+For some error messages, the additional functionality in cli makes it easy to improve readability. This error message used to be one block of text, now it comes as three bullet points.
+
+```{r, error = TRUE}
+permutations(mtcars, everything())
+```
+
+Changes like these are super helpful to users and developers alike. A big thank you to all the contributors!
+
+## Acknowledgements
+
+Many thanks to all the people who contributed to rsample since the last release!
+
+[&#x0040;agmurray](https://github.com/agmurray), [&#x0040;brshallo](https://github.com/brshallo), [&#x0040;ccani007](https://github.com/ccani007), [&#x0040;dicook](https://github.com/dicook), [&#x0040;Dpananos](https://github.com/Dpananos), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;gregor-fausto](https://github.com/gregor-fausto), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;JamesHWade](https://github.com/JamesHWade), [&#x0040;jttoivon](https://github.com/jttoivon), [&#x0040;krz](https://github.com/krz), [&#x0040;laurabrianna](https://github.com/laurabrianna), [&#x0040;malcolmbarrett](https://github.com/malcolmbarrett), [&#x0040;MatthieuStigler](https://github.com/MatthieuStigler), [&#x0040;msberends](https://github.com/msberends), [&#x0040;nmercadeb](https://github.com/nmercadeb), [&#x0040;PriKalra](https://github.com/PriKalra), [&#x0040;seb09](https://github.com/seb09), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;topepo](https://github.com/topepo), [&#x0040;ZWael](https://github.com/ZWael), and [&#x0040;zz77zz](https://github.com/zz77zz).
