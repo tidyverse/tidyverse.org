@@ -61,7 +61,7 @@ You can calculate the confidence intervals based on a grouping in your data. How
 
 The motivating application for us was to be able to calculate confidence intervals around multiple model performance metrics, including dynamic metrics for time-to-event models which depend on an evaluation time point. So in this case, the metric is one grouping variable and the evaluation time another. But let's pull back complexity for an example of how the new rsample functionality works!
 
-We have a dataset with delivery times for orders made up by one or more items. We'll do some data wrangling with it, so we are also loading dplyr.
+We have a dataset with delivery times for orders containing one or more items. We'll do some data wrangling with it, so we are also loading dplyr.
 
 ```{r}
 library(dplyr)
@@ -81,7 +81,7 @@ item_data <- deliveries %>%
   tidyr::pivot_longer(starts_with("item"), names_to = "item", values_to = "value") 
 ```
 
-Next, we are making a small function that calculates the ratio of average delivery times with and without the item included in the order, as a estimate of how much a specific item in on order increases the delivery time. 
+Next, we are making a small function that calculates the ratio of average delivery times with and without the item included in the order, as a estimate of how much a specific item in an order increases the delivery time. 
 
 ```{r}
 relative_increase <- function(data) {
