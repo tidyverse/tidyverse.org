@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [ai]
-rmd_hash: 5a287678721b0fbe
+rmd_hash: f170009a553e32b1
 
 ---
 
@@ -162,6 +162,8 @@ Furthermore, requesting improvements in subsequent calls can result in surprisin
 </div>
 
 Both of these are welcome changes, but it can be surprising to a new learner why they're combined with updating the [`library()`](https://rdrr.io/r/base/library.html) call. This is happening because with each call ChatGPT is "trying again" -- it's not just editing the previous answer but it's regenerating an answer with additional context.
+
+I should also note that ChatGPT generally gives better responses when asking about sample datasets because the model has probably been exposed to them somewhere in the training data. Next, let's try a non-sample dataset.
 
 ## Case study 2: Data cleaning
 
@@ -492,7 +494,7 @@ Ultimately, though, as the complexity of the task increases, it (understandably)
 
 I'll wrap up this post with some tips and good practices for using AI tools for (tidyverse) code generation. But first, a disclaimer -- this landscape is changing super quickly. Today's good practices might not be the best approaches for tomorrow. However, the following have held true over the last year so there's a good chance they will remain relevant for some time into the future.
 
-1.  **Provide context and engineer prompts:** This might be obvious, but it should be stated. Providing context, even something as simple as "use R" or "use tidyverse" can go a long way in getting a semi-successful first suggestion. Then, continue engineering the prompt until you achieve the results you need, being more articulate about what you want at each step. This is easier said than done, though, for new learners. If you don't know what the right answer should look like, it's much harder to be articulate in your prompt to get to that answer. On the other hand, if you do know what the right answer should look like, you might be more likely to just write the code yourself, instead of coaching the AI tool to get there.
+1.  **Provide context and engineer prompts:** This might be obvious, but it should be stated. Providing context, even something as simple as "use R" or "use tidyverse" can go a long way in getting a semi-successful first suggestion. Then, continue engineering the prompt until you achieve the results you need, being more articulate about what you want at each step. This is easier said than done, though, for new learners. If you don't know what the right answer should look like, it's much harder to be articulate in your prompt to get to that answer. On the other hand, if you do know what the right answer should look like, you might be more likely to just write the code yourself, instead of coaching the AI tool to get there. Another potentially helpful tip is to end your initial prompt with something like "Ask me any clarifying questions before you begin". This way you don't have to think about all the necessary context at once, you can get the tool to ask you for some of the details.
 
 2.  **Check for errors:** This also seems obvious -- you should run the code the tool suggests and check for errors. If the code gives an error, this is easy to catch and potentially easy to address. However, sometimes the code suggests arguments that don't exist that R might silently ignore. These might be unneeded arguments or a needed argument but not used properly due to how it's called or the value it's set to. Such errors are more difficult to identify, particularly in functions you might not be familiar with.
 
