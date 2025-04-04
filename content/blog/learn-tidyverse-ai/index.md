@@ -9,13 +9,13 @@ description: >
     Tips and recommendations for learning the tidyverse with AI tools.
 
 photo:
-  url: https://unsplash.com/photos/zwd435-ewb4
-  author: Andrea De Santis
+  url: https://chatgpt.com/g/g-c8rPAhJRP-image-creator
+  author: ChatGPT
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [ai]
-rmd_hash: d1a8bca39836b88e
+rmd_hash: 1c89e88098c31f1c
 
 ---
 
