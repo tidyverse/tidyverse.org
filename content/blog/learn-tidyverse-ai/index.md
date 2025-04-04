@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [learn] 
 tags: [ai]
-rmd_hash: f170009a553e32b1
+rmd_hash: d1a8bca39836b88e
 
 ---
 
@@ -237,7 +237,7 @@ We're getting there! For new learners of the tidyverse, there are still a few as
 -   Line breaks and indentation does not follow [tidyverse style guidelines](https://style.tidyverse.org/pipes.html#long-lines), which suggest that if the arguments to a function don't all fit on one line, each argument should go on its own line.
 -   If `clubs` is a tibble, printing it will only display the first 10 rows anyway, so there's no need for the [`head()`](https://rdrr.io/r/utils/head.html) call.
 
-Once again, it's possible to ask the tool to make these updates. Claude doesn't provide a sharing link for the conversation, but I've saved it at <https://gist.github.com/mine-cetinkaya-rundel/c74dc7c5f2a27a846574edd063988431>. Even with vague prompts like "If clubs is a tibble, it'll only print out the first 10 rows anyway," it does exactly what we would want it to do, resulting in the following:
+Once again, it's possible to ask the tool to make these updates. At the time of developing this example, Claude didn't provide a sharing link for the conversation (it does now!), but I've saved it at <https://gist.github.com/mine-cetinkaya-rundel/c74dc7c5f2a27a846574edd063988431>. Even with vague prompts like "If clubs is a tibble, it'll only print out the first 10 rows anyway," it does exactly what we would want it to do, resulting in the following:
 
 <div class="highlight">
 
