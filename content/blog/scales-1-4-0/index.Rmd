@@ -109,6 +109,44 @@ By default, the collection of 'known' palettes is pre-populated with colour pale
 as_discrete_pal("Okabe-Ito")(8)
 ```
 
+### Providing palettes as package
+
+For those that are interested in developing R packages with palettes, there are a few recommendations we make in `?palette-recommendations` to smoothly interface with the scales package.
+
+If your palettes are vectors of colour values, we recommend simply exporting the naked vector.
+
+```{r}
+#' @export
+aurora <- c("palegreen", "deepskyblue", "magenta")
+```
+
+That way, they can easily be accessed and used in `as_discrete_pal()` and `as_continuous_pal()`.
+
+```{r, results='hide'}
+as_continuous_pal(aurora)
+as_discrete_pal(aurora)
+```
+
+Alternatively, if you have functions that generate colours that is not predefined, we recommend wrapping the function in `new_discrete_palette()` and `new_continuous_palette()`. For predefined palettes, you can also use `pal_manual()` or `pal_gradient_n()`.
+
+```{r}
+pal_random <- function() {
+  fun <- function(n) {
+    sample(colours(distinct = TRUE), size = n, replace = TRUE)
+  }
+  new_discrete_palette(fun, type = "colour", nlevels = length(colours()))
+}
+```
+
+Populating the metadata in `new_discrete_palette()`/`new_continuous_palette()` helps to make converting between palette types less painful.
+
+```{r, results='hide'}
+as_continuous_pal(pal_random())
+as_discrete_pal(pal_random())
+```
+
+
+
 ## Labels
 
 This release also provides improvements to labelling in the form of two new labelling functions and two new convenience functions for labels.

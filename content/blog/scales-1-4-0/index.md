@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [scales]
-rmd_hash: b6cdea6b99fcee1c
+rmd_hash: fcb4e0463345d0c6
 
 ---
 
@@ -124,6 +124,50 @@ Another quality of life improvement for palettes, is that the 'scales' package n
 <span><span class='c'>#&gt; [1] "#000000" "#E69F00" "#56B4E9" "#009E73" "#F0E442" "#0072B2" "#D55E00"</span></span>
 <span><span class='c'>#&gt; [8] "#CC79A7"</span></span>
 <span></span></code></pre>
+
+</div>
+
+### Providing palettes as package
+
+For those that are interested in developing R packages with palettes, there are a few recommendations we make in `?palette-recommendations` to smoothly interface with the scales package.
+
+If your palettes are vectors of colour values, we recommend simply exporting the naked vector.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'>#' @export</span></span>
+<span><span class='nv'>aurora</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"palegreen"</span>, <span class='s'>"deepskyblue"</span>, <span class='s'>"magenta"</span><span class='o'>)</span></span></code></pre>
+
+</div>
+
+That way, they can easily be accessed and used in [`as_discrete_pal()`](https://scales.r-lib.org/reference/new_continuous_palette.html) and [`as_continuous_pal()`](https://scales.r-lib.org/reference/new_continuous_palette.html).
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>as_continuous_pal</a></span><span class='o'>(</span><span class='nv'>aurora</span><span class='o'>)</span></span>
+<span><span class='nf'><a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>as_discrete_pal</a></span><span class='o'>(</span><span class='nv'>aurora</span><span class='o'>)</span></span></code></pre>
+
+</div>
+
+Alternatively, if you have functions that generate colours that is not predefined, we recommend wrapping the function in [`new_discrete_palette()`](https://scales.r-lib.org/reference/new_continuous_palette.html) and [`new_continuous_palette()`](https://scales.r-lib.org/reference/new_continuous_palette.html). For predefined palettes, you can also use [`pal_manual()`](https://scales.r-lib.org/reference/pal_manual.html) or [`pal_gradient_n()`](https://scales.r-lib.org/reference/pal_gradient_n.html).
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>pal_random</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
+<span>  <span class='nv'>fun</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>n</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
+<span>    <span class='nf'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/grDevices/colors.html'>colours</a></span><span class='o'>(</span>distinct <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span>, size <span class='o'>=</span> <span class='nv'>n</span>, replace <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
+<span>  <span class='o'>&#125;</span></span>
+<span>  <span class='nf'><a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>new_discrete_palette</a></span><span class='o'>(</span><span class='nv'>fun</span>, type <span class='o'>=</span> <span class='s'>"colour"</span>, nlevels <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/grDevices/colors.html'>colours</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='o'>&#125;</span></span></code></pre>
+
+</div>
+
+Populating the metadata in [`new_discrete_palette()`](https://scales.r-lib.org/reference/new_continuous_palette.html)/[`new_continuous_palette()`](https://scales.r-lib.org/reference/new_continuous_palette.html) helps to make converting between palette types less painful.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>as_continuous_pal</a></span><span class='o'>(</span><span class='nf'>pal_random</span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='nf'><a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>as_discrete_pal</a></span><span class='o'>(</span><span class='nf'>pal_random</span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
