@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: scales-1-4-0
 title: scales 1.4.0
-date: 2024-10-30
+date: 2025-04-23
 author: Teun van den Brand
 description: >
     The new 1.4.0 release of the scales package adds some colourful updates.
@@ -101,26 +101,12 @@ With the new setup it is now possible to expand discrete palettes to continuous 
 plot(as_continuous_pal(my_palette))
 ```
 
-Another quality of life improvement for palettes, is that the 'scales' package now keeps track of named palettes.
+Another quality of life improvement for palettes, is that the 'scales' package now keeps track of some named palettes.
 By default, the collection of 'known' palettes is pre-populated with colour palettes from the grDevices, RColorBrewer and viridisLite packages.
 
 
 ```{r}
-head(palette_names())
-
-get_palette("Okabe-Ito")(8)
-```
-
-If you're a developer of a palette package, you can use `set_palette()` to register your palette.
-This has the advantage that your palette is now available to users by name, which at times might be more convenient than having to call the palette generator function.
-In the future, we plan to make it easier to work with named palettes in ggplot2.
-Hopefully this will mean that mirroring every palette in a `scale_*()` function becomes obsolete.
-
-```{r, error=TRUE}
-get_palette("aurora")
-
-set_palette("aurora", my_palette)
-plot(get_palette("aurora"))
+as_discrete_pal("Okabe-Ito")(8)
 ```
 
 ## Labels

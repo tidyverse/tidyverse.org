@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: scales-1-4-0
 title: scales 1.4.0
-date: 2024-10-30
+date: 2025-04-23
 author: Teun van den Brand
 description: >
     The new 1.4.0 release of the scales package adds some colourful updates.
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [scales]
-rmd_hash: 31a31e8ee7f5311f
+rmd_hash: b6cdea6b99fcee1c
 
 ---
 
@@ -43,7 +43,7 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will give an overview of the 1.4.0 release, which has some nifty upgrades for working with colours.
+This blog post will give an overview of the 1.4.0 release, which has some nifty upgrades for working with colours and labels.
 
 You can see a full list of changes in the [release notes](https://scales.r-lib.org/news/index.html)
 
@@ -79,7 +79,7 @@ The [`alpha()`](https://scales.r-lib.org/reference/alpha.html) and [`muted()`](h
 
 ## Palettes
 
-Also palettes have been reworked this release to reflect more useful properties. Palettes now come in one of two classes: 'pal_discrete' or 'pal_continuous'.
+Palettes have also been reworked in this release to include some useful properties. Palettes now come in one of two classes: 'pal_discrete' or 'pal_continuous'.
 
 <div class="highlight">
 
@@ -90,7 +90,7 @@ Also palettes have been reworked this release to reflect more useful properties.
 
 </div>
 
-Having palettes as a class rather than plain functions, allows us to store useful metadata about the palette. In addition, most colour palette functions also allow the aforementioned colour manipulation functions to work on the palette output.
+Having palettes as a class rather than as plain functions, allows us to store useful metadata about the palette which can be used downstream. In addition, most colour palette functions also allow the aforementioned colour manipulation functions to work on the palette output.
 
 <div class="highlight">
 
@@ -106,7 +106,7 @@ Having palettes as a class rather than plain functions, allows us to store usefu
 
 </div>
 
-This metadata can then be used to expand discrete palettes to continuous palettes with [`as_continuous_pal()`](https://scales.r-lib.org/reference/new_continuous_palette.html) or vise versa to chop up a continuous palette into discrete palettes with [`as_discrete_pal()`](https://scales.r-lib.org/reference/new_continuous_palette.html).
+With the new setup it is now possible to expand discrete palettes to continuous palettes with [`as_continuous_pal()`](https://scales.r-lib.org/reference/new_continuous_palette.html) or vise versa to chop up continuous palettes into discrete palettes with [`as_discrete_pal()`](https://scales.r-lib.org/reference/new_continuous_palette.html).
 
 <div class="highlight">
 
@@ -116,39 +116,20 @@ This metadata can then be used to expand discrete palettes to continuous palette
 
 </div>
 
-Another thing to make working with palettes easier, is that the 'scales' package now keeps track of named palettes. By default, the collection of 'known' palettes is pre-populated with colour palettes from the grDevices, RColorBrewer and viridisLite packages.
+Another quality of life improvement for palettes, is that the 'scales' package now keeps track of some named palettes. By default, the collection of 'known' palettes is pre-populated with colour palettes from the grDevices, RColorBrewer and viridisLite packages.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='nf'><a href='https://scales.r-lib.org/reference/get_palette.html'>palette_names</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] "greens 2"   "r4"         "greens 3"   "blues"      "terrain"   </span></span>
-<span><span class='c'>#&gt; [6] "tableau 10"</span></span>
-<span></span><span></span>
-<span><span class='nf'><a href='https://scales.r-lib.org/reference/get_palette.html'>get_palette</a></span><span class='o'>(</span><span class='s'>"Okabe-Ito"</span><span class='o'>)</span><span class='o'>(</span><span class='m'>8</span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>as_discrete_pal</a></span><span class='o'>(</span><span class='s'>"Okabe-Ito"</span><span class='o'>)</span><span class='o'>(</span><span class='m'>8</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "#000000" "#E69F00" "#56B4E9" "#009E73" "#F0E442" "#0072B2" "#D55E00"</span></span>
 <span><span class='c'>#&gt; [8] "#CC79A7"</span></span>
 <span></span></code></pre>
 
 </div>
 
-If you're a developer of a palette package, you can use [`set_palette()`](https://scales.r-lib.org/reference/get_palette.html) to register your palette. This has the advantage that your palette is now available to users by name, which at times might be more convenient than having to call the palette generator function.
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://scales.r-lib.org/reference/get_palette.html'>get_palette</a></span><span class='o'>(</span><span class='s'>"aurora"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `get_palette()`:</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Unknown palette: aurora</span></span>
-<span></span><span></span>
-<span><span class='nf'><a href='https://scales.r-lib.org/reference/get_palette.html'>set_palette</a></span><span class='o'>(</span><span class='s'>"aurora"</span>, <span class='nv'>my_palette</span><span class='o'>)</span></span>
-<span><span class='nf'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='o'>(</span><span class='nf'><a href='https://scales.r-lib.org/reference/get_palette.html'>get_palette</a></span><span class='o'>(</span><span class='s'>"aurora"</span><span class='o'>)</span><span class='o'>)</span></span>
-</code></pre>
-<img src="figs/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" />
-
-</div>
-
 ## Labels
 
-Lastly, please let us introduce you to our two new labelling functions and two new convenience functions for labels. In contrast to most of scales' label functions, these label functions are great for discrete input. First up is [`label_glue()`](https://scales.r-lib.org/reference/label_glue.html), which uses the string interpolation from the glue package to format your labels.
+This release also provides improvements to labelling in the form of two new labelling functions and two new convenience functions for labels. In contrast to most of scales' label functions, these label functions are great for discrete input. First up is [`label_glue()`](https://scales.r-lib.org/reference/label_glue.html), which uses the string interpolation from the glue package to format your labels.
 
 <div class="highlight">
 
@@ -160,7 +141,7 @@ Lastly, please let us introduce you to our two new labelling functions and two n
 
 </div>
 
-The next labeling function is convenient when some variable you use consists of shortcodes or abbreviations. You can provide [`label_dictionary()`](https://scales.r-lib.org/reference/label_dictionary.html) with a named vector that translates the values to prettier labels. If you value didn't exist in the dictionary, these stay as-is by default.
+The other labelling function, [`label_dictionary()`](https://scales.r-lib.org/reference/label_dictionary.html), is convenient when some variable you use consists of short-codes or abbreviations. You can provide [`label_dictionary()`](https://scales.r-lib.org/reference/label_dictionary.html) with a named vector that translates the values to prettier labels. If one or more of your values doesn't exist in the dictionary, they stay as-is by default.
 
 <div class="highlight">
 
@@ -174,7 +155,7 @@ The next labeling function is convenient when some variable you use consists of 
 
 </div>
 
-The first label convenience function we'd like to tell you about is the [`compose_label()`](https://scales.r-lib.org/reference/compose_label.html) function. Similar to [`compose_trans()`](https://scales.r-lib.org/reference/transform_compose.html), it allows you to chain together different labelling functions.
+[`compose_label()`](https://scales.r-lib.org/reference/compose_label.html) is a useful convenience function we've added which will help you to create custom labelling behaviour without needing to write a labelling function from scratch. Similar to [`compose_trans()`](https://scales.r-lib.org/reference/transform_compose.html), it allows you to chain together different labelling functions.
 
 <div class="highlight">
 
