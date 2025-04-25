@@ -33,7 +33,7 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're stoked to announce the release of [scales](%7Bhttps://scales.r-lib.org/%7D) 1.4.0. scales is a package that provides much of the scaling logic that is used in ggplot2 to a general framework, along with utility functions for e.g. formatting labels or creating colour palettes.
+We're stoked to announce the release of [scales](https://scales.r-lib.org/) 1.4.0. scales is a package that provides much of the scaling logic that is used in ggplot2 to a general framework, along with utility functions for e.g. formatting labels or creating colour palettes.
 
 You can install it from CRAN with:
 
