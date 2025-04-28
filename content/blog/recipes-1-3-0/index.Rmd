@@ -52,7 +52,7 @@ library(recipes)
 
 Recipes by default convert predictor strings to factors, and the option for that is located in `prep()`. This caused an issue when you wanted to set `strings_as_factors = FALSE` for a recipe that is used somewhere else like in a workflow.
 
-This is no longer an issue as we have moved the argument to `recipe()` itself. We are at the same time deprecating the use of `strings_as_factors` when used in `prep()`.
+This is no longer an issue as we have moved the argument to `recipe()` itself. We are at the same time deprecating the use of `strings_as_factors` when used in `prep()`. Here is an example:
 
 ```{r}
 library(modeldata)
@@ -81,7 +81,7 @@ This change should also make pragmatic sense as whether you want to turn strings
 
 We have started the process of deprecating `step_select()`. Given the number of issues people are having with the step and the fact that it doesn't play well with workflows we think this is the right call.
 
-There are two main use cases where `step_select()` was used. Removing variables, and selecting variables. Removing variables when done with `-` in `step_select()`
+There are two main use cases where `step_select()` was used: removing variables, and selecting variables. Removing variables when done with `-` in `step_select()`
 
 ```{r, warning=FALSE}
 recipe(mpg ~ ., mtcars) |>
@@ -164,7 +164,7 @@ These changes are backwards compatible meaning that the old ways still work with
 
 ## `step_impute_bag()` now takes up less memory
 
-We have another benefit for users of `step_impute_bag()`. For each variable, it imputes on it fits a bagged tree model, which is then used to predict with for imputation. It was noticed that these models had a larger memory footprint than was needed. This has been remedied so now there should be a noticebly decrease in size for recipes with `step_impute_bag()`.
+We have another benefit for users of `step_impute_bag()`. For each variable it imputes on, it fits a bagged tree model, which is then used to predict with for imputation. It was noticed that these models had a larger memory footprint than was needed. This has been remedied, so now there should be a noticeable decrease in size for recipes with `step_impute_bag()`.
 
 ```{r}
 rec <- recipe(Sale_Price ~ ., data = ames) |>
