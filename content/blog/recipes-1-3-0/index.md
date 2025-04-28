@@ -3,10 +3,10 @@ output: hugodown::hugo_document
 
 slug: recipes-1-3-0
 title: recipes 1.3.0
-date: 2025-04-22
+date: 2025-04-28
 author: Emil Hvitfeldt
 description: >
-    This release brings multiple exciting features and streamlines many recipe steps.
+    This release brings changes for strings_as_factors, step_select(), step_dummy(), and step_impute_bag().
 
 photo:
   url: https://unsplash.com/photos/background-pattern-3b7sos3CD2c
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, recipes]
-rmd_hash: f3cab53603a39588
+rmd_hash: ad85c30fcc1a7350
 
 ---
 
@@ -42,9 +42,11 @@ You can install it from CRAN with:
 
 </div>
 
-This blog post will walk through some of the highlights of this release.
+This blog post will walk through some of the highlights of this release, which includes changes to how `strings_as_factors` are specified, deprecation of [`step_select()`](https://recipes.tidymodels.org/reference/step_select.html), new `contrasts` argument for [`step_dummy()`](https://recipes.tidymodels.org/reference/step_dummy.html), and improvements for [`step_impute_bag()`](https://recipes.tidymodels.org/reference/step_impute_bag.html).
 
 You can see a full list of changes in the [release notes](https://recipes.tidymodels.org/news/index.html#recipes-130).
+
+Let's first load the package:
 
 <div class="highlight">
 
@@ -56,7 +58,7 @@ You can see a full list of changes in the [release notes](https://recipes.tidymo
 
 Recipes by default convert predictor strings to factors, and the option for that is located in [`prep()`](https://recipes.tidymodels.org/reference/prep.html). This caused an issue when you wanted to set `strings_as_factors = FALSE` for a recipe that is used somewhere else like in a workflow.
 
-This is no longer an issue as we have moved the argument to [`recipe()`](https://recipes.tidymodels.org/reference/recipe.html) itself. We are at the same time deprecating the use of `strings_as_factors` when used in [`prep()`](https://recipes.tidymodels.org/reference/prep.html).
+This is no longer an issue as we have moved the argument to [`recipe()`](https://recipes.tidymodels.org/reference/recipe.html) itself. We are at the same time deprecating the use of `strings_as_factors` when used in [`prep()`](https://recipes.tidymodels.org/reference/prep.html). Here is an example:
 
 <div class="highlight">
 
@@ -136,7 +138,7 @@ This change should also make pragmatic sense as whether you want to turn strings
 
 We have started the process of deprecating [`step_select()`](https://recipes.tidymodels.org/reference/step_select.html). Given the number of issues people are having with the step and the fact that it doesn't play well with workflows we think this is the right call.
 
-There are two main use cases where [`step_select()`](https://recipes.tidymodels.org/reference/step_select.html) was used. Removing variables, and selecting variables. Removing variables when done with `-` in [`step_select()`](https://recipes.tidymodels.org/reference/step_select.html)
+There are two main use cases where [`step_select()`](https://recipes.tidymodels.org/reference/step_select.html) was used: removing variables, and selecting variables. Removing variables when done with `-` in [`step_select()`](https://recipes.tidymodels.org/reference/step_select.html)
 
 <div class="highlight">
 
@@ -263,6 +265,8 @@ To fix this issue we have given [`step_dummy()`](https://recipes.tidymodels.org/
 
 </div>
 
+If you are using a contrasts from an external package such as [`hardhat::contr_one_hot()`](https://hardhat.tidymodels.org/reference/contr_one_hot.html) you will need to have the package loaded in the environments you are working in with [`library(hardhat)`](https://github.com/tidymodels/hardhat) and setting `contrasts = "contr_one_hot"`. You will also need to call [`library(hardhat)`](https://github.com/tidymodels/hardhat) in any production environments you are using this recipe.
+
 ## tidyselect can be used everywhere
 
 Several steps such as [`step_pls()`](https://recipes.tidymodels.org/reference/step_pls.html) and [`step_impute_bag()`](https://recipes.tidymodels.org/reference/step_impute_bag.html) require the selection of more than just the affected columns. [`step_pls()`](https://recipes.tidymodels.org/reference/step_pls.html) needs you to select an `outcome` variable and [`step_impute_bag()`](https://recipes.tidymodels.org/reference/step_impute_bag.html) needs you to select which variables to impute with, `impute_with`, if you don't want to use all predictors. Previously these needed to be strings or use special selectors like [`imp_vars()`](https://recipes.tidymodels.org/reference/step_impute_bag.html). You don't have to do that anymore. You can now use tidyselect in these arguments too.
@@ -321,7 +325,7 @@ These changes are backwards compatible meaning that the old ways still work with
 
 ## `step_impute_bag()` now takes up less memory
 
-We have another benefit for users of [`step_impute_bag()`](https://recipes.tidymodels.org/reference/step_impute_bag.html). For each variable, it imputes on it fits a bagged tree model, which is then used to predict with for imputation. It was noticed that these models had a larger memory footprint than was needed. This has been remedied so now there should be a noticebly decrease in size for recipes with [`step_impute_bag()`](https://recipes.tidymodels.org/reference/step_impute_bag.html).
+We have another benefit for users of [`step_impute_bag()`](https://recipes.tidymodels.org/reference/step_impute_bag.html). For each variable it imputes on, it fits a bagged tree model, which is then used to predict with for imputation. It was noticed that these models had a larger memory footprint than was needed. This has been remedied, so now there should be a noticeable decrease in size for recipes with [`step_impute_bag()`](https://recipes.tidymodels.org/reference/step_impute_bag.html).
 
 <div class="highlight">
 
@@ -330,7 +334,7 @@ We have another benefit for users of [`step_impute_bag()`](https://recipes.tidym
 <span>  <span class='nf'><a href='https://recipes.tidymodels.org/reference/prep.html'>prep</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span></span>
 <span><span class='nf'>lobstr</span><span class='nf'>::</span><span class='nf'><a href='https://lobstr.r-lib.org/reference/obj_size.html'>obj_size</a></span><span class='o'>(</span><span class='nv'>rec</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; 20.10 MB</span></span>
+<span><span class='c'>#&gt; 20.23 MB</span></span>
 <span></span></code></pre>
 
 </div>
