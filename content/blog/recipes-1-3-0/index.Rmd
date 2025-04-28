@@ -1,0 +1,187 @@
+---
+output: hugodown::hugo_document
+
+slug: recipes-1-3-0
+title: recipes 1.3.0
+date: 2025-04-28
+author: Emil Hvitfeldt
+description: >
+    This release brings changes for strings_as_factors, step_select(), step_dummy(), and step_impute_bag().
+
+photo:
+  url: https://unsplash.com/photos/background-pattern-3b7sos3CD2c
+  author: James Trenda
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [tidymodels, recipes]
+---
+
+```{=html}
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+```
+
+We're thrilled to announce the release of [recipes](https://recipes.tidymodels.org/) 1.3.0. recipes lets you create a pipeable sequence of feature engineering steps.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("recipes")
+```
+
+This blog post will walk through some of the highlights of this release, which includes changes to how `strings_as_factors` are specified, deprecation of `step_select()`, new `contrasts` argument for `step_dummy()`, and improvements for `step_impute_bag()`.
+
+
+You can see a full list of changes in the [release notes](https://recipes.tidymodels.org/news/index.html#recipes-130).
+
+Let's first load the package:
+
+```{r setup, message=FALSE}
+library(recipes)
+```
+
+## `strings_as_factors`
+
+Recipes by default convert predictor strings to factors, and the option for that is located in `prep()`. This caused an issue when you wanted to set `strings_as_factors = FALSE` for a recipe that is used somewhere else like in a workflow.
+
+This is no longer an issue as we have moved the argument to `recipe()` itself. We are at the same time deprecating the use of `strings_as_factors` when used in `prep()`. Here is an example:
+
+```{r}
+library(modeldata)
+tate_text
+```
+
+We are loading the modeldata package to get `tate_text` which has a character column `title`. If we don't do anything then it turns into a factor.
+
+```{r}
+recipe(~., data = tate_text) |>
+  prep() |>
+  bake(tate_text)
+```
+
+But we can set `strings_as_factors = FALSE` in `recipe()` and it won't anymore.
+
+```{r}
+recipe(~., data = tate_text, strings_as_factors = FALSE) |>
+  prep() |>
+  bake(tate_text)
+```
+
+This change should also make pragmatic sense as whether you want to turn strings into factors is something that should encoded into the recipe itself.
+
+## Deprecating `step_select()`
+
+We have started the process of deprecating `step_select()`. Given the number of issues people are having with the step and the fact that it doesn't play well with workflows we think this is the right call.
+
+There are two main use cases where `step_select()` was used: removing variables, and selecting variables. Removing variables when done with `-` in `step_select()`
+
+```{r, warning=FALSE}
+recipe(mpg ~ ., mtcars) |>
+  step_select(-starts_with("d")) |>
+  prep() |>
+  bake(new_data = NULL)
+```
+
+These use cases can seamlessly be converted to use `step_rm()` without the `-` for the same result.
+
+```{r}
+recipe(mpg ~ ., mtcars) |>
+  step_rm(starts_with("d")) |>
+  prep() |>
+  bake(new_data = NULL)
+```
+
+For selecting variables there are two cases. The first is as a tool to select which variables to use in our model. We recommend that you use `select()` to do that before passing the data into the `recipe()`. This is especially helpful since [recipes are tighter with respect to their input types](https://www.tidyverse.org/blog/2024/07/recipes-1-1-0/#column-type-checking), so only passing the data you need to use is helpful.
+
+If you need to do the selection after another step takes effect you should still be able to do so, by using `step_rm()` in the following manner.
+
+```r
+step_rm(recipe, all_predictors(), -all_of(<variables that you want to keep>))
+```
+
+## `step_dummy()` contrasts argument
+
+Contrasts such as `contr.treatment()` and `contr.poly()` are used in `step_dummy()` to determine how the steps should translate categorical values into one or more numeric columns. Traditionally the contrasts were set using `options()` like so:
+
+```{r}
+options(contrasts = c(unordered = "contr.poly", ordered = "contr.poly"))
+```
+
+```{r, warning=FALSE}
+recipe(~species + island, penguins) |>
+  step_dummy(all_nominal_predictors()) |>
+  prep() |>
+  bake(new_data = penguins)
+```
+
+The issue with this approach is that it pulls from `options()` when it needs it instead of storing the information. This means that if you put this recipe in production you will need to set the option in the production environment to match that of the training environment.
+
+```{r}
+#| echo: false
+options(contrasts = c(unordered = "contr.treatment", ordered = "contr.poly"))
+```
+
+To fix this issue we have given `step_dummy()` an argument `contrasts` that work in much the same way. You simply specify the contrast you want and it will be stored in the object for easy deployment.
+
+```{r}
+recipe(~species + island, penguins) |>
+  step_dummy(
+    all_nominal_predictors(), contrasts = "contr.poly") |>
+  prep() |>
+  bake(new_data = penguins)
+```
+
+If you are using a contrasts from an external package such as `hardhat::contr_one_hot()` you will need to have the package loaded in the environments you are working in with `library(hardhat)` and setting `contrasts = "contr_one_hot"`. You will also need to call `library(hardhat)` in any production environments you are using this recipe.
+
+## tidyselect can be used everywhere
+
+Several steps such as `step_pls()` and `step_impute_bag()` require the selection of more than just the affected columns. `step_pls()` needs you to select an `outcome` variable and `step_impute_bag()` needs you to select which variables to impute with, `impute_with`, if you don't want to use all predictors. Previously these needed to be strings or use special selectors like `imp_vars()`. You don't have to do that anymore. You can now use tidyselect in these arguments too.
+
+```{r}
+recipe(mpg ~ ., mtcars) |>
+  step_pls(all_predictors(), outcome = mpg) |>
+  prep() |>
+  bake(new_data = mtcars)
+```
+
+For arguments that allow for multiple selections now work with recipes selectors like `all_numeric_predictors()` and `has_role()`.
+
+```{r}
+recipe(mpg ~ ., mtcars) |>
+  step_impute_bag(all_predictors(), impute_with = has_role("predictor")) |>
+  prep() |>
+  bake(new_data = mtcars)
+```
+
+These changes are backwards compatible meaning that the old ways still work with minimal warnings.
+
+## `step_impute_bag()` now takes up less memory
+
+We have another benefit for users of `step_impute_bag()`. For each variable it imputes on, it fits a bagged tree model, which is then used to predict with for imputation. It was noticed that these models had a larger memory footprint than was needed. This has been remedied, so now there should be a noticeable decrease in size for recipes with `step_impute_bag()`.
+
+```{r}
+rec <- recipe(Sale_Price ~ ., data = ames) |>
+  step_impute_bag(starts_with("Lot_"), impute_with = all_numeric_predictors()) |>
+  prep()
+
+lobstr::obj_size(rec)
+```
+
+This recipe took up over `75 MB` and now takes up `20 MB`.
+
+## Acknowledgements
+
+Many thanks to all the people who contributed to recipes since the last release!
+
+[&#x0040;chillerb](https://github.com/chillerb), [&#x0040;dshemetov](https://github.com/dshemetov), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;kevbaer](https://github.com/kevbaer), [&#x0040;nhward](https://github.com/nhward), [&#x0040;regisely](https://github.com/regisely), and [&#x0040;topepo](https://github.com/topepo).
