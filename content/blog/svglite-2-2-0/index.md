@@ -39,7 +39,7 @@ TODO:
 * [x] `usethis::use_tidy_thanks()`
 -->
 
-We're pleased to announce the release of [svglite](https://svglite.r-lib.org) 2.2.0. svglite is a graphic device that is capable of creating SVG files from R graphics. SVG is a vector graphic format which means that it encodes the instructions for recreating a graphic in a scale-independent way. This is in contrast with raster graphics, such as PNG (as can be produced with the graphic devices in ragg), which encode actual pixel values and will get pixelated as you zoom in.
+We're pleased to announce the release of [svglite](https://svglite.r-lib.org) 2.2.0. svglite is a graphic device that is capable of creating SVG files from R graphics. SVG is a vector graphic format which means that it encodes the instructions for recreating a graphic in a scale-independent way. This is in contrast with raster graphics, such as PNG (as can be produced with the graphic devices in [ragg](https://ragg.r-lib.org)), which encode actual pixel values and will get pixelated as you zoom in.
 
 You can install it from CRAN with:
 
@@ -60,7 +60,7 @@ library(svglite)
 library(grid)
 ```
 
-## Graphics Engine Support
+## Graphics engine support
 
 With this release svglite now supports all the latest features offered by the R graphics engine. The graphics engine is the part of R that communicate plotting instructions from the user to the graphics device, and the last couple of years Paul Murrell has made a huge amount of working adding to what is possible with R graphics. svglite already supported a bunch of these with the 2.0.0 release, but with 2.2.0 the support is complete (for now).
 
@@ -150,7 +150,7 @@ grid.draw(
 
 Again, opening up the SVG in a text editor you'll see no trace of the input text there as it has all been converted to `<path>` elements (and an `<image>` element in the case of the emoji)
 
-## Font Embedding
+## Font embedding
 
 If you have followed my work over the last years you know that I've grown to care deeply about text rendering, and it's cousin: font handling. SVG files (as well as PDF files) are special in that regard because the text is not rendered directly in the file (except for the glyph implementation discussed above), but rather postponed until the file is opened. This poses the problem of the font potentially not being available on the machine(s) that is eventually going to open the file.
 
