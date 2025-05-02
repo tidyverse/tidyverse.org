@@ -1,0 +1,214 @@
+---
+output: hugodown::hugo_document
+
+slug: svglite-2-2-0
+title: svglite 2.2.0
+date: 2025-05-01
+author: Thomas Lin Pedersen
+description: >
+    A new release of svglite has arrived, and with it full support for all the
+    latest capabilities of the R Graphics Engine. Further, it finalizes the new
+    approach to handling web fonts and font embedding in the created SVGs.
+
+photo:
+  url: https://unsplash.com/photos/an-abstract-background-with-a-purple-and-blue-pattern-2I0x5N0P_d8?utm_content=creditShareLink&utm_medium=referral&utm_source=unsplash
+  author: Rushikesh Gaikwad
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package]
+tags: [svglite, graphic-device, graphics]
+---
+
+<style type='text/css'>
+pre {
+  text-wrap: nowrap;
+  overflow-x: scroll;
+}
+</style>
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're pleased to announce the release of [svglite](https://svglite.r-lib.org) 2.2.0. svglite is a graphic device that is capable of creating SVG files from R graphics. SVG is a vector graphic format which means that it encodes the instructions for recreating a graphic in a scale-independent way. This is in contrast with raster graphics, such as PNG (as can be produced with the graphic devices in ragg), which encode actual pixel values and will get pixelated as you zoom in.
+
+You can install it from CRAN with:
+
+```{r}
+#| eval: false
+install.packages("svglite")
+```
+
+This blog post will describe the news features available the release, with a special focus on text rendering and font handling.
+
+You can see a full list of changes in the [release notes](https://svglite.r-lib.org/news/index.html)
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(
+  dev = "svglite"
+)
+```
+
+```{r setup}
+library(svglite)
+library(grid)
+```
+
+## Graphics Engine Support
+
+With this release svglite now supports all the latest features offered by the R graphics engine. The graphics engine is the part of R that communicate plotting instructions from the user to the graphics device, and the last couple of years Paul Murrell has made a huge amount of working adding to what is possible with R graphics. svglite already supported a bunch of these with the 2.0.0 release, but with 2.2.0 the support is complete (for now).
+
+### Stroking and filling complex paths
+
+[In 4.2.0 R gained the ability to create complex path objects](https://www.stat.auckland.ac.nz/~paul/Reports/GraphicsEngine/paths/paths.html) out of (almost) any grob or collection of grobs. Now, svglite supports this, even allowing text to be used. First, let's see how a compound grob looks when it is rendered normally:
+
+```{r}
+circle <- circleGrob(
+  r = .25,
+  gp = gpar(col = "black", lwd = 5, fill = "goldenrod")
+)
+text <- textGrob(
+  "svglite",
+  gp = gpar(col = "forestgreen", fontsize = 110, fontface = "bold")
+)
+gt <- gTree(
+  children = gList(
+    circle,
+    text
+  )
+)
+
+grid.draw(gt)
+```
+
+Instead, if we render it as a compound path (using the even-odd filling rule) we get this:
+
+```{r}
+grid.draw(
+  fillGrob(gt, rule = "evenodd", gp = gpar(fill = "steelblue"))
+)
+```
+
+Observe how everything is now part of the same graphic object, and that the even-odd filling rule makes it so that the overlap is empty. Another point is that the graphic parameters of the composite grob doesn't have an effect on the compound path as only the path information is used.
+
+If you open up the two SVGs in a vector image editor like Inkscape or Affinity Designer, you can see another difference. In the first SVG the text is still editable, while in the second it is not. This is because that in order to support compound paths the glyphs have to be converted to paths, destroying the notion of "text" they might have had.
+
+### Groups
+
+Another novelty in R 4.2.0 was the ability to define "groups" that could be reused, composed, and transformed. This is now also possible in svglite, though with a slight limitation in the number of composition operators possible. Inexplicably, the SVG standard has mode Porter-Duff composition way more complicated than colour blending to the extent that it doesn't really work with how the graphics engine is set up. Still, most of what makes groups great works:
+
+```{r}
+grid.group(text, "difference", circle)
+```
+
+```{r}
+grid.define(gt, name = "gt")
+grid.use(
+  "gt",
+  transform = \(...) {
+    viewportTransform(..., shear = groupShear(sx = 2))
+  }
+)
+```
+
+### Glyphs
+
+A slightly newer feature that came with R 4.3.0 is the glyph interface for rendering rich text. Despite the fact that this is what allows complex text layouting to work in e.g. [marquee](https://marquee.r-lib.org), at the device side it is actually really simple. It gets a font file, an index for the glyph in that file, and a location for the glyph and is then tasked with rendering it. This is in contrast with the standard text support where you get a string, a font family name, etc. and have to figure out on your own the location of the font file, how glyphs should be placed to look correct etc.
+
+Still, the glyph interface presents a problem for svglite because it tries very hard to create output that can be edited in post-production, and in order to support the glyph interface we have to (like with the compound paths above) render the glyphs as `<path>` elements instead of `<text>` elements. There is simply no way in SVG to place glyphs individually based on a font file and a glyph index. However, some support is better than none, so until I find a way to render marquee text in an editable way with svglite, you have at least support for rendering of the text:
+
+```{r}
+grid.draw(
+  marquee::marquee_grob(
+    "This *is* now working with `{svglite}` 🎉",
+    style = marquee::classic_style(base_size = 28),
+    y = 0.5
+  )
+)
+```
+
+Again, opening up the SVG in a text editor you'll see no trace of the input text there as it has all been converted to `<path>` elements (and an `<image>` element in the case of the emoji)
+
+## Font Embedding
+
+If you have followed my work over the last years you know that I've grown to care deeply about text rendering, and it's cousin: font handling. SVG files (as well as PDF files) are special in that regard because the text is not rendered directly in the file (except for the glyph implementation discussed above), but rather postponed until the file is opened. This poses the problem of the font potentially not being available on the machine(s) that is eventually going to open the file.
+
+You can avoid all of these by only using fonts that are considered "web-safe", such as Arial, Times New Roman, Courier, etc. but what a poor world to live in if those fonts were the only ones used in data visualization. Instead, you can use whatever font you like and embed the font specification in the file so it travels along and is available wherever the file is opened.
+
+`svglite()` has for a while had the `web_fonts` argument which allow you to specify font imports to add to the SVG file. With the new release, however, this has been tightened up and in unison with new functionality in systemfonts I believe the gordian knot of font handling in SVGs have finally been untied (this statement will come back to hunt me, I'm sure).
+
+systemfonts now provide the function `fonts_as_import()`, which allows you to get a URL pointing to a stylesheet with the font to be added. Most often, the font will be served by [Google Fonts](https://fonts.google.com), but the alternative repository [Font Library](https://fontlibrary.org) is also supported:
+
+```{r}
+fonts_as_import("Open Sans")
+fonts_as_import("Bedstead")
+```
+
+The output of this function can be used directly in the `web_fonts` argument making it very easy to embed any font of your liking in an SVG. Even easier, you can also just pass in the font family name and svglite will take care of the rest (though you loose out on the customization offered by `fonts_as_import()`):
+
+```{r}
+#| results: asis
+library(ggplot2)
+require_font("Almendra")
+
+p <- ggplot(na.omit(penguins)) +
+  geom_point(aes(flipper_len, body_mass, colour = species)) +
+  theme_minimal(base_family = "Almendra")
+
+svg <- svgstring(web_fonts = "Almendra", scaling = 2)
+plot(p)
+invisible(dev.off())
+svg()
+```
+
+Hopefully you can see that the svg above renders with the custom font, and hopefully I chose a font so obscure that you didn't already have it available on your computer so that you can see the font embedding in action.
+
+If you look at the output generated by `fonts_as_import()` above, you can see they are URLs pointing to an online location as already discussed. This poses the issue that the one opening the SVG needs to be online for it to render correctly. While that is generally true, it is still a major limitation. Another requirement is that the font is available in one of the supported repositories, and that the repository hasn't changed it's API or is down or one of another myriad of reasons why the URL stops being valid. Many of these concerns seldom apply, but if you need your SVG file to by fully self-contained, `fonts_as_import()` also supports embedding the font data directly into the URL, by opting out of the repositories:
+
+```{r}
+require_font("Quicksand")
+
+full_embed <- fonts_as_import("Quicksand", repositories = NULL)
+
+substr(full_embed, 1, 400)
+```
+
+```{r}
+#| results: asis
+p <- p +
+  theme_minimal(base_family = "Quicksand")
+
+svg <- svgstring(web_fonts = full_embed, scaling = 2)
+plot(p)
+invisible(dev.off())
+svg()
+```
+
+Be aware that embedding font data directly into an SVG will have a negative effect on the file size, so this is something you should reserve for when it is actually needed:
+
+```{r}
+embedded_data <- svgstring(web_fonts = full_embed, scaling = 2)
+plot(p)
+invisible(dev.off())
+
+embedded_url <- svgstring(web_fonts = "Quicksand", scaling = 2)
+plot(p)
+invisible(dev.off())
+
+c(data = nchar(embedded_data()), url = nchar(embedded_url()))
+```
+
+## Acknowledgements
+A big thank to everyone who contributed to this release with issues and PRs!
+
+[&#x0040;ca4wa](https://github.com/ca4wa), [&#x0040;davidhodge931](https://github.com/davidhodge931), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;hadley](https://github.com/hadley), [&#x0040;psoldath](https://github.com/psoldath), [&#x0040;robert-dodier](https://github.com/robert-dodier), [&#x0040;thomasp85](https://github.com/thomasp85), and [&#x0040;trevorld](https://github.com/trevorld).
