@@ -204,43 +204,39 @@ We will fosus on systemfonts, because it's designed to give R a fully modern tex
 
 You might notice there's currently a big hole in this workflow: PDFs. This is something we plan to work on in the future.
 
-### A font workflow based on systemfonts
+## A systemfonts based workflow
 
-While textshaping is integral to text rendering, it is not a package that users interact with (but it does all the heavy lifting for the graphics device). Because of this the focus of the remaining text will be on using systemfonts to manage fonts used in plotting. Since we are dealing with systemfonts it follows that a graphics device based on systemfonts must be used, ie. graphics devices from ragg or svglite.
+With all that said, how do you actually use systemfonts to use custom fonts in your plots? First, you'll need to use ragg or svglite. 
 
-#### Using ragg as default
+### Using ragg
 
-While there is no way to unilaterally make `ragg::agg_png()` the default device across all aspects of R, it is possible to get close. If you use Positron as the IDE then recent versions will use `ragg::agg_png()` in the plotting pane if ragg is installed. For the RStudio IDE it requires you to set "AGG" as the backend under Global Options \> General \> Graphics. In both cases it is a matter of setting and forgetting and living a blissful existence ever after.
+While there is no way to unilaterally make `ragg::agg_png()` everywhere, it's possible to get close:
 
-For users of ggplot2 who are fond of the `ggsave()` function for saving output, ragg will also be used for raster output if installed so there is also nothing additional to do there.
+* Positron: recent versions automatically use ragg for the plot pane if it's installed.
+* RStudio IDE: set "AGG" as the backend under Global Options \> General \> Graphics. 
+* `ggplot2::ggsave()`: ragg will be automatically used for raster output if installed.
+* R Markdown and Quarto: you need to set the `dev` option to `"ragg_png"`. You can either do this with code:
 
-The only place you have to be continually mindful of using ragg is in RMarkdown / Quarto documents. Here you have to tell knitr to use ragg as the default device, either by using `knitr::opts_chunk$set(dev = "ragg_png")` in the first code block (works for both RMarkdown and Quarto) or by setting it in the YAML front matter (works only in Quarto) like so:
+    ````
+    ```{r}
+    #| include: false
+    knitr::opts_chunk$set(dev = "ragg_png")
+    ```
+    ````
 
-``` yaml
----
-title: "My Document"
-format: html
-knitr:
-  opts_chunk:
-    dev: "ragg_png"
----
-```
+    Or in Quarto, you can set it in the yaml metadata:
 
-#### Relying on systemfonts
+    ``` yaml
+    ---
+    title: "My Document"
+    format: html
+    knitr:
+      opts_chunk:
+        dev: "ragg_png"
+    ---
+    ```
 
-Once you are using a graphics device based on systemfonts there is nothing more to do in order to get access to fonts installed on your computer (you don't need to load systemfonts or anything). Provide the typeface to the `family`/`fontfamily` argument [depending on the graphics system you use](#fonts-and-text-from-a-user-perspective) and enjoy the show. If something seems off, you can use `systemfonts::match_fonts()` to see what font file systemfonts return based on the provided specification
-
-```{r}
-systemfonts::match_fonts("Futura", weight = "bold")
-```
-
-Likewise you can see what font fallback will be provided for a specific string and font using `systemfonts::font_fallback()`
-
-```{r}
-systemfonts::font_fallback("🤷‍♂️", family = "Futura", weight = "bold")
-```
-
-However, these functions are there mostly to satisfy your curiosity as it all happens automatically at the graphics device layer:
+If you want to use a font installed on your computer, you're done! 
 
 ```{r}
 #| fig.height: 1
@@ -250,7 +246,16 @@ grid::grid.text(
 )
 ```
 
-If you want to get an overview of all the fonts available for use, you can use `systemfonts::system_fonts()`
+<!-- HW: might be better to have a ggplot2 example? -->
+
+If the results don't look as you expect, you can use various systemfonts helpers to diagnose the problem:
+
+```{r}
+systemfonts::match_fonts("Futura", weight = "bold")
+systemfonts::font_fallback("🤷‍♂️", family = "Futura", weight = "bold")
+```
+
+If you want to see all the fonts that are available for use, you can use `systemfonts::system_fonts()`
 
 ```{r}
 #| eval: false
@@ -264,9 +269,9 @@ all_fonts <- all_fonts[!grepl("^/Users", all_fonts$path),]
 all_fonts
 ```
 
-#### Overcoming the limitations of R
+### Extra font styles
 
-As discussed above, the R interface presents limitations in terms of which fonts from a typeface can be selected. If you want to use a thin font — even if the graphics device is capable of looking it up — you have no way of communicating this wish to the device. To overcome this, systemfonts provides `register_variant()` which allows you to register variations of a typeface under a new name. To use the thin font from the Avenir Next typeface you can register it to the Avenir Thin name like so
+As we discussed above, the R interface only allows you to select between four styles: plain, italic, bold, and bold-italic. If you want to use a thin font, you have no way of communicating this wish to the device. To overcome this, systemfonts provides `register_variant()` which allows you to register a font with a new typeface name. For example, to use the thin font from the Avenir Next typeface you can register it as follows:
 
 ```{r}
 systemfonts::register_variant(
@@ -276,7 +281,7 @@ systemfonts::register_variant(
 )
 ```
 
-You can now use Avenir Thin where you would otherwise specify the typeface
+Now you can use Avenir Thin where you would otherwise specify the typeface:
 
 ```{r}
 #| fig.height: 1
@@ -286,9 +291,7 @@ grid::grid.text(
 )
 ```
 
-The above approach can likewise be used to get access to fonts with a different width than normal.
-
-The last use of `register_variant()` is to turn on various font features otherwise hidden away from you in R
+`register_variant()` also allows you to turn on font features otherwise hidden away:
 
 ```{r}
 #| fig.height: 1
@@ -305,13 +308,11 @@ grid::grid.text(
 )
 ```
 
-#### Fonts from other places
+### Fonts from other places
 
-By default, systemfonts provides access to fonts installed on the computer it is executing on. This is usually, but not always, what you want and expect. You might be using a computer where you don't have the rights to install new fonts, or you might not want to go through the hassle of installing a font just to use it for this one plot.
+Historically, systemfonts primary role was to access the font installed on your computer, the **system fonts**.  But what if you're using a computer where you don't have the rights to install new fonts, or you don't want the hassle of installing a font just to use it for a single plot? That's the problem solved by `systemfonts::add_font()` which makes it easy to use a font based on a path. But in many cases you don't even need that as systemfont now scans `./fonts` and `~/fonts`. This means that you can put personal fonts in a fonts folder in your home directory, and project fonts in a fonts directory at the root of the project. This is a great way to ensure that specific fonts are available when you deploy some code to a server.
 
-If you want to let systemfonts know about other fonts not installed on your computer you can do so using `add_fonts()`. All it needs is the path to a font file, and all of the fonts present in that file will instantly become available for use. Further, when systemfonts is loaded (which will happen automatically if you use a graphics device dependent on it) it will scan `./fonts` and `~/fonts` and add any fonts it find in these two locations. This means that you can put personal fonts in a fonts folder in your home directory, or project specific fonts in a fonts directory at the root of the project and these fonts will automatically become available in R. This is a great way to ensure that specific fonts are available when you deploy some code to a server.
-
-You don't even have to leave R to populate these folders. systemfonts support a range of online font repositories that can be downloaded from and they are by default placed in `~/fonts` so they are available next time you open R:
+And you don't even need to leave R to populate these folders. `systemfonts::get_from_google_fonts()` will download and install a google font in `~/fonts`:
 
 ```{r}
 #| fig.height: 1
@@ -323,11 +324,10 @@ grid::grid.text(
 )
 ```
 
-If you don't care about how and where, but just want to ensure that a particular font is available before plotting you can use `require_font()`. It will first look to see if the font is already available, and if not, try to download it from one of the repositories it knows about. If it can't find it it will either throw an error (the default) or remap the name to another font on the system so that plotting will still succeed
+And if you want to make sure this code works for anyone using your code (regardless of whether or not they already have the font installed), you can use `systemfonts::require_font()`. If the font isn't already installed, this function download it from one of the repositories it knows about. If it can't find it it will either throw an error (the default) or remap the name to another font so that plotting will still succeed.
 
 ```{r}
 #| fig.height: 1.5
-systemfonts::require_font("Barrio")
 systemfonts::require_font("Rubik Distressed")
 
 grid::grid.text(
@@ -338,18 +338,18 @@ grid::grid.text(
 
 By default, `require_font()` places new fonts in a temporary folder so it doesn't pollute your carefully curated collection of fonts.
 
-### Font embedding
+### Font embedding in SVG
 
-If you are using a vector format such as SVG, text is not drawn in the same way as in a raster format such as PNG. Instead the text is passed along and rendering is postponed to when you open the file. This both result in significantly smaller files as well as crisp text at every zoom level you can dream off. However, this comes with a price. Since the text is not rendered before it is opened it relies on the font in use being available on whatever computer is used to open the file with. To deal with this you can embed the font directly into the file so that it travels with the file and is available whenever it is opened.
+Font work a little differently in vector formats like SVG. These formats include the raw text and only render the font when you open the file. This makes for small, accessible files with crisp text at every every level of zoom. But it comes with a price: since the text is rendered when it's opened, it relies on the font in use being available on the viewer's computer. This obviously puts you at the mercy of their font selection, so if you want consistent outputs you'll need to **embed** the font.
 
-For PDF the situation is a bit complicated and since no PDF device using systemfonts exist we are glossing over it now. For SVG, however, you can embed fonts using an `@import` statement in the stylesheet. This statement can point to an online location so that the actual font data doesn't have to be written to the file. systemfonts provides facilities to generate URLs for import statements and can provide them in a variety of formats:
+In SVG, you can embed fonts using an `@import` statement in the stylesheet, and can point to a web resource so the SVG doesn't need to contain the entire font. systemfonts provides facilities to generate URLs for import statements and can provide them in a variety of formats:
 
 ```{r}
 systemfonts::fonts_as_import("Barrio")
 systemfonts::fonts_as_import("Rubik Distressed", type = "link")
 ```
 
-Further, if the font is not available from an online repository, it can embed the font data directly into the URL
+Further, if the font is not available from an online repository, it can embed the font data directly into the URL:
 
 ```{r}
 substr(systemfonts::fonts_as_import("Chalkduster"), 1, 200)
