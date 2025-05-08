@@ -59,110 +59,71 @@ Many books can be, and have been, written about the subject of typography. This 
 
 There is a good chance that you, like 99% of world, use *"font"* as the term describing "the look" of the letters you type. You may, perhaps, have heard the term *"typeface"* as well and thought it synonymous. This is in fact slightly wrong, and a great deal of typography snobbery has been dealt out on that account. It is a rather inconsequential mix-up for the most part, especially because 99% of the population wouldn't bat an eye if you use them interchangeably. However, the distinction between the two serves as a good starting point to talk about other terms in digital typography as well as the nature of font files, so let's dive in.
 
-#### Typeface
+When most people use the word "font" or "font family", what they are actually describing is a typeface. A **typeface** is a style of lettering that forms a cohesive whole. As an example, consider the well-known "Helvetica" typeface. This name embraces many different weights (bold, normal, light) as well as slanted (italic) and upright. However, all of these variations are all as much Helvetica as the others - they are all part of the same typeface.
 
-When most people use the word "font" or "font family", what they are actually describing is a typeface. A typeface is a style of lettering that forms a cohesive whole. As an example, consider the well-known "Helvetica" typeface. This name embraces many different weights (bold, normal, light) as well as slanted (italic) and upright. However, all of these variations are all as much Helvetica as the others - they are all part of the same *typeface*.
+If a typeface is font, then what is a font? A **font** is a subset of a typeface, describing a particular variation of the typeface, i.e. the combination of typeface, weight, width, and slant that comes together to describe the specific subset of a typeface that is used. We typically give a specific combination of a name, like "bold" or "medium" or "italic", which we call the **font style**. In other words, the typeface plus a font style gives you a font.
 
-#### Font
-
-Well, if typeface is font, what is font then? A font is a subset of a typeface, describing a particular variation of the typeface. Back when printing involved hand lettering based on small metal molds for each glyph, the font described a particular set of metal bits for a typeface that goes together, that is, they had the same weight, width, slant, and size. In today's world of digital publishing it would be okay to remove size from the list of features that describe a font, since size now exist in a continuum rather than as discrete and fixed steps. However, the rest still apply: A font is the combination of typeface, weight, width, and slant that comes together to describe the specific subset of a typeface that is used.
-
-Because font for so long has been used to describe the typeface a new word for what font actually means had to be made up. So, often you will see the term "font style" which is really just another term for what font really means.
+<!-- HW: I think it'd be useful to have an image here with a few fonts from one typeface -->
 
 In the rest of this document we will use the terms typeface and font with the meaning described above.
 
 ### Font files
 
-With the advent of digital publishing it became necessary to encode the visual appearance of glyphs into a file. The file contains both information on how to draw the glyph, but also more complex information such as distance adjustments for pair of glyphs (kerning), substitution rules for collections of characters (ligatures) etc.
-
-While font files often encodes a single font, they may encode a full typeface:
+Next, we need to talk about how typefaces are represented for use by computers. Font files record information on how to draw the individual glyphs (characters), but also instructions about how to draw sequences of glyphs like distance adjustments (kerning) and substitution rules (ligatures). Font files typically encode a single font but can encode a full typeface:
 
 ```{r}
 typefaces <- systemfonts::system_fonts()
 
 # Full typeface in one file
-typefaces[typefaces$family == "Helvetica", ]
+typefaces[typefaces$family == "Helvetica", c("path", "index", "family", "style")]
 
 # One font per font file
-typefaces[typefaces$family == "Arial", ]
+typefaces[typefaces$family == "Arial", c("path", "index", "family", "style")]
 ```
 
-Because a single file may contain multiple fonts, it is necessary to specify both the path to the font file, as well as an index into the file (second column in the outputs above) to uniquely identify a digital encoding of a font.
+Here, **family** gives the name of the typeface, and **style** the name of the font within that typeface.
 
-#### Font file formats
+It took a considerable number of tries before the world managed to nail the digitial representation of fonts, leading to a proliferation of file types. As an R user, there are three formats that are particularly improtant:
 
-It may come as no surprise that the world did not nail the encoding format of fonts in the first try (or second, or third, or...). Part of this is simply because technologies evolve, but part of it is also various needs in various parts of digital publishing. In present days, as an R user, there are only a small selection of formats that are really relevant:
+* **TrueType** (ttf/ttc). Truetype is the baseline format that all modern formats stand on top of. It was developed by Apple in the '80s and became popular due to its great balance between size and quality. Fonts can be encoded, either as scalable paths, or as bitmaps of various sizes, the former generally being preferred as it allows for seamless scaling and small file size at the same time.
 
-##### TrueType (ttf/ttc)
+* ** OpenType** (otf/otc). OpenType was created by Microsoft and Adobe to improve upon TrueType. While TrueType was a great success, it the number of glyphs it could contain was limited and as was its support for selecting different features during [shaping](#text-shaping). OpenType resolved these issues, so if you want access to advanced typography features you'll need a font in OpenType format.
 
-Truetype is the baseline format that all modern formats stand on top of. It was developed by Apple in the '80s and became popular due to its great balance between size and quality. Fonts can be encoded, either as scalable paths, or as bitmaps of various sizes, the former generally being preferred as it allows for seamless scaling and small file size at the same time. Truetype comes in two file formats, either .ttf which encode a single font, or .ttc which encode multiple fonts. The latter is mainly used on Apple computers.
+* ** Web Open Font Format** (woff/woff2). TrueType and OpenType tend to create large files. Since a large percentage of the text consumed today is delivered over the internet this creates a problem. WOFF resolves this problem by acting as a compression wrapper around TrueType/OpenType to reduce file sizes while also limiting the number of advanced features provided to those relevant to web fonts. The woff2 format is basically identical to woff except it uses the more efficient [brotli](https://en.wikipedia.org/wiki/Brotli) compression algorithm. WOFF was designed specifically to be delivered over the internet and support is still a bit limited outside of browsers.
 
-##### OpenType (otf/otc)
-
-OpenType is a format that was created by Microsoft and Adobe to improve upon TrueType. While TrueType had been a great success, it had limitations in terms of the number of glyphs it could contain, as well as support for selecting different features of the font during [shaping](#text-shaping), such as specific ligatures, or number styles. OpenType delivers on all of this, and if you want access to advanced typography features you'll need a font in OpenType format. As with TrueType, OpenType comes in two formats; one for single fonts (.otf) and one for multiple (.otc).
-
-##### Web Open Font Format (woff/woff2)
-
-Both TrueType and, even more so, OpenType, has the problem that file sizes tend to be quite large. OpenType in particular because it supports so many advanced features that may only be relevant for professional type setters. Since a large percentage of the text consumed today is delivered over the internet this large size tend to be a problem. Web Open Font was developed to address this. It basically acts as a compression wrapper around TrueType/OpenType to reduce file sizes while also limiting the number of advanced features provided to those relevant to web fonts. The woff2 format is basically identical to woff except it uses the more efficient [brotli](https://en.wikipedia.org/wiki/Brotli) compression algorithm.
-
-Web Open Font was designed specifically to be delivered over the net for web sites and it is much less common to find these files installed on a computer. In fact, support for this format is also still a bit limited outside of web browsers.
-
-#### Font file content
-
-While we have mainly talked about font files as containers for the shape of glyphs, they also carries a lot of other information needed for rendering text in a way pleasant for reading. There is both font level information:
+While we have mainly talked about font files as containers for the shape of glyphs, they also carries a lot of other information needed for rendering text in a way pleasant for reading. Font level information recordsd a lot of stylistic information about typeface/font, statistics on the number of glyphs and how many different mappings between character encodings and glyphs it contains, and overall sizing information such as the maximum descend of the font, the position of an underline relative to the baseline etc. systemfonts provdies a convenient way to access this data from R:
 
 ```{r}
-systemfonts::font_info(family = "Helvetica")
+dplyr::glimpse(systemfonts::font_info(family = "Helvetica"))
 ```
 
-This information both covers stylistic information about the typeface and font, statistics on the number of glyphs and how many different mappings between character encodings and glyphs it contains (in this day and age the only relevant mapping is from unicode to glyph), and overall sizing information such as the maximum descend of the font, the position of an underline relative to the baseline etc.
-
+As well as a bunch of information about individual glyphs, 
 Further, for each glyph there is a range of information in addition to its shape:
 
 ```{r}
 systemfonts::glyph_info("j", family = "Helvetica", size = 30)
 ```
 
-The meaning of these various measures can be seen in the below graph
+These terms are mostly easily understood with a diagram:
 
 ```{r}
 #| echo: false
 systemfonts::plot_glyph_stats("j", family = "Helvetica", size = 30)
 ```
 
-The advancement in particular is important when rendering text because it tells you how far to move to the right before rendering the next glyph (ignoring for a bit the concept of kerning)
+<!-- HW: I assume you're planning on exporting this function? I couldn't find it in the dev version and I think it would be suepr useful -->
+
+The `x_advance`  in particular is important when rendering text because it tells you how far to move to the right before rendering the next glyph (ignoring for a bit the concept of kerning)
 
 ### Text shaping {#text-shaping}
 
-Text shaping is, in the simplest of terms, to convert a succession of characters into a range of glyphs and their location. Behind this seemingly benign objective lies a bottomless pit of despair that has claimed hundreds of years of human labor. I will not go into too much detail but just give you a glimpse of the complications involved in the process.
+The next important concept to understand is **text shaping**, which, in the simplest of terms, is convert a succession of characters into sequence of glyphs along with their locations. Important here is the distinction between **characters**, the things you think of as letters, and **glyphs**, which is what the font will draw. For example, think of the character "f", which is often tricky to draw because the "hook" of the f can interfere with other characters. To solve this problem, many typefaces include **ligatures**, like "ﬁ", which are used for specific pairs of characaters. Ligatures are extremely important for languages like  Arabic.
 
-#### Character != glyph
+Just a few of the challenges of text shaping include kerning, bidirectional text, and font substitution.  **Kerning**, which controls the distance between specific pairs of characters. For example, you can put "VM" a little closer together but "OO" needs to be a little further apart. Kerning is an integral part of all modern text rendering and you will almost solemnly notice it when it is absent (or worse, [wrongly applied](https://www.fastcompany.com/91324550/kerning-on-pope-francis-tomb-is-a-travesty)).
 
-While it is easy to fall into the trap of thinking that characters are mapped one-to-one with glyphs, this is not the case. True, for many situations this holds, e.g. the character "f" is often represented by the glyph "f". But characters can merge or split into glyphs, completely destroying the mapping. The merging can happen if you have a diacritic following a character (e.g. "a" followed "´" ending up as the glyph á), or if two or more consecutive characters are merged into a combined glyph in the case of "f" followed by "i" ending up as the "ﬁ" glyph. The latter is called ligature and is used both to improve the reading and provide stylistic bravado to rendering. For some scripts such as Arabic, ligatures are an integral part of the rendering and it is impossible to envision displaying it without. Apart from this, a font may provide multiple glyphs for a single character, with the choice being at the discretion of the user (an example is tabular numbers to ensure all digits have the same width).
+Not every language writes text in the same direction, but regardless of your native script, you are likely to use arabic numerals which are always written left-to-right. This gives rise to the challenge of **bidirectional** (or bidi) text, which mixes text flowing in different directions. This imposes a whole new range of challenges!
 
-So, the first part of shaping is to convert the characters that programmatically encode the text into glyphs that visually encode the text.
-
-#### Glyphs attract and oppose
-
-While the "x advance" measure tells you how far to progress in the x direction after rendering a glyph, this is not the full story. Some pairs of glyphs like to get a bit closer or a bit farther from each other to ensure that they visually look well spaced. This is the process called kerning. Kerning is an integral part of all modern text rendering and you will almost solemnly notice it when it is absent (or worse, wrongly applied)
-
-[![](https://imgs.xkcd.com/comics/kerning.png)](https://xkcd.com/1015)
-
-Kerning looks at the preceeding glyphs and modifies the start position for rendering based on that. It is completely based on glyph pairs and thus ignore any other information in the surrounding text.
-
-#### Text flows in all directions
-
-Depending on your location it can be easy to think that text universally flows from left to right. However, the directionality of text depends on the script you are using, and while the Latin script is left-to-right, many are not, e.g. Arabic. While handling text in a single script is simple enough, even if the direction is right-to-left, it gets a whole lot more complicated if the text is a mix of scripts with different directionality (bidirectional text).
-
-When handling bidirectional text (and you never know if you are unless you investigate it), the first thing to do is to cut up the text into runs of the same directionality. That may seem easy enough if you can identify the script, but in reality it can be hard to define the boundary because some characters doesn't belong to a specific script, e.g. certain marks like period, or even emojis. You also need to figure out if there are multiple levels of embeddings, e.g. left-to-right text that include a run of right-to-left text which includes a run of left-to-right text. Once you've figured that out you need to find out if there are any line breaks inside an embedding because that will alter which part of the embedding come first. Once you've cut up the text into segments and arranged them in order that fits into one or more lines you can then progress to actually figure out the location of each glyph etc.
-
-"But wait", you say. "How can I know if a line break appears in the middle of an embedding before I have figured out the position of the glyphs?". Well, you can't. There is a certain amount of back and forth happening during text shaping that you just have to live with.
-
-#### Missing glyphs
-
-It is not unheard of that you request a character from a font that it doesn't contain. One way to deal with this is to render a glyph representing a missing glyph, usually an empty box or a question mark inside of a rombe. While this is a fair approach, it does very little to communicate the content of the text being rendered. A better approach is to find an alternative font to use for the cases where where a glyph can't be found. This happens all the time when using emojis, but can also happen when you suddenly change script without bothering to pick a new font. The process of finding an alternative font is called font fallback and is, at best, an imprecise science. Usually the computer contains a selection of universal fonts that in unison covers the totality of the unicode standard and these are searched for a match. But finding a font that stylistically looks like it fits together with the font chosen by the user is a harder task and something that is seldom taken into account.
-
-#### All the rest
+Finally, you might request a character that a font doesn't contain. One way to deal with this is to render a glyph representing a missing glyph, usually an empty box or a question mark. But it's typically more useful to use the correct glyph from a different font. This is called **font fallback** and happens all the time for emojis, but can also happen when you suddenly change script without bothering to pick a new font. Font fallback is an imprecise science, typically relying on an operating system font that has a very large number of characters, but might look very different from your existing font.
 
 Once you have determined the order and location of glyphs, you are still not done. Text often needs to be wrapped to fit into a specific width, it may need a specific justification, perhaps, indentation or tracking must be applied, etc. Thankfully, all of this is generally a matter of (often gnarly) math that you just have to get right. That is, all except text wrapping which should happen at the right boundaries, and may need to break up a word and inserting a hyphen etc.
 
@@ -170,87 +131,78 @@ Like I said, the pit of despair is bottomless...
 
 ## Font handling in R {#font-handling-in-r}
 
-You hopefully arrive at this section with an appreciation of the horrors that goes into rendering text. If not, maybe this [blog post](https://faultlore.com/blah/text-hates-you/) will convince you.
+You hopefully arrive at this section with an appreciation of the horrors that goes into rendering text. If not, maybe this [blog post](https://faultlore.com/blah/text-hates-you/) will convince you. 
 
 Are you still here? Good.
 
-While all of the above probably gave you a good understanding of what goes into handling fonts and text, you probably came here to learn how to deal with it in R specifically. Fear not. We will embark on that journey now.
+Now that you understand the basics of what goes into handling fonts and text, we can now discuss the details of fonts in R specifically.
 
 ### Fonts and text from a user perspective {#fonts-and-text-from-a-user-perspective}
 
-The users perception of working with fonts in R is by and large shaped by how you use it to plot text. This means, using either base or grid graphics or one of the packages that have been build on top of it, like [ggplot2](https://ggplot2.tidyverse.org) or [lattice](https://cran.r-project.org/web/packages/lattice/index.html). While the choice of tool will affect *where* you specify the font to use, they generally agree on how to specify it:
+The users perception of working with fonts in R is largely shaped by plots. This means using either base or grid graphics or one of the packages that have been build on top of it, like [ggplot2](https://ggplot2.tidyverse.org). While the choice of tool will affect *where* you specify the font to use, they generally agree on how to specify it.
+
+<!-- HW: I think this would be better as a table -->
 
 #### Base graphics
 
 Font settings are set, either globally with a call to `par()`, or directly when plotting text using `text()` or other calls that result in text being rendered. The relevant arguments are:
 
--   `family`: Provides the name of the typeface
-
--   `font`: Provides the style of the specific font from the typeface (`1`: plain, `2`: bold, `3`: italic, and `4`: bold-italic)
-
--   `cra`/`cin`: Default size of text specified in either pixels or inches
-
--   `cex`: A multiplication factor to the default size to determine the final size of the font
+-   `family`: the name of the typeface.
+-   `font`: the font style.
+-   `cra`/`cin`: default size of text specified in either pixels or inches
+-   `cex`: a multiplicative scaling factor applied to the default size.
 
 #### Grid graphics
 
 In grid, all graphical parameters including font settings, are set using the `gpar()` function whose return value is assigned to the `gp` argument of relevant functions. The arguments in `gpar()` relevant to text rendering are:
 
--   `fontfamily`: Provides the name of the typeface
-
--   `fontface`: Provides the style of the specific font from the typeface (`1`: plain, `2`: bold, `3`: italic, and `4`: bold-italic)
-
--   `fontsize`: Provides the size of the font in points (1/72 inch)
-
--   `cex`: A multiplication factor to `fontsize` to determine the final size of the font
+-   `fontfamily`: the name of the typeface.
+-   `fontface`: the font style.
+-   `fontsize`: the size of the font in points (1/72 inch)
+-   `cex`: a multiplication scaling factor applied to `fontsize`.
 
 #### ggplot2
 
 In ggplot2 there are two places you may apply font-related settings. As part of `theme()` using `element_text()`, controlling representation of non-data information such as titles, axis text, etc. And as part of `geom_text()` or other text rendering geoms (including annotation layers). Settings in `element_text()` relevant for fonts are:
 
--   `family`: Provides the name of the typeface
-
--   `face`: Provides the style of the specific font from the typeface (`1`: plain, `2`: bold, `3`: italic, and `4`: bold-italic)
-
+-   `family`: the name of the typeface
+-   `face`: the font style.
 -   `size`: Provides the size of the font in points (1/72 inch)
 
 Settings in `geom_text()` and related geoms relevant for fonts are:
 
--   `family`: Provides the name of the typeface
-
--   `fontface`: Provides the style of the specific font from the typeface (`1`: plain, `2`: bold, `3`: italic, and `4`: bold-italic)
-
--   `size`: Provides the size of the font. Default unit is millimeters but may be changed with the `size.unit` argument. If this is set inside `aes()` then the values will first be scaled according to the size scale.
+-   `family`: the name of the typeface
+-   `fontface`: the font style.
+-   `size`: the font size. The default unit is millimeters but may be changed with the `size.unit` argument. If this is set inside `aes()` then the values will first be scaled according to the size scale.
 
 From this brief overview it is clear that in R *fontfamily*/*family* is used to describe the typeface, *font*/*fontface*/*face* is used to select a font from the typeface based on a limited number of styles. Size settings is just a plain mess.
 
-The major limitation lies in the *fontface* (and friends) setting as it only allows you to select from a small range of weights and fully ignore different widths. As such, it is impossible to select Futura Condensed Extra Bold if you wish to use that font in your graphics.
-
-Another limitation is that it is not possible to specify any font variations such as using tabular numbers or stylistic ligatures, though lack of such advanced text rendering features could be easily excused.
+The major limitation in the *fontface* (and friends) setting is that it takes a number, not a string, and you can only select from four options: `1`: plain, `2`: bold, `3`: italic, and `4`: bold-italic. This means, for example, that there's no way to select Futura Condensed Extra Bold. Another limitation is that it's not possible to specify any font variations such as using tabular numbers or stylistic ligatures.
 
 ### Fonts and text from a graphics device perspective
 
+<!-- HW: I suspect most people don't know what a graphics device is so you need to explain that here -->
+
 After a user has made a call that renders some text, it is funneled through the graphic system (base or grid), handed off to the graphics engine, which ultimately asks the graphics device to render the text. From the perspective of the graphics device it is much the same information that the user provided which are presented to it. The `text()` method of the device are given an array of characters, the typeface, the size in points, whether or not it is italic, and whether or not it is bold.
 
-This means that the graphics device not only has to know how to render the glyphs (which can be hard enough in itself). It also has to take the combination of typeface, bold, and italic and somehow find the right font file to use based on that *and* it then has to be able to shape the text [with all that that entails](#text-shaping). This is a huge ordeal and the complications of it is why text is handled so inconsistently between graphics devices. Issues can range from not being able to find fonts installed on the computer, to not providing font fallback mechanisms, or even handling right-to-left text. It may also be that certain font file formats are not well supported so that e.g. color emojis are not rendered correctly.
+<!-- HW: I think a little diagram of the flow here might help -->
 
-### Packages that helps with fonts
+This means that the graphics device has to find the approprate font file (using typeface and font style) and shape the text with all that that entails. This is a lot of work, which is why text is handled so inconsistently between graphics devices. Issues can range from not being able to find fonts installed on the computer, to not providing font fallback mechanisms, or even handling right-to-left text. It may also be that certain font file formats are not well supported so that e.g. color emojis are not rendered correctly.
 
-Over the years there have been a number of packages that tried to help the user get predictable output during plotting. This is a non-exhaustive overview:
+There have been a number of efforts to resolve these problems over the years:
 
-#### extrafont
+* **extrafont**: Developed by Winston Chang, [extrafont](https://github.com/wch/extrafont) sought to mainly improve the situation for the `pdf()` device which generally only had access to the postscript fonts that comes with R. The package allows the `pdf()` device to get access to TrueType fonts installed on the computer, as well as provide means for embedding the font into the PDF so that it can be opened on systems where the font is not installed. (It also provides the capabilities to to the Windows `png()` device).
 
-Developed by Winston Chang, [extrafont](https://github.com/wch/extrafont) sought to mainly improve the situation for the `pdf()` device which generally only had access to the postscript fonts that comes with R. The package allows the `pdf()` device to get access to TrueType fonts installed on the computer, as well as provide means for embedding the font into the PDF so that it can be opened on systems where the font is not installed. Further, it provides the same improved font detection facilities to the Windows `png()` device.
+* **sysfonts** and **showtext**. These packages are developed by Yixuan Qiu and provide support for system fonts to all graphics devices, by hijacking the `text()` method of the graphics device to text text as polygons or raster images. This guarantees your plots will look the same on every device, but it doesn't do advanced text shaping, so there's no support for ligatures or font substituion. Additionally, it produces large files with inaccessible text when used to produce pdf and svg outputs.
 
-#### sysfonts / showtext
+* **systemfonts** and **textshaping**. These packages are developed by me to provide a soup-to-nuts solution to text rendering for graphics devices. [systemfonts](https://systemfonts.r-lib.org) provides access to fonts installed on the system along with font fallback mechanisms, registration of non-system fonts, reading of font files etc. [textshaping](https://github.com/r-lib/textshaping) builds on top of systemfonts and provides a fully modern engine for shaping text. The functionality is exposed both at the R level and at the C level, so that graphics devices can directly access to font lookup and shaping.
 
-This set of packages are developed by Yixuan Qiu and provide support for system fonts (fonts installed on the computer) to all graphics devices. [sysfonts](https://github.com/yixuan/sysfonts) is a supporting package that provides access to installed fonts. [showtext](https://github.com/yixuan/showtext) works in a creative way by hijacking the `text()` method of the graphics device and renders the text as polygons or raster images it extract from the font files. It also supports using fonts from online repositories such as Google Fonts.
+We will fosus on systemfonts, because it's designed to give R a fully modern text rendering stack. That unfortunately is impossible to do with coordination with the graphics device, which means to use all these features you need a supported graphics device. There are currently two options:
 
-#### systemfonts / textshaping
+* The [ragg](https://ragg.r-lib.org) package provides graphics devices for rendering raster graphics in a variety of formats (PNG, JPEG, TIFF) and uses systemfonts and textshaping extensively. 
+* The [svglite](https://svglite.r-lib.org) package likewise provides a graphic device for rendering vector graphics to SVG using systemfonts and textshaping for text. 
 
-This duo of packages by Thomas Lin Pedersen attempt to provide facilities for graphics devices to use so that the challenges of text rendering becomes as easy as possible. [systemfonts](https://systemfonts.r-lib.org) provides access to fonts installed on the system along with font fallback mechanisms, registration of non-system fonts, reading of font files etc. [textshaping](https://github.com/r-lib/textshaping) builds on top of systemfonts and provides a fully modern engine for shaping text. The functionality is exposed both at the R level and at the C level, so that graphics devices has direct access to font lookup and shaping.
-
-The main limitation of systemfonts and textshaping is that the graphics device needs to use them for their facilities to be usable. The [ragg](https://ragg.r-lib.org) package provides graphics devices for rendering raster graphics in a variety of formats (PNG, JPEG, TIFF) and uses systemfonts and textshaping extensively. The [svglite](https://svglite.r-lib.org) package likewise provides a graphic device for rendering vector graphics to SVG using systemfonts and textshaping for text. Both of these packages are modern and powerful alternatives to the default graphics devices and are being actively maintained. As such, the only downside to a systemfonts and textshaping based font workflow is the lack of a PDF device that is build upon it.
+You might notice there's currently a big hole in this workflow: PDFs. This is something we plan to work on in the future.
 
 ### A font workflow based on systemfonts
 
