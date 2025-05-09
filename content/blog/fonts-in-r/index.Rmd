@@ -24,6 +24,12 @@ pre {
   text-wrap: nowrap;
   overflow-x: scroll;
 }
+figcaption {
+  text-align: center;
+}
+table {
+  max-width: 99%
+}
 </style>
 
 <!--
@@ -44,10 +50,14 @@ knitr::opts_chunk$set(
   dev = "ragg_png",
   dpi = 300,
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.asp = NULL,
+  fig.height = 4.326
 )
 library(tibble)
 ```
+
+(An updated version of this blog post will be available at [the systemfonts webpage](https://systemfonts.r-lib.org))
 
 The purpose of this document is to give you the a thorough overview of fonts as it relates to their use in R. However, for this to be possible, it is first necessary to get an understanding of fonts and how they work in digital publishing in general. If you have a thorough understanding of digital typography you may skip to [the next section](#font-handling-in-r).
 
@@ -160,7 +170,7 @@ The users perception of working with fonts in R is largely shaped by plots. This
 +-------------------------------------------------------------------------------------------------------------+--------------+-------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
 | Graphic system                                                                                              | Argument     |                                                       |                                                                                                               |
 +=============================================================================================================+==============+=======================================================+===============================================================================================================+
-|                                                                                                             | *Typeface*   | *Font*                                                | **Size**                                                                                                      |
+|                                                                                                             | *Typeface*   | *Font*                                                | *Size*                                                                                                        |
 +-------------------------------------------------------------------------------------------------------------+--------------+-------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
 | **Base**                                                                                                    | `family`     | `font`                                                | `cra` (pixels) or `cin` (inches) multiplied by `cex`                                                          |
 |                                                                                                             |              |                                                       |                                                                                                               |
@@ -220,7 +230,7 @@ While there is no way to unilaterally make `ragg::agg_png()` everywhere, it's po
 
 -   R Markdown and Quarto: you need to set the `dev` option to `"ragg_png"`. You can either do this with code:
 
-    ```{{r}}
+    ``` r
     #| include: false
     knitr::opts_chunk$set(dev = "ragg_png")
     ```
