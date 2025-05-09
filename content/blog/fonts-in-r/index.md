@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive]
 tags: [systemfonts, textshaping, ragg, svglite, graphics]
-rmd_hash: 6eb43160dd6dc798
+rmd_hash: d0bf62401f07de21
 
 ---
 
@@ -26,8 +26,12 @@ pre {
   text-wrap: nowrap;
   overflow-x: scroll;
 }
+figure {
+  margin-top: 2em;
+}
 figcaption {
   text-align: center;
+  margin-top: 1em;
 }
 table {
   max-width: 99%
@@ -367,20 +371,20 @@ If you want to see all the fonts that are available for use, you can use [`syste
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 570 × 9</span></span></span>
-<span><span class='c'>#&gt;    path                                                       index name                     family   style weight width italic monospace</span></span>
-<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                                                      <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span>    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> /System/Library/Fonts/Supplemental/Rockwell.ttc                2 Rockwell-Bold            Rockwell Bold  bold   norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> /System/Library/Fonts/Noteworthy.ttc                           0 Noteworthy-Light         Notewor… Light normal norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> /System/Library/Fonts/Supplemental/DevanagariMT.ttc            1 DevanagariMT-Bold        Devanag… Bold  bold   norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> /System/Library/Fonts/Supplemental/Kannada Sangam MN.ttc       0 KannadaSangamMN          Kannada… Regu… normal norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> /System/Library/Fonts/Supplemental/Verdana Bold.ttf            0 Verdana-Bold             Verdana  Bold  bold   norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> /System/Library/Fonts/ArialHB.ttc                              8 ArialHebrewScholar-Light Arial H… Light light  norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> /System/Library/Fonts/AppleSDGothicNeo.ttc                    10 AppleSDGothicNeo-Thin    Apple S… Thin  thin   norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> /System/Library/Fonts/Supplemental/DecoTypeNaskh.ttc           0 DecoTypeNaskh            DecoTyp… Regu… normal norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> /System/Library/Fonts/Supplemental/Trebuchet MS Italic.ttf     0 TrebuchetMS-Italic       Trebuch… Ital… normal norm… TRUE   FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> /System/Library/Fonts/Supplemental/Khmer MN.ttc                0 KhmerMN                  Khmer MN Regu… normal norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 560 more rows</span></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 571 × 9</span></span></span>
+<span><span class='c'>#&gt;    path                                                                            index name  family style weight width italic monospace</span></span>
+<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                                                                           <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span>    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> /private/var/folders/l4/tvfrd0ps4dqdr2z7kvnl9xh40000gn/T/RtmpdjhErA/Rubik Dist…     0 Rubi… Rubik… Regu… normal norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> /System/Library/Fonts/Supplemental/Rockwell.ttc                                     2 Rock… Rockw… Bold  bold   norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> /System/Library/Fonts/Noteworthy.ttc                                                0 Note… Notew… Light normal norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> /System/Library/Fonts/Supplemental/DevanagariMT.ttc                                 1 Deva… Devan… Bold  bold   norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> /System/Library/Fonts/Supplemental/Kannada Sangam MN.ttc                            0 Kann… Kanna… Regu… normal norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> /System/Library/Fonts/Supplemental/Verdana Bold.ttf                                 0 Verd… Verda… Bold  bold   norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> /System/Library/Fonts/ArialHB.ttc                                                   8 Aria… Arial… Light light  norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> /System/Library/Fonts/AppleSDGothicNeo.ttc                                         10 Appl… Apple… Thin  thin   norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> /System/Library/Fonts/Supplemental/DecoTypeNaskh.ttc                                0 Deco… DecoT… Regu… normal norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> /System/Library/Fonts/Supplemental/Trebuchet MS Italic.ttf                          0 Treb… Trebu… Ital… normal norm… TRUE   FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 561 more rows</span></span></span>
 <span></span></code></pre>
 
 </div>
@@ -456,7 +460,7 @@ And if you want to make sure this code works for anyone using your code (regardl
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>systemfonts</span><span class='nf'>::</span><span class='nf'><a href='https://systemfonts.r-lib.org/reference/require_font.html'>require_font</a></span><span class='o'>(</span><span class='s'>"Rubik Distressed"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Trying Google Fonts... Found! Downloading font to /var/folders/l4/tvfrd0ps4dqdr2z7kvnl9xh40000gn/T//RtmpdjhErA</span></span>
+<span><span class='c'>#&gt; `Rubik Distressed` available at /private/var/folders/l4/tvfrd0ps4dqdr2z7kvnl9xh40000gn/T/RtmpdjhErA</span></span>
 <span></span><span></span>
 <span><span class='nf'>grid</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/r/grid/grid.text.html'>grid.text</a></span><span class='o'>(</span></span>
 <span>  <span class='s'>"There are no bad fonts\nonly bad text"</span>,</span>
