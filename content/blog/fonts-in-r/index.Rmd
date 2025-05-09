@@ -55,6 +55,7 @@ knitr::opts_chunk$set(
   fig.height = 4.326
 )
 library(tibble)
+library(ggplot2)
 ```
 
 (An updated version of this blog post will be available at [the systemfonts webpage](https://systemfonts.r-lib.org))
@@ -255,6 +256,15 @@ grid::grid.text(
   "FUTURA 🎉",
   gp = grid::gpar(fontfamily = "Futura", fontface = 3, fontsize = 30)
 )
+```
+
+Or, if using ggplot2
+
+```{r}
+ggplot(na.omit(penguins)) +
+  geom_point(aes(x = bill_len, y = body_mass, colour = species)) +
+  labs(x = "Bill Length", y = "Body Mass", colour = "Species") +
+  theme_minimal(base_family = "Futura")
 ```
 
 If the results don't look as you expect, you can use various systemfonts helpers to diagnose the problem:

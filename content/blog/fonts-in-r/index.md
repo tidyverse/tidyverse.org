@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive]
 tags: [systemfonts, textshaping, ragg, svglite, graphics]
-rmd_hash: 96baf5ff6232b3bb
+rmd_hash: 6eb43160dd6dc798
 
 ---
 
@@ -328,6 +328,19 @@ If you want to use a font installed on your computer, you're done!
 
 </div>
 
+Or, if using ggplot2
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/stats/na.fail.html'>na.omit</a></span><span class='o'>(</span><span class='nv'>penguins</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='o'>(</span><span class='nf'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='nv'>bill_len</span>, y <span class='o'>=</span> <span class='nv'>body_mass</span>, colour <span class='o'>=</span> <span class='nv'>species</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='o'>(</span>x <span class='o'>=</span> <span class='s'>"Bill Length"</span>, y <span class='o'>=</span> <span class='s'>"Body Mass"</span>, colour <span class='o'>=</span> <span class='s'>"Species"</span><span class='o'>)</span> <span class='o'>+</span></span>
+<span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_minimal</a></span><span class='o'>(</span>base_family <span class='o'>=</span> <span class='s'>"Futura"</span><span class='o'>)</span></span>
+</code></pre>
+<img src="figs/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" />
+
+</div>
+
 If the results don't look as you expect, you can use various systemfonts helpers to diagnose the problem:
 
 <div class="highlight">
@@ -354,20 +367,20 @@ If you want to see all the fonts that are available for use, you can use [`syste
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 571 × 9</span></span></span>
-<span><span class='c'>#&gt;    path                                                                            index name  family style weight width italic monospace</span></span>
-<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                                                                           <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span>    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> /private/var/folders/l4/tvfrd0ps4dqdr2z7kvnl9xh40000gn/T/RtmpwHr2it/Rubik Dist…     0 Rubi… Rubik… Regu… normal norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> /System/Library/Fonts/Supplemental/Rockwell.ttc                                     2 Rock… Rockw… Bold  bold   norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> /System/Library/Fonts/Noteworthy.ttc                                                0 Note… Notew… Light normal norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> /System/Library/Fonts/Supplemental/DevanagariMT.ttc                                 1 Deva… Devan… Bold  bold   norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> /System/Library/Fonts/Supplemental/Kannada Sangam MN.ttc                            0 Kann… Kanna… Regu… normal norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> /System/Library/Fonts/Supplemental/Verdana Bold.ttf                                 0 Verd… Verda… Bold  bold   norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> /System/Library/Fonts/ArialHB.ttc                                                   8 Aria… Arial… Light light  norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> /System/Library/Fonts/AppleSDGothicNeo.ttc                                         10 Appl… Apple… Thin  thin   norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> /System/Library/Fonts/Supplemental/DecoTypeNaskh.ttc                                0 Deco… DecoT… Regu… normal norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> /System/Library/Fonts/Supplemental/Trebuchet MS Italic.ttf                          0 Treb… Trebu… Ital… normal norm… TRUE   FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 561 more rows</span></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 570 × 9</span></span></span>
+<span><span class='c'>#&gt;    path                                                       index name                     family   style weight width italic monospace</span></span>
+<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                                                      <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span>    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> /System/Library/Fonts/Supplemental/Rockwell.ttc                2 Rockwell-Bold            Rockwell Bold  bold   norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> /System/Library/Fonts/Noteworthy.ttc                           0 Noteworthy-Light         Notewor… Light normal norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> /System/Library/Fonts/Supplemental/DevanagariMT.ttc            1 DevanagariMT-Bold        Devanag… Bold  bold   norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> /System/Library/Fonts/Supplemental/Kannada Sangam MN.ttc       0 KannadaSangamMN          Kannada… Regu… normal norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> /System/Library/Fonts/Supplemental/Verdana Bold.ttf            0 Verdana-Bold             Verdana  Bold  bold   norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> /System/Library/Fonts/ArialHB.ttc                              8 ArialHebrewScholar-Light Arial H… Light light  norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> /System/Library/Fonts/AppleSDGothicNeo.ttc                    10 AppleSDGothicNeo-Thin    Apple S… Thin  thin   norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> /System/Library/Fonts/Supplemental/DecoTypeNaskh.ttc           0 DecoTypeNaskh            DecoTyp… Regu… normal norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> /System/Library/Fonts/Supplemental/Trebuchet MS Italic.ttf     0 TrebuchetMS-Italic       Trebuch… Ital… normal norm… TRUE   FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> /System/Library/Fonts/Supplemental/Khmer MN.ttc                0 KhmerMN                  Khmer MN Regu… normal norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 560 more rows</span></span></span>
 <span></span></code></pre>
 
 </div>
@@ -395,7 +408,7 @@ Now you can use Avenir Thin where you would otherwise specify the typeface:
 <span>  gp <span class='o'>=</span> <span class='nf'>grid</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/r/grid/gpar.html'>gpar</a></span><span class='o'>(</span>fontfamily <span class='o'>=</span> <span class='s'>"Avenir Thin"</span>, fontsize <span class='o'>=</span> <span class='m'>30</span><span class='o'>)</span></span>
 <span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-12-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-13-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -415,7 +428,7 @@ Now you can use Avenir Thin where you would otherwise specify the typeface:
 <span>  gp <span class='o'>=</span> <span class='nf'>grid</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/r/grid/gpar.html'>gpar</a></span><span class='o'>(</span>fontfamily <span class='o'>=</span> <span class='s'>"Avenir Small Caps"</span>, fontsize <span class='o'>=</span> <span class='m'>30</span><span class='o'>)</span></span>
 <span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-13-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-14-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -434,7 +447,7 @@ And you don't even need to leave R to populate these folders. [`systemfonts::get
 <span>  gp <span class='o'>=</span> <span class='nf'>grid</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/r/grid/gpar.html'>gpar</a></span><span class='o'>(</span>fontfamily <span class='o'>=</span> <span class='s'>"Barrio"</span>, fontsize <span class='o'>=</span> <span class='m'>30</span><span class='o'>)</span></span>
 <span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-14-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-15-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -443,14 +456,14 @@ And if you want to make sure this code works for anyone using your code (regardl
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>systemfonts</span><span class='nf'>::</span><span class='nf'><a href='https://systemfonts.r-lib.org/reference/require_font.html'>require_font</a></span><span class='o'>(</span><span class='s'>"Rubik Distressed"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; `Rubik Distressed` available at /private/var/folders/l4/tvfrd0ps4dqdr2z7kvnl9xh40000gn/T/RtmpwHr2it</span></span>
+<span><span class='c'>#&gt; Trying Google Fonts... Found! Downloading font to /var/folders/l4/tvfrd0ps4dqdr2z7kvnl9xh40000gn/T//RtmpdjhErA</span></span>
 <span></span><span></span>
 <span><span class='nf'>grid</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/r/grid/grid.text.html'>grid.text</a></span><span class='o'>(</span></span>
 <span>  <span class='s'>"There are no bad fonts\nonly bad text"</span>,</span>
 <span>  gp <span class='o'>=</span> <span class='nf'>grid</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/r/grid/gpar.html'>gpar</a></span><span class='o'>(</span>fontfamily <span class='o'>=</span> <span class='s'>"Rubik Distressed"</span>, fontsize <span class='o'>=</span> <span class='m'>30</span><span class='o'>)</span></span>
 <span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-15-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-16-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
@@ -540,7 +553,7 @@ This document has mainly focused on how to use the fonts you desire from within 
 <span>  <span class='o'>)</span></span>
 <span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/unnamed-chunk-19-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/unnamed-chunk-20-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
 
