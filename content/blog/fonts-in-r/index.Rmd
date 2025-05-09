@@ -19,13 +19,16 @@ categories: [deep-dive]
 tags: [systemfonts, textshaping, ragg, svglite, graphics]
 ---
 
+```{=html}
 <style type='text/css'>
 pre {
   text-wrap: nowrap;
   overflow-x: scroll;
 }
 </style>
+```
 
+```{=html}
 <!--
 TODO:
 * [x] Look over / edit the post's title in the yaml
@@ -38,6 +41,7 @@ TODO:
 * [x] Add intro sentence, e.g. the standard tagline for the package
 * [x] `usethis::use_tidy_thanks()`
 -->
+```
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -61,9 +65,28 @@ There is a good chance that you, like 99% of world, use *"font"* as the term des
 
 When most people use the word "font" or "font family", what they are actually describing is a typeface. A **typeface** is a style of lettering that forms a cohesive whole. As an example, consider the well-known "Helvetica" typeface. This name embraces many different weights (bold, normal, light) as well as slanted (italic) and upright. However, all of these variations are all as much Helvetica as the others - they are all part of the same typeface.
 
-If a typeface is font, then what is a font? A **font** is a subset of a typeface, describing a particular variation of the typeface, i.e. the combination of typeface, weight, width, and slant that comes together to describe the specific subset of a typeface that is used. We typically give a specific combination of a name, like "bold" or "medium" or "italic", which we call the **font style**. In other words, the typeface plus a font style gives you a font.
+If a typeface is font, then what is a font? A **font** is a subset of a typeface, describing a particular variation of the typeface, i.e. the combination of typeface, weight, width, and slant that comes together to describe the specific subset of a typeface that is used. We typically give a specific combination of a name, like "bold" or "medium" or "italic", which we call the **font style**. In other words, the typeface plus a font style gives you a font. Be aware that the style name is at the discretion of the developer of the typeface. It is very common to see discrepancies between the style name and e.g. the weight reported by the font (e.g. Avenir Next Ultra Light is in reality a *thin* weight font).
 
-<!-- HW: I think it'd be useful to have an image here with a few fonts from one typeface -->
+```{r}
+#| echo: false
+#| fig.cap: "Different fonts from the Avenir Next typeface"
+#| fig.height: 3.5
+st <- marquee::classic_style(30, body_font = "Avenir Next", lineheight = 1, margin = marquee::trbl(4)) |>
+  marquee::modify_style("anul", weight = "thin") |>
+  marquee::modify_style("anub", weight = "ultrabold")
+text <- paste(
+  "{.anul Avenir Next Ultra Light}  ",
+  "{.anul *Avenir Next Ultra Light Italic*}  ",
+  "Avenir Next  ",
+  "*Avenir Next Italic*  ",
+  "{.anub Avenir Next Ultra Bold}  ",
+  "{.anub *Avenir Next Ultra Bold Italic*}  ",
+  sep = "\n"
+)
+grid::grid.draw(
+  marquee::marquee_grob(text, st)
+)
+```
 
 In the rest of this document we will use the terms typeface and font with the meaning described above.
 
@@ -85,11 +108,11 @@ Here, **family** gives the name of the typeface, and **style** the name of the f
 
 It took a considerable number of tries before the world managed to nail the digitial representation of fonts, leading to a proliferation of file types. As an R user, there are three formats that are particularly improtant:
 
-* **TrueType** (ttf/ttc). Truetype is the baseline format that all modern formats stand on top of. It was developed by Apple in the '80s and became popular due to its great balance between size and quality. Fonts can be encoded, either as scalable paths, or as bitmaps of various sizes, the former generally being preferred as it allows for seamless scaling and small file size at the same time.
+-   **TrueType** (ttf/ttc). Truetype is the baseline format that all modern formats stand on top of. It was developed by Apple in the '80s and became popular due to its great balance between size and quality. Fonts can be encoded, either as scalable paths, or as bitmaps of various sizes, the former generally being preferred as it allows for seamless scaling and small file size at the same time.
 
-* ** OpenType** (otf/otc). OpenType was created by Microsoft and Adobe to improve upon TrueType. While TrueType was a great success, it the number of glyphs it could contain was limited and as was its support for selecting different features during [shaping](#text-shaping). OpenType resolved these issues, so if you want access to advanced typography features you'll need a font in OpenType format.
+-   \*\* OpenType\*\* (otf/otc). OpenType was created by Microsoft and Adobe to improve upon TrueType. While TrueType was a great success, it the number of glyphs it could contain was limited and as was its support for selecting different features during [shaping](#text-shaping). OpenType resolved these issues, so if you want access to advanced typography features you'll need a font in OpenType format.
 
-* ** Web Open Font Format** (woff/woff2). TrueType and OpenType tend to create large files. Since a large percentage of the text consumed today is delivered over the internet this creates a problem. WOFF resolves this problem by acting as a compression wrapper around TrueType/OpenType to reduce file sizes while also limiting the number of advanced features provided to those relevant to web fonts. The woff2 format is basically identical to woff except it uses the more efficient [brotli](https://en.wikipedia.org/wiki/Brotli) compression algorithm. WOFF was designed specifically to be delivered over the internet and support is still a bit limited outside of browsers.
+-   \*\* Web Open Font Format\*\* (woff/woff2). TrueType and OpenType tend to create large files. Since a large percentage of the text consumed today is delivered over the internet this creates a problem. WOFF resolves this problem by acting as a compression wrapper around TrueType/OpenType to reduce file sizes while also limiting the number of advanced features provided to those relevant to web fonts. The woff2 format is basically identical to woff except it uses the more efficient [brotli](https://en.wikipedia.org/wiki/Brotli) compression algorithm. WOFF was designed specifically to be delivered over the internet and support is still a bit limited outside of browsers.
 
 While we have mainly talked about font files as containers for the shape of glyphs, they also carries a lot of other information needed for rendering text in a way pleasant for reading. Font level information recordsd a lot of stylistic information about typeface/font, statistics on the number of glyphs and how many different mappings between character encodings and glyphs it contains, and overall sizing information such as the maximum descend of the font, the position of an underline relative to the baseline etc. systemfonts provdies a convenient way to access this data from R:
 
@@ -97,29 +120,26 @@ While we have mainly talked about font files as containers for the shape of glyp
 dplyr::glimpse(systemfonts::font_info(family = "Helvetica"))
 ```
 
-As well as a bunch of information about individual glyphs, 
-Further, for each glyph there is a range of information in addition to its shape:
+As well as a bunch of information about individual glyphs, Further, for each glyph there is a range of information in addition to its shape:
 
 ```{r}
 systemfonts::glyph_info("j", family = "Helvetica", size = 30)
 ```
 
-These terms are mostly easily understood with a diagram:
+These terms are more easily understood with a diagram:
 
 ```{r}
 #| echo: false
 systemfonts::plot_glyph_stats("j", family = "Helvetica", size = 30)
 ```
 
-<!-- HW: I assume you're planning on exporting this function? I couldn't find it in the dev version and I think it would be suepr useful -->
-
-The `x_advance`  in particular is important when rendering text because it tells you how far to move to the right before rendering the next glyph (ignoring for a bit the concept of kerning)
+The `x_advance` in particular is important when rendering text because it tells you how far to move to the right before rendering the next glyph (ignoring for a bit the concept of kerning)
 
 ### Text shaping {#text-shaping}
 
-The next important concept to understand is **text shaping**, which, in the simplest of terms, is convert a succession of characters into sequence of glyphs along with their locations. Important here is the distinction between **characters**, the things you think of as letters, and **glyphs**, which is what the font will draw. For example, think of the character "f", which is often tricky to draw because the "hook" of the f can interfere with other characters. To solve this problem, many typefaces include **ligatures**, like "ﬁ", which are used for specific pairs of characaters. Ligatures are extremely important for languages like  Arabic.
+The next important concept to understand is **text shaping**, which, in the simplest of terms, is to convert a succession of characters into sequence of glyphs along with their locations. Important here is the distinction between **characters**, the things you think of as letters, and **glyphs**, which is what the font will draw. For example, think of the character "f", which is often tricky to draw because the "hook" of the f can interfere with other characters. To solve this problem, many typefaces include **ligatures**, like "ﬁ", which are used for specific pairs of characaters. Ligatures are extremely important for languages like Arabic.
 
-Just a few of the challenges of text shaping include kerning, bidirectional text, and font substitution.  **Kerning**, which controls the distance between specific pairs of characters. For example, you can put "VM" a little closer together but "OO" needs to be a little further apart. Kerning is an integral part of all modern text rendering and you will almost solemnly notice it when it is absent (or worse, [wrongly applied](https://www.fastcompany.com/91324550/kerning-on-pope-francis-tomb-is-a-travesty)).
+Just a few of the challenges of text shaping include kerning, bidirectional text, and font substitution. **Kerning**, which controls the distance between specific pairs of characters. For example, you can put "VM" a little closer together but "OO" needs to be a little further apart. Kerning is an integral part of all modern text rendering and you will almost solemnly notice it when it is absent (or worse, [wrongly applied](https://www.fastcompany.com/91324550/kerning-on-pope-francis-tomb-is-a-travesty)).
 
 Not every language writes text in the same direction, but regardless of your native script, you are likely to use arabic numerals which are always written left-to-right. This gives rise to the challenge of **bidirectional** (or bidi) text, which mixes text flowing in different directions. This imposes a whole new range of challenges!
 
@@ -131,7 +151,7 @@ Like I said, the pit of despair is bottomless...
 
 ## Font handling in R {#font-handling-in-r}
 
-You hopefully arrive at this section with an appreciation of the horrors that goes into rendering text. If not, maybe this [blog post](https://faultlore.com/blah/text-hates-you/) will convince you. 
+You hopefully arrive at this section with an appreciation of the horrors that goes into rendering text. If not, maybe this [blog post](https://faultlore.com/blah/text-hates-you/) will convince you.
 
 Are you still here? Good.
 
@@ -141,88 +161,73 @@ Now that you understand the basics of what goes into handling fonts and text, we
 
 The users perception of working with fonts in R is largely shaped by plots. This means using either base or grid graphics or one of the packages that have been build on top of it, like [ggplot2](https://ggplot2.tidyverse.org). While the choice of tool will affect *where* you specify the font to use, they generally agree on how to specify it.
 
-<!-- HW: I think this would be better as a table -->
++-------------------------------------------------------------------------------------------------------------+--------------+-------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| Graphic system                                                                                              | Argument     |                                                       |                                                                                                               |
++=============================================================================================================+==============+=======================================================+===============================================================================================================+
+|                                                                                                             | *Typeface*   | *Font*                                                | **Size**                                                                                                      |
++-------------------------------------------------------------------------------------------------------------+--------------+-------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| **Base**                                                                                                    | `family`     | `font`                                                | `cra` (pixels) or `cin` (inches) multiplied by `cex`                                                          |
+|                                                                                                             |              |                                                       |                                                                                                               |
+| *Arguments are passed to `par()` to set globally or directly to the call that renders text (e.g. `text()`)* |              |                                                       |                                                                                                               |
++-------------------------------------------------------------------------------------------------------------+--------------+-------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| **Grid**                                                                                                    | `fontfamily` | `fontface`                                            | `fontsize` (points) multiplied by `cex`                                                                       |
+|                                                                                                             |              |                                                       |                                                                                                               |
+| Arguments are passed to the `gp` argument of relevant grobs using the `gpar()` constructor                  |              |                                                       |                                                                                                               |
++-------------------------------------------------------------------------------------------------------------+--------------+-------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| **ggplot2**                                                                                                 | `family`     | `face` (in `element_text()`) or `fontface` (in geoms) | `size` (points when used in `element_text()`, depends on the value of `size.unit` argument when used in geom) |
+|                                                                                                             |              |                                                       |                                                                                                               |
+| Arguments are set in `element_text()` to alter theme fonts or directly in the geom call to alter geom fonts |              |                                                       |                                                                                                               |
++-------------------------------------------------------------------------------------------------------------+--------------+-------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
 
-#### Base graphics
-
-Font settings are set, either globally with a call to `par()`, or directly when plotting text using `text()` or other calls that result in text being rendered. The relevant arguments are:
-
--   `family`: the name of the typeface.
--   `font`: the font style.
--   `cra`/`cin`: default size of text specified in either pixels or inches
--   `cex`: a multiplicative scaling factor applied to the default size.
-
-#### Grid graphics
-
-In grid, all graphical parameters including font settings, are set using the `gpar()` function whose return value is assigned to the `gp` argument of relevant functions. The arguments in `gpar()` relevant to text rendering are:
-
--   `fontfamily`: the name of the typeface.
--   `fontface`: the font style.
--   `fontsize`: the size of the font in points (1/72 inch)
--   `cex`: a multiplication scaling factor applied to `fontsize`.
-
-#### ggplot2
-
-In ggplot2 there are two places you may apply font-related settings. As part of `theme()` using `element_text()`, controlling representation of non-data information such as titles, axis text, etc. And as part of `geom_text()` or other text rendering geoms (including annotation layers). Settings in `element_text()` relevant for fonts are:
-
--   `family`: the name of the typeface
--   `face`: the font style.
--   `size`: Provides the size of the font in points (1/72 inch)
-
-Settings in `geom_text()` and related geoms relevant for fonts are:
-
--   `family`: the name of the typeface
--   `fontface`: the font style.
--   `size`: the font size. The default unit is millimeters but may be changed with the `size.unit` argument. If this is set inside `aes()` then the values will first be scaled according to the size scale.
-
-From this brief overview it is clear that in R *fontfamily*/*family* is used to describe the typeface, *font*/*fontface*/*face* is used to select a font from the typeface based on a limited number of styles. Size settings is just a plain mess.
+From the table it is clear that in R *fontfamily*/*family* is used to describe the typeface, *font*/*fontface*/*face* is used to select a font from the typeface based on a limited number of styles. Size settings is just a plain mess.
 
 The major limitation in the *fontface* (and friends) setting is that it takes a number, not a string, and you can only select from four options: `1`: plain, `2`: bold, `3`: italic, and `4`: bold-italic. This means, for example, that there's no way to select Futura Condensed Extra Bold. Another limitation is that it's not possible to specify any font variations such as using tabular numbers or stylistic ligatures.
 
 ### Fonts and text from a graphics device perspective
 
-<!-- HW: I suspect most people don't know what a graphics device is so you need to explain that here -->
+In R, a graphics device is the part responsible for doing the rendering you request and put it on your screen or in a file. When you call `png()` or `ragg::agg_png()` you open up a graphics device that will receive all the plotting instructions from R. Both graphics devices will ultimately produce the same file type (PNG), but how they choose to handle and respond to the plotting instructions may differ (greatly). Nowhere is this difference more true than when it comes to text rendering.
 
-After a user has made a call that renders some text, it is funneled through the graphic system (base or grid), handed off to the graphics engine, which ultimately asks the graphics device to render the text. From the perspective of the graphics device it is much the same information that the user provided which are presented to it. The `text()` method of the device are given an array of characters, the typeface, the size in points, whether or not it is italic, and whether or not it is bold.
+After a user has made a call that renders some text, it is funneled through the graphic system (base or grid), handed off to the graphics engine, which ultimately asks the graphics device to render the text. From the perspective of the graphics device it is much the same information that the user provided which are presented to it. The `text()` method of the device are given an array of characters, the typeface, the size in points, and an integer denoting if the style is regular, bold, italic, or bold-italic.
 
-<!-- HW: I think a little diagram of the flow here might help -->
+![Flow of font information through the R rendering stack](text_call_flow.svg){fig-alt="A diagram showing the flow of text rendering instructions from ggplot2, grid, the graphics engine, and down to the graphics device. Very little changes in the available information about the font during the flow"}
 
-This means that the graphics device has to find the approprate font file (using typeface and font style) and shape the text with all that that entails. This is a lot of work, which is why text is handled so inconsistently between graphics devices. Issues can range from not being able to find fonts installed on the computer, to not providing font fallback mechanisms, or even handling right-to-left text. It may also be that certain font file formats are not well supported so that e.g. color emojis are not rendered correctly.
+This means that it is up to the graphics device to find the approprate font file (using the provided typeface and font style) and shape the text with all that that entails. This is a lot of work, which is why text is handled so inconsistently between graphics devices. Issues can range from not being able to find fonts installed on the computer, to not providing font fallback mechanisms, or even handling right-to-left text. It may also be that certain font file formats are not well supported so that e.g. color emojis are not rendered correctly.
 
 There have been a number of efforts to resolve these problems over the years:
 
-* **extrafont**: Developed by Winston Chang, [extrafont](https://github.com/wch/extrafont) sought to mainly improve the situation for the `pdf()` device which generally only had access to the postscript fonts that comes with R. The package allows the `pdf()` device to get access to TrueType fonts installed on the computer, as well as provide means for embedding the font into the PDF so that it can be opened on systems where the font is not installed. (It also provides the capabilities to to the Windows `png()` device).
+-   **extrafont**: Developed by Winston Chang, [extrafont](https://github.com/wch/extrafont) sought to mainly improve the situation for the `pdf()` device which generally only had access to the postscript fonts that comes with R. The package allows the `pdf()` device to get access to TrueType fonts installed on the computer, as well as provide means for embedding the font into the PDF so that it can be opened on systems where the font is not installed. (It also provides the capabilities to to the Windows `png()` device).
 
-* **sysfonts** and **showtext**. These packages are developed by Yixuan Qiu and provide support for system fonts to all graphics devices, by hijacking the `text()` method of the graphics device to text text as polygons or raster images. This guarantees your plots will look the same on every device, but it doesn't do advanced text shaping, so there's no support for ligatures or font substituion. Additionally, it produces large files with inaccessible text when used to produce pdf and svg outputs.
+-   **sysfonts** and **showtext**. These packages are developed by Yixuan Qiu and provide support for system fonts to all graphics devices, by hijacking the `text()` method of the graphics device to text text as polygons or raster images. This guarantees your plots will look the same on every device, but it doesn't do advanced text shaping, so there's no support for ligatures or font substituion. Additionally, it produces large files with inaccessible text when used to produce pdf and svg outputs.
 
-* **systemfonts** and **textshaping**. These packages are developed by me to provide a soup-to-nuts solution to text rendering for graphics devices. [systemfonts](https://systemfonts.r-lib.org) provides access to fonts installed on the system along with font fallback mechanisms, registration of non-system fonts, reading of font files etc. [textshaping](https://github.com/r-lib/textshaping) builds on top of systemfonts and provides a fully modern engine for shaping text. The functionality is exposed both at the R level and at the C level, so that graphics devices can directly access to font lookup and shaping.
+-   **systemfonts** and **textshaping**. These packages are developed by me to provide a soup-to-nuts solution to text rendering for graphics devices. [systemfonts](https://systemfonts.r-lib.org) provides access to fonts installed on the system along with font fallback mechanisms, registration of non-system fonts, reading of font files etc. [textshaping](https://github.com/r-lib/textshaping) builds on top of systemfonts and provides a fully modern engine for shaping text. The functionality is exposed both at the R level and at the C level, so that graphics devices can directly access to font lookup and shaping.
 
-We will fosus on systemfonts, because it's designed to give R a fully modern text rendering stack. That unfortunately is impossible to do with coordination with the graphics device, which means to use all these features you need a supported graphics device. There are currently two options:
+We will fosus on systemfonts, because it's designed to give R a fully modern text rendering stack. That unfortunately is impossible to do without coordination with the graphics device, which means that to use all these features you need a supported graphics device. There are currently two options:
 
-* The [ragg](https://ragg.r-lib.org) package provides graphics devices for rendering raster graphics in a variety of formats (PNG, JPEG, TIFF) and uses systemfonts and textshaping extensively. 
-* The [svglite](https://svglite.r-lib.org) package likewise provides a graphic device for rendering vector graphics to SVG using systemfonts and textshaping for text. 
+-   The [ragg](https://ragg.r-lib.org) package provides graphics devices for rendering raster graphics in a variety of formats (PNG, JPEG, TIFF) and uses systemfonts and textshaping extensively.
+-   The [svglite](https://svglite.r-lib.org) package likewise provides a graphic device for rendering vector graphics to SVG using systemfonts and textshaping for text.
 
 You might notice there's currently a big hole in this workflow: PDFs. This is something we plan to work on in the future.
 
 ## A systemfonts based workflow
 
-With all that said, how do you actually use systemfonts to use custom fonts in your plots? First, you'll need to use ragg or svglite. 
+With all that said, how do you actually use systemfonts to use custom fonts in your plots? First, you'll need to use ragg or svglite.
 
 ### Using ragg
 
 While there is no way to unilaterally make `ragg::agg_png()` everywhere, it's possible to get close:
 
-* Positron: recent versions automatically use ragg for the plot pane if it's installed.
-* RStudio IDE: set "AGG" as the backend under Global Options \> General \> Graphics. 
-* `ggplot2::ggsave()`: ragg will be automatically used for raster output if installed.
-* R Markdown and Quarto: you need to set the `dev` option to `"ragg_png"`. You can either do this with code:
+-   Positron: recent versions automatically use ragg for the plot pane if it's installed.
 
-    ````
-    ```{r}
+-   RStudio IDE: set "AGG" as the backend under Global Options \> General \> Graphics.
+
+-   `ggplot2::ggsave()`: ragg will be automatically used for raster output if installed.
+
+-   R Markdown and Quarto: you need to set the `dev` option to `"ragg_png"`. You can either do this with code:
+
+    ```{{r}}
     #| include: false
     knitr::opts_chunk$set(dev = "ragg_png")
     ```
-    ````
 
     Or in Quarto, you can set it in the yaml metadata:
 
@@ -236,23 +241,21 @@ While there is no way to unilaterally make `ragg::agg_png()` everywhere, it's po
     ---
     ```
 
-If you want to use a font installed on your computer, you're done! 
+If you want to use a font installed on your computer, you're done!
 
 ```{r}
 #| fig.height: 1
 grid::grid.text(
-  "FUTURA 🤷‍♂️",
+  "FUTURA 🎉",
   gp = grid::gpar(fontfamily = "Futura", fontface = 3, fontsize = 30)
 )
 ```
-
-<!-- HW: might be better to have a ggplot2 example? -->
 
 If the results don't look as you expect, you can use various systemfonts helpers to diagnose the problem:
 
 ```{r}
 systemfonts::match_fonts("Futura", weight = "bold")
-systemfonts::font_fallback("🤷‍♂️", family = "Futura", weight = "bold")
+systemfonts::font_fallback("🎉", family = "Futura", weight = "bold")
 ```
 
 If you want to see all the fonts that are available for use, you can use `systemfonts::system_fonts()`
@@ -310,7 +313,7 @@ grid::grid.text(
 
 ### Fonts from other places
 
-Historically, systemfonts primary role was to access the font installed on your computer, the **system fonts**.  But what if you're using a computer where you don't have the rights to install new fonts, or you don't want the hassle of installing a font just to use it for a single plot? That's the problem solved by `systemfonts::add_font()` which makes it easy to use a font based on a path. But in many cases you don't even need that as systemfont now scans `./fonts` and `~/fonts`. This means that you can put personal fonts in a fonts folder in your home directory, and project fonts in a fonts directory at the root of the project. This is a great way to ensure that specific fonts are available when you deploy some code to a server.
+Historically, systemfonts primary role was to access the font installed on your computer, the **system fonts**. But what if you're using a computer where you don't have the rights to install new fonts, or you don't want the hassle of installing a font just to use it for a single plot? That's the problem solved by `systemfonts::add_font()` which makes it easy to use a font based on a path. But in many cases you don't even need that as systemfont now scans `./fonts` and `~/fonts`. This means that you can put personal fonts in a fonts folder in your home directory, and project fonts in a fonts directory at the root of the project. This is a great way to ensure that specific fonts are available when you deploy some code to a server.
 
 And you don't even need to leave R to populate these folders. `systemfonts::get_from_google_fonts()` will download and install a google font in `~/fonts`:
 
