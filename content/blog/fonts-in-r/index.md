@@ -19,16 +19,13 @@ categories: [deep-dive]
 tags: [systemfonts, textshaping, ragg, svglite, graphics]
 ---
 
-```{=html}
 <style type='text/css'>
 pre {
   text-wrap: nowrap;
   overflow-x: scroll;
 }
 </style>
-```
 
-```{=html}
 <!--
 TODO:
 * [x] Look over / edit the post's title in the yaml
@@ -41,7 +38,6 @@ TODO:
 * [x] Add intro sentence, e.g. the standard tagline for the package
 * [x] `usethis::use_tidy_thanks()`
 -->
-```
 
 
 
@@ -378,7 +374,7 @@ And if you want to make sure this code works for anyone using your code (regardl
 
 ``` r
 systemfonts::require_font("Rubik Distressed")
-#> Trying Google Fonts... Found! Downloading font to /var/folders/l4/tvfrd0ps4dqdr2z7kvnl9xh40000gn/T//RtmpHsMd5i
+#> Trying Google Fonts... Found! Downloading font to /var/folders/l4/tvfrd0ps4dqdr2z7kvnl9xh40000gn/T//RtmpocLWPE
 
 grid::grid.text(
   "There are no bad fonts\nonly bad text",
