@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: fonts-in-r
 title: Fonts in R
-date: 2025-05-07
+date: 2025-05-12
 author: Thomas Lin Pedersen
 description: >
     Taking control of fonts and text rendering in R can be challenging. This
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [deep-dive]
 tags: [systemfonts, textshaping, ragg, svglite, graphics]
-rmd_hash: d0bf62401f07de21
+rmd_hash: 81e435469b2cb0ae
 
 ---
 
@@ -52,19 +52,19 @@ TODO:
 
 (An updated version of this blog post will be available at [the systemfonts webpage](https://systemfonts.r-lib.org))
 
-The purpose of this document is to give you the a thorough overview of fonts as it relates to their use in R. However, for this to be possible, it is first necessary to get an understanding of fonts and how they work in digital publishing in general. If you have a thorough understanding of digital typography you may skip to [the next section](#font-handling-in-r).
+The purpose of this document is to give you the a thorough overview of fonts in R. However, for this to be possible, you'll first need a basic understanding of fonts in general. If you already have a thorough understanding of digital typography you can skip to [the next section](#font-handling-in-r).
 
 ## Digital typography
 
-Many books can be, and have been, written about the subject of typography. This is not meant to be an exhaustive deep dive into all areas of this vast subject. Rather, it is meant to give you just enough understanding of core concepts and terminology to appreciate how it all plays into using fonts in R.
+Many books could be, and have been, written about the subject of typography. This blog post is not meant to be an exhaustive deep dive into all areas of this vast subject. Rather, it is meant to give you just enough understanding of core concepts and terminology to appreciate how it all plays into using fonts in R.
 
 ### Typeface or font?
 
-There is a good chance that you, like 99% of world, use *"font"* as the term describing "the look" of the letters you type. You may, perhaps, have heard the term *"typeface"* as well and thought it synonymous. This is in fact slightly wrong, and a great deal of typography snobbery has been dealt out on that account. It is a rather inconsequential mix-up for the most part, especially because 99% of the population wouldn't bat an eye if you use them interchangeably. However, the distinction between the two serves as a good starting point to talk about other terms in digital typography as well as the nature of font files, so let's dive in.
+There is a good chance that you, like 99% of world, use "font" as the term describing "the look" of the letters you type. You may, perhaps, have heard the term "typeface" as well and thought it synonymous. This is in fact slightly wrong, and a great deal of typography snobbery has been dealt out on that account (much like the distinction between packages and libraries in R). It is a rather inconsequential mix-up for the most part, especially because 99% of the population wouldn't bat an eye if you use them interchangeably. However, the distinction between the two serves as a good starting point to talk about other terms in digital typography as well as the nature of font files, so let's dive in.
 
 When most people use the word "font" or "font family", what they are actually describing is a typeface. A **typeface** is a style of lettering that forms a cohesive whole. As an example, consider the well-known "Helvetica" typeface. This name embraces many different weights (bold, normal, light) as well as slanted (italic) and upright. However, all of these variations are all as much Helvetica as the others - they are all part of the same typeface.
 
-If a typeface is font, then what is a font? A **font** is a subset of a typeface, describing a particular variation of the typeface, i.e. the combination of typeface, weight, width, and slant that comes together to describe the specific subset of a typeface that is used. We typically give a specific combination of a name, like "bold" or "medium" or "italic", which we call the **font style**. In other words, the typeface plus a font style gives you a font. Be aware that the style name is at the discretion of the developer of the typeface. It is very common to see discrepancies between the style name and e.g. the weight reported by the font (e.g. Avenir Next Ultra Light is in reality a *thin* weight font).
+A **font** is a subset of a typeface, describing a particular variation of the typeface, i.e. the combination of typeface, weight, width, and slant that comes together to describe the specific subset of a typeface that is used. We typically give a specific combination of these features a name, like "bold" or "medium" or "italic", which we call the **font style**[^1]. In other words, a font is a particularly style within a typeface.
 
 <div class="highlight">
 
@@ -104,27 +104,27 @@ Next, we need to talk about how typefaces are represented for use by computers. 
 <span><span class='c'># One font per font file</span></span>
 <span><span class='nv'>typefaces</span><span class='o'>[</span><span class='nv'>typefaces</span><span class='o'>$</span><span class='nv'>family</span> <span class='o'>==</span> <span class='s'>"Arial"</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"path"</span>, <span class='s'>"index"</span>, <span class='s'>"family"</span>, <span class='s'>"style"</span><span class='o'>)</span><span class='o'>]</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 4 × 4</span></span></span>
-<span><span class='c'>#&gt;   path                                                     index family style      </span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                                                    <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>      </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> /System/Library/Fonts/Supplemental/Arial.ttf                 0 Arial  Regular    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> /System/Library/Fonts/Supplemental/Arial Bold.ttf            0 Arial  Bold       </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> /System/Library/Fonts/Supplemental/Arial Bold Italic.ttf     0 Arial  Bold Italic</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> /System/Library/Fonts/Supplemental/Arial Italic.ttf          0 Arial  Italic</span></span>
+<span><span class='c'>#&gt;   path                                                     index family style</span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                                                    <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> /System/Library/Fonts/Supplemental/Arial.ttf                 0 Arial  Regu…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> /System/Library/Fonts/Supplemental/Arial Bold.ttf            0 Arial  Bold </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> /System/Library/Fonts/Supplemental/Arial Bold Italic.ttf     0 Arial  Bold…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> /System/Library/Fonts/Supplemental/Arial Italic.ttf          0 Arial  Ital…</span></span>
 <span></span></code></pre>
 
 </div>
 
-Here, **family** gives the name of the typeface, and **style** the name of the font within that typeface.
+Here, each row is a font, with **family** giving the name of the typeface, and **style** the font style.
 
 It took a considerable number of tries before the world managed to nail the digitial representation of fonts, leading to a proliferation of file types. As an R user, there are three formats that are particularly improtant:
 
 -   **TrueType** (ttf/ttc). Truetype is the baseline format that all modern formats stand on top of. It was developed by Apple in the '80s and became popular due to its great balance between size and quality. Fonts can be encoded, either as scalable paths, or as bitmaps of various sizes, the former generally being preferred as it allows for seamless scaling and small file size at the same time.
 
--   \*\* OpenType\*\* (otf/otc). OpenType was created by Microsoft and Adobe to improve upon TrueType. While TrueType was a great success, it the number of glyphs it could contain was limited and as was its support for selecting different features during [shaping](#text-shaping). OpenType resolved these issues, so if you want access to advanced typography features you'll need a font in OpenType format.
+-   **OpenType** (otf/otc). OpenType was created by Microsoft and Adobe to improve upon TrueType. While TrueType was a great success, the number of glyphs it could contain was limited and so was its support for selecting different features during [shaping](#text-shaping). OpenType resolved these issues, so if you want access to advanced typography features you'll need a font in OpenType format.
 
--   \*\* Web Open Font Format\*\* (woff/woff2). TrueType and OpenType tend to create large files. Since a large percentage of the text consumed today is delivered over the internet this creates a problem. WOFF resolves this problem by acting as a compression wrapper around TrueType/OpenType to reduce file sizes while also limiting the number of advanced features provided to those relevant to web fonts. The woff2 format is basically identical to woff except it uses the more efficient [brotli](https://en.wikipedia.org/wiki/Brotli) compression algorithm. WOFF was designed specifically to be delivered over the internet and support is still a bit limited outside of browsers.
+-   **Web Open Font Format** (woff/woff2). TrueType and OpenType tend to create large files. Since a large percentage of the text consumed today is delivered over the internet this creates a problem. WOFF resolves this problem by acting as a compression wrapper around TrueType/OpenType to reduce file sizes while also limiting the number of advanced features provided to those relevant to web fonts. The woff2 format is basically identical to woff except it uses the more efficient [brotli](https://en.wikipedia.org/wiki/Brotli) compression algorithm. WOFF was designed specifically to be delivered over the internet and support is still a bit limited outside of browsers.
 
-While we have mainly talked about font files as containers for the shape of glyphs, they also carries a lot of other information needed for rendering text in a way pleasant for reading. Font level information recordsd a lot of stylistic information about typeface/font, statistics on the number of glyphs and how many different mappings between character encodings and glyphs it contains, and overall sizing information such as the maximum descend of the font, the position of an underline relative to the baseline etc. systemfonts provdies a convenient way to access this data from R:
+While we have mainly talked about font files as containers for the shape of glyphs, they also carries a lot of other information needed for rendering text in a way pleasant for reading. Font level information records a lot of stylistic information about typeface/font, statistics on the number of glyphs and how many different mappings between character encodings and glyphs it contains, and overall sizing information such as the maximum descend of the font, the position of an underline relative to the baseline etc. systemfonts provdies a convenient way to access this data from R:
 
 <div class="highlight">
 
@@ -254,9 +254,9 @@ The users perception of working with fonts in R is largely shaped by plots. This
 </tbody>
 </table>
 
-From the table it is clear that in R *fontfamily*/*family* is used to describe the typeface, *font*/*fontface*/*face* is used to select a font from the typeface based on a limited number of styles. Size settings is just a plain mess.
+From the table it is clear that in R `fontfamily`/`family` is used to describe the typeface and `font`/`fontface`/`face` is used to select a font from the typeface. Size settings is just a plain mess.
 
-The major limitation in the *fontface* (and friends) setting is that it takes a number, not a string, and you can only select from four options: `1`: plain, `2`: bold, `3`: italic, and `4`: bold-italic. This means, for example, that there's no way to select Futura Condensed Extra Bold. Another limitation is that it's not possible to specify any font variations such as using tabular numbers or stylistic ligatures.
+The major limitation in `fontface` (and friends) is that it takes a number, not a string, and you can only select from four options: `1`: plain, `2`: bold, `3`: italic, and `4`: bold-italic. This means, for example, that there's no way to select Futura Condensed Extra Bold. Another limitation is that it's not possible to specify any font variations such as using tabular numbers or stylistic ligatures.
 
 ### Fonts and text from a graphics device perspective
 
@@ -279,10 +279,10 @@ There have been a number of efforts to resolve these problems over the years:
 
 -   **systemfonts** and **textshaping**. These packages are developed by me to provide a soup-to-nuts solution to text rendering for graphics devices. [systemfonts](https://systemfonts.r-lib.org) provides access to fonts installed on the system along with font fallback mechanisms, registration of non-system fonts, reading of font files etc. [textshaping](https://github.com/r-lib/textshaping) builds on top of systemfonts and provides a fully modern engine for shaping text. The functionality is exposed both at the R level and at the C level, so that graphics devices can directly access to font lookup and shaping.
 
-We will fosus on systemfonts, because it's designed to give R a fully modern text rendering stack. That unfortunately is impossible to do without coordination with the graphics device, which means that to use all these features you need a supported graphics device. There are currently two options:
+We will fosus on systemfonts, because it's designed to give R a modern text rendering stack. That's unfortunately impossible without coordination with the graphics device, which means that to use all these features you need a supported graphics device. There are currently two options:
 
 -   The [ragg](https://ragg.r-lib.org) package provides graphics devices for rendering raster graphics in a variety of formats (PNG, JPEG, TIFF) and uses systemfonts and textshaping extensively.
--   The [svglite](https://svglite.r-lib.org) package likewise provides a graphic device for rendering vector graphics to SVG using systemfonts and textshaping for text.
+-   The [svglite](https://svglite.r-lib.org) package provides a graphic device for rendering vector graphics to SVG using systemfonts and textshaping for text.
 
 You might notice there's currently a big hole in this workflow: PDFs. This is something we plan to work on in the future.
 
@@ -292,7 +292,7 @@ With all that said, how do you actually use systemfonts to use custom fonts in y
 
 ### Using ragg
 
-While there is no way to unilaterally make [`ragg::agg_png()`](https://ragg.r-lib.org/reference/agg_png.html) everywhere, it's possible to get close:
+While there is no way to unilaterally make [`ragg::agg_png()`](https://ragg.r-lib.org/reference/agg_png.html) the default everywhere, it's possible to get close:
 
 -   Positron: recent versions automatically use ragg for the plot pane if it's installed.
 
@@ -371,20 +371,20 @@ If you want to see all the fonts that are available for use, you can use [`syste
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 571 × 9</span></span></span>
-<span><span class='c'>#&gt;    path                                                                            index name  family style weight width italic monospace</span></span>
-<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                                                                           <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span>    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> /private/var/folders/l4/tvfrd0ps4dqdr2z7kvnl9xh40000gn/T/RtmpdjhErA/Rubik Dist…     0 Rubi… Rubik… Regu… normal norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> /System/Library/Fonts/Supplemental/Rockwell.ttc                                     2 Rock… Rockw… Bold  bold   norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> /System/Library/Fonts/Noteworthy.ttc                                                0 Note… Notew… Light normal norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> /System/Library/Fonts/Supplemental/DevanagariMT.ttc                                 1 Deva… Devan… Bold  bold   norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> /System/Library/Fonts/Supplemental/Kannada Sangam MN.ttc                            0 Kann… Kanna… Regu… normal norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> /System/Library/Fonts/Supplemental/Verdana Bold.ttf                                 0 Verd… Verda… Bold  bold   norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> /System/Library/Fonts/ArialHB.ttc                                                   8 Aria… Arial… Light light  norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> /System/Library/Fonts/AppleSDGothicNeo.ttc                                         10 Appl… Apple… Thin  thin   norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> /System/Library/Fonts/Supplemental/DecoTypeNaskh.ttc                                0 Deco… DecoT… Regu… normal norm… FALSE  FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> /System/Library/Fonts/Supplemental/Trebuchet MS Italic.ttf                          0 Treb… Trebu… Ital… normal norm… TRUE   FALSE    </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 561 more rows</span></span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 570 × 9</span></span></span>
+<span><span class='c'>#&gt;    path                index name  family style weight width italic monospace</span></span>
+<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>               <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;lgl&gt;</span>    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> /System/Library/Fo…     2 Rock… Rockw… Bold  bold   norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> /System/Library/Fo…     0 Note… Notew… Light normal norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> /System/Library/Fo…     1 Deva… Devan… Bold  bold   norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> /System/Library/Fo…     0 Kann… Kanna… Regu… normal norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> /System/Library/Fo…     0 Verd… Verda… Bold  bold   norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> /System/Library/Fo…     8 Aria… Arial… Light light  norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> /System/Library/Fo…    10 Appl… Apple… Thin  thin   norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> /System/Library/Fo…     0 Deco… DecoT… Regu… normal norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> /System/Library/Fo…     0 Treb… Trebu… Ital… normal norm… TRUE   FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> /System/Library/Fo…     0 Khme… Khmer… Regu… normal norm… FALSE  FALSE    </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 560 more rows</span></span></span>
 <span></span></code></pre>
 
 </div>
@@ -460,7 +460,7 @@ And if you want to make sure this code works for anyone using your code (regardl
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>systemfonts</span><span class='nf'>::</span><span class='nf'><a href='https://systemfonts.r-lib.org/reference/require_font.html'>require_font</a></span><span class='o'>(</span><span class='s'>"Rubik Distressed"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; `Rubik Distressed` available at /private/var/folders/l4/tvfrd0ps4dqdr2z7kvnl9xh40000gn/T/RtmpdjhErA</span></span>
+<span><span class='c'>#&gt; Trying Google Fonts... Found! Downloading font to /var/folders/l4/tvfrd0ps4dqdr2z7kvnl9xh40000gn/T//RtmpNyRhGp</span></span>
 <span></span><span></span>
 <span><span class='nf'>grid</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/r/grid/grid.text.html'>grid.text</a></span><span class='o'>(</span></span>
 <span>  <span class='s'>"There are no bad fonts\nonly bad text"</span>,</span>
@@ -475,7 +475,7 @@ By default, `require_font()` places new fonts in a temporary folder so it doesn'
 
 ### Font embedding in SVG
 
-Font work a little differently in vector formats like SVG. These formats include the raw text and only render the font when you open the file. This makes for small, accessible files with crisp text at every every level of zoom. But it comes with a price: since the text is rendered when it's opened, it relies on the font in use being available on the viewer's computer. This obviously puts you at the mercy of their font selection, so if you want consistent outputs you'll need to **embed** the font.
+Fonts work a little differently in vector formats like SVG. These formats include the raw text and only render the font when you open the file. This makes for small, accessible files with crisp text at every every level of zoom. But it comes with a price: since the text is rendered when it's opened, it relies on the font in use being available on the viewer's computer. This obviously puts you at the mercy of their font selection, so if you want consistent outputs you'll need to **embed** the font.
 
 In SVG, you can embed fonts using an `@import` statement in the stylesheet, and can point to a web resource so the SVG doesn't need to contain the entire font. systemfonts provides facilities to generate URLs for import statements and can provide them in a variety of formats:
 
@@ -560,4 +560,6 @@ This document has mainly focused on how to use the fonts you desire from within 
 <img src="figs/unnamed-chunk-20-1.png" width="700px" style="display: block; margin: auto;" />
 
 </div>
+
+[^1]: Be aware that the style name is at the discretion of the developer of the typeface. It is very common to see discrepancies between the style name and e.g. the weight reported by the font (e.g. Avenir Next Ultra Light is a *thin* weight font).
 

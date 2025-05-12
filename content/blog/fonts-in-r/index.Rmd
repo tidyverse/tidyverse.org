@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: fonts-in-r
 title: Fonts in R
-date: 2025-05-07
+date: 2025-05-12
 author: Thomas Lin Pedersen
 description: >
     Taking control of fonts and text rendering in R can be challenging. This
@@ -127,7 +127,7 @@ It took a considerable number of tries before the world managed to nail the digi
 
 -   **TrueType** (ttf/ttc). Truetype is the baseline format that all modern formats stand on top of. It was developed by Apple in the '80s and became popular due to its great balance between size and quality. Fonts can be encoded, either as scalable paths, or as bitmaps of various sizes, the former generally being preferred as it allows for seamless scaling and small file size at the same time.
 
--   **OpenType** (otf/otc). OpenType was created by Microsoft and Adobe to improve upon TrueType. While TrueType was a great success, it the number of glyphs it could contain was limited and as was its support for selecting different features during [shaping](#text-shaping). OpenType resolved these issues, so if you want access to advanced typography features you'll need a font in OpenType format.
+-   **OpenType** (otf/otc). OpenType was created by Microsoft and Adobe to improve upon TrueType. While TrueType was a great success, the number of glyphs it could contain was limited and so was its support for selecting different features during [shaping](#text-shaping). OpenType resolved these issues, so if you want access to advanced typography features you'll need a font in OpenType format.
 
 -   **Web Open Font Format** (woff/woff2). TrueType and OpenType tend to create large files. Since a large percentage of the text consumed today is delivered over the internet this creates a problem. WOFF resolves this problem by acting as a compression wrapper around TrueType/OpenType to reduce file sizes while also limiting the number of advanced features provided to those relevant to web fonts. The woff2 format is basically identical to woff except it uses the more efficient [brotli](https://en.wikipedia.org/wiki/Brotli) compression algorithm. WOFF was designed specifically to be delivered over the internet and support is still a bit limited outside of browsers.
 
@@ -231,7 +231,7 @@ With all that said, how do you actually use systemfonts to use custom fonts in y
 
 ### Using ragg
 
-While there is no way to unilaterally make `ragg::agg_png()` everywhere, it's possible to get close:
+While there is no way to unilaterally make `ragg::agg_png()` the default everywhere, it's possible to get close:
 
 -   Positron: recent versions automatically use ragg for the plot pane if it's installed.
 
@@ -369,7 +369,7 @@ By default, `require_font()` places new fonts in a temporary folder so it doesn'
 
 ### Font embedding in SVG
 
-Font work a little differently in vector formats like SVG. These formats include the raw text and only render the font when you open the file. This makes for small, accessible files with crisp text at every every level of zoom. But it comes with a price: since the text is rendered when it's opened, it relies on the font in use being available on the viewer's computer. This obviously puts you at the mercy of their font selection, so if you want consistent outputs you'll need to **embed** the font.
+Fonts work a little differently in vector formats like SVG. These formats include the raw text and only render the font when you open the file. This makes for small, accessible files with crisp text at every every level of zoom. But it comes with a price: since the text is rendered when it's opened, it relies on the font in use being available on the viewer's computer. This obviously puts you at the mercy of their font selection, so if you want consistent outputs you'll need to **embed** the font.
 
 In SVG, you can embed fonts using an `@import` statement in the stylesheet, and can point to a web resource so the SVG doesn't need to contain the entire font. systemfonts provides facilities to generate URLs for import statements and can provide them in a variety of formats:
 
