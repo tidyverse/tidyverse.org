@@ -1,0 +1,208 @@
+---
+output: hugodown::hugo_document
+
+slug: scales-1-4-0
+title: scales 1.4.0
+date: 2025-04-23
+author: Teun van den Brand
+description: >
+    The new 1.4.0 release of the scales package adds some colourful updates.
+    Read about colour manipulation, palettes and new label functions.
+
+photo:
+  url: https://unsplash.com/photos/a-close-up-of-a-person-holding-a-paintbrush-Xrelr7cTYm4
+  author: Jennie Razumnaya
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [scales]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're stoked to announce the release of [scales](https://scales.r-lib.org/) 1.4.0. 
+scales is a package that provides much of the scaling logic that is used in ggplot2 to a general framework, along with utility functions for e.g. formatting labels or creating colour palettes.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("scales")
+```
+
+This blog post will give an overview of the 1.4.0 release, which has some nifty upgrades for working with colours and labels.
+
+You can see a full list of changes in the [release notes](https://scales.r-lib.org/news/index.html)
+
+```{r setup}
+library(scales)
+```
+
+```{r ragg, include=FALSE}
+knitr::opts_chunk$set(dev = "ragg_png")
+```
+
+## Colour manipulation
+
+The `alpha()` and `muted()` functions have been part of scales for a long time. 
+Back in the 1.1.0 release we swapped to [farver](https://farver.data-imaginist.com/) to power these functions.
+We felt it was appropriate to use this package for other common colour tasks, and so `col_shift()`, `col_lighter()`, `col_darker()`, `col_saturate()` and `col_mix()` were born.
+
+```{r}
+my_colours <- c("red", "green", "blue")
+
+m <- rbind(
+  original = my_colours,
+  shift    = col_shift(my_colours, 90),
+  lighter  = col_lighter(my_colours, 20),
+  darker   = col_darker(my_colours, 20),
+  duller   = col_saturate(my_colours, -50),
+  mixed    = col_mix(my_colours, "orchid")
+)
+
+show_col(t(m), ncol = ncol(m))
+text(x = ncol(m) + 0.25, y = -(1:nrow(m)) + 0.5, rownames(m), adj = 0)
+```
+
+## Palettes
+
+Palettes have also been reworked in this release to include some useful properties.
+Palettes now come in one of two classes: 'pal_discrete' or 'pal_continuous'.
+
+```{r}
+my_palette <- manual_pal(c("palegreen", "deepskyblue", "magenta"))
+class(my_palette)
+```
+
+Having palettes as a class rather than as plain functions, allows us to store useful metadata about the palette which can be used downstream.
+In addition, most colour palette functions also allow the aforementioned colour manipulation functions to work on the palette output.
+
+```{r}
+palette_type(my_palette)
+
+palette_nlevels(my_palette)
+
+col_shift(my_palette, 180)(3)
+```
+
+With the new setup it is now possible to expand discrete palettes to continuous palettes with `as_continuous_pal()` or vise versa to chop up continuous palettes into discrete palettes with `as_discrete_pal()`.
+
+```{r}
+plot(as_continuous_pal(my_palette))
+```
+
+Another quality of life improvement for palettes, is that the 'scales' package now keeps track of some named palettes.
+By default, the collection of 'known' palettes is pre-populated with colour palettes from the grDevices, RColorBrewer and viridisLite packages.
+
+
+```{r}
+as_discrete_pal("Okabe-Ito")(8)
+```
+
+### Providing palettes as package
+
+For those that are interested in developing R packages with palettes, there are a few recommendations we make in `?palette-recommendations` to smoothly interface with the scales package.
+
+If your palettes are vectors of colour values, we recommend simply exporting the naked vector.
+
+```{r}
+#' @export
+aurora <- c("palegreen", "deepskyblue", "magenta")
+```
+
+That way, they can easily be accessed and used in `as_discrete_pal()` and `as_continuous_pal()`.
+
+```{r, results='hide'}
+as_continuous_pal(aurora)
+as_discrete_pal(aurora)
+```
+
+Alternatively, if you have functions that generate colours that is not predefined, we recommend wrapping the function in `new_discrete_palette()` and `new_continuous_palette()`. For predefined palettes, you can also use `pal_manual()` or `pal_gradient_n()`.
+
+```{r}
+pal_random <- function() {
+  fun <- function(n) {
+    sample(colours(distinct = TRUE), size = n, replace = TRUE)
+  }
+  new_discrete_palette(fun, type = "colour", nlevels = length(colours()))
+}
+```
+
+Populating the metadata in `new_discrete_palette()`/`new_continuous_palette()` helps to make converting between palette types less painful.
+
+```{r, results='hide'}
+as_continuous_pal(pal_random())
+as_discrete_pal(pal_random())
+```
+
+
+
+## Labels
+
+This release also provides improvements to labelling in the form of two new labelling functions and two new convenience functions for labels.
+In contrast to most of scales' label functions, these label functions are great for discrete input.
+First up is `label_glue()`, which uses the string interpolation from the glue package to format your labels.
+
+```{r}
+label_glue("The {x} penguin")(c("Gentoo", "Chinstrap", "Adelie"))
+```
+
+The other labelling function, `label_dictionary()`, is convenient when some variable you use consists of short-codes or abbreviations.
+You can provide `label_dictionary()` with a named vector that translates the values to prettier labels.
+If one or more of your values doesn't exist in the dictionary, they stay as-is by default.
+
+```{r}
+dict <- c(
+  diy = "Do it yourself", eta = "Estimated time of arrival",
+  asap = "As soon as possible", tldr = "Too long; didn't read"
+)
+label_dictionary(dict)(c("diy", "tldr", "bff"))
+```
+
+`compose_label()` is a useful convenience function we've added which will help you to create custom labelling behaviour without needing to write a labelling function from scratch.
+Similar to `compose_trans()`, it allows you to chain together different labelling functions.
+
+```{r}
+screaming_flowers <- compose_label(label_glue("The {x} flower"), toupper)
+screaming_flowers(c("daffodil", "orchid", "tulip"))
+```
+Lastly, we haven't completely forgotton about numeric labels either.
+We have introduced the `number_options()` functions to globally populate defaults for functions such as `label_number()` and `label_currency()`.
+This can be convenient if you produce statistical reports in non-English languages.
+
+```{r}
+number_options(
+  decimal.mark = ",",
+  big.mark = ".",
+  style_negative = "minus",
+  currency.prefix = "",
+  currency.suffix = "€",
+  currency.decimal.mark = ",",
+  currency.big.mark = " ",
+  ordinal.rules = ordinal_french()
+)
+
+label_currency(accuracy = 0.01)(c(0.1, 10, 1000000, -1000))
+
+label_ordinal()(1:4)
+```
+
+
+
+## Acknowledgements
+
+We'd like to thank all people who have contributed in some way, whether it was filing issues, participating in discussion or contributing to code and documentation:
+
+[&#x0040;Aariq](https://github.com/Aariq), [&#x0040;Aehmlo](https://github.com/Aehmlo), [&#x0040;Ali-Hudson](https://github.com/Ali-Hudson), [&#x0040;cb12991](https://github.com/cb12991), [&#x0040;colindouglas](https://github.com/colindouglas), [&#x0040;d-morrison](https://github.com/d-morrison), [&#x0040;davidhodge931](https://github.com/davidhodge931), [&#x0040;EricMarcon](https://github.com/EricMarcon), [&#x0040;kellijohnson-NOAA](https://github.com/kellijohnson-NOAA), [&#x0040;kmcd39](https://github.com/kmcd39), [&#x0040;lz1nwm](https://github.com/lz1nwm), [&#x0040;mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [&#x0040;mjskay](https://github.com/mjskay), [&#x0040;Moohan](https://github.com/Moohan), [&#x0040;muschellij2](https://github.com/muschellij2), [&#x0040;ppreshant](https://github.com/ppreshant), [&#x0040;rawktheuniversemon](https://github.com/rawktheuniversemon), [&#x0040;rogiersbart](https://github.com/rogiersbart), [&#x0040;SchmidtPaul](https://github.com/SchmidtPaul), [&#x0040;teunbrand](https://github.com/teunbrand), and [&#x0040;thomasp85](https://github.com/thomasp85).
+
+
