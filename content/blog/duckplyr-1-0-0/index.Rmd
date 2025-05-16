@@ -1,12 +1,12 @@
 ---
 output: hugodown::hugo_document
 
-slug: duckplyr-1-0-0
+slug: duckplyr-1-1-0
 title: duckplyr fully joins the tidyverse!
-date: 2025-02-13
+date: 2025-05-16
 author: Kirill Müller and Maëlle Salmon
 description: >
-    duckplyr 1.0.0 is on CRAN and part of the tidyverse!
+    duckplyr 1.1.0 is on CRAN!
     A drop-in replacement for dplyr, powered by DuckDB for speed.
     It is the most dplyr-like of dplyr backends.
 
@@ -31,7 +31,7 @@ options(
 ```
 
 
-We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0.
+We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.1.0.
 This is a new dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^duckdb].
 It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org).
 You can install it from CRAN with:
@@ -211,6 +211,22 @@ With datasets that approach or surpass the size of your machine's RAM, you want:
 
 This workflow is fully supported by duckplyr.
 See [`vignette("large")`](https://duckplyr.tidyverse.org/articles/large.html) for a walkthrough and more details.
+
+For your existing dbplyr code, the new `as_tbl()` function allows you to convert a duckplyr tibble to a dbplyr lazy table.
+This allows you to seamlessly interact with existing code that might use inline SQL or other dbplyr functionality.
+With `as_duckdb_tibble()`, you can convert a dbplyr lazy table to a duckplyr tibble.
+Both operations work without intermediate materialization.
+
+Another way to leverage the potential of DuckDB is the new `dd$` qualifier.
+Functions with this prefix will not be translated at all and passed through directly to DuckDB.
+For example:
+
+```{r}
+duckdb_tibble(a = "dbplyr", b = "duckplyr") %>%
+  mutate(c = dd$damerau_levenshtein(a, b))
+```
+
+See the new [`vignette("duckdb")`](https://duckplyr.tidyverse.org/articles/duckdb.html) for more information on these features.
 
 ## Help us improve duckplyr!
 

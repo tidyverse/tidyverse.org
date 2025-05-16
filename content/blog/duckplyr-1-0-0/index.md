@@ -1,12 +1,12 @@
 ---
 output: hugodown::hugo_document
 
-slug: duckplyr-1-0-0
+slug: duckplyr-1-1-0
 title: duckplyr fully joins the tidyverse!
-date: 2025-02-13
+date: 2025-05-16
 author: Kirill Müller and Maëlle Salmon
 description: >
-    duckplyr 1.0.0 is on CRAN and part of the tidyverse!
+    duckplyr 1.1.0 is on CRAN!
     A drop-in replacement for dplyr, powered by DuckDB for speed.
     It is the most dplyr-like of dplyr backends.
 
@@ -20,11 +20,11 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: 57d25fe64e482d20
+rmd_hash: 8e189242d8daf867
 
 ---
 
-We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.0.0. This is a new dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^1]. It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org). You can install it from CRAN with:
+We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.1.0. This is a new dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^1]. It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org). You can install it from CRAN with:
 
 <div class="highlight">
 
@@ -32,7 +32,7 @@ We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyve
 
 </div>
 
-This article shows how duckplyr can be used instead of dplyr with data of different size for faster computation, explain how you can help improve the package, and share a selection of further resources.
+This article shows how duckplyr can be used instead of dplyr with data of different size for faster computation, interact with existing code, explain how you can help improve the package, and share a selection of further resources.
 
 ## A drop-in replacement for dplyr
 
@@ -45,22 +45,22 @@ Imagine you have to wrangle a huge dataset. Here we generate one using the [data
 <span><span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://pillar.r-lib.org/reference/glimpse.html'>glimpse</a></span><span class='o'>(</span><span class='nv'>lineitem_tbl</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Rows: 6,001,215</span></span>
 <span><span class='c'>#&gt; Columns: 16</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_orderkey     </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 3, 3, 3, 4, 5, 5, 5, 6, …</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_partkey      </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 155190, 67310, 63700, 2132, 24027, 15635, 106170, 4297…</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_suppkey      </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 7706, 7311, 3701, 4633, 1534, 638, 1191, 1798, 6540, 3…</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_linenumber   </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 1, 2, 3, 4, 5, 6, 1, 1, 2, 3, 4, 5, 6, 1, 1, 2, 3, 1, …</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_quantity     </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 17, 36, 8, 28, 24, 32, 38, 45, 49, 27, 2, 28, 26, 30, …</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_extendedprice</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 21168.23, 45983.16, 13309.60, 28955.64, 22824.48, 4962…</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_discount     </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 0.04, 0.09, 0.10, 0.09, 0.10, 0.07, 0.00, 0.06, 0.10, …</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_tax          </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 0.02, 0.06, 0.02, 0.06, 0.04, 0.02, 0.05, 0.00, 0.00, …</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_returnflag   </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "N", "N", "N", "N", "N", "N", "N", "R", "R", "A", "A",…</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_linestatus   </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "O", "O", "O", "O", "O", "O", "O", "F", "F", "F", "F",…</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_shipdate     </span> <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span> 1996-03-13, 1996-04-12, 1996-01-29, 1996-04-21, 1996-…</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_commitdate   </span> <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span> 1996-02-12, 1996-02-28, 1996-03-05, 1996-03-30, 1996-…</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_receiptdate  </span> <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span> 1996-03-22, 1996-04-20, 1996-01-31, 1996-05-16, 1996-…</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_shipinstruct </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "DELIVER IN PERSON", "TAKE BACK RETURN", "TAKE BACK RE…</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_shipmode     </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "TRUCK", "MAIL", "REG AIR", "AIR", "FOB", "MAIL", "RAI…</span></span>
-<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_comment      </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "to beans x-ray carefull", " according to the final fo…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_orderkey     </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 1<span style='color: #555555;'>, </span>1<span style='color: #555555;'>, </span>1<span style='color: #555555;'>, </span>1<span style='color: #555555;'>, </span>1<span style='color: #555555;'>, </span>1<span style='color: #555555;'>, </span>2<span style='color: #555555;'>, </span>3<span style='color: #555555;'>, </span>3<span style='color: #555555;'>, </span>3<span style='color: #555555;'>, </span>3<span style='color: #555555;'>, </span>3<span style='color: #555555;'>, </span>3<span style='color: #555555;'>, </span>4<span style='color: #555555;'>, </span>5<span style='color: #555555;'>, </span>5<span style='color: #555555;'>, </span>5<span style='color: #555555;'>, </span>6<span style='color: #555555;'>, </span>…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_partkey      </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 155190<span style='color: #555555;'>, </span>67310<span style='color: #555555;'>, </span>63700<span style='color: #555555;'>, </span>2132<span style='color: #555555;'>, </span>24027<span style='color: #555555;'>, </span>15635<span style='color: #555555;'>, </span>106170<span style='color: #555555;'>, </span>4297…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_suppkey      </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 7706<span style='color: #555555;'>, </span>7311<span style='color: #555555;'>, </span>3701<span style='color: #555555;'>, </span>4633<span style='color: #555555;'>, </span>1534<span style='color: #555555;'>, </span>638<span style='color: #555555;'>, </span>1191<span style='color: #555555;'>, </span>1798<span style='color: #555555;'>, </span>6540<span style='color: #555555;'>, </span>3…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_linenumber   </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 1<span style='color: #555555;'>, </span>2<span style='color: #555555;'>, </span>3<span style='color: #555555;'>, </span>4<span style='color: #555555;'>, </span>5<span style='color: #555555;'>, </span>6<span style='color: #555555;'>, </span>1<span style='color: #555555;'>, </span>1<span style='color: #555555;'>, </span>2<span style='color: #555555;'>, </span>3<span style='color: #555555;'>, </span>4<span style='color: #555555;'>, </span>5<span style='color: #555555;'>, </span>6<span style='color: #555555;'>, </span>1<span style='color: #555555;'>, </span>1<span style='color: #555555;'>, </span>2<span style='color: #555555;'>, </span>3<span style='color: #555555;'>, </span>1<span style='color: #555555;'>, </span>…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_quantity     </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 17<span style='color: #555555;'>, </span>36<span style='color: #555555;'>, </span>8<span style='color: #555555;'>, </span>28<span style='color: #555555;'>, </span>24<span style='color: #555555;'>, </span>32<span style='color: #555555;'>, </span>38<span style='color: #555555;'>, </span>45<span style='color: #555555;'>, </span>49<span style='color: #555555;'>, </span>27<span style='color: #555555;'>, </span>2<span style='color: #555555;'>, </span>28<span style='color: #555555;'>, </span>26<span style='color: #555555;'>, </span>30<span style='color: #555555;'>, </span>…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_extendedprice</span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 21168.23<span style='color: #555555;'>, </span>45983.16<span style='color: #555555;'>, </span>13309.60<span style='color: #555555;'>, </span>28955.64<span style='color: #555555;'>, </span>22824.48<span style='color: #555555;'>, </span>4962…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_discount     </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 0.04<span style='color: #555555;'>, </span>0.09<span style='color: #555555;'>, </span>0.10<span style='color: #555555;'>, </span>0.09<span style='color: #555555;'>, </span>0.10<span style='color: #555555;'>, </span>0.07<span style='color: #555555;'>, </span>0.00<span style='color: #555555;'>, </span>0.06<span style='color: #555555;'>, </span>0.10<span style='color: #555555;'>, </span>…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_tax          </span> <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> 0.02<span style='color: #555555;'>, </span>0.06<span style='color: #555555;'>, </span>0.02<span style='color: #555555;'>, </span>0.06<span style='color: #555555;'>, </span>0.04<span style='color: #555555;'>, </span>0.02<span style='color: #555555;'>, </span>0.05<span style='color: #555555;'>, </span>0.00<span style='color: #555555;'>, </span>0.00<span style='color: #555555;'>, </span>…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_returnflag   </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "N"<span style='color: #555555;'>, </span>"N"<span style='color: #555555;'>, </span>"N"<span style='color: #555555;'>, </span>"N"<span style='color: #555555;'>, </span>"N"<span style='color: #555555;'>, </span>"N"<span style='color: #555555;'>, </span>"N"<span style='color: #555555;'>, </span>"R"<span style='color: #555555;'>, </span>"R"<span style='color: #555555;'>, </span>"A"<span style='color: #555555;'>, </span>"A"<span style='color: #555555;'>,</span>…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_linestatus   </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "O"<span style='color: #555555;'>, </span>"O"<span style='color: #555555;'>, </span>"O"<span style='color: #555555;'>, </span>"O"<span style='color: #555555;'>, </span>"O"<span style='color: #555555;'>, </span>"O"<span style='color: #555555;'>, </span>"O"<span style='color: #555555;'>, </span>"F"<span style='color: #555555;'>, </span>"F"<span style='color: #555555;'>, </span>"F"<span style='color: #555555;'>, </span>"F"<span style='color: #555555;'>,</span>…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_shipdate     </span> <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span> 1996-03-13<span style='color: #555555;'>, </span>1996-04-12<span style='color: #555555;'>, </span>1996-01-29<span style='color: #555555;'>, </span>1996-04-21<span style='color: #555555;'>, </span>1996-…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_commitdate   </span> <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span> 1996-02-12<span style='color: #555555;'>, </span>1996-02-28<span style='color: #555555;'>, </span>1996-03-05<span style='color: #555555;'>, </span>1996-03-30<span style='color: #555555;'>, </span>1996-…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_receiptdate  </span> <span style='color: #555555; font-style: italic;'>&lt;date&gt;</span> 1996-03-22<span style='color: #555555;'>, </span>1996-04-20<span style='color: #555555;'>, </span>1996-01-31<span style='color: #555555;'>, </span>1996-05-16<span style='color: #555555;'>, </span>1996-…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_shipinstruct </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "DELIVER IN PERSON"<span style='color: #555555;'>, </span>"TAKE BACK RETURN"<span style='color: #555555;'>, </span>"TAKE BACK RE…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_shipmode     </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "TRUCK"<span style='color: #555555;'>, </span>"MAIL"<span style='color: #555555;'>, </span>"REG AIR"<span style='color: #555555;'>, </span>"AIR"<span style='color: #555555;'>, </span>"FOB"<span style='color: #555555;'>, </span>"MAIL"<span style='color: #555555;'>, </span>"RAI…</span></span>
+<span><span class='c'>#&gt; $ <span style='font-weight: bold;'>l_comment      </span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "to beans x-ray carefull"<span style='color: #555555;'>, </span>" according to the final fo…</span></span>
 <span></span></code></pre>
 
 </div>
@@ -119,7 +119,7 @@ To *replace* dplyr with duckplyr, you can:
 
 -   Load duckplyr and then keep your pipeline as is. Calling [`library(duckplyr)`](https://duckplyr.tidyverse.org) overwrites dplyr methods, enabling duckplyr for the entire session no matter how data.frames are created. This is shown in the example above.
 
--   Create individual "duck frames" using *conversion functions* like [`duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html) or [`as_duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html), or *ingestion functions* like [`read_csv_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html).
+-   Create individual "duck frames" using *conversion functions* like [`duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html) or [`as_duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html), or *ingestion functions* like [`read_csv_duckdb()`](https://duckplyr.tidyverse.org/reference/read_csv_duckdb.html).
 
 In both cases, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline, with the exact same semantics. The duckplyr package performs the computation using DuckDB.
 
@@ -173,7 +173,7 @@ The result could also be computed to a file.
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 4 more variables: </span><span style='color: #555555; font-weight: bold;'>avg_qty</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>avg_price</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>avg_disc</span><span style='color: #555555;'> &lt;dbl&gt;,</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>#   </span><span style='color: #555555; font-weight: bold;'>count_order</span><span style='color: #555555;'> &lt;dbl&gt;</span></span></span>
 <span></span><span><span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; 651</span></span>
+<span><span class='c'>#&gt; 644</span></span>
 <span></span></code></pre>
 
 </div>
@@ -248,8 +248,8 @@ And now we compare the two:
 <span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 6</span></span></span>
 <span><span class='c'>#&gt;   <span style='font-weight: bold;'>expression</span>                       <span style='font-weight: bold;'>min</span>   <span style='font-weight: bold;'>median</span> <span style='font-weight: bold;'>`itr/sec`</span> <span style='font-weight: bold;'>mem_alloc</span> <span style='font-weight: bold;'>`gc/sec`</span></span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>                  <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:byt&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem_tbl)     834.3ms    834ms      1.20    1.25GB     2.40</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem_tbl)   87.2ms     88ms     11.3    18.86KB     0</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem_tbl)        1.1s     1.1s     0.913    1.25GB     2.74</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem_tbl)  103.5ms  107.1ms     9.24   315.12KB     0</span></span>
 <span></span></code></pre>
 
 </div>
@@ -260,12 +260,30 @@ In this example, the pipeline run with duckplyr is clearly faster than the pipel
 
 With datasets that approach or surpass the size of your machine's RAM, you want:
 
--   input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like [`read_parquet_duckdb()`](https://duckplyr.tidyverse.org/reference/read_file_duckdb.html);
+-   input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like [`read_parquet_duckdb()`](https://duckplyr.tidyverse.org/reference/read_parquet_duckdb.html);
 -   efficient computation, which duckplyr provides via DuckDB's holistic optimization, without having to adapt your code;
 -   large results to not clutter your memory by dumping them to files using [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_parquet.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_csv.html);
 -   small results processed seamlessly with dplyr, using all verbs and functions.
 
 This workflow is fully supported by duckplyr. See [`vignette("large")`](https://duckplyr.tidyverse.org/articles/large.html) for a walkthrough and more details.
+
+For your existing dbplyr code, the new [`as_tbl()`](https://duckplyr.tidyverse.org/reference/as_tbl.html) function allows you to convert a duckplyr tibble to a dbplyr lazy table. This allows you to seamlessly interact with existing code that might use inline SQL or other dbplyr functionality. With [`as_duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html), you can convert a dbplyr lazy table to a duckplyr tibble. Both operations work without intermediate materialization.
+
+Another way to leverage the potential of DuckDB is the new `dd$` qualifier. Functions with this prefix will not be translated at all and passed through directly to DuckDB. For example:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>duckdb_tibble</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='s'>"dbplyr"</span>, b <span class='o'>=</span> <span class='s'>"duckplyr"</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>c <span class='o'>=</span> <span class='nv'>dd</span><span class='o'>$</span><span class='nf'>damerau_levenshtein</span><span class='o'>(</span><span class='nv'>a</span>, <span class='nv'>b</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A duckplyr data frame: 3 variables</span></span></span>
+<span><span class='c'>#&gt;   <span style='font-weight: bold;'>a</span>      <span style='font-weight: bold;'>b</span>            <span style='font-weight: bold;'>c</span></span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dbplyr duckplyr     3</span></span>
+<span></span></code></pre>
+
+</div>
+
+See the new [`vignette("duckdb")`](https://duckplyr.tidyverse.org/articles/duckdb.html) for more information on these features.
 
 ## Help us improve duckplyr!
 
