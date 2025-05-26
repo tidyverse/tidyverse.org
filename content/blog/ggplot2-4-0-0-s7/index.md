@@ -11,13 +11,13 @@ description: >
     how these might affect downstream packages.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/silhouette-of-person-standing-on-grass-field-during-sunset-Fr33DHTpLZk
+  author: Inhyeok Park
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, s7, package maintenance]
-rmd_hash: efd5c45c8f4f49e5
+rmd_hash: 8e08128ee559474a
 
 ---
 
@@ -26,10 +26,10 @@ TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
 * [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [ ] Add intro sentence, e.g. the standard tagline for the package
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
@@ -83,7 +83,7 @@ The ggplot2 package uses a mixture of object oriented programming systems. One o
 
 In prior incarnations, ggplot2 defined the ggplot class as a named list with the `"ggplot"` class attribute. Classes in S7 are more formal than in S3 and have properties which can have restricted classes. For example, in the ggplot class, the `data` property can be anything (because it will go through [`fortify()`](https://ggplot2.tidyverse.org/reference/fortify.html) to become a data frame), the `facet` property must be the `Facet` ggproto class, and the `theme` property must be an S7 theme object.
 
-In contrast to S3, we cannot simply add new items to `ggplot` object [^1]. The way to add additional information to classes in S7 is to make a subclass with additional properties. For example, if we want to add for example colour information to a new plot, we can do the following:
+In contrast to S3, we cannot simply add new items to `ggplot` object [^1]. The way to add additional information to classes in S7 is to make a subclass with additional properties. For example, if we want to add colour information to a new plot, we can do the following:
 
 <div class="highlight">
 
@@ -92,6 +92,7 @@ In contrast to S3, we cannot simply add new items to `ggplot` object [^1]. The w
 <span>  parent <span class='o'>=</span> <span class='nv'>class_ggplot</span>, </span>
 <span>  properties <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>ink <span class='o'>=</span> <span class='nf'>S7</span><span class='nf'>::</span><span class='nv'><a href='https://rconsortium.github.io/S7/reference/base_classes.html'>class_character</a></span><span class='o'>)</span></span>
 <span><span class='o'>)</span></span>
+<span></span>
 <span><span class='nv'>inked_ggplot</span></span>
 <span><span class='c'>#&gt; &lt;inked_ggplot&gt; class</span></span>
 <span><span class='c'>#&gt; @ parent     : &lt;ggplot2::ggplot&gt;</span></span>
@@ -137,7 +138,7 @@ In contrast to S3, where you would change list-items by using `$`, in S7 you can
 
 ### Testing
 
-In S3, the recommended way to test for the class of an object is to use a testing function. For example [`is.factor()`](https://rdrr.io/r/base/factor.html); and if such a testing function doesn't exist: use [`inherits()`](https://rdrr.io/r/base/class.html). In S7, it is still recommended to use dedicating testing functions, but if these are absent, you can use [`S7::S7_inherits()`](https://rconsortium.github.io/S7/reference/S7_inherits.html). If we wanted to write a testing function for our new class, we can do that as follows:
+In S3, the recommended way to test for the class of an object is to use a testing function. For example [`is.factor()`](https://rdrr.io/r/base/factor.html); and if such a testing function doesn't exist: use [`inherits()`](https://rdrr.io/r/base/class.html). In S7, it is still recommended to use dedicating testing functions. However, if these are absent, you can use [`S7::S7_inherits()`](https://rconsortium.github.io/S7/reference/S7_inherits.html). If we wanted to write a testing function for our new class, we can do that as follows:
 
 <div class="highlight">
 
@@ -179,7 +180,7 @@ To give an overview of ggplot2's S7 classes, we include the table below. The tab
 
 ### Testing
 
-It should be noted that the `is_*()` testing already know about the S7-ness of the new classes. This is handy when it comes to test expectations, because the testing function can be used instead of the S3/S7 class expectations. Previously, you might have used [`testthat::expect_s3_class()`](https://testthat.r-lib.org/reference/inheritance-expectations.html), but it is better now to test with [`testthat::expect_s7_class()`](https://testthat.r-lib.org/reference/inheritance-expectations.html) or use an `is_*()` function instead.
+It should be noted that the `is_*()` testing functions in ggplot2 already know about the S7-ness of the new classes. This is handy when it comes to test expectations, because the testing function can be used instead of the S3/S7 class expectations. Previously, you might have used [`testthat::expect_s3_class()`](https://testthat.r-lib.org/reference/inheritance-expectations.html), but it is better now to test with [`testthat::expect_s7_class()`](https://testthat.r-lib.org/reference/inheritance-expectations.html) or use an `is_*()` function instead.
 
 <div class="highlight">
 
@@ -199,12 +200,12 @@ It should be noted that the `is_*()` testing already know about the S7-ness of t
 <span>    <span class='nf'>testthat</span><span class='nf'>::</span><span class='nf'><a href='https://testthat.r-lib.org/reference/inheritance-expectations.html'>expect_s7_class</a></span><span class='o'>(</span><span class='nv'>plot</span>, <span class='nv'>class_ggplot</span><span class='o'>)</span></span>
 <span>  <span class='o'>&#125;</span></span>
 <span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>Test passed</span> 😸</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>Test passed</span> 🥇</span></span>
 <span></span></code></pre>
 
 </div>
 
-The ggplot2 package manually appends the `"ggplot"` class for backwards compatibility reasons (likewise for `"theme"`). However once this phases out, the [`testthat::expect_s3_class()`](https://testthat.r-lib.org/reference/inheritance-expectations.html) expectation will become untenable. It is also currently flawed, as it does not work for subclasses!
+The ggplot2 package manually appends the `"ggplot"` class for backwards compatibility reasons (likewise for `"theme"`). However, once this phases out, the [`testthat::expect_s3_class()`](https://testthat.r-lib.org/reference/inheritance-expectations.html) expectation will become untenable. It is also currently flawed, as it does not work for subclasses!
 
 <div class="highlight">
 
@@ -260,7 +261,7 @@ To allow for a smoother transition from S3 to S7, we plan to keep S3 generics ar
 |:--------------|:--------------|:------------------------------------------|
 | [`ggplot_add()`](https://ggplot2.tidyverse.org/reference/update_ggplot.html) | [`update_ggplot()`](https://ggplot2.tidyverse.org/reference/update_ggplot.html) | Determines what happens when you `+` an object to a plot. |
 | [`ggplot_build()`](https://ggplot2.tidyverse.org/reference/build_ggplot.html) | [`build_ggplot()`](https://ggplot2.tidyverse.org/reference/build_ggplot.html) | Processes data for display in a plot. |
-| [`ggplot_gtable()`](https://ggplot2.tidyverse.org/reference/gtable_ggplot.html) | [`gtable_ggplot()`](https://ggplot2.tidyverse.org/reference/gtable_ggplot.html) | Renders a processed plot plot to a gtable object. |
+| [`ggplot_gtable()`](https://ggplot2.tidyverse.org/reference/gtable_ggplot.html) | [`gtable_ggplot()`](https://ggplot2.tidyverse.org/reference/gtable_ggplot.html) | Renders a processed plot to a gtable object. |
 | [`element_grob()`](https://ggplot2.tidyverse.org/reference/draw_element.html) | [`draw_element()`](https://ggplot2.tidyverse.org/reference/draw_element.html) | Renders a theme element. |
 
 </div>
