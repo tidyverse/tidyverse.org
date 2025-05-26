@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, s7, package maintenance]
-rmd_hash: 8e08128ee559474a
+rmd_hash: 0c606e7113efea7f
 
 ---
 
@@ -200,7 +200,7 @@ It should be noted that the `is_*()` testing functions in ggplot2 already know a
 <span>    <span class='nf'>testthat</span><span class='nf'>::</span><span class='nf'><a href='https://testthat.r-lib.org/reference/inheritance-expectations.html'>expect_s7_class</a></span><span class='o'>(</span><span class='nv'>plot</span>, <span class='nv'>class_ggplot</span><span class='o'>)</span></span>
 <span>  <span class='o'>&#125;</span></span>
 <span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>Test passed</span> 🥇</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>Test passed</span> 🎉</span></span>
 <span></span></code></pre>
 
 </div>
@@ -232,7 +232,11 @@ If you are new to object oriented programming in R, you might be unfamiliar what
 
 ### Your methods for ggplot's generics
 
-The ggplot2 package also declares some generic functions and contains methods for these, most of which revolve around plot construction. The migration to S7 means that the generics and methods defined by ggplot2 also migrate. While it is possible to define S7 methods for S3 generics, it is not possible to define S3 methods for S7 generics.
+The ggplot2 package also declares some generic functions and contains methods for these, most of which revolve around plot construction. The migration to S7 means that the generics and methods defined by ggplot2 also migrate.
+
+It is also good to mention that when your package registers a method for one of ggplot2's generics, ggplot2's generic is called an 'external generic' from the point of view of your package. With S7, you should include [`S7::methods_register()`](https://rconsortium.github.io/S7/reference/methods_register.html) in your package's `.onLoad()` call.
+
+While it is possible to define S7 methods for S3 generics, it is not possible to define S3 methods for S7 generics.
 
 <div class="highlight">
 
