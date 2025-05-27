@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2, s7, package maintenance]
-rmd_hash: 0c606e7113efea7f
+rmd_hash: 9d742fcb8a1f110f
 
 ---
 
@@ -34,7 +34,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-The ggplot2 package is on the verge to release version 4.0.0. That is right: a new major version release! We only tend to do these when something fundamental changes in ggplot2. For example: ggplot2 2.0.0 brought the ggproto extension system and 3.0.0 switched to tidy evaluation. This time around, we're swapping out the S3 object oriented programming system for the newer S7 system. Because of this major change, we expect that some packages might break, despite our best efforts to minimise the damage. This here is a guide for package authors that might be affected by this change. This guide details some changes in classes and functions that may affect downstream packages, and gives recommendations how broken parts might be repaired. If you don't maintain a package that depends on ggplot2, you can skip reading this guide and simply take away that there will be a release soon.
+We are on the verge of releasing version 4.0.0 of the ggplot2 package. That is right: a new major version release! We only tend to do these when something fundamental changes in ggplot2. For example: ggplot2 2.0.0 brought the ggproto extension system and 3.0.0 switched to tidy evaluation. This time around, we're swapping out the S3 object oriented programming system for the newer S7 system. Because of this major change, we expect that some packages might break, despite our best efforts to minimise the implications of the switch. This here is a guide for package authors that might be affected by the changes. It details some changes in classes and functions that may affect downstream packages, and gives recommendations how broken parts might be repaired. If you don't maintain a package that depends on ggplot2, you can skip reading this guide and simply take away that there will be a release soon.
 
 ## Testing compatibility
 
@@ -44,11 +44,11 @@ If you are a package author that depends on ggplot2 and you want to know how you
 pak::pak("tidyverse/ggplot2")
 ```
 
-It should also automatically install scales 1.4.0, which is needed for this release. One of the things to inspect first is the result of R CMD check on your package, with the development version of ggplot2 installed. It can be invoked by [`devtools::check()`](https://devtools.r-lib.org/reference/check.html). This is also the check CRAN also runs on your package to keep tabs on if your package continues to work. If you are lucky, this will happily report that there are no problems and you can stop reading this guide! If you are unlucky, it will list errors and warnings associated with running your package. It might be that your examples no longer work, test assumptions are no longer met or vignettes run amock. If you use visual snapshots from the vdiffr package, you may certainly expect (mostly harmless) imperceptible changes.
+It should also automatically install scales 1.4.0, which is needed for this release. One of the things to inspect first is the result of R CMD check on your package, with the development version of ggplot2 installed. It can be invoked by [`devtools::check()`](https://devtools.r-lib.org/reference/check.html). This is also the check CRAN runs on your package to keep tabs on whether your package continues to work. If you are lucky, it will happily report that there are no problems and you can stop reading this guide! If you are unlucky, it will list errors and warnings associated with running your package. It might be that your examples no longer work, test assumptions are no longer met or vignettes run amock. If you use visual snapshots from the vdiffr package, you may certainly expect (mostly harmless) imperceptible changes.
 
 As you're still reading, I'm assuming there are problems to solve. The next step is determining who should fix these problems. We have tried to facilitate some backwards compatibility, but we also cannot anticipate every contingency. If something is broken with classes, generics, methods or object oriented programming in general, this guide describes problems and remedies. Because ggplot2 does not go back to S3, we hope that you will facilitate the migration to S7 in your code where appropriate. If there are other issues that pop up that you think might be best repaired in ggplot2, you can post an issue in the [issue tracker](https://github.com/tidyverse/ggplot2/issues).
 
-That said, let's go through S7 a bit. [S7](https://rconsortium.github.io/S7/) is a newer object oriented programming system that is built on top of the older S3 system. It was build by a collaboration of developers from different niches in the R community, ranging from R Core, to Bioconductor to the tidyverse. It aims to succeed the simpler S3 and more complex S4 systems. Aside from simply modernising ggplot2, the migration to S7 also enables features that are hard to implement in S3, such as double dispatch. For years now, people have been asking for more control over how plots are declared at both sides of the `+` operator, which S7 will facilitate.
+That said, let's go through S7 a bit. [S7](https://rconsortium.github.io/S7/) is a newer object oriented programming system that is built on top of the older S3 system. It was build by a collaboration of developers from different parts in the R community, ranging from R Core, to Bioconductor to the tidyverse. It aims to succeed the simpler S3 and more complex S4 systems. Aside from simply modernising ggplot2, the migration to S7 also enables features that are hard to implement in S3, such as double dispatch. For years now, people have been asking for more control over how plots are declared at both sides of the `+` operator, which S7 will facilitate.
 
 ## Classes
 
@@ -138,7 +138,7 @@ In contrast to S3, where you would change list-items by using `$`, in S7 you can
 
 ### Testing
 
-In S3, the recommended way to test for the class of an object is to use a testing function. For example [`is.factor()`](https://rdrr.io/r/base/factor.html); and if such a testing function doesn't exist: use [`inherits()`](https://rdrr.io/r/base/class.html). In S7, it is still recommended to use dedicating testing functions. However, if these are absent, you can use [`S7::S7_inherits()`](https://rconsortium.github.io/S7/reference/S7_inherits.html). If we wanted to write a testing function for our new class, we can do that as follows:
+In S3, the recommended way to test for the class of an object is to use a testing function. An example is [`is.factor()`](https://rdrr.io/r/base/factor.html) but it may be that such a testing function doesn't exist. In that case you can use [`inherits()`](https://rdrr.io/r/base/class.html). In S7, it is still recommended to use dedicating testing functions. However, if these are absent, you can use [`S7::S7_inherits()`](https://rconsortium.github.io/S7/reference/S7_inherits.html). If we wanted to write a testing function for our new class, we can do that as follows:
 
 <div class="highlight">
 
@@ -228,7 +228,7 @@ The advice herein is thus to use [`is_ggplot()`](https://ggplot2.tidyverse.org/r
 
 ## Generics and methods
 
-If you are new to object oriented programming in R, you might be unfamiliar what the terms 'generic' and 'methods' mean. They are a form of 'polymorphism', where we can use a single function, called the 'generic' function, with different implementations for different classes (where one such implementation is called a 'method'). A well known generic is [`print()`](https://rdrr.io/r/base/print.html), which does different things for different classes. For example `print(1:10)` prints the numeric vector to the console, but `print(my_plot)` opens a graphics device to render the plot.
+If you are new to object oriented programming in R, you might be unfamiliar with what the terms 'generic' and 'methods' mean. They are a form of 'polymorphism', that allow us to use a single function, called the 'generic' function, with different implementations for different classes (where one such implementation is called a 'method'). A well known generic is [`print()`](https://rdrr.io/r/base/print.html), which does different things for different classes. For example `print(1:10)` prints the numeric vector to the console, but `print(my_plot)` opens a graphics device and renders the plot.
 
 ### Your methods for ggplot's generics
 
