@@ -7,7 +7,7 @@ date: 2025-05-28
 author: Hadley Wickham
 description: >
     ellmer 0.2.0 lands with a swag of upgrades: Garrick Aden‑Buie joins the 
-    team, we make a couple of breaking changes, and added serious scale with 
+    team, we make a couple of breaking changes, and add serious scale with 
     `parallel_chat()` and `batch_chat()`. A new `params()` helper standardises 
     model settings across providers and chats now report how much they cost. 
     The release also tidies `chat_*` names, bumps default models and adds 
@@ -39,7 +39,7 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] `hugodown::use_tidy_thumbnails()`
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [ ] `usethis::use_tidy_thanks()`
+* [x] `usethis::use_tidy_thanks()`
 -->
 
 # ellmer 0.2.0
@@ -62,17 +62,17 @@ library(ellmer)
 
 ## Breaking changes
 
-Before we dive into the cool new features, we need to talk about the less fun stuff: some breaking changes. As the ellmer package is still experimental (i.e. it has not yet reached 1.0.0), we will be making some breaking changes from time-to-time. That said, we'll always provide a way to revert to the old behaviour and will generally avoid changes that we expect will affect a lot of exsiting code. There are three breaking changes in this release:
+Before we dive into the cool new features, we need to talk about the less fun stuff: some breaking changes. As the ellmer package is still experimental (i.e. it has not yet reached 1.0.0), we will be making some breaking changes from time-to-time. That said, we'll always provide a way to revert to the old behaviour and will generally avoid changes that we expect will affect a lot of existing code. There are three breaking changes in this release:
 
 * We've made some refinements to how ellmer converts JSON to R data structures. The most important change is that tools are now invoked with their inputs converted to standard R data structures. This means you'll get proper R vectors, lists, and data frames instead of raw JSON objects, making your functions easier to write. If you prefer the old behavior, you can opt out with `tool(convert = FALSE)`.
 
-* The `turn` argument has been removed been removed from the `chat_` functions; use `Chat$set_turns()` instead.
+* The `turn` argument has been removed from the `chat_` functions; use `Chat$set_turns()` instead.
 
-* `Chat$tokens()` has been renamed to to `Chat$get_tokens()` and it now returns a correctly structured data frame with rows aligned to turns.
+* `Chat$tokens()` has been renamed to `Chat$get_tokens()` and it now returns a correctly structured data frame with rows aligned to turns.
 
 ## Batch and parallel chat
 
-One of the most exciting additions in 0.2.0 is support for processing multiple chats efficiently. If you've ever found yourself wanting to run the same prompt against hundreds or thousands of different inputs you now have two powerful options: `parallel_chat()` and `batch_chat()`.
+One of the most exciting additions in 0.2.0 is support for processing multiple chats efficiently. If you've ever found yourself wanting to run the same prompt against hundreds or thousands of different inputs, you now have two powerful options: `parallel_chat()` and `batch_chat()`.
 
 `parallel_chat()` works with any provider and lets you submit multiple chats simultaneously:
 
@@ -123,7 +123,7 @@ data <- batch_chat_structured(
 data
 ```
 
-This family of functions is experimental because I'm still refining the user interface, particularly around error handling I'd love to hear your feedback!
+This family of functions is experimental because I'm still refining the user interface, particularly around error handling. I'd love to hear your feedback!
 
 ## Parameters
 
@@ -136,7 +136,7 @@ chat2 <- chat_anthropic(params = params(temperature = 0.7, max_tokens = 100))
 
 ellmer automatically maps these to the appropriate provider-specific parameter names. If a provider doesn't support a particular parameter, it will generate a warning, not an error. This allows you to write provider-agnostic code without worrying about compatibility.
 
-`params()` are currently supported by `chat_anthropic()`, `chat_azure()`, `chat_openai()`, and `chat_gemini()`; feel [file an issue](https://github.com/tidyverse/ellmer/issues/new) if you'd like us to add support for another provider.
+`params()` is currently supported by `chat_anthropic()`, `chat_azure()`, `chat_openai()`, and `chat_gemini()`; feel free to [file an issue](https://github.com/tidyverse/ellmer/issues/new) if you'd like us to add support for another provider.
 
 ## Cost estimates
 
@@ -164,7 +164,7 @@ Keep in mind that these are estimates based on published pricing. LLM providers 
 
 This release includes several improvements for developers building more sophisticated LLM applications, particularly around tool usage and debugging.
 
-The most immediately useful addition is `echo = "output"` in `Chat$chat()`. When you're working with tools, this shows you exactly what's happening as tool requests and results flow back and forth. For example, if 
+The most immediately useful addition is `echo = "output"` in `Chat$chat()`. When you're working with tools, this shows you exactly what's happening as tool requests and results flow back and forth. For example:
 
 ```{r}
 chat <- chat_anthropic(echo = "output")

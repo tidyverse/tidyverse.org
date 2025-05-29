@@ -7,7 +7,7 @@ date: 2025-05-28
 author: Hadley Wickham
 description: >
     ellmer 0.2.0 lands with a swag of upgrades: Garrick Aden‑Buie joins the 
-    team, we make a couple of breaking changes, and added serious scale with 
+    team, we make a couple of breaking changes, and add serious scale with 
     `parallel_chat()` and `batch_chat()`. A new `params()` helper standardises 
     model settings across providers and chats now report how much they cost. 
     The release also tidies `chat_*` names, bumps default models and adds 
@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ellmer, llms]
-rmd_hash: bc0e21cc6a5db33c
+rmd_hash: e0c00f34e7aee2d5
 
 ---
 
@@ -33,7 +33,7 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 # ellmer 0.2.0
@@ -60,17 +60,17 @@ In this post, I'll walk you through the key changes in this release: a couple of
 
 ## Breaking changes
 
-Before we dive into the cool new features, we need to talk about the less fun stuff: some breaking changes. As the ellmer package is still experimental (i.e. it has not yet reached 1.0.0), we will be making some breaking changes from time-to-time. That said, we'll always provide a way to revert to the old behaviour and will generally avoid changes that we expect will affect a lot of exsiting code. There are three breaking changes in this release:
+Before we dive into the cool new features, we need to talk about the less fun stuff: some breaking changes. As the ellmer package is still experimental (i.e. it has not yet reached 1.0.0), we will be making some breaking changes from time-to-time. That said, we'll always provide a way to revert to the old behaviour and will generally avoid changes that we expect will affect a lot of existing code. There are three breaking changes in this release:
 
 -   We've made some refinements to how ellmer converts JSON to R data structures. The most important change is that tools are now invoked with their inputs converted to standard R data structures. This means you'll get proper R vectors, lists, and data frames instead of raw JSON objects, making your functions easier to write. If you prefer the old behavior, you can opt out with `tool(convert = FALSE)`.
 
--   The `turn` argument has been removed been removed from the `chat_` functions; use `Chat$set_turns()` instead.
+-   The `turn` argument has been removed from the `chat_` functions; use `Chat$set_turns()` instead.
 
--   `Chat$tokens()` has been renamed to to `Chat$get_tokens()` and it now returns a correctly structured data frame with rows aligned to turns.
+-   `Chat$tokens()` has been renamed to `Chat$get_tokens()` and it now returns a correctly structured data frame with rows aligned to turns.
 
 ## Batch and parallel chat
 
-One of the most exciting additions in 0.2.0 is support for processing multiple chats efficiently. If you've ever found yourself wanting to run the same prompt against hundreds or thousands of different inputs you now have two powerful options: [`parallel_chat()`](https://ellmer.tidyverse.org/reference/parallel_chat.html) and [`batch_chat()`](https://ellmer.tidyverse.org/reference/batch_chat.html).
+One of the most exciting additions in 0.2.0 is support for processing multiple chats efficiently. If you've ever found yourself wanting to run the same prompt against hundreds or thousands of different inputs, you now have two powerful options: [`parallel_chat()`](https://ellmer.tidyverse.org/reference/parallel_chat.html) and [`batch_chat()`](https://ellmer.tidyverse.org/reference/batch_chat.html).
 
 [`parallel_chat()`](https://ellmer.tidyverse.org/reference/parallel_chat.html) works with any provider and lets you submit multiple chats simultaneously:
 
@@ -103,10 +103,10 @@ This doesn't save you money, but it can be dramatically faster than processing c
 <span></span><span><span class='nv'>results</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ellmer.tidyverse.org/reference/batch_chat.html'>batch_chat</a></span><span class='o'>(</span><span class='nv'>chat</span>, <span class='nv'>prompts</span>, path <span class='o'>=</span> <span class='s'>"potluck.json"</span><span class='o'>)</span></span>
 <span><span class='nv'>results</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
 <span><span class='c'>#&gt; &lt;Chat OpenAI/gpt-4.1 turns=2 tokens=26/133 $0.00&gt;</span></span>
-<span><span class='c'>#&gt; ── <span style='color: #0000BB;'>user</span> [26] ──────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; ── <span style='color: #0000BB;'>user</span> [26] ────────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class='c'>#&gt; What do people from Alabama bring to a potluck dinner?</span></span>
 <span><span class='c'>#&gt; Give me the top three things.</span></span>
-<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [133] ────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [133] ──────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class='c'>#&gt; At a potluck dinner in Alabama, you'll most often find these top three dishes brought by guests:</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; 1. **Fried Chicken** – Always a southern staple, crispy homemade (or sometimes store-bought!) fried chicken is practically expected.</span></span>
@@ -152,7 +152,7 @@ Both functions come with structured data variations: [`batch_chat_structured()`]
 
 </div>
 
-This family of functions is experimental because I'm still refining the user interface, particularly around error handling I'd love to hear your feedback!
+This family of functions is experimental because I'm still refining the user interface, particularly around error handling. I'd love to hear your feedback!
 
 ## Parameters
 
@@ -170,7 +170,7 @@ Previously, setting model parameters like `temperature` and `seed` required know
 
 ellmer automatically maps these to the appropriate provider-specific parameter names. If a provider doesn't support a particular parameter, it will generate a warning, not an error. This allows you to write provider-agnostic code without worrying about compatibility.
 
-[`params()`](https://ellmer.tidyverse.org/reference/params.html) are currently supported by [`chat_anthropic()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html), [`chat_azure()`](https://ellmer.tidyverse.org/reference/deprecated.html), [`chat_openai()`](https://ellmer.tidyverse.org/reference/chat_openai.html), and [`chat_gemini()`](https://ellmer.tidyverse.org/reference/deprecated.html); feel [file an issue](https://github.com/tidyverse/ellmer/issues/new) if you'd like us to add support for another provider.
+[`params()`](https://ellmer.tidyverse.org/reference/params.html) is currently supported by [`chat_anthropic()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html), [`chat_azure()`](https://ellmer.tidyverse.org/reference/deprecated.html), [`chat_openai()`](https://ellmer.tidyverse.org/reference/chat_openai.html), and [`chat_gemini()`](https://ellmer.tidyverse.org/reference/deprecated.html); feel free to [file an issue](https://github.com/tidyverse/ellmer/issues/new) if you'd like us to add support for another provider.
 
 ## Cost estimates
 
@@ -182,11 +182,12 @@ Understanding the cost of your LLM usage is crucial, especially when working at 
 <span><span class='c'>#&gt; Using <span style='color: #00BB00;'>model</span> = <span style='color: #0000BB;'>"gpt-4.1"</span>.</span></span>
 <span></span><span><span class='nv'>joke</span> <span class='o'>&lt;-</span> <span class='nv'>chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"Tell me a joke"</span><span class='o'>)</span></span>
 <span><span class='nv'>chat</span></span>
-<span><span class='c'>#&gt; &lt;Chat OpenAI/gpt-4.1 turns=2 tokens=11/22 $0.00&gt;</span></span>
-<span><span class='c'>#&gt; ── <span style='color: #0000BB;'>user</span> [11] ──────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; &lt;Chat OpenAI/gpt-4.1 turns=2 tokens=11/21 $0.00&gt;</span></span>
+<span><span class='c'>#&gt; ── <span style='color: #0000BB;'>user</span> [11] ────────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class='c'>#&gt; Tell me a joke</span></span>
-<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [22] ─────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class='c'>#&gt; Why did the scarecrow win an award?  </span></span>
+<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [21] ───────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; Why did the scarecrow win an award?</span></span>
+<span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; Because he was outstanding in his field! 🌾😄</span></span>
 <span></span></code></pre>
 
@@ -201,7 +202,7 @@ You can also access costs programmatically with `Chat$get_cost()` and see detail
 <span></span><span></span>
 <span><span class='nf'><a href='https://ellmer.tidyverse.org/reference/token_usage.html'>token_usage</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt;   provider   model input output price</span></span>
-<span><span class='c'>#&gt; 1   OpenAI gpt-4.1  1788   8954 $0.08</span></span>
+<span><span class='c'>#&gt; 1   OpenAI gpt-4.1  1788   8953 $0.08</span></span>
 <span></span></code></pre>
 
 </div>
@@ -214,7 +215,7 @@ Keep in mind that these are estimates based on published pricing. LLM providers 
 
 This release includes several improvements for developers building more sophisticated LLM applications, particularly around tool usage and debugging.
 
-The most immediately useful addition is `echo = "output"` in `Chat$chat()`. When you're working with tools, this shows you exactly what's happening as tool requests and results flow back and forth. For example, if
+The most immediately useful addition is `echo = "output"` in `Chat$chat()`. When you're working with tools, this shows you exactly what's happening as tool requests and results flow back and forth. For example:
 
 <div class="highlight">
 
@@ -222,11 +223,13 @@ The most immediately useful addition is `echo = "output"` in `Chat$chat()`. When
 <span><span class='c'>#&gt; Using <span style='color: #00BB00;'>model</span> = <span style='color: #0000BB;'>"claude-3-7-sonnet-latest"</span>.</span></span>
 <span></span><span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>set_tools</span><span class='o'>(</span><span class='nf'>btw</span><span class='nf'>::</span><span class='nf'><a href='https://posit-dev.github.io/btw/reference/btw_tools.html'>btw_tools</a></span><span class='o'>(</span><span class='s'>"session"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"Do I have bslib installed?"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; I can check if the bslib package is installed in your session. Let me do that for you.</span></span>
+<span><span class='c'>#&gt; I can check if the 'bslib' package is installed in your R environment. Let me do that for you.</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] btw_tool_session_check_package_installed(package_name = "bslib", intent =</span></span>
-<span><span class='c'>#&gt; "Checking if bslib package is installed")</span></span>
+<span><span class='c'>#&gt; "Checking if the bslib package is installed")</span></span>
 <span><span class='c'>#&gt; <span style='color: #00BB00;'>●</span> #&gt; <span style='font-style: italic;'>Package `bslib` version 0.9.0 is installed.</span></span></span>
-<span></span><span><span class='c'>#&gt; Yes, you have bslib package installed. The current version on your system is 0.9.0.</span></span>
+<span></span><span><span class='c'>#&gt; Yes, you have the bslib package installed in your R environment. You're using version 0.9.0 of </span></span>
+<span><span class='c'>#&gt; the package. This means you can load it using `library(bslib)` in your R session whenever you </span></span>
+<span><span class='c'>#&gt; need to use it.</span></span>
 <span></span></code></pre>
 
 </div>
