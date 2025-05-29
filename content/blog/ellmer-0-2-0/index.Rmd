@@ -1,0 +1,223 @@
+---
+output: hugodown::hugo_document
+
+slug: ellmer-0-2-0
+title: ellmer 0.2.0
+date: 2025-05-28
+author: Hadley Wickham
+description: >
+    ellmer 0.2.0 lands with a swag of upgrades: Garrick Aden‑Buie joins the 
+    team, we make a couple of breaking changes, and added serious scale with 
+    `parallel_chat()` and `batch_chat()`. A new `params()` helper standardises 
+    model settings across providers and chats now report how much they cost. 
+    The release also tidies `chat_*` names, bumps default models and adds 
+    Hugging Face, Mistral AI, and Portkey connectors.
+photo:
+  url: https://unsplash.com/photos/n6vS3xlnsCc
+  author: Kelley Bozarth
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [ellmer, llms]
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+# ellmer 0.2.0
+
+I'm thrilled to announce the release of [ellmer 0.2.0](https://ellmer.tidyverse.org)! ellmer is an R package designed to make it easy to use large language models (LLMs) from R. It supports a wide variety of providers (including OpenAI, Anthropic, Azure, Google, Snowflake, Databricks and many more), makes it easy to [extract structured data](https://ellmer.tidyverse.org/articles/structured-data.html), and to give the LLM the ability to call R functions via [tool calling](https://ellmer.tidyverse.org/articles/tool-calling.html).
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("ellmer")
+```
+
+Before diving into the details of what's new, I wanted to welcome Garrick Aden-Buie to the development team! Garrick is one of my colleagues at Posit, and has been instrumental in building out the developer side of ellmer, particularly as it pertains to tool calling and async, with the goal of making [shinychat](https://posit-dev.github.io/shinychat/) as useful as possible.
+
+In this post, I'll walk you through the key changes in this release: a couple of breaking changes, new batched and parallel processing capabilities, a cleaner way to set model parameters, built-in cost estimates, and general updates to our provider ecosystem. This was a giant release, and I'm only touching on the most important topics here, so if you want all the details, please check out the [release notes](https://github.com/tidyverse/ellmer/releases/tag/v0.2.0).
+
+```{r setup}
+library(ellmer)
+```
+
+## Breaking changes
+
+Before we dive into the cool new features, we need to talk about the less fun stuff: some breaking changes. As the ellmer package is still experimental (i.e. it has not yet reached 1.0.0), we will be making some breaking changes from time-to-time. That said, we'll always provide a way to revert to the old behaviour and will generally avoid changes that we expect will affect a lot of exsiting code. There are three breaking changes in this release:
+
+* We've made some refinements to how ellmer converts JSON to R data structures. The most important change is that tools are now invoked with their inputs converted to standard R data structures. This means you'll get proper R vectors, lists, and data frames instead of raw JSON objects, making your functions easier to write. If you prefer the old behavior, you can opt out with `tool(convert = FALSE)`.
+
+* The `turn` argument has been removed been removed from the `chat_` functions; use `Chat$set_turns()` instead.
+
+* `Chat$tokens()` has been renamed to to `Chat$get_tokens()` and it now returns a correctly structured data frame with rows aligned to turns.
+
+## Batch and parallel chat
+
+One of the most exciting additions in 0.2.0 is support for processing multiple chats efficiently. If you've ever found yourself wanting to run the same prompt against hundreds or thousands of different inputs you now have two powerful options: `parallel_chat()` and `batch_chat()`.
+
+`parallel_chat()` works with any provider and lets you submit multiple chats simultaneously:
+
+```{r}
+chat <- chat_openai()
+prompts <- interpolate("
+  What do people from {{state.name}} bring to a potluck dinner?
+  Give me the top three things.
+")
+```
+```{r}
+#| eval: false
+results <- parallel_chat(chat, prompts)
+# [working] (32 + 0) -> 10 -> 8 | ■■■■■■                            16%
+```
+This doesn't save you money, but it can be dramatically faster than processing chats sequentially.
+(Also note that `interpolate()` is now vectorised, making it much easier to generate many prompts from vectors or data frames.)
+
+`batch_chat()` currently works with OpenAI and Anthropic, offering a different trade-off:
+
+```{r}
+chat <- chat_openai()
+results <- batch_chat(chat, prompts, path = "potluck.json")
+results[[1]]
+```
+
+Batch requests can take up to 24 hours to complete (although often finish much faster), but cost 50% less than regular requests. This makes them perfect for large-scale analysis where you can afford to wait. Since they can take a long time to complete, `batch_chat()` requires a `path`, which is used to store information about the state of the job, ensuring that you never lose any work. If you want to keep using your R session, you can either set `wait = FALSE` or simply interrupt the waiting process, then later, either call `batch_chat()` to resume where you left off or call `batch_chat_completed()` to see if the results are ready to retrieve. `batch_chat()` will store the chat responses in this file, so you can either keep it around to cache the results, or delete it to free up disk space.
+
+Both functions come with structured data variations: `batch_chat_structured()` and `parallel_chat_structured()`, which make it easy to extract structured data from multiple strings.
+
+```{r}
+prompts <- list(
+  "I go by Alex. 42 years on this planet and counting.",
+  "Pleased to meet you! I'm Jamal, age 27.",
+  "They call me Li Wei. Nineteen years young.",
+  "Fatima here. Just celebrated my 35th birthday last week.",
+  "The name's Robert - 51 years old and proud of it.",
+  "Kwame here - just hit the big 5-0 this year."
+)
+type_person <- type_object(name = type_string(), age = type_number())
+
+data <- batch_chat_structured(
+  chat = chat,
+  prompts = prompts,
+  path = "people-data.json",
+  type = type_person
+)
+data
+```
+
+This family of functions is experimental because I'm still refining the user interface, particularly around error handling I'd love to hear your feedback!
+
+## Parameters
+
+Previously, setting model parameters like `temperature` and `seed` required knowing the details of each provider's API. The new `params()` function provides a consistent interface across providers:
+
+```{r}
+chat1 <- chat_openai(params = params(temperature = 0.7, seed = 42))
+chat2 <- chat_anthropic(params = params(temperature = 0.7, max_tokens = 100))
+```
+
+ellmer automatically maps these to the appropriate provider-specific parameter names. If a provider doesn't support a particular parameter, it will generate a warning, not an error. This allows you to write provider-agnostic code without worrying about compatibility.
+
+`params()` are currently supported by `chat_anthropic()`, `chat_azure()`, `chat_openai()`, and `chat_gemini()`; feel [file an issue](https://github.com/tidyverse/ellmer/issues/new) if you'd like us to add support for another provider.
+
+## Cost estimates
+
+Understanding the cost of your LLM usage is crucial, especially when working at scale. ellmer now tracks and displays cost estimates. For example, when you print a `Chat` object, you'll see estimated costs alongside token usage:
+
+```{r}
+chat <- chat_openai(echo = FALSE)
+joke <- chat$chat("Tell me a joke")
+chat
+``` 
+
+You can also access costs programmatically with `Chat$get_cost()` and see detailed breakdowns with `tokens_usage()`:
+
+```{r}
+chat$get_cost()
+
+token_usage()
+```
+
+(The numbers will be more interesting for real use cases.)
+
+Keep in mind that these are estimates based on published pricing. LLM providers make it surprisingly difficult to determine exact costs, so treat these as helpful approximations rather than precise accounting.
+
+## Developer tools
+
+This release includes several improvements for developers building more sophisticated LLM applications, particularly around tool usage and debugging.
+
+The most immediately useful addition is `echo = "output"` in `Chat$chat()`. When you're working with tools, this shows you exactly what's happening as tool requests and results flow back and forth. For example, if 
+
+```{r}
+chat <- chat_anthropic(echo = "output")
+chat$set_tools(btw::btw_tools("session"))
+chat$chat("Do I have bslib installed?")
+```
+
+For more advanced use cases, we've added **tool annotations** via `tool_annotations()`. These follow the [Model Context Protocol](https://modelcontextprotocol.io/introduction) and let you provide richer descriptions of your tools:
+
+```r
+weather_tool <- tool(
+  fun = get_weather,
+  description = "Get current weather for a location",
+  .annotations = tool_annotations(
+    audience = list("user", "assistant"),
+    level = "beginner"
+  )
+)
+```
+
+We've also introduced `tool_reject()`, which lets you reject tool requests with an explanation:
+
+```r
+my_tool <- tool(function(dangerous_action) {
+  if (dangerous_action == "delete_everything") {
+    tool_reject("I can't perform destructive actions")
+  }
+  # ... normal tool logic
+})
+```
+
+## Provider updates
+
+The ellmer ecosystem continues to grow! We've added support for three new providers:
+
+- [Hugging Face](https://huggingface.co) via `chat_huggingface()`, thanks to [Simon Spavound](https://github.com/s-spavound).
+- [Mistral AI](https://mistral.ai) via `chat_mistral()`.
+- [Portkey](https://portkey.ai) via `chat_portkey()`, thanks to [Maciej Banaś](https://github.com/maciekbanas).
+
+We've also cleaned up the naming scheme for existing providers. The old function names still work but are deprecated:
+
+- `chat_azure_openai()` replaces `chat_azure()`.
+- `chat_aws_bedrock()` replaces `chat_bedrock()`.  
+- `chat_google_gemini()` replaces `chat_gemini()`.
+
+And updated some default models: `chat_anthropic()` now uses Claude Sonnet 4, and `chat_openai()` uses GPT-4.1.
+
+Finally, we've added a family of `models_*()` functions that let you discover available models for each provider:
+
+```{r}
+tibble::as_tibble(models_anthropic())
+```
+
+These return data frames with model IDs, pricing information (where available), and other provider-specific metadata.
+
+## Acknowledgements
