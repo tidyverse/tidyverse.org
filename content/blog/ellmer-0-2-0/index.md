@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ellmer, llms]
-rmd_hash: d908640ffc4231c7
+rmd_hash: bc0e21cc6a5db33c
 
 ---
 
@@ -32,7 +32,7 @@ TODO:
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [x] Add intro sentence, e.g. the standard tagline for the package
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
@@ -182,13 +182,12 @@ Understanding the cost of your LLM usage is crucial, especially when working at 
 <span><span class='c'>#&gt; Using <span style='color: #00BB00;'>model</span> = <span style='color: #0000BB;'>"gpt-4.1"</span>.</span></span>
 <span></span><span><span class='nv'>joke</span> <span class='o'>&lt;-</span> <span class='nv'>chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"Tell me a joke"</span><span class='o'>)</span></span>
 <span><span class='nv'>chat</span></span>
-<span><span class='c'>#&gt; &lt;Chat OpenAI/gpt-4.1 turns=2 tokens=11/16 $0.00&gt;</span></span>
+<span><span class='c'>#&gt; &lt;Chat OpenAI/gpt-4.1 turns=2 tokens=11/22 $0.00&gt;</span></span>
 <span><span class='c'>#&gt; ── <span style='color: #0000BB;'>user</span> [11] ──────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class='c'>#&gt; Tell me a joke</span></span>
-<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [16] ─────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class='c'>#&gt; Why don’t skeletons fight each other?</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; They don’t have the guts!</span></span>
+<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [22] ─────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; Why did the scarecrow win an award?  </span></span>
+<span><span class='c'>#&gt; Because he was outstanding in his field! 🌾😄</span></span>
 <span></span></code></pre>
 
 </div>
@@ -202,7 +201,7 @@ You can also access costs programmatically with `Chat$get_cost()` and see detail
 <span></span><span></span>
 <span><span class='nf'><a href='https://ellmer.tidyverse.org/reference/token_usage.html'>token_usage</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt;   provider   model input output price</span></span>
-<span><span class='c'>#&gt; 1   OpenAI gpt-4.1  1788   8948 $0.08</span></span>
+<span><span class='c'>#&gt; 1   OpenAI gpt-4.1  1788   8954 $0.08</span></span>
 <span></span></code></pre>
 
 </div>
@@ -223,16 +222,11 @@ The most immediately useful addition is `echo = "output"` in `Chat$chat()`. When
 <span><span class='c'>#&gt; Using <span style='color: #00BB00;'>model</span> = <span style='color: #0000BB;'>"claude-3-7-sonnet-latest"</span>.</span></span>
 <span></span><span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>set_tools</span><span class='o'>(</span><span class='nf'>btw</span><span class='nf'>::</span><span class='nf'><a href='https://posit-dev.github.io/btw/reference/btw_tools.html'>btw_tools</a></span><span class='o'>(</span><span class='s'>"session"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"Do I have bslib installed?"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; I can check if the 'bslib' package is installed for you. Let me verify that for you now.</span></span>
+<span><span class='c'>#&gt; I can check if the bslib package is installed in your session. Let me do that for you.</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] btw_tool_session_check_package_installed(package_name = "bslib", intent =</span></span>
-<span><span class='c'>#&gt; "Checking if the bslib package is installed")</span></span>
+<span><span class='c'>#&gt; "Checking if bslib package is installed")</span></span>
 <span><span class='c'>#&gt; <span style='color: #00BB00;'>●</span> #&gt; <span style='font-style: italic;'>Package `bslib` version 0.9.0 is installed.</span></span></span>
-<span></span><span><span class='c'>#&gt; Yes, you have the bslib package installed on your system. The current installed version is </span></span>
-<span><span class='c'>#&gt; 0.9.0.</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The bslib package is an R package that provides tools for building custom Bootstrap-based web </span></span>
-<span><span class='c'>#&gt; components and themes for Shiny applications and R Markdown documents. It extends the </span></span>
-<span><span class='c'>#&gt; Bootstrap framework for use within R.</span></span>
+<span></span><span><span class='c'>#&gt; Yes, you have bslib package installed. The current version on your system is 0.9.0.</span></span>
 <span></span></code></pre>
 
 </div>
@@ -303,4 +297,6 @@ Finally, we've added a family of `models_*()` functions that let you discover av
 These return data frames with model IDs, pricing information (where available), and other provider-specific metadata.
 
 ## Acknowledgements
+
+A big thanks to all 67 contributors who helped out with ellmer development through thoughtful discussions, bug reports, and pull requests. [@13479776](https://github.com/13479776), [@adrbmdns](https://github.com/adrbmdns), [@AlvaroNovillo](https://github.com/AlvaroNovillo), [@andersolarsson](https://github.com/andersolarsson), [@andrie](https://github.com/andrie), [@arnavchauhan7](https://github.com/arnavchauhan7), [@arunrajes](https://github.com/arunrajes), [@asb2111](https://github.com/asb2111), [@atheriel](https://github.com/atheriel), [@bakaburg1](https://github.com/bakaburg1), [@billsanto](https://github.com/billsanto), [@bzzzwa](https://github.com/bzzzwa), [@calderonsamuel](https://github.com/calderonsamuel), [@christophscheuch](https://github.com/christophscheuch), [@conorotompkins](https://github.com/conorotompkins), [@CorradoLanera](https://github.com/CorradoLanera), [@david-diviny-nousgroup](https://github.com/david-diviny-nousgroup), [@DavisVaughan](https://github.com/DavisVaughan), [@dm807cam](https://github.com/dm807cam), [@dylanpieper](https://github.com/dylanpieper), [@edgararuiz](https://github.com/edgararuiz), [@gadenbuie](https://github.com/gadenbuie), [@genesis-gh-yshteyman](https://github.com/genesis-gh-yshteyman), [@hadley](https://github.com/hadley), [@Ifeanyi55](https://github.com/Ifeanyi55), [@jcheng5](https://github.com/jcheng5), [@jimbrig](https://github.com/jimbrig), [@jsowder](https://github.com/jsowder), [@jvroberts](https://github.com/jvroberts), [@kbenoit](https://github.com/kbenoit), [@kieran-mace](https://github.com/kieran-mace), [@kleinlennart](https://github.com/kleinlennart), [@larry77](https://github.com/larry77), [@lindbrook](https://github.com/lindbrook), [@maciekbanas](https://github.com/maciekbanas), [@mark-andrews](https://github.com/mark-andrews), [@Marwolaeth](https://github.com/Marwolaeth), [@mattschaelling](https://github.com/mattschaelling), [@maurolepore](https://github.com/maurolepore), [@michael-dewar](https://github.com/michael-dewar), [@michaelgrund](https://github.com/michaelgrund), [@mladencucak](https://github.com/mladencucak), [@mladencucakSYN](https://github.com/mladencucakSYN), [@moodymudskipper](https://github.com/moodymudskipper), [@mrembert](https://github.com/mrembert), [@natashanath](https://github.com/natashanath), [@noslouch](https://github.com/noslouch), [@pedrobtz](https://github.com/pedrobtz), [@prasven](https://github.com/prasven), [@ries9112](https://github.com/ries9112), [@s-spavound](https://github.com/s-spavound), [@schloerke](https://github.com/schloerke), [@schmidb](https://github.com/schmidb), [@scjohannes](https://github.com/scjohannes), [@seawavevan](https://github.com/seawavevan), [@simonpcouch](https://github.com/simonpcouch), [@smach](https://github.com/smach), [@sree1658](https://github.com/sree1658), [@stefanlinner](https://github.com/stefanlinner), [@szzhou4](https://github.com/szzhou4), [@t-kalinowski](https://github.com/t-kalinowski), [@trafficfan](https://github.com/trafficfan), [@Vinnish-A](https://github.com/Vinnish-A), [@vorpalvorpal](https://github.com/vorpalvorpal), [@walkerke](https://github.com/walkerke), [@wch](https://github.com/wch), and [@WickM](https://github.com/WickM).
 
