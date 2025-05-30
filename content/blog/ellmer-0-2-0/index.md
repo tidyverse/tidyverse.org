@@ -18,8 +18,8 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
-tags: [ellmer, llms]
-rmd_hash: e0c00f34e7aee2d5
+tags: [ellmer, ai]
+rmd_hash: 4332192deb5fb370
 
 ---
 
@@ -62,6 +62,8 @@ In this post, I'll walk you through the key changes in this release: a couple of
 
 Before we dive into the cool new features, we need to talk about the less fun stuff: some breaking changes. As the ellmer package is still experimental (i.e. it has not yet reached 1.0.0), we will be making some breaking changes from time-to-time. That said, we'll always provide a way to revert to the old behaviour and will generally avoid changes that we expect will affect a lot of existing code. There are three breaking changes in this release:
 
+-   If you save a `Chat` object to disk, the API key is no longer recorded. This protects you from accidentally saving your API key in an insecure location at the cost of not allowing you to resume a chat you saved to disk (we'll see if we can fix that problem in the future).
+
 -   We've made some refinements to how ellmer converts JSON to R data structures. The most important change is that tools are now invoked with their inputs converted to standard R data structures. This means you'll get proper R vectors, lists, and data frames instead of raw JSON objects, making your functions easier to write. If you prefer the old behavior, you can opt out with `tool(convert = FALSE)`.
 
 -   The `turn` argument has been removed from the `chat_` functions; use `Chat$set_turns()` instead.
@@ -103,10 +105,10 @@ This doesn't save you money, but it can be dramatically faster than processing c
 <span></span><span><span class='nv'>results</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ellmer.tidyverse.org/reference/batch_chat.html'>batch_chat</a></span><span class='o'>(</span><span class='nv'>chat</span>, <span class='nv'>prompts</span>, path <span class='o'>=</span> <span class='s'>"potluck.json"</span><span class='o'>)</span></span>
 <span><span class='nv'>results</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
 <span><span class='c'>#&gt; &lt;Chat OpenAI/gpt-4.1 turns=2 tokens=26/133 $0.00&gt;</span></span>
-<span><span class='c'>#&gt; ── <span style='color: #0000BB;'>user</span> [26] ────────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; ── <span style='color: #0000BB;'>user</span> [26] ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class='c'>#&gt; What do people from Alabama bring to a potluck dinner?</span></span>
 <span><span class='c'>#&gt; Give me the top three things.</span></span>
-<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [133] ──────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [133] ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class='c'>#&gt; At a potluck dinner in Alabama, you'll most often find these top three dishes brought by guests:</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; 1. **Fried Chicken** – Always a southern staple, crispy homemade (or sometimes store-bought!) fried chicken is practically expected.</span></span>
@@ -182,13 +184,13 @@ Understanding the cost of your LLM usage is crucial, especially when working at 
 <span><span class='c'>#&gt; Using <span style='color: #00BB00;'>model</span> = <span style='color: #0000BB;'>"gpt-4.1"</span>.</span></span>
 <span></span><span><span class='nv'>joke</span> <span class='o'>&lt;-</span> <span class='nv'>chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"Tell me a joke"</span><span class='o'>)</span></span>
 <span><span class='nv'>chat</span></span>
-<span><span class='c'>#&gt; &lt;Chat OpenAI/gpt-4.1 turns=2 tokens=11/21 $0.00&gt;</span></span>
-<span><span class='c'>#&gt; ── <span style='color: #0000BB;'>user</span> [11] ────────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; &lt;Chat OpenAI/gpt-4.1 turns=2 tokens=11/17 $0.00&gt;</span></span>
+<span><span class='c'>#&gt; ── <span style='color: #0000BB;'>user</span> [11] ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class='c'>#&gt; Tell me a joke</span></span>
-<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [21] ───────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [17] ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class='c'>#&gt; Why did the scarecrow win an award?</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Because he was outstanding in his field! 🌾😄</span></span>
+<span><span class='c'>#&gt; Because he was outstanding in his field!</span></span>
 <span></span></code></pre>
 
 </div>
@@ -202,7 +204,7 @@ You can also access costs programmatically with `Chat$get_cost()` and see detail
 <span></span><span></span>
 <span><span class='nf'><a href='https://ellmer.tidyverse.org/reference/token_usage.html'>token_usage</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt;   provider   model input output price</span></span>
-<span><span class='c'>#&gt; 1   OpenAI gpt-4.1  1788   8953 $0.08</span></span>
+<span><span class='c'>#&gt; 1   OpenAI gpt-4.1  1788   8949 $0.08</span></span>
 <span></span></code></pre>
 
 </div>
@@ -223,13 +225,13 @@ The most immediately useful addition is `echo = "output"` in `Chat$chat()`. When
 <span><span class='c'>#&gt; Using <span style='color: #00BB00;'>model</span> = <span style='color: #0000BB;'>"claude-3-7-sonnet-latest"</span>.</span></span>
 <span></span><span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>set_tools</span><span class='o'>(</span><span class='nf'>btw</span><span class='nf'>::</span><span class='nf'><a href='https://posit-dev.github.io/btw/reference/btw_tools.html'>btw_tools</a></span><span class='o'>(</span><span class='s'>"session"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"Do I have bslib installed?"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; I can check if the 'bslib' package is installed in your R environment. Let me do that for you.</span></span>
-<span></span><span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] btw_tool_session_check_package_installed(package_name = "bslib", intent =</span></span>
-<span><span class='c'>#&gt; "Checking if the bslib package is installed")</span></span>
+<span><span class='c'>#&gt; I can check if the 'bslib' package is installed for you. Let me verify that for you.</span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] btw_tool_session_check_package_installed(package_name = "bslib", intent = "Check if bslib package is installed")</span></span>
 <span><span class='c'>#&gt; <span style='color: #00BB00;'>●</span> #&gt; <span style='font-style: italic;'>Package `bslib` version 0.9.0 is installed.</span></span></span>
-<span></span><span><span class='c'>#&gt; Yes, you have the bslib package installed in your R environment. You're using version 0.9.0 of </span></span>
-<span><span class='c'>#&gt; the package. This means you can load it using `library(bslib)` in your R session whenever you </span></span>
-<span><span class='c'>#&gt; need to use it.</span></span>
+<span></span><span><span class='c'>#&gt; Yes, you have the 'bslib' package installed. You're currently using version 0.9.0 of the package.</span></span>
+<span><span class='c'>#&gt; </span></span>
+<span><span class='c'>#&gt; The bslib package is a modern toolkit for building web interfaces in R, particularly useful for Shiny applications and R Markdown documents. It </span></span>
+<span><span class='c'>#&gt; provides tools for custom theming, more responsive layouts, and modern UI components.</span></span>
 <span></span></code></pre>
 
 </div>
@@ -268,6 +270,7 @@ The ellmer ecosystem continues to grow! We've added support for three new provid
 
 We've also cleaned up the naming scheme for existing providers. The old function names still work but are deprecated:
 
+-   [`chat_anthropic()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html) replaces [`chat_claude()`](https://ellmer.tidyverse.org/reference/deprecated.html).
 -   [`chat_azure_openai()`](https://ellmer.tidyverse.org/reference/chat_azure_openai.html) replaces [`chat_azure()`](https://ellmer.tidyverse.org/reference/deprecated.html).
 -   [`chat_aws_bedrock()`](https://ellmer.tidyverse.org/reference/chat_aws_bedrock.html) replaces [`chat_bedrock()`](https://ellmer.tidyverse.org/reference/deprecated.html).  
 -   [`chat_google_gemini()`](https://ellmer.tidyverse.org/reference/chat_google_gemini.html) replaces [`chat_gemini()`](https://ellmer.tidyverse.org/reference/deprecated.html).

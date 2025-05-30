@@ -64,6 +64,8 @@ library(ellmer)
 
 Before we dive into the cool new features, we need to talk about the less fun stuff: some breaking changes. As the ellmer package is still experimental (i.e. it has not yet reached 1.0.0), we will be making some breaking changes from time-to-time. That said, we'll always provide a way to revert to the old behaviour and will generally avoid changes that we expect will affect a lot of existing code. There are three breaking changes in this release:
 
+* If you save a `Chat` object to disk, the API key is no longer recorded. This protects you from accidentally saving your API key in an insecure location at the cost of not allowing you to resume a chat you saved to disk (we'll see if we can fix that problem in the future).
+
 * We've made some refinements to how ellmer converts JSON to R data structures. The most important change is that tools are now invoked with their inputs converted to standard R data structures. This means you'll get proper R vectors, lists, and data frames instead of raw JSON objects, making your functions easier to write. If you prefer the old behavior, you can opt out with `tool(convert = FALSE)`.
 
 * The `turn` argument has been removed from the `chat_` functions; use `Chat$set_turns()` instead.
@@ -206,10 +208,10 @@ The ellmer ecosystem continues to grow! We've added support for three new provid
 
 We've also cleaned up the naming scheme for existing providers. The old function names still work but are deprecated:
 
+- `chat_anthropic()` replaces `chat_claude()`.
 - `chat_azure_openai()` replaces `chat_azure()`.
 - `chat_aws_bedrock()` replaces `chat_bedrock()`.  
 - `chat_google_gemini()` replaces `chat_gemini()`.
-- `chat_anthropic()` replaces `chat_claude()`.
 
 And updated some default models: `chat_anthropic()` now uses Claude Sonnet 4, and `chat_openai()` uses GPT-4.1.
 
