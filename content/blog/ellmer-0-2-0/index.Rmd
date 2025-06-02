@@ -162,6 +162,33 @@ token_usage()
 
 Keep in mind that these are estimates based on published pricing. LLM providers make it surprisingly difficult to determine exact costs, so treat these as helpful approximations rather than precise accounting.
 
+## Provider updates
+
+The ellmer ecosystem continues to grow! We've added support for three new providers:
+
+- [Hugging Face](https://huggingface.co) via `chat_huggingface()`, thanks to [Simon Spavound](https://github.com/s-spavound).
+- [Mistral AI](https://mistral.ai) via `chat_mistral()`.
+- [Portkey](https://portkey.ai) via `chat_portkey()`, thanks to [Maciej Banaś](https://github.com/maciekbanas).
+
+`chat_snowflake()` and `chat_databricks()` are now considerably more featureful, thanks to improvements in the underlying APIs. They now also both default to Claude Sonnet 3.7, and `chat_databricks()` picks up Databricks workspace URLs set in the Databricks configuration file, improving compatibility with the Databricks CLI.
+
+We've also cleaned up the naming scheme for existing providers. The old function names still work but are deprecated:
+
+- `chat_anthropic()` replaces `chat_claude()`.
+- `chat_azure_openai()` replaces `chat_azure()`.
+- `chat_aws_bedrock()` replaces `chat_bedrock()`.  
+- `chat_google_gemini()` replaces `chat_gemini()`.
+
+And updated some default models: `chat_anthropic()` now uses Claude Sonnet 4, and `chat_openai()` uses GPT-4.1.
+
+Finally, we've added a family of `models_*()` functions that let you discover available models for each provider:
+
+```{r}
+tibble::as_tibble(models_anthropic())
+```
+
+These return data frames with model IDs, pricing information (where available), and other provider-specific metadata.
+
 ## Developer tools
 
 This release includes several improvements for developers building more sophisticated LLM applications, particularly around tool usage and debugging.
@@ -197,31 +224,6 @@ my_tool <- tool(function(dangerous_action) {
   # ... normal tool logic
 })
 ```
-
-## Provider updates
-
-The ellmer ecosystem continues to grow! We've added support for three new providers:
-
-- [Hugging Face](https://huggingface.co) via `chat_huggingface()`, thanks to [Simon Spavound](https://github.com/s-spavound).
-- [Mistral AI](https://mistral.ai) via `chat_mistral()`.
-- [Portkey](https://portkey.ai) via `chat_portkey()`, thanks to [Maciej Banaś](https://github.com/maciekbanas).
-
-We've also cleaned up the naming scheme for existing providers. The old function names still work but are deprecated:
-
-- `chat_anthropic()` replaces `chat_claude()`.
-- `chat_azure_openai()` replaces `chat_azure()`.
-- `chat_aws_bedrock()` replaces `chat_bedrock()`.  
-- `chat_google_gemini()` replaces `chat_gemini()`.
-
-And updated some default models: `chat_anthropic()` now uses Claude Sonnet 4, and `chat_openai()` uses GPT-4.1.
-
-Finally, we've added a family of `models_*()` functions that let you discover available models for each provider:
-
-```{r}
-tibble::as_tibble(models_anthropic())
-```
-
-These return data frames with model IDs, pricing information (where available), and other provider-specific metadata.
 
 ## Acknowledgements
 

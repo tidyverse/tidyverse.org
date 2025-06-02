@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ellmer, ai]
-rmd_hash: 4332192deb5fb370
+rmd_hash: 5a2f64040717898e
 
 ---
 
@@ -105,10 +105,10 @@ This doesn't save you money, but it can be dramatically faster than processing c
 <span></span><span><span class='nv'>results</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ellmer.tidyverse.org/reference/batch_chat.html'>batch_chat</a></span><span class='o'>(</span><span class='nv'>chat</span>, <span class='nv'>prompts</span>, path <span class='o'>=</span> <span class='s'>"potluck.json"</span><span class='o'>)</span></span>
 <span><span class='nv'>results</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
 <span><span class='c'>#&gt; &lt;Chat OpenAI/gpt-4.1 turns=2 tokens=26/133 $0.00&gt;</span></span>
-<span><span class='c'>#&gt; ── <span style='color: #0000BB;'>user</span> [26] ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; ── <span style='color: #0000BB;'>user</span> [26] ──────────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class='c'>#&gt; What do people from Alabama bring to a potluck dinner?</span></span>
 <span><span class='c'>#&gt; Give me the top three things.</span></span>
-<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [133] ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [133] ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class='c'>#&gt; At a potluck dinner in Alabama, you'll most often find these top three dishes brought by guests:</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; 1. **Fried Chicken** – Always a southern staple, crispy homemade (or sometimes store-bought!) fried chicken is practically expected.</span></span>
@@ -184,13 +184,12 @@ Understanding the cost of your LLM usage is crucial, especially when working at 
 <span><span class='c'>#&gt; Using <span style='color: #00BB00;'>model</span> = <span style='color: #0000BB;'>"gpt-4.1"</span>.</span></span>
 <span></span><span><span class='nv'>joke</span> <span class='o'>&lt;-</span> <span class='nv'>chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"Tell me a joke"</span><span class='o'>)</span></span>
 <span><span class='nv'>chat</span></span>
-<span><span class='c'>#&gt; &lt;Chat OpenAI/gpt-4.1 turns=2 tokens=11/17 $0.00&gt;</span></span>
-<span><span class='c'>#&gt; ── <span style='color: #0000BB;'>user</span> [11] ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; &lt;Chat OpenAI/gpt-4.1 turns=2 tokens=11/20 $0.00&gt;</span></span>
+<span><span class='c'>#&gt; ── <span style='color: #0000BB;'>user</span> [11] ──────────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class='c'>#&gt; Tell me a joke</span></span>
-<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [17] ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class='c'>#&gt; Why did the scarecrow win an award?</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Because he was outstanding in his field!</span></span>
+<span><span class='c'>#&gt; ── <span style='color: #00BB00;'>assistant</span> [20] ─────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; Why did the golfer bring two pairs of pants?  </span></span>
+<span><span class='c'>#&gt; In case he got a hole in one!</span></span>
 <span></span></code></pre>
 
 </div>
@@ -204,7 +203,7 @@ You can also access costs programmatically with `Chat$get_cost()` and see detail
 <span></span><span></span>
 <span><span class='nf'><a href='https://ellmer.tidyverse.org/reference/token_usage.html'>token_usage</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt;   provider   model input output price</span></span>
-<span><span class='c'>#&gt; 1   OpenAI gpt-4.1  1788   8949 $0.08</span></span>
+<span><span class='c'>#&gt; 1   OpenAI gpt-4.1  1788   8952 $0.08</span></span>
 <span></span></code></pre>
 
 </div>
@@ -213,53 +212,6 @@ You can also access costs programmatically with `Chat$get_cost()` and see detail
 
 Keep in mind that these are estimates based on published pricing. LLM providers make it surprisingly difficult to determine exact costs, so treat these as helpful approximations rather than precise accounting.
 
-## Developer tools
-
-This release includes several improvements for developers building more sophisticated LLM applications, particularly around tool usage and debugging.
-
-The most immediately useful addition is `echo = "output"` in `Chat$chat()`. When you're working with tools, this shows you exactly what's happening as tool requests and results flow back and forth. For example:
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>chat</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ellmer.tidyverse.org/reference/chat_anthropic.html'>chat_anthropic</a></span><span class='o'>(</span>echo <span class='o'>=</span> <span class='s'>"output"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Using <span style='color: #00BB00;'>model</span> = <span style='color: #0000BB;'>"claude-3-7-sonnet-latest"</span>.</span></span>
-<span></span><span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>set_tools</span><span class='o'>(</span><span class='nf'>btw</span><span class='nf'>::</span><span class='nf'><a href='https://posit-dev.github.io/btw/reference/btw_tools.html'>btw_tools</a></span><span class='o'>(</span><span class='s'>"session"</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"Do I have bslib installed?"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; I can check if the 'bslib' package is installed for you. Let me verify that for you.</span></span>
-<span></span><span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] btw_tool_session_check_package_installed(package_name = "bslib", intent = "Check if bslib package is installed")</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>●</span> #&gt; <span style='font-style: italic;'>Package `bslib` version 0.9.0 is installed.</span></span></span>
-<span></span><span><span class='c'>#&gt; Yes, you have the 'bslib' package installed. You're currently using version 0.9.0 of the package.</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The bslib package is a modern toolkit for building web interfaces in R, particularly useful for Shiny applications and R Markdown documents. It </span></span>
-<span><span class='c'>#&gt; provides tools for custom theming, more responsive layouts, and modern UI components.</span></span>
-<span></span></code></pre>
-
-</div>
-
-For more advanced use cases, we've added **tool annotations** via [`tool_annotations()`](https://ellmer.tidyverse.org/reference/tool_annotations.html). These follow the [Model Context Protocol](https://modelcontextprotocol.io/introduction) and let you provide richer descriptions of your tools:
-
-``` r
-weather_tool <- tool(
-  fun = get_weather,
-  description = "Get current weather for a location",
-  .annotations = tool_annotations(
-    audience = list("user", "assistant"),
-    level = "beginner"
-  )
-)
-```
-
-We've also introduced [`tool_reject()`](https://ellmer.tidyverse.org/reference/tool_reject.html), which lets you reject tool requests with an explanation:
-
-``` r
-my_tool <- tool(function(dangerous_action) {
-  if (dangerous_action == "delete_everything") {
-    tool_reject("I can't perform destructive actions")
-  }
-  # ... normal tool logic
-})
-```
-
 ## Provider updates
 
 The ellmer ecosystem continues to grow! We've added support for three new providers:
@@ -267,6 +219,8 @@ The ellmer ecosystem continues to grow! We've added support for three new provid
 -   [Hugging Face](https://huggingface.co) via [`chat_huggingface()`](https://ellmer.tidyverse.org/reference/chat_huggingface.html), thanks to [Simon Spavound](https://github.com/s-spavound).
 -   [Mistral AI](https://mistral.ai) via [`chat_mistral()`](https://ellmer.tidyverse.org/reference/chat_mistral.html).
 -   [Portkey](https://portkey.ai) via [`chat_portkey()`](https://ellmer.tidyverse.org/reference/chat_portkey.html), thanks to [Maciej Banaś](https://github.com/maciekbanas).
+
+[`chat_snowflake()`](https://ellmer.tidyverse.org/reference/chat_snowflake.html) and [`chat_databricks()`](https://ellmer.tidyverse.org/reference/chat_databricks.html) are now considerably more featureful, thanks to improvements in the underlying APIs. They now also both default to Claude Sonnet 3.7, and [`chat_databricks()`](https://ellmer.tidyverse.org/reference/chat_databricks.html) picks up Databricks workspace URLs set in the Databricks configuration file, improving compatibility with the Databricks CLI.
 
 We've also cleaned up the naming scheme for existing providers. The old function names still work but are deprecated:
 
@@ -301,6 +255,55 @@ Finally, we've added a family of `models_*()` functions that let you discover av
 </div>
 
 These return data frames with model IDs, pricing information (where available), and other provider-specific metadata.
+
+## Developer tools
+
+This release includes several improvements for developers building more sophisticated LLM applications, particularly around tool usage and debugging.
+
+The most immediately useful addition is `echo = "output"` in `Chat$chat()`. When you're working with tools, this shows you exactly what's happening as tool requests and results flow back and forth. For example:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>chat</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ellmer.tidyverse.org/reference/chat_anthropic.html'>chat_anthropic</a></span><span class='o'>(</span>echo <span class='o'>=</span> <span class='s'>"output"</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; Using <span style='color: #00BB00;'>model</span> = <span style='color: #0000BB;'>"claude-3-7-sonnet-latest"</span>.</span></span>
+<span></span><span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>set_tools</span><span class='o'>(</span><span class='nf'>btw</span><span class='nf'>::</span><span class='nf'><a href='https://posit-dev.github.io/btw/reference/btw_tools.html'>btw_tools</a></span><span class='o'>(</span><span class='s'>"session"</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"Do I have bslib installed?"</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; I can check if the 'bslib' package is installed in your R environment. Let me do that for you.</span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] btw_tool_session_check_package_installed(package_name = "bslib", intent = "Checking</span></span>
+<span><span class='c'>#&gt; if bslib package is installed")</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>●</span> #&gt; <span style='font-style: italic;'>Package `bslib` version 0.9.0 is installed.</span></span></span>
+<span></span><span><span class='c'>#&gt; Yes, you have the bslib package installed. It's version 0.9.0 on your system.</span></span>
+<span><span class='c'>#&gt; </span></span>
+<span><span class='c'>#&gt; The bslib package is a Bootstrap utility package for R that helps create modern web interfaces in </span></span>
+<span><span class='c'>#&gt; Shiny apps and R Markdown documents. It provides tools for customizing Bootstrap themes, creating </span></span>
+<span><span class='c'>#&gt; page layouts, and building interactive card components.</span></span>
+<span></span></code></pre>
+
+</div>
+
+For more advanced use cases, we've added **tool annotations** via [`tool_annotations()`](https://ellmer.tidyverse.org/reference/tool_annotations.html). These follow the [Model Context Protocol](https://modelcontextprotocol.io/introduction) and let you provide richer descriptions of your tools:
+
+``` r
+weather_tool <- tool(
+  fun = get_weather,
+  description = "Get current weather for a location",
+  .annotations = tool_annotations(
+    audience = list("user", "assistant"),
+    level = "beginner"
+  )
+)
+```
+
+We've also introduced [`tool_reject()`](https://ellmer.tidyverse.org/reference/tool_reject.html), which lets you reject tool requests with an explanation:
+
+``` r
+my_tool <- tool(function(dangerous_action) {
+  if (dangerous_action == "delete_everything") {
+    tool_reject("I can't perform destructive actions")
+  }
+  # ... normal tool logic
+})
+```
 
 ## Acknowledgements
 
