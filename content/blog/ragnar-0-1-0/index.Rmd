@@ -1,0 +1,215 @@
+---
+output: hugodown::hugo_document
+slug: ragnar-0-1-0
+title: ragnar 0.1.0
+date: 2025-06-03
+author: Tomasz Kalinowski
+description: >
+  ragnar 0.1.0 introduces a tidy, transparent toolkit for building
+  Retrieval-Augmented Generation (RAG) pipelines in R.
+photo:
+  url: https://unsplash.com/photos/person-holding-silver-and-black-scissors-rNsRAHLhrHc
+  author: Tekton
+categories: [package]
+tags: [ragnar, ai]
+editor:
+  markdown:
+    canonical: true
+    wrap: 72
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval = FALSE
+)
+```
+
+# ragnar 0.1.0
+
+We're happy to announce the release of [ragnar](ragnar.tidyverse.org)
+0.1.0, a new R package for building trustworthy Retrieval-Augmented
+Generation (RAG) workflows.
+
+You can install it from CRAN with:
+
+``` r
+install.packages("ragnar")
+```
+
+## What’s Retrieval-Augmented Generation (RAG)?
+
+Large language models (LLMs) are powerful text generators, but they’re
+also notorious for confidently making things up (*hallucinating*). RAG
+reduces the risk of hallucinations by grounding LLMs in your factual,
+trusted documents.
+
+Instead of asking an LLM to respond from its own memory, you:
+
+1.  Retrieve relevant passages from trusted sources.
+2.  Ask the model to answer *using those passages*.
+
+RAG shifts the LLMs job from open ended generation towards summarizing
+and paraphrasing, an easier task where LLMs make substantially fewer
+fabrications.
+
+## Meet **ragnar**
+
+ragnar is a tidy interface for building a RAG pipeline. Use it to:
+
+-   *Ingest* documents from the web, PDFs, Word, or local Markdown.
+-   *Chunk* and augment text with sensible defaults you can adjust.
+-   *Embed* chunks with commercial or open-source models.
+-   *Store* embeddings in DuckDB for fast, local queries.
+-   *Retrieve* relevant chunks using both vector and text search.
+
+## Quick Start: Ingest, Chunk, and Store Your Documents
+
+Here is how to build a RAG knowledge store from the Quarto docs.
+
+```{r}
+library(ragnar)
+```
+
+1.  Create an knowledge store
+
+    ```{r}
+    store <- ragnar_store_create(
+      "./quarto.ragnar.duckdb",
+      embed = \(x) ragnar::embed_openai(x, model = "text-embedding-3-small")
+    )
+    ```
+
+2.  Collect relevant web page urls from quarto.org
+
+    ```{r}
+    pages <- ragnar_find_links("https://quarto.org/", depth = 2)
+    ```
+
+3.  Read, chunk, augment, embed and insert each page
+
+    ```{r}
+    for (page in pages) {
+      chunks <- page |>
+        # Convert to markdown
+        ragnar_read(frame_by_tags = c("h1", "h2", "h3")) |>
+
+        # Split document into chunks
+        ragnar_chunk(boundaries = c("paragraph", "sentence")) |>
+
+        # Add document context to each chunk
+        dplyr::mutate(
+          text = glue::glue(
+            r"---(
+            > Excerpt from: {origin}
+            > {h1}
+            > {h2}
+            > {h3}
+            {text}
+            )---"
+          )
+        )
+
+      ragnar_store_insert(store, chunks)
+    }
+    ```
+
+4.  Build the retrieval index
+
+    ```{r}
+    ragnar_store_build_index(store)
+    ```
+
+Once the store is built, you can access it for fast retrieval.
+
+## Retrieve Relevent Chunks
+
+Pass a query string to `ragnar_retrieve()` to perform both semantic
+search using vector embeddings and conventional text search to retrieve
+the most relevant chunks.
+
+```{r}
+store <- ragnar_store_connect("./quarto.ragnar.duckdb", read_only = TRUE)
+query <- "What's the difference between {.python} and {python} in a code chunk header?"
+
+ragnar_retrieve(store, query, top_k = 5)
+```
+
+## Equip an LLM Chatbot with Your Store
+
+You can let an ellmer chat session search your knowledge store
+automatically:
+
+```{r, echo = FALSE, eval = FALSE}
+store <- quartohelp:::quarto_ragnar_store()
+```
+
+```{r, eval = FALSE}
+library(ellmer)
+
+chat <- chat_openai(
+  system_prompt = glue::trim("
+    You are a Quarto documentation search agent and summarizer.
+    For every user question, perform a search and include
+    links to the source documents in your response.
+    ")
+  ) |>
+  ragnar_register_tool_retrieve(store, top_k = 10)
+
+chat$chat(
+  "What's the difference between {.python} and {python} in a chunk header?"
+)
+```
+
+The model’s responses will cite and link back to your source documents,
+so users can easily follow links to learn more.
+
+### Inspect and Iterate
+
+Use `ragnar_store_inspect()` to interactively preview which text chunks
+are retrieved for different search queries. This helps identify issues
+like awkward document conversion, chunking, or context augmentation, so
+you can refine your data processing pipeline. By making retrieval
+results easy to explore, `ragnar` lets you iterate and tune your
+knowledge store before connecting it to an LLM.
+
+![Store Inspector UI screenshot](ragnar-store-inspector-screenshot.png)
+
+## Additional Features
+
+-   **Works with many document types**: `ragnar_read()` and
+    `read_as_markdown()` uses
+    [MarkItDown](https://github.com/microsoft/markitdown), which means
+    it can ingest an extremely wide variety of files: HTML, PDF, docx,
+    pptx, epubs, compressed archives, and more.
+-   **Flexible embeddings**: Choose OpenAI, open-source (`ollama`), or
+    your own embedding function.
+-   **DuckDB native**: Extremely fast local indexing and retrieval.
+-   **Customizable chunk augmentation**: Easily customize how chunks are
+    augmented with context (headings, links, titles).
+-   **Not a black box**: Easily inspect the store contents and retrieval
+    results.
+
+## Get Started
+
+-   **Install:** `install.packages("ragnar")`
+-   **Read the "Getting Started" vignette:** [ragnar
+    documentation](https://tidyverse.github.io/ragnar/articles/ragnar.html)
+-   **Explore more examples:** [ragnar GitHub
+    README](https://github.com/tidyverse/ragnar#readme)
+
+## Acknowledgements
+
+A big thanks to all contributors who helped out with ragnar development
+through thoughtful discussions, bug reports, and pull requests.
+
+[\@arnavchauhan7](https://github.com/arnavchauhan7),
+[\@bowerth](https://github.com/bowerth),
+[\@dfalbel](https://github.com/dfalbel),
+[\@dingying85](https://github.com/dingying85),
+[\@hadley](https://github.com/hadley),
+[\@PauloSantana2019](https://github.com/PauloSantana2019),
+[\@schochastics](https://github.com/schochastics),
+[\@smach](https://github.com/smach), and
+[\@t-kalinowski](https://github.com/t-kalinowski).
