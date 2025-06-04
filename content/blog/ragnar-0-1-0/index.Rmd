@@ -59,7 +59,7 @@ fabrications.
 ragnar is a tidy interface for building a RAG pipeline. Use it to:
 
 -   *Ingest* documents from the web, PDFs, Word, or local Markdown.
--   *Chunk* and augment text with sensible defaults you can adjust.
+-   *Chunk* and augment text context.
 -   *Embed* chunks with commercial or open-source models.
 -   *Store* embeddings in DuckDB for fast, local queries.
 -   *Retrieve* relevant chunks using both vector and text search.
@@ -87,11 +87,12 @@ library(ragnar)
     pages <- ragnar_find_links("https://quarto.org/", depth = 2)
     ```
 
-3.  Read, chunk, augment, embed and insert each page
+3.  Read, chunk, augment, embed, and insert each page
 
     ```{r}
     for (page in pages) {
       chunks <- page |>
+        
         # Convert to markdown
         ragnar_read(frame_by_tags = c("h1", "h2", "h3")) |>
 
@@ -131,7 +132,7 @@ the most relevant chunks.
 
 ```{r}
 store <- ragnar_store_connect("./quarto.ragnar.duckdb", read_only = TRUE)
-query <- "What's the difference between {.python} and {python} in a code chunk header?"
+query <- "difference between {.python} and {python}"
 
 ragnar_retrieve(store, query, top_k = 5)
 ```
@@ -158,7 +159,8 @@ chat <- chat_openai(
   ragnar_register_tool_retrieve(store, top_k = 10)
 
 chat$chat(
-  "What's the difference between {.python} and {python} in a chunk header?"
+  "What's the difference between {.python} and {python} 
+  in a code chunk header?"
 )
 ```
 
@@ -194,10 +196,10 @@ knowledge store before connecting it to an LLM.
 ## Get Started
 
 -   **Install:** `install.packages("ragnar")`
--   **Read the "Getting Started" vignette:** [ragnar
-    documentation](https://tidyverse.github.io/ragnar/articles/ragnar.html)
+-   **Read the vignette:** [Getting
+    Started](https://ragnar.tidyverse.org/articles/ragnar.html)
 -   **Explore more examples:** [ragnar GitHub
-    README](https://github.com/tidyverse/ragnar#readme)
+    repository](https://github.com/tidyverse/ragnar#readme)
 
 ## Acknowledgements
 

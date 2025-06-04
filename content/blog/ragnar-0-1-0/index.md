@@ -16,7 +16,7 @@ editor:
   markdown:
     canonical: true
     wrap: 72
-rmd_hash: 0ba6a20b3f25afbc
+rmd_hash: cbb5188dea52afec
 
 ---
 
@@ -46,7 +46,7 @@ RAG shifts the LLMs job from open ended generation towards summarizing and parap
 ragnar is a tidy interface for building a RAG pipeline. Use it to:
 
 - *Ingest* documents from the web, PDFs, Word, or local Markdown.
-- *Chunk* and augment text with sensible defaults you can adjust.
+- *Chunk* and augment text context.
 - *Embed* chunks with commercial or open-source models.
 - *Store* embeddings in DuckDB for fast, local queries.
 - *Retrieve* relevant chunks using both vector and text search.
@@ -80,12 +80,13 @@ Here is how to build a RAG knowledge store from the Quarto docs.
 
     </div>
 
-3.  Read, chunk, augment, embed and insert each page
+3.  Read, chunk, augment, embed, and insert each page
 
     <div class="highlight">
 
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'>for</span> <span class='o'>(</span><span class='nv'>page</span> <span class='kr'>in</span> <span class='nv'>pages</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
     <span>  <span class='nv'>chunks</span> <span class='o'>&lt;-</span> <span class='nv'>page</span> <span class='o'>|&gt;</span></span>
+    <span>    </span>
     <span>    <span class='c'># Convert to markdown</span></span>
     <span>    <span class='nf'><a href='https://ragnar.tidyverse.org/reference/ragnar_read.html'>ragnar_read</a></span><span class='o'>(</span>frame_by_tags <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"h1"</span>, <span class='s'>"h2"</span>, <span class='s'>"h3"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
     <span></span>
@@ -127,7 +128,7 @@ Pass a query string to [`ragnar_retrieve()`](https://ragnar.tidyverse.org/refere
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>store</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ragnar.tidyverse.org/reference/rangar_store_create.html'>ragnar_store_connect</a></span><span class='o'>(</span><span class='s'>"./quarto.ragnar.duckdb"</span>, read_only <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
-<span><span class='nv'>query</span> <span class='o'>&lt;-</span> <span class='s'>"What's the difference between &#123;.python&#125; and &#123;python&#125; in a code chunk header?"</span></span>
+<span><span class='nv'>query</span> <span class='o'>&lt;-</span> <span class='s'>"difference between &#123;.python&#125; and &#123;python&#125;"</span></span>
 <span></span>
 <span><span class='nf'><a href='https://ragnar.tidyverse.org/reference/ragnar_retrieve.html'>ragnar_retrieve</a></span><span class='o'>(</span><span class='nv'>store</span>, <span class='nv'>query</span>, top_k <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span></span></code></pre>
 
@@ -155,7 +156,8 @@ You can let an ellmer chat session search your knowledge store automatically:
 <span>  <span class='nf'><a href='https://ragnar.tidyverse.org/reference/ragnar_register_tool_retrieve.html'>ragnar_register_tool_retrieve</a></span><span class='o'>(</span><span class='nv'>store</span>, top_k <span class='o'>=</span> <span class='m'>10</span><span class='o'>)</span></span>
 <span></span>
 <span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span></span>
-<span>  <span class='s'>"What's the difference between &#123;.python&#125; and &#123;python&#125; in a chunk header?"</span></span>
+<span>  <span class='s'>"What's the difference between &#123;.python&#125; and &#123;python&#125; </span></span>
+<span><span class='s'>  in a code chunk header?"</span></span>
 <span><span class='o'>)</span></span></code></pre>
 
 </div>
@@ -182,8 +184,8 @@ Use [`ragnar_store_inspect()`](https://ragnar.tidyverse.org/reference/ragnar_sto
 ## Get Started
 
 - **Install:** `install.packages("ragnar")`
-- **Read the "Getting Started" vignette:** [ragnar documentation](https://tidyverse.github.io/ragnar/articles/ragnar.html)
-- **Explore more examples:** [ragnar GitHub README](https://github.com/tidyverse/ragnar#readme)
+- **Read the vignette:** [Getting Started](https://ragnar.tidyverse.org/articles/ragnar.html)
+- **Explore more examples:** [ragnar GitHub repository](https://github.com/tidyverse/ragnar#readme)
 
 ## Acknowledgements
 
