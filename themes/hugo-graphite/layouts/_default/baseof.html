@@ -1,14 +1,39 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 {{ partial "header.html" . }}
 </head>
+
 <body>
-
-
- {{ block "main" . }}
+  <div id="appTidyverseSite" {{ if not .IsHome }}class="shrinkHeader alwaysShrinkHeader" {{ end }}>
+    <div id="main">
+      <!-- rstudio header -->
+      <div id="rStudioHeader">
+        <nav class="band">
+          <div class="innards bandContent">
+            <div>
+              {{ if .Site.Params.logo.image }}
+              <a href="{{ " /" | relURL }}" class="nav-logo">
+                <img src="{{ print " images/" .Site.Params.logo.image | relURL }}" width="{{ .Site.Params.logo.width }}"
+                  height="{{ .Site.Params.logo.height }}" alt="{{ .Site.Params.logo.alt }}">
+              </a>
+              {{- else -}}
+              <a class="productName" href="{{ " /" | relLangURL }}">{{- .Site.Title -}}</a>
+              {{ end }}
+            </div>
+            {{ partial "nav.html" . }}
+          </div>
+        </nav>
+      </div>
+      <main>
+        {{ block "main" . }}
+      </main>
       <!-- The part of the page that begins to differ between templates -->
- {{ end }}
-{{ partial "footer.html" . }}
+      {{ end }}
+      {{ partial "footer.html" . }}
+    </div>
+  </div>
 </body>
+
 </html>
