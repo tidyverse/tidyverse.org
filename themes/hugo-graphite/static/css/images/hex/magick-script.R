@@ -4,14 +4,14 @@ library(magick)
 library(fs)
 library(purrr)
 
-tidyverse_pngs <- fs::dir_ls("static/css/images/hex", 
+tidyverse_pngs <- fs::dir_ls("themes/hugo-graphite/static/css/images/hex", 
                        recurse = TRUE, 
                        glob = "*.png")
 
 scale_hex <- function(hex) {
   hex %>%
     image_read() %>% 
-    image_scale("736x853") %>% 
+    image_scale("240x278") %>% 
     image_write(hex, quality = 90)
 }
 
