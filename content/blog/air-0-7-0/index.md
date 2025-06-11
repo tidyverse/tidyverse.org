@@ -19,7 +19,7 @@ editor:
   markdown:
     wrap: sentence
     canonical: true
-rmd_hash: 4e5e284961829a1b
+rmd_hash: 57c93b5af6dd578a
 
 ---
 
@@ -109,37 +109,6 @@ function(x, y) {
 }
 ```
 
-Autobracing is particularly important for if statements. We believe code that create *side effects* which modify state or affect control flow are important enough to live on their own line. For example, the following [`stop()`](https://rdrr.io/r/base/stop.html) call is an example of a side effect, so it moves to its own line and is autobraced:
-
-``` r
-if (anyNA(x)) stop("`x` can't contain missing values.")
-
-# Becomes:
-if (anyNA(x)) {
-  stop("`x` can't contain missing values.")
-}
-```
-
-You might be thinking, "But I like my single line if statements!" We do too! Air still allows single line if statements if they look to be used for their *return value* rather than for their *side effect*. These single line if statements are still allowed:
-
-``` r
-x <- if (condition) this else that
-
-x <- x %||% if (condition) this else that
-
-list(a = if (condition) this else that)
-```
-
-Similarly, single line function definitions are also still allowed if they don't already have braces and don't exceed the line length:
-
-``` r
-add_one <- function(x) x + 1
-
-bools <- map_lgl(xs, function(x) is.logical(x) && length(x) == 1L && !is.na(x))
-```
-
-For the full set of rules, check out our [documentation on autobracing](https://posit-dev.github.io/air/formatter.html#autobracing).
-
 It's particularly important to autobrace multiline if statements for *portability*, which we roughly define as the ability to copy and paste that if statement into any context and have it still parse correctly. Consider the following if statement:
 
 ``` r
@@ -177,6 +146,39 @@ do_something <- function(this = TRUE) {
   }
 }
 ```
+
+### Give side effects some Air
+
+We believe code that create *side effects* which modify state or affect control flow are important enough to live on their own line. For example, the following [`stop()`](https://rdrr.io/r/base/stop.html) call is an example of a side effect, so it moves to its own line and is autobraced:
+
+``` r
+if (anyNA(x)) stop("`x` can't contain missing values.")
+
+# Becomes:
+if (anyNA(x)) {
+  stop("`x` can't contain missing values.")
+}
+```
+
+You might be thinking, "But I like my single line if statements!" We do too! Air still allows single line if statements if they look to be used for their *value* rather than for their *side effect*. These single line if statements are still allowed:
+
+``` r
+x <- if (condition) this else that
+
+x <- x %||% if (condition) this else that
+
+list(a = if (condition) this else that)
+```
+
+Similarly, single line function definitions are also still allowed if they don't already have braces and don't exceed the line length:
+
+``` r
+add_one <- function(x) x + 1
+
+bools <- map_lgl(xs, function(x) is.logical(x) && length(x) == 1L && !is.na(x))
+```
+
+For the full set of rules, check out our [documentation on autobracing](https://posit-dev.github.io/air/formatter.html#autobracing).
 
 ## Empty braces
 
