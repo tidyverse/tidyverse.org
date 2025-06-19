@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: duckplyr-1-1-0
 title: duckplyr fully joins the tidyverse!
-date: 2025-05-16
+date: 2025-06-19
 author: Kirill Müller and Maëlle Salmon
 description: >
     duckplyr 1.1.0 is on CRAN!
@@ -20,11 +20,11 @@ tags:
   - duckplyr
   - dplyr
   - tidyverse
-rmd_hash: 8e189242d8daf867
+rmd_hash: e61d2b86a57469dc
 
 ---
 
-We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.1.0. This is a new dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^1]. It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org). You can install it from CRAN with:
+We're well chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.1.0. This is a dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^1]. duckplyr uses the power of DuckDB for impressive performace where it can, and seemlessly falls back to R where it can't. You can install it from CRAN with:
 
 <div class="highlight">
 
@@ -32,11 +32,11 @@ We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyve
 
 </div>
 
-This article shows how duckplyr can be used instead of dplyr with data of different size for faster computation, interact with existing code, explain how you can help improve the package, and share a selection of further resources.
+This article shows how duckplyr can be used instead of dplyr, explain how you can help improve the package, and share a selection of further resources.
 
 ## A drop-in replacement for dplyr
 
-Imagine you have to wrangle a huge dataset. Here we generate one using the [data generator from the TPC-H benchmark](https://duckdb.org/2024/04/02/duckplyr.html#benchmark-tpc-h-q1).
+Imagine you have to wrangle a huge dataset, like this one from the [TPC-H benchmark](https://duckdb.org/2024/04/02/duckplyr.html#benchmark-tpc-h-q1), a famous database benchmarking dataset.
 
 <div class="highlight">
 
@@ -65,20 +65,31 @@ Imagine you have to wrangle a huge dataset. Here we generate one using the [data
 
 </div>
 
-We could transform the data using dplyr but we could also transform it using a tool that'll scale well to ever larger data: duckplyr. The duckplyr package is a *drop-in replacement for dplyr* that uses *DuckDB for speed*. You can simply *drop* duckplyr into your pipeline by loading it, then computations will be efficiently carried out by DuckDB.
-
-Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but execute it with duckplyr. We use a function because this code is reused throughout the article.
+To work with this in duckplyr instead of dplyr, all you need to do is load duckplyr:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://conflicted.r-lib.org/'>conflicted</a></span><span class='o'>)</span></span>
-<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://duckplyr.tidyverse.org'>duckplyr</a></span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://duckplyr.tidyverse.org'>duckplyr</a></span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Loading required package: dplyr</span></span>
+<span></span><span><span class='c'>#&gt; The <span style='color: #0000BB;'>duckplyr</span> package is configured to fall back to <span style='color: #0000BB;'>dplyr</span> when it encounters an incompatibility.</span></span>
+<span><span class='c'>#&gt; Fallback events can be collected and uploaded for analysis to guide future development. By</span></span>
+<span><span class='c'>#&gt; default, data will be collected but no data will be uploaded.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Automatic fallback uploading is not controlled and therefore disabled, see</span></span>
+<span><span class='c'>#&gt;   `?duckplyr::fallback()`.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> Number of reports ready for upload: <span style='font-weight: bold;'>4</span>.</span></span>
+<span><span class='c'>#&gt; → Review with `duckplyr::fallback_review()`, upload with `duckplyr::fallback_upload()`.</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> <span style='color: #555555;'>Configure automatic uploading with `duckplyr::fallback_config()`.</span></span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> Overwriting <span style='color: #0000BB;'>dplyr</span> methods with <span style='color: #0000BB;'>duckplyr</span> methods.</span></span>
 <span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Turn off with `duckplyr::methods_restore()`.</span></span>
-<span></span><span><span class='nf'><a href='https://conflicted.r-lib.org/reference/conflict_prefer.html'>conflict_prefer</a></span><span class='o'>(</span><span class='s'>"filter"</span>, <span class='s'>"dplyr"</span>, quiet <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='nv'>tpch_dplyr</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>lineitem</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
+<span></span></code></pre>
+
+</div>
+
+Now we can express the well-known (at least in the database community!) "TPC-H benchmark query 1" in dplyr syntax and execute it in DuckDB via duckplyr.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tpch_dplyr</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>lineitem</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
 <span>  <span class='nv'>lineitem</span> <span class='o'>|&gt;</span></span>
 <span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>l_shipdate</span> <span class='o'>&lt;=</span> <span class='o'>!</span><span class='o'>!</span><span class='nf'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span><span class='o'>(</span><span class='s'>"1998-09-02"</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>    <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='o'>(</span></span>
@@ -109,19 +120,17 @@ Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but ex
 
 </div>
 
-Like with other dplyr backends like dtplyr and dbplyr, duckplyr allows you to get faster results without learning a different syntax. Unlike other dplyr backends, duckplyr does not require you to change existing code or learn specific idiosyncrasies. Not only is the syntax the same, the semantics are too!
-
-Start using duckplyr today by attaching it and running your existing dplyr code. Many operations will be carried out with DuckDB, faster than with dplyr. The duckplyr package is fully compatible with dplyr: if an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr. Over time, we expect fewer and fewer fallbacks to dplyr to be needed.
+Like other dplyr backends such as dtplyr and dbplyr, duckplyr gives you higher performance without learning a different syntax. Unlike other dplyr backends, duckplyr does not require you to change existing code or learn specific idiosyncrasies. Not only is the syntax the same, the semantics are too! If an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr. Over time, we expect fewer and fewer fallbacks to dplyr to be needed.
 
 ## How to use duckplyr
 
-To *replace* dplyr with duckplyr, you can:
+There are two ways to use duckplyr:
 
--   Load duckplyr and then keep your pipeline as is. Calling [`library(duckplyr)`](https://duckplyr.tidyverse.org) overwrites dplyr methods, enabling duckplyr for the entire session no matter how data.frames are created. This is shown in the example above.
+-   As above, you can [`library(duckplyr)`](https://duckplyr.tidyverse.org), and replace all existing dplyr methods. This is safe because duckplyr is guaranteed to give the exactly same the results as dplyr, unlike other backends.
 
--   Create individual "duck frames" using *conversion functions* like [`duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html) or [`as_duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html), or *ingestion functions* like [`read_csv_duckdb()`](https://duckplyr.tidyverse.org/reference/read_csv_duckdb.html).
+-   Create individual "duck frames" using *conversion functions* like `duckdplyr::duckdb_tibble()` or `duckdplyr::as_duckdb_tibble()`, or *ingestion functions* like `duckdplyr::read_csv_duckdb()`.
 
-In both cases, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline, with the exact same semantics. The duckplyr package performs the computation using DuckDB.
+Here's an example of the second form:
 
 <div class="highlight">
 
@@ -143,7 +152,7 @@ In both cases, the data manipulation pipeline uses the exact same syntax as a dp
 
 </div>
 
-For programming, the resulting object is indistinguishable from a regular tibble, except for the additional class.
+Note that the resulting object is indistinguishable from a regular tibble, except for the additional class.
 
 <div class="highlight">
 
@@ -157,28 +166,7 @@ For programming, the resulting object is indistinguishable from a regular tibble
 
 </div>
 
-The result could also be computed to a file.
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>csv_file</span> <span class='o'>&lt;-</span> <span class='nf'>withr</span><span class='nf'>::</span><span class='nf'><a href='https://withr.r-lib.org/reference/with_tempfile.html'>local_tempfile</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/compute_csv.html'>compute_csv</a></span><span class='o'>(</span><span class='nv'>out</span>, <span class='nv'>csv_file</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A duckplyr data frame: 10 variables</span></span></span>
-<span><span class='c'>#&gt;   <span style='font-weight: bold;'>l_returnflag</span> <span style='font-weight: bold;'>l_linestatus</span>  <span style='font-weight: bold;'>sum_qty</span> <span style='font-weight: bold;'>sum_base_price</span> <span style='font-weight: bold;'>sum_disc_price</span>    <span style='font-weight: bold;'>sum_charge</span></span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>        <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span>         <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> A            F            37<span style='text-decoration: underline;'>734</span>107   <span style='text-decoration: underline;'>56</span>586<span style='text-decoration: underline;'>554</span>401.   <span style='text-decoration: underline;'>53</span>758<span style='text-decoration: underline;'>257</span>135.  <span style='text-decoration: underline;'>55</span>909<span style='text-decoration: underline;'>065</span>223.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> N            F              <span style='text-decoration: underline;'>991</span>417    <span style='text-decoration: underline;'>1</span>487<span style='text-decoration: underline;'>504</span>710.    <span style='text-decoration: underline;'>1</span>413<span style='text-decoration: underline;'>082</span>168.   <span style='text-decoration: underline;'>1</span>469<span style='text-decoration: underline;'>649</span>223.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> N            O            74<span style='text-decoration: underline;'>476</span>040  <span style='text-decoration: underline;'>111</span>701<span style='text-decoration: underline;'>729</span>698.  <span style='text-decoration: underline;'>106</span>118<span style='text-decoration: underline;'>230</span>308. <span style='text-decoration: underline;'>110</span>367<span style='text-decoration: underline;'>043</span>872.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> R            F            37<span style='text-decoration: underline;'>719</span>753   <span style='text-decoration: underline;'>56</span>568<span style='text-decoration: underline;'>041</span>381.   <span style='text-decoration: underline;'>53</span>741<span style='text-decoration: underline;'>292</span>685.  <span style='text-decoration: underline;'>55</span>889<span style='text-decoration: underline;'>619</span>120.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 4 more variables: </span><span style='color: #555555; font-weight: bold;'>avg_qty</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>avg_price</span><span style='color: #555555;'> &lt;dbl&gt;, </span><span style='color: #555555; font-weight: bold;'>avg_disc</span><span style='color: #555555;'> &lt;dbl&gt;,</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>#   </span><span style='color: #555555; font-weight: bold;'>count_order</span><span style='color: #555555;'> &lt;dbl&gt;</span></span></span>
-<span></span><span><span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_size</a></span><span class='o'>(</span><span class='nv'>csv_file</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; 644</span></span>
-<span></span></code></pre>
-
-</div>
-
-Operations not yet supported by duckplyr are automatically outsourced to dplyr. For instance, filtering on grouped data is not supported yet, still it works thanks to the fallback mechanism. By default, the fallback is silent. Here, we make it visible by setting an environment variable.
+Operations not yet supported by duckplyr are automatically outsourced to dplyr. For instance, filtering on grouped data is not supported, but it still works thanks to the fallback mechanism. By default, the fallback is silent, but you can make it visible by setting an environment variable. This is useful if you want to better understanding what's making your code slow.
 
 <div class="highlight">
 
@@ -211,16 +199,27 @@ Operations not yet supported by duckplyr are automatically outsourced to dplyr. 
 
 </div>
 
+You can also directly use DuckDB functions with the `dd$` qualifier. Functions with this prefix will not be translated at all and passed through directly to DuckDB. For example, the following code uses DuckDB's internal implementation of [Levenstein distance](https://duckdb.org/docs/stable/sql/functions/text.html#editdist3s1-s2):
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='s'>"dbplyr"</span>, b <span class='o'>=</span> <span class='s'>"duckplyr"</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>c <span class='o'>=</span> <span class='nv'>dd</span><span class='o'>$</span><span class='nf'>levenshtein</span><span class='o'>(</span><span class='nv'>a</span>, <span class='nv'>b</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 1 × 3</span></span></span>
+<span><span class='c'>#&gt;   <span style='font-weight: bold;'>a</span>      <span style='font-weight: bold;'>b</span>            <span style='font-weight: bold;'>c</span></span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dbplyr duckplyr     3</span></span>
+<span></span></code></pre>
+
+</div>
+
+See [`vignette("duckdb")`](https://duckplyr.tidyverse.org/articles/duckdb.html) for more information on these features.
+
+If you're working with dbplyr too, you can use [`as_tbl()`](https://duckplyr.tidyverse.org/reference/as_tbl.html) you to convert a duckplyr tibble to a dbplyr lazy table. This allows you to seamlessly interact with existing code that might use inline SQL or other dbplyr functionality. With [`as_duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html), you can convert a dbplyr lazy table to a duckplyr tibble. Both operations work without intermediate materialization.
+
 ## Benchmark
 
 duckplyr is often much faster than dplyr. The comparison below is done in a fresh R session where dplyr is attached but duckplyr is not.
-
-``` r
-# Restart R
-library(dplyr)
-
-tpch_dplyr <- function ...
-```
 
 We use `tpch_dplyr()` as defined above to run the query with dplyr. The function that runs it with duckplyr only wraps the input data in a duck frame and forwards it to the dplyr function. The [`collect()`](https://dplyr.tidyverse.org/reference/compute.html) at the end is required only for this benchmark to ensure fairness.[^2]
 
@@ -248,42 +247,29 @@ And now we compare the two:
 <span></span><span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 2 × 6</span></span></span>
 <span><span class='c'>#&gt;   <span style='font-weight: bold;'>expression</span>                       <span style='font-weight: bold;'>min</span>   <span style='font-weight: bold;'>median</span> <span style='font-weight: bold;'>`itr/sec`</span> <span style='font-weight: bold;'>mem_alloc</span> <span style='font-weight: bold;'>`gc/sec`</span></span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;bch:expr&gt;</span>                  <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:tm&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;bch:byt&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem_tbl)        1.1s     1.1s     0.913    1.25GB     2.74</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem_tbl)  103.5ms  107.1ms     9.24   315.12KB     0</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> tpch_dplyr(lineitem_tbl)     611.6ms  611.6ms      1.64    1.25GB     1.64</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> tpch_duckplyr(lineitem_tbl)   71.4ms   72.3ms     13.8   314.38KB     0</span></span>
 <span></span></code></pre>
 
 </div>
 
-In this example, the pipeline run with duckplyr is clearly faster than the pipeline run with dplyr. It also appears to use much less memory, but this is misleading: DuckDB uses memory outside of R's memory management, so the memory usage is not visible to R.
+In this example, duckplyr is a lot faster than dplyr. It also appears to use much less memory, but this is misleading: DuckDB manages the memory, not R, so the memory usage is not visible to [`bench::mark()`](https://bench.r-lib.org/reference/mark.html).
 
-## Data larger than memory
+## Out-of-memory data
 
-With datasets that approach or surpass the size of your machine's RAM, you want:
+As well as improved speed with in-memory datasets, duckplyr makes it easy to work with datasets that are too big to fit in memory. In this case, you want:
 
--   input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like [`read_parquet_duckdb()`](https://duckplyr.tidyverse.org/reference/read_parquet_duckdb.html);
--   efficient computation, which duckplyr provides via DuckDB's holistic optimization, without having to adapt your code;
--   large results to not clutter your memory by dumping them to files using [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_parquet.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_csv.html);
--   small results processed seamlessly with dplyr, using all verbs and functions.
+1.  To work with data stored in modern formats designed for large data (e.g. Parquet).
+2.  To be able to store large intermediate results on disk, keeping them out of memory.
+3.  Fast computation!
 
-This workflow is fully supported by duckplyr. See [`vignette("large")`](https://duckplyr.tidyverse.org/articles/large.html) for a walkthrough and more details.
+duckdplyr provides each of these features:
 
-For your existing dbplyr code, the new [`as_tbl()`](https://duckplyr.tidyverse.org/reference/as_tbl.html) function allows you to convert a duckplyr tibble to a dbplyr lazy table. This allows you to seamlessly interact with existing code that might use inline SQL or other dbplyr functionality. With [`as_duckdb_tibble()`](https://duckplyr.tidyverse.org/reference/duckdb_tibble.html), you can convert a dbplyr lazy table to a duckplyr tibble. Both operations work without intermediate materialization.
+1.  You can read data from disk with functions like [`read_parquet_duckdb()`](https://duckplyr.tidyverse.org/reference/read_parquet_duckdb.html).
+2.  You can save intermediate results to disk with [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_parquet.html) and [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_csv.html).
+3.  duckdplyr takes advantage of DuckDB's query planner which considers your entire pipeline holistically to figure out the most efficient way to get the data you need.
 
-Another way to leverage the potential of DuckDB is the new `dd$` qualifier. Functions with this prefix will not be translated at all and passed through directly to DuckDB. For example:
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>duckdb_tibble</a></span><span class='o'>(</span>a <span class='o'>=</span> <span class='s'>"dbplyr"</span>, b <span class='o'>=</span> <span class='s'>"duckplyr"</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>c <span class='o'>=</span> <span class='nv'>dd</span><span class='o'>$</span><span class='nf'>damerau_levenshtein</span><span class='o'>(</span><span class='nv'>a</span>, <span class='nv'>b</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A duckplyr data frame: 3 variables</span></span></span>
-<span><span class='c'>#&gt;   <span style='font-weight: bold;'>a</span>      <span style='font-weight: bold;'>b</span>            <span style='font-weight: bold;'>c</span></span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>    <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> dbplyr duckplyr     3</span></span>
-<span></span></code></pre>
-
-</div>
-
-See the new [`vignette("duckdb")`](https://duckplyr.tidyverse.org/articles/duckdb.html) for more information on these features.
+See [`vignette("large")`](https://duckplyr.tidyverse.org/articles/large.html) for a walkthrough and more details.
 
 ## Help us improve duckplyr!
 
@@ -297,11 +283,11 @@ You can help!
 
 -   Please report any issues, especially regarding unknown incompabilities. See [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
 -   Contribute to the codebase after reading duckplyr's [contributing guide](https://duckplyr.tidyverse.org/CONTRIBUTING.html).
--   Turn on telemetry to help us hear about the most frequent fallbacks so we can prioritize working on the corresponding missing dplyr translation. See [`vignette("telemetry")`](https://duckplyr.tidyverse.org/articles/telemetry.html) and the [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html) function.
+-   Turn on telemetry to help us hear about the most frequent fallbacks so we can prioritize working on the corresponding missing dplyr translation. See [`vignette("telemetry")`](https://duckplyr.tidyverse.org/articles/telemetry.html) and [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html).
 
 ## Additional resources
 
-Eager to learn more about duckplyr -- beside by trying it out yourself? The pkgdown website of duckplyr features several [articles](https://duckplyr.tidyverse.org/articles/). Furthermore, the blog post ["duckplyr: dplyr Powered by DuckDB"](https://duckdb.org/2024/04/02/duckplyr.html) by Hannes Mühleisen provides some context on duckplyr including its inner workings, as also seen in a [section](https://blog.r-hub.io/2025/02/13/lazy-meanings/#duckplyr-lazy-evaluation-and-prudence) of the R-hub blog post ["Lazy introduction to laziness in R"](https://blog.r-hub.io/2025/02/13/lazy-meanings/) by Maëlle Salmon, Athanasia Mo Mowinckel and Hannah Frick.
+Eager to learn more about duckplyr -- beside by trying it out yourself? The duckplyr website features several [articles](https://duckplyr.tidyverse.org/articles/). Furthermore, the blog post ["duckplyr: dplyr Powered by DuckDB"](https://duckdb.org/2024/04/02/duckplyr.html) by Hannes Mühleisen provides some context on duckplyr including its inner workings, as also seen in a [section](https://blog.r-hub.io/2025/02/13/lazy-meanings/#duckplyr-lazy-evaluation-and-prudence) of the R-hub blog post ["Lazy introduction to laziness in R"](https://blog.r-hub.io/2025/02/13/lazy-meanings/) by Maëlle Salmon, Athanasia Mo Mowinckel and Hannah Frick.
 
 ## Acknowledgements
 
@@ -311,7 +297,7 @@ A big thanks to all folks who filed issues, created PRs and generally helped to 
 
 Special thanks to Joe Thorley ([@joethorley](https://github.com/joethorley)) for help with choosing the right words.
 
-[^1]: If you haven't heard about it, you can watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
+[^1]: If you haven't heard of it yet, watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
 
-[^2]: If omitted, the results would be unchanged but the measurements would be wrong. The computation would then be triggered by the check. See `vignette("prudence")` for details.
+[^2]: If omitted, the results would be unchanged but the measurements would be wrong. The computation would then be triggered by the check. See [`vignette("prudence")`](https://duckplyr.tidyverse.org/articles/prudence.html) for details.
 

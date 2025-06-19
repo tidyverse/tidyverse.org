@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: duckplyr-1-1-0
 title: duckplyr fully joins the tidyverse!
-date: 2025-05-16
+date: 2025-06-19
 author: Kirill Müller and Maëlle Salmon
 description: >
     duckplyr 1.1.0 is on CRAN!
@@ -28,24 +28,28 @@ options(
   pillar.max_footer_lines = 7,
   pillar.bold = TRUE
 )
+options(conflicts.policy = list(warn = FALSE))
+library(conflicted)
+conflict_prefer("filter", "dplyr", quiet = TRUE)
 ```
 
 
-We're very chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.1.0.
-This is a new dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^duckdb].
-It joins the rank of dplyr backends together with [dtplyr](https://dtplyr.tidyverse.org) and [dbplyr](https://dbplyr.tidyverse.org).
+We're well chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.1.0.
+This is a dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^duckdb].
+duckplyr uses the power of DuckDB for impressive performace where it can, and seemlessly falls back to R where it can't.
 You can install it from CRAN with:
+
+[^duckdb]: If you haven't heard of it yet, watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
 
 ```{r, eval = FALSE}
 install.packages("duckplyr")
 ```
 
-This article shows how duckplyr can be used instead of dplyr with data of different size for faster computation, explain how you can help improve the package, and share a selection of further resources.
+This article shows how duckplyr can be used instead of dplyr, explain how you can help improve the package, and share a selection of further resources.
 
 ## A drop-in replacement for dplyr
 
-Imagine you have to wrangle a huge dataset.
-Here we generate one using the [data generator from the TPC-H benchmark](https://duckdb.org/2024/04/02/duckplyr.html#benchmark-tpc-h-q1).
+Imagine you have to wrangle a huge dataset, like this one from the [TPC-H benchmark](https://duckdb.org/2024/04/02/duckplyr.html#benchmark-tpc-h-q1), a famous database benchmarking dataset.
 
 ```{r}
 lineitem_tbl <- duckdb:::sql("INSTALL tpch; LOAD tpch; CALL dbgen(sf=1); FROM lineitem;")
@@ -53,25 +57,15 @@ lineitem_tbl <- tibble::as_tibble(lineitem_tbl)
 dplyr::glimpse(lineitem_tbl)
 ```
 
-We could transform the data using dplyr but we could also transform it using a tool that'll scale well to ever larger data: duckplyr.
-The duckplyr package is a _drop-in replacement for dplyr_ that uses _DuckDB for speed_.
-You can simply _drop_ duckplyr into your pipeline by loading it, then computations will be efficiently carried out by DuckDB.
-
-[^duckdb]: If you haven't heard about it, you can watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
-
-Below, we express the standard "TPC-H benchmark query 1" in dplyr syntax, but execute it with duckplyr.
-We use a function because this code is reused throughout the article.
-
-```{r include=FALSE}
-options(conflicts.policy = list(warn = FALSE))
-```
-
+To work with this in duckplyr instead of dplyr, all you need to do is load duckplyr:
 
 ```{r}
-library(conflicted)
 library(duckplyr)
-conflict_prefer("filter", "dplyr", quiet = TRUE)
+```
 
+Now we can express the well-known (at least in the database community!) "TPC-H benchmark query 1" in dplyr syntax and execute it in DuckDB via duckplyr.
+
+```{r}
 tpch_dplyr <- function(lineitem) {
   lineitem |>
     filter(l_shipdate <= !!as.Date("1998-09-02")) |>
@@ -92,28 +86,21 @@ tpch_dplyr <- function(lineitem) {
 tpch_dplyr(lineitem_tbl)
 ```
 
-Like with other dplyr backends like dtplyr and dbplyr, duckplyr allows you to get faster results without learning a different syntax.
+Like other dplyr backends such as dtplyr and dbplyr, duckplyr gives you higher performance without learning a different syntax.
 Unlike other dplyr backends, duckplyr does not require you to change existing code or learn specific idiosyncrasies.
 Not only is the syntax the same, the semantics are too!
-
-Start using duckplyr today by attaching it and running your existing dplyr code.
-Many operations will be carried out with DuckDB, faster than with dplyr.
-The duckplyr package is fully compatible with dplyr: if an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr.
+If an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr.
 Over time, we expect fewer and fewer fallbacks to dplyr to be needed.
-
 
 ## How to use duckplyr
 
-To _replace_ dplyr with duckplyr, you can:
+There are two ways to use duckplyr:
 
-- Load duckplyr and then keep your pipeline as is. Calling `library(duckplyr)` overwrites dplyr methods, enabling duckplyr for the entire session no matter how data.frames are created.
-    This is shown in the example above.
+- As above, you can `library(duckplyr)`, and replace all existing dplyr methods. This is safe because duckplyr is guaranteed to give the exactly same the results as dplyr, unlike other backends.
 
-- Create individual "duck frames" using _conversion functions_ like `duckdb_tibble()` or `as_duckdb_tibble()`, or _ingestion functions_ like `read_csv_duckdb()`.
+- Create individual "duck frames" using _conversion functions_ like `duckdplyr::duckdb_tibble()` or `duckdplyr::as_duckdb_tibble()`, or _ingestion functions_ like `duckdplyr::read_csv_duckdb()`.
 
-
-In both cases, the data manipulation pipeline uses the exact same syntax as a dplyr pipeline, with the exact same semantics.
-The duckplyr package performs the computation using DuckDB.
+Here's an example of the second form:
 
 ```{r}
 out <- lineitem_tbl |>
@@ -123,9 +110,7 @@ out <- lineitem_tbl |>
 out
 ```
 
-
-For programming, the resulting object is indistinguishable from a regular tibble, except for the additional class.
-
+Note that the resulting object is indistinguishable from a regular tibble, except for the additional class.
 
 ```{r}
 typeof(out)
@@ -133,18 +118,10 @@ class(out)
 out$count_order
 ```
 
-The result could also be computed to a file.
-
-```{r}
-csv_file <- withr::local_tempfile()
-compute_csv(out, csv_file)
-fs::file_size(csv_file)
-```
-
 Operations not yet supported by duckplyr are automatically outsourced to dplyr.
-For instance, filtering on grouped data is not supported yet, still it works thanks to the fallback mechanism.
-By default, the fallback is silent.
-Here, we make it visible by setting an environment variable.
+For instance, filtering on grouped data is not supported, but it still works thanks to the fallback mechanism.
+By default, the fallback is silent, but you can make it visible by setting an environment variable.
+This is useful if you want to better understanding what's making your code slow.
 
 ```{r}
 Sys.setenv(DUCKPLYR_FALLBACK_INFO = TRUE)
@@ -154,6 +131,21 @@ lineitem_tbl |>
   filter(l_quantity == max(l_quantity), .by = c(l_returnflag, l_linestatus))
 ```
 
+You can also directly use DuckDB functions with the `dd$` qualifier.
+Functions with this prefix will not be translated at all and passed through directly to DuckDB.
+For example, the following code uses DuckDB's internal implementation of [Levenstein distance](https://duckdb.org/docs/stable/sql/functions/text.html#editdist3s1-s2):
+
+```{r}
+tibble(a = "dbplyr", b = "duckplyr") %>%
+  mutate(c = dd$levenshtein(a, b))
+```
+
+See `vignette("duckdb")` for more information on these features.
+
+If you're working with dbplyr too, you can use `as_tbl()` you to convert a duckplyr tibble to a dbplyr lazy table.
+This allows you to seamlessly interact with existing code that might use inline SQL or other dbplyr functionality.
+With `as_duckdb_tibble()`, you can convert a dbplyr lazy table to a duckplyr tibble.
+Both operations work without intermediate materialization.
 
 ## Benchmark
 
@@ -163,13 +155,6 @@ The comparison below is done in a fresh R session where dplyr is attached but du
 ```{r include = FALSE}
 # Undo the effect of library(duckplyr)
 methods_restore()
-```
-
-```r
-# Restart R
-library(dplyr)
-
-tpch_dplyr <- function ...
 ```
 
 We use `tpch_dplyr()` as defined above to run the query with dplyr.
@@ -197,36 +182,25 @@ bench::mark(
 )
 ```
 
-In this example, the pipeline run with duckplyr is clearly faster than the pipeline run with dplyr.
-It also appears to use much less memory, but this is misleading: DuckDB uses memory outside of R's memory management, so the memory usage is not visible to R.
+In this example, duckplyr is a lot faster than dplyr.
+It also appears to use much less memory, but this is misleading: DuckDB manages the memory, not R, so the memory usage is not visible to `bench::mark()`.
 
-## Data larger than memory
+## Out-of-memory data
 
-With datasets that approach or surpass the size of your machine's RAM, you want:
+As well as improved speed with in-memory datasets, duckplyr makes it easy to work with datasets that are too big to fit in memory.
+In this case, you want:
 
-- input data in an efficient format, like Parquet files, which duckplyr allows thanks to its ingestion functions like `read_parquet_duckdb()`;
-- efficient computation, which duckplyr provides via DuckDB's holistic optimization, without having to adapt your code;
-- large results to not clutter your memory by dumping them to files using  [`compute_parquet()`](https://duckplyr.tidyverse.org/reference/compute_parquet.html) or [`compute_csv()`](https://duckplyr.tidyverse.org/reference/compute_csv.html);
-- small results processed seamlessly with dplyr, using all verbs and functions.
+1. To work with data stored in modern formats designed for large data (e.g. Parquet).
+1. To be able to store large intermediate results on disk, keeping them out of memory.
+1. Fast computation!
 
-This workflow is fully supported by duckplyr.
-See [`vignette("large")`](https://duckplyr.tidyverse.org/articles/large.html) for a walkthrough and more details.
+duckdplyr provides each of these features:
 
-For your existing dbplyr code, the new `as_tbl()` function allows you to convert a duckplyr tibble to a dbplyr lazy table.
-This allows you to seamlessly interact with existing code that might use inline SQL or other dbplyr functionality.
-With `as_duckdb_tibble()`, you can convert a dbplyr lazy table to a duckplyr tibble.
-Both operations work without intermediate materialization.
+1. You can read data from disk with functions like `read_parquet_duckdb()`.
+1. You can save intermediate results to disk with `compute_parquet()` and `compute_csv()`.
+1. duckdplyr takes advantage of DuckDB's query planner which considers your entire pipeline holistically to figure out the most efficient way to get the data you need.
 
-Another way to leverage the potential of DuckDB is the new `dd$` qualifier.
-Functions with this prefix will not be translated at all and passed through directly to DuckDB.
-For example:
-
-```{r}
-duckdb_tibble(a = "dbplyr", b = "duckplyr") %>%
-  mutate(c = dd$damerau_levenshtein(a, b))
-```
-
-See the new [`vignette("duckdb")`](https://duckplyr.tidyverse.org/articles/duckdb.html) for more information on these features.
+See `vignette("large")` for a walkthrough and more details.
 
 ## Help us improve duckplyr!
 
@@ -238,14 +212,14 @@ Our goals for future development of duckplyr include:
 
 You can help!
 
-- Please report any issues, especially regarding unknown incompabilities. See [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
+- Please report any issues, especially regarding unknown incompabilities. See `vignette("limits")`.
 - Contribute to the codebase after reading duckplyr's [contributing guide](https://duckplyr.tidyverse.org/CONTRIBUTING.html).
-- Turn on telemetry to help us hear about the most frequent fallbacks so we can prioritize working on the corresponding missing dplyr translation. See [`vignette("telemetry")`](https://duckplyr.tidyverse.org/articles/telemetry.html) and the [`duckplyr::fallback_sitrep()`](https://duckplyr.tidyverse.org/reference/fallback.html) function.
+- Turn on telemetry to help us hear about the most frequent fallbacks so we can prioritize working on the corresponding missing dplyr translation. See `vignette("telemetry")` and `duckplyr::fallback_sitrep()`.
 
 ## Additional resources
 
 Eager to learn more about duckplyr -- beside by trying it out yourself?
-The pkgdown website of duckplyr features several [articles](https://duckplyr.tidyverse.org/articles/).
+The duckplyr website features several [articles](https://duckplyr.tidyverse.org/articles/).
 Furthermore, the blog post ["duckplyr: dplyr Powered by DuckDB"](https://duckdb.org/2024/04/02/duckplyr.html) by Hannes Mühleisen provides some context on duckplyr including its inner workings, as also seen in a [section](https://blog.r-hub.io/2025/02/13/lazy-meanings/#duckplyr-lazy-evaluation-and-prudence) of the R-hub blog post ["Lazy introduction to laziness in R"](https://blog.r-hub.io/2025/02/13/lazy-meanings/) by Maëlle Salmon, Athanasia Mo Mowinckel and Hannah Frick.
 
 ## Acknowledgements
