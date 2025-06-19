@@ -36,7 +36,7 @@ conflict_prefer("filter", "dplyr", quiet = TRUE)
 
 We're well chuffed to announce the release of [duckplyr](https://duckplyr.tidyverse.org) 1.1.0.
 This is a dplyr backend powered by [DuckDB](https://duckdb.org/), a fast in-memory analytical database system[^duckdb].
-duckplyr uses the power of DuckDB for impressive performace where it can, and seemlessly falls back to R where it can't.
+duckplyr uses the power of DuckDB for impressive performance where it can, and seemlessly falls back to R where it can't.
 You can install it from CRAN with:
 
 [^duckdb]: If you haven't heard of it yet, watch [Hannes Mühleisen's keynote at posit::conf(2024)](https://www.youtube.com/watch?v=GELhdezYmP0&feature=youtu.be).
@@ -52,7 +52,9 @@ This article shows how duckplyr can be used instead of dplyr, explain how you ca
 Imagine you have to wrangle a huge dataset, like this one from the [TPC-H benchmark](https://duckdb.org/2024/04/02/duckplyr.html#benchmark-tpc-h-q1), a famous database benchmarking dataset.
 
 ```{r}
-lineitem_tbl <- duckdb:::sql("INSTALL tpch; LOAD tpch; CALL dbgen(sf=1); FROM lineitem;")
+lineitem_tbl <- duckdb:::sql(
+  "INSTALL tpch; LOAD tpch; CALL dbgen(sf=1); FROM lineitem;"
+)
 lineitem_tbl <- tibble::as_tibble(lineitem_tbl)
 dplyr::glimpse(lineitem_tbl)
 ```
