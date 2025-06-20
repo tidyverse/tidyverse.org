@@ -1,0 +1,260 @@
+---
+output: hugodown::hugo_document
+
+slug: vitals-0-1-0
+title: Introducing vitals
+date: 2025-06-27
+author: Simon Couch
+description: >
+    The first release of vitals, a package for large language model evaluation
+    in R, just made it to CRAN.
+
+photo:
+  author: Google Imagen 4
+
+categories: [package] 
+tags: [ellmer, ai]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're bear-y excited to announce the release of [vitals](https::vitals.tidyverse.org) on CRAN. vitals is a framework for large language model evaluation in R. It’s specifically aimed at ellmer users who want to measure the effectiveness of their LLM products like [custom chat apps](https://posit.co/blog/custom-chat-app/) and [querychat](https://github.com/posit-dev/querychat) apps.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+#| label: install-pkg
+install.packages("vitals")
+```
+
+This blog post will demonstrate the basics of evaluating LLM products with vitals. Specifically, we'll focus on a dataset of challenging R coding problems, evaluating how well different models from leading AI labs can solve them. This post just scratches the surface of what's possible with vitals; check out the [package website](https://vitals.tidyverse.org/) to learn more.
+
+```{r}
+#| label: setup
+#| echo: false
+should_eval <- identical(Sys.getenv("VITALS_SHOULD_EVAL"), "true")
+if (!should_eval) {
+  load(here::here("content/blog/vitals-0-1-0/results/tsk_claude.rda"))
+  load(here::here("content/blog/vitals-0-1-0/results/tsk_gpt.rda"))
+  load(here::here("content/blog/vitals-0-1-0/results/tsk_gemini.rda"))
+}
+
+Sys.setenv(VITALS_LOG_DIR = here::here("content/blog/vitals-0-1-0/logs"))
+```
+
+## The basics
+
+At their core, LLM evals are composed of three pieces:
+
+1) **Datasets** contain a set of labelled samples. Datasets are just a tibble with, minimally, columns `input` and `target`. `input` is a prompt that could be submitted by a user and `target` is either literal value(s) or grading guidance.
+2) **Solvers** evaluate the `input` in the dataset and produce a final result (hopefully) approximating `target`. In vitals, the simplest solver is just an ellmer chat (e.g. `ellmer::chat_anthropic()`) wrapped in `generate()`, i.e. `generate(ellmer::chat_anthropic()`), which will call the Chat object's `$chat()` method and return whatever it returns. When evaluating your own LLM products like [shinychat](https://posit-dev.github.io/shinychat/) and [querychat](https://github.com/posit-dev/querychat) apps, the underlying ellmer chat is your solver.
+3) **Scorers** evaluate the final output of solvers. They may use text
+comparisons, model grading, or other custom schemes to determine how well the solver approximated the `target` based on the `input`. 
+
+This blog post will explore these three components using `are`, an example dataset that ships with the package.
+
+First, loading some packages:
+
+```{r}
+#| label: load-pkgs
+#| message: false
+#| warning: false
+#| eval: true
+library(vitals)
+library(ellmer)
+library(dplyr)
+library(ggplot2)
+```
+
+## An R eval dataset
+
+While the package is capable of evaluating LLM products for arbitrary capabilities, the package ships with an example dataset `are` that evaluates R coding performance. From the `are` docs:
+
+> An R Eval is a dataset of challenging R coding problems. Each `input` is a question about R code which could be solved on first-read only by human experts and, with a chance to read documentation and run some code, by  fluent data scientists. Solutions are in `target` and enable a fluent  data scientist to evaluate whether the solution deserves full, partial, or no credit.
+
+```{r}
+#| label: explore-dataset
+glimpse(are)
+```
+
+At a high level:
+
+- `id`:  A unique identifier for the problem.
+- `input`: The question to be answered.
+- `target`: The solution, often with a description of notable features of a correct solution.
+- `domain`, `task`, and `knowledge` are pieces of metadata describing the kind of R coding challenge.
+- `source`: Where the problem came from, as a URL. Many of these coding problems are adapted "from the wild" and include the kinds of context usually available to those answering questions.
+
+For the purposes of actually carrying out the initial evaluation, we're specifically interested in the `input` and `target` columns. Let's print out the first entry in full so you can get a taste of a typical problem in this dataset:
+
+```{r}
+#| label: input-1
+cat(are$input[1])
+```
+
+Here's the suggested solution:
+
+```{r}
+#| label: target-1
+cat(are$target[1])
+```
+
+## Evaluation tasks
+
+First, we'll create a few ellmer chat objects that use different LLMs:
+
+```{r}
+#| label: define-chats
+claude <- chat_anthropic(model = "claude-sonnet-4-20250514")
+gpt <- chat_openai(model = "gpt-4.1")
+gemini <- chat_google_gemini(model = "gemini-2.5-pro")
+```
+
+LLM evaluation with vitals happens in two main steps:
+
+1) Use `Task$new()` to situate a dataset, solver, and scorer in a `Task`.
+
+```{r}
+#| label: create-task
+tsk <- Task$new(
+  dataset = are,
+  solver = generate(),
+  scorer = model_graded_qa(
+    partial_credit = TRUE, 
+    scorer_chat = claude
+  ),
+  name = "An R Eval"
+)
+
+tsk
+```
+
+2) Use `Task$eval()` to evaluate the solver, evaluate the scorer, and then explore a persistent log of the results in the [interactive log viewer](https://vitals.tidyverse.org/articles/vitals.html#analyzing-the-results).
+
+```{r}
+#| label: eval-tsk-claude
+#| eval: !expr should_eval
+tsk_claude <- tsk$clone()
+tsk_claude$eval(solver_chat = claude)
+```
+
+```{r}
+#| label: save-tsk-claude
+#| include: false
+if (should_eval) {
+  save(tsk_claude, file = here::here("content/blog/vitals-0-1-0/results/tsk_claude.rda"))
+}
+```
+
+`$clone()`ing the object makes a copy so that the underlying `tsk` is unchanged—we do this so that we can reuse the `tsk` object to evaluate other potential `solver_chat`s. After evaluation, the task contains information from the solving and scoring steps. Here's what the model responded to that first question with:
+
+```{r}
+#| label: output-1
+cat(tsk_claude$get_samples()$result[1])
+```
+
+The task also contains score information from the scoring step. We've used `model_graded_qa()` as our scorer, which uses another model to evaluate the quality of our solver's solutions against the reference solutions in the `target` column. `model_graded_qa()` is a model-graded scorer provided by the package. This step compares Claude's solutions against the reference solutions in the `target` column, assigning a score to each solution using another model. That score is either `C` (correct) or `I` (incorrect), though since we've set `partial_credit = TRUE`, the model can also choose to allot the response `P` (partially correct). vitals will use the same model that generated the final response as the model to score solutions.
+
+Hold up, though—we're using an LLM to generate responses to questions, and then using the LLM to grade those responses?
+
+```{r}
+#| echo: false
+#| fig-alt: "The meme of 3 spiderman pointing at each other."
+knitr::include_graphics("https://cdn-useast1.kapwing.com/static/templates/3-spiderman-pointing-meme-template-full-ca8f27e0.webp")
+```
+
+This technique is called "model grading" or "LLM-as-a-judge." Done correctly, model grading is an effective and scalable solution to scoring. That said, it's not without its faults. Here's what the grading model thought of the response:
+
+```{r}
+cat(tsk_claude$get_samples()$scorer_chat[[1]]$last_turn()@text)
+```
+
+Especially the first few times you run an eval, you'll want to inspect its results closely. The vitals package ships with an app, the Inspect log viewer (see a demo [here](https://vitals.tidyverse.org/articles/vitals.html#analyzing-the-results)), that allows you to drill down into the solutions and grading decisions from each model for each sample. In the first couple runs, you'll likely find revisions you can make to your grading guidance in `target` and with the LLM judge that align model responses with your intent.
+
+Any arguments to the solver or scorer can be passed to `$eval()`, allowing for straightforward parameterization of tasks. For example, if I wanted to evaluate OpenAI's GPT 4.1 on this task rather than Anthropic's Claude 4 Sonnet, I could write:
+
+```{r}
+#| label: eval-tsk-gpt
+#| eval: !expr should_eval
+tsk_gpt <- tsk$clone()
+tsk_gpt$eval(solver_chat = gpt)
+```
+
+```{r}
+#| label: save-tsk-gpt
+#| include: false
+if (should_eval) {
+  save(tsk_gpt, file = here::here("content/blog/vitals-0-1-0/results/tsk_gpt.rda"))
+}
+```
+
+Or, similarly for Google's Gemini 2.5 Pro:
+
+```{r}
+#| label: eval-tsk-gemini
+#| eval: !expr should_eval
+tsk_gemini <- tsk$clone()
+tsk_gemini$eval(solver_chat = gemini)
+```
+
+```{r}
+#| label: save-tsk-gemini
+#| include: false
+if (should_eval) {
+  save(tsk_gemini, file = here::here("content/blog/vitals-0-1-0/results/tsk_gemini.rda"))
+}
+```
+
+## Analysis
+
+To generate analysis-ready data frames, pass any number of Tasks to `vitals_bind()`:
+
+```{r}
+tsk_eval <- 
+  vitals_bind(
+    claude = tsk_claude, 
+    gpt = tsk_gpt, 
+    gemini = tsk_gemini
+  )
+
+tsk_eval
+```
+
+From here, you're in Happy Data Frame Land.🌈 To start off, we can quickly juxtapose those evaluation results:
+
+```{r}
+#| label: plot-tsk-eval
+tsk_eval |>
+  rename(model = task) |>
+  mutate(
+    score = factor(
+      case_when(
+        score == "I" ~ "Incorrect",
+        score == "P" ~ "Partially correct",
+        score == "C" ~ "Correct"
+      ),
+      levels = c("Incorrect", "Partially correct", "Correct"),
+      ordered = TRUE
+    )
+  ) |>
+  ggplot(aes(y = model, fill = score)) +
+  geom_bar() +
+  scale_fill_brewer(breaks = rev, palette = "RdYlGn")
+```
+
+Are these differences just a result of random noise, though? While the package doesn't implement any analysis-related functionality itself, we've written up some [recommendations on analyzing evaluation data](https://vitals.tidyverse.org/articles/analysis.html) on the package website.
+
+## Acknowledgements
+
+Many thanks to JJ Allaire, Hadley Wickham, Max Kuhn, and Mine Çetinkaya-Rundel for their help in bringing this package to life.
