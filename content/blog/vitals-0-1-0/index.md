@@ -14,7 +14,7 @@ photo:
 
 categories: [package] 
 tags: [ellmer, ai]
-rmd_hash: 42fc0b4bce94ecce
+rmd_hash: 9a9d38d05fd53236
 
 ---
 
@@ -341,7 +341,7 @@ From here, you're in Happy Data Frame Land.🌈 To start off, we can quickly jux
 <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>+</span></span>
 <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/scale_brewer.html'>scale_fill_brewer</a></span><span class='o'>(</span>breaks <span class='o'>=</span> <span class='nv'>rev</span>, palette <span class='o'>=</span> <span class='s'>"RdYlGn"</span><span class='o'>)</span></span>
 </code></pre>
-<img src="figs/plot-tsk-eval-1.png" width="700px" style="display: block; margin: auto;" />
+<img src="figs/plot-tsk-eval-1.png" alt="A ggplot2 horizontal stacked bar chart comparing the three models across three performance categories. Each model shows very similar performance: approximately 13 correct responses (green), 6 partially correct responses (yellow), and 10 incorrect responses (red)." width="700px" style="display: block; margin: auto;" />
 
 </div>
 
