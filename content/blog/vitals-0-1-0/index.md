@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 
 slug: vitals-0-1-0
-title: Introducing vitals
+title: Introducing vitals, a toolkit for evaluating LLM products in R
 date: 2025-06-27
 author: Simon Couch
 description: >
@@ -14,7 +14,7 @@ photo:
 
 categories: [package] 
 tags: [ellmer, ai]
-rmd_hash: 9a9d38d05fd53236
+rmd_hash: 02decf8e7fb8bc94
 
 ---
 
@@ -79,13 +79,13 @@ While the package is capable of evaluating LLM products for arbitrary capabiliti
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://pillar.r-lib.org/reference/glimpse.html'>glimpse</a></span><span class='o'>(</span><span class='nv'>are</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Rows: 29</span></span>
 <span><span class='c'>#&gt; Columns: 7</span></span>
-<span><span class='c'>#&gt; $ id        <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "after-stat-bar-heights"<span style='color: #555555;'>, </span>"conditional-grouped-summary"<span style='color: #555555;'>, </span>"correlated-delays…</span></span>
-<span><span class='c'>#&gt; $ input     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "This bar chart shows the count of different cuts of diamonds, and each bar…</span></span>
-<span><span class='c'>#&gt; $ target    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "Preferably: \n\n```\nggplot(data = diamonds) + \n  geom_bar(aes(x = cut, y…</span></span>
-<span><span class='c'>#&gt; $ domain    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "Data analysis"<span style='color: #555555;'>, </span>"Data analysis"<span style='color: #555555;'>, </span>"Data analysis"<span style='color: #555555;'>, </span>"Programming"<span style='color: #555555;'>, </span>"Data ana…</span></span>
-<span><span class='c'>#&gt; $ task      <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "New code"<span style='color: #555555;'>, </span>"New code"<span style='color: #555555;'>, </span>"New code"<span style='color: #555555;'>, </span>"Debugging"<span style='color: #555555;'>, </span>"New code"<span style='color: #555555;'>, </span>"New code"<span style='color: #555555;'>, </span>"D…</span></span>
-<span><span class='c'>#&gt; $ source    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "https://jrnold.github.io/r4ds-exercise-solutions/data-visualisation.html"<span style='color: #555555;'>,</span>…</span></span>
-<span><span class='c'>#&gt; $ knowledge <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span> "tidyverse"<span style='color: #555555;'>, </span>"tidyverse"<span style='color: #555555;'>, </span>"tidyverse"<span style='color: #555555;'>, </span>"r-lib"<span style='color: #555555;'>, </span>"tidyverse"<span style='color: #555555;'>, </span>"tidyverse"<span style='color: #555555;'>, </span>…</span></span>
+<span><span class='c'>#&gt; $ id        <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "after-stat-bar-heights"<span style='color: #555555;'>, </span>"conditional-…</span></span>
+<span><span class='c'>#&gt; $ input     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "This bar chart shows the count of diff…</span></span>
+<span><span class='c'>#&gt; $ target    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "Preferably: \n\n```\nggplot(data = dia…</span></span>
+<span><span class='c'>#&gt; $ domain    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "Data analysis"<span style='color: #555555;'>, </span>"Data analysis"<span style='color: #555555;'>, </span>"Data…</span></span>
+<span><span class='c'>#&gt; $ task      <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "New code"<span style='color: #555555;'>, </span>"New code"<span style='color: #555555;'>, </span>"New code"<span style='color: #555555;'>, </span>"De…</span></span>
+<span><span class='c'>#&gt; $ source    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span> "https://jrnold.github.io/r4ds-exercise…</span></span>
+<span><span class='c'>#&gt; $ knowledge <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span> "tidyverse"<span style='color: #555555;'>, </span>"tidyverse"<span style='color: #555555;'>, </span>"tidyverse"<span style='color: #555555;'>,</span>…</span></span>
 <span></span></code></pre>
 
 </div>
@@ -199,8 +199,7 @@ LLM evaluation with vitals happens in two main steps:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tsk_claude</span> <span class='o'>&lt;-</span> <span class='nv'>tsk</span><span class='o'>$</span><span class='nf'>clone</span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='nv'>tsk_claude</span><span class='o'>$</span><span class='nf'>eval</span><span class='o'>(</span>solver_chat <span class='o'>=</span> <span class='nv'>claude</span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tsk_claude</span> <span class='o'>&lt;-</span> <span class='nv'>tsk</span><span class='o'>$</span><span class='nf'>clone</span><span class='o'>(</span><span class='o'>)</span><span class='o'>$</span><span class='nf'>eval</span><span class='o'>(</span>solver_chat <span class='o'>=</span> <span class='nv'>claude</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
@@ -274,8 +273,7 @@ Any arguments to the solver or scorer can be passed to `$eval()`, allowing for s
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tsk_gpt</span> <span class='o'>&lt;-</span> <span class='nv'>tsk</span><span class='o'>$</span><span class='nf'>clone</span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='nv'>tsk_gpt</span><span class='o'>$</span><span class='nf'>eval</span><span class='o'>(</span>solver_chat <span class='o'>=</span> <span class='nv'>gpt</span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tsk_gpt</span> <span class='o'>&lt;-</span> <span class='nv'>tsk</span><span class='o'>$</span><span class='nf'>clone</span><span class='o'>(</span><span class='o'>)</span><span class='o'>$</span><span class='nf'>eval</span><span class='o'>(</span>solver_chat <span class='o'>=</span> <span class='nv'>gpt</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
@@ -283,8 +281,7 @@ Or, similarly for Google's Gemini 2.5 Pro:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tsk_gemini</span> <span class='o'>&lt;-</span> <span class='nv'>tsk</span><span class='o'>$</span><span class='nf'>clone</span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='nv'>tsk_gemini</span><span class='o'>$</span><span class='nf'>eval</span><span class='o'>(</span>solver_chat <span class='o'>=</span> <span class='nv'>gemini</span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>tsk_gemini</span> <span class='o'>&lt;-</span> <span class='nv'>tsk</span><span class='o'>$</span><span class='nf'>clone</span><span class='o'>(</span><span class='o'>)</span><span class='o'>$</span><span class='nf'>eval</span><span class='o'>(</span>solver_chat <span class='o'>=</span> <span class='nv'>gemini</span><span class='o'>)</span></span></code></pre>
 
 </div>
 
@@ -303,18 +300,18 @@ To generate analysis-ready data frames, pass any number of Tasks to [`vitals_bin
 <span></span>
 <span><span class='nv'>tsk_eval</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 87 × 4</span></span></span>
-<span><span class='c'>#&gt;    task   id                          score metadata         </span></span>
-<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                       <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>           </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> claude after-stat-bar-heights      I     <span style='color: #555555;'>&lt;tibble [1 × 10]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> claude conditional-grouped-summary P     <span style='color: #555555;'>&lt;tibble [1 × 10]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> claude correlated-delays-reasoning I     <span style='color: #555555;'>&lt;tibble [1 × 10]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> claude curl-http-get               C     <span style='color: #555555;'>&lt;tibble [1 × 10]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> claude dropped-level-legend        I     <span style='color: #555555;'>&lt;tibble [1 × 10]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> claude filter-multiple-conditions  C     <span style='color: #555555;'>&lt;tibble [1 × 10]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> claude geocode-req-perform         P     <span style='color: #555555;'>&lt;tibble [1 × 10]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> claude group-by-summarize-message  C     <span style='color: #555555;'>&lt;tibble [1 × 10]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> claude grouped-filter-summarize    P     <span style='color: #555555;'>&lt;tibble [1 × 10]&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> claude grouped-geom-line           P     <span style='color: #555555;'>&lt;tibble [1 × 10]&gt;</span></span></span>
+<span><span class='c'>#&gt;    task   id                          score metadata</span></span>
+<span><span class='c'>#&gt;    <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>  <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>                       <span style='color: #555555; font-style: italic;'>&lt;ord&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>  </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 1</span> claude after-stat-bar-heights      I     <span style='color: #555555;'>&lt;tibble&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 2</span> claude conditional-grouped-summary P     <span style='color: #555555;'>&lt;tibble&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 3</span> claude correlated-delays-reasoning I     <span style='color: #555555;'>&lt;tibble&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 4</span> claude curl-http-get               C     <span style='color: #555555;'>&lt;tibble&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 5</span> claude dropped-level-legend        I     <span style='color: #555555;'>&lt;tibble&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 6</span> claude filter-multiple-conditions  C     <span style='color: #555555;'>&lt;tibble&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 7</span> claude geocode-req-perform         P     <span style='color: #555555;'>&lt;tibble&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 8</span> claude group-by-summarize-message  C     <span style='color: #555555;'>&lt;tibble&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'> 9</span> claude grouped-filter-summarize    P     <span style='color: #555555;'>&lt;tibble&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>10</span> claude grouped-geom-line           P     <span style='color: #555555;'>&lt;tibble&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># ℹ 77 more rows</span></span></span>
 <span></span></code></pre>
 
