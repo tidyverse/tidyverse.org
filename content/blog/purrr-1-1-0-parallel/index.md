@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parallelism, purrr]
-rmd_hash: 7aba5bab34e5f01f
+rmd_hash: 2e7a539ee667134c
 
 ---
 
@@ -200,6 +200,8 @@ mirai::daemons(0)
 ```
 
 The same `in_parallel()` syntax that works locally scales seamlessly to distributed systems.
+
+Please refer to the mirai documentation on [remote daemons](https://mirai.r-lib.org/articles/mirai.html#remote-daemons) and [launching remote daemons](https://mirai.r-lib.org/articles/mirai.html#launching-remote-daemons) for more details. This [mirai blog post](https://shikokuchuo.net/posts/27-mirai-240/) will also be useful if you're working with High-Performance Computing (HPC) clusters.
 
 ## Looking forward
 
