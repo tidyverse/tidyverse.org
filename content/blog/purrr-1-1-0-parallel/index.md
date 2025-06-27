@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parallelism, purrr]
-rmd_hash: 2e7a539ee667134c
+rmd_hash: c9119c4c9c0c3913
 
 ---
 
@@ -167,6 +167,8 @@ map(1:3, in_parallel(\(x) {
 ```
 
 This explicit dependency management might seem verbose, but it ensures your parallel code is reliable and predictable---crucial for production environments.
+
+It also removes the danger of accidentally shipping large objects to parallel processes---often a source of performance degradation.
 
 ## When to use parallel processing
 
