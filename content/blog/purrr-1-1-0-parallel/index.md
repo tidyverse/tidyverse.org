@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parallelism, purrr]
-rmd_hash: 6675c43b88011001
+rmd_hash: 7aba5bab34e5f01f
 
 ---
 
@@ -38,9 +38,21 @@ For the first time in purrr's history, you can now scale your `map()` operations
 
 This milestone represents more than just a performance boost---it's a fundamental shift that makes purrr suitable for production-scale data processing tasks without sacrificing the clarity and composability that make it such a joy to use.
 
+Get started by installing purrr 1.1.0 today:
+
+``` r
+install.packages("purrr")
+```
+
+The parallel processing functionality requires the mirai and carrier packages. You will be prompted to install them when you first call `in_parallel()`.
+
+Ready to supercharge your functional programming workflows? Parallel purrr is here, and it's remarkably simple to use.
+
 ## The power of `in_parallel()`
 
-The magic happens through a shiny new function: `in_parallel()`. This purrr adverb wraps your functions to signal that they should run in parallel, powered by the venerable [mirai package](https://mirai.r-lib.org/). Here's how simple it is to transform your sequential operations:
+The magic happens through a shiny new function: `in_parallel()`. This purrr adverb wraps your functions to signal that they should run in parallel, powered by the venerable [mirai package](https://mirai.r-lib.org/).
+
+Here's how simple it is to transform your sequential operations:
 
 ``` r
 library(purrr)
@@ -196,18 +208,6 @@ The addition of parallel processing to purrr 1.1.0 represents a significant evol
 This feature is currently marked as experimental as we gather feedback from the community, but the underlying mirai infrastructure is production-proven and battle-tested. We encourage you to try it out and let us know about your experiences.
 
 Whether you're processing large datasets, fitting complex models, or running simulations, purrr 1.1.0's parallel processing capabilities can help you scale your R workflows without sacrificing code clarity or reliability.
-
-## Get started
-
-Install purrr 1.1.0 today:
-
-``` r
-install.packages("purrr")
-```
-
-The parallel processing functionality requires the mirai and carrier packages. You will be prompted to install them when you first call `in_parallel()`.
-
-Ready to supercharge your functional programming workflows? The future of parallel purrr is here, and it's remarkably simple to use.
 
 ## Acknowledgements
 
