@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parallelism, purrr]
-rmd_hash: 9afa7f020fbc538d
+rmd_hash: 6675c43b88011001
 
 ---
 
@@ -63,7 +63,28 @@ mtcars |> map_dbl(in_parallel(\(x) mean(x)))
 daemons(0)
 ```
 
-The results are identical, but the second version distributes the work across your available CPU cores. For computationally intensive tasks, the performance gains can be dramatic.
+The results are identical, but the second version distributes the work across multiple CPU cores. For computationally intensive tasks, the performance gains can be dramatic.
+
+The beauty of using an adverb is that `in_parallel()` works not just with `map()`, but across the entire purrr ecosystem:
+
+``` r
+daemons(6)
+
+# Works with all map variants
+1:4 |> map_int(in_parallel(\(x) x^2))
+1:4 |> map_chr(in_parallel(\(x) paste("Number", x)))
+
+# Works with map2 and pmap
+map2_dbl(1:3, 4:6, in_parallel(\(x, y) x + y))
+
+list(a = 1:3, b = 4:6, c = 7:9) |>
+  pmap_dbl(in_parallel(\(a, b, c) mean(c(a, b, c))))
+
+# Even works with walk for side effects
+1:3 |> walk(in_parallel(\(x) cat("Processing", x, "\n")))
+
+daemons(0)
+```
 
 ## Real-world example: parallel model fitting
 
@@ -145,29 +166,6 @@ Not every `map()` operation benefits from parallelization. The overhead of setti
 -   The data being passed between processes isn't excessively large
 
 For quick operations like simple arithmetic, sequential processing will often be faster.
-
-## All your favorite functions work
-
-The beauty of this implementation is that `in_parallel()` works with the entire purrr ecosystem:
-
-``` r
-mirai::daemons(6)
-
-# Works with all map variants
-1:4 |> map_int(in_parallel(\(x) x^2))
-1:4 |> map_chr(in_parallel(\(x) paste("Number", x)))
-
-# Works with map2 and pmap
-map2_dbl(1:3, 4:6, in_parallel(\(x, y) x + y))
-
-list(a = 1:3, b = 4:6, c = 7:9) |>
-  pmap_dbl(in_parallel(\(a, b, c) mean(c(a, b, c))))
-
-# Even works with walk for side effects
-1:3 |> walk(in_parallel(\(x) cat("Processing", x, "\n")))
-
-mirai::daemons(0)
-```
 
 ## Distributed computing made simple
 
