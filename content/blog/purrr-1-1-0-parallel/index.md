@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parallelism, purrr]
-rmd_hash: c9119c4c9c0c3913
+rmd_hash: c06ac7d7b33c2d71
 
 ---
 
@@ -80,7 +80,7 @@ The results are identical, but the second version distributes the work across mu
 The beauty of using an adverb is that `in_parallel()` works not just with `map()`, but across the entire purrr ecosystem:
 
 ``` r
-daemons(6)
+daemons(6, output = TRUE)
 
 # Works with all map variants
 1:4 |> map_int(in_parallel(\(x) x^2))
