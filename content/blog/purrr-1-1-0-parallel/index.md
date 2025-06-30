@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parallelism, purrr]
-rmd_hash: 204e470393b503e7
+rmd_hash: 45c8098e7e33c913
 
 ---
 
@@ -97,6 +97,8 @@ list(a = 1:3, b = 4:6, c = 7:9) |>
 
 daemons(0)
 ```
+
+If you use `in_parallel()` but don't set `daemons()`, then the map will just proceed sequentially, so you don't need to worry about having two separate code paths for parallel vs non-parallel execution.
 
 ## Real-world example: parallel model fitting
 
