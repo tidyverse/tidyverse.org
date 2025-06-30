@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parallelism, purrr]
-rmd_hash: ebcaaa54b2a4795f
+rmd_hash: 2df78d52d63862d1
 
 ---
 
@@ -50,7 +50,7 @@ Ready to supercharge your functional programming workflows? Parallel purrr is he
 
 ## The power of `in_parallel()`
 
-The magic happens through a shiny new function: `in_parallel()`. This purrr adverb wraps your functions to signal that they should run in parallel, powered by the venerable [mirai package](https://mirai.r-lib.org/).
+The magic happens through a shiny new function: `in_parallel()`. This purrr adverb wraps your functions to signal that they should run in parallel, powered by the venerable [mirai](https://mirai.r-lib.org/) package.
 
 Here's how simple it is to transform your sequential operations:
 
@@ -145,10 +145,12 @@ The choice of [mirai](https://mirai.r-lib.org) as the parallel backend wasn't ar
 
 This means your parallel purrr code isn't just fast---it's production-ready.
 
-Compared to the [`furrr`](https://furrr.futureverse.org) package:
+Compared to the [furrr](https://furrr.futureverse.org) package:
 
 -   Much lower overhead means you can get a performance boost even for relatively fast functions
 -   More linear scaling means you get the same benefits whether you're running on 2 or 200 cores
+
+We've learned a lot from our work on furrr, and from [Henrik Bengtsson](https://github.com/henrikbengtsson)'s excellent work on the [futureverse](https://github.com/futureverse) ecosystem. purrr doesn't use future as the underlying engine for parallelism because we've made some design decisions that differ at a fundamental level, but Henrik's entire ecosystem deserves credit for pushing the boundaries of parallelism in R farther than many thought possible.
 
 ## Creating self-contained functions
 
