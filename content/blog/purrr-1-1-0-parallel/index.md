@@ -15,14 +15,14 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parallelism, purrr]
-rmd_hash: c06ac7d7b33c2d71
+rmd_hash: 204e470393b503e7
 
 ---
 
 <!--
 TODO:
 * [x] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Edit (or delete) the description; note this appears in the Twitter card
 * [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
 * [x] Find photo & update yaml metadata
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
@@ -180,6 +180,8 @@ Not every `map()` operation benefits from parallelization. The overhead of setti
 -   The data being passed between processes isn't excessively large
 
 For quick operations like simple arithmetic, sequential processing will often be faster.
+
+If you're a package developer, use `in_parallel()` where you see fit, but please be mindful not to call `daemons()` within your package code. How to set mirai daemons should be always be for the end user to decide.
 
 ## Distributed computing made simple
 
