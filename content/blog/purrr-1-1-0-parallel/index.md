@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parallelism, purrr]
-rmd_hash: 45c8098e7e33c913
+rmd_hash: ebcaaa54b2a4795f
 
 ---
 
@@ -145,9 +145,14 @@ The choice of [mirai](https://mirai.r-lib.org) as the parallel backend wasn't ar
 
 This means your parallel purrr code isn't just fast---it's production-ready.
 
+Compared to the [`furrr`](https://furrr.futureverse.org) package:
+
+-   Much lower overhead means you can get a performance boost even for relatively fast functions
+-   More linear scaling means you get the same benefits whether you're running on 2 or 200 cores
+
 ## Creating self-contained functions
 
-One of the key concepts when using `in_parallel()` is creating self-contained functions. Since your function gets serialized and sent to parallel processes, it needs to be completely independent:
+One of the key concepts when using `in_parallel()` is creating self-contained functions. Since your function gets serialized and sent to parallel processes, it needs to be completely standalone:
 
 ``` r
 # ❌ This won't work - external dependencies not declared
