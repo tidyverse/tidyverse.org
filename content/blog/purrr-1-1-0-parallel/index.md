@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parallelism, purrr]
-rmd_hash: 2df78d52d63862d1
+rmd_hash: 71441a279ee97f4d
 
 ---
 
@@ -197,8 +197,10 @@ If you're a package developer, use `in_parallel()` where you see fit, but please
 Want to scale beyond your local machine? mirai's networking capabilities make distributed computing surprisingly straightforward:
 
 ``` r
+library(mirai)
+
 # Set up remote daemons on a Slurm HPC cluster
-mirai::daemons(
+daemons(
   n = 100,
   url = host_url(),
   remote = cluster_config(command = "sbatch")
@@ -209,7 +211,7 @@ results <- big_dataset |>
   split(big_dataset$group) |>
   map(in_parallel(\(df) complex_analysis(df), complex_analysis = complex_analysis))
 
-mirai::daemons(0)
+daemons(0)
 ```
 
 The same `in_parallel()` syntax that works locally scales seamlessly to distributed systems.
