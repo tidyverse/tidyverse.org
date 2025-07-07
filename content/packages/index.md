@@ -58,10 +58,11 @@ In addition to [tidyr](https://tidyr.tidyverse.org), [dplyr](https://dplyr.tidyv
 
 ### dplyr backends
 
-There are also two packages that allow you to interface with different backends using the same dplyr syntax:
+There are also three packages that allow you to interface with different backends using the same dplyr syntax:
 
 * [dbplyr](https://dbplyr.tidyverse.org) allows you to use remote database tables by converting dplyr code into SQL. 
 * [dtplyr](https://dtplyr.tidyverse.org) provides a [data.table](http://r-datatable.com) backend by automatically translating to the equivalent, but usually much faster, data.table code.  
+* [duckplyr](https://duckplyr.tidyverse.org/) runs existing dplyr code using [DuckDB](https://duckdb.org/) where possible, allowing for fast analysis of larger-than-memory datasets straight from local files or from the web.
 
 ## Program
 
