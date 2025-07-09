@@ -1,0 +1,1141 @@
+---
+output: hugodown::md_document
+
+slug: ggplot2-styling
+title: ggplot2 styling
+date: 2025-01-10
+author: Teun van den Brand
+description: >
+    A 2-3 sentence description of the post that appears on the articles page.
+    This can be omitted if it would just recapitulate the title.
+
+photo:
+  url: https://unsplash.com/photos/n6vS3xlnsCc
+  author: Kelley Bozarth
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: []
+---
+
+<!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+## So you want to style your plot?
+
+Diligently, you have read, cleaned and modelled your data.
+You have carefully crafted a plot that lets your data speak its story.
+Now it is time to polish. 
+Now it is time to let your visualisation shine.
+
+We will set out to illuminate how to set the stylistic finishing touches on your visualisations made with the ggplot2 package.
+In ggplot2, the theme system is responsible for many non-data aspects of how your plot looks.
+It covers anything from panels, to axes, titles and legends.
+Here, we'll get started with digesting important parts of the theme system.
+We'll start with complete themes, get into theme elements followed by how these elements are used in various parts of the plot and finish off with some tips, including how to write your own theme functions.
+Before we begin discussing themes, let's make an example plot that can showcase many aspects.
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(dev = "ragg_png")
+```
+
+
+```{r base_plot}
+library(ggplot2)
+
+p <- ggplot(mpg, aes(displ, hwy, colour = cty, shape = drv)) +
+  geom_point() +
+  facet_grid(~ year) +
+  labs(
+    title = "Fuel efficiency",
+    subtitle = paste0("Described for ", nrow(mpg), " cars from 1999 and 2008"),
+    caption = "Source: U.S. Environmental Protection Agency",
+    x = "Engine Displacement",
+    y = "Highway miles per gallon",
+    colour = "City miles\nper gallon",
+    shape = "Drive train"
+  )
+
+p
+```
+
+## What is a theme?
+
+In ggplot, a theme is a list of descriptions for various parts of the plot.
+It is where you can set the size of your titles, the colours of your panels, the thickness of your grid lines and placement of your legends.
+
+Themes are declared using the `theme()` function, which populates these descriptions called 'theme elements'.
+Some of these elements have a predefined set of properties and can be set using the element functions, like `element_text()`.
+Other theme elements can take simpler values like strings, numbers or units.
+
+Some pre-arranged collections of elements can be found in complete themes, like the iconic `theme_gray()`.
+These are convenient ways to quickly swap out the complete look of a plot.
+
+## Complete themes
+
+Let's start big and work our way through the more nitty-gritty aspects of theming plots.
+The most thorough way to change the styling of a single plot is to swap out the complete theme.
+You can do this simply by adding one of the `theme_*()` functions, like `theme_minimal()`.
+
+```{r example_complete}
+p + theme_minimal()
+```
+
+### Built-in themes
+
+The base ggplot2 package already comes with a series of 9 built-in complete themes. 
+For the sake of completeness about complete themes, they are displayed in the fold-out sections below.
+You can peruse them at your leisure to help you pick one you might like.
+
+<p><details><summary><code>theme_grey()</code> (default)</summary>
+
+```{r complete_grey}
+p + theme_grey()
+```
+
+</details></p>
+
+
+<p><details><summary><code>theme_bw()</code></summary>
+
+```{r complete_bw}
+p + theme_bw()
+```
+
+</details></p>
+
+
+<p><details><summary><code>theme_linedraw()</code></summary>
+
+```{r complete_linedraw}
+p + theme_linedraw()
+```
+
+</details></p>
+
+<p><details><summary><code>theme_light()</code></summary>
+
+```{r complete_light}
+p + theme_light()
+```
+
+</details></p>
+
+<p><details><summary><code>theme_dark()</code></summary>
+
+```{r complete_dark}
+p + theme_dark()
+```
+
+</details></p>
+
+<p><details><summary><code>theme_minimal()</code></summary>
+
+```{r complete_minimal}
+p + theme_minimal()
+```
+
+</details></p>
+
+<p><details><summary><code>theme_classic()</code></summary>
+
+```{r complete_classic}
+p + theme_classic()
+```
+
+</details></p>
+
+
+<p><details><summary><code>theme_void()</code></summary>
+
+```{r complete_void}
+p + theme_void()
+```
+
+</details></p>
+
+<p><details><summary><code>theme_test()</code></summary>
+
+```{r complete_test}
+p + theme_test()
+```
+
+</details></p>
+
+### Additional themes
+
+Some packages come with their own themes that you can add to your plots.
+For example the cowplot package has a theme that galvanises you to not use [labels that are too small](https://clauswilke.com/dataviz/small-axis-labels.html), and otherwise has a clean look.
+
+<p><details><summary><code>cowplot::theme_cowplot()</code></summary>
+
+```{r complete_cowplot}
+p + cowplot::theme_cowplot()
+```
+
+</details></p>
+
+The ggthemes package hosts themes that reflect other popular venues of data visualisation, such as the economist or FiveThirtyEight.
+
+<p><details><summary><code>ggthemes::theme_fivethirtyeight()</code></summary>
+
+```{r complete_ggthemes}
+p + ggthemes::theme_fivethirtyeight()
+```
+
+</details></p>
+
+If the moods strikes you for a more playful plot, you can use the tvthemes package to style your plot according to TV shows!
+
+<p><details><summary><code>tvthemes::theme_simpsons()</code></summary>
+
+```{r complete_tvthemes}
+p + tvthemes::theme_simpsons()
+```
+
+</details></p>
+
+Aside from these packages that live on CRAN, there are also non-CRAN packages that come with complete themes. You can visit the [extension gallery](https://exts.ggplot2.tidyverse.org/gallery/) and filter on the 'themes' tag to find more packages.
+
+### Tweaking complete themes
+
+The complete themes have arguments that affect multiple components across the plot.
+Perhaps the most well known is the `base_size` argument that globally controls the size of theme elements, ranging from the text sizes, to line widths, and ---since recently--- even point sizes.
+
+```{r complete_base_size}
+p + theme_bw(base_size = 8)
+```
+
+A technique used to distinguish visual hierarchy is 'font pairing', meaning that you combine more than one font to convey visual hierarchy.
+In web design, it means displaying your headers different from your body text.
+In data visualisation, it can mean displaying your titles distinctly from labels.
+The most common pairing, and the default one baked into ggplot2, is to display titles larger than labels in the same typeface.
+Another popular choice is to use different weights, like 'bold' and 'plain'.
+It is now also easier to use different typefaces by pairing the `header_family` and the `base_family` fonts together.
+In the example below, we pair a serif font for headers and a sans-serif font for the rest.
+
+```{r complete_font_family}
+p + theme_bw(base_family = "Roboto", header_family = "Roboto Slab")
+```
+
+A recent addition to styling with complete themes are colour choices.
+The `ink` argument roughly amounts to the colour for all foreground elements, like text, lines and points.
+This is complemented by the `paper` argument, which affect background elements like the panels and plot background.
+Lastly, there is an `accent` argument which controls the display of a few specific layers, like `geom_smooth()` or `geom_contour()`.
+For some aspects of the plot, the `ink` and `paper` arguments are mixed to produce intermediate colours.
+As an example, when we use `theme_bw()`, the strip fill colour is a mix between the foreground and background to slightly lift this part from the background.
+The `ink` and `paper` arguments can also be used to quickly recolour a plot, or to convert a plot to 'dark mode' by using a light `ink` and dark `paper`.
+
+```{r complete_ink_paper}
+p + 
+  # Turning off these aesthetics to prevent grouping
+  aes(shape = NULL, colour = NULL) +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  theme_bw(
+    ink = "#BBBBBB", 
+    paper = "#333333", 
+    accent = "red"
+  )
+```
+
+## Theme elements
+
+Rather than swapping out complete themes in one fell swoop, themes can also be tweaked to various degrees.
+In ggplot2, themes are a collection of theme elements, where an element describes a property, or set of properties, for a part of the theme.
+
+### Element functions
+
+The documentation in `?theme()` will tell you what type of input each theme element will expect.
+Some theme elements just expect scalar values and not collections of properties.
+You can simply set these in the theme directly.
+For example, we all know that the golden ratio is the best ratio, so we can use it in our plot as follows:
+
+```{r aspect_ratio}
+phi <- (1 + sqrt(5)) / 2
+p + theme(aspect.ratio = phi)
+```
+
+In the cases where a cohesive set of properties serves as a theme element, ggplot2 has `element_*()` functions.
+One of the simpler elements is `element_line()` and we can declare a new set of line properties as follows:
+
+```{r red_line}
+red_line <- element_line(colour = "red", linewidth = 2)
+red_line
+```
+
+These elements can then be given to the `theme()` function to assign these properties to a specific part of the theme, like the `axis.line` in this example.
+
+```{r red_axis}
+p + theme(axis.line = red_line)
+```
+
+Below is an overview of elements and some common places where they are used:
+
+```{r element_table, echo=FALSE}
+elems <- tibble::tribble(
+  ~ Element, ~ Description,
+  "`element_blank()`",   "Indicator to skip drawing an element.",
+  "`element_line()`",    "Used for axis lines, grid lines and tick marks.",
+  "`element_rect()`",    "Used for (panel) backgrounds, borders and strips.",
+  "`element_text()`",    "Used for (sub)titles, labels, captions.",
+  "`element_geom()`",    "Used to set default properties of layers.",
+  "`element_polygon()`", "Not used, but provided for reasons of extension.",
+  "`element_point()`",   "Not used, but provided for reasons of extension."
+)
+knitr::kable(elems)
+```
+
+In addition to these elements in ggplot2, extension packages can also define custom elements.
+Generally speaking, these elements are variants of the elements listed above and often have slightly different properties and are rendered differently.
+For example `ggtext::element_markdown()` is a subclass of `element_text()`, but interprets the provided text as markdown.
+It applies some html tags like `<b>` for bold and `<i>` for italic when rendering the text.
+Another example is `ggh4x::element_part_rect()` that can draw a subset of rectangle borders.
+
+```{r element_markdown}
+p +
+  labs(title = "<b>Fuel</b> <i>efficiency</i>") +
+  theme(
+    plot.title = ggtext::element_markdown(),
+    strip.background = ggh4x::element_part_rect(colour = "black", side = "b")
+  )
+```
+
+### Hierarchy and inheritance
+
+Most theme elements are hierarchical.
+At the root, they are broadly applicable and change large parts of the plot.
+At leaves, they are very specific and allow fine grained control.
+Travelling from roots to leaves, properties of theme elements are inherited from parent to child.
+Some inheritance is very direct, where leaves directly inherit from roots (for example `legend.text`).
+Other times, inheritance is more arduous, like for `axis.minor.ticks.y.left`: it inherits from `axis.ticks.y.left`, which inherits from `axis.ticks.y`, which inherits from `axis.ticks`, which finally inherits from `line`.
+Most often, elements only have a single parent, but there are exceptions so the inheritance of theme elements is not strictly a directed acyclic graph.
+
+In the example below we set the root `text` element to red text. This is applied (almost) universally to all text in the plot.
+We also set the font of the leaf `legend.text` element. We see that not only has the legend text font changed, but it is red as well because of the root `text` element.
+
+```{r root_leaves}
+p + theme(
+  # A root element
+  text = element_text(colour = "red"),
+  # A leaf element
+  legend.text = element_text(family = "impact")
+)
+```
+
+However, the keen eye spots that the strip text and axis text are *not* red.
+This is because in the line of succession, an ancestor declared a different colour property for the text, which overrules the colour property descending from the root `text` element.
+In these specific cases, the deviating ancestors are `axis.text` and `strip.text`.
+
+When we inspect the contents of a theme element, we may find that the elements are `NULL`.
+This is simply an indicator that this element will inherit from its ancestor *in toto*.
+Another possibility is that some properties of an element are `NULL`.
+A `NULL` property means that the property will be inherited from the parent.
+When we truly want to know what properties are taken to display a theme element, we can use the `calc_element()` function to resolve the inheritance and populate all the fields.
+
+```{r inheritance}
+# Will inherit entirely from parent
+theme_gray()$axis.ticks.x.bottom
+
+# The element is incomplete
+theme_gray()$axis.ticks
+
+# Proper way to access the properties of an element
+calc_element("axis.ticks.x.bottom", theme_gray())
+```
+
+The `?theme` documentation often tells you how the elements inherit and `calc_element()` will resolve it for you.
+If, for some reason, you need programmatic access to the inheritance tree, you can use `get_element_tree()`.
+Let's say you want to find out exactly why theme inheritance is not a directed acyclic graph.
+The resulting object is the internal structure ggplot2 uses to resolve inheritance and has an `inherit` field for every element that discerns its direct parent.
+
+```{r element_tree}
+tree <- get_element_tree()
+tree$axis.line.x.bottom$inherit
+```
+
+## Anatomy of a theme
+
+```{r reset, echo=FALSE}
+reset_theme_settings()
+```
+
+
+The `theme()` function has a lot of arguments and can be a bit overwhelming to parse in one take.
+At the time of writing, it has `r length(formals(theme))` arguments and `...` is obfuscating additional optional.
+Because we like structure rather than chaos, let us try to digest the `theme()` function one bite at a time.
+Much of the theme has been divided over parts in the `theme_sub_*()` family of functions.
+This family are just simple shortcuts.
+For example the `theme_sub_axis(title)` argument, populates the `axis.title` element.
+
+```{r example_theme_sub}
+theme_sub_axis(title = element_blank())
+```
+
+If you're redefining a series of related settings, it can be beneficial to use the `theme_sub_*()`.
+One benefit is brevity.
+For example, if you want to tweak the left y-axis a lot, it can be terser to use `theme_sub_axis_left(title, text, ticks)` rather than `theme(axis.title.y.left, axis.text.y.left, axis.ticks.y.left)`.
+The second benefit is that it helps organising your theme, preserving a shred of sanity while hatching your plots.
+
+### Whole plot
+
+There are a series of mostly textual theme elements that mostly display outside the plot itself.
+Using the `theme_sub_plot()` function, we can omit the `plot` prefix in the settings.
+We can us it to control the background, as well as the titles, caption and tag text and their placement.
+In the plot below, we're tweaking these settings to show the scope.
+Note that the text (except for the tag) is now aligned across the plot as a whole, rather than aligned with the panels.
+
+```{r sub_plot}
+p + 
+  labs(tag = "A") +
+  theme_sub_plot(
+    # Adjust the background colour
+    background = element_rect(fill = "cornsilk"),
+    
+    # Align title and subtitle to plot instead of panels
+    title = element_text(hjust = 0), # default,
+    subtitle = element_text(colour = "dodgerblue"),
+    title.position = "plot", 
+    
+    # Align caption to plot instead of panels
+    caption = element_text(hjust = 1), # default
+    caption.position = "plot",
+    
+    # Place the tag in the top right of the panels instead of top left of plot
+    tag.position = "topright",
+    tag.location = "panel"
+  )
+```
+
+### Panels
+
+An important aspect of the panels are the grid lines.
+The grid lines follow the major and minor breaks of the scale, which is also the major distinction in how they are displayed.
+The next distinction is whether the lines are horizontal and mark breaks vertically (`y`) or the lines are vertical and mark breaks horizontally (`x`).
+
+```{r sub_panel}
+p + 
+  theme_sub_panel(
+    # Extra space between panels
+    spacing.x = unit(1, "cm"),
+    
+    # Tweaking all the grid elements
+    grid = element_line(colour = "grey80"),
+    
+    # Turning off the minor grid elements
+    grid.minor = element_blank(),
+    
+    # Tweak the major x/y lines separately
+    grid.major.x = element_line(linetype = "dotted"),
+    grid.major.y = element_line(colour = "white")
+  )
+```
+
+Besides grid lines, also the border and the background are important for the panel styling.
+They can be confusing because they are similar, but not identical.
+Notably, the panel background is underneath the data (unless `ontop = TRUE`), while the panel border is on top of the panel.
+You can see this in the plot below, because the white grid lines are visible over the blue background, but not over the red border.
+
+```{r sub_panel_border_background}
+p +
+  theme_sub_panel(
+    background = element_rect(fill = "cornsilk", colour = "blue", linewidth = 6),
+    border     = element_rect(colour = "red", linewidth = 3, fill = "black"),
+  )
+```
+
+Both the background and the border are clipped by the coordinate systems clipping setting, e.g. `coord_cartesian(clip)`.
+It should also be noted that any `fill` property set on the border is ignored.
+Moreover, the legend key background takes on the appearance of the panel background by default, which is why the 'Drive train' legend is affected too.
+
+A recent improvement is also that we can set the panel size via the theme. The `panel.widths` and `panel.heights` arguments take a unit (vector) and set the panels to this size. 
+If you are trying to coordinate panel sizes with `ggsave()`, please mind that other plot components, like axes, titles and legends also take up additional space.
+If you have more than one panel in the vertical or horizontal direction, you can use a vector of units as demonstrated below for `widths`.
+
+```{r sub_panel_size}
+p + 
+  theme_sub_panel(
+    widths = unit(c(3, 5), "cm"),
+    heights = unit(4, "cm")
+  )
+```
+
+It is also possible to set the total size of panels.
+In the example above we can use `widths = unit(c(3, 3), "cm")` to have each panel be 3 centimetres wide, separated by a gap determined by the `panel.spacing.x` setting.
+If we instead had used `widths = unit(6, "cm")` each panel would be smaller than 3 centimetres because the `panel.spacing.x` is included.
+
+### Strips
+
+The display text in strips is formatted by the `labeller` argument in the facets.
+Styling this piece of text can be done with the `theme_sub_strip()` function, which replaces the `strip` prefix in `theme()`.
+Similar to axes, strips also have positional variants with `background.x` and `background.y` specifying the backgrounds for horizontal and vertical strips specifically.
+
+The text even has specific `text.x.bottom`, `text.x.top`, `text.y.left` and `text.y.right` variants.
+This allows text on the left to be rotated 90&deg, while text on the right is rotated -90&deg, which gives the sense that the text faces the panels.
+Out of principle, you could force the `text.x.bottom` to be rotated 180&deg; to achieve the same sense for horizontal text, but you may find out why readability trumps consistency.
+
+Another important distinction is the `placement` option, which affects how strips are displayed when they clash with axes.
+This author personally thinks that `placement = "outside"` is the wiser choice 99% of the time.
+When strips are displayed outside of axes, the `switch.pad.grid`/`switch.pad.wrap` elements control the spacing.
+
+
+```{r sub_strip}
+# We're including a labeller to showcase formatting
+my_labeller <- as_labeller(c(`1999` = "The Nineties", `2008` = "The Noughties", 
+                             V = "Vertical Strip"))
+p + 
+  # Using a dummy strip for the vertical direction
+  facet_grid("V" ~ year, labeller = my_labeller, switch = "x") +
+  theme_sub_strip(
+    # All strip backgrounds
+    background = element_rect(fill = "cornsilk"),
+    # Specifically the horizontal strips
+    background.x = element_rect(colour = "black", linewidth = 1),
+    # Tweak text, specifically for the bottom strip
+    text.x.bottom = element_text(size = 16),
+    
+    placement = "outside",
+    # Spacing in between axes and strips. Note that it doesn't affect the 
+    # vertical strip that doesn't have an axis.
+    switch.pad.grid = unit(1, "cm"),
+    clip = "off"
+  )
+```
+
+The `clip = "on"` setting is the default and causes the strip border to be flush with the panel borders.
+By turning the clipping off, the strip border bleeds out, but it also allows text to exceed the boundaries.
+
+### Axes
+
+Perhaps the most involved theme elements are the axis elements.
+They have the longest chain of inheritance of all elements and have variants for every side of the plot.
+
+Let's start from the top and work our way down.
+The `theme_sub_axis()` function lets you tweak all the axes at once. 
+Note that the axis line now appears in the left and bottom axes.
+
+```{r sub_axis}
+# Turn on all lines
+p + theme_sub_axis(line = element_line())
+```
+
+To control the directions separately, you can use the `theme_sub_axis_x()` and `theme_sub_axis_y()` functions.
+
+```{r sub_axis_xy}
+p +
+  # Turn on horizontal line
+  theme_sub_axis_x(line = element_line()) +
+  # Turn off ticks for vertical
+  theme_sub_axis_y(ticks = element_blank())
+```
+
+If you are dealing with secondary axes, or you have placed your primary axes in unorthodox positions, you might find use in the even more granular `theme_sub_axis_*()` functions for the top, left, bottom and right positions.
+
+```{r sub_axis_positions}
+p +
+  # Extra axes
+  guides(x.sec = "axis", y.sec = "axis") +
+  # Turning off ticks
+  theme_sub_axis_bottom(ticks = element_blank()) +
+  # Extra long, coloured ticks
+  theme_sub_axis_top(
+    ticks.length = unit(5, "mm"),
+    ticks = element_line(colour = "red")
+  ) +
+  # Extra spacing
+  theme_sub_axis_left(text = element_text(margin = margin_auto(10))) +
+  # Turning on the axis line
+  theme_sub_axis_right(line = element_line())
+```
+
+In addition to being globally controlled by the theme, axes are guides that can also be locally controlled by their `guide_axis(theme)` argument.
+The same theme elements apply, but they are accessed from the local theme that masks the global theme.
+Note that besides from the colour changing, there is now also an axis line because the local `theme_classic()` draws axis lines.
+
+```{r axis_local_theme}
+red_axis <- guide_axis(theme = theme_classic(ink = "red"))
+p + guides(x = red_axis)
+```
+
+### Legend
+
+While the legend inheritance is typically straightforward, it can be a challenge to get these right.
+To chop this problem in smaller pieces, we can separate the so called 'guide box' from the legend guides themselves.
+
+#### Guide box
+
+The guide box is a container for guides and is responsible for the placement and arrangement of its contents.
+
+```{r sub_legend_guidebox}
+p + 
+  theme_sub_legend(
+    # Showing the box
+    box.background = element_rect(fill = "cornsilk"),
+    
+    # Put legends on the left
+    position = "left",
+    
+    # Arrange legends horizontally
+    box = "horizontal",
+    
+    # Align to legend box to top
+    justification = "top",
+    # location = "plot",
+    # But align legends within the box at the bottom
+    box.just = "bottom",
+    
+    # Spacings and margins
+    box.margin = margin_auto(5),
+    box.spacing = unit(1, "cm")
+  )
+```
+
+Legend boxes can be split up by manually specifying the `position` argument in guides.
+You cannot tweak every box setting for every position independently. 
+However, the boxes can be justified individually.
+
+```{r sub_legend_guidebox_position}
+p +
+  guides(shape = guide_legend(position = "left")) +
+  theme_sub_legend(
+    # Showing the boxes
+    box.background = element_rect(fill = "cornsilk"),
+    box.margin = margin_auto(5),
+    
+    # Tweaking the justification per position
+    justification.left = "top",
+    justification.right = "bottom"
+  )
+```
+
+#### General legend guides
+
+Moving on from guide boxes to the guides themselves;
+There are some theme settings that (almost) universally affect any guides, regardless of `guide_legend()`, `guide_colourbar()`, or `guide_bins()`.
+These settings pertain to the legend background, margins, labels and titles and their placement and key sizes.
+
+```{r sub_legend_general}
+p +
+  theme_sub_legend(
+    # Give guides a wider background
+    background = element_rect(fill = "cornsilk"),
+    margin = margin_auto(5, unit = "mm"),
+    
+    # Display legend titles to the right of the guide
+    title = element_text(angle = 270),
+    title.position = "right",
+    
+    # Display red labels to the left of the keys
+    text = element_text(colour = "red"),
+    text.position = "left",
+    
+    # Set smaller keys
+    key.width = unit(5, "mm"),
+    key.height = unit(5, "mm")
+  )
+```
+
+#### Legend guide
+
+There are also settings that affect `guide_legend()` but not `guide_colourbar()`.
+Most of these have to do with the arrangement of keys, like their spacing, justification or fill order (by row or column).
+The `legend.key.justification` setting only matters when the text size exceeds the key size.
+If we remove that setting from the plot below, the keys will fill up to fit the space.
+
+```{r sub_legend_legend}
+p + 
+  # Set two columns and long label text
+  scale_shape_discrete(
+    labels = c("4\nwheel\ndrive", "front\nwheel\ndrive", "rear\nwheel\ndrive"),
+    guide = guide_legend(ncol = 2)
+  ) +
+  theme_sub_legend(
+    # Fill items in grid in a row-wise fashion
+    byrow = TRUE,
+    # Increase spacing between keys
+    key.spacing.y = unit(5, "mm"),
+    key.spacing.x = unit(5, "mm"),
+    # Top-align keys with text
+    key.justification = "top"
+  )
+```
+
+#### Colourbar guide
+
+Likewise, there are also settings specific to `guide_colourbar()`.
+Generally, you can see it as a legend guide with a single elongated key.
+This elongation has special behaviour in that the default is 5 times the original key size.
+If you need to set the size directly without special behaviour, you can use the `guide_colourbar(theme)` argument.
+Aside from the special size behaviour, we can also set the colourbar frame and ticks.
+
+```{r sub_legend_colourbar}
+p +
+  # Using a local guide theme to directly set the size
+  guides(colour = guide_colourbar(theme = theme(legend.key.height = unit(5, "cm")))) +
+  theme_sub_legend(
+    frame = element_rect(colour = "red"),
+    # Long blue ticks
+    ticks = element_line(colour = "blue"),
+    ticks.length = unit(-5, "mm"),
+    # Adapt margins to accommodate longer ticks
+    text = element_text(margin = margin(l = 6, unit = "mm")),
+    margin = margin(l = 6, unit = "mm")
+  )
+```
+
+#### Binned legend
+
+A binned legend acts as a hybrid between a typical legend guide and a colourbar. 
+It depicts a discretised continuous (binned) legend, by properly displaying separate glyphs, but also displaying an axis with ticks at bin breaks.
+
+```{r sub_legend_binned}
+p +
+  guides(colour = "bins") +
+  theme_sub_legend(
+    axis.line = element_line("red"),
+    ticks = element_line("blue")
+  )
+```
+
+### Layers
+
+Since recently we can also set default choices for layer aesthetics via the theme.
+We briefly saw this foreshadowed in the 'tweaking complete themes' section. 
+But you can have more granular control over layers as well, without affecting the entirety of the theme.
+
+#### Introducing the 'geom' element
+
+The new theme element powering all this is the `geom` argument.
+It takes the return value of the `element_geom()` function to control the default graphical properties of layers.
+
+```{r layer_ink_paper}
+p + 
+  # Turn off grouping
+  aes(colour = NULL, shape = NULL) +
+  geom_smooth(formula = y ~ x, method = "lm") +
+  theme(
+    geom = element_geom(
+      ink = "tomato",
+      paper = "dodgerblue",
+      accent = "forestgreen"
+    )
+  )
+```
+
+The `element_geom()` function has a number of properties that we're about to describe.
+Just like other `element_*()` function, it returns an object with properties, most of which are `NULL` by default.
+These `NULL` properties will get filled in when the plot is built.
+
+```{r element_geom}
+element_geom()
+```
+
+##### Colours
+
+There are 5 colour related settings. 
+In the plot above, we've already met three of them.
+
+* `ink` is the foreground colour.
+* `paper` is the background colour. 
+  It is often used in a mixture with `ink` to dull the foreground and coordinate with the rest of the theme.
+  You can see for example that the ribbon part of `geom_smooth()` is a bit purple-ish due to the mixture of reddish `ink` and bluish `paper`.
+* `accent` is a speciality colour pick that only a few geoms use as default. 
+  These are `geom_contour()`, `geom_quantile()` and `geom_smooth()`.
+  
+The remaining two are well known to anyone who has worked with ggplot2 before: `colour` and `fill`.
+These two overrule any `ink`/`paper`/`accent` setting to directly set colour and fill without any mixing.
+For example, notice that the ribbon is a (semitransparent) purple, rather than a mixture with green paper.
+
+  
+```{r layer_colour_fill}
+last_plot() +
+  theme(geom = element_geom(
+    fill = "purple",
+    colour = "orange",
+    paper = "green" # Ignored
+  ))
+```
+
+##### Lines
+
+There are also 4 different line settings.
+You may already be familiar with `linewidth` and `linetype` setting how wide lines are, and how they are drawn respectively.
+Additionally, we're now also using `borderwidth` and `bordertype` to denote these settings for closed shapes that can be filled, like the rectangles below.
+
+```{r layer_borderline}
+ggplot(faithful, aes(eruptions)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 30, colour = "black") +
+  geom_line(stat = "density") +
+  theme(
+    geom = element_geom(
+      # Applies to the bars
+      borderwidth = 0.5,
+      bordertype = "dashed",
+      # Applies to the line
+      linewidth = 4,
+      linetype = "solid"
+    )
+  )
+```
+
+##### Points and text
+
+The four remaining settings pertains to text and points. 
+Respectively `fontsize` and `pointsize` control the size. 
+`pointshape` and `family` control the shape and font family.
+
+```{r layer_pointtext}
+ggplot(mtcars, aes(mpg, disp, label = rownames(mtcars))) +
+  geom_point() +
+  geom_label(nudge_x = 0.25, hjust = 0) +
+  theme(
+    geom = element_geom(
+      # Point settings
+      pointsize = 8,
+      pointshape = "←",
+      
+      # Text settings
+      fontsize = 8,
+      family = "Ink Free"
+    )
+  )
+  
+```
+
+##### Micro-managing layers
+
+Aside from globally affecting every layer via `theme(geom)`, you can also fine-tune the appearance of individual geometry types.
+Whereas we envision `element_geom(ink, paper)` as the global 'aura' of a plot, the `element_geom(colour, fill)` is intended for tailoring specific geom types.
+We can add theme elements for specific geoms by replacing the snake_case layer function name by dot.case argument name.
+This works for layers that have an equivalent Geom ggproto class, which is the case for all geoms in ggplot2.
+
+```{r layer_granular}
+ggplot(mpg, aes(class, displ)) +
+  geom_boxplot(outliers = FALSE) +
+  geom_jitter() +
+  theme(
+    geom.point   = element_geom(colour = "dodgerblue"),
+    geom.boxplot = element_geom(fill = "orchid", colour = "turquoise")
+  )
+```
+
+##### Macro-managing layers
+
+There are now various options for how to change non-data parts of layers, and it can be a bit tricky to determine when you should use what option. Essentially, this is a 2-by-2 table covering the option of which layers to set (single, all) and when it is used (local, global).
+
+* If you want to change the look of a single layer in a single plot, you can just use the static (unmapped) aesthetics in a layer.
+  For example: `geom_point(colour = "blue")`.
+
+* If you want to change the look of a single layer in all plots, you can use `update_theme()` to globally set a new (micro-managed) option.
+  For example: `update_theme(geom.point = element_geom(colour = "blue"))`.
+  You can also use the `element_geom(ink, paper)` settings but for single layers it may be more direct to use `element_geom(colour, fill)` instead.
+  We no longer recommend, and even discourage (!) using `update_geom_defaults()` for this purpose.
+
+* If you want to change the look of all layers in a single plot, you can use the `theme(geom)` argument and add it to a plot.
+  For example: `theme(geom = element_geom(ink = "blue"))`.
+  
+* If you want to change the look of all layers in all plots, you can also use `update_theme()` to globally set the `geom` option.
+  For example: `update_theme(geom = element_geom(ink = "blue"))`.
+  Alternatively, you can also coordinate the entire theme by using for example `set_theme(theme_gray(ink = "blue"))`.
+
+
+##### Access from layers
+
+Up to now, we've mostly described how to use the theme to instruct layers, but we can also instruct layers to lookup things from the theme too.
+Using the `from_theme()` function in aesthetics allows you to use expressions with the variables present in `element_geom()`.
+For example, if you want to use a darker variant of the `accent` colour instead of `ink`, you might want to write your mapping as follows:
+
+```{r layer_aesthetic}
+p + aes(colour = from_theme(scales::col_darker(accent, 20)))
+```
+
+#### Palettes
+
+In addition to controlling the default aesthetics from the theme, you can also control the default palettes from the theme.
+The palette theme settings all follow the following pattern, separated by dots: `palette`, aesthetic, type.
+The `type` can be either `continuous` or `discrete`. 
+If you're using the default binned scale, it takes the continuous palette.
+For example, if we want to change the default `shape` and `colour` palettes, we can declare that as follows:
+
+```{r palettes}
+p + theme(
+  palette.shape.discrete = c("plus", "triangle", "diamond"),
+  palette.colour.continuous = c("maroon", "hotpink", "white")
+)
+```
+
+The values of these palette theme elements are passed down to `scales::as_discrete_pal()` and `scales::as_continuous_pal()` for discrete and continuous scales respectively.
+
+### Theme elements in extensions
+
+Aside from extensions providing whole, complete themes, extensions may also define new theme elements.
+You can sometimes see these in facets, coords or guide extensions.
+With these wide use-cases, we cannot really describe these as much as just acknowledge they exist.
+For example, the ggforce package has a zoom element that controls the appearance of zooming indicators.
+
+```{r extension_elements}
+p + ggforce::facet_zoom(ylim = c(20, 30), xlim = c(3, 4)) +
+  theme(zoom = element_rect(colour = "red", linewidth = 0.2, fill = NA))
+```
+
+If you are writing your own extension and need to compute a bespoke element from the theme, you can use `register_theme_elements()` to ensure ggplot2 knows about your element and can use it in `calc_element()`.
+
+```{r calc_element}
+# A custom element comes up empty
+calc_element("my_element", complete_theme())
+
+# Register element
+register_theme_elements(
+  my_element = element_rect(),
+  element_tree = list(
+    my_element = el_def(
+      class = "element_rect", # Must be a rect element
+      inherit = "rect" # Get settings from theme(rect)
+    )
+  )
+)
+
+# Now custom element can be computed
+calc_element("my_element", complete_theme())
+```
+
+## Writing your own theme
+
+When you are writing your own theme there are a few things to keep in mind.
+A guiding principle is to write your themes such that it is robust to upstream changes.
+Not only can ggplot2 add, deprecate or reroute elements, also theme elements used by extensions should be accommodated.
+
+#### 1. Use a function
+
+First, this principle means that you should write your theme as a function.
+Writing your theme as a function ensures it can be rebuild.
+This is opposed to assigning a theme object to a variable in your package's namespace ---or heaven forbid--- save it as a file, 
+If you assign your theme object to a variable in your namespace, the object will get compiled into your code and can cause build time warnings or errors if an element function or argument get updated.
+
+```{r theme_as_function}
+my_theme <- function(...) {}
+```
+
+#### 2. Use a base theme
+
+Secondly, it is good practise to start your own theme as a function that calls a complete theme function as its base.
+It ensures that when ggplot2 adds new elements that belong in complete themes, your theme also remains complete.
+
+```{r theme_use_base}
+my_theme <- function(...) {
+  theme_gray(...)
+}
+```
+
+### 3. Use `theme()` to add elements
+
+Third, you should use `theme()` to add new elements to the base.
+While it is technically possible to assign additional elements by sub-assignment (`$<-`), we strong advice against this. 
+Using `theme()` ensures that any deprecated arguments are redirected to an appropriate place.
+
+```{r theme_dontdothis}
+# Do *not* do the following!
+my_fragile_theme <- function(...) {
+  t <- theme_gray(...)
+  t$legend.text <- element_text() # BAD
+  t
+}
+```
+
+You can use `+ theme()` or `%+replace% theme()`, where `+` merges elements and `%+replace%` replaces elements by completely removing old settings. If you use `%+replace%` for a root element, like `text` or `line`, you should take care that every property has non-null values.
+
+```{r theme_adding_parts}
+my_theme <- function(...) {
+  theme_gray(...) %+replace%
+    theme(
+      # Because we're replacing, we should fully define root elements
+      text = element_text(
+        family = "", face = "plain", colour = "red", size = 11, 
+        hjust = 0.5, vjust = 0.5, angle = 0, lineheight = 1, margin = margin()
+      ),
+      # Non-root elements can be partially defined
+      legend.text = element_text(colour = "blue")
+    ) +
+    # Here we're updating the root line element with `+`, instead of replacing it
+    theme(line = element_line(linetype = "dotted"))
+}
+
+p + my_theme()
+```
+
+#### 4. Caching themes
+
+We mentioned in 1. that you shouldn't assign a theme object to a variable in your namespace.
+However, you may want to reuse a theme without having to reconstruct it every time because you may never need to change arguments in your package.
+The solution we recommend for this use case, is to cache your theme when your package is loaded.
+It ensures that we observe all the formalities of building a theme, with all the protections this offers, but we need to do this only once per session.
+
+```{r theme_caching}
+# Create a variable for your future theme
+cached_theme <- NULL
+
+# In your .onLoad function, construct the theme
+.onLoad <- function(libname, pkgname) {
+  cached_theme <<- my_theme()
+}
+
+# In your package's functions, you can now use the cached theme
+my_plotting_function <- function() {
+  ggplot(mpg, aes(displ, hwy)) +
+    geom_point() +
+    cached_theme
+}
+
+# Simulate loading
+.onLoad()
+
+# Works!
+my_plotting_function()
+```
+
+## Tips and tricks
+
+### Global theme
+
+Are you also used to writing entire booklets of theme settings at every plot?
+Do your fingers tire of typing `panel.background = element_blank()` dozens of times in a script?
+Worry no more!
+Set your theme settings to permanent today by using the one-time offer of `set_theme()`!
+
+```{r theme_set}
+my_theme <- function(...) {
+  theme_gray() +
+    theme(
+      panel.background = element_blank(),
+      panel.grid = element_line(colour = "grey95"),
+      palette.colour.continuous = "viridis"
+    )
+}
+
+set_theme(my_theme())
+
+# Global goodness galore!
+p
+```
+
+To undo any globally set theme, you can use `reset_theme_settings()`.
+
+### Fonts
+
+Setting the typography of your plots is important and discussed more thoroughly in [this blog post](https://www.tidyverse.org/blog/2025/05/fonts-in-r/). 
+Here we're simply giving the suggestion to use the `systemfonts::require_font()` when you are writing theme functions that include special fonts.
+
+```{r fonts}
+my_theme <- function(header_family = "Impact", ...) {
+  systemfonts::require_font(header_family)
+  theme_gray(header_family = header_family, ...)
+}
+
+p + my_theme()
+```
+
+### Bundling theme settings
+
+Not every theme needs to be a complete theme.
+You can write partial themes that bundle together related settings to achieve an effect you want.
+For example, here are some settings that left-aligns the title and legend at the top of a plot.
+
+```{r part_theme_upper_legend}
+upper_legend <- function() {
+  theme(
+    plot.title.position = "plot",
+    legend.location = "plot",
+    legend.position = "top",
+    legend.justification.top = "left",
+    legend.title.position = "top",
+    legend.margin = margin_part(l = 0)
+  )
+}
+
+p +
+  aes(colour = NULL) +
+  upper_legend()
+```
+
+Another example for bottom placement of colour bars:
+
+```{r part_theme_bottom_colourbar}
+bottom_colourbar <- function() {
+  theme_sub_legend(
+    position = "bottom",
+    title.position = "top",
+    justification.bottom = "left",
+    # Stretch bar across width of panels
+    key.width = unit(1, "null"), 
+    margin = margin_part(l = 0, r = 0)
+  )
+}
+
+p + 
+  aes(shape = NULL) +
+  bottom_colourbar()
+```
+
+If you don't mind venturing outside the grammar for a brisk stroll, you can also bundle theme settings together with other components.
+For example, in a bar chart you may wish to suppress vertical grid lines and not expand the y-axis at the bottom.
+
+```{r part_theme_barchart}
+barchart_settings <- function() {
+  list(
+    theme(panel.grid.major.x = element_blank()),
+    coord_cartesian(expand = c(bottom = FALSE))
+  )
+}
+
+ggplot(mpg, aes(class)) +
+  geom_bar() +
+  barchart_settings()
+```
+
+The point here is not to make an exhaustive list of all useful bundles, it is to highlight that it possible to create reusable chunks of theme.
+
+### Pattern rectangles
+
+Did you know that `element_rect(fill)` can be a grid pattern?
+You can use it to place images in the panel background, which can be neat for branding.
+
+```{r pattern_fill}
+pattern <- "https://raw.githubusercontent.com/tidyverse/ggplot2/refs/heads/main/man/figures/logo.png" |> 
+  magick::image_read() |>
+  grid::rasterGrob(
+    x = 0.8, y = 0.8,
+    width = unit(0.2, "snpc"), 
+    height = unit(0.23, "snpc"), 
+  ) |>
+  grid::pattern(extend = "none")
+
+p + 
+  theme(
+    panel.background = element_rect(fill = pattern),
+    # legend.key inherits from panel background, so we tweak it
+    legend.key = element_blank(),
+    # make grid semitransparent to lay over pattern
+    panel.grid = element_line(colour = alpha("black", 0.05))
+  )
+```
+
+## Finally
+
+This article has been light on advice on how you should or should not use themes.
+Mostly, this is to encourage experimentation.
+Don't be afraid to put in a personal twist.
+Make mistakes.
+Discover why a theme does or doesn't work for a plot.
+If you cannot be bothered, there are [extension packages](https://exts.ggplot2.tidyverse.org/gallery/) that offer plenty of options.
+The [tidytuesday](https://github.com/rfordatascience/tidytuesday) project has spawned a rich source of varied plotting code, including themes people use.
+If you like a tidytuesday plot, find the source code and see how the sausage is made.
+Find whatever theme works for you and your plots.
