@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: []
-rmd_hash: 5874597988675a91
+rmd_hash: 96d6dff76d630744
 
 ---
 
@@ -593,7 +593,7 @@ It is also possible to set the total size of panels. In the example above we can
 
 The display text in strips is formatted by the `labeller` argument in the facets. Styling this piece of text can be done with the [`theme_sub_strip()`](https://ggplot2.tidyverse.org/reference/subtheme.html) function, which replaces the `strip` prefix in [`theme()`](https://ggplot2.tidyverse.org/reference/theme.html). Similar to axes, strips also have positional variants with `background.x` and `background.y` specifying the backgrounds for horizontal and vertical strips specifically.
 
-The text even has specific `text.x.bottom`, `text.x.top`, `text.y.left` and `text.y.right` variants. This allows text on the left to be rotated 90&deg, while text on the right is rotated -90&deg, which gives the sense that the text faces the panels. Out of principle, you could force the `text.x.bottom` to be rotated 180° to achieve the same sense for horizontal text, but you may find out why readability trumps consistency.
+The text even has specific `text.x.bottom`, `text.x.top`, `text.y.left` and `text.y.right` variants. This allows text on the left to be rotated 90°, while text on the right is rotated -90°, which gives the sense that the text faces the panels. Out of principle, you could force the `text.x.bottom` to be rotated 180° to achieve the same sense for horizontal text, but you may find out why readability trumps consistency.
 
 Another important distinction is the `placement` option, which affects how strips are displayed when they clash with axes. This author personally thinks that `placement = "outside"` is the wiser choice 99% of the time. When strips are displayed outside of axes, the `switch.pad.grid`/`switch.pad.wrap` elements control the spacing.
 
