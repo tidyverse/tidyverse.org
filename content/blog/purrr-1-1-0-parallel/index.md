@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: purrr-1-1-0-parallel
 title: Parallel processing in purrr 1.1.0
-date: 2025-06-30
+date: 2025-07-10
 author: Charlie Gao, Hadley Wickham, Davis Vaughan and Lionel Henry
 description: >
     The functional programming toolkit for R gains new capabilities for
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [parallelism, purrr]
-rmd_hash: 71441a279ee97f4d
+rmd_hash: 055483343fbb30e0
 
 ---
 
