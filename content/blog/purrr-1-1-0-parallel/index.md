@@ -1,0 +1,232 @@
+---
+output: hugodown::hugo_document
+
+slug: purrr-1-1-0-parallel
+title: Parallel processing in purrr 1.1.0
+date: 2025-07-10
+author: Charlie Gao, Hadley Wickham, Davis Vaughan and Lionel Henry
+description: >
+    The functional programming toolkit for R gains new capabilities for
+    parallel processing and distributed computing using mirai.
+photo:
+  url: https://unsplash.com/photos/chart-bar-chart-14XDMqDmCq0
+  author: Martin Woortman
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [parallelism, purrr]
+rmd_hash: 055483343fbb30e0
+
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+
+We're thrilled to announce the release of [purrr](https://purrr.tidyverse.org) 1.1.0, bringing a game-changing feature to this cornerstone of the tidyverse: **parallel processing**.
+
+For the first time in purrr's history, you can now scale your `map()` operations across multiple cores and even distributed systems, all while maintaining the elegant, functional programming style you know and love.
+
+This milestone represents more than just a performance boost---it's a fundamental shift that makes purrr suitable for production-scale data processing tasks without sacrificing the clarity and composability that make it such a joy to use.
+
+Get started by installing purrr 1.1.0 today:
+
+``` r
+install.packages("purrr")
+```
+
+The parallel processing functionality requires the mirai and carrier packages. You will be prompted to install them when you first call `in_parallel()`.
+
+Ready to supercharge your functional programming workflows? Parallel purrr is here, and it's remarkably simple to use.
+
+## The power of `in_parallel()`
+
+The magic happens through a shiny new function: `in_parallel()`. This purrr adverb wraps your functions to signal that they should run in parallel, powered by the venerable [mirai](https://mirai.r-lib.org/) package.
+
+Here's how simple it is to transform your sequential operations:
+
+``` r
+library(purrr)
+library(mirai)
+
+# Set up parallel processing (6 background processes)
+daemons(6)
+
+# Sequential version
+mtcars |> map_dbl(\(x) mean(x))
+#>    mpg    cyl   disp     hp   drat     wt   qsec     vs     am   gear   carb 
+#>  20.09   6.19 230.72 146.69   3.60   3.22  17.85   0.44   0.41   3.69   2.81
+
+# Parallel version - just wrap your function with in_parallel()
+mtcars |> map_dbl(in_parallel(\(x) mean(x)))
+#>    mpg    cyl   disp     hp   drat     wt   qsec     vs     am   gear   carb 
+#>  20.09   6.19 230.72 146.69   3.60   3.22  17.85   0.44   0.41   3.69   2.81
+
+# Don't forget to clean up when done
+daemons(0)
+```
+
+The results are identical, but the second version distributes the work across multiple CPU cores. For computationally intensive tasks, the performance gains can be dramatic.
+
+The beauty of using an adverb is that `in_parallel()` works not just with `map()`, but across the entire purrr ecosystem:
+
+``` r
+daemons(6, output = TRUE)
+
+# Works with all map variants
+1:4 |> map_int(in_parallel(\(x) x^2))
+1:4 |> map_chr(in_parallel(\(x) paste("Number", x)))
+
+# Works with map2 and pmap
+map2_dbl(1:3, 4:6, in_parallel(\(x, y) x + y))
+
+list(a = 1:3, b = 4:6, c = 7:9) |>
+  pmap_dbl(in_parallel(\(a, b, c) mean(c(a, b, c))))
+
+# Even works with walk for side effects
+1:3 |> walk(in_parallel(\(x) cat("Processing", x, "\n")))
+
+daemons(0)
+```
+
+If you use `in_parallel()` but don't set `daemons()`, then the map will just proceed sequentially, so you don't need to worry about having two separate code paths for parallel vs non-parallel execution.
+
+## Real-world example: parallel model fitting
+
+Let's look at a more realistic scenario where parallel processing truly shines---fitting multiple models:
+
+``` r
+library(purrr)
+library(mirai)
+
+# Set up 4 parallel processes
+daemons(4)
+
+# Define a slow model fitting function
+slow_lm <- function(formula, data) {
+  Sys.sleep(0.1)  # Simulate computational complexity
+  lm(formula, data)
+}
+
+# Fit models to different subsets of data in parallel
+models <- mtcars |>
+  split(mtcars$cyl) |>
+  map(in_parallel(\(df) slow_lm(mpg ~ wt + hp, data = df), slow_lm = slow_lm))
+
+# Extract R-squared values
+models |> 
+  map(summary) |> 
+  map_dbl("r.squared")
+#>         4         6         8 
+#> 0.6807065 0.5889239 0.4970692
+
+daemons(0)
+```
+
+Notice how we pass the `slow_lm` function as an argument to `in_parallel()`---this ensures our custom function is available in the parallel processes.
+
+## Production-ready with mirai
+
+The choice of [mirai](https://mirai.r-lib.org) as the parallel backend wasn't arbitrary. [mirai](https://mirai.r-lib.org) is a production-grade async evaluation framework that brings several key advantages:
+
+-   **Minimal overhead**: Built on modern networking and concurrency principles
+-   **Reliable scheduling**: Leveraging fast inter-process communications locally
+-   **Scalable architecture**: From multi-process to distributed computing on HPC clusters
+-   **Security**: Offers zero-configuration TLS over TCP for additional assurance
+
+This means your parallel purrr code isn't just fast---it's production-ready.
+
+Compared to the [furrr](https://furrr.futureverse.org) package:
+
+-   Much lower overhead means you can get a performance boost even for relatively fast functions
+-   More linear scaling means you get the same benefits whether you're running on 2 or 200 cores
+
+We've learned a lot from our work on furrr, and from [Henrik Bengtsson](https://github.com/henrikbengtsson)'s excellent work on the [futureverse](https://github.com/futureverse) ecosystem. purrr doesn't use future as the underlying engine for parallelism because we've made some design decisions that differ at a fundamental level, but Henrik's entire ecosystem deserves credit for pushing the boundaries of parallelism in R farther than many thought possible.
+
+## Creating self-contained functions
+
+One of the key concepts when using `in_parallel()` is creating self-contained functions. Since your function gets serialized and sent to parallel processes, it needs to be completely standalone:
+
+``` r
+# ❌ This won't work - external dependencies not declared
+my_data <- c(1, 2, 3)
+map(1:3, in_parallel(\(x) mean(my_data)))
+
+# ✅ This works - dependencies explicitly provided
+my_data <- c(1, 2, 3)
+map(1:3, in_parallel(\(x) mean(my_data), my_data = my_data))
+
+# ✅ Package functions need explicit namespacing
+map(1:3, in_parallel(\(x) vctrs::vec_init(integer(), x)))
+
+# ✅ Or load packages within the function
+map(1:3, in_parallel(\(x) {
+  library(vctrs)
+  vec_init(integer(), x)
+}))
+```
+
+This explicit dependency management might seem verbose, but it ensures your parallel code is reliable and predictable---crucial for production environments.
+
+It also removes the danger of accidentally shipping large objects to parallel processes---often a source of performance degradation.
+
+## When to use parallel processing
+
+Not every `map()` operation benefits from parallelization. The overhead of setting up parallel tasks and communicating between processes can outweigh the benefits for simple operations. As a rule of thumb, consider parallel processing when:
+
+-   Each iteration takes at least 100 microseconds to 1 millisecond
+-   You're performing CPU-intensive computations
+-   You're working with I/O-bound operations that can benefit from concurrency
+-   The data being passed between processes isn't excessively large
+
+For quick operations like simple arithmetic, sequential processing will often be faster.
+
+If you're a package developer, use `in_parallel()` where you see fit, but please be mindful not to call `daemons()` within your package code. How to set mirai daemons should be always be for the end user to decide.
+
+## Distributed computing made simple
+
+Want to scale beyond your local machine? mirai's networking capabilities make distributed computing surprisingly straightforward:
+
+``` r
+library(mirai)
+
+# Set up remote daemons on a Slurm HPC cluster
+daemons(
+  n = 100,
+  url = host_url(),
+  remote = cluster_config(command = "sbatch")
+)
+
+# Your purrr code remains exactly the same!
+results <- big_dataset |>
+  split(big_dataset$group) |>
+  map(in_parallel(\(df) complex_analysis(df), complex_analysis = complex_analysis))
+
+daemons(0)
+```
+
+The same `in_parallel()` syntax that works locally scales seamlessly to distributed systems.
+
+Please refer to the mirai documentation on [remote daemons](https://mirai.r-lib.org/articles/mirai.html#remote-daemons) and [launching remote daemons](https://mirai.r-lib.org/articles/mirai.html#launching-remote-daemons) for more details. This [mirai blog post](https://shikokuchuo.net/posts/27-mirai-240/) will also be useful if you're working with High-Performance Computing (HPC) clusters.
+
+## Looking forward
+
+The addition of parallel processing to purrr 1.1.0 represents a significant evolution in the package's capabilities. It maintains purrr's core philosophy of functional programming while opening doors to high-performance computing scenarios that were previously challenging to achieve with such clean, readable code.
+
+This feature is currently marked as experimental as we gather feedback from the community, but the underlying mirai infrastructure is production-proven and battle-tested. We encourage you to try it out and let us know about your experiences.
+
+Whether you're processing large datasets, fitting complex models, or running simulations, purrr 1.1.0's parallel processing capabilities can help you scale your R workflows without sacrificing code clarity or reliability.
+
+## Acknowledgements
+
+A big thanks to all those who posted issues and contributed PRs since our last release! [@ar-puuk](https://github.com/ar-puuk), [@DanChaltiel](https://github.com/DanChaltiel), [@davidrsch](https://github.com/davidrsch), [@ErdaradunGaztea](https://github.com/ErdaradunGaztea), [@h-a-graham](https://github.com/h-a-graham), [@hadley](https://github.com/hadley), [@HenningLorenzen-ext-bayer](https://github.com/HenningLorenzen-ext-bayer), [@krivit](https://github.com/krivit), [@MarceloRTonon](https://github.com/MarceloRTonon), [@MarkPaulin](https://github.com/MarkPaulin), [@salim-b](https://github.com/salim-b), [@ScientiaFelis](https://github.com/ScientiaFelis), [@shikokuchuo](https://github.com/shikokuchuo), and [@sierrajohnson](https://github.com/sierrajohnson).
+
