@@ -15,7 +15,7 @@ photo:
 
 categories: [package] 
 tags: [ellmer, ai]
-rmd_hash: 4c530fb59f557470
+rmd_hash: 47ebacb0e3bbe080
 
 ---
 
@@ -32,7 +32,7 @@ You can install it from CRAN with:
 
 </div>
 
-After noting some security considerations, this blog post will highlight use cases for R as an MCP server and client. See the [package website](https://posit-dev.github.io/mcptools/) for a more thorough overview of what's possible with mcptools!
+MCP is a recent and rapidly-evolving framework. While we're seeing great utility here, MCP comes with substantial risks that have already bitten many organizations. After noting some security considerations, this blog post will highlight use cases for R as an MCP server and client. See the [package website](https://posit-dev.github.io/mcptools/) for a more thorough overview of what's possible with mcptools!
 
 <div class="highlight">
 
