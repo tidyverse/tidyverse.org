@@ -3,11 +3,11 @@ output: hugodown::hugo_document
 
 slug: webr-0-5-4
 title: webR 0.5.4
-date: 2025-06-30
+date: 2025-07-11
 author: George Stagg
 description: >
-    webR 0.5.4 brings the latest version of R to the browser, with an upgraded
-    Emscripten runtime and virtual filesystem support for JupyterLite.
+    webR 0.5.4 brings the latest version of R to the browser, with sharing URLs,
+    an upgraded Emscripten runtime, and filesystem support for JupyterLite.
 
 photo:
   url: https://unsplash.com/photos/a-close-up-of-a-cell-phone-on-a-black-background-q_zV6O2h9vs
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [webr, wasm]
-rmd_hash: da5c4d8b2cfd4092
+rmd_hash: 597fae5f53525b4b
 
 ---
 
