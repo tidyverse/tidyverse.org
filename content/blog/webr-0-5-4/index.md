@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [webr, wasm]
-rmd_hash: 597fae5f53525b4b
+rmd_hash: 436ab2a5d2efe252
 
 ---
 
@@ -33,7 +33,7 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're extremely pleased to announce the release of [webR](https://docs.r-wasm.org/webr/v0.5.4/) 0.5.4. WebR brings R to the web browser using WebAssembly, powering [Quarto Live](https://r-wasm.github.io/quarto-live/), [Shinylive](https://shinylive.io/r/examples/), and other interactive websites with client-side R sessions.
+We're indubitably delighted to announce the release of [webR](https://docs.r-wasm.org/webr/v0.5.4/) 0.5.4. WebR brings R to the web browser using WebAssembly, powering [Quarto Live](https://r-wasm.github.io/quarto-live/), [Shinylive](https://shinylive.io/r/examples/), and other interactive websites with client-side R sessions.
 
 This post highlights some key changes in recent webR releases. We've updated to R 4.5.1, upgraded the Emscripten version, implemented shareable URLs in the webR application, and added filesystem support for JupyterLite. For a complete list of changes, see the [GitHub release notes](https://github.com/r-wasm/webr/releases).
 
