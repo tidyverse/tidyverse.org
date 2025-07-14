@@ -3,11 +3,11 @@ output: hugodown::hugo_document
 
 slug: httr2-1-2-0
 title: httr2 1.2.0
-date: 2025-07-08
+date: 2025-07-14
 author: Hadley Wickham
 description: >
     httr2 1.2.0 improves security for redacted headers, improves URL parsing
-    and building, enhances debugging, and inclues a bunch of other quality
+    and building, enhances debugging, and includes a bunch of other quality
     of life improvements.
 
 photo:
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [httr2]
-rmd_hash: 316580036d1a48f7
+rmd_hash: cc80479461b48d16
 
 ---
 
@@ -31,7 +31,7 @@ TODO:
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [x] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 # httr2 1.2.0
@@ -44,7 +44,7 @@ You can install it from CRAN with:
 install.packages("httr2")
 ```
 
-This blog post will walk you through the most important changes: lifecycle changes, improved security for redacted headers, URL handlimg improvements, improved debugging tools, and a handful of other quality of life improvements. You can see a full list of changes in the [release notes](https://github.com/r-lib/httr2/releases/tag/v1.2.0)
+This blog post will walk you through the most important changes in 1.2.0: lifecycle updates, improved security for redacted headers, URL handlimg improvements, improved debugging tools, and a handful of other quality of life improvements. You can see a full list of changes in the [release notes](https://github.com/r-lib/httr2/releases/tag/v1.2.0)
 
 <div class="highlight">
 
@@ -64,7 +64,7 @@ Part of httr2's continued evolution is phasing out features that we now believe 
 
 ## Enhanced security for redacted headers
 
-One of the most important improvements in this release relates to redacted headers. Redacted headers are used to conceal secrets that you don't want to accidentally reveal. For a long time, httr2 has automatically hidden these headers when you [`print()`](https://rdrr.io/r/base/print.html) or [`str()`](https://rdrr.io/r/utils/str.html) them, ensuring that they don't accidentally end up in log files. You can see this in action with the `Authorization` header, which httr2 now automatically redacts:
+One of the most important improvements in this release improves the security of redacted headers. Redacted headers are used to conceal secrets, like API keys or passwords, that you don't want to accidentally reveal. For a long time, httr2 has automatically hidden these headers when you [`print()`](https://rdrr.io/r/base/print.html) or [`str()`](https://rdrr.io/r/utils/str.html) them, ensuring that they don't accidentally end up in log files. You can see this in action with the `Authorization` header, which httr2 now automatically redacts:
 
 <div class="highlight">
 
@@ -86,14 +86,14 @@ One of the most important improvements in this release relates to redacted heade
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>accept-encoding</span>: deflate, gzip</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>authorization</span>: <span style='color: #555555;'>&lt;REDACTED&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>host</span>: example.com</span></span>
-<span><span class='c'>#&gt; <span style='font-weight: bold;'>user-agent</span>: httr2/1.1.2.9000 r-curl/6.4.0 libcurl/8.14.1</span></span>
+<span><span class='c'>#&gt; <span style='font-weight: bold;'>user-agent</span>: httr2/1.2.0 r-curl/6.4.0 libcurl/8.14.1</span></span>
 <span></span></code></pre>
 
 </div>
 
 (If for you do really need to see the redacted values you can get with a bit of extra effort: call the new [`req_get_headers()`](https://httr2.r-lib.org/reference/req_get_headers.html) function with `redacted = "reveal"`.)
 
-In httr2 1.1.0, we've gone one step further, and prevented redacted headers from being saved to disk. Now if you save and reload a request, you'll notice that the redacted headers are no longer present:
+In httr2 1.2.0, we've gone one step further, and prevented redacted headers from being saved to disk. Now if you save and reload a request, you'll notice that the redacted headers are no longer present:
 
 <div class="highlight">
 
@@ -106,12 +106,12 @@ In httr2 1.1.0, we've gone one step further, and prevented redacted headers from
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>accept</span>: */*</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>accept-encoding</span>: deflate, gzip</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>host</span>: example.com</span></span>
-<span><span class='c'>#&gt; <span style='font-weight: bold;'>user-agent</span>: httr2/1.1.2.9000 r-curl/6.4.0 libcurl/8.14.1</span></span>
+<span><span class='c'>#&gt; <span style='font-weight: bold;'>user-agent</span>: httr2/1.2.0 r-curl/6.4.0 libcurl/8.14.1</span></span>
 <span></span></code></pre>
 
 </div>
 
-This protects you from accidentally revealing your credentials by caching a response, typically because it's slow so you only want to do it once. httr2 includes the request in the response object (to make debugging easier), so if you cache a response you also cache the request the made it, potentially leaking secure values. (Don't ask me how I discovdred this!)
+This protects you from accidentally revealing your credentials if you save a request to disk. This is easier to do than you might expect because httr2 includes the request object in every response (since this makes debugging much easier). That means if you're caching a slow response, it's very easy to accidentally store a secret, potentially leaking secure values. (Don't ask me how I discovdred this!)
 
 ## URL handling improvements
 
@@ -120,7 +120,7 @@ URL construction is now powered by [`curl::curl_modify_url()`](https://jeroen.r-
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>req</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/request.html'>request</a></span><span class='o'>(</span><span class='s'>"https://api.example.com"</span><span class='o'>)</span></span>
-<span><span class='nv'>req</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/req_url.html'>req_url_path</a></span><span class='o'>(</span><span class='s'>"/users/john doe/profile"</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'>req_get_url</span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='nv'>req</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/req_url.html'>req_url_path</a></span><span class='o'>(</span><span class='s'>"/users/john doe/profile"</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/req_get_url.html'>req_get_url</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "https://api.example.com/users/john%20doe/profile"</span></span>
 <span></span></code></pre>
 
@@ -131,10 +131,15 @@ This means that [`req_url_path()`](https://httr2.r-lib.org/reference/req_url.htm
 <div class="highlight">
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># won't work any more:</span></span>
-<span><span class='nv'>req</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/req_url.html'>req_url_path</a></span><span class='o'>(</span><span class='s'>"/users?name=john-doe"</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'>req_get_url</span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='nv'>req</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://httr2.r-lib.org/reference/req_url.html'>req_url_path</a></span><span class='o'>(</span><span class='s'>"/users?name=john-doe"</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://httr2.r-lib.org/reference/req_get_url.html'>req_get_url</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "https://api.example.com/users%3Fname%3Djohn-doe"</span></span>
 <span></span><span><span class='c'># so now do this:</span></span>
-<span><span class='nv'>req</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/req_url.html'>req_url_path</a></span><span class='o'>(</span><span class='s'>"/users"</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://httr2.r-lib.org/reference/req_url.html'>req_url_query</a></span><span class='o'>(</span>name <span class='o'>=</span> <span class='s'>"john-doe"</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nv'>_</span><span class='o'>$</span><span class='nv'>url</span></span>
+<span><span class='nv'>req</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://httr2.r-lib.org/reference/req_url.html'>req_url_path</a></span><span class='o'>(</span><span class='s'>"/users"</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://httr2.r-lib.org/reference/req_url.html'>req_url_query</a></span><span class='o'>(</span>name <span class='o'>=</span> <span class='s'>"john-doe"</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'><a href='https://httr2.r-lib.org/reference/req_get_url.html'>req_get_url</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "https://api.example.com/users?name=john-doe"</span></span>
 <span></span></code></pre>
 
@@ -142,19 +147,22 @@ This means that [`req_url_path()`](https://httr2.r-lib.org/reference/req_url.htm
 
 ## Improved debugging tools
 
-The vast majority of modern APIs use JSON, and httr2 now includes a few features to make debugging these APIs a little easier. Firstly, [`last_request()`](https://httr2.r-lib.org/reference/last_response.html) and [`last_response()`](https://httr2.r-lib.org/reference/last_response.html) are now paired with [`last_request_json()`](https://httr2.r-lib.org/reference/last_response.html) and [`last_response_json()`](https://httr2.r-lib.org/reference/last_response.html) which pretty-print the JSON bodies of the last request and response. Additionally, [`req_dry_run()`](https://httr2.r-lib.org/reference/req_dry_run.html) and [`req_verbose()`](https://httr2.r-lib.org/reference/req_verbose.html) automatically pretty print JSON bodies (if needed, you can turn this off by setting `options(httr2_pretty_json = FALSE)`).
+The vast majority of modern APIs use JSON, so httr2 now includes a few features to make debugging those APIs a little easier:
 
-We've also included a few general tools to make it easier to control httr2's default verbosity. You can now control the default via the `HTTR2_VERBOSITY` environment variable and there's a new [`local_verbosity()`](https://httr2.r-lib.org/reference/with_verbosity.html) function that matches the existing [`with_verbosity()`](https://httr2.r-lib.org/reference/with_verbosity.html).
+-   [`last_request()`](https://httr2.r-lib.org/reference/last_response.html) and [`last_response()`](https://httr2.r-lib.org/reference/last_response.html) are now paired with [`last_request_json()`](https://httr2.r-lib.org/reference/last_response.html) and [`last_response_json()`](https://httr2.r-lib.org/reference/last_response.html) which pretty-print the JSON bodies of the last request and response.
+-   [`req_dry_run()`](https://httr2.r-lib.org/reference/req_dry_run.html) and [`req_verbose()`](https://httr2.r-lib.org/reference/req_verbose.html) automatically pretty print JSON bodies (turn this off by setting `options(httr2_pretty_json = FALSE)`).
+
+We've also included a few general tools to make it easier to control httr2's default verbosity. You can now control the default via the `HTTR2_VERBOSITY` environment variable and there's a new [`local_verbosity()`](https://httr2.r-lib.org/reference/with_verbosity.html) function to match the existing [`with_verbosity()`](https://httr2.r-lib.org/reference/with_verbosity.html).
 
 ## Quality of life improvements
 
 This release also includes a bunch of few smaller quality of life improvements:
 
--   [`req_perform_parallel()`](https://httr2.r-lib.org/reference/req_perform_parallel.html) now lifts many of its previous restrictions. It now supports simplified versions of [`req_throttle()`](https://httr2.r-lib.org/reference/req_throttle.html) and [`req_retry()`](https://httr2.r-lib.org/reference/req_retry.html), it can refresh OAuth tokens, and it checks the cache beforeafter each request.
+-   [`req_perform_parallel()`](https://httr2.r-lib.org/reference/req_perform_parallel.html) now lifts many of its restrictions. It now supports simplified versions of [`req_throttle()`](https://httr2.r-lib.org/reference/req_throttle.html) and [`req_retry()`](https://httr2.r-lib.org/reference/req_retry.html), it can refresh OAuth tokens, and it checks the cache before each request.
 
--   `req_get_url()`, [`req_get_method()`](https://httr2.r-lib.org/reference/req_get_method.html), [`req_get_headers()`](https://httr2.r-lib.org/reference/req_get_headers.html), `req_body_get_type()`, and [`req_get_body()`](https://httr2.r-lib.org/reference/req_get_body_type.html) allow you to introspect request objects.
+-   [`req_get_url()`](https://httr2.r-lib.org/reference/req_get_url.html), [`req_get_method()`](https://httr2.r-lib.org/reference/req_get_method.html), [`req_get_headers()`](https://httr2.r-lib.org/reference/req_get_headers.html), `req_body_get_type()`, and [`req_get_body()`](https://httr2.r-lib.org/reference/req_get_body_type.html) allow you to introspect request objects.
 
--   [`req_throttle()`](https://httr2.r-lib.org/reference/req_throttle.html) now uses a "[leaky bucket](https://en.wikipedia.org/wiki/Leaky_bucket)". This maintains the same average rate limit as before, while allowing bursts of higher request rates.
+-   [`req_throttle()`](https://httr2.r-lib.org/reference/req_throttle.html) now uses a "[leaky bucket](https://en.wikipedia.org/wiki/Leaky_bucket)". This maintains the same average rate limit as before, while allowing bursts of higher rates.
 
 -   [`resp_timing()`](https://httr2.r-lib.org/reference/resp_timing.html) exposes detailed timing information for a response.
 
