@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [httr2]
-rmd_hash: cc80479461b48d16
+rmd_hash: e8164d48993b253d
 
 ---
 
@@ -44,7 +44,7 @@ You can install it from CRAN with:
 install.packages("httr2")
 ```
 
-This blog post will walk you through the most important changes in 1.2.0: lifecycle updates, improved security for redacted headers, URL handlimg improvements, improved debugging tools, and a handful of other quality of life improvements. You can see a full list of changes in the [release notes](https://github.com/r-lib/httr2/releases/tag/v1.2.0)
+This blog post will walk you through the most important changes in 1.2.0: lifecycle updates, improved security for redacted headers, URL handling improvements, improved debugging tools, and a handful of other quality of life improvements. You can see a full list of changes in the [release notes](https://github.com/r-lib/httr2/releases/tag/v1.2.0)
 
 <div class="highlight">
 
@@ -111,7 +111,7 @@ In httr2 1.2.0, we've gone one step further, and prevented redacted headers from
 
 </div>
 
-This protects you from accidentally revealing your credentials if you save a request to disk. This is easier to do than you might expect because httr2 includes the request object in every response (since this makes debugging much easier). That means if you're caching a slow response, it's very easy to accidentally store a secret, potentially leaking secure values. (Don't ask me how I discovdred this!)
+This protects you from accidentally revealing your credentials if you save a request to disk. This is easier to do than you might expect because httr2 includes the request object in every response (since this makes debugging much easier). That means if you're caching a slow response, it's very easy to accidentally store a secret, potentially leaking secure values. (Don't ask me how I discovered this!)
 
 ## URL handling improvements
 
