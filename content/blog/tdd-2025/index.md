@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tdd-2025
 title: Tidyverse developer day 2025
-date: 2025-06-24
+date: 2025-07-16
 author: Max Kuhn
 description: >
      Join us in Atlanta for tidyverse developer day on September 19, 2025!
@@ -29,13 +29,13 @@ TODO:
 * [ ] `usethis::use_tidy_thanks()`
 -->
 
-The 2025 Tidy Dev Day will be on September 19th! We'll gather after posit::conf at the TODO from TODO to TODO. 
+The 2025 Tidy Dev Day will be on September 19th! We'll gather after posit::conf at the [event center](https://cas.gsu.edu/eventcenter) of the College of Arts & Sciences of Georgia State University from 9am to 4pm.
 
-Tidy Dev Day is an event where developers and open source contributors meet to collaboratively solve issues. You can hone your software engineering skills or work on your first contribution. We will have a slate of existing issues that you can work on with or without the assistance of our developers. 
+Tidy Dev Day (TDD) is an event where developers and open source contributors meet to collaboratively solve issues. You can hone your software engineering skills or work on your first contribution. We will have a slate of existing issues that you can work on with or without the assistance of our developers. 
 
 Here's how [Laura Acion](https://lacion.rbind.io/post/my-first-user/) described the 2019 event:
 
-> I wish there were more of these R-related dev days. Developing events that are friendly, diverse, and safe to advance not only the tidyverse. I see no downsides. Kuddos to the organizers.
+> I wish there were more of these R-related dev days. Developing events that are friendly, diverse, and safe to advance not only the tidyverse. I see no downsides. Kudos to the organizers.
 
 Plus...
 
@@ -47,18 +47,15 @@ Plus...
 
 ## Who should attend
 
-You should attend if: 
+You **don't** have to have an extensive development background or experience solving issues, or making pull requests. You do need a GitHub account, and some git experience. 
 
-- You have a laptop. 
-- You have an interest in contributing to the tidyverse, r-lib, and/or tidymodels repositories. 
-
-You **don't** have to have any previous development background or experience solving issues or making pull requests. We'll help you select an appropriate task from our pool of issues and assist you in getting started with GitHub, forks, pull requests, etc. You just need to bring enthusiasm (and a laptop helps too). The tidy teams will be on hand to help out, answer your questions, or get you started.
+Leading up to TDD, we will hold (optional) virtual "office hours" for TDD participants to help you with your Git workflow so that you can stroll into TDD confident that your R, Git, GitHub, and IDE are set up in the most ideal way possible to work in harmony on your laptop.
 
 ## How to sign up
 
-There is a $TODO cost for the day; we provide the venue, snacks, lunch, and a barista. If cost is an issue, please email TODO and we'll work that out. We only charge a small fee to encourage people to show up for the day.
+There is a token $10 cost for the day; we provide the venue, snacks, lunch, and a barista. If cost is an issue, please email <hadley@posit.co> and we'll work that out. We only charge a small fee to encourage people to show up for the day.
 
-Click TOTO to purchase a ticket. 
+[Get your ticket now!](https://lu.ma/mpr5c30q)
 
 [Previous Tidy Dev Days](https://www.tidyverse.org/tags/tidyverse-dev-day/) have sold out quickly, so don't wait!
 
