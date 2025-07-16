@@ -57,6 +57,9 @@ There is a token $10 cost for the day; we provide the venue, snacks, lunch, and 
 
 [**Get your ticket now!**](https://lu.ma/mpr5c30q)
 
+**Note**: by using this link, you agree to Posit's Privacy Policy, available at https://posit.co/about/privacy-policy/. You also consent to using https://lu.ma/ for the purposes of processing your event attendance fees.
+
+
 [Previous Tidy Dev Days](https://www.tidyverse.org/tags/tidyverse-dev-day/) have sold out quickly, so don't wait!
 
 
