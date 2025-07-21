@@ -36,7 +36,7 @@ library(mcptools)
 
 ## Security
 
-MCP dramatically lowers the barriers to providing new capabilities to LLM systems. This is both what makes the protocol so powerful and also what makes it so risky. The risk here is in "mixing and matching" capabilities, resulting in what Simon Willison calls the [Lethal Trifecta](https://simonw.substack.com/p/the-lethal-trifecta-for-ai-agents):
+MCP dramatically lowers the barriers to providing new capabilities to LLM systems. This is both what makes the protocol so powerful and also what makes it so risky. The risk here is in "mixing and matching" capabilities, resulting in what Simon Willison^[Simon Willison is a well-known tool builder and blogger. His [blog](https://simonwillison.net/) is great resource for those that want to stay up to speed on AI/LLMs.] calls the [Lethal Trifecta](https://simonw.substack.com/p/the-lethal-trifecta-for-ai-agents):
 
 > * Access to your private data - one of the most common purposes of tools in the first place!
 > * Exposure to untrusted content - any mechanism by which text (or images) controlled by a malicious attacker could become available to your LLM
@@ -61,7 +61,7 @@ knitr::include_graphics("r_as_a_server.png")
 
 Hooking Claude Code (or other coding assistants) up to tools that can peruse R package documentation allows me to say things like "read the docs for all of the functions I use in [some file] and then ...". The [btw package](https://posit-dev.github.io/btw/reference/mcp.html) provides helpers to start MCP servers with tools to peruse R package documentation. To use those tools with Claude Code, for example, install btw and then write `claude mcp add -s "user" r-btw -- Rscript -e "btw::btw_mcp_server()"` in your terminal.
 
-To use [R as an MCP server](https://posit-dev.github.io/mcptools/articles/server.html), configure the command `Rscript -e "mcptools::mcp_server()"` with your LLM application. You'll likely want to provide a `tools` argument, perhaps `tools = btw::btw_tools()`, to configure additional R functions as tools in the server.
+To use [R as an MCP server](https://posit-dev.github.io/mcptools/articles/server.html), configure the command `Rscript -e "mcptools::mcp_server()"` with your LLM application. You'll likely want to provide a `tools` argument, perhaps `tools = btw::btw_tools()`, to configure additional R functions as tools in the server. The LLM application (i.e. "client", like Claude Code or Claude Desktop) starts and stops the MCP _server_. You can also allow servers to access interactive R _sessions_ by calling `mcptools::mcp_session()` in the R sessions you're working in.
 
 ## R as a client
 
