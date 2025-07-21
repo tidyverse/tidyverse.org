@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tdd-2025
 title: Tidyverse developer day 2025
-date: 2025-07-16
+date: 2025-07-21
 author: Max Kuhn
 description: >
      Join us in Atlanta for tidyverse developer day on September 19, 2025!
@@ -29,7 +29,7 @@ TODO:
 * [ ] `usethis::use_tidy_thanks()`
 -->
 
-The 2025 Tidy Dev Day will be on September 19th! We'll gather after posit::conf near the conference venue (see details at the event page at the bottom) from 9am to 5pm.
+The 2025 Tidy Dev Day will be on September 19th! We'll gather after posit::conf near the conference venue (see the link to the event page at the bottom).
 
 Tidy Dev Day (TDD) is an event where developers and open source contributors meet to collaboratively solve issues. You can hone your software engineering skills or work on your first contribution. We will have a slate of existing issues that you can work on with or without the assistance of our developers. 
 
@@ -59,8 +59,4 @@ There is a token $10 cost for the day; we provide the venue, snacks, lunch, and 
 
 **Note**: by using this link, you agree to Posit's Privacy Policy, available at https://posit.co/about/privacy-policy/. You also consent to using https://lu.ma/ for the purposes of processing your event attendance fees.
 
-
 [Previous Tidy Dev Days](https://www.tidyverse.org/tags/tidyverse-dev-day/) have sold out quickly, so don't wait!
-
-
-
