@@ -2,12 +2,13 @@
 output: hugodown::hugo_document
 
 slug: ellmer-0-3-0
-title: ellmer 0 3 0
+title: ellmer 0.3.0
 date: 2025-07-24
 author: Hadley Wickham
 description: >
-    A 2-3 sentence description of the post that appears on the articles page.
-    This can be omitted if it would just recapitulate the title.
+    The newest version of ellmer introduces a simpler `chat()` interface that 
+    can use work with any provider, a bunch of improvements to tool calling,
+    and a handful of smaller quality of life improvements.
 
 photo:
   url: https://chatgpt.com/share/68824585-91dc-8009-a84b-82451f71ef65
@@ -15,25 +16,23 @@ photo:
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
-tags: []
-rmd_hash: 83756153f36528dc
+tags: [ellmer, ai]
+rmd_hash: f6899bc41b34a0b7
 
 ---
 
 <!--
 TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
 * [ ] Add intro sentence, e.g. the standard tagline for the package
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
-
-# ellmer 0.3.0
 
 We're thrilled to announce that [ellmer 0.3.0](https://ellmer.tidyverse.org) is now available on CRAN! ellmer is an R package designed to make it easy to use large language models (LLMs) from R. It supports a wide variety of providers (including OpenAI, Anthropic, Azure, Google, Snowflake, Databricks and many more), makes it easy to [extract structured data](https://ellmer.tidyverse.org/articles/structured-data.html), and to give the LLM the ability to call R functions via [tool calling](https://ellmer.tidyverse.org/articles/tool-calling.html).
 
@@ -62,7 +61,7 @@ The biggest new feature in this release is the [`chat()`](https://ellmer.tidyver
 <span><span class='nv'>openai_chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"Tell me a joke about an R programmer"</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Why did the R programmer go broke?</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Because he lost all his cash in a for loop!</span></span>
+<span><span class='c'>#&gt; Because he lost all his objects in the garbage collection!</span></span>
 <span></span><span></span>
 <span><span class='c'># Or use the default for a given provider</span></span>
 <span><span class='nv'>anthropic_chat</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ellmer.tidyverse.org/reference/chat-any.html'>chat</a></span><span class='o'>(</span><span class='s'>"anthropic"</span><span class='o'>)</span></span>
@@ -71,14 +70,10 @@ The biggest new feature in this release is the [`chat()`](https://ellmer.tidyver
 <span><span class='c'>#&gt; Here's an acrostic for tidyr:</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; **T**ransform messy data into structured form  </span></span>
-<span><span class='c'>#&gt; **I**ntegrate columns with pivot and spread  </span></span>
+<span><span class='c'>#&gt; **I**ntegrating scattered values with ease  </span></span>
 <span><span class='c'>#&gt; **D**ata reshaping becomes the norm  </span></span>
-<span><span class='c'>#&gt; **Y**ield clean datasets, perfectly prepared  </span></span>
-<span><span class='c'>#&gt; **R**econfigure tables to conform</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; This captures tidyr's core purpose as an R package for data tidying </span></span>
-<span><span class='c'>#&gt; and reshaping operations like pivoting, spreading, and general data </span></span>
-<span><span class='c'>#&gt; transformation tasks.</span></span>
+<span><span class='c'>#&gt; **Y**ielding clean datasets that please  </span></span>
+<span><span class='c'>#&gt; **R**eorganizing rows and columns to perform</span></span>
 <span></span></code></pre>
 
 </div>
@@ -107,8 +102,8 @@ We've significantly simplified how you define tools for function calling. The [`
 <span><span class='c'>#&gt; Using <span style='color: #00BB00;'>model</span> = <span style='color: #0000BB;'>"claude-sonnet-4-20250514"</span>.</span></span>
 <span></span><span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>register_tool</span><span class='o'>(</span><span class='nv'>get_weather</span><span class='o'>)</span></span>
 <span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"What's the weather in Paris?"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; The current weather in Paris, France is 22°C (approximately 72°F). </span></span>
-<span><span class='c'>#&gt; It's a pleasant temperature!</span></span>
+<span><span class='c'>#&gt; The current weather in Paris, France is 22°C (approximately 72°F). It's</span></span>
+<span><span class='c'>#&gt; a pleasant temperature!</span></span>
 <span></span></code></pre>
 
 </div>
