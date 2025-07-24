@@ -1,0 +1,111 @@
+---
+output: hugodown::hugo_document
+
+slug: ellmer-0-3-0
+title: ellmer 0 3 0
+date: 2025-07-24
+author: Hadley Wickham
+description: >
+    A 2-3 sentence description of the post that appears on the articles page.
+    This can be omitted if it would just recapitulate the title.
+
+photo:
+  url: https://unsplash.com/photos/n6vS3xlnsCc
+  author: Kelley Bozarth
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: []
+---
+
+<!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+# ellmer 0.3.0
+
+We're thrilled to announce that [ellmer 0.3.0](https://ellmer.tidyverse.org) is now available on CRAN!  ellmer is an R package designed to make it easy to use large language models (LLMs) from R. It supports a wide variety of providers (including OpenAI, Anthropic, Azure, Google, Snowflake, Databricks and many more), makes it easy to [extract structured data](https://ellmer.tidyverse.org/articles/structured-data.html), and to give the LLM the ability to call R functions via [tool calling](https://ellmer.tidyverse.org/articles/tool-calling.html).
+
+You can install the latest version from CRAN with:
+
+```r
+install.packages("ellmer")
+```
+
+This release brings several exciting improvements: a simplified chat interface, enhanced tool specifications, and numerous quality of life improvements that make working with LLMs more reliable and efficient. Let's dive into what's new!
+
+```{r setup}
+library(ellmer)
+```
+
+## Simplified chat interface
+
+The biggest new feature in this release is the `chat()` function, which provides an easy way to start a conversations with any provider. Instead of using different function names for different providers, you can now use a single string:
+
+```{r}
+# You can specify a particular model
+openai_chat <- chat("openai/gpt-4.1")
+openai_chat$chat("Tell me a joke about an R programmer")
+
+# Or use the default for a given provider
+anthropic_chat <- chat("anthropic")
+anthropic_chat$chat("Write an acrostic for tidyr")
+```
+
+## Improved tool specification
+
+We've significantly simplified how you define tools for function calling. The `tool()` function now has a cleaner, more intuitive specification that focuses on the essentials: the function, a name, a description, and the arguments specifications.
+
+```{r}
+get_weather <- tool(
+  function(location, unit = "celsius") {
+    # Function implementation here
+    paste0("Weather in ", location, " is 22 ", unit)
+  },
+  name = "get_weather",
+  description = "Get current weather for a location",
+  arguments = list(
+    location = type_string("The city and state, e.g. San Francisco, CA"),
+    unit = type_enum(c("C", "F"), "Temperature unit: celsius/fahrenheit")
+  )
+)
+
+# Use the tool in a chat
+chat <- chat("anthropic")
+chat$register_tool(get_weather)
+chat$chat("What's the weather in Paris?")
+```
+
+This is a breaking change from previous versions, and I apologise for the pain that this will cause. However, I'm confident that this is a better interface overall and will make tool usage clearer and more maintainable in the long run. If you have existing tools you need to convert to the new format, check out `?tool` for an LLM prompt to help you automate the work.
+
+We've also tweaked the type specification functions: `type_array()` and `type_enum()`. These now have a more logical argument order, with the `values`/`items` first and the description second:
+
+```{r}
+type_colour <- type_enum(c("red", "green", "blue"), "Colour options")
+type_names <- type_array(type_string())
+```
+
+This makes them a little easier to use since `values` and `items` are required and the `description` is optional.
+
+## Quality of life improvements
+
+This release includes several improvements that make ellmer more reliable and easier to use at scale:
+
+* **Enhanced reliability**. ellmer now retries requests up to 3 times by default (controllable with `options(ellmer_max_tries)`), and will retry if the connection fails, not just if the request returns a transient error. The default timeout (`options(ellmer_timeout)`) now applies to the initial connection phase. Together these changes should make ellmer much more reliable in turbulent network conditions.
+
+* **Batch processing**. New `parallel_chat_text()` and `batch_chat_text()` functions make it easy to just extract the text responses from parallel/batch responses.
+
+* **Better cost tracking**. ellmer's cost estimates are now more accurate and comprehensive. `chat_openai()` and `chat_google_gemini()` now distinguish between cached and uncached input tokens. And we've switched to LiteLLM as our pricing data source, dramatically expanding the number of providers and models with cost information. 
+
+## Acknowledgements
+
+We're grateful to all the contributors who made this release possible through their code contributions, bug reports, and feedback. Your input helps make ellmer better for the entire R community working with large language models!
