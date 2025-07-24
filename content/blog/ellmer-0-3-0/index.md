@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ellmer, ai]
-rmd_hash: f6899bc41b34a0b7
+rmd_hash: 87379c55fb88385f
 
 ---
 
@@ -30,8 +30,8 @@ TODO:
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
 We're thrilled to announce that [ellmer 0.3.0](https://ellmer.tidyverse.org) is now available on CRAN! ellmer is an R package designed to make it easy to use large language models (LLMs) from R. It supports a wide variety of providers (including OpenAI, Anthropic, Azure, Google, Snowflake, Databricks and many more), makes it easy to [extract structured data](https://ellmer.tidyverse.org/articles/structured-data.html), and to give the LLM the ability to call R functions via [tool calling](https://ellmer.tidyverse.org/articles/tool-calling.html).
@@ -59,9 +59,9 @@ The biggest new feature in this release is the [`chat()`](https://ellmer.tidyver
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># You can specify a particular model</span></span>
 <span><span class='nv'>openai_chat</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ellmer.tidyverse.org/reference/chat-any.html'>chat</a></span><span class='o'>(</span><span class='s'>"openai/gpt-4.1"</span><span class='o'>)</span></span>
 <span><span class='nv'>openai_chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"Tell me a joke about an R programmer"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Why did the R programmer go broke?</span></span>
+<span><span class='c'>#&gt; Why did the R programmer refuse to play hide and seek?</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Because he lost all his objects in the garbage collection!</span></span>
+<span><span class='c'>#&gt; Because they couldn’t handle the unexpected “missing values”!</span></span>
 <span></span><span></span>
 <span><span class='c'># Or use the default for a given provider</span></span>
 <span><span class='nv'>anthropic_chat</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ellmer.tidyverse.org/reference/chat-any.html'>chat</a></span><span class='o'>(</span><span class='s'>"anthropic"</span><span class='o'>)</span></span>
@@ -70,10 +70,10 @@ The biggest new feature in this release is the [`chat()`](https://ellmer.tidyver
 <span><span class='c'>#&gt; Here's an acrostic for tidyr:</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; **T**ransform messy data into structured form  </span></span>
-<span><span class='c'>#&gt; **I**ntegrating scattered values with ease  </span></span>
+<span><span class='c'>#&gt; **I**ntegrate scattered values with ease  </span></span>
 <span><span class='c'>#&gt; **D**ata reshaping becomes the norm  </span></span>
 <span><span class='c'>#&gt; **Y**ielding clean datasets that please  </span></span>
-<span><span class='c'>#&gt; **R**eorganizing rows and columns to perform</span></span>
+<span><span class='c'>#&gt; **R**estructuring tables to perform</span></span>
 <span></span></code></pre>
 
 </div>
@@ -133,5 +133,5 @@ This release includes several improvements that make ellmer more reliable and ea
 
 ## Acknowledgements
 
-We're grateful to all the contributors who made this release possible through their code contributions, bug reports, and feedback. Your input helps make ellmer better for the entire R community working with large language models!
+We're grateful to all the contributors who made this release possible through their code contributions, bug reports, and feedback. Your input helps make ellmer better for the entire R community working with large language models! [@acastroaraujo](https://github.com/acastroaraujo), [@arcenis-r](https://github.com/arcenis-r), [@arnavchauhan7](https://github.com/arnavchauhan7), [@arunrajes](https://github.com/arunrajes), [@atheriel](https://github.com/atheriel), [@benyake](https://github.com/benyake), [@bgreenwell](https://github.com/bgreenwell), [@bianchenhao](https://github.com/bianchenhao), [@blairj09](https://github.com/blairj09), [@brynhum](https://github.com/brynhum), [@bshor](https://github.com/bshor), [@bvhest](https://github.com/bvhest), [@claytonperry](https://github.com/claytonperry), [@CorradoLanera](https://github.com/CorradoLanera), [@cpsievert](https://github.com/cpsievert), [@diegoperoni](https://github.com/diegoperoni), [@elnelson575](https://github.com/elnelson575), [@frankcsliu](https://github.com/frankcsliu), [@gadenbuie](https://github.com/gadenbuie), [@gbiele](https://github.com/gbiele), [@hadley](https://github.com/hadley), [@hafen](https://github.com/hafen), [@howardbaik](https://github.com/howardbaik), [@Ifeanyi55](https://github.com/Ifeanyi55), [@IL04](https://github.com/IL04), [@joshyam-k](https://github.com/joshyam-k), [@JsizzleR](https://github.com/JsizzleR), [@jvandens](https://github.com/jvandens), [@kchou496](https://github.com/kchou496), [@lepromatous](https://github.com/lepromatous), [@mattwarkentin](https://github.com/mattwarkentin), [@michalovadek](https://github.com/michalovadek), [@moodymudskipper](https://github.com/moodymudskipper), [@netique](https://github.com/netique), [@paddytobias](https://github.com/paddytobias), [@pietervreeburg](https://github.com/pietervreeburg), [@polinah7](https://github.com/polinah7), [@rkrug](https://github.com/rkrug), [@rpodcast](https://github.com/rpodcast), [@Sade154](https://github.com/Sade154), [@salim-b](https://github.com/salim-b), [@simonpcouch](https://github.com/simonpcouch), [@smach](https://github.com/smach), [@SokolovAnatoliy](https://github.com/SokolovAnatoliy), [@stefanlinner](https://github.com/stefanlinner), [@thisisnic](https://github.com/thisisnic), and [@vorpalvorpal](https://github.com/vorpalvorpal).
 
