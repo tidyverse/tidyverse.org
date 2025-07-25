@@ -3,11 +3,11 @@ output: hugodown::hugo_document
 
 slug: ellmer-0-3-0
 title: ellmer 0.3.0
-date: 2025-07-24
+date: 2025-07-25
 author: Hadley Wickham
 description: >
     The newest version of ellmer introduces a simpler `chat()` interface that 
-    can use work with any provider, a bunch of improvements to tool calling,
+    can works with any provider, a bunch of improvements to tool calling,
     and a handful of smaller quality of life improvements.
 
 photo:
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ellmer, ai]
-rmd_hash: 87379c55fb88385f
+rmd_hash: 2f266b416bbd4261
 
 ---
 
@@ -59,9 +59,9 @@ The biggest new feature in this release is the [`chat()`](https://ellmer.tidyver
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># You can specify a particular model</span></span>
 <span><span class='nv'>openai_chat</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ellmer.tidyverse.org/reference/chat-any.html'>chat</a></span><span class='o'>(</span><span class='s'>"openai/gpt-4.1"</span><span class='o'>)</span></span>
 <span><span class='nv'>openai_chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"Tell me a joke about an R programmer"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Why did the R programmer refuse to play hide and seek?</span></span>
+<span><span class='c'>#&gt; Why did the R programmer get kicked out of the party?</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Because they couldn’t handle the unexpected “missing values”!</span></span>
+<span><span class='c'>#&gt; Because he kept trying to **arrange** everyone in **ascending order**!</span></span>
 <span></span><span></span>
 <span><span class='c'># Or use the default for a given provider</span></span>
 <span><span class='nv'>anthropic_chat</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ellmer.tidyverse.org/reference/chat-any.html'>chat</a></span><span class='o'>(</span><span class='s'>"anthropic"</span><span class='o'>)</span></span>
@@ -70,17 +70,17 @@ The biggest new feature in this release is the [`chat()`](https://ellmer.tidyver
 <span><span class='c'>#&gt; Here's an acrostic for tidyr:</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; **T**ransform messy data into structured form  </span></span>
-<span><span class='c'>#&gt; **I**ntegrate scattered values with ease  </span></span>
-<span><span class='c'>#&gt; **D**ata reshaping becomes the norm  </span></span>
-<span><span class='c'>#&gt; **Y**ielding clean datasets that please  </span></span>
-<span><span class='c'>#&gt; **R**estructuring tables to perform</span></span>
+<span><span class='c'>#&gt; **I**ntegrate scattered pieces with ease  </span></span>
+<span><span class='c'>#&gt; **D**ata wrangling becomes the norm  </span></span>
+<span><span class='c'>#&gt; **Y**our datasets pivot and find their peace  </span></span>
+<span><span class='c'>#&gt; **R**eshaping chaos into organized dreams</span></span>
 <span></span></code></pre>
 
 </div>
 
 ## Improved tool specification
 
-We've significantly simplified how you define tools for function calling. The [`tool()`](https://ellmer.tidyverse.org/reference/tool.html) function now has a cleaner, more intuitive specification that focuses on the essentials: the function, a name, a description, and the arguments specifications.
+We've significantly simplified how you define tools for function calling. The [`tool()`](https://ellmer.tidyverse.org/reference/tool.html) function now has a cleaner, more intuitive specification that focuses on the essentials: the function, a name, a description, and the arguments specification.
 
 <div class="highlight">
 
@@ -102,8 +102,8 @@ We've significantly simplified how you define tools for function calling. The [`
 <span><span class='c'>#&gt; Using <span style='color: #00BB00;'>model</span> = <span style='color: #0000BB;'>"claude-sonnet-4-20250514"</span>.</span></span>
 <span></span><span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>register_tool</span><span class='o'>(</span><span class='nv'>get_weather</span><span class='o'>)</span></span>
 <span><span class='nv'>chat</span><span class='o'>$</span><span class='nf'>chat</span><span class='o'>(</span><span class='s'>"What's the weather in Paris?"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; The current weather in Paris, France is 22°C (approximately 72°F). It's</span></span>
-<span><span class='c'>#&gt; a pleasant temperature!</span></span>
+<span><span class='c'>#&gt; The current weather in Paris, France is 22°C (about 72°F). It's quite pleasant </span></span>
+<span><span class='c'>#&gt; weather!</span></span>
 <span></span></code></pre>
 
 </div>
@@ -125,7 +125,7 @@ This makes them a little easier to use since `values` and `items` are required a
 
 This release includes several improvements that make ellmer more reliable and easier to use at scale:
 
--   **Enhanced reliability**. ellmer now retries requests up to 3 times by default (controllable with `options(ellmer_max_tries)`), and will retry if the connection fails, not just if the request returns a transient error. The default timeout (`options(ellmer_timeout)`) now applies to the initial connection phase. Together these changes should make ellmer much more reliable in turbulent network conditions.
+-   **Enhanced reliability**. ellmer now retries requests up to 3 times by default (controllable with `options(ellmer_max_tries)`), and will retry if the connection fails, not just if the request returns a transient error. The default timeout (`options(ellmer_timeout_s)`) now applies to the initial connection phase. Together these changes should make ellmer much more reliable in turbulent network conditions.
 
 -   **Batch processing**. New [`parallel_chat_text()`](https://ellmer.tidyverse.org/reference/parallel_chat.html) and [`batch_chat_text()`](https://ellmer.tidyverse.org/reference/batch_chat.html) functions make it easy to just extract the text responses from parallel/batch responses.
 
