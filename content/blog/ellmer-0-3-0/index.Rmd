@@ -1,0 +1,110 @@
+---
+output: hugodown::hugo_document
+
+slug: ellmer-0-3-0
+title: ellmer 0.3.0
+date: 2025-07-25
+author: Hadley Wickham
+description: >
+    The newest version of ellmer introduces a simpler `chat()` interface that 
+    can works with any provider, a bunch of improvements to tool calling,
+    and a handful of smaller quality of life improvements.
+
+photo:
+  url: https://chatgpt.com/share/68824585-91dc-8009-a84b-82451f71ef65
+  author: ChatGPT
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [ellmer, ai]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're thrilled to announce that [ellmer 0.3.0](https://ellmer.tidyverse.org) is now available on CRAN!  ellmer is an R package designed to make it easy to use large language models (LLMs) from R. It supports a wide variety of providers (including OpenAI, Anthropic, Azure, Google, Snowflake, Databricks and many more), makes it easy to [extract structured data](https://ellmer.tidyverse.org/articles/structured-data.html), and to give the LLM the ability to call R functions via [tool calling](https://ellmer.tidyverse.org/articles/tool-calling.html).
+
+You can install the latest version from CRAN with:
+
+```r
+install.packages("ellmer")
+```
+
+This release brings several exciting improvements: a simplified chat interface, enhanced tool specifications, and numerous quality of life improvements that make working with LLMs more reliable and efficient. Let's dive into what's new!
+
+```{r setup}
+library(ellmer)
+```
+
+## Simplified chat interface
+
+The biggest new feature in this release is the `chat()` function, which provides an easy way to start a conversations with any provider. Instead of using different function names for different providers, you can now use a single string:
+
+```{r}
+# You can specify a particular model
+openai_chat <- chat("openai/gpt-4.1")
+openai_chat$chat("Tell me a joke about an R programmer")
+
+# Or use the default for a given provider
+anthropic_chat <- chat("anthropic")
+anthropic_chat$chat("Write an acrostic for tidyr")
+```
+
+## Improved tool specification
+
+We've significantly simplified how you define tools for function calling. The `tool()` function now has a cleaner, more intuitive specification that focuses on the essentials: the function, a name, a description, and the arguments specification.
+
+```{r}
+get_weather <- tool(
+  function(location, unit = "celsius") {
+    # Function implementation here
+    paste0("Weather in ", location, " is 22 ", unit)
+  },
+  name = "get_weather",
+  description = "Get current weather for a location",
+  arguments = list(
+    location = type_string("The city and state, e.g. San Francisco, CA"),
+    unit = type_enum(c("C", "F"), "Temperature unit: celsius/fahrenheit")
+  )
+)
+
+# Use the tool in a chat
+chat <- chat("anthropic")
+chat$register_tool(get_weather)
+chat$chat("What's the weather in Paris?")
+```
+
+This is a breaking change from previous versions, and I apologise for the pain that this will cause. However, I'm confident that this is a better interface overall and will make tool usage clearer and more maintainable in the long run. If you have existing tools you need to convert to the new format, check out `?tool` for an LLM prompt to help you automate the work.
+
+We've also tweaked the type specification functions: `type_array()` and `type_enum()`. These now have a more logical argument order, with the `values`/`items` first and the description second:
+
+```{r}
+type_colour <- type_enum(c("red", "green", "blue"), "Colour options")
+type_names <- type_array(type_string())
+```
+
+This makes them a little easier to use since `values` and `items` are required and the `description` is optional.
+
+## Quality of life improvements
+
+This release includes several improvements that make ellmer more reliable and easier to use at scale:
+
+* **Enhanced reliability**. ellmer now retries requests up to 3 times by default (controllable with `options(ellmer_max_tries)`), and will retry if the connection fails, not just if the request returns a transient error. The default timeout (`options(ellmer_timeout_s)`) now applies to the initial connection phase. Together these changes should make ellmer much more reliable in turbulent network conditions.
+
+* **Batch processing**. New `parallel_chat_text()` and `batch_chat_text()` functions make it easy to just extract the text responses from parallel/batch responses.
+
+* **Better cost tracking**. ellmer's cost estimates are now more accurate and comprehensive. `chat_openai()` and `chat_google_gemini()` now distinguish between cached and uncached input tokens. And we've switched to LiteLLM as our pricing data source, dramatically expanding the number of providers and models with cost information. 
+
+## Acknowledgements
+
+We're grateful to all the contributors who made this release possible through their code contributions, bug reports, and feedback. Your input helps make ellmer better for the entire R community working with large language models! [&#x0040;acastroaraujo](https://github.com/acastroaraujo), [&#x0040;arcenis-r](https://github.com/arcenis-r), [&#x0040;arnavchauhan7](https://github.com/arnavchauhan7), [&#x0040;arunrajes](https://github.com/arunrajes), [&#x0040;atheriel](https://github.com/atheriel), [&#x0040;benyake](https://github.com/benyake), [&#x0040;bgreenwell](https://github.com/bgreenwell), [&#x0040;bianchenhao](https://github.com/bianchenhao), [&#x0040;blairj09](https://github.com/blairj09), [&#x0040;brynhum](https://github.com/brynhum), [&#x0040;bshor](https://github.com/bshor), [&#x0040;bvhest](https://github.com/bvhest), [&#x0040;claytonperry](https://github.com/claytonperry), [&#x0040;CorradoLanera](https://github.com/CorradoLanera), [&#x0040;cpsievert](https://github.com/cpsievert), [&#x0040;diegoperoni](https://github.com/diegoperoni), [&#x0040;elnelson575](https://github.com/elnelson575), [&#x0040;frankcsliu](https://github.com/frankcsliu), [&#x0040;gadenbuie](https://github.com/gadenbuie), [&#x0040;gbiele](https://github.com/gbiele), [&#x0040;hadley](https://github.com/hadley), [&#x0040;hafen](https://github.com/hafen), [&#x0040;howardbaik](https://github.com/howardbaik), [&#x0040;Ifeanyi55](https://github.com/Ifeanyi55), [&#x0040;IL04](https://github.com/IL04), [&#x0040;joshyam-k](https://github.com/joshyam-k), [&#x0040;JsizzleR](https://github.com/JsizzleR), [&#x0040;jvandens](https://github.com/jvandens), [&#x0040;kchou496](https://github.com/kchou496), [&#x0040;lepromatous](https://github.com/lepromatous), [&#x0040;mattwarkentin](https://github.com/mattwarkentin), [&#x0040;michalovadek](https://github.com/michalovadek), [&#x0040;moodymudskipper](https://github.com/moodymudskipper), [&#x0040;netique](https://github.com/netique), [&#x0040;paddytobias](https://github.com/paddytobias), [&#x0040;pietervreeburg](https://github.com/pietervreeburg), [&#x0040;polinah7](https://github.com/polinah7), [&#x0040;rkrug](https://github.com/rkrug), [&#x0040;rpodcast](https://github.com/rpodcast), [&#x0040;Sade154](https://github.com/Sade154), [&#x0040;salim-b](https://github.com/salim-b), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;smach](https://github.com/smach), [&#x0040;SokolovAnatoliy](https://github.com/SokolovAnatoliy), [&#x0040;stefanlinner](https://github.com/stefanlinner), [&#x0040;thisisnic](https://github.com/thisisnic), and [&#x0040;vorpalvorpal](https://github.com/vorpalvorpal).
