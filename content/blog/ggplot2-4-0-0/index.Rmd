@@ -41,6 +41,7 @@ install.packages("ggplot2")
 ```
 
 This is a substantial release meriting a new major version, and contains a series of changes from a rewrite of the object oriented system from S3 to S7, large new features to smaller quality of life improvements and bugfixes.
+It is also the 18th anniversary of ggplot2 which is cause for celebration!
 In this blog post, we will highlight the most salient new features that come with this release.
 You can see a full list of changes in the [release notes](https://ggplot2.tidyverse.org/news/index.html)
 
@@ -77,6 +78,7 @@ Now with S7, you can control what happens not only for right-hand side objects (
 We have put various pieces of backwards compatibility in to not break many packages that assumed the S3 structures of ggplot2.
 For example, we still return the data property with `ggplot()$data`, whereas the S7 way of accessing this should be `ggplot()@data`.
 Expect these to be phased out over time in favour of S7.
+We are preparing another blog post to help migrating from S3 to S7 for ggplot2 related packages.
 
 ## Theme improvements
 
@@ -87,14 +89,13 @@ Now, years of waiting have come to fruition and we're proud to announce this new
 
 ### Ink and paper
 
-The way layer defaults are implemented differ slightly from the aesthetics you know and love (or on rare occasions: hate).
-In themes, the graphical properties are oriented around their role rather 1:1 theme-to-layer translation.
-Consider the `fill` in a boxplot. 
-The amount of boxplot `fill` that is displayed does not correspond to the data. 
-It typically even blends in with the background.
-In contrast, the `fill` in an area or bar chart directly corresponds with data: the more ink is present, the higher are data values (typically).
-For this reason, we distinguish foreground colours (`ink`) and background colours (`paper`).
-To accommodate special cases, we also added a third `accent` option.
+The way layer defaults are now implemented differs slightly from typical aesthetics you know and love.
+Whereas layers aesthetics distinguish `colour` and `fill`, the theme defaults distinguish `ink` (foreground) and `paper` (background).
+A boxplot is unreadable without `colour`, but is perfectly interpretable without `fill`.
+In the boxplot case, the `ink` is thus clearly the `colour` whereas `paper` is the `fill`.
+In bar charts or histograms, the [proportional ink](https://clauswilke.com/dataviz/proportional-ink.html) principle prescribes that the `fill` aesthetic is considered foreground, and thus count as `ink`.
+To accommodate special cases, like lines in `geom_smooth()` or `geom_contour()`, we also added a third `accent` option.
+In short, the theme defaults have role-oriented settings that differ from the property-oriented settings in layers.
 
 We've added these three options to all built-in complete themes.
 Not only propagate these automatically to the layer defaults, they are also used to style additional theme components.
@@ -109,7 +110,8 @@ ggplot(mpg, aes(displ, hwy)) +
 
 If you're customising a theme, you can use the `theme(geom)` argument to set a collection of defaults.
 The new function `element_geom()` can be used to set these properties.
-Additionally, if you want a layer to read the property from this theme element, you can use the `from_theme()` function in the mapping to access these variables.
+Additionally, if you want a layer to read the property from this theme element, you can use the `from_theme()` function in the mapping to access these variables^[Normally, `aes()` is strictly used to map data instead of setting a fixed property. We diverge from this API for pragmatic reasons, not theoretical ones.].
+
 
 ```{r}
 ggplot(mpg, aes(class, displ)) +
@@ -487,7 +489,7 @@ A second position adjustment that has gotten its own aesthetic is `position_dodg
 In the plot below, we see for sports where we do not have records for both 'sex = "f"' and 'sex = "m"' only one box is drawn just beneath the centre line.
 This is true for 'water polo' where we have no records for 'f', but also netball and gymnastics where there are no records for 'm'.
 For sports where there are records for both sexes, the "f" is depicted beneath the centre line and "m" is depicted above the centre line.
-This inconsistency can be an assault on your sensibilities.
+Depending on your aesthetic sensibilities, this inconsistency can be a major pain.
 
 ```{r}
 sports <- c("water polo", "swimming", "gymnastics", "field", "netball")
@@ -593,6 +595,9 @@ ggplot(penguins, aes(bill_dep, bill_len)) +
   facet_grid(island ~ species)
 ```
 
+In previous incarnations of ggplot2, people went through some acrobatics to get data to repeat across panels.
+With these new options, this should be a walk in the park.
+
 ## Styling updates
 
 ### Boxplots
@@ -674,7 +679,7 @@ ggplot(economics, aes(date, unemploy)) +
 ### Manual
 
 Many ggplot extensions are based on stats, which allows you to perform arbitrary computations on data before handing it off the drawing functions.
-This new stat, `stat_manual()`, aims to give you the same extension powers, but without doing the formal ritual of defining a class and constructor.
+The new `stat_manual()` aims to give you the same extension powers, but without doing the formal ritual of defining a class and constructor.
 You can provide it any function that both ingests and returns a data frame.
 It can create new aesthetics or modify pre-existing aesthetics as long as eventually the geom part of the layer has their required aesthetics.
 In the example below, we use `stat_manual()` with a geom and a function, but also show you how to use a geom with `stat = "manual"`.
