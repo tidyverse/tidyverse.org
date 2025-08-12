@@ -9,13 +9,13 @@ description: >
     A new major version of ggplot2 has been released on CRAN. Find out what is new here.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/selective-focus-photography-of-water-droplets-on-grasses--N_UwPdUs7E
+  author: Jonas Weckschmied
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2]
-rmd_hash: 88a60ef22a8b028b
+rmd_hash: d08d32b8c2596c50
 
 ---
 
@@ -24,11 +24,11 @@ TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
 * [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
@@ -790,7 +790,7 @@ For geom and stat extensions, the magic usually happens in the `Geom*` or `Stat*
 <span><span class='c'>#&gt;             lineend = lineend, linejoin = linejoin, linemitre = linemitre, </span></span>
 <span><span class='c'>#&gt;             ...))</span></span>
 <span><span class='c'>#&gt; &#125;</span></span>
-<span><span class='c'>#&gt; &lt;environment: 0x00000154c398b310&gt;</span></span>
+<span><span class='c'>#&gt; &lt;environment: 0x000001fd14e4a118&gt;</span></span>
 <span></span></code></pre>
 
 </div>
