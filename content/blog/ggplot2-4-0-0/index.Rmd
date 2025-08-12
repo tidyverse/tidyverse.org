@@ -62,7 +62,7 @@ S7 is a newer system that aims to strike a good balance between the flexibility 
 
 Mostly, this change shouldn't be very noticeable when you're just using ggplot2 for building regular plots.
 At best, you may notice that we're more strictly enforcing types for certain arguments.
-For example, much ludicrous input is now rejected right away.
+For example, most ludicrous input is now rejected right away.
 This is due to how properties in S7 work, which get validated when a new object is instantiated.
 
 ```{r, error=TRUE}
@@ -81,7 +81,7 @@ Expect these to be phased out over time in favour of S7.
 ## Theme improvements
 
 Themes in ggplot2 have long served the role of capturing any non-data aspects of styling plots.
-We had come to realise that the default look of layers, from what the default shape of points is to what the default colour palette is, are also not truly data-driven choices.
+We have come to realise that the default look of layers, from what the default shape of points is to what the default colour palette is, are also not truly data-driven choices.
 The idea to put these defaults into themes has been around for a while and Dana Page Seidel did pioneering work implementing this as early as 2018.
 Now, years of waiting have come to fruition and we're proud to announce this new functionality.
 
@@ -139,7 +139,7 @@ ggplot(faithful, aes(waiting)) +
 
 ### Scales and palettes
 
-In addition to the defaults for layers, also default palettes are now encapsulated in the theme.
+In addition to the defaults for layers, default palettes are now also encapsulated in the theme.
 The relevant theme settings have the pattern `palette.{aesthetic}.{type}`, where `type` can be either discrete or continuous.
 This allows you to coordinate your colour palettes with the rest of the theme.
 
@@ -203,7 +203,7 @@ theme_sub_panel(
 
 In addition to shortcuts for clusters of theme elements, we've also added a few variants to declare margins.
 
-* `margin_auto()` sets the margins in a CSS-like fashion similar to the [`padding`](https://developer.mozilla.org/en-US/docs/Web/CSS/padding) property.
+* `margin_auto()` sets the margins in a CSS-like fashion similar to the [`margin`](https://developer.mozilla.org/en-US/docs/Web/CSS/margin) and [`padding`](https://developer.mozilla.org/en-US/docs/Web/CSS/padding) property.
     * `margin_auto(1)` sets all four sides at once. 
       It expands to `margin(t = 1, r = 1, b = 1, l = 1)`.
     * `margin_auto(1, 2)` sets horizontal and vertical sides. 
@@ -374,7 +374,7 @@ ggplot(penguins, aes(bill_dep, bill_len, colour = species)) +
 
 ## Discrete scales
 
-This release we have tried to improve the 'freedom' afforded by discrete position scales.
+In this release we have tried to improve the 'freedom' afforded by discrete position scales.
 Previously, discrete values were always mapped to an integer sequence starting at 1 going up to the number of levels.
 Instead, we wanted to allow for different mappings that deviated from that pattern.
 While it is a bit foreign for position scales, ggplot2 already had a mechanism to assign alternate values to the levels of a scale: palettes!
@@ -638,9 +638,9 @@ ggplot(mpg, aes(class, hwy, fill = class)) +
 
 ### Labels
 
-Also `geom_label()` has new styling options. 
+`geom_label()` also has new styling options. 
 It now has a `linetype` and `linewidth` aesthetic, which can be mapped from the data.
-The `linewidth` aesthetic replaces the `label.size` argument, which used determine the line width of the label border.
+The `linewidth` aesthetic replaces the `label.size` argument, which used to determine the line width of the label border.
 In addition to the new aesthetics, `geom_label()` has two new arguments: `border.colour` and `text.colour` which set the colour for the border and text respectively.
 When these are set, it overrules the `colour` aesthetic for a part of the label.
 In the plot below, we fix the `text.colour` to black, so the `colour` aesthetic applies to the border, not the text.
