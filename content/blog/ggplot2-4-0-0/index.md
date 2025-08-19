@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2]
-rmd_hash: f00565cae1f10ba4
+rmd_hash: 590700caa35092ce
 
 ---
 
@@ -392,7 +392,7 @@ A second improvement we made to the placement of discrete levels is that we give
 
 </div>
 
-Also absent from discrete scales was the ability to set minor breaks. Admittedly, they are less useful than minor breaks in continuous scales. In contrast to discrete (major) `breaks`, `minor_breaks` uses numeric input instead, allowing you to fine-tune placement without being bound by the scale's levels. With a few of tweaks of the theme, you can conceivably use minor breaks to visually separate levels as an alternative to the centre-lines for major breaks.
+Also absent from discrete scales was the ability to set minor breaks. Admittedly, they are less useful than minor breaks in continuous scales. In contrast to discrete (major) `breaks`, `minor_breaks` uses numeric input instead, allowing you to fine-tune placement without being bound by the scale's levels. With a few tweaks of the theme, you can conceivably use minor breaks to visually separate levels as an alternative to the centre-lines for major breaks.
 
 <div class="highlight">
 
@@ -437,7 +437,7 @@ Discrete position scales now also have access to secondary axes. In contrast to 
 
 ## Position aesthetics
 
-Layers consist of three components: stats, geoms and positions. While stats and geoms have their own aesthetics, like `weight` or `linewidth`, the position adjustments did not. In this release, positions can also declare their own statistics. You can map data to these aesthetics like you would for geom or stat aesthetics.
+Layers consist of three components: stats, geoms and positions. While stats and geoms have their own aesthetics, like `weight` or `linewidth`, the position adjustments did not. In this release, positions can also declare their own aesthetics. You can map data to these aesthetics like you would for geom or stat aesthetics.
 
 In [`position_nudge()`](https://ggplot2.tidyverse.org/reference/position_nudge.html) for example, we now have the `nudge_x` and `nudge_y` parameters as aesthetics. [^2] Two benefits are that we can now use expressions in [`aes()`](https://ggplot2.tidyverse.org/reference/aes.html) to declare these and they are vectorised. We use that advantage in the plot below where we use [`sign()`](https://rdrr.io/r/base/sign.html) in a divergent bar chart to determine the left-right direction of the nudge.
 
@@ -546,11 +546,11 @@ The `facet_grid(space)` argument can ensure that panels are allocated space in p
 
 </div>
 
-We can note that the Dream and Torgersen islands have a narrower panel because they don't have the Gentoo penguin with low bill depths.
+We can note that the Dream and Torgersen islands have narrower panels because they don't have the Gentoo penguin with low bill depths.
 
 ### Layer layout
 
-We've added the argument `layer(layout)`, which can be used to give instructions to facets on how to handle the data. Generally speaking, facets or custom layouts are free to interpret instructions as they see fit, so it is not set in stone. Nonetheless, we've come up with the following interpretations for [`facet_wrap()`](https://ggplot2.tidyverse.org/reference/facet_wrap.html) and [`facet_grid()`](https://ggplot2.tidyverse.org/reference/facet_grid.html).
+We've added the argument `layer(layout)`, which instructs facets on how to handle the data. Generally speaking, facets or custom layouts are free to interpret instructions as they see fit, so it is not set in stone. Nonetheless, we've come up with the following interpretations for [`facet_wrap()`](https://ggplot2.tidyverse.org/reference/facet_wrap.html) and [`facet_grid()`](https://ggplot2.tidyverse.org/reference/facet_grid.html).
 
 -   `layout = NULL` (the default) uses the faceting variables to assign data to a panel.
 -   `layout = "fixed"` repeats the data for every panel and ignores faceting variables.
@@ -790,7 +790,7 @@ For geom and stat extensions, the magic usually happens in the `Geom*` or `Stat*
 <span><span class='c'>#&gt;             lineend = lineend, linejoin = linejoin, linemitre = linemitre, </span></span>
 <span><span class='c'>#&gt;             ...))</span></span>
 <span><span class='c'>#&gt; &#125;</span></span>
-<span><span class='c'>#&gt; &lt;environment: 0x00000277f69b1428&gt;</span></span>
+<span><span class='c'>#&gt; &lt;environment: 0x00000229fb99f2a0&gt;</span></span>
 <span></span></code></pre>
 
 </div>
