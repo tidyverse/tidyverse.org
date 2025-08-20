@@ -66,7 +66,7 @@ ragnar is a tidy interface for building a RAG pipeline. Use ragnar to:
 -   *Store* embeddings in DuckDB for fast, local queries.
 -   *Retrieve* relevant chunks using both vector and text search.
 
-## Quick Start: Ingest, Chunk, and Store Your Documents
+## Quick start: collect, convert, chunk, embed, and store your documents
 
 Here is how to build a RAG knowledge store from the Quarto docs.
 
@@ -117,7 +117,7 @@ library(ragnar)
 
 Once the store is built, you can access it for fast retrieval.
 
-## Retrieve Relevant Chunks
+## Retrieve relevant chunks
 
 Pass a query string to `ragnar_retrieve()` to perform both semantic
 search using vector embeddings and conventional text search to retrieve
@@ -130,10 +130,10 @@ query <- "{.python} or {python} code chunk header"
 ragnar_retrieve(store, query, top_k = 5)
 ```
 
-## Equip an LLM Chatbot with Your Store
+## Equip an LLM chat with your store
 
-You can let an ellmer chat session search your knowledge store
-automatically:
+You can equip an ellmer chat with a tool that lets the LLM search your
+knowledge store automatically.
 
 ```{r, eval = TRUE}
 library(ellmer)
@@ -161,7 +161,7 @@ chat$chat(
 )
 ```
 
-### Inspect and Iterate
+### Inspect and iterate
 
 Use `ragnar_store_inspect()` to interactively preview which text chunks
 are retrieved for different search queries. This helps identify issues
@@ -176,14 +176,14 @@ deciding what chunking approach is most appropriate for your content.
 
 ![Store Inspector UI screenshot](ragnar-store-inspector-screenshot.png)
 
-## Additional Features
+## Additional features
 
 -   **Works with many document types**: `read_as_markdown()` uses
     [MarkItDown](https://github.com/microsoft/markitdown), which means
     it can ingest an extremely wide variety of files: HTML, PDF, docx,
     pptx, epubs, compressed archives, and more.
 -   **Flexible embeddings**: Use embedding models from providers like
-    OpenAI, Google Vertex or Gemeni, Bedrock, Databricks, Ollama or LM
+    OpenAI, Google Vertex or Gemini, Bedrock, Databricks, Ollama or LM
     Studio, or easily supply your own embedding function.
 -   **DuckDB native**: Extremely fast local indexing and retrieval.
     Native support for MotherDuck if you need to serve the store.
@@ -193,7 +193,7 @@ deciding what chunking approach is most appropriate for your content.
 -   **Not a black box**: Easily inspect the store contents and retrieval
     results.
 
-## Get Started
+## Get started
 
 -   **Install:** `install.packages("ragnar")`
 -   **Read the vignette:** [Getting

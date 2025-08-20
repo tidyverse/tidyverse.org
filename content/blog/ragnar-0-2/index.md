@@ -16,7 +16,7 @@ editor:
   markdown:
     canonical: true
     wrap: 72
-rmd_hash: f56991c988924980
+rmd_hash: 8e48a7025bd84507
 
 ---
 
@@ -52,7 +52,7 @@ ragnar is a tidy interface for building a RAG pipeline. Use ragnar to:
 - *Store* embeddings in DuckDB for fast, local queries.
 - *Retrieve* relevant chunks using both vector and text search.
 
-## Quick Start: Ingest, Chunk, and Store Your Documents
+## Quick start: collect, convert, chunk, embed, and store your documents
 
 Here is how to build a RAG knowledge store from the Quarto docs.
 
@@ -111,7 +111,7 @@ Here is how to build a RAG knowledge store from the Quarto docs.
 
 Once the store is built, you can access it for fast retrieval.
 
-## Retrieve Relevant Chunks
+## Retrieve relevant chunks
 
 Pass a query string to [`ragnar_retrieve()`](https://ragnar.tidyverse.org/reference/ragnar_retrieve.html) to perform both semantic search using vector embeddings and conventional text search to retrieve the most relevant chunks.
 
@@ -123,23 +123,23 @@ Pass a query string to [`ragnar_retrieve()`](https://ragnar.tidyverse.org/refere
 <span><span class='nf'><a href='https://ragnar.tidyverse.org/reference/ragnar_retrieve.html'>ragnar_retrieve</a></span><span class='o'>(</span><span class='nv'>store</span>, <span class='nv'>query</span>, top_k <span class='o'>=</span> <span class='m'>5</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 9 × 9</span></span></span>
 <span><span class='c'>#&gt;   origin         doc_id chunk_id start   end cosine_distance bm25  context text </span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;lis&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> https://quart…     23 <span style='color: #555555;'>&lt;int&gt;</span>    <span style='text-decoration: underline;'>14</span>318 <span style='text-decoration: underline;'>16</span>132 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># Dia… <span style='color: #555555;'>"</span>###…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> https://quart…     55 <span style='color: #555555;'>&lt;int&gt;</span>      869  <span style='text-decoration: underline;'>2</span>386 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># ASA… <span style='color: #555555;'>"</span>Hom…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> https://quart…     90 <span style='color: #555555;'>&lt;int&gt;</span>        1  <span style='text-decoration: underline;'>2</span>497 <span style='color: #555555;'>&lt;dbl [2]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>""</span>      <span style='color: #555555;'>"</span># U…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> https://quart…    110 <span style='color: #555555;'>&lt;int&gt;</span>     <span style='text-decoration: underline;'>3</span>156  <span style='text-decoration: underline;'>4</span>928 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># v1.… <span style='color: #555555;'>"</span>## …</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> https://quart…    132 <span style='color: #555555;'>&lt;int&gt;</span>     <span style='text-decoration: underline;'>5</span>365  <span style='text-decoration: underline;'>7</span>389 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># Cre… <span style='color: #555555;'>"</span>## …</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>6</span> https://quart…    196 <span style='color: #555555;'>&lt;int&gt;</span>     <span style='text-decoration: underline;'>7</span>319  <span style='text-decoration: underline;'>8</span>804 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># HTM… <span style='color: #555555;'>"</span>## …</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>7</span> https://quart…    196 <span style='color: #555555;'>&lt;int&gt;</span>    <span style='text-decoration: underline;'>11</span>096 <span style='text-decoration: underline;'>12</span>763 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># HTM… <span style='color: #555555;'>"</span>## …</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>8</span> https://quart…    269 <span style='color: #555555;'>&lt;int&gt;</span>     <span style='text-decoration: underline;'>9</span>426 <span style='text-decoration: underline;'>11</span>250 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># Rev… <span style='color: #555555;'>"</span>###…</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>9</span> https://quart…    366 <span style='color: #555555;'>&lt;int&gt;</span>     <span style='text-decoration: underline;'>5</span>236  <span style='text-decoration: underline;'>6</span>904 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># Hel… <span style='color: #555555;'>"</span>###…</span></span>
+<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;int&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;list&gt;</span>          <span style='color: #555555; font-style: italic;'>&lt;lis&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> https://quart… <span style='color: #555555;'>&lt;int&gt;</span>  <span style='color: #555555;'>&lt;int&gt;</span>    <span style='text-decoration: underline;'>14</span>318 <span style='text-decoration: underline;'>16</span>132 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># Dia… <span style='color: #555555;'>"</span>###…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> https://quart… <span style='color: #555555;'>&lt;int&gt;</span>  <span style='color: #555555;'>&lt;int&gt;</span>      869  <span style='text-decoration: underline;'>2</span>386 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># ASA… <span style='color: #555555;'>"</span>Hom…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> https://quart… <span style='color: #555555;'>&lt;int&gt;</span>  <span style='color: #555555;'>&lt;int&gt;</span>        1  <span style='text-decoration: underline;'>2</span>497 <span style='color: #555555;'>&lt;dbl [2]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>""</span>      <span style='color: #555555;'>"</span># U…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> https://quart… <span style='color: #555555;'>&lt;int&gt;</span>  <span style='color: #555555;'>&lt;int&gt;</span>     <span style='text-decoration: underline;'>3</span>156  <span style='text-decoration: underline;'>4</span>928 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># v1.… <span style='color: #555555;'>"</span>## …</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> https://quart… <span style='color: #555555;'>&lt;int&gt;</span>  <span style='color: #555555;'>&lt;int&gt;</span>     <span style='text-decoration: underline;'>5</span>365  <span style='text-decoration: underline;'>7</span>389 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># Cre… <span style='color: #555555;'>"</span>## …</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>6</span> https://quart… <span style='color: #555555;'>&lt;int&gt;</span>  <span style='color: #555555;'>&lt;int&gt;</span>     <span style='text-decoration: underline;'>7</span>319  <span style='text-decoration: underline;'>8</span>804 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># HTM… <span style='color: #555555;'>"</span>## …</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>7</span> https://quart… <span style='color: #555555;'>&lt;int&gt;</span>  <span style='color: #555555;'>&lt;int&gt;</span>    <span style='text-decoration: underline;'>11</span>096 <span style='text-decoration: underline;'>12</span>763 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># HTM… <span style='color: #555555;'>"</span>## …</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>8</span> https://quart… <span style='color: #555555;'>&lt;int&gt;</span>  <span style='color: #555555;'>&lt;int&gt;</span>     <span style='text-decoration: underline;'>9</span>426 <span style='text-decoration: underline;'>11</span>250 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># Rev… <span style='color: #555555;'>"</span>###…</span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>9</span> https://quart… <span style='color: #555555;'>&lt;int&gt;</span>  <span style='color: #555555;'>&lt;int&gt;</span>     <span style='text-decoration: underline;'>5</span>236  <span style='text-decoration: underline;'>6</span>904 <span style='color: #555555;'>&lt;dbl [1]&gt;</span>       <span style='color: #555555;'>&lt;dbl&gt;</span> <span style='color: #555555;'>"</span># Hel… <span style='color: #555555;'>"</span>###…</span></span>
 <span></span></code></pre>
 
 </div>
 
-## Equip an LLM Chatbot with Your Store
+## Equip an LLM chat with your store
 
-You can let an ellmer chat session search your knowledge store automatically:
+You can equip an ellmer chat with a tool that lets the LLM search your knowledge store automatically.
 
 <div class="highlight">
 
@@ -167,49 +167,45 @@ The model can now search the store on demand. It has the ability to rewrite the 
 <span>  <span class='s'>"What's the difference between &#123;.python&#125; and &#123;python&#125;</span></span>
 <span><span class='s'>  in a code chunk header?"</span></span>
 <span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] rag_retrieve_from_store_001(text = "difference between &#123;.python&#125;</span></span>
-<span><span class='c'>#&gt; and &#123;python&#125; in Quarto code chunk header")</span></span>
+<span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] rag_retrieve_from_store_001(text = "&#123;.python&#125; vs &#123;python&#125; code</span></span>
+<span><span class='c'>#&gt; chunk header Quarto")</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>●</span> #&gt; <span style='font-style: italic;'>[&#123;"origin":"https://quarto.org/docs/authoring/lipsum.html","doc_id":2…</span></span></span>
-<span></span><span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] rag_retrieve_from_store_001(text = "Quarto code chunk header</span></span>
-<span><span class='c'>#&gt; syntax curly braces")</span></span>
-<span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>●</span> #&gt; <span style='font-style: italic;'>[&#123;"origin":"https://quarto.org/docs/authoring/penguins.html","doc_id"…</span></span></span>
-<span></span><span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] rag_retrieve_from_store_001(text = "language specification in</span></span>
-<span><span class='c'>#&gt; Quarto code chunk")</span></span>
-<span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>●</span> #&gt; <span style='font-style: italic;'>[&#123;"origin":"https://quarto.org/docs/authoring/citations.html","doc_id…</span></span></span>
-<span></span><span><span class='c'>#&gt; In Quarto, the difference between `&#123;.python&#125;` and `&#123;python&#125;` in a code chunk </span></span>
-<span><span class='c'>#&gt; header is as follows:</span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] rag_retrieve_from_store_001(text = "code chunk header syntax</span></span>
+<span><span class='c'>#&gt; curly braces dot Quarto")</span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>●</span> #&gt; <span style='font-style: italic;'>[&#123;"origin":"https://quarto.org/docs/authoring/lipsum.html","doc_id":2…</span></span></span>
+<span></span><span><span class='c'>#&gt; In Quarto code chunk headers, the difference between &#123;.python&#125; and &#123;python&#125; is:</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; - ```&#123;python&#125;```: This is the standard way to declare an executable code block </span></span>
-<span><span class='c'>#&gt; in Python. Quarto recognizes the language specified in braces and will execute </span></span>
-<span><span class='c'>#&gt; the code block using the appropriate computational engine (Jupyter or Knitr, </span></span>
-<span><span class='c'>#&gt; depending on your setup). For example:</span></span>
+<span><span class='c'>#&gt; - ```&#123;python&#125; is the correct and standard syntax for executable code blocks. It</span></span>
+<span><span class='c'>#&gt; tells Quarto to run the code as Python when rendering the document.</span></span>
+<span><span class='c'>#&gt; - ```&#123;.python&#125; (with a dot) is not standard for code execution. Instead, </span></span>
+<span><span class='c'>#&gt; `.python` is a Pandoc/Markdown syntax used to assign a CSS class to a code </span></span>
+<span><span class='c'>#&gt; block, which affects syntax highlighting or styling but does NOT make it </span></span>
+<span><span class='c'>#&gt; executable.</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;   ```</span></span>
-<span><span class='c'>#&gt;   ```&#123;python&#125;</span></span>
-<span><span class='c'>#&gt;   print("Hello, Quarto!")</span></span>
-<span><span class='c'>#&gt;   ```</span></span>
-<span><span class='c'>#&gt;   ```</span></span>
-<span><span class='c'>#&gt;   This block will be executed and its output included in the rendered document.</span></span>
+<span><span class='c'>#&gt; Use &#123;python&#125; (without the dot) for Python code chunks you want Quarto to </span></span>
+<span><span class='c'>#&gt; execute and render output for. Example:</span></span>
+<span><span class='c'>#&gt; ```markdown</span></span>
+<span><span class='c'>#&gt; ```&#123;python&#125;</span></span>
+<span><span class='c'>#&gt; print("Hello, world!")</span></span>
+<span><span class='c'>#&gt; ```</span></span>
+<span><span class='c'>#&gt; ```</span></span>
+<span><span class='c'>#&gt; This chunk will execute Python code.</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; - ```&#123;.python&#125;```: The leading dot (`.`) before the language indicates a class </span></span>
-<span><span class='c'>#&gt; attribute rather than a language. This is standard Pandoc/Markdown syntax, </span></span>
-<span><span class='c'>#&gt; which adds a class ("python") to the code block for syntax highlighting, but </span></span>
-<span><span class='c'>#&gt; does NOT make the code chunk executable. The block will be syntax-highlighted </span></span>
-<span><span class='c'>#&gt; as Python but Quarto will not run the code or display output automatically.</span></span>
+<span><span class='c'>#&gt; If you use `&#123;.python&#125;`, the code block will only be syntax-highlighted as </span></span>
+<span><span class='c'>#&gt; Python but won't execute in Quarto.</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The distinction:</span></span>
-<span><span class='c'>#&gt; - `&#123;python&#125;` → Executable code chunk (output shown in rendered document)</span></span>
-<span><span class='c'>#&gt; - `&#123;.python&#125;` → Non-executable, syntax-highlighted code block</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; For more details, see:</span></span>
+<span><span class='c'>#&gt; References:</span></span>
 <span><span class='c'>#&gt; - [Quarto: Using Python](https://quarto.org/docs/computations/python.html)</span></span>
-<span><span class='c'>#&gt; - [Quarto: Code Blocks &amp; Syntax </span></span>
-<span><span class='c'>#&gt; Highlighting](https://quarto.org/docs/presentations/revealjs/index.html#code-blocks)</span></span>
+<span><span class='c'>#&gt; - [Quarto: Using R](https://quarto.org/docs/computations/r.html) (syntactic </span></span>
+<span><span class='c'>#&gt; explanation applies to all languages)</span></span>
+<span><span class='c'>#&gt; </span></span>
+<span><span class='c'>#&gt; Summary: Use `&#123;python&#125;` to execute code; `&#123;.python&#125;` only assigns a class for </span></span>
+<span><span class='c'>#&gt; styling.</span></span>
 <span></span></code></pre>
 
 </div>
 
-### Inspect and Iterate
+### Inspect and iterate
 
 Use [`ragnar_store_inspect()`](https://ragnar.tidyverse.org/reference/ragnar_store_inspect.html) to interactively preview which text chunks are retrieved for different search queries. This helps identify issues like poor document conversion, chunking, or context augmentation, so you can refine your store creation pipeline. By making retrieval results easy to explore, `ragnar` lets you iterate and tune your knowledge store before connecting it to an LLM.
 
@@ -220,7 +216,7 @@ You can also launch the store inspector with just a single chunked document usin
 <figcaption aria-hidden="true">Store Inspector UI screenshot</figcaption>
 </figure>
 
-## Additional Features
+## Additional features
 
 - **Works with many document types**: [`read_as_markdown()`](https://ragnar.tidyverse.org/reference/read_as_markdown.html) uses [MarkItDown](https://github.com/microsoft/markitdown), which means it can ingest an extremely wide variety of files: HTML, PDF, docx, pptx, epubs, compressed archives, and more.
 - **Flexible embeddings**: Use embedding models from providers like OpenAI, Google Vertex or Gemini, Bedrock, Databricks, Ollama or LM Studio, or easily supply your own embedding function.
@@ -228,7 +224,7 @@ You can also launch the store inspector with just a single chunked document usin
 - **Customizable chunk augmentation**: Customize how chunks are augmented with context (headings, links, titles), and easily attach additional metadata to chunks.
 - **Not a black box**: Easily inspect the store contents and retrieval results.
 
-## Get Started
+## Get started
 
 - **Install:** `install.packages("ragnar")`
 - **Read the vignette:** [Getting Started](https://ragnar.tidyverse.org/articles/ragnar.html)
