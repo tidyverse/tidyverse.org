@@ -223,7 +223,7 @@ You can also launch the store inspector with just a single chunked document usin
 ## Additional Features
 
 - **Works with many document types**: [`read_as_markdown()`](https://ragnar.tidyverse.org/reference/read_as_markdown.html) uses [MarkItDown](https://github.com/microsoft/markitdown), which means it can ingest an extremely wide variety of files: HTML, PDF, docx, pptx, epubs, compressed archives, and more.
-- **Flexible embeddings**: Use embedding models from providers like OpenAI, Google Vertex or Gemeni, Bedrock, Databricks, Ollama or LM Studio, or easily supply your own embedding function.
+- **Flexible embeddings**: Use embedding models from providers like OpenAI, Google Vertex or Gemini, Bedrock, Databricks, Ollama or LM Studio, or easily supply your own embedding function.
 - **DuckDB native**: Extremely fast local indexing and retrieval. Native support for MotherDuck if you need to serve the store.
 - **Customizable chunk augmentation**: Customize how chunks are augmented with context (headings, links, titles), and easily attach additional metadata to chunks.
 - **Not a black box**: Easily inspect the store contents and retrieval results.
