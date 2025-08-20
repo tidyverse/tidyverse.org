@@ -16,7 +16,7 @@ editor:
   markdown:
     canonical: true
     wrap: 72
-rmd_hash: 8e48a7025bd84507
+rmd_hash: d7bd3ee7947169c3
 
 ---
 
@@ -30,7 +30,7 @@ You can install it from CRAN with:
 install.packages("ragnar")
 ```
 
-## What's Retrieval-Augmented Generation (RAG)?
+## What's retrieval-augmented generation (RAG)?
 
 Large language models (LLMs) tend to generate fluent confident text completely detached from facts and reality. We politely call untrue statements from an LLM *hallucinations*. RAG reduces the risk of hallucinations by grounding LLMs in your factual, trusted documents.
 
@@ -167,40 +167,52 @@ The model can now search the store on demand. It has the ability to rewrite the 
 <span>  <span class='s'>"What's the difference between &#123;.python&#125; and &#123;python&#125;</span></span>
 <span><span class='s'>  in a code chunk header?"</span></span>
 <span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] rag_retrieve_from_store_001(text = "&#123;.python&#125; vs &#123;python&#125; code</span></span>
-<span><span class='c'>#&gt; chunk header Quarto")</span></span>
+<span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] rag_retrieve_from_store_001(text = "difference between &#123;.python&#125;</span></span>
+<span><span class='c'>#&gt; and &#123;python&#125; in a code chunk header")</span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>●</span> #&gt; <span style='font-style: italic;'>[&#123;"origin":"https://quarto.org/docs/authoring/diagrams.html","doc_id"…</span></span></span>
+<span></span><span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] rag_retrieve_from_store_001(text = "chunk header options quarto</span></span>
+<span><span class='c'>#&gt; curly braces dot notation")</span></span>
 <span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>●</span> #&gt; <span style='font-style: italic;'>[&#123;"origin":"https://quarto.org/docs/authoring/lipsum.html","doc_id":2…</span></span></span>
-<span></span><span><span class='c'>#&gt; <span style='color: #0000BB;'>◯</span> [<span style='color: #0000BB;'>tool call</span>] rag_retrieve_from_store_001(text = "code chunk header syntax</span></span>
-<span><span class='c'>#&gt; curly braces dot Quarto")</span></span>
-<span></span><span><span class='c'>#&gt; <span style='color: #00BB00;'>●</span> #&gt; <span style='font-style: italic;'>[&#123;"origin":"https://quarto.org/docs/authoring/lipsum.html","doc_id":2…</span></span></span>
-<span></span><span><span class='c'>#&gt; In Quarto code chunk headers, the difference between &#123;.python&#125; and &#123;python&#125; is:</span></span>
+<span></span><span><span class='c'>#&gt; The difference between `&#123;.python&#125;` and `&#123;python&#125;` in a code chunk header is:</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; - ```&#123;python&#125; is the correct and standard syntax for executable code blocks. It</span></span>
-<span><span class='c'>#&gt; tells Quarto to run the code as Python when rendering the document.</span></span>
-<span><span class='c'>#&gt; - ```&#123;.python&#125; (with a dot) is not standard for code execution. Instead, </span></span>
-<span><span class='c'>#&gt; `.python` is a Pandoc/Markdown syntax used to assign a CSS class to a code </span></span>
-<span><span class='c'>#&gt; block, which affects syntax highlighting or styling but does NOT make it </span></span>
-<span><span class='c'>#&gt; executable.</span></span>
+<span><span class='c'>#&gt; - `&#123;python&#125;`: This syntax is used for executable code blocks. Quarto will run </span></span>
+<span><span class='c'>#&gt; the Python code inside the block and include its output in the rendered </span></span>
+<span><span class='c'>#&gt; document.  </span></span>
+<span><span class='c'>#&gt;   ```markdown</span></span>
+<span><span class='c'>#&gt;   ```&#123;python&#125;</span></span>
+<span><span class='c'>#&gt;   print(1 + 1)</span></span>
+<span><span class='c'>#&gt;   ```</span></span>
+<span><span class='c'>#&gt;   ```</span></span>
+<span><span class='c'>#&gt;   This is for running code, capturing output, figures, etc.</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Use &#123;python&#125; (without the dot) for Python code chunks you want Quarto to </span></span>
-<span><span class='c'>#&gt; execute and render output for. Example:</span></span>
-<span><span class='c'>#&gt; ```markdown</span></span>
-<span><span class='c'>#&gt; ```&#123;python&#125;</span></span>
-<span><span class='c'>#&gt; print("Hello, world!")</span></span>
-<span><span class='c'>#&gt; ```</span></span>
-<span><span class='c'>#&gt; ```</span></span>
-<span><span class='c'>#&gt; This chunk will execute Python code.</span></span>
+<span><span class='c'>#&gt; - `&#123;.python&#125;`: This syntax (note the leading dot) is used for a code block that</span></span>
+<span><span class='c'>#&gt; is purely for display (not executed), with `.python` indicating the code should</span></span>
+<span><span class='c'>#&gt; be syntax-highlighted as Python. This is the Pandoc Markdown convention for </span></span>
+<span><span class='c'>#&gt; indicating the language for syntax highlighting only:</span></span>
+<span><span class='c'>#&gt;   ```markdown</span></span>
+<span><span class='c'>#&gt;   ```&#123;.python&#125;</span></span>
+<span><span class='c'>#&gt;   # This code is just displayed, not executed by Quarto</span></span>
+<span><span class='c'>#&gt;   print(1 + 1)</span></span>
+<span><span class='c'>#&gt;   ```</span></span>
+<span><span class='c'>#&gt;   ```</span></span>
+<span><span class='c'>#&gt;   Or equivalently, you can use triple backticks followed by the language name:</span></span>
+<span><span class='c'>#&gt;   ```</span></span>
+<span><span class='c'>#&gt;   ```python</span></span>
+<span><span class='c'>#&gt;   print(1 + 1)</span></span>
+<span><span class='c'>#&gt;   ```</span></span>
+<span><span class='c'>#&gt;   ```</span></span>
+<span><span class='c'>#&gt;   In both forms, the code is not executed.</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; If you use `&#123;.python&#125;`, the code block will only be syntax-highlighted as </span></span>
-<span><span class='c'>#&gt; Python but won't execute in Quarto.</span></span>
+<span><span class='c'>#&gt; To summarize:</span></span>
+<span><span class='c'>#&gt; - `&#123;python&#125;` → Executed code block.</span></span>
+<span><span class='c'>#&gt; - `&#123;.python&#125;` or ```python → Non-executed code block with syntax highlighting </span></span>
+<span><span class='c'>#&gt; only.</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; References:</span></span>
-<span><span class='c'>#&gt; - [Quarto: Using Python](https://quarto.org/docs/computations/python.html)</span></span>
-<span><span class='c'>#&gt; - [Quarto: Using R](https://quarto.org/docs/computations/r.html) (syntactic </span></span>
-<span><span class='c'>#&gt; explanation applies to all languages)</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Summary: Use `&#123;python&#125;` to execute code; `&#123;.python&#125;` only assigns a class for </span></span>
-<span><span class='c'>#&gt; styling.</span></span>
+<span><span class='c'>#&gt; Sources:</span></span>
+<span><span class='c'>#&gt; - [Quarto documentation: Using </span></span>
+<span><span class='c'>#&gt; Python](https://quarto.org/docs/computations/python.html)</span></span>
+<span><span class='c'>#&gt; - [Quarto documentation: HTML Code </span></span>
+<span><span class='c'>#&gt; Blocks](https://quarto.org/docs/output-formats/html-code.html)</span></span>
 <span></span></code></pre>
 
 </div>
