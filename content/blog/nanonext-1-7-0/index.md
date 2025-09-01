@@ -1,0 +1,145 @@
+---
+output: hugodown::hugo_document
+
+slug: nanonext-1-7-0
+title: nanonext 1.7.0
+date: 2025-09-02
+author: Charlie Gao
+description: >
+    nanonext is a communications and concurrency toolbox that facilitates fast,
+    powerful and reliable data exchange in polyglot data science workflows.
+photo:
+  url: https://unsplash.com/photos/photo-of-tower-during-daytime-i4ZF_4FTLL4
+  author: Chuttersnap
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [nanonext]
+rmd_hash: a806e4af3b5b65de
+
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+
+# Introducing nanonext: breaking down language barriers in data science
+
+We're excited to welcome [nanonext](https://nanonext.r-lib.org) to the r-lib family! nanonext is R's binding to NNG (Nanomsg Next Generation), a high-performance C messaging library that implements scalability protocols for distributed systems. Because NNG has bindings and ports across multiple languages---including Python, Go, Rust, C++, and many others---nanonext enables seamless interoperability between R and other modern programming languages.
+
+The latest version 1.7.0 brings enhanced reliability with improved HTTP client functionality, better handling of custom serialization methods, and more robust event-driven promises.
+
+Get started by installing the package from CRAN now:
+
+``` r
+install.packages("nanonext")
+```
+
+## The challenge: multi-language data science
+
+If you've worked in data science, you've likely encountered this scenario: your workflow spans multiple programming languages. Perhaps you have Python models, R analysis scripts, Go services, or C++ performance libraries that all need to work together.
+
+Traditionally, making these components communicate means:
+
+- Writing data to files and reading them back
+- Building REST APIs and making HTTP calls
+- Handling different serialization formats like JSON or Protocol Buffers
+- Dealing with the latency and complexity that comes with each approach
+
+## The solution: NNG's scalability protocols
+
+nanonext changes this by bringing NNG's scalability protocols to R. NNG is a high-performance C library that implements standardized communication patterns like request/reply, publish/subscribe, and pipeline architectures. Any process using NNG can communicate directly with any other NNG process using the same protocol---regardless of the programming language.
+
+This means that for simple atomic vector types, your R data doesn't even need to be serialized and converted to a common format, enabling direct, real-time communication between processes. For more complex data types, as long as serialization and unserialization methods exist in both languages, then nanonext can be used to send and receive arbitrary binary data.
+
+## What can you do with nanonext?
+
+nanonext opens up several powerful possibilities for R users:
+
+**🔗 Cross-Language Integration**: Connect R directly with Python machine learning models, Go microservices, Rust compute engines, or C libraries without intermediate files or complex APIs.
+
+**⚡ Real-Time Data Pipelines**: Build data systems where different components process data as it flows, perfect for live dashboards or high-frequency analytics.
+
+**📡 Modern Web Integration**: Create WebSocket clients, make asynchronous HTTP requests, or build real-time APIs that integrate with web services.
+
+**🚀 Asynchronous Programming**: Write non-blocking R code that can handle multiple operations simultaneously, improving performance for concurrent tasks.
+
+## Python ↔ R interoperability example
+
+Here's a concrete example of R and Python working together through NNG's protocols. Both processes use their respective NNG bindings to establish a direct communication channel using NNG's 'pair' protocol---a simple one-to-one bidirectional communication pattern.
+
+**Python side** (using pynng):
+
+``` python
+import numpy as np
+import pynng
+
+# Create socket to communicate with R
+socket = pynng.Pair0(listen="ipc:///tmp/nanonext.socket")
+
+# Wait for data from R
+raw = socket.recv()
+array = np.frombuffer(raw)
+print(array)  # [1.1 2.2 3.3 4.4 5.5]
+
+# Process data (could be ML model prediction, transformation, etc.)
+processed = array * 2  # Simple example: multiply by 2
+
+# Send back to R as bytes
+socket.send(processed.tobytes())
+socket.close()
+```
+
+**R side** (using nanonext):
+
+``` r
+library(nanonext)
+
+# Connect to Python process
+sock <- socket("pair", dial = "ipc:///tmp/nanonext.socket")
+
+# Send numeric data directly to Python (no serialization needed!)
+sock |> send(c(1.1, 2.2, 3.3, 4.4, 5.5), mode = "raw")
+
+# Receive processed results back from Python
+processed_data <- sock |> recv(mode = "double")
+print(processed_data)  # [1] 2.2 4.4 6.6 8.8 11.0
+
+# Continue with R-specific analysis
+summary(processed_data)
+plot(processed_data)
+
+close(sock)
+```
+
+**What just happened?** Your R session sent numerical data directly to Python's memory space, Python processed it (possibly performing inference on a complex ML model), and sent results back---all happening in memory without touching the disk. This is orders of magnitude faster than traditional file-based approaches.
+
+## Why this matters
+
+**Speed**: Direct memory communication is dramatically faster than file I/O or HTTP requests. Your R session doesn't wait for disk writes or network round-trips.
+
+**Simplicity**: No need to design REST APIs, manage file formats, or handle serialization. Send R vectors directly and receive results back.
+
+**Flexibility**: nanonext supports different communication patterns (one-to-one, one-to-many, publish/subscribe) and transport methods (IPC, TCP, WebSocket).
+
+**Reliability**: Built on NNG, a mature library that powers mission-critical systems in technology, finance and many other industries.
+
+**Asynchronous**: Your R session stays responsive. Send a request for a long-running computation and continue working while it processes in the background.
+
+## The future is multi-language
+
+nanonext facilitates a shift toward more flexible, performance-oriented data science workflows. Instead of being locked into a single language or accepting the overhead of traditional integration methods, you can now build systems where each component uses the best tool for the job.
+
+We're excited to see how the R community uses these capabilities.
+
+Ready to try it? Visit the [package website](https://nanonext.r-lib.org) for comprehensive documentation, or explore the code at the [GitHub repository](https://github.com/r-lib/nanonext).
+
