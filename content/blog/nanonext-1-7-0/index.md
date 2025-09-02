@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [nanonext]
-rmd_hash: a806e4af3b5b65de
+rmd_hash: 125bb74cdeedbdf7
 
 ---
 
@@ -52,7 +52,7 @@ Traditionally, making these components communicate means:
 
 - Writing data to files and reading them back
 - Building REST APIs and making HTTP calls
-- Handling different serialization formats like JSON or Protocol Buffers
+- Handling different serialization formats like JSON or protocol buffers
 - Dealing with the latency and complexity that comes with each approach
 
 ## The solution: NNG's scalability protocols
@@ -65,13 +65,13 @@ This means that for simple atomic vector types, your R data doesn't even need to
 
 nanonext opens up several powerful possibilities for R users:
 
-**🔗 Cross-Language Integration**: Connect R directly with Python machine learning models, Go microservices, Rust compute engines, or C libraries without intermediate files or complex APIs.
+**🔗 Cross-language integration**: Connect R directly with Python machine learning models, Go microservices, Rust compute engines, or C libraries without intermediate files or complex APIs.
 
-**⚡ Real-Time Data Pipelines**: Build data systems where different components process data as it flows, perfect for live dashboards or high-frequency analytics.
+**⚡ Real-time data pipelines**: Build data systems where different components process data as it flows, perfect for live dashboards or high-frequency analytics.
 
-**📡 Modern Web Integration**: Create WebSocket clients, make asynchronous HTTP requests, or build real-time APIs that integrate with web services.
+**📡 Modern web integration**: Create WebSocket clients, make asynchronous HTTP requests, or build real-time APIs that integrate with web services.
 
-**🚀 Asynchronous Programming**: Write non-blocking R code that can handle multiple operations simultaneously, improving performance for concurrent tasks.
+**🚀 Asynchronous programming**: Write non-blocking R code that can handle multiple operations simultaneously, improving performance for concurrent tasks.
 
 ## Python ↔ R interoperability example
 
