@@ -1,0 +1,227 @@
+---
+output: hugodown::hugo_document
+
+slug: mirai-2-5-0
+title: mirai 2.5.0
+date: 2025-09-04
+author: Charlie Gao
+description: >
+    mirai - minimalist async evaluation framework for R - brings production-grade
+    parallel and distributed computing to the ecosystem.
+photo:
+  url: https://unsplash.com/photos/a-bunch-of-different-colored-sashes-hanging-on-a-wall-OEiN_lSyQqE
+  author: Matt Benson
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [mirai, parallelism]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're excited to announce [mirai](https://mirai.r-lib.org) 2.5.0, bringing production-grade async computing to R. This milestone release delivers enhanced observability, reproducible RNG, and the quality-of-life improvements that make mirai the foundation for parallel computing across the R ecosystem.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("mirai")
+```
+
+This release packs in almost twice as many [changes](https://mirai.r-lib.org/news/index.html) as usual - we've gone all out in delivering a round of fixes and improvements to make your use of mirai even smoother!
+
+## Introduction
+
+mirai (Japanese for 'future') provides a clean, modern approach to parallel computing in R.
+Built on current communication technologies, it delivers extreme performance through professional-grade scheduling and an event-driven architecture.
+
+It continues to evolve as the foundation for asynchronous and parallel computing across the R ecosystem, powering everything from Shiny applications to HPC (high-performance computing) workloads.
+
+```{r}
+library(mirai)
+
+# Set up persistent background processes
+daemons(4)
+
+# Async evaluation - non-blocking
+m <- mirai({
+  Sys.sleep(1)
+  100 + 42
+})
+m
+
+# Results are available when ready
+m[]
+
+daemons(0)
+```
+
+## What makes mirai unique?
+
+### Modern networking foundation
+
+mirai represents a fundamental shift in R's parallel computing landscape, architected on professional-grade networking technologies:
+
+- **nanonext/NNG**: built on [nanonext](https://nanonext.r-lib.org), R's binding to Nanomsg Next Generation, a high-performance messaging library designed for distributed systems
+- **Optimal transport protocols**: choice of IPC (inter-process communication), TCP/IP, and secure TLS connections
+- **Event-driven architecture**: non-blocking, zero-latency promises that eliminate the polling overhead common in other solutions
+
+This modern foundation enables mirai to scale to millions of tasks across thousands of connections, while delivering up to 1,000x greater efficiency and responsiveness compared to alternatives.
+
+### Production-first design
+
+mirai is engineered for production environments from the ground up:
+
+- **Clear evaluation model**: clean environment separation with explicit object passing eliminates common parallel processing pitfalls
+- **Robustness and transparency**: from no hidden state in options or environment variables, and minimizing complexity
+- **Enterprise monitoring**: OpenTelemetry integration for production-grade observability
+
+### Deploy everywhere architecture
+
+Enabled by mirai's modular system of compute profiles:
+
+- Connect to different sets of daemons (persistent parallel processes) independently
+- Set up parallelism on your laptop, on a local server, and on an HPC cluster - all at the same time
+- Distribute compute to the most suitable resource for the job
+
+Example:
+```{r, eval=FALSE}
+# Local parallelism
+daemons(4, .compute = "local")
+
+# Multi-server deployment
+ssh_cfg <- ssh_config(c("ssh://server1", "ssh://server2", "ssh://server3"))
+daemons(url = host_url(), remote = ssh_cfg, .compute = "server")
+
+# HPC cluster deployment
+hpc_cfg <- cluster_config(options = "#SBATCH --partition=gpu")
+daemons(100, url = host_url(), remote = hpc_cfg, .compute = "cluster")
+
+# Switch between compute profiles seamlessly
+result1 <- mirai(slow_task(), .compute = "local")
+result2 <- mirai(long_task(), .compute = "server")
+result3 <- mirai(heavy_computation(), .compute = "cluster")
+```
+
+For further details on using mirai in HPC environments, please refer to our last [blog post for mirai 2.4.0](https://shikokuchuo.net/posts/27-mirai-240/), where we introduced our cluster launcher `cluster_config()`.
+
+## New in mirai 2.5.0
+
+### OpenTelemetry integration
+
+We're absolutely delighted to unveil: complete observability of mirai requests through OpenTelemetry traces. This is a critical feature that completes the final pillar in mirai's 'built for production' design philosophy.
+
+When tracing is enabled via the otelsdk package, you can monitor the entire lifecycle of your async computations, making it easier to debug and optimize performance in production environments.
+
+This is especially powerful when used in conjunction with other otel-enabled packages (like an upcoming Shiny release), providing end-to-end observability across your entire application stack.
+
+![*Illustrative span structure shown in a Jaeger collector UI*](otel-screenshot.png)
+
+The hierarchical tracing structure allows you to track the flow from initiation through to final evaluation, enabling precise performance analysis and bottleneck identification.
+
+### Reproducible parallel RNG
+
+We're equally delighted to announce reproducible parallel random number generation. Developed in consultation with our tidymodels colleagues and core members of the mlr3 team, this is a great example of the R community pulling together to implement crucial infrastructure.
+
+Technically this feature has been around since the recent 2.4.1 release, but it solves a long-standing challenge in parallel computing in R. We hope that by announcing it here, it's put to good use for reproducible science.
+
+mirai has long used L'Ecuyer-CMRG streams (since prior to v1.0) for statistically-sound parallel RNG. Streams essentially cut into the RNG’s period (a very long sequence of pseudo-random numbers) at intervals that are far apart from each other that they do not in practice overlap. This ensures that statistical results obtained from parallel computations remain correct and valid. 
+
+Now, we offer two modes:
+
+**Default behaviour (`seed = NULL`)**: Creates independent streams for each daemon, matching the behaviour of base R's parallel package, ensuring statistical validity but not numerical reproducibility between runs.
+
+**Reproducible mode (`seed = integer`)**: Creates a stream for each `mirai()` call rather than each daemon, guaranteeing identical results across runs regardless of the number of daemons used.
+
+```{r}
+with(
+  daemons(3, seed = 1234L),
+  mirai_map(1:3, rnorm, .args = list(mean = 20, sd = 2))[]
+)
+
+# Run again - identical results!
+```
+
+### User interface improvements
+
+New scoped helper functions `with_daemons()` and `local_daemons()` make working with compute profiles much more convenient by allowing the temporary switching of contexts:
+
+```r
+# Work with specific compute profiles
+with_daemons("gpu", {
+  result <- mirai(gpu_intensive_task())
+})
+
+# Local version for use inside functions
+async_gpu_intensive_task <- function() {
+  local_daemons("gpu")
+  mirai(gpu_intensive_task())
+}
+```
+
+The `daemons()` function has been redesigned to be more ergonomic.
+Creating new daemons automatically resets existing ones (no more manual `daemons(0)` calls):
+
+```r
+# Old approach
+daemons(0)  # Had to reset first
+daemons(4)
+
+# New approach - automatic reset
+daemons(4)  # Just works, resets if needed
+```
+
+
+### Developer features
+
+A new function `info()` provides a more succinct alternative to `status()` for reporting key statistics. This is now optimized and available for programmatic use.
+
+```{r, eval = FALSE}
+info()
+#> connections  cumulative    awaiting   executing   completed 
+#>           4           4           8           4           2
+```
+
+## Powering the R ecosystem
+
+mirai has rapidly become the foundation for async computing across the R ecosystem:
+
+**Core infrastructure:**
+
+- **R**: first official alternative communications backend (R 4.5+)
+- **purrr**: powers parallel map in this core tidyverse package
+- **Shiny**: primary async backend with ExtendedTask support
+- **plumber2**: built-in async evaluator for web APIs
+- **tidymodels**: parallel ML workflows and hyperparameter tuning
+- **targets**: HPC workflows via crew (mirai-based distributed launcher)
+
+**Data formats:**
+
+- **torch**: seamless tensor operations across processes
+- **Arrow & Polars**: native columnar data format support
+
+From Shiny apps to scientific research, mirai now powers parallel computing across virtually every domain in R - making it the *de facto* standard for modern async computing.
+
+## Looking forward
+
+mirai 2.5.0 represents a step forward in bringing high-performance, production-ready async computing to the R community. With its growing ecosystem integrations, we're laser-focused on continuing to push the boundaries on performance and reliability.
+
+We see mirai's role in enabling R to be used in previously-unthinkable contexts and widening its appeal, both within data science but also in scientific computing more broadly.
+
+Whether you're building interactive Shiny applications, running large-scale data analysis pipelines, or deploying models across HPC infrastructure, mirai provides the robust, scalable foundation you need.
+
+Ready to get started? Check out the comprehensive guides and examples at https://mirai.r-lib.org, or dive right in with `install.packages("mirai")`.
+
+## Acknowledgements
+
+We extend our gratitude to the R community for their continued feedback and contributions. Special thanks to all contributors who helped shape this release through feature requests, bug reports, and code contributions: [&#x0040;agilly](https://github.com/agilly), [&#x0040;D3SL](https://github.com/D3SL), [&#x0040;DavZim](https://github.com/DavZim), [&#x0040;dipterix](https://github.com/dipterix), [&#x0040;eliocamp](https://github.com/eliocamp), [&#x0040;erydit](https://github.com/erydit), [&#x0040;karangattu](https://github.com/karangattu), [&#x0040;louisaslett](https://github.com/louisaslett), [&#x0040;mikkmart](https://github.com/mikkmart), [&#x0040;sebffischer](https://github.com/sebffischer), [&#x0040;shikokuchuo](https://github.com/shikokuchuo), and [&#x0040;wlandau](https://github.com/wlandau).
