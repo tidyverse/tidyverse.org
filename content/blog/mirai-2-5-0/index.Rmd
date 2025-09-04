@@ -67,54 +67,23 @@ m[]
 daemons(0)
 ```
 
-## What makes mirai unique?
+## A unique design philosophy
 
-### Modern networking foundation
+1️⃣ Modern foundation
 
-mirai represents a fundamental shift in R's parallel computing landscape, architected on professional-grade networking technologies:
+mirai builds on [nanonext](https://nanonext.r-lib.org), the R binding to Nanomsg Next Generation, a high-performance messaging library designed for distributed systems. This means that it's using the very latest technologies, and supports the most optimal connections out of the box: IPC (inter-process communications), TCP or secure TLS. It also extends base R's serialization mechanism to support custom serialization of newer cross-language data formats such as safetensors, Arrow and Polars.
 
-- **nanonext/NNG**: built on [nanonext](https://nanonext.r-lib.org), R's binding to Nanomsg Next Generation, a high-performance messaging library designed for distributed systems
-- **Optimal transport protocols**: choice of IPC (inter-process communication), TCP/IP, and secure TLS connections
-- **Event-driven architecture**: non-blocking, zero-latency promises that eliminate the polling overhead common in other solutions
+2️⃣ Extreme performance
 
-This modern foundation enables mirai to scale to millions of tasks across thousands of connections, while delivering up to 1,000x greater efficiency and responsiveness compared to alternatives.
+As a consequence of its solid technological foundation, mirai has the proven capacity to scale to millions of concurrent tasks over thousands of connections. Moreover, it delivers up to 1,000x the efficiency and responsiveness of common alternatives. A key innovation is the implementation of event-driven promises that react with zero latency - this provides an extra edge for real-time applications such as live inference or Shiny apps.
 
-### Production-first design
+3️⃣ Production first
 
-mirai is engineered for production environments from the ground up:
+mirai provides a clear mental model for parallel computation, with a clean separation of a user's current environment with that in which a mirai is evaluated. This explicitness and simplicity helps avoid common pitfalls that can afflict parallel processing, such as capturing incorrect or extraneous variables. Transparency and robustness are key to mirai's design, and are achieved by minimizing complexity, and eliminating all hidden state (no reliance on options or environment variables). Finally, its integration with OpenTelemetry provides for production-grade observability.
 
-- **Clear evaluation model**: clean environment separation with explicit object passing eliminates common parallel processing pitfalls
-- **Robustness and transparency**: from no hidden state in options or environment variables, and minimizing complexity
-- **Enterprise monitoring**: OpenTelemetry integration for production-grade observability
+4️⃣ Deploy everywhere
 
-### Deploy everywhere architecture
-
-Enabled by mirai's modular system of compute profiles:
-
-- Connect to different sets of daemons (persistent parallel processes) independently
-- Set up parallelism on your laptop, on a local server, and on an HPC cluster - all at the same time
-- Distribute compute to the most suitable resource for the job
-
-Example:
-```{r, eval=FALSE}
-# Local parallelism
-daemons(4, .compute = "local")
-
-# Multi-server deployment
-ssh_cfg <- ssh_config(c("ssh://server1", "ssh://server2", "ssh://server3"))
-daemons(url = host_url(), remote = ssh_cfg, .compute = "server")
-
-# HPC cluster deployment
-hpc_cfg <- cluster_config(options = "#SBATCH --partition=gpu")
-daemons(100, url = host_url(), remote = hpc_cfg, .compute = "cluster")
-
-# Switch between compute profiles seamlessly
-result1 <- mirai(slow_task(), .compute = "local")
-result2 <- mirai(long_task(), .compute = "server")
-result3 <- mirai(heavy_computation(), .compute = "cluster")
-```
-
-For further details on using mirai in HPC environments, please refer to our last [blog post for mirai 2.4.0](https://shikokuchuo.net/posts/27-mirai-240/), where we introduced our cluster launcher `cluster_config()`.
+Deployment of daemons is made through a consistent interface across local, remote (SSH), and [HPC environments](https://shikokuchuo.net/posts/27-mirai-240/) (Slurm, SGE, PBS, LSF). Compute profiles are daemons settings that are managed independently, such that you can be connected to all three resource types simultaneously. You then have the freedom to distribute workload to the most appropriate resource for any given task - especially important for heterogeneous workloads that require different resources such as GPU compute.
 
 ## OpenTelemetry integration
 

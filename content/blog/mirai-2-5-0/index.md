@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [mirai, parallelism]
-rmd_hash: 9299bc7de28e45fd
+rmd_hash: bebddc5826cdc17a
 
 ---
 
@@ -74,57 +74,23 @@ It continues to evolve as the foundation for asynchronous and parallel computing
 
 </div>
 
-## What makes mirai unique?
+## A unique design philosophy
 
-### Modern networking foundation
+1️⃣ Modern foundation
 
-mirai represents a fundamental shift in R's parallel computing landscape, architected on professional-grade networking technologies:
+mirai builds on [nanonext](https://nanonext.r-lib.org), the R binding to Nanomsg Next Generation, a high-performance messaging library designed for distributed systems. This means that it's using the very latest technologies, and supports the most optimal connections out of the box: IPC (inter-process communications), TCP or secure TLS. It also extends base R's serialization mechanism to support custom serialization of newer cross-language data formats such as safetensors, Arrow and Polars.
 
-- **nanonext/NNG**: built on [nanonext](https://nanonext.r-lib.org), R's binding to Nanomsg Next Generation, a high-performance messaging library designed for distributed systems
-- **Optimal transport protocols**: choice of IPC (inter-process communication), TCP/IP, and secure TLS connections
-- **Event-driven architecture**: non-blocking, zero-latency promises that eliminate the polling overhead common in other solutions
+2️⃣ Extreme performance
 
-This modern foundation enables mirai to scale to millions of tasks across thousands of connections, while delivering up to 1,000x greater efficiency and responsiveness compared to alternatives.
+As a consequence of its solid technological foundation, mirai has the proven capacity to scale to millions of concurrent tasks over thousands of connections. Moreover, it delivers up to 1,000x the efficiency and responsiveness of common alternatives. A key innovation is the implementation of event-driven promises that react with zero latency - this provides an extra edge for real-time applications such as live inference or Shiny apps.
 
-### Production-first design
+3️⃣ Production first
 
-mirai is engineered for production environments from the ground up:
+mirai provides a clear mental model for parallel computation, with a clean separation of a user's current environment with that in which a mirai is evaluated. This explicitness and simplicity helps avoid common pitfalls that can afflict parallel processing, such as capturing incorrect or extraneous variables. Transparency and robustness are key to mirai's design, and are achieved by minimizing complexity, and eliminating all hidden state (no reliance on options or environment variables). Finally, its integration with OpenTelemetry provides for production-grade observability.
 
-- **Clear evaluation model**: clean environment separation with explicit object passing eliminates common parallel processing pitfalls
-- **Robustness and transparency**: from no hidden state in options or environment variables, and minimizing complexity
-- **Enterprise monitoring**: OpenTelemetry integration for production-grade observability
+4️⃣ Deploy everywhere
 
-### Deploy everywhere architecture
-
-Enabled by mirai's modular system of compute profiles:
-
-- Connect to different sets of daemons (persistent parallel processes) independently
-- Set up parallelism on your laptop, on a local server, and on an HPC cluster - all at the same time
-- Distribute compute to the most suitable resource for the job
-
-Example:
-
-<div class="highlight">
-
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Local parallelism</span></span>
-<span><span class='nf'><a href='https://mirai.r-lib.org/reference/daemons.html'>daemons</a></span><span class='o'>(</span><span class='m'>4</span>, .compute <span class='o'>=</span> <span class='s'>"local"</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='c'># Multi-server deployment</span></span>
-<span><span class='nv'>ssh_cfg</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://mirai.r-lib.org/reference/ssh_config.html'>ssh_config</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"ssh://server1"</span>, <span class='s'>"ssh://server2"</span>, <span class='s'>"ssh://server3"</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='nf'><a href='https://mirai.r-lib.org/reference/daemons.html'>daemons</a></span><span class='o'>(</span>url <span class='o'>=</span> <span class='nf'><a href='https://mirai.r-lib.org/reference/host_url.html'>host_url</a></span><span class='o'>(</span><span class='o'>)</span>, remote <span class='o'>=</span> <span class='nv'>ssh_cfg</span>, .compute <span class='o'>=</span> <span class='s'>"server"</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='c'># HPC cluster deployment</span></span>
-<span><span class='nv'>hpc_cfg</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://mirai.r-lib.org/reference/cluster_config.html'>cluster_config</a></span><span class='o'>(</span>options <span class='o'>=</span> <span class='s'>"#SBATCH --partition=gpu"</span><span class='o'>)</span></span>
-<span><span class='nf'><a href='https://mirai.r-lib.org/reference/daemons.html'>daemons</a></span><span class='o'>(</span><span class='m'>100</span>, url <span class='o'>=</span> <span class='nf'><a href='https://mirai.r-lib.org/reference/host_url.html'>host_url</a></span><span class='o'>(</span><span class='o'>)</span>, remote <span class='o'>=</span> <span class='nv'>hpc_cfg</span>, .compute <span class='o'>=</span> <span class='s'>"cluster"</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='c'># Switch between compute profiles seamlessly</span></span>
-<span><span class='nv'>result1</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://mirai.r-lib.org/reference/mirai.html'>mirai</a></span><span class='o'>(</span><span class='nf'>slow_task</span><span class='o'>(</span><span class='o'>)</span>, .compute <span class='o'>=</span> <span class='s'>"local"</span><span class='o'>)</span></span>
-<span><span class='nv'>result2</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://mirai.r-lib.org/reference/mirai.html'>mirai</a></span><span class='o'>(</span><span class='nf'>long_task</span><span class='o'>(</span><span class='o'>)</span>, .compute <span class='o'>=</span> <span class='s'>"server"</span><span class='o'>)</span></span>
-<span><span class='nv'>result3</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://mirai.r-lib.org/reference/mirai.html'>mirai</a></span><span class='o'>(</span><span class='nf'>heavy_computation</span><span class='o'>(</span><span class='o'>)</span>, .compute <span class='o'>=</span> <span class='s'>"cluster"</span><span class='o'>)</span></span></code></pre>
-
-</div>
-
-For further details on using mirai in HPC environments, please refer to our last [blog post for mirai 2.4.0](https://shikokuchuo.net/posts/27-mirai-240/), where we introduced our cluster launcher [`cluster_config()`](https://mirai.r-lib.org/reference/cluster_config.html).
+Deployment of daemons is made through a consistent interface across local, remote (SSH), and [HPC environments](https://shikokuchuo.net/posts/27-mirai-240/) (Slurm, SGE, PBS, LSF). Compute profiles are daemons settings that are managed independently, such that you can be connected to all three resource types simultaneously. You then have the freedom to distribute workload to the most appropriate resource for any given task - especially important for heterogeneous workloads that require different resources such as GPU compute.
 
 ## OpenTelemetry integration
 
