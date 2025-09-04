@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [mirai, parallelism]
-rmd_hash: 2ed2faf99f4f3191
+rmd_hash: 9299bc7de28e45fd
 
 ---
 
@@ -44,7 +44,7 @@ You can install it from CRAN with:
 
 </div>
 
-## Introduction
+## Introduction to mirai
 
 mirai (Japanese for 'future') provides a clean, modern approach to parallel computing in R. Built on current communication technologies, it delivers extreme performance through professional-grade scheduling and an event-driven architecture.
 
@@ -126,11 +126,9 @@ Example:
 
 For further details on using mirai in HPC environments, please refer to our last [blog post for mirai 2.4.0](https://shikokuchuo.net/posts/27-mirai-240/), where we introduced our cluster launcher [`cluster_config()`](https://mirai.r-lib.org/reference/cluster_config.html).
 
-## New in mirai 2.5.0
+## OpenTelemetry integration
 
-### OpenTelemetry integration
-
-We're absolutely delighted to unveil: complete observability of mirai requests through OpenTelemetry traces. This is a core feature that completes the final pillar in mirai's 'built for production' design philosophy.
+New in mirai 2.5.0: complete observability of mirai requests through OpenTelemetry traces. This is a core feature that completes the final pillar in mirai's 'built for production' design philosophy.
 
 When tracing is enabled via the otelsdk package, you can monitor the entire lifecycle of your async computations, from creation through to evaluation, making it easier to debug and optimize performance in production environments. This is especially powerful when used in conjunction with other otel-enabled packages (like an upcoming Shiny release), providing end-to-end observability across your entire application stack.
 
@@ -139,11 +137,9 @@ When tracing is enabled via the otelsdk package, you can monitor the entire life
 <figcaption aria-hidden="true"><em>Illustrative span structure shown in a Jaeger collector UI</em></figcaption>
 </figure>
 
-### Reproducible parallel RNG
+## Reproducible parallel RNG
 
-We're equally delighted to announce reproducible parallel random number generation. Developed in consultation with our tidymodels colleagues and core members of the mlr team, this is a great example of the R community pulling together to implement crucial infrastructure.
-
-Technically this feature has been around since the recent 2.4.1 release, but it solves a long-standing challenge in parallel computing in R. We hope that by announcing it here, it's put to good use for reproducible science.
+Introduced in mirai 2.4.1: reproducible parallel random number generation. Developed in consultation with our tidymodels colleagues and core members of the mlr team, this is a great example of the R community pulling together to sovle common problems. It solves a long-standing challenge in parallel computing in R, and we hope it's put to good use for reproducible science.
 
 mirai has long used L'Ecuyer-CMRG streams (since prior to v1.0) for statistically-sound parallel RNG. Streams essentially cut into the RNG's period (a very long sequence of pseudo-random numbers) at intervals that are far apart from each other that they do not in practice overlap. This ensures that statistical results obtained from parallel computations remain correct and valid.
 
@@ -175,9 +171,9 @@ Now, we offer the following option as well:
 
 </div>
 
-### User interface improvements
+## User interface improvements
 
-New scoped helper functions [`with_daemons()`](https://mirai.r-lib.org/reference/with_daemons.html) and [`local_daemons()`](https://mirai.r-lib.org/reference/with_daemons.html) make working with compute profiles much more convenient by allowing the temporary switching of contexts:
+→ New scoped helper functions [`with_daemons()`](https://mirai.r-lib.org/reference/with_daemons.html) and [`local_daemons()`](https://mirai.r-lib.org/reference/with_daemons.html) make working with compute profiles much more convenient by allowing the temporary switching of contexts:
 
 ``` r
 # Work with specific compute profiles
@@ -192,7 +188,7 @@ async_gpu_intensive_task <- function() {
 }
 ```
 
-The [`daemons()`](https://mirai.r-lib.org/reference/daemons.html) function has been redesigned to be more ergonomic. Creating new daemons automatically resets existing ones (no more manual `daemons(0)` calls):
+→ [`daemons()`](https://mirai.r-lib.org/reference/daemons.html) has been redesigned to be more ergonomic. Creating new daemons automatically resets existing ones (no more manual `daemons(0)` calls):
 
 ``` r
 # Old approach
@@ -203,9 +199,7 @@ daemons(4)
 daemons(4)  # Just works, resets if needed
 ```
 
-### Developer features
-
-A new function [`info()`](https://mirai.r-lib.org/reference/info.html) provides a more succinct alternative to [`status()`](https://mirai.r-lib.org/reference/status.html) for reporting key statistics. This is now optimized and available for programmatic use.
+→ New [`info()`](https://mirai.r-lib.org/reference/info.html) function provides a more succinct alternative to [`status()`](https://mirai.r-lib.org/reference/status.html) for reporting key statistics. This is optimized and available for programmatic use.
 
 <div class="highlight">
 
@@ -214,16 +208,6 @@ A new function [`info()`](https://mirai.r-lib.org/reference/info.html) provides 
 <span><span class='c'>#&gt;           4           4           8           4           2</span></span></code></pre>
 
 </div>
-
-## Looking forward
-
-mirai 2.5.0 represents a step forward in bringing high-performance, production-ready async computing to the R community. With its growing ecosystem integrations, we're laser-focused on continuing to push the boundaries on performance and reliability.
-
-We see mirai's role in enabling R to be used in previously-unthinkable contexts and widening its appeal, both within data science but also in scientific computing more broadly.
-
-Whether you're building interactive Shiny applications, running large-scale data analysis pipelines, or deploying models across HPC infrastructure, mirai provides the robust, scalable foundation you need.
-
-Ready to get started? Check out the comprehensive guides and examples at <https://mirai.r-lib.org>, or dive right in with `install.packages("mirai")`.
 
 ## Acknowledgements
 
