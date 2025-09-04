@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [mirai, parallelism]
-rmd_hash: 4c31f077f29491b1
+rmd_hash: 2ed2faf99f4f3191
 
 ---
 
@@ -214,26 +214,6 @@ A new function [`info()`](https://mirai.r-lib.org/reference/info.html) provides 
 <span><span class='c'>#&gt;           4           4           8           4           2</span></span></code></pre>
 
 </div>
-
-## Powering the R ecosystem
-
-mirai has rapidly become the foundation for async computing across the R ecosystem:
-
-**Core infrastructure:**
-
-- **R**: first official alternative communications backend (R 4.5+)
-- **purrr**: powers parallel map in this core tidyverse package
-- **Shiny**: primary async backend with ExtendedTask support
-- **plumber2**: built-in async evaluator for web APIs
-- **tidymodels**: parallel ML workflows and hyperparameter tuning
-- **targets**: HPC workflows via crew (mirai-based distributed launcher)
-
-**Data formats:**
-
-- **torch**: seamless tensor operations across processes
-- **Arrow & Polars**: native columnar data format support
-
-From Shiny apps to scientific research, mirai now powers parallel computing across virtually every domain in R - making it the *de facto* standard for modern async computing.
 
 ## Looking forward
 
