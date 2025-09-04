@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [mirai, parallelism]
-rmd_hash: 262d178200cf4910
+rmd_hash: 53ff086d42f24cdc
 
 ---
 
@@ -69,6 +69,7 @@ It continues to evolve as the foundation for asynchronous and parallel computing
 <span><span class='nv'>m</span><span class='o'>[</span><span class='o'>]</span></span>
 <span><span class='c'>#&gt; [1] 142</span></span>
 <span></span><span></span>
+<span><span class='c'># Shut down persistent background processes</span></span>
 <span><span class='nf'><a href='https://mirai.r-lib.org/reference/daemons.html'>daemons</a></span><span class='o'>(</span><span class='m'>0</span><span class='o'>)</span></span></code></pre>
 
 </div>
@@ -129,36 +130,36 @@ For further details on using mirai in HPC environments, please refer to our last
 
 ### OpenTelemetry integration
 
-We're absolutely delighted to unveil: complete observability of mirai requests through OpenTelemetry traces. This is a critical feature that completes the final pillar in mirai's 'built for production' design philosophy.
+We're absolutely delighted to unveil: complete observability of mirai requests through OpenTelemetry traces. This is a core feature that completes the final pillar in mirai's 'built for production' design philosophy.
 
-When tracing is enabled via the otelsdk package, you can monitor the entire lifecycle of your async computations, making it easier to debug and optimize performance in production environments.
-
-This is especially powerful when used in conjunction with other otel-enabled packages (like an upcoming Shiny release), providing end-to-end observability across your entire application stack.
+When tracing is enabled via the otelsdk package, you can monitor the entire lifecycle of your async computations, from creation through to evaluation, making it easier to debug and optimize performance in production environments. This is especially powerful when used in conjunction with other otel-enabled packages (like an upcoming Shiny release), providing end-to-end observability across your entire application stack.
 
 <figure>
 <img src="otel-screenshot.png" alt="Illustrative span structure shown in a Jaeger collector UI" />
 <figcaption aria-hidden="true"><em>Illustrative span structure shown in a Jaeger collector UI</em></figcaption>
 </figure>
 
-The hierarchical tracing structure allows you to track the flow from initiation through to final evaluation, enabling precise performance analysis and bottleneck identification.
-
 ### Reproducible parallel RNG
 
-We're equally delighted to announce reproducible parallel random number generation. Developed in consultation with our tidymodels colleagues and core members of the mlr3 team, this is a great example of the R community pulling together to implement crucial infrastructure.
+We're equally delighted to announce reproducible parallel random number generation. Developed in consultation with our tidymodels colleagues and core members of the mlr team, this is a great example of the R community pulling together to implement crucial infrastructure.
 
 Technically this feature has been around since the recent 2.4.1 release, but it solves a long-standing challenge in parallel computing in R. We hope that by announcing it here, it's put to good use for reproducible science.
 
 mirai has long used L'Ecuyer-CMRG streams (since prior to v1.0) for statistically-sound parallel RNG. Streams essentially cut into the RNG's period (a very long sequence of pseudo-random numbers) at intervals that are far apart from each other that they do not in practice overlap. This ensures that statistical results obtained from parallel computations remain correct and valid.
 
-Now, we offer two modes:
+Previously, we only offered the following option, matching the behaviour of base R's parallel package:
 
-**Default behaviour (`seed = NULL`)**: Creates independent streams for each daemon, matching the behaviour of base R's parallel package, ensuring statistical validity but not numerical reproducibility between runs.
+**Default behaviour (`seed = NULL`)**: Creates independent streams for each daemon, ensuring statistical validity but not numerical reproducibility between runs.
+
+Now, we offer the following option as well:
 
 **Reproducible mode (`seed = integer`)**: Creates a stream for each [`mirai()`](https://mirai.r-lib.org/reference/mirai.html) call rather than each daemon, guaranteeing identical results across runs regardless of the number of daemons used.
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/with.html'>with</a></span><span class='o'>(</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Always provides identical results:</span></span>
+<span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/base/with.html'>with</a></span><span class='o'>(</span></span>
 <span>  <span class='nf'><a href='https://mirai.r-lib.org/reference/daemons.html'>daemons</a></span><span class='o'>(</span><span class='m'>3</span>, seed <span class='o'>=</span> <span class='m'>1234L</span><span class='o'>)</span>,</span>
 <span>  <span class='nf'><a href='https://mirai.r-lib.org/reference/mirai_map.html'>mirai_map</a></span><span class='o'>(</span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span>, <span class='nv'>rnorm</span>, .args <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span>mean <span class='o'>=</span> <span class='m'>20</span>, sd <span class='o'>=</span> <span class='m'>2</span><span class='o'>)</span><span class='o'>)</span><span class='o'>[</span><span class='o'>]</span></span>
 <span><span class='o'>)</span></span>
@@ -170,8 +171,7 @@ Now, we offer two modes:
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; [[3]]</span></span>
 <span><span class='c'>#&gt; [1] 20.62193 23.06144 19.61896</span></span>
-<span></span><span></span>
-<span><span class='c'># Run again - identical results!</span></span></code></pre>
+<span></span></code></pre>
 
 </div>
 

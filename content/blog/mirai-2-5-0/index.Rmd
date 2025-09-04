@@ -120,37 +120,35 @@ For further details on using mirai in HPC environments, please refer to our last
 
 ### OpenTelemetry integration
 
-We're absolutely delighted to unveil: complete observability of mirai requests through OpenTelemetry traces. This is a critical feature that completes the final pillar in mirai's 'built for production' design philosophy.
+We're absolutely delighted to unveil: complete observability of mirai requests through OpenTelemetry traces. This is a core feature that completes the final pillar in mirai's 'built for production' design philosophy.
 
-When tracing is enabled via the otelsdk package, you can monitor the entire lifecycle of your async computations, making it easier to debug and optimize performance in production environments.
-
-This is especially powerful when used in conjunction with other otel-enabled packages (like an upcoming Shiny release), providing end-to-end observability across your entire application stack.
+When tracing is enabled via the otelsdk package, you can monitor the entire lifecycle of your async computations, from creation through to evaluation, making it easier to debug and optimize performance in production environments. This is especially powerful when used in conjunction with other otel-enabled packages (like an upcoming Shiny release), providing end-to-end observability across your entire application stack.
 
 ![*Illustrative span structure shown in a Jaeger collector UI*](otel-screenshot.png)
 
-The hierarchical tracing structure allows you to track the flow from initiation through to final evaluation, enabling precise performance analysis and bottleneck identification.
-
 ### Reproducible parallel RNG
 
-We're equally delighted to announce reproducible parallel random number generation. Developed in consultation with our tidymodels colleagues and core members of the mlr3 team, this is a great example of the R community pulling together to implement crucial infrastructure.
+We're equally delighted to announce reproducible parallel random number generation. Developed in consultation with our tidymodels colleagues and core members of the mlr team, this is a great example of the R community pulling together to implement crucial infrastructure.
 
 Technically this feature has been around since the recent 2.4.1 release, but it solves a long-standing challenge in parallel computing in R. We hope that by announcing it here, it's put to good use for reproducible science.
 
 mirai has long used L'Ecuyer-CMRG streams (since prior to v1.0) for statistically-sound parallel RNG. Streams essentially cut into the RNG’s period (a very long sequence of pseudo-random numbers) at intervals that are far apart from each other that they do not in practice overlap. This ensures that statistical results obtained from parallel computations remain correct and valid. 
 
-Now, we offer two modes:
+Previously, we only offered the following option, matching the behaviour of base R's parallel package:
 
-**Default behaviour (`seed = NULL`)**: Creates independent streams for each daemon, matching the behaviour of base R's parallel package, ensuring statistical validity but not numerical reproducibility between runs.
+**Default behaviour (`seed = NULL`)**: Creates independent streams for each daemon, ensuring statistical validity but not numerical reproducibility between runs.
+
+Now, we offer the following option as well:
 
 **Reproducible mode (`seed = integer`)**: Creates a stream for each `mirai()` call rather than each daemon, guaranteeing identical results across runs regardless of the number of daemons used.
 
 ```{r}
+# Always provides identical results:
+
 with(
   daemons(3, seed = 1234L),
   mirai_map(1:3, rnorm, .args = list(mean = 20, sd = 2))[]
 )
-
-# Run again - identical results!
 ```
 
 ### User interface improvements
