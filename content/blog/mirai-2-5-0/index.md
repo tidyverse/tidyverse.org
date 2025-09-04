@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [mirai, parallelism]
-rmd_hash: 994ee4be5c50b22f
+rmd_hash: 4c31f077f29491b1
 
 ---
 
@@ -48,7 +48,7 @@ You can install it from CRAN with:
 
 mirai (Japanese for 'future') provides a clean, modern approach to parallel computing in R. Built on current communication technologies, it delivers extreme performance through professional-grade scheduling and an event-driven architecture.
 
-It continues to evolve as the foundation for asynchronous and parallel computing across the R ecosystem, powering everything from Shiny applications to HPC (high-performance computing) workloads.
+It continues to evolve as the foundation for asynchronous and parallel computing across the R ecosystem, powering everything from [async Shiny](https://rstudio.github.io/promises/articles/promises_04_mirai.html) applications to [parallel map](https://www.tidyverse.org/blog/2025/07/purrr-1-1-0-parallel/) in purrr to [hyperparameter tuning](https://tune.tidymodels.org/news/index.html#parallel-processing-2-0-0) in tidymodels.
 
 <div class="highlight">
 
