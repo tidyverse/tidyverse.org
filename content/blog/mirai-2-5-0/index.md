@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [mirai, parallelism]
-rmd_hash: 53ff086d42f24cdc
+rmd_hash: 994ee4be5c50b22f
 
 ---
 
@@ -32,7 +32,9 @@ TODO:
 * [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're excited to announce [mirai](https://mirai.r-lib.org) 2.5.0, bringing production-grade async computing to R. This milestone release delivers enhanced observability, reproducible RNG, and the quality-of-life improvements that make mirai the foundation for parallel computing across the R ecosystem.
+We're excited to announce [mirai](https://mirai.r-lib.org) 2.5.0, bringing production-grade async computing to R!
+
+This milestone release delivers enhanced observability through OpenTelemetry, reproducible parallel RNG, and key user interface improvements for compute profiles. We've also packed in twice as many [changes](https://mirai.r-lib.org/news/index.html) as usual - going all out in delivering a round of quality-of-life fixes and improvements to make your use of mirai even smoother!
 
 You can install it from CRAN with:
 
@@ -41,8 +43,6 @@ You can install it from CRAN with:
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"mirai"</span><span class='o'>)</span></span></code></pre>
 
 </div>
-
-This release packs in almost twice as many [changes](https://mirai.r-lib.org/news/index.html) as usual - we've gone all out in delivering a round of fixes and improvements to make your use of mirai even smoother!
 
 ## Introduction
 
