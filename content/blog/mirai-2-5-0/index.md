@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [mirai, parallelism]
-rmd_hash: bebddc5826cdc17a
+rmd_hash: 10c2b1ff668074b3
 
 ---
 
@@ -76,19 +76,19 @@ It continues to evolve as the foundation for asynchronous and parallel computing
 
 ## A unique design philosophy
 
-1️⃣ Modern foundation
+### Modern foundation
 
 mirai builds on [nanonext](https://nanonext.r-lib.org), the R binding to Nanomsg Next Generation, a high-performance messaging library designed for distributed systems. This means that it's using the very latest technologies, and supports the most optimal connections out of the box: IPC (inter-process communications), TCP or secure TLS. It also extends base R's serialization mechanism to support custom serialization of newer cross-language data formats such as safetensors, Arrow and Polars.
 
-2️⃣ Extreme performance
+### Extreme performance
 
 As a consequence of its solid technological foundation, mirai has the proven capacity to scale to millions of concurrent tasks over thousands of connections. Moreover, it delivers up to 1,000x the efficiency and responsiveness of common alternatives. A key innovation is the implementation of event-driven promises that react with zero latency - this provides an extra edge for real-time applications such as live inference or Shiny apps.
 
-3️⃣ Production first
+### Production first
 
 mirai provides a clear mental model for parallel computation, with a clean separation of a user's current environment with that in which a mirai is evaluated. This explicitness and simplicity helps avoid common pitfalls that can afflict parallel processing, such as capturing incorrect or extraneous variables. Transparency and robustness are key to mirai's design, and are achieved by minimizing complexity, and eliminating all hidden state (no reliance on options or environment variables). Finally, its integration with OpenTelemetry provides for production-grade observability.
 
-4️⃣ Deploy everywhere
+### Deploy everywhere
 
 Deployment of daemons is made through a consistent interface across local, remote (SSH), and [HPC environments](https://shikokuchuo.net/posts/27-mirai-240/) (Slurm, SGE, PBS, LSF). Compute profiles are daemons settings that are managed independently, such that you can be connected to all three resource types simultaneously. You then have the freedom to distribute workload to the most appropriate resource for any given task - especially important for heterogeneous workloads that require different resources such as GPU compute.
 
@@ -139,7 +139,9 @@ Now, we offer the following option as well:
 
 ## User interface improvements
 
-→ New scoped helper functions [`with_daemons()`](https://mirai.r-lib.org/reference/with_daemons.html) and [`local_daemons()`](https://mirai.r-lib.org/reference/with_daemons.html) make working with compute profiles much more convenient by allowing the temporary switching of contexts:
+### Compute profile helper functions
+
+[`with_daemons()`](https://mirai.r-lib.org/reference/with_daemons.html) and [`local_daemons()`](https://mirai.r-lib.org/reference/with_daemons.html) make working with compute profiles much more convenient by allowing the temporary switching of contexts:
 
 ``` r
 # Work with specific compute profiles
@@ -154,7 +156,9 @@ async_gpu_intensive_task <- function() {
 }
 ```
 
-→ [`daemons()`](https://mirai.r-lib.org/reference/daemons.html) has been redesigned to be more ergonomic. Creating new daemons automatically resets existing ones (no more manual `daemons(0)` calls):
+### Re-designed `daemons()`
+
+Made to be more ergonomic, creating new daemons now automatically resets existing ones (no more manual `daemons(0)` calls):
 
 ``` r
 # Old approach
@@ -165,7 +169,9 @@ daemons(4)
 daemons(4)  # Just works, resets if needed
 ```
 
-→ New [`info()`](https://mirai.r-lib.org/reference/info.html) function provides a more succinct alternative to [`status()`](https://mirai.r-lib.org/reference/status.html) for reporting key statistics. This is optimized and available for programmatic use.
+### New `info()` function
+
+Provides a more succinct alternative to [`status()`](https://mirai.r-lib.org/reference/status.html) for reporting key statistics. This is optimized and supported for programmatic use:
 
 <div class="highlight">
 
