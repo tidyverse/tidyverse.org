@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [mirai, parallelism]
-rmd_hash: 6870bc4a0d57ef7f
+rmd_hash: ac2f903bd9e8543a
 
 ---
 
@@ -34,7 +34,7 @@ TODO:
 
 We're excited to announce [mirai](https://mirai.r-lib.org) 2.5.0, bringing production-grade async computing to R!
 
-This milestone release delivers enhanced observability through OpenTelemetry, reproducible parallel RNG, and key user interface improvements for compute profiles. We've also packed in twice as many [changes](https://mirai.r-lib.org/news/index.html) as usual - going all out in delivering a round of quality-of-life fixes to make your use of mirai even smoother!
+This milestone release delivers enhanced observability through OpenTelemetry, reproducible parallel RNG, and key user interface improvements. We've also packed in twice as many [changes](https://mirai.r-lib.org/news/index.html) as usual - going all out in delivering a round of quality-of-life fixes to make your use of mirai even smoother!
 
 You can install it from CRAN with:
 
