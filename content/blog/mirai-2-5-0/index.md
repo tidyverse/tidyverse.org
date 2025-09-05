@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: mirai-2-5-0
 title: mirai 2.5.0
-date: 2025-09-04
+date: 2025-09-05
 author: Charlie Gao
 description: >
     mirai - minimalist async evaluation framework for R - brings production-grade
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [mirai, parallelism]
-rmd_hash: 19725d88b52d328b
+rmd_hash: c0cc00e0d1ed58ef
 
 ---
 
