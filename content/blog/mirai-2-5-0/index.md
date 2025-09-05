@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [mirai, parallelism]
-rmd_hash: ac2f903bd9e8543a
+rmd_hash: 19725d88b52d328b
 
 ---
 
@@ -76,21 +76,13 @@ It continues to evolve as the foundation for asynchronous and parallel computing
 
 ## A unique design philosophy
 
-### Modern foundation
+**Modern foundation**: mirai builds on [nanonext](https://nanonext.r-lib.org), the R binding to Nanomsg Next Generation, a high-performance messaging library designed for distributed systems. This means that it's using the very latest technologies, and supports the most optimal connections out of the box: IPC (inter-process communications), TCP or secure TLS. It also extends base R's serialization mechanism to support custom serialization of newer cross-language data formats such as safetensors, Arrow and Polars.
 
-mirai builds on [nanonext](https://nanonext.r-lib.org), the R binding to Nanomsg Next Generation, a high-performance messaging library designed for distributed systems. This means that it's using the very latest technologies, and supports the most optimal connections out of the box: IPC (inter-process communications), TCP or secure TLS. It also extends base R's serialization mechanism to support custom serialization of newer cross-language data formats such as safetensors, Arrow and Polars.
+**Extreme performance**: as a consequence of its solid technological foundation, mirai has the proven capacity to scale to millions of concurrent tasks over thousands of connections. Moreover, it delivers up to 1,000x the efficiency and responsiveness of common alternatives. A key innovation is the implementation of event-driven promises that react with zero latency - this provides an extra edge for real-time applications such as live inference or Shiny apps.
 
-### Extreme performance
+**Production first**: mirai provides a clear mental model for parallel computation, with a clean separation of a user's current environment with that in which a mirai is evaluated. This explicitness and simplicity helps avoid common pitfalls that can afflict parallel processing, such as capturing incorrect or extraneous variables. Transparency and robustness are key to mirai's design, and are achieved by minimizing complexity, and eliminating all hidden state with no reliance on options or environment variables. Finally, its integration with OpenTelemetry provides for production-grade observability.
 
-As a consequence of its solid technological foundation, mirai has the proven capacity to scale to millions of concurrent tasks over thousands of connections. Moreover, it delivers up to 1,000x the efficiency and responsiveness of common alternatives. A key innovation is the implementation of event-driven promises that react with zero latency - this provides an extra edge for real-time applications such as live inference or Shiny apps.
-
-### Production first
-
-mirai provides a clear mental model for parallel computation, with a clean separation of a user's current environment with that in which a mirai is evaluated. This explicitness and simplicity helps avoid common pitfalls that can afflict parallel processing, such as capturing incorrect or extraneous variables. Transparency and robustness are key to mirai's design, and are achieved by minimizing complexity, and eliminating all hidden state with no reliance on options or environment variables. Finally, its integration with OpenTelemetry provides for production-grade observability.
-
-### Deploy everywhere
-
-Deployment of daemon processes is made through a consistent interface across local, remote (SSH), and [HPC environments](https://shikokuchuo.net/posts/27-mirai-240/) (Slurm, SGE, PBS, LSF). Compute profiles are daemons settings that are managed independently, such that you can be connected to all three resource types simultaneously. You then have the freedom to distribute workload to the most appropriate resource for any given task - especially important if tasks have differing requirements such as GPU compute.
+**Deploy everywhere**: deployment of daemon processes is made through a consistent interface across local, remote (SSH), and [HPC environments](https://shikokuchuo.net/posts/27-mirai-240/) (Slurm, SGE, PBS, LSF). Compute profiles are daemons settings that are managed independently, such that you can be connected to all three resource types simultaneously. You then have the freedom to distribute workload to the most appropriate resource for any given task - especially important if tasks have differing requirements such as GPU compute.
 
 ## OpenTelemetry integration
 
