@@ -32,7 +32,7 @@ TODO:
 
 We're excited to announce [mirai](https://mirai.r-lib.org) 2.5.0, bringing production-grade async computing to R!
 
-This milestone release delivers enhanced observability through OpenTelemetry, reproducible parallel RNG, and key user interface improvements for compute profiles. We've also packed in twice as many [changes](https://mirai.r-lib.org/news/index.html) as usual - going all out in delivering a round of quality-of-life fixes and improvements to make your use of mirai even smoother!
+This milestone release delivers enhanced observability through OpenTelemetry, reproducible parallel RNG, and key user interface improvements for compute profiles. We've also packed in twice as many [changes](https://mirai.r-lib.org/news/index.html) as usual - going all out in delivering a round of quality-of-life fixes to make your use of mirai even smoother!
 
 You can install it from CRAN with:
 
@@ -79,33 +79,33 @@ As a consequence of its solid technological foundation, mirai has the proven cap
 
 ### Production first
 
-mirai provides a clear mental model for parallel computation, with a clean separation of a user's current environment with that in which a mirai is evaluated. This explicitness and simplicity helps avoid common pitfalls that can afflict parallel processing, such as capturing incorrect or extraneous variables. Transparency and robustness are key to mirai's design, and are achieved by minimizing complexity, and eliminating all hidden state (no reliance on options or environment variables). Finally, its integration with OpenTelemetry provides for production-grade observability.
+mirai provides a clear mental model for parallel computation, with a clean separation of a user's current environment with that in which a mirai is evaluated. This explicitness and simplicity helps avoid common pitfalls that can afflict parallel processing, such as capturing incorrect or extraneous variables. Transparency and robustness are key to mirai's design, and are achieved by minimizing complexity, and eliminating all hidden state with no reliance on options or environment variables. Finally, its integration with OpenTelemetry provides for production-grade observability.
 
 ### Deploy everywhere
 
-Deployment of daemons is made through a consistent interface across local, remote (SSH), and [HPC environments](https://shikokuchuo.net/posts/27-mirai-240/) (Slurm, SGE, PBS, LSF). Compute profiles are daemons settings that are managed independently, such that you can be connected to all three resource types simultaneously. You then have the freedom to distribute workload to the most appropriate resource for any given task - especially important for heterogeneous workloads that require different resources such as GPU compute.
+Deployment of daemon processes is made through a consistent interface across local, remote (SSH), and [HPC environments](https://shikokuchuo.net/posts/27-mirai-240/) (Slurm, SGE, PBS, LSF). Compute profiles are daemons settings that are managed independently, such that you can be connected to all three resource types simultaneously. You then have the freedom to distribute workload to the most appropriate resource for any given task - especially important if tasks have differing requirements such as GPU compute.
 
 ## OpenTelemetry integration
 
-New in mirai 2.5.0: complete observability of mirai requests through OpenTelemetry traces. This is a core feature that completes the final pillar in mirai's 'built for production' design philosophy.
+New in mirai 2.5.0: complete observability of mirai requests through OpenTelemetry traces. This is a core feature that completes the final pillar in mirai's 'production first' design philosophy.
 
-When tracing is enabled via the otelsdk package, you can monitor the entire lifecycle of your async computations, from creation through to evaluation, making it easier to debug and optimize performance in production environments. This is especially powerful when used in conjunction with other otel-enabled packages (like an upcoming Shiny release), providing end-to-end observability across your entire application stack.
+When tracing is enabled via the otel and otelsdk packages, you can monitor the entire lifecycle of your async computations, from creation through to evaluation, making it easier to debug and optimize performance in production environments. This is especially powerful when used in conjunction with other otel-enabled packages (such as an upcoming Shiny release), providing end-to-end observability across your entire application stack.
 
-![*Illustrative span structure shown in a Jaeger collector UI*](otel-screenshot.png)
+![*Illustrative OpenTelemetry span structure shown in a Jaeger collector UI*](otel-screenshot.png)
 
 ## Reproducible parallel RNG
 
-Introduced in mirai 2.4.1: reproducible parallel random number generation. Developed in consultation with our tidymodels colleagues and core members of the mlr team, this is a great example of the R community pulling together to sovle common problems. It solves a long-standing challenge in parallel computing in R, and we hope it's put to good use for reproducible science.
+Introduced in mirai 2.4.1: reproducible parallel random number generation. Developed in consultation with our tidymodels colleagues and core members of the mlr team, this is a great example of the R community pulling together to solve a common problem. It addresses a long-standing challenge in parallel computing in R, important for reproducible science.
 
-mirai has long used L'Ecuyer-CMRG streams (since prior to v1.0) for statistically-sound parallel RNG. Streams essentially cut into the RNG’s period (a very long sequence of pseudo-random numbers) at intervals that are far apart from each other that they do not in practice overlap. This ensures that statistical results obtained from parallel computations remain correct and valid. 
+mirai has, since its early days, used L'Ecuyer-CMRG streams for statistically-sound parallel RNG. Streams essentially cut into the RNG’s period (a very long sequence of pseudo-random numbers) at intervals that are far apart from each other that they do not in practice overlap. This ensures that statistical results obtained from parallel computations remain correct and valid. 
 
 Previously, we only offered the following option, matching the behaviour of base R's parallel package:
 
-**Default behaviour (`seed = NULL`)**: Creates independent streams for each daemon, ensuring statistical validity but not numerical reproducibility between runs.
+**Default behaviour** `daemons(seed = NULL)`: creates independent streams for each daemon. This ensures statistical validity but not numerical reproducibility between runs.
 
-Now, we offer the following option as well:
+Now, we also offer the following option:
 
-**Reproducible mode (`seed = integer`)**: Creates a stream for each `mirai()` call rather than each daemon, guaranteeing identical results across runs regardless of the number of daemons used.
+**Reproducible mode** `daemons(seed = integer)`: creates a stream for each `mirai()` call rather than each daemon. This guarantees identical results across runs, regardless of the number of daemons used.
 
 ```{r}
 # Always provides identical results:
@@ -120,7 +120,7 @@ with(
 
 ### Compute profile helper functions
 
-`with_daemons()` and `local_daemons()` make working with compute profiles much more convenient by allowing the temporary switching of contexts:
+`with_daemons()` and `local_daemons()` make working with compute profiles much more convenient by allowing the temporary switching of contexts. This means that developers can continue to write mirai code without worrying about the resources on which it is eventually run. End-users now have the ability to change the destination of any mirai computation dynamically using one of these scoped helpers.
 
 ```r
 # Work with specific compute profiles
@@ -137,7 +137,7 @@ async_gpu_intensive_task <- function() {
 
 ### Re-designed `daemons()`
 
-Made to be more ergonomic, creating new daemons now automatically resets existing ones (no more manual `daemons(0)` calls):
+Creating new daemons is now more ergonomic, as it automatically resets existing ones. This provides for more convenient use in contexts such as notebooks, where cells may be run out of order. Manual `daemons(0)` calls are no longer required to reset daemons.
 
 ```r
 # Old approach
@@ -151,7 +151,7 @@ daemons(4)  # Just works, resets if needed
 ### New `info()` function
 
 Provides a more succinct alternative to `status()` for reporting key statistics.
-This is optimized and supported for programmatic use:
+This is optimized and is now a supported developer interface for programmatic use.
 
 ```{r, eval = FALSE}
 info()
