@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: ggplot2-4-0-0
 title: ggplot2 4.0.0
-date: 2025-07-09
+date: 2025-09-11
 author: Teun van den Brand
 description: >
     A new major version of ggplot2 has been released on CRAN. Find out what is new here.
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [ggplot2]
-rmd_hash: 590700caa35092ce
+rmd_hash: 56a91d133bf9e3e4
 
 ---
 
@@ -790,7 +790,7 @@ For geom and stat extensions, the magic usually happens in the `Geom*` or `Stat*
 <span><span class='c'>#&gt;             lineend = lineend, linejoin = linejoin, linemitre = linemitre, </span></span>
 <span><span class='c'>#&gt;             ...))</span></span>
 <span><span class='c'>#&gt; &#125;</span></span>
-<span><span class='c'>#&gt; &lt;environment: 0x00000229fb99f2a0&gt;</span></span>
+<span><span class='c'>#&gt; &lt;environment: 0x00000223e1277e08&gt;</span></span>
 <span></span></code></pre>
 
 </div>
@@ -837,7 +837,7 @@ To replicate how themes are handled internally, you can now use [`complete_theme
 <span><span class='c'># You should give rect elements to text settings</span></span>
 <span><span class='nv'>completed</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></span><span class='o'>(</span>legend.text <span class='o'>=</span> <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/element.html'>element_rect</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
 <span>  <span class='nf'><a href='https://ggplot2.tidyverse.org/reference/complete_theme.html'>complete_theme</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `plot_theme()` at ggplot2/R/theme.R:649:3:</span></span></span>
+<span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'> in `plot_theme()`:</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Can't merge the `legend.text` theme element.</span></span>
 <span><span class='c'>#&gt; <span style='font-weight: bold;'>Caused by error in `method(merge_element, list(ggplot2::element, class_any))`:</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #BBBB00;'>!</span> Only elements of the same class can be merged.</span></span>
