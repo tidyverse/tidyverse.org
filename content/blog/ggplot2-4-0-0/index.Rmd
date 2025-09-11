@@ -1,0 +1,894 @@
+---
+output: hugodown::hugo_document
+
+slug: ggplot2-4-0-0
+title: ggplot2 4.0.0
+date: 2025-09-11
+author: Teun van den Brand
+description: >
+    A new major version of ggplot2 has been released on CRAN. Find out what is new here.
+
+photo:
+  url: https://unsplash.com/photos/selective-focus-photography-of-water-droplets-on-grasses--N_UwPdUs7E
+  author: Jonas Weckschmied
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [ggplot2]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're tickled pink to announce the release of [ggplot2](https://ggplot2.tidyverse.org) 4.0.0. 
+ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. 
+You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details.
+
+The new version can be installed from CRAN using:
+
+```{r, eval = FALSE}
+install.packages("ggplot2")
+```
+
+This is a substantial release meriting a new major version, and contains a series of changes from a rewrite of the object oriented system from S3 to S7, large new features to smaller quality of life improvements and bugfixes.
+It is also the 18th anniversary of ggplot2 which is cause for celebration!
+In this blog post, we will highlight the most salient new features that come with this release.
+You can see a full list of changes in the [release notes](https://ggplot2.tidyverse.org/news/index.html)
+
+```{r secret_setup, include=FALSE}
+knitr::opts_chunk$set(dev = "ragg_png")
+```
+
+```{r setup}
+library(ggplot2)
+library(patchwork)
+```
+
+## Adopting S7
+
+In ggplot2, we use major version increments to indicate that something at the core of the package has changed.
+In this release, we have replaced many of ggplot2's S3 objects with S7 objects.
+Like S3 and S4, S7 is also an object oriented system that uses classes, generics and methods.
+S7 is a newer system that aims to strike a good balance between the flexibility of S3 and formality of S4.
+
+Mostly, this change shouldn't be very noticeable when you're just using ggplot2 for building regular plots.
+At best, you may notice that we're more strictly enforcing types for certain arguments.
+For example, most ludicrous input is now rejected right away.
+This is due to how properties in S7 work, which get validated when a new object is instantiated.
+
+```{r, error=TRUE}
+element_text(hjust = "foo")
+```
+
+However, it may require some adaptation on your end if you use ggplot2's innards in unusual ways.
+For extension builders, a major benefit of using S7 is that one can now use double dispatch.
+This is most important for the `update_ggplot()` function (the successor of `ggplot_add()`), which determines what happens when you `+` an object to a plot.
+Now with S7, you can control what happens not only for right-hand side objects (which is how it used to work in S3), but also for the left-hand side objects.
+
+We have put various pieces of backwards compatibility in to not break many packages that assumed the S3 structures of ggplot2.
+For example, we still return the data property with `ggplot()$data`, whereas the S7 way of accessing this should be `ggplot()@data`.
+Expect these to be phased out over time in favour of S7.
+We are preparing another blog post to help migrating from S3 to S7 for ggplot2 related packages.
+
+## Theme improvements
+
+Themes in ggplot2 have long served the role of capturing any non-data aspects of styling plots.
+We have come to realise that the default look of layers, from what the default shape of points is to what the default colour palette is, are also not truly data-driven choices.
+The idea to put these defaults into themes has been around for a while and Dana Page Seidel did pioneering work implementing this as early as 2018.
+Now, years of waiting have come to fruition and we're proud to announce this new functionality.
+
+### Ink and paper
+
+The way layer defaults are now implemented differs slightly from typical aesthetics you know and love.
+Whereas layers aesthetics distinguish `colour` and `fill`, the theme defaults distinguish `ink` (foreground) and `paper` (background).
+A boxplot is unreadable without `colour`, but is perfectly interpretable without `fill`.
+In the boxplot case, the `ink` is thus clearly the `colour` whereas `paper` is the `fill`.
+In bar charts or histograms, the [proportional ink](https://clauswilke.com/dataviz/proportional-ink.html) principle prescribes that the `fill` aesthetic is considered foreground, and thus count as `ink`.
+To accommodate special cases, like lines in `geom_smooth()` or `geom_contour()`, we also added a third `accent` option.
+In short, the theme defaults have role-oriented settings that differ from the property-oriented settings in layers.
+
+We've added these three options to all built-in complete themes.
+Not only propagate these automatically to the layer defaults, they are also used to style additional theme components.
+You may notice that the panel background colour is a blend between `paper` and `ink`, which is now how many elements are parametrised in complete themes.
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  theme_gray(paper = "cornsilk", ink = "navy", accent = "tomato")
+```
+
+If you're customising a theme, you can use the `theme(geom)` argument to set a collection of defaults.
+The new function `element_geom()` can be used to set these properties.
+Additionally, if you want a layer to read the property from this theme element, you can use the `from_theme()` function in the mapping to access these variables^[Normally, `aes()` is strictly used to map data instead of setting a fixed property. We diverge from this API for pragmatic reasons, not theoretical ones.].
+
+
+```{r}
+ggplot(mpg, aes(class, displ)) +
+  geom_boxplot(aes(colour = from_theme(accent))) +
+  theme(
+    geom = element_geom(accent = "tomato", paper = "cornsilk")
+  )
+```
+
+A second conceptual difference in `element_geom()` pertains the the use of lines.
+In one role, like in a line graph, the line represents the data directly.
+In a second role, a line serves as separation between two units. 
+For example, you can display countries as polygons and the line connecting the vertices separate out places that are inside a country versus places that are outside that country.
+These two roles are captured in a `linewidth` and `linetype` pair and a `borderwidth` and `bordertype` pair.
+
+```{r}
+ggplot(faithful, aes(waiting)) +
+  geom_histogram(bins = 30, colour = "black") +
+  geom_freqpoly(bins = 30) +
+  theme(geom = element_geom(
+    bordertype = "dashed",
+    borderwidth = 0.2,
+    linewidth = 2,
+    linetype = "solid"
+  ))
+```
+
+### Scales and palettes
+
+In addition to the defaults for layers, default palettes are now also encapsulated in the theme.
+The relevant theme settings have the pattern `palette.{aesthetic}.{type}`, where `type` can be either discrete or continuous.
+This allows you to coordinate your colour palettes with the rest of the theme.
+
+```{r}
+ggplot(mpg, aes(displ, hwy, shape = drv, colour = cty)) +
+  geom_point() +
+  theme(
+    palette.colour.continuous = c("chartreuse", "forestgreen"),
+    palette.shape.discrete = c("triangle", "triangle open", "triangle down open")
+  )
+```
+
+The way this works is that all defaults scales now have `palette = NULL` as their default.
+During plot building, any `NULL` palettes are replaced by those declared in the theme.
+
+### Shortcuts
+
+We like to introduce a new family of short cuts.
+Looking at code in the wild, we've come to realise that theme declarations are very often chaotic.
+The `theme()` functions has lots of arguments, long argument names (hello there, `axis.minor.ticks.length.x.bottom`!) and very little structure.
+To make themes a little bit more digestible, we've created the following helper functions:
+
+* `theme_sub_axis()`
+    * `theme_sub_axis_x()`
+        * `theme_sub_axis_bottom()`
+        * `theme_sub_axis_top()`
+    * `theme_sub_axis_y()`
+        * `theme_sub_axis_left()`
+        * `theme_sub_axis_right()`
+* `theme_sub_legend()`
+* `theme_sub_panel()`
+* `theme_sub_plot()`
+* `theme_sub_strip()`
+
+These helper functions pass on their arguments to `theme()` after they've prepended a relevant prefix.
+For example, using `theme_sub_legend(justification)` will translate to `theme(legend.justification)`.
+When you have >1 theme element to change in a cluster of settings, it quickly becomes less typing to enlist the relevant shortcut.
+As a bonus, your theme code will tend to self-organise and become somewhat more readable.
+
+```{r, results='hide'}
+# Tired, verbose, chaotic
+theme(
+  panel.widths = unit(5, "cm"),
+  axis.ticks.x = element_line(colour = "red"),
+  axis.ticks.length.x = unit(5, "mm"),
+  panel.background = element_rect(fill = NA),
+  panel.spacing.x = unit(5, "mm")
+)
+
+# Wired, terse, orderly
+theme_sub_axis_x(
+  ticks = element_line(colour = "red"),
+  ticks.length = unit(5, "mm")
+) +
+theme_sub_panel(
+  widths = unit(5, "cm"),
+  spacing.x = unit(5, "mm"),
+  background = element_rect(fill = NA)
+)
+```
+
+In addition to shortcuts for clusters of theme elements, we've also added a few variants to declare margins.
+
+* `margin_auto()` sets the margins in a CSS-like fashion similar to the [`margin`](https://developer.mozilla.org/en-US/docs/Web/CSS/margin) and [`padding`](https://developer.mozilla.org/en-US/docs/Web/CSS/padding) property.
+    * `margin_auto(1)` sets all four sides at once. 
+      It expands to `margin(t = 1, r = 1, b = 1, l = 1)`.
+    * `margin_auto(1, 2)` sets horizontal and vertical sides. 
+      It expands to `margin(t = 1, r = 2, b = 1, l = 2)`.
+    * `margin_auto(1, 2, 3)` expands to `margin(t = 1, r = 2, b = 3, l = 2)`.
+* `margin_part()` has `NA` units as default, which will get replaced when the theme gets resolved.
+  It roughly equates to 'set some of the sides, keep others as they are'.
+   
+```{r}
+merge_element(
+  margin_part(r = 20), # child
+  margin_auto(10) # parent
+)
+```
+
+### New settings
+
+To coordinate (non-text) margins and spacings in a theme, we've introduced `spacing` and `margins` as new root elements in the theme.
+Other spacings and margins at the leaf elements inherit from (scale with) these root elements.
+To facilitate the different spacings in ggplot2, unit elements can now use `rel()` to modify the inherited value.
+For example the default `axis.ticks.length` is now `rel(0.5)`, making the y-axis ticks 0.5 cm in the plot below.
+If we set the `axis.ticks.length.x` to `rel(2)`, it will double the value coming from `axis.ticks.length`, not double the value of `spacing`.
+
+```{r}
+p <- ggplot(penguins, aes(bill_dep, bill_len, colour = species)) +
+  geom_point(na.rm = TRUE)
+
+p + theme(
+  spacing = unit(1, "cm"), 
+  margins = margin_auto(1, unit = "cm"),
+  axis.ticks.length.x = rel(2)
+)
+```
+
+We also made it easier to set plot sizes.
+Using the `panel.widths` and `panel.heights` arguments, you can control the sizes of the panels.
+This mechanism is distinct from using `ggsave(width, height)`, where the whole plot, including annotations such as axes and titles is included.
+There are two ways to use these arguments:
+
+* Give a vector of units: each one will be applied to a panel separately and the vector will be recycled to fit the number of panels.
+* Give a single unit: which sets the total panel area (including panel spacings and inner axes) to that size.
+
+Naturally, if you only have a single panel, these approaches are identical.
+If you have multiple panels and you want to set individual panels all to the same size (as opposed to the total size), you can take advantage of the recycling and use a length 2 unit vector.
+
+In the plots below, you can notice that the panels span a different width despite the units adding up to the same amount (9 cm).
+This is because the 'single unit' approach also includes the panel spacings, but not the 'separate units' approach.
+
+```{r}
+p1 <- p + facet_grid(~ island) +
+  labs(title = "Separate units (per panel)") +
+  # Using the new shortcut for panels
+  theme_sub_panel(
+    widths = unit(c(2, 3, 4), "cm"),
+    heights = unit(3, "cm")
+  )
+
+p2 <- p + facet_grid(~ island) +
+  labs(title = "Single unit (all panels)") +
+  theme_sub_panel(
+    widths = unit(9, "cm"),
+    heights = unit(3, "cm")
+  )
+
+p1 / p2
+```
+
+## Labels
+
+We have added new ways that a plot retrieves labels for your variables.
+It is an informal convention in several packages including gt, Hmisc, labelled and others to use the 'label' attribute to store human readable labels for vectors.
+Now ggplot2 joins this convention and uses the 'label' attribute as the default label for a variable if present.
+
+```{r}
+# The penguins dataset was incorporated into base R 4.5
+df <- penguins
+
+# Manually set label attributes.
+# Other packages may offer better tooling than this.
+attr(df$species, "label") <- "Penguin Species"
+attr(df$bill_dep, "label") <- "Bill depth (mm)"
+attr(df$bill_len, "label") <- "Bill length (mm)"
+attr(df$body_mass, "label") <- "Body mass (g)"
+
+ggplot(df, aes(bill_dep, bill_len, colour = sqrt(body_mass))) +
+  geom_point(na.rm = TRUE)
+```
+
+It has also been entrenched in some workflows to use a 'data dictionary' or codebook.
+For labelling purposes these dictionaries often contain column metadata that include labels or descriptions for variables (columns) in the dataset.
+To make it easier to work with column labels, we added the `labs(dictionary)` argument.
+It takes a named vector of labels, that can easily be generated from a data dictionary by `setNames()` or `dplyr::pull()`.
+
+```{r}
+dict <- tibble::tribble(
+  ~var,    ~label,
+  "species",  "Penguin Species",
+  "bill_dep", "Bill depth (mm)",
+  "bill_len", "Bill length (mm)",
+  "body_mass", "Body mass (g)"
+)
+
+ggplot(penguins, aes(bill_dep, bill_len, colour = body_mass)) +
+  geom_point(na.rm = TRUE) +
+  # Or:
+  # labs(dictionary = dplyr::pull(dict, label, name = var))
+  labs(dictionary = setNames(dict$label, dict$var))
+```
+
+One benefit to the label attributes or data dictionary approaches is that it is linked to your variables, not aesthetics.
+This means you can easily rearrange your aesthetics for a different plot, without having to painstakingly reorient the labels towards the correct aesthetics.
+
+```{r}
+last_plot() +
+  aes(body_mass, bill_len, colour = species)
+```
+
+There are a few caveats to these label attributes and data dictionary approaches though:
+
+* If the aesthetic is not a pure variable name the label is not used.
+  You can see this in the `sqrt(body_mass)` in the first example, which does not use the 'Body mass (g)' label.
+  We assume when a variable is adjusted in this way, this would need to be reflected in the label itself.
+  It would therefore be inappropriate to use the label of the unadjusted variable.
+  Use of the [`.data`-pronoun](https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html#using-aes-and-vars-in-a-package-function) counts as a pure variable name for labelling purposes.
+* Some attributes are more stable than others, and it is not ggplot2's responsibility to babysit attributes.
+  For example using `head(<data.frame>)` will typically drop attributes from atomic columns, whereas `head(<tibble>)` will not.
+  
+In addition, we're also allowing to use functions in all the places you can declare labels.
+The `labs()` function, scale names and guide titles now accept functions that take in the labels generated by the lower hierarchies and return amended labels.
+It should be spelled out that the hierarchy from lowest priority to highest priority is the following:
+
+1. The expression given in `aes()`.
+2. The entry in `labs(dictionary)`.
+3. The label attribute of the column.
+4. The entry in `labs(<aesthetic> = <label>)`.
+5. The `scale_*(name)` argument.
+6. The `guide_*(title)` argument.
+
+We can see this hierarchy in action in the plot below: the function in the axis guide transforms the input from the `labs()` function.
+
+```{r}
+ggplot(penguins, aes(bill_dep, bill_len, colour = species)) +
+  geom_point(na.rm = TRUE) +
+  scale_colour_discrete(name = toupper) +
+  guides(x = guide_axis(title = tools::toTitleCase)) +
+  labs(
+    y = \(x) paste0(x, " variable"),
+    x = "the label for the x variable"
+  )
+```
+
+In addition to the `labs()`-labels, we also made labelling the levels of discrete scales easier.
+When the scale's `breaks` are named, the scale's labels will adopt the break's names by default.
+This already was the case in continuous scales but now discrete scales have parity.
+A nice benefit of specifying labels this way is that they are directly linked to the breaks, which prevents the common mistake of specifying the `labels` argument without also setting the `breaks` argument, which may accidentally mismatch labels.
+
+```{r}
+ggplot(penguins, aes(bill_dep, bill_len, colour = species)) +
+  geom_point(na.rm = TRUE) +
+  scale_colour_discrete(
+    breaks = c(
+      "Pygoscelis adeliae"     = "Adelie",
+      "Pygoscelis papua"       = "Gentoo",
+      "Pygoscelis antarcticus" = "Chinstrap"
+    )
+  )
+```
+
+## Discrete scales
+
+In this release we have tried to improve the 'freedom' afforded by discrete position scales.
+Previously, discrete values were always mapped to an integer sequence starting at 1 going up to the number of levels.
+Instead, we wanted to allow for different mappings that deviated from that pattern.
+While it is a bit foreign for position scales, ggplot2 already had a mechanism to assign alternate values to the levels of a scale: palettes!
+You can now use the `palette` argument like you would for non-position scales.
+It makes it easier to indicate any grouping structure along the axis, like separating the orange juice (OJ) groups from the vitamin C (VC) groups in the plot below.
+
+```{r}
+ggplot(ToothGrowth, aes(interaction(dose, supp, sep = "\n"), len)) +
+  geom_boxplot() +
+  scale_x_discrete(
+    palette = scales::pal_manual(c(1:3, 5:7))
+  )
+```
+
+A second improvement we made to the placement of discrete levels is that we give greater control over the continuous limits.
+The continuous limits of a discrete scale used to be an implementation detail that kept track of any 'additional space' layers were taking up, for example because they use a `width` parameter.
+Now, these can be declared directly, making it easier to synchronise limits across plots or even facets.
+In the plot below, we're using the `continuous.limits` argument to ensure that all the bars have the same width; regardless of how many levels the x scale has to accommodate.
+
+```{r}
+p1 <- ggplot(mpg, aes(class)) +
+  geom_bar() +
+  facet_wrap(~ drv, ncol = 1, scales = "free_x")
+
+p2 <- p1 + scale_x_discrete(continuous.limits = c(1, 5))
+
+(p1 + labs(title = "Free limits")) | 
+(p2 + labs(title = "Fixed limits"))
+```
+
+Also absent from discrete scales was the ability to set minor breaks.
+Admittedly, they are less useful than minor breaks in continuous scales.
+In contrast to discrete (major) `breaks`, `minor_breaks` uses numeric input instead, allowing you to fine-tune placement without being bound by the scale's levels.
+With a few tweaks of the theme, you can conceivably use minor breaks to visually separate levels as an alternative to the centre-lines for major breaks.
+
+```{r}
+p1 <- ggplot(mpg, aes(drv, hwy, colour = factor(year))) +
+  geom_point(position = "jitterdodge") +
+  guides(colour = "none") +
+  scale_x_discrete(
+    minor_breaks = scales::breaks_width(1, offset = 0.5),
+    # To show that the minor axis ticks take on these values
+    guide = guide_axis(minor.ticks = TRUE)
+  )
+
+p2 <- p1 + 
+  theme(panel.grid.major.x = element_blank()) +
+  theme_sub_axis_bottom(ticks = element_blank(), minor.ticks = element_line())
+
+p1 | p2
+```
+
+Discrete position scales now also have access to secondary axes.
+In contrast to continuous scales, discrete scales don't support transformations.
+So instead of `sec_axis()`, it is recommended to use `dup_axis()`.
+To allow for arbitrary positions for `dup_axis(breaks)`, these can take numeric values or one of the discrete levels.
+They are not truly useful to for showing two aligned datasets of different scales, but they can serve as annotations.
+For example, they can display some summary statistics about the groups.
+
+```{r}
+ggplot(mpg, aes(class, cty)) +
+  geom_boxplot() +
+  scale_x_discrete(
+    sec.axis = dup_axis(
+      name = "Counts",
+      # You can use numeric input for breaks
+      breaks = seq_len(length(unique(mpg$class))),
+      # Watch out for the order of `table()` and your levels!
+      labels = paste0("n = ", table(mpg$class))
+    )
+  )
+```
+
+## Position aesthetics
+
+Layers consist of three components: stats, geoms and positions. 
+While stats and geoms have their own aesthetics, like `weight` or `linewidth`, the position adjustments did not.
+In this release, positions can also declare their own aesthetics.
+You can map data to these aesthetics like you would for geom or stat aesthetics.
+
+In `position_nudge()` for example, we now have the `nudge_x` and `nudge_y` parameters as aesthetics.
+^[Aesthetics of the position adjustment are not be confused with position aesthetics. Position aesthetics like `x` and `y` are transformed by a scale, whereas aesthetics of the position adjustment like `nudge_x` and `nudge_y` are not (akin to `width` and `height`).]
+Two benefits are that we can now use expressions in `aes()` to declare these and they are vectorised.
+We use that advantage in the plot below where we use `sign()` in a divergent bar chart to determine the left-right direction of the nudge.
+
+```{r}
+# Taken from:
+# https://ourworldindata.org/grapher/share-electricity-coal?tab=table&tableFilter=continents
+coal <- tibble::tribble(
+  ~continent,  ~pct_1985, ~pct_2024,
+  "Africa",        53.87, 24.68,
+  "Asia",          32.60, 51.19,
+  "Europe",        32.84, 12.91,
+  "North America", 48.93, 13.79,
+  "South America",  2.91,  3.31,
+  "Oceania",       58.75, 39.26
+) |>
+  dplyr::mutate(pp_difference = pct_2024 - pct_1985)
+
+ggplot(coal, aes(pp_difference, continent)) +
+  geom_col() +
+  geom_text(
+    aes(nudge_x = sign(pp_difference) * 3, 
+        label = pp_difference)
+  ) +
+  labs(x = "Change in electricity generated by coal (pp)")
+```
+
+A second position adjustment that has gotten its own aesthetic is `position_dodge()`.
+In the plot below, we see for sports where we do not have records for both 'sex = "f"' and 'sex = "m"' only one box is drawn just beneath the centre line.
+This is true for 'water polo' where we have no records for 'f', but also netball and gymnastics where there are no records for 'm'.
+For sports where there are records for both sexes, the "f" is depicted beneath the centre line and "m" is depicted above the centre line.
+Depending on your aesthetic sensibilities, this inconsistency can be a major pain.
+
+```{r}
+sports <- c("water polo", "swimming", "gymnastics", "field", "netball")
+p <- ggridges::Aus_athletes |>
+  dplyr::filter(sport %in% sports) |>
+  ggplot(aes(height, sport, fill = sex)) +
+  geom_boxplot(position = position_dodge(preserve = "single"))
+
+p
+```
+The origin of this inconsistency is that ggplot2 doesn't have an understanding of groups other than that *they exist*.
+It doesn't know that groups are formed by `fill` and what levels populate this aesthetic.
+To break ggplot2's ignorance, we now have the `order` aesthetic for `position_dodge()`.
+
+```{r}
+p + aes(order = sex)
+```
+
+Using that aesthetic to the position adjustment soothes the soul by putting all the right groups in the right places.
+
+## Facets
+
+### Wrapping directions
+
+The `facet_wrap()` function has had two arguments controlling the layout: `dir` which can be `"h"` or `"v"`, and `as.table` with can be `TRUE` or `FALSE`.
+Together, these gave a total of 4 layout options.
+Arguably there are 8 sensible options in total though, so we were missing out on the layout.
+To simplify having to juggle two arguments for 4 options, we're now just using one argument (`dir`) for 8 options.
+The new options are all two letter codes using combinations of `t` (top), `r` (right), `b` (bottom) and `l` (left).
+The combination will tell you where the first facet level will be.
+Both `br` and `rb` will start in the bottom-right with the first facet.
+Then the order will tell you about the filling direction, where starting with `b` will fill bottom-to-top and starting with `r` will fill right-to-left.
+
+```{r}
+p <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point()
+
+p1 <- p + 
+  facet_wrap(~ vctrs::vec_group_id(class), dir = "br") +
+  labs(title = "dir = 'br'")
+
+p2 <- p +
+  facet_wrap(~ vctrs::vec_group_id(class), dir = "rb") +
+  labs(title = "dir = 'rb'")
+
+p1 | p2
+```
+
+To cover all 8 options, we list them here:
+
+* `"lt"`: start in the top-left, start filling left-to-right.
+* `"tl"`: start in the top-left, start filling top-to-bottom.
+* `"lb"`: start in the bottom-left, start filling left-to-right.
+* `"bl"`: start in the bottom-left, start filling bottom-to-top.
+* `"rt"`: start in the top-right, start filling right-to-left.
+* `"tr"`: start in the top-right, start filling top-to-bottom.
+* `"rb"`: start in the bottom-right, start filling right-to-left.
+* `"br"` start in the bottom-right, start filling bottom-to-top.
+
+### Free space in wrapping
+
+The `facet_grid(space)` argument can ensure that panels are allocated space in proportion to their data range.
+This works because all data within a row share a y-axis, and data within a column share an x-axis.
+Historically, this argument did not have an equivalent in `facet_wrap()` because axes aren't shared.
+We realised that there is a narrow circumstance in which each column has a consistent axis, and this is when there is only one row.
+The inverse also holds true for rows when there is only one column.
+In this release, we've added `facet_wrap(space)` that sets the panel sizes in these circumstances.
+
+```{r}
+ggplot(penguins, aes(bill_dep, bill_len, colour = species)) +
+  geom_point(na.rm = TRUE) +
+  facet_wrap(~ island, scales = "free_x", space = "free_x")
+```
+
+We can note that the Dream and Torgersen islands have narrower panels because they don't have the Gentoo penguin with low bill depths.
+
+### Layer layout
+
+We've added the argument `layer(layout)`, which instructs facets on how to handle the data.
+Generally speaking, facets or custom layouts are free to interpret instructions as they see fit, so it is not set in stone.
+Nonetheless, we've come up with the following interpretations for `facet_wrap()` and `facet_grid()`.
+
+* `layout = NULL` (the default) uses the faceting variables to assign data to a panel.
+* `layout = "fixed"` repeats the data for every panel and ignores faceting variables.
+* `layout = <integer>` assigns to data to a specific panel.
+
+In addition, specifically for `facet_grid()` the following options also apply:
+
+* `layout = "fixed_cols"` pools data for every column and repeats it within the column's panels.
+* `layout = "fixed_rows"` pools data for every row and repeats it within the row's panels.
+
+```{r}
+ggplot(penguins, aes(bill_dep, bill_len)) +
+  # Repeat within every row
+  geom_point(na.rm = TRUE, colour = "grey", layout = "fixed_rows") +
+  # Use facetting variables (default)
+  geom_point(na.rm = TRUE, layout = NULL) +
+  # Pick particular panel
+  annotate(
+    "text", x = I(0.5), y = I(0.5),
+    label = "Panel 6", layout = 6
+  ) +
+  facet_grid(island ~ species)
+```
+
+In previous incarnations of ggplot2, people went through some acrobatics to get data to repeat across panels.
+With these new options, this should be a walk in the park.
+
+## Styling updates
+
+### Boxplots
+
+In `geom_boxplot()`, you may have become accustomed to all the different options for styling outliers like `outlier.colour` or `outlier.shape`.
+Now, we're also enabling styling the different parts of the boxplot: the median line, the box, the whiskers and the staples.
+You can assign different colours, line type or line width to these parts of the boxplot.
+
+```{r}
+ggplot(mpg, aes(class, hwy, colour = class)) +
+  geom_boxplot(
+    whisker.linetype = "dashed",
+    box.colour = "black",
+    median.linewidth = 2,
+    staplewidth = 0.5, # show staple
+    staple.colour = "grey50"
+  ) +
+  guides(colour = "none")
+```
+
+For consistency, `geom_crossbar()` has been given the same treatment, but uses the `middle.*` prefix where `geom_boxplot()` uses the `median.*` prefix. Because `middle.linewidth` and `median.linewidth` have taken over the role of `fatten` and are aligned with other graphical properties, the `fatten` argument is now deprecated.
+
+### Violin & quantiles
+
+It has been an inconvenience for some time that the quantile computation in violin layers was computed on the density data rather than the input data.
+To make the quantile computation more faithful to the real data, we had to properly delegate the responsibilities to the correct parts of the layer.
+The stat part of the layer is now in charge of calculating quantiles of the input data via the `stat_ydensity(quantiles)` arguments.
+By default, the quantiles are the 25th, 50th and 75th percentiles and are always computed.
+Whether these quantiles are also displayed, is under the purview of the geom part of the layer.
+We've taken a similar approach as boxplots shown above, in that we now have `quantile.colour`, `quantile.linetype` and `quantile.linewidth` arguments to style the quantile lines.
+Previously, quantiles were not displayed by default.
+To mirror that behaviour, we've set `quantile.linetype = 0` (blank, no line) by default.
+This means that to turn on the display of quantiles, you have to set a non-blank line type.
+
+```{r}
+ggplot(mpg, aes(class, hwy, fill = class)) +
+  geom_violin(
+    quantiles = c(0.1, 0.9),
+    quantile.linetype = 1
+  ) +
+  guides(fill = "none")
+```
+
+### Labels
+
+`geom_label()` also has new styling options. 
+It now has a `linetype` and `linewidth` aesthetic, which can be mapped from the data.
+The `linewidth` aesthetic replaces the `label.size` argument, which used to determine the line width of the label border.
+In addition to the new aesthetics, `geom_label()` has two new arguments: `border.colour` and `text.colour` which set the colour for the border and text respectively.
+When these are set, it overrules the `colour` aesthetic for a part of the label.
+In the plot below, we fix the `text.colour` to black, so the `colour` aesthetic applies to the border, not the text.
+
+```{r}
+ggplot(mtcars) +
+  aes(
+    wt, mpg,
+    label = rownames(mtcars),
+    colour = factor(cyl),
+    linetype = factor(vs),
+    linewidth = factor(am)
+  ) +
+  geom_label(text.colour = "black") +
+  scale_linewidth_manual(values = c(0.3, 0.6))
+```
+
+### Area and ribbons
+
+Both `geom_area()` and `geom_ribbon()` now allow a varying `fill` aesthetic within a group.
+Such a fill is displayed as a gradient, and therefore requires R 4.1.0+ and a compatible graphics device.
+
+```{r}
+ggplot(economics, aes(date, unemploy)) +
+  geom_area(aes(fill = uempmed))
+```
+
+
+## New stats
+
+### Manual
+
+Many ggplot extensions are based on stats, which allows you to perform arbitrary computations on data before handing it off the drawing functions.
+The new `stat_manual()` aims to give you the same extension powers, but without doing the formal ritual of defining a class and constructor.
+You can provide it any function that both ingests and returns a data frame.
+It can create new aesthetics or modify pre-existing aesthetics as long as eventually the geom part of the layer has their required aesthetics.
+In the example below, we use `stat_manual()` with a geom and a function, but also show you how to use a geom with `stat = "manual"`.
+
+```{r}
+make_centroids <- function(df) {
+  transform(
+    df,
+    xend = mean(x, na.rm = TRUE),
+    yend = mean(y, na.rm = TRUE)
+  )
+}
+
+make_hull <- function(df) {
+  df <- df[complete.cases(df), , drop = FALSE]
+  hull <- chull(df$x, df$y)
+  df[hull, , drop = FALSE]
+}
+
+ggplot(penguins, aes(bill_len, bill_dep, colour = species)) + 
+  geom_point(na.rm = TRUE) + 
+  # As a stat, provide a geom
+  stat_manual(
+    geom = "segment", # function creates new xend/yend for segment
+    fun = make_centroids,
+    linewidth = 0.2,
+    na.rm = TRUE
+  ) +
+  # As a geom, provide the stat
+  geom_polygon(
+    stat = "manual",
+    fun = make_hull,
+    fill = NA,
+    linetype = "dotted"
+  )
+```
+
+### Connection
+
+It has come to our attention that generalisations of `geom_step()` have become commonplace in several extensions.
+Stairstep ribbons are used in Kaplan-Meier curves to indicate uncertainty.
+Stairstep area plots make for some great histograms.
+To this end, we're introducing `stat_connect()`, which can connect observations in a stairstep fashion without constraining a geom choice.
+In the plot, you can see it work on the `y`, `ymin` and `ymax` aesthetics indiscriminately with distinct geoms.
+
+```{r}
+eco <- economics |>
+  dplyr::mutate(year = lubridate::year(date)) |>
+  dplyr::summarise(
+    min = min(unemploy),
+    max = max(unemploy),
+    mid = median(unemploy),
+    .by = year
+  )
+
+ggplot(eco, aes(year, y = mid, ymin = min, ymax = max)) +
+  geom_line(stat = "connect") +
+  geom_ribbon(stat = "connect", alpha = 0.4)
+```
+
+However, we aren't necessarily limited to stairstep connections.
+We can use a 2-column numeric matrix to sketch out other types of connections.
+For example if we use `plogis()` to create a logistic transition, we can make 'bump chart'-like connections.
+Or you can use a zigzag pattern if silliness is your cup of tea.
+
+```{r}
+x <- seq(0, 1, length.out = 20)[-1]
+smooth <- cbind(x, scales::rescale(plogis(x, location = 0.5, scale = 0.1)))
+zigzag <- cbind(c(0.4, 0.6, 1), c(0.75, 0.25, 1))
+
+ggplot(head(eco, 10), aes(year, y = mid)) +
+  geom_point() +
+  stat_connect(aes(colour = "smooth"), connection = smooth) +
+  stat_connect(aes(colour = "zigzag"), connection = zigzag)
+```
+
+## Coord reversal
+
+It has been possible to use reverse transformations for scales to flip a plot direction.
+You could even use `scales::transform_compose()` to do, for example, a reversed log<sub>10</sub> transformation to highlight the smallest p-values.
+However, the transformation approach has a few limitations, notably that discrete scales do not support transformations and not all coords obeyed transformed scales.
+You can't really combine `coord_sf() + scale_x_log10()` for example.
+To remedy this limitation, coords now have a `reverse` argument that can typically be `"none"`, `"x"`, `"y"` or `"xy"` that reverse some directions.
+If you are from the lands down under, you can now plot a map in your native orientation.
+
+```{r}
+world <- sf::st_as_sf(maps::map('world', plot = FALSE, fill = TRUE))
+
+ggplot(world) +
+  geom_sf() +
+  coord_sf(reverse = "y")
+```
+
+In `coord_radial()`, the `reverse` argument replaces the `direction` argument that only worked for the theta-direction.
+Contrary to many coords, `coord_radial(reverse)` takes `"none"`, `"theta"`, `"r"` and `"thetar"` instead of the x/y directions.
+
+## Goodies for extensions
+
+### Layers
+
+If you've ever written a `Geom` class, chances are that you've danced with `grid::gpar()` and frowned at the use of `.pt` and `.stroke` and whatnot.
+We've made a wrapper for `grid::gpar()` that applies the ggplot2 interpretation of settings and translates them to grid settings.
+For example, `linewidth` (or the `lwd` grid setting) is interpreted in millimetres in ggplot2, whereas grid expects them in points.
+The `gg_par()` function helps these translations, protects against `NA`s in line types and strokes, removes 0-length vectors, and has additional logic for point strokes.
+
+```{r}
+gg_par(lwd = 5)
+grid::convertUnit(unit(5, "mm"), "pt")
+```
+
+For geom and stat extensions, the magic usually happens in the `Geom*` or `Stat*` classes and the constructor is simply boilerplate code used to populate a layer.
+To reduce the amount of boilerplate code, you can now use `make_constructor()` on `Geom*` and `Stat*` classes.
+It produces a typical constructor function that adheres to several conventions, like exposing arguments to compute/drawing methods.
+To illustrate, notice how the following constructor for `GeomPath` includes arguments for `lineend` and `linejoin` automatically because they are arguments to the `GeomPath$draw_panel()` method.
+
+```{r}
+geom_foo <- make_constructor(GeomPath, position = "stack")
+print(geom_foo)
+```
+
+In addition, you can now also use the `#' @aesthetics <Geom/Stat/Position>` roxygen tag to automatically populate an 'Aesthetics' section of your documentation. The code below;
+
+```{r}
+GeomDummy <- ggproto("GeomDummy", Geom, default_aes = aes(foo = "bar"))
+
+#' <rest of roxygen comments>
+#' @aesthetics GeomDummy
+geom_foo <- make_constructor(GeomDummy)
+```
+
+will generate the following .Rd code:
+
+```
+\section{Aesthetics}{
+
+\code{geom_dummy()} understands the following aesthetics. Required aesthetics are displayed in bold and defaults are displayed for optional aesthetics:
+\tabular{rll}{
+ • \tab \code{foo} \tab → \code{"bar"} \cr
+ • \tab \code{\link[ggplot2:aes_group_order]{group}} \tab → inferred \cr
+}
+
+Learn more about setting these aesthetics in \code{vignette("ggplot2-specs")}.
+}
+```
+
+### Themes
+
+To replicate how themes are handled internally, you can now use `complete_theme()`.
+It fills in all missing elements and performs typical checks.
+
+```{r, error = TRUE}
+my_theme <- theme(plot.background = element_rect(fill = NA))
+length(my_theme)
+
+completed <- complete_theme(my_theme)
+length(completed)
+
+# You should give rect elements to text settings
+completed <- theme(legend.text = element_rect()) |>
+  complete_theme()
+
+# Unknown elements
+completed <- theme(foobar = 12) |>
+  complete_theme()
+```
+
+We're also introducing point and polygon theme elements.
+These aren't used in any of the base ggplot2 theme settings, but you can use them in extensions.
+The example below demonstrates registering new theme settings and that points and polygons follow inheritance and can be rendered.
+
+```{r}
+# Let's say your package 'my_pkg' registers custom point/polygon elements
+register_theme_elements(
+  my_pkg_point = element_point(colour = "red"),
+  my_pkg_polygon = element_polygon(fill = NA),
+  element_tree = list(
+    my_pkg_point = el_def(element_point, inherit = "point"),
+    my_pkg_polygon = el_def(element_polygon, inherit = "polygon")
+  )
+)
+
+# Which should inherit from the root point/polygon theme elements
+my_theme <- theme(
+  point = element_point(shape = 17),
+  polygon = element_polygon(linetype = "dotted")
+) |>
+  complete_theme()
+
+# Rendering your elements
+pts <- calc_element("my_pkg_point", my_theme) |>
+  element_grob(
+    x = c(0.2, 0.5, 0.8),
+    y = c(0.8, 0.2, 0.5)
+  )
+poly <- calc_element("my_pkg_polygon", my_theme) |>
+  element_grob(
+    x = c(0.1, 0.5, 0.9),
+    y = c(0.9, 0.1, 0.5)
+  )
+
+# Drawing the elements
+grid::grid.newpage()
+grid::grid.draw(pts)
+grid::grid.draw(poly)
+```
+
+
+## Acknowledgements
+
+Thank you to all the people who contributed their issues, code and comments to this release:
+[&#x0040;83221n4ndr34](https://github.com/83221n4ndr34), [&#x0040;Abiologist](https://github.com/Abiologist), [&#x0040;acebulsk](https://github.com/acebulsk), [&#x0040;adisarid](https://github.com/adisarid), [&#x0040;agila5](https://github.com/agila5), [&#x0040;agmurray](https://github.com/agmurray), [&#x0040;agneeshbarua](https://github.com/agneeshbarua), [&#x0040;aijordan](https://github.com/aijordan), [&#x0040;amarjitsinghchandhial](https://github.com/amarjitsinghchandhial), [&#x0040;amkilpatrick](https://github.com/amkilpatrick), [&#x0040;amongoodtx](https://github.com/amongoodtx), [&#x0040;Andtise](https://github.com/Andtise), [&#x0040;andybeet](https://github.com/andybeet), [&#x0040;antoine4ucsd](https://github.com/antoine4ucsd), [&#x0040;aphalo](https://github.com/aphalo), [&#x0040;aravind-j](https://github.com/aravind-j), [&#x0040;arcresu](https://github.com/arcresu), [&#x0040;arnaudgallou](https://github.com/arnaudgallou), [&#x0040;assaron](https://github.com/assaron), [&#x0040;baderstine](https://github.com/baderstine), [&#x0040;BajczA475](https://github.com/BajczA475), [&#x0040;bakaburg1](https://github.com/bakaburg1), [&#x0040;BegoniaCampos](https://github.com/BegoniaCampos), [&#x0040;benjaminhlina](https://github.com/benjaminhlina), [&#x0040;billdenney](https://github.com/billdenney), [&#x0040;binkleym](https://github.com/binkleym), [&#x0040;bkohrn](https://github.com/bkohrn), [&#x0040;bnprks](https://github.com/bnprks), [&#x0040;botanize](https://github.com/botanize), [&#x0040;Breeze-Hu](https://github.com/Breeze-Hu), [&#x0040;brianmsm](https://github.com/brianmsm), [&#x0040;brunomioto](https://github.com/brunomioto), [&#x0040;btupper](https://github.com/btupper), [&#x0040;bwu62](https://github.com/bwu62), [&#x0040;carljpearson](https://github.com/carljpearson), [&#x0040;catalamarti](https://github.com/catalamarti), [&#x0040;cbrnr](https://github.com/cbrnr), [&#x0040;ccani007](https://github.com/ccani007), [&#x0040;ccsarapas](https://github.com/ccsarapas), [&#x0040;cgoo4](https://github.com/cgoo4), [&#x0040;clauswilke](https://github.com/clauswilke), [&#x0040;Close-your-eyes](https://github.com/Close-your-eyes), [&#x0040;collinberke](https://github.com/collinberke), [&#x0040;const-ae](https://github.com/const-ae), [&#x0040;dafxy](https://github.com/dafxy), [&#x0040;DanChaltiel](https://github.com/DanChaltiel), [&#x0040;danli349](https://github.com/danli349), [&#x0040;dansmith01](https://github.com/dansmith01), [&#x0040;daorui](https://github.com/daorui), [&#x0040;david-romano](https://github.com/david-romano), [&#x0040;davidhodge931](https://github.com/davidhodge931), [&#x0040;dinosquash](https://github.com/dinosquash), [&#x0040;dominicroye](https://github.com/dominicroye), [&#x0040;dsconnell](https://github.com/dsconnell), [&#x0040;EA-Ammar](https://github.com/EA-Ammar), [&#x0040;EBukin](https://github.com/EBukin), [&#x0040;elgabbas](https://github.com/elgabbas), [&#x0040;eliocamp](https://github.com/eliocamp), [&#x0040;elipousson](https://github.com/elipousson), [&#x0040;erinnacland](https://github.com/erinnacland), [&#x0040;etiennebacher](https://github.com/etiennebacher), [&#x0040;EvaMaeRey](https://github.com/EvaMaeRey), [&#x0040;evanmascitti](https://github.com/evanmascitti), [&#x0040;eyayaw](https://github.com/eyayaw), [&#x0040;fabian-s](https://github.com/fabian-s), [&#x0040;fkohrt](https://github.com/fkohrt), [&#x0040;FloLecorvaisier](https://github.com/FloLecorvaisier), [&#x0040;fmarotta](https://github.com/fmarotta), [&#x0040;Fugwaaaa](https://github.com/Fugwaaaa), [&#x0040;fwunschel](https://github.com/fwunschel), [&#x0040;g-pacheco](https://github.com/g-pacheco), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;gregorp](https://github.com/gregorp), [&#x0040;guqicun](https://github.com/guqicun), [&#x0040;hadley](https://github.com/hadley), [&#x0040;heinonmatti](https://github.com/heinonmatti), [&#x0040;heor-robyoung](https://github.com/heor-robyoung), [&#x0040;herry23xet](https://github.com/herry23xet), [&#x0040;HMU-WH](https://github.com/HMU-WH), [&#x0040;HRodenhizer](https://github.com/HRodenhizer), [&#x0040;hsiaoyi0504](https://github.com/hsiaoyi0504), [&#x0040;Hy4m](https://github.com/Hy4m), [&#x0040;IndrajeetPatil](https://github.com/IndrajeetPatil), [&#x0040;jack-davison](https://github.com/jack-davison), [&#x0040;JacobBumgarner](https://github.com/JacobBumgarner), [&#x0040;JakubKomarek](https://github.com/JakubKomarek), [&#x0040;jansim](https://github.com/jansim), [&#x0040;japhir](https://github.com/japhir), [&#x0040;jbengler](https://github.com/jbengler), [&#x0040;jdonland](https://github.com/jdonland), [&#x0040;jeraldnoble](https://github.com/jeraldnoble), [&#x0040;Jigyasu4indp](https://github.com/Jigyasu4indp), [&#x0040;jiw181](https://github.com/jiw181), [&#x0040;jmbuhr](https://github.com/jmbuhr), [&#x0040;JMeyer31](https://github.com/JMeyer31), [&#x0040;jmgirard](https://github.com/jmgirard), [&#x0040;jnolis](https://github.com/jnolis), [&#x0040;joaopedrosusselbertogna](https://github.com/joaopedrosusselbertogna), [&#x0040;johow](https://github.com/johow), [&#x0040;jonocarroll](https://github.com/jonocarroll), [&#x0040;jpquast](https://github.com/jpquast), [&#x0040;JStorey42](https://github.com/JStorey42), [&#x0040;JThomasWatson](https://github.com/JThomasWatson), [&#x0040;julianbarg](https://github.com/julianbarg), [&#x0040;julou](https://github.com/julou), [&#x0040;junjunlab](https://github.com/junjunlab), [&#x0040;JWiley](https://github.com/JWiley), [&#x0040;kauedesousa](https://github.com/kauedesousa), [&#x0040;kdarras](https://github.com/kdarras), [&#x0040;kevinushey](https://github.com/kevinushey), [&#x0040;kevinwolz](https://github.com/kevinwolz), [&#x0040;kieran-mace](https://github.com/kieran-mace), [&#x0040;kkellysci](https://github.com/kkellysci), [&#x0040;kobetst](https://github.com/kobetst), [&#x0040;koheiw](https://github.com/koheiw), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;KryeKuzhinieri](https://github.com/KryeKuzhinieri), [&#x0040;kylebutts](https://github.com/kylebutts), [&#x0040;laurabrianna](https://github.com/laurabrianna), [&#x0040;lbenz730](https://github.com/lbenz730), [&#x0040;lcpmgh](https://github.com/lcpmgh), [&#x0040;lgaborini](https://github.com/lgaborini), [&#x0040;lgibson7](https://github.com/lgibson7), [&#x0040;LGraz](https://github.com/LGraz), [&#x0040;llrs](https://github.com/llrs), [&#x0040;louis-heraut](https://github.com/louis-heraut), [&#x0040;ltierney](https://github.com/ltierney), [&#x0040;Lucielclr](https://github.com/Lucielclr), [&#x0040;luhann](https://github.com/luhann), [&#x0040;m-muecke](https://github.com/m-muecke), [&#x0040;marcelglueck](https://github.com/marcelglueck), [&#x0040;margaret-colville](https://github.com/margaret-colville), [&#x0040;markus-schaffer](https://github.com/markus-schaffer), [&#x0040;Maschette](https://github.com/Maschette), [&#x0040;MathiasAmbuehl](https://github.com/MathiasAmbuehl), [&#x0040;MathieuYeche](https://github.com/MathieuYeche), [&#x0040;mattansb](https://github.com/mattansb), [&#x0040;MauricioCely](https://github.com/MauricioCely), [&#x0040;MaxAtoms](https://github.com/MaxAtoms), [&#x0040;mcol](https://github.com/mcol), [&#x0040;mfoos](https://github.com/mfoos), [&#x0040;MichaelChirico](https://github.com/MichaelChirico), [&#x0040;MichelineCampbell](https://github.com/MichelineCampbell), [&#x0040;mikmart](https://github.com/mikmart), [&#x0040;misea](https://github.com/misea), [&#x0040;mjskay](https://github.com/mjskay), [&#x0040;mkoohafkan](https://github.com/mkoohafkan), [&#x0040;mlaparie](https://github.com/mlaparie), [&#x0040;MLopez-Ibanez](https://github.com/MLopez-Ibanez), [&#x0040;mluerig](https://github.com/mluerig), [&#x0040;mohammad-numan](https://github.com/mohammad-numan), [&#x0040;MoREpro](https://github.com/MoREpro), [&#x0040;mtrsl](https://github.com/mtrsl), [&#x0040;muschellij2](https://github.com/muschellij2), [&#x0040;mzavattaro](https://github.com/mzavattaro), [&#x0040;nicholasdavies](https://github.com/nicholasdavies), [&#x0040;njspix](https://github.com/njspix), [&#x0040;nmercadeb](https://github.com/nmercadeb), [&#x0040;noejn2](https://github.com/noejn2), [&#x0040;npearlmu](https://github.com/npearlmu), [&#x0040;Olivia-Box-Power](https://github.com/Olivia-Box-Power), [&#x0040;olivroy](https://github.com/olivroy), [&#x0040;oracle5th](https://github.com/oracle5th), [&#x0040;oskard95](https://github.com/oskard95), [&#x0040;palderman](https://github.com/palderman), [&#x0040;PanfengZhang](https://github.com/PanfengZhang), [&#x0040;paulfajour](https://github.com/paulfajour), [&#x0040;PCEBrunaLab](https://github.com/PCEBrunaLab), [&#x0040;petrbouchal](https://github.com/petrbouchal), [&#x0040;pgmj](https://github.com/pgmj), [&#x0040;phispu](https://github.com/phispu), [&#x0040;PietrH](https://github.com/PietrH), [&#x0040;pn317](https://github.com/pn317), [&#x0040;ppoyk](https://github.com/ppoyk), [&#x0040;pradosj](https://github.com/pradosj), [&#x0040;psoldath](https://github.com/psoldath), [&#x0040;py9mrg](https://github.com/py9mrg), [&#x0040;qli84](https://github.com/qli84), [&#x0040;randyzwitch](https://github.com/randyzwitch), [&#x0040;raphaludwig](https://github.com/raphaludwig), [&#x0040;RaynorJim](https://github.com/RaynorJim), [&#x0040;rdboyes](https://github.com/rdboyes), [&#x0040;reechawong](https://github.com/reechawong), [&#x0040;rempsyc](https://github.com/rempsyc), [&#x0040;rfgoldberg](https://github.com/rfgoldberg), [&#x0040;rikivillalba](https://github.com/rikivillalba), [&#x0040;rishabh-mp3](https://github.com/rishabh-mp3), [&#x0040;RodDalBen](https://github.com/RodDalBen), [&#x0040;rogerssam](https://github.com/rogerssam), [&#x0040;rsh52](https://github.com/rsh52), [&#x0040;rwilson8](https://github.com/rwilson8), [&#x0040;salim-b](https://github.com/salim-b), [&#x0040;sambtalcott](https://github.com/sambtalcott), [&#x0040;samuel-marsh](https://github.com/samuel-marsh), [&#x0040;schloerke](https://github.com/schloerke), [&#x0040;schmittrjp](https://github.com/schmittrjp), [&#x0040;sierrajohnson](https://github.com/sierrajohnson), [&#x0040;smouksassi](https://github.com/smouksassi), [&#x0040;stitam](https://github.com/stitam), [&#x0040;stragu](https://github.com/stragu), [&#x0040;strengejacke](https://github.com/strengejacke), [&#x0040;sunta3iouxos](https://github.com/sunta3iouxos), [&#x0040;szkabel](https://github.com/szkabel), [&#x0040;taozhou2020](https://github.com/taozhou2020), [&#x0040;tdhock](https://github.com/tdhock), [&#x0040;telenskyt](https://github.com/telenskyt), [&#x0040;teunbrand](https://github.com/teunbrand), [&#x0040;the-Hull](https://github.com/the-Hull), [&#x0040;thgsponer](https://github.com/thgsponer), [&#x0040;thomasp85](https://github.com/thomasp85), [&#x0040;ThomasSoeiro](https://github.com/ThomasSoeiro), [&#x0040;Tiggax](https://github.com/Tiggax), [&#x0040;tikkss](https://github.com/tikkss), [&#x0040;TimTaylor](https://github.com/TimTaylor), [&#x0040;tombishop1](https://github.com/tombishop1), [&#x0040;tommmmi](https://github.com/tommmmi), [&#x0040;totajuliusd](https://github.com/totajuliusd), [&#x0040;trafficfan](https://github.com/trafficfan), [&#x0040;tungttnguyen](https://github.com/tungttnguyen), [&#x0040;tvatter](https://github.com/tvatter), [&#x0040;twest820](https://github.com/twest820), [&#x0040;ujtwr](https://github.com/ujtwr), [&#x0040;venpopov](https://github.com/venpopov), [&#x0040;vgregoire1](https://github.com/vgregoire1), [&#x0040;victorcat4](https://github.com/victorcat4), [&#x0040;victorfeagins](https://github.com/victorfeagins), [&#x0040;vivekJax](https://github.com/vivekJax), [&#x0040;wbvguo](https://github.com/wbvguo), [&#x0040;willgearty](https://github.com/willgearty), [&#x0040;williamlai2](https://github.com/williamlai2), [&#x0040;withr](https://github.com/withr), [&#x0040;wvictor14](https://github.com/wvictor14), [&#x0040;XdahaX](https://github.com/XdahaX), [&#x0040;yjunechoe](https://github.com/yjunechoe), [&#x0040;yoshidk6](https://github.com/yoshidk6), [&#x0040;YUCHENG-ZHAO](https://github.com/YUCHENG-ZHAO), [&#x0040;Yunuuuu](https://github.com/Yunuuuu), [&#x0040;yutannihilation](https://github.com/yutannihilation), [&#x0040;yzz32](https://github.com/yzz32), [&#x0040;zhengxiaoUVic](https://github.com/zhengxiaoUVic), and [&#x0040;zjwinn](https://github.com/zjwinn).
+
