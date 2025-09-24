@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [plumber2, web]
-rmd_hash: 889151eee9a13ea8
+rmd_hash: 236eeab8dda41db4
 
 ---
 
@@ -313,11 +313,7 @@ The data store cannot be set up through annotations but uses the programmatic in
 <span>  <span class='o'>&#125;</span> <span class='kr'>else</span> <span class='o'>&#123;</span></span>
 <span>    <span class='s'>"Welcome back"</span></span>
 <span>  <span class='o'>&#125;</span></span>
-<span><span class='o'>&#125;</span></span>
-<span></span>
-<span><span class='nf'><a href='https://plumber2.posit.co/reference/api.html'>api</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'>api_datastore</span><span class='o'>(</span><span class='nf'>storr</span><span class='nf'>::</span><span class='nf'><a href='https://richfitz.github.io/storr/reference/storr_environment.html'>driver_environment</a></span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>|&gt;</span></span>
-<span>  <span class='nf'><a href='https://plumber2.posit.co/reference/api_request_handlers.html'>api_get</a></span><span class='o'>(</span><span class='s'>"hello"</span>, <span class='o'>)</span></span></code></pre>
+<span><span class='o'>&#125;</span></span></code></pre>
 
 </div>
 
