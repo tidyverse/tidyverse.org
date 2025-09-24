@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [plumber2, web]
-rmd_hash: 2aa5cf0a83ec00a5
+rmd_hash: 889151eee9a13ea8
 
 ---
 
@@ -97,11 +97,11 @@ Enough talk. How does it look? Below you see an annotation for a `GET` endpoint 
 
 </div>
 
-If you are a plumber user I hope you can agree that it doesn't look totally foreign. Sure, there a new things in there but all of them in the same spirit as what you know. We have already mentioned the support for multi-lines and how the first lines until the first tag are parsed. The first line with a tag, `@get` is also straight out of the plumber book and so is the following `@param` line.
+If you are a plumber user I hope you can agree that it doesn't look totally foreign. Sure, there are new things in there but all of them in the same spirit as what you know. We have already mentioned the support for multi-lines and how the first lines until the first tag are parsed. The first line with a tag, `@get` is also straight out of the plumber book and so is the following `@param` line.
 
 The `@query` line is new however (in multiple ways). In plumber2 function input can come from 3 places: path parameters (`city` in the above), the query string (`length` in the above), or the request body (not shown). This was true in plumber as well, but in plumber2 we have made the distinction explicit. Instead of using `@param` to document them all we now have dedicated tags for input coming from query and body (`@query` and `@body` respectively). This is also reflected in the function signature where only path parameters are provided directly as arguments. Query input is provided through the `query` argument and body input is provided through the `body` argument. This means that there is no longer the potential for masking out arguments if e.g. the query string contained an element with the same name as a path parameter. It also means that we can avoid parsing both the query string and the request body if it is not used by the handler function.
 
-The `@query` line holds more surprised in the form of richer type annotation. Numbers and integers can now be bounded (here, between 1 and 10), and all input can be provided with a default value (here, 7). plumber2 does automatic input checking and type conversion based on this, and will return early with an error if an input is of the wrong format. There are also even more types to use. Enums, Dates, Datetimes, Bytes, and Patterns are all now possible, along with rich descriptions of objects (as can be seen in the `@response` line). All of these will be casted to the correct R type and can potentially be provided as arrays by enclosing them in `[...]`.
+The `@query` line holds more surprises in the form of richer type annotation. Numbers and integers can now be bounded (here, between 1 and 10), and all input can be provided with a default value (here, 7). plumber2 does automatic input checking and type conversion based on this, and will return early with an error if an input is of the wrong format. There are also even more types to use. Enums, Dates, Datetimes, Bytes, and Patterns are all now possible, along with rich descriptions of objects (as can be seen in the `@response` line). All of these will be casted to the correct R type and can potentially be provided as arrays by enclosing them in `[...]`.
 
 The `@response` tag is also available in plumber, but in plumber2 you can now annotate the return type as well, using the same type syntax as used for input. Doing so will allow the people using your API to now what kind of return value to expect which is critical to writing robust interfaces.
 
@@ -111,7 +111,7 @@ There are of course more to it (we will touch on a range of new tags below), but
 
 ### Programmatic interface
 
-While plumber2 promotes the use of annotations as a way to describe your webserver logic, it also provides a programmatic API that gives you all of the same abilities. In plumber, this api was prefixed with `pr_` which was a an acronym for "Plumber Route". In plumber2, both to avoid namespace coalition and because not all functions are concerned with creating routes, we use the `api_` prefix. Many functions in plumber have a counterpart in plumber2 but there has been made no attempt to ensure compatibility between arguments etc. Thus, if you have used the programmatic interface in plumber you may experience a bit more friction in moving over to plumber2. Consult the [extensive documentation](https://plumber2.posit.co/reference/index.html) if you are in that boat.
+While plumber2 promotes the use of annotations as a way to describe your webserver logic, it also provides a programmatic API that gives you all of the same abilities. In plumber, this api was prefixed with `pr_` which was a an acronym for "Plumber Route". In plumber2, both to avoid namespace collision and because not all functions are concerned with creating routes, we use the `api_` prefix. Many functions in plumber have a counterpart in plumber2 but there has been made no attempt to ensure compatibility between arguments etc. Thus, if you have used the programmatic interface in plumber you may experience a bit more friction in moving over to plumber2. Consult the [extensive documentation](https://plumber2.posit.co/reference/index.html) if you are in that boat.
 
 ## New features
 
@@ -121,7 +121,7 @@ The rewrite has allowed us to add many new features which would either have been
 
 With plumber2 you are no longer limited to a single file for describing your api. Multiple files can be passed into the constructor ([`api()`](https://plumber2.posit.co/reference/api.html)) and by default they will each constitute a single route. This implies the plumber2 has support for multiple routes which will be tried in turn, which again implies full middleware support. This extended power replaces the filters and `@preempt` in plumber.
 
-The properties of each plumber2 file can be modified with a few specific annotations that must appear at the top of the file, e.g.
+The properties of each plumber2 file can be modified with a few specific annotations that must (if present) appear at the top of the file, e.g.
 
 <div class="highlight">
 
@@ -132,7 +132,7 @@ The properties of each plumber2 file can be modified with a few specific annotat
 
 </div>
 
-The above sets the name of the route (defaults to the file name), the position in the chain of routes (defaults to the order they are passed to the constructor), as well as provides a root which will be prepended to all endpoints defined in the file. If multiple files has the same `@routeName` they will be merged into the same route, so even if you only need a single layer of middleware, this is a great way to organize a web server implementation that is growing large.
+The above sets the name of the route (defaults to the file name), the position in the chain of routes (defaults to the order they are passed to the constructor), as well as provides a root which will be prepended to all endpoints defined in the file. If multiple files has the same `@routeName` they will be merged into the same route, so even if you only need a single layer of middleware, this is a great way to organize a web server implementation that has grown large.
 
 ### Websocket support
 
@@ -150,18 +150,11 @@ You can add a websocket listener using the `@message` tag like so:
 <span>    <span class='nv'>server</span><span class='o'>$</span><span class='nf'>send</span><span class='o'>(</span><span class='s'>"We got your message, alright!"</span>, <span class='nv'>client_id</span><span class='o'>)</span>,</span>
 <span>    after <span class='o'>=</span> <span class='m'>5</span></span>
 <span>  <span class='o'>)</span></span>
-<span><span class='o'>&#125;</span></span>
-<span><span class='c'>#&gt; function (message, client_id, server) </span></span>
-<span><span class='c'>#&gt; &#123;</span></span>
-<span><span class='c'>#&gt;     cli::cli_inform("WS message from &#123;client_id&#125;: &#123;message&#125;")</span></span>
-<span><span class='c'>#&gt;     server$time(server$send("We got your message, alright!", </span></span>
-<span><span class='c'>#&gt;         client_id), after = 5)</span></span>
-<span><span class='c'>#&gt; &#125;</span></span>
-<span></span></code></pre>
+<span><span class='o'>&#125;</span></span></code></pre>
 
 </div>
 
-In the above we set up (a rather nonsensical) WebSocket logic which will log any incoming messages from a client and then, after 5 seconds have passed, send back a message to the client (We'll touch a bit upon what `server$time()` is in the [last section](#behind-the-curtains) of the post).
+In the above we set up (a rather nonsensical) WebSocket logic which will log any incoming messages from a client and then, after 5 seconds have passed, send back a message to the client.
 
 ### Async evaluation
 
@@ -209,23 +202,12 @@ Since async evaluation is happening in a different process they do not have acce
 <span><span class='kr'>function</span><span class='o'>(</span><span class='nv'>city</span>, <span class='nv'>query</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
 <span>  <span class='nf'>get_forecast</span><span class='o'>(</span><span class='nv'>city</span>, <span class='nv'>query</span><span class='o'>$</span><span class='nv'>length</span><span class='o'>)</span></span>
 <span><span class='o'>&#125;</span></span>
-<span><span class='c'>#&gt; function (city, query) </span></span>
-<span><span class='c'>#&gt; &#123;</span></span>
-<span><span class='c'>#&gt;     get_forecast(city, query$length)</span></span>
-<span><span class='c'>#&gt; &#125;</span></span>
-<span></span><span><span class='c'>#* @then</span></span>
+<span><span class='c'>#* @then</span></span>
 <span><span class='kr'>function</span><span class='o'>(</span><span class='nv'>result</span>, <span class='nv'>response</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
 <span>  <span class='nv'>response</span><span class='o'>$</span><span class='nv'>body</span> <span class='o'>&lt;-</span> <span class='nv'>result</span></span>
 <span>  <span class='nv'>response</span><span class='o'>$</span><span class='nf'>set_header</span><span class='o'>(</span><span class='s'>"cache-control"</span>, <span class='s'>"max-age=86400"</span><span class='o'>)</span></span>
 <span>  <span class='nv'>Next</span></span>
-<span><span class='o'>&#125;</span></span>
-<span><span class='c'>#&gt; function (result, response) </span></span>
-<span><span class='c'>#&gt; &#123;</span></span>
-<span><span class='c'>#&gt;     response$body &lt;- result</span></span>
-<span><span class='c'>#&gt;     response$set_header("cache-control", "max-age=86400")</span></span>
-<span><span class='c'>#&gt;     Next</span></span>
-<span><span class='c'>#&gt; &#125;</span></span>
-<span></span></code></pre>
+<span><span class='o'>&#125;</span></span></code></pre>
 
 </div>
 
@@ -233,7 +215,7 @@ In the above we set the body to the result of the prior async expression (this w
 
 ### Redirection and forwarding
 
-Over the lifetime of a webserver you may end cleaning up functionality or moving things around. If some functionality ends up at a different path your API will contain dead links unless you do something about it. plumber2 makes it easy to redirect requests to a new location so that users of the API can gracefully migrate to the new location without disruption.
+Over the lifetime of a webserver you may end up cleaning up functionality or moving things around. If some functionality ends up at a different path your API will contain dead links unless you do something about it. plumber2 makes it easy to redirect requests to a new location so that users of the API can gracefully migrate to the new location without disruption.
 
 <div class="highlight">
 
@@ -243,7 +225,7 @@ Over the lifetime of a webserver you may end cleaning up functionality or moving
 
 </div>
 
-The above adds two different redirects. One is a permanent redirect (denoted by the `!` in front of the method). It redirects all `GET` requests to `/old/data/*` to `/new/data/*` be returning a `308` response directing the client to try the new location. The other is a temporary redirect which instead returns a `307` response.
+The above adds two different redirects. One is a permanent redirect (denoted by the `!` in front of the method). It redirects all `GET` requests from `/old/data/*` to `/new/data/*` be returning a `308` response directing the client to try the new location. The other is a temporary redirect which instead returns a `307` response.
 
 You can use wildcards (as shown above) and path parameters in the redirection paths as long as they match between the old and new path (the new path can drop path parameters from old, but can't make up new ones).
 
@@ -259,7 +241,7 @@ There is another kind of redirection, one that is invisible to the client, where
 
 </div>
 
-The above sets up a reverse proxy that forwards requests to `/proxy` the service running locally on `http://127.0.0.1:56789`. It uses the `@except` tag to preclude requests to `/proxy/local/*` from being forwarded.
+The above sets up a reverse proxy that forwards requests made to `/proxy` to the service running locally on `http://127.0.0.1:56789`. It uses the `@except` tag to preclude requests to `/proxy/local/*` from being forwarded.
 
 ### Shiny support
 
@@ -292,7 +274,7 @@ You can also use the `@except` tag here meaning that it is e.g. possible to ser
 
 ### Serving Quarto and Rmarkdown documents
 
-In the same vein of serving shiny applications, plumber2 also allows you to easily serve quarto or rmarkdown documents. The syntax for this follows that of the shiny functionality closely
+In the same vein as serving shiny applications, plumber2 also allows you to easily serve quarto or rmarkdown documents. The syntax for this follows that of the shiny functionality closely
 
 <div class="highlight">
 
@@ -301,7 +283,7 @@ In the same vein of serving shiny applications, plumber2 also allows you to easi
 
 </div>
 
-You provide the path to serve the report from with the `@report` tag and then points to the quarto (or rmarkdown) file below the block. If you have a parameterized report you can pass in parameters through the query string, and if your report provides multiple output formats the client can choose between them, either through content negotiation or be appending the correct file extension to the url (e.g. requesting `/quarterly_report.pdf` in the above will render a PDF version and requesting `/quarterly_report.html` will render to HTML).
+You provide the path to serve the report from with the `@report` tag and then points to the quarto (or rmarkdown) file below the block. If you have a parameterized report you can pass in parameters through the query string, and if your report provides multiple output formats the client can choose between them, either through content negotiation or be appending the correct file extension to the url (e.g. requesting `/quarterly_report.pdf` in the above will render a PDF version and requesting `/quarterly_report.html` will render to HTML). Reports are cached so they are only rendered when needed.
 
 ### Persistent data storage
 
@@ -339,7 +321,7 @@ The data store cannot be set up through annotations but uses the programmatic in
 
 </div>
 
-Above we set up a datastore based on an R environment. This is of course not a scalable solution but is easy to use for trying things out. The `api_datastore()` most importantly takes a driver argument which is a storr compliant driver, as well as a number of other configurations that all have sensible defaults. After activating the datastore a new argument will be available in the handlers (the name defaults to `datastore` but can be changed). This argument contains two list-like elements: `global` and `session`. Both of these are list-like interfaces to the underlying datastore and allows you to read and write data, either to the global store or one scoped to the current session.
+Above we set up a datastore based on an R environment. This is of course not a scalable solution but is easy to use for trying things out. The `api_datastore()` most importantly takes a driver argument which is a storr compliant driver, as well as a number of other configurations that all have sensible defaults. After activating the datastore a new argument will be available in the handlers (the name defaults to `datastore` but can be changed). This argument contains two elements: `global` and `session`. Both of these are list-like interfaces to the underlying datastore and allows you to read and write data, either to the global store or one scoped to the current session.
 
 ### Security
 
@@ -394,7 +376,7 @@ Well, if you are already using plumber I hope you are excited. But, there is no 
 
 If you haven't used plumber but still managed to reach this point of the blog post I think it is fair to assume that you are quite interested in creating web servers. Welcome! plumber2 will hopefully be a joyful experience for you but we can't wait to learn where it could be even easier to use for a newcomer.
 
-If you do maintain packages that build on top of plumber, I hope you'll consider augmenting those to also work with plumber2. plumber2 has been build with extensibility in mind so hopefully you'll feel empowered to make your tools even more amazing. If you do come across things that are hard to, or impossible to extend, let us know so we may look into it.
+If you do maintain packages that build on top of plumber, I hope you'll consider augmenting those to also work with plumber2. plumber2 has been build with extensibility in mind so hopefully you'll feel empowered to make your tools even more amazing. If you do come across things that are hard, or impossible, to extend, let us know so we may look into it.
 
 Happy plumbing!
 
