@@ -408,7 +408,7 @@ At leaves, they are very specific and allow fine grained control.
 Travelling from roots to leaves, properties of theme elements are inherited from parent to child.
 Some inheritance is very direct, where leaves directly inherit from roots (for example `legend.text`).
 Other times, inheritance is more arduous, like for `axis.minor.ticks.y.left`: it inherits from `axis.ticks.y.left`, which inherits from `axis.ticks.y`, which inherits from `axis.ticks`, which finally inherits from `line`.
-Most often, elements only have a single parent, but there are exceptions so the inheritance of theme elements is not strictly a directed acyclic graph.
+Most often, elements only have a single parent, but there are subtle exceptions.
 
 In the example below we set the root `text` element to red text. This is applied (almost) universally to all text in the plot.
 We also set the font of the leaf `legend.text` element. We see that not only has the legend text font changed, but it is red as well because of the root `text` element.
@@ -445,7 +445,7 @@ calc_element("axis.ticks.x.bottom", theme_gray())
 
 The `?theme` documentation often tells you how the elements inherit and `calc_element()` will resolve it for you.
 If, for some reason, you need programmatic access to the inheritance tree, you can use `get_element_tree()`.
-Let's say you want to find out exactly why theme inheritance is not a directed acyclic graph.
+Let's say you want to find out exactly which elements have multiple parents.
 The resulting object is the internal structure ggplot2 uses to resolve inheritance and has an `inherit` field for every element that discerns its direct parent.
 
 ```{r element_tree}
@@ -781,6 +781,22 @@ p +
     margin = margin(l = 6, unit = "mm")
   )
 ```
+
+A trick you can pull to have legends eat up all the available real estate, is to give them `"null"`-unit size.
+Below, that trick stretches the colourbar across the full width of the plot.
+
+```{r stretchy_colourbar}
+p +
+  guides(colour = guide_colourbar(
+    theme = theme_sub_legend(
+      key.width = unit(1, "null"),
+      title.position = "top",
+      margin = margin_auto(NA, 0) # remove left/right margins
+    ),
+    position = "bottom"
+  ))
+```
+
 
 #### Binned legend
 
@@ -1123,6 +1139,7 @@ To undo any globally set theme, you can use `reset_theme_settings()`.
 
 Setting the typography of your plots is important and discussed more thoroughly in [this blog post](https://www.tidyverse.org/blog/2025/05/fonts-in-r/). 
 Here we're simply giving the suggestion to use the `systemfonts::require_font()` when you are writing theme functions that include special fonts.
+It will not cover font behaviour for every graphics device, but it will for devices that use [systemfonts](https://systemfonts.r-lib.org/) for finding fonts, like [ragg](https://ragg.r-lib.org/) and [svglite](https://svglite.r-lib.org/).
 
 ```{r fonts}
 my_theme <- function(header_family = "Impact", ...) {
