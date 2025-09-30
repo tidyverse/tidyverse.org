@@ -297,15 +297,15 @@ knitr::kable(elems)
 
 In addition to these elements in ggplot2, extension packages can also define custom elements.
 Generally speaking, these elements are variants of the elements listed above and often have slightly different properties and are rendered differently.
-For example `ggtext::element_markdown()` is a subclass of `element_text()`, but interprets the provided text as markdown.
-It applies some html tags like `<b>` for bold and `<i>` for italic when rendering the text.
+For example `marquee::element_marquee()` is a subclass of `element_text()`, but interprets the provided text as markdown.
+It applies some formatting like `**` for bold, or allows for custom spans like `{.red ...}`.
 Another example is `ggh4x::element_part_rect()` that can draw a subset of rectangle borders.
 
-```{r element_markdown}
+```{r element_marquee}
 p +
-  labs(title = "<b>Fuel</b> <i>efficiency</i>") +
+  labs(title = "**Fuel** {.red efficiency}") +
   theme(
-    plot.title = ggtext::element_markdown(),
+    plot.title = marquee::element_marquee(),
     strip.background = ggh4x::element_part_rect(colour = "black", side = "b")
   )
 ```
