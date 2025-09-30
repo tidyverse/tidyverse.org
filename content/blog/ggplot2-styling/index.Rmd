@@ -50,7 +50,7 @@ knitr::opts_chunk$set(dev = "ragg_png")
 ```
 
 
-```{r base_plot}
+```{r base_plot, fig.keep='none'}
 library(ggplot2)
 
 p <- ggplot(mpg, aes(displ, hwy, colour = cty, shape = drv)) +
@@ -68,6 +68,96 @@ p <- ggplot(mpg, aes(displ, hwy, colour = cty, shape = drv)) +
 
 p
 ```
+
+```{r, echo = FALSE}
+library(ggiraph)
+
+text <- function(label) {
+  element_text_interactive(
+    tooltip = paste0("<code>", label, "</code>"),
+    data_id = label,
+    hover_css = "fill:red;"
+  )
+}
+
+line <- function(label, ...) {
+  element_line_interactive(
+    tooltip = paste0("<code>", label, "</code>"),
+    data_id = label,
+    hover_css = "stroke:red;",
+    ...
+  )
+}
+
+rect <- function(label, fill = "#FF8888", ...) {
+  element_rect_interactive(
+    tooltip = paste0("<code>", label, "</code>"),
+    data_id = label,
+    hover_css = paste0("stroke:red;fill:", fill, ";"),
+    ...
+  )
+}
+
+interactive_plot <- ggplot(mpg, aes(displ, hwy, colour = cty, shape = drv)) +
+  geom_point_interactive(
+    tooltip = "<code>geom</code>", data_id = "geom",
+    hover_css = ggiraph::girafe_css("stroke:red;fill:red;"),
+    show.legend = c(colour = TRUE, shape = FALSE)
+  ) +
+  geom_point_interactive(
+    data = mpg[0, ],
+    tooltip = "<code>geom<br>palette.shape.discrete</code>", data_id = "shape",
+    hover_css = ggiraph::girafe_css("stroke:red;fill:red;"),
+    show.legend = c(shape = TRUE)
+  ) +
+  facet_grid(~ year) +
+  labs(
+    title = "Fuel efficiency",
+    subtitle = paste0("Described for ", nrow(mpg), " cars from 1999 and 2008"),
+    caption = "Source: U.S. Environmental Protection Agency",
+    x = "Engine Displacement",
+    y = "Highway miles per gallon",
+    colour = "City miles\nper gallon",
+    shape = "Drive train"
+  ) +
+  theme(
+    plot.title = text("plot.title"),
+    plot.subtitle = text("plot.subtitle"),
+    plot.caption = text("plot.caption"),
+    plot.background = rect("plot.background", "#FFEEEE"),
+    panel.grid.major.x = line("panel.grid.major.x"),
+    panel.grid.minor.x = line("panel.grid.minor.x"),
+    panel.grid.major.y = line("panel.grid.major.y"),
+    panel.grid.minor.y = line("panel.grid.minor.y"),
+    panel.background = rect("panel.background<br>panel.border", "#FFCCCC"),
+    strip.text.x.top = text("strip.text.x.top"),
+    strip.background.x = rect("strip.background.x"),
+    axis.text.y.left = text("axis.text.y.left"),
+    axis.title.y.left = text("axis.title.y.left"),
+    axis.text.x.bottom = text("axis.text.x.bottom"),
+    axis.title.x.bottom = text("axis.title.x.bottom"),
+    axis.line.x.bottom = line("axis.line.x.bottom", colour = NA, linewidth = 1),
+    axis.line.y.left = line("axis.line.y.left", colour = NA, linewidth = 1),
+    axis.ticks.x.bottom = line("axis.ticks.x.bottom"),
+    axis.ticks.y.left = line("axis.ticks.y.left"),
+    legend.title = text("legend.title"),
+    legend.text = text("legend.text"),
+    legend.ticks = line("legend.ticks", colour = "white", linewidth = 0.5 / .pt),
+    legend.background = rect("legend.background", "#FFEEEE"),
+    legend.box.background = rect("legend.box.background", "#FFEEEE", color = NA),
+    legend.key = rect("legend.key", fill = "#FFCCCC"),
+    legend.frame = rect("legend.frame<br>palette.colour.continuous", colour = NA, fill = "#FF888888")
+  )
+
+girafe(
+  ggobj = interactive_plot, options = list(
+  opts_tooltip("color:black;background-color:#F9F9F9;padding:0.3em;border-radius:0.3em;border:solid grey;border-width:1px;"),
+  opts_toolbar(saveaspng = FALSE),
+))
+```
+
+If you haven't already accidentally triggered it, feel free to hover your mouse over the plot above.
+Hovering will tell you what theme element you are pointing at.
 
 ## What is a theme?
 
